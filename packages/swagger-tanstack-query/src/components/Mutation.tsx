@@ -23,6 +23,7 @@ type TemplateProps = {
    * Parameters/options/props that need to be used
    */
   params: string
+  mutateParams: string
   /**
    * Generics that needs to be added for TypeScript
    */
@@ -59,6 +60,7 @@ function Template({
   generics,
   returnType,
   params,
+  mutateParams,
   JSDoc,
   client,
   hook,
@@ -83,7 +85,7 @@ function Template({
          const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
          return ${hook.name}({
-           mutationFn: async(${client.withData ? 'data' : ''}) => {
+           mutationFn: async(${mutateParams}) => {
             ${hook.children || ''}
              const res = await client<${client.generics}>({
               ${resolvedClientOptions}
@@ -103,7 +105,7 @@ function Template({
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
        return ${hook.name}<${hook.generics}>({
-         mutationFn: async(${client.withData ? 'data' : ''}) => {
+         mutationFn: async(${mutateParams}) => {
           ${hook.children || ''}
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
@@ -228,6 +230,7 @@ const defaultTemplates = {
         <>
           <Template
             {...rest}
+            mutateParams="data"
             params={params.toString()}
             returnType={`${resultType}<${resultGenerics.join(', ')}>`}
             client={client}
@@ -259,19 +262,50 @@ export function Mutation({
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
-  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
+  // TODO do checks on pathParamsType
+  const { options: { dataReturnType, pathParamsType, mutate } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
   const schemas = useSchemas()
 
   const params = new FunctionParams()
+  const mutateParams = new FunctionParams()
+
+  const requestType = mutate?.variablesType === 'mutate'
+    ? FunctionParams.toObject(
+      [
+        ...getASTParams(schemas.pathParams, { typed: true }),
+        {
+          name: 'params',
+          type: `${factory.name}['queryParams']`,
+          enabled: !!schemas.queryParams?.name,
+          required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'headers',
+          type: `${factory.name}['headerParams']`,
+          enabled: !!schemas.headerParams?.name,
+          required: isRequired(schemas.headerParams?.schema),
+        },
+        {
+          name: 'data',
+          type: `${factory.name}['request']`,
+          enabled: !!schemas.request?.name,
+          required: isRequired(schemas.request?.schema),
+        },
+      ],
+    )?.type
+    : schemas.request?.name
+    ? `${factory.name}['request']`
+    : 'never'
+
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
     generics: [
       `${factory.name}["data"]`,
       `${factory.name}["error"]`,
-      schemas.request?.name ? `${factory.name}["request"]` : 'void',
+      requestType ? `${factory.name}["request"]` : 'void',
     ].join(', '),
     withQueryParams: !!schemas.queryParams?.name,
     withData: !!schemas.request?.name,
@@ -283,41 +317,81 @@ export function Mutation({
     generics: [
       `${factory.name}['response']`,
       `${factory.name}["error"]`,
-      client.withData ? `${factory.name}["request"]` : 'void',
+      requestType ? `${requestType}` : 'void',
     ].join(', '),
   }
 
   const resultGenerics = [
     `${factory.name}["response"]`,
     `${factory.name}["error"]`,
-    client.withData ? `${factory.name}["request"]` : 'void',
+    mutate?.variablesType === 'mutate' ? requestType : `${factory.name}["request"]`,
   ]
 
-  params.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: true,
-    }),
-    {
-      name: 'params',
-      type: `${factory.name}['queryParams']`,
-      enabled: client.withQueryParams,
-      required: isRequired(schemas.queryParams?.schema),
-    },
-    {
-      name: 'headers',
-      type: `${factory.name}['headerParams']`,
-      enabled: client.withHeaders,
-      required: isRequired(schemas.headerParams?.schema),
-    },
-    {
-      name: 'options',
-      type: `{
-    mutation?: ${optionsType}<${resultGenerics.join(', ')}>,
-    client?: ${factory.name}['client']['parameters']
-}`,
-      default: '{}',
-    },
-  ])
+  if (mutate?.variablesType === 'mutate') {
+    params.add([
+      {
+        name: 'options',
+        type: `{
+      mutation?: ${optionsType}<${resultGenerics.join(', ')}>,
+      client?: ${factory.name}['client']['parameters']
+  }`,
+        default: '{}',
+      },
+    ])
+
+    mutateParams.add([
+      [
+        ...getASTParams(schemas.pathParams, { typed: false }),
+        {
+          name: 'params',
+          enabled: client.withQueryParams,
+          required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'headers',
+          enabled: client.withHeaders,
+          required: isRequired(schemas.headerParams?.schema),
+        },
+        {
+          name: 'data',
+          enabled: !!schemas.request?.name,
+          required: isRequired(schemas.request?.schema),
+        },
+      ],
+    ])
+  } else {
+    params.add([
+      ...getASTParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'params',
+        type: `${factory.name}['queryParams']`,
+        enabled: client.withQueryParams,
+        required: isRequired(schemas.queryParams?.schema),
+      },
+      {
+        name: 'headers',
+        type: `${factory.name}['headerParams']`,
+        enabled: client.withHeaders,
+        required: isRequired(schemas.headerParams?.schema),
+      },
+      {
+        name: 'options',
+        type: `{
+      mutation?: ${optionsType}<${resultGenerics.join(', ')}>,
+      client?: ${factory.name}['client']['parameters']
+  }`,
+        default: '{}',
+      },
+    ])
+
+    mutateParams.add([
+      {
+        name: 'data',
+        enabled: !!schemas.request?.name,
+        required: isRequired(schemas.request?.schema),
+      },
+    ])
+  }
 
   return (
     <>
@@ -327,6 +401,7 @@ export function Mutation({
         client={client}
         hook={hook}
         params={params.toString()}
+        mutateParams={mutateParams.toString()}
         returnType={`${resultType}<${resultGenerics.join(', ')}>`}
         dataReturnType={dataReturnType}
         context={{ factory }}

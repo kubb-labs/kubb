@@ -29,17 +29,17 @@ type EditorTemplateProps = {
   children?: React.ReactNode
 }
 
-function EditorTemplate({ children }: EditorTemplateProps) {
+function RootTemplate({ children }: EditorTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
 
   const file = useFile({ name: 'handlers', extName: '.ts', pluginKey })
   const operations = useOperations()
 
-  const { getOperationName, getOperationFile } = useOperationHelpers()
+  const { getName, getFile } = useOperationHelpers()
 
   const imports = operations.map(operation => {
-    const operationFile = getOperationFile(operation, { pluginKey })
-    const operationName = getOperationName(operation, { pluginKey, type: 'function' })
+    const operationFile = getFile(operation, { pluginKey })
+    const operationName = getName(operation, { pluginKey, type: 'function' })
 
     return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
   }).filter(Boolean)
@@ -60,7 +60,7 @@ function EditorTemplate({ children }: EditorTemplateProps) {
   )
 }
 
-const defaultTemplates = { default: Template, editor: EditorTemplate } as const
+const defaultTemplates = { default: Template, root: RootTemplate } as const
 
 type Templates = Partial<typeof defaultTemplates>
 
@@ -77,12 +77,12 @@ export function Operations({
   const { key: pluginKey } = usePlugin<PluginOptions>()
 
   const operations = useOperations()
-  const { getOperationName } = useOperationHelpers()
+  const { getName } = useOperationHelpers()
 
   return (
     <Template
       name="handlers"
-      handlers={operations.map(operation => getOperationName(operation, { type: 'function', pluginKey }))}
+      handlers={operations.map(operation => getName(operation, { type: 'function', pluginKey }))}
     />
   )
 }
@@ -98,12 +98,12 @@ Operations.File = function(props: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
-  const EditorTemplate = templates.editor
+  const RootTemplate = templates.root
 
   return (
-    <EditorTemplate>
+    <RootTemplate>
       <Operations Template={Template} />
-    </EditorTemplate>
+    </RootTemplate>
   )
 }
 

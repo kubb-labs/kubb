@@ -32,39 +32,42 @@ describe('<Mutation/>', async () => {
     return name
   }
 
-  const options: GetOperationGeneratorOptions<OperationGenerator> = {
-    framework: 'react',
-    infinite: undefined,
-    suspense: undefined,
-    dataReturnType: 'data',
-    templates: {
-      query: Query.templates,
-      queryKey: QueryKey.templates,
-      queryOptions: QueryOptions.templates,
-    },
-    client: {
-      importPath: '@kubb/swagger-client/client',
-    },
-    parser: undefined,
-    query: {},
-  }
+  test('pets with veriableType `hook`', async () => {
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      framework: 'react',
+      infinite: undefined,
+      suspense: undefined,
+      dataReturnType: 'data',
+      pathParamsType: 'inline',
+      templates: {
+        query: Query.templates,
+        queryKey: QueryKey.templates,
+        queryOptions: QueryOptions.templates,
+        mutation: Mutation.templates,
+      },
+      client: {
+        importPath: '@kubb/swagger-client/client',
+      },
+      parser: undefined,
+      query: {},
+      mutate: { variablesType: 'hook' },
+    }
 
-  const plugin = { options } as Plugin<PluginOptions>
-  const og = await new OperationGenerator(
-    options,
-    {
-      oas,
-      exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin,
-      contentType: undefined,
-      override: undefined,
-    },
-  )
+    const plugin = { options } as Plugin<PluginOptions>
+    const og = await new OperationGenerator(
+      options,
+      {
+        oas,
+        exclude: [],
+        include: undefined,
+        pluginManager: mockedPluginManager,
+        plugin,
+        contentType: undefined,
+        override: undefined,
+      },
+    )
 
-  test('pets', async () => {
-    const operation = oas.operation('/pets', 'post')
+    const operation = oas.operation('/pets/{uuid}', 'post')
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
@@ -79,6 +82,59 @@ describe('<Mutation/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchFileSnapshot('./__snapshots__/Mutation/Pets.ts')
+    expect(output).toMatchFileSnapshot('./__snapshots__/Mutation/useCreatePets.ts')
+  })
+
+  test('pets with veriableType `mutate`', async () => {
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      framework: 'react',
+      infinite: undefined,
+      suspense: undefined,
+      dataReturnType: 'data',
+      pathParamsType: 'inline',
+      templates: {
+        query: Query.templates,
+        queryKey: QueryKey.templates,
+        queryOptions: QueryOptions.templates,
+        mutation: Mutation.templates,
+      },
+      client: {
+        importPath: '@kubb/swagger-client/client',
+      },
+      parser: undefined,
+      query: {},
+      mutate: { variablesType: 'mutate' },
+    }
+
+    const plugin = { options } as Plugin<PluginOptions>
+    const og = await new OperationGenerator(
+      options,
+      {
+        oas,
+        exclude: [],
+        include: undefined,
+        pluginManager: mockedPluginManager,
+        plugin,
+        contentType: undefined,
+        override: undefined,
+      },
+    )
+
+    const operation = oas.operation('/pets/{uuid}', 'post')
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
+
+    const Component = () => {
+      return (
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            <Mutation.File />
+          </Oas.Operation>
+        </Oas>
+      )
+    }
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />, context)
+
+    expect(output).toMatchFileSnapshot('./__snapshots__/Mutation/useCreatePetsMutate.ts')
   })
 })

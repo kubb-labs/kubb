@@ -24,6 +24,14 @@ export type Query = {
   queryKey?: (key: unknown[]) => unknown[]
 }
 
+export type Mutate = {
+  /**
+   * Define the way of passing thought the queryParams, headerParams and data.
+   * @default `'hook'`
+   */
+  variablesType?: 'mutate' | 'hook'
+}
+
 export type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
@@ -116,6 +124,16 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
+  /**
    * Which parser can be used before returning the data to `@tanstack/query`.
    * `'zod'` will use `@kubb/swagger-zod` to parse the data.
    */
@@ -149,6 +167,10 @@ export type Options = {
    * Override some useQuery behaviours.
    */
   query?: Query
+  /**
+   * Override some useMutation behaviours.
+   */
+  mutate?: Mutate
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -167,6 +189,7 @@ type ResolvedOptions = {
   framework: NonNullable<PluginOptions['options']['framework']>
   client: Required<NonNullable<PluginOptions['options']['client']>>
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  pathParamsType: NonNullable<PluginOptions['options']['pathParamsType']>
   parser: PluginOptions['options']['parser']
   /**
    * Only used of infinite
@@ -174,6 +197,7 @@ type ResolvedOptions = {
   infinite: Infinite | undefined
   suspense: Suspense | undefined
   query: Query | undefined
+  mutate: Mutate | undefined
   templates: NonNullable<Templates>
 }
 

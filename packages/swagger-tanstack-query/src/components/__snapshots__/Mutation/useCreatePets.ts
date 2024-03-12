@@ -3,9 +3,9 @@ type CreatePets = {
   data: CreatePetsMutationResponse
   error: never
   request: CreatePetsMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
+  pathParams: CreatePetsPathParams
+  queryParams: CreatePetsQueryParams
+  headerParams: CreatePetsHeaderParams
   response: CreatePetsMutationResponse
   client: {
     parameters: Partial<Parameters<CreatePetsClient>[0]>
@@ -15,9 +15,12 @@ type CreatePets = {
 
 /**
  * @summary Create a pet
- * @link /pets */
+ * @link /pets/:uuid */
 
 export function useCreatePets(
+  uuid: CreatePetsPathParams['uuid'],
+  headers: CreatePets['headerParams'],
+  params?: CreatePets['queryParams'],
   options: {
     mutation?: UseMutationOptions<CreatePets['response'], CreatePets['error'], CreatePets['request']>
     client?: CreatePets['client']['parameters']
@@ -29,8 +32,10 @@ export function useCreatePets(
     mutationFn: async (data) => {
       const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({
         method: 'post',
-        url: `/pets`,
+        url: `/pets/${uuid}`,
+        params,
         data,
+        headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
 

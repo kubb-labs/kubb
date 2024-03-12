@@ -37,6 +37,7 @@ describe('<Query/>', async () => {
     infinite: undefined,
     suspense: undefined,
     dataReturnType: 'data',
+    pathParamsType: 'inline',
     templates: {
       query: Query.templates,
       queryKey: QueryKey.templates,
@@ -47,6 +48,7 @@ describe('<Query/>', async () => {
     },
     parser: undefined,
     query: {},
+    mutate: {},
   }
 
   const plugin = { options } as Plugin<PluginOptions>
@@ -64,7 +66,7 @@ describe('<Query/>', async () => {
   )
 
   test('showPetById', async () => {
-    const operation = oas.operation('/pets/{petId}', 'get')
+    const operation = oas.operation('/pets/{uuid}', 'get')
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {

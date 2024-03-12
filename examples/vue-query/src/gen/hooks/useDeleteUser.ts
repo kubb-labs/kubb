@@ -33,9 +33,9 @@ export function useDeleteUser(
 ): UseMutationReturnType<DeleteUser['response'], DeleteUser['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeleteUser['response'], DeleteUser['error'], void, unknown>({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const username = unref(refUsername)
-      const res = await client<DeleteUser['data'], DeleteUser['error'], void>({
+      const res = await client<DeleteUser['data'], DeleteUser['error'], DeleteUser['request']>({
         method: 'delete',
         url: `/user/${username}`,
         ...clientOptions,

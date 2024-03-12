@@ -246,6 +246,7 @@ const defaultTemplates = {
       { client, context, ...rest }: FrameworkProps,
     ): ReactNode {
       const { factory, queryKey } = context
+      const { options: { pathParamsType } } = usePlugin<PluginOptions>()
 
       const schemas = useSchemas()
       const params = new FunctionParams()
@@ -258,6 +259,7 @@ const defaultTemplates = {
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
+          asObject: pathParamsType === 'object',
           override: (item) => ({
             ...item,
             name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
@@ -323,7 +325,7 @@ type Props = {
 }
 
 export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
-  const { key: pluginKey, options: { parser } } = usePlugin<PluginOptions>()
+  const { key: pluginKey, options: { parser, pathParamsType } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
 
@@ -357,6 +359,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
   params.add([
     ...getASTParams(schemas.pathParams, {
       typed: true,
+      asObject: pathParamsType === 'object',
     }),
     {
       name: 'params',

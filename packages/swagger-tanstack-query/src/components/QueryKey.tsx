@@ -1,9 +1,10 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, Type } from '@kubb/react'
+import { Function, Type, usePlugin } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, isRequired } from '@kubb/swagger/utils'
 
 import type { ReactNode } from 'react'
+import type { PluginOptions } from '../types'
 
 type TemplateProps = {
   /**
@@ -99,6 +100,7 @@ const defaultTemplates = {
     ): ReactNode {
       const { factory } = context
 
+      const { options: { pathParamsType } } = usePlugin<PluginOptions>()
       const schemas = useSchemas()
       const operation = useOperation()
       const path = new URLPath(operation.path)
@@ -108,6 +110,7 @@ const defaultTemplates = {
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
+          asObject: pathParamsType === 'object',
           override: (item) => ({ ...item, type: `MaybeRef<${item.type}>` }),
         }),
         {
@@ -146,6 +149,7 @@ type Props = {
 }
 
 export function QueryKey({ name, typeName, factory, keysFn = (keys) => keys, Template = defaultTemplates.react }: Props): ReactNode {
+  const { options: { pathParamsType } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -155,6 +159,7 @@ export function QueryKey({ name, typeName, factory, keysFn = (keys) => keys, Tem
   params.add([
     ...getASTParams(schemas.pathParams, {
       typed: true,
+      asObject: pathParamsType === 'object',
     }),
     {
       name: 'params',

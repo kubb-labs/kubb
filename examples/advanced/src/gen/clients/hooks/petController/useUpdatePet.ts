@@ -22,12 +22,18 @@ type UpdatePet = {
  * @summary Update an existing pet
  * @link /pet */
 export function useUpdatePet(options: {
-  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
+  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], {
+    data: UpdatePet['request']
+  }>
   client?: UpdatePet['client']['parameters']
-} = {}): UseMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
+} = {}): UseMutationResult<UpdatePet['response'], UpdatePet['error'], {
+  data: UpdatePet['request']
+}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>({
-    mutationFn: async (data) => {
+  return useMutation<UpdatePet['response'], UpdatePet['error'], {
+    data: UpdatePet['request']
+  }>({
+    mutationFn: async ({ data }) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
         url: `/pet`,

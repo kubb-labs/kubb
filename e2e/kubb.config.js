@@ -55,6 +55,9 @@ const baseConfig = {
         path: './clients/hooks',
       },
       group: { type: 'tag' },
+      mutate: {
+        variablesType: 'mutate',
+      },
     }],
     ['@kubb/swagger-swr', {
       output: {

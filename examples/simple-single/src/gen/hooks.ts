@@ -341,13 +341,13 @@ type UpdatePetWithForm = {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
-  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void>
+  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
   client?: UpdatePetWithForm['client']['parameters']
-} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void> {
+} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void>({
+  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], never>({
     mutationFn: async () => {
-      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], void>({
+      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
         method: 'post',
         url: `/pet/${petId}`,
         params,
@@ -378,13 +378,13 @@ type DeletePet = {
  * @summary Deletes a pet
  * @link /pet/:petId */
 export function useDeletePet(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], void>
+  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
   client?: DeletePet['client']['parameters']
-} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], void> {
+} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeletePet['response'], DeletePet['error'], void>({
+  return useMutation<DeletePet['response'], DeletePet['error'], never>({
     mutationFn: async () => {
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },
@@ -642,13 +642,13 @@ type DeleteOrder = {
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
 export function useDeleteOrder(orderId: DeleteOrderPathParams['orderId'], options: {
-  mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], void>
+  mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
   client?: DeleteOrder['client']['parameters']
-} = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], void> {
+} = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteOrder['response'], DeleteOrder['error'], void>({
+  return useMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
     mutationFn: async () => {
-      const res = await client<DeleteOrder['data'], DeleteOrder['error'], void>({
+      const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',
         url: `/store/order/${orderId}`,
         ...clientOptions,
@@ -960,13 +960,13 @@ type DeleteUser = {
  * @summary Delete user
  * @link /user/:username */
 export function useDeleteUser(username: DeleteUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], void>
+  mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
   client?: DeleteUser['client']['parameters']
-} = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], void> {
+} = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteUser['response'], DeleteUser['error'], void>({
+  return useMutation<DeleteUser['response'], DeleteUser['error'], never>({
     mutationFn: async () => {
-      const res = await client<DeleteUser['data'], DeleteUser['error'], void>({
+      const res = await client<DeleteUser['data'], DeleteUser['error'], DeleteUser['request']>({
         method: 'delete',
         url: `/user/${username}`,
         ...clientOptions,

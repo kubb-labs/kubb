@@ -1,0 +1,119 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OperationGenerator > [DELETE] should generate with variablesType \`mutate\` 1`] = `
+"import client from "@kubb/swagger-client/client";
+import { useMutation } from "@tanstack/react-query";
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from "./";
+import type { UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
+
+ type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;
+type DeletePet = {
+    data: DeletePetMutationResponse;
+    error: DeletePet400;
+    request: never;
+    pathParams: DeletePetPathParams;
+    queryParams: never;
+    headerParams: DeletePetHeaderParams;
+    response: DeletePetMutationResponse;
+    client: {
+        parameters: Partial<Parameters<DeletePetClient>[0]>;
+        return: Awaited<ReturnType<DeletePetClient>>;
+    };
+};
+/**
+     * @description delete a pet
+     * @summary Deletes a pet
+     * @link /pet/:petId */
+export function deletePet(options: {
+    mutation?: UseMutationOptions<DeletePet["response"], DeletePet["error"], {
+        petId: DeletePetPathParams["petId"];
+        headers?: DeletePet["headerParams"];
+    }>;
+    client?: DeletePet["client"]["parameters"];
+} = {}): UseMutationResult<DeletePet["response"], DeletePet["error"], {
+    petId: DeletePetPathParams["petId"];
+    headers?: DeletePet["headerParams"];
+}> {
+    const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
+    return useMutation<DeletePet["response"], DeletePet["error"], {
+        petId: DeletePetPathParams["petId"];
+        headers?: DeletePet["headerParams"];
+    }>({
+        mutationFn: async ({ petId, headers }) => {
+            const res = await client<DeletePet["data"], DeletePet["error"], DeletePet["request"]>({
+                method: "delete",
+                url: \`/pet/\${petId}\`,
+                headers: { ...headers, ...clientOptions.headers },
+                ...clientOptions
+            });
+            return res.data;
+        },
+        ...mutationOptions
+    });
+}
+"
+`;
+
+exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline\` 1`] = `
+"import client from "@kubb/swagger-client/client";
+import { useQuery } from "@tanstack/react-query";
+import type { GetPetsUuidQueryResponse } from "./";
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from "@tanstack/react-query";
+
+ type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, never, never>;
+type GetPetsUuid = {
+    data: GetPetsUuidQueryResponse;
+    error: never;
+    request: never;
+    pathParams: never;
+    queryParams: never;
+    headerParams: never;
+    response: GetPetsUuidQueryResponse;
+    client: {
+        parameters: Partial<Parameters<GetPetsUuidClient>[0]>;
+        return: Awaited<ReturnType<GetPetsUuidClient>>;
+    };
+};
+export const GetPetsUuidQueryKey = () => [{ url: "/pets/:uuid", params: { uuid: uuid } }] as const;
+export type GetPetsUuidQueryKey = ReturnType<typeof GetPetsUuidQueryKey>;
+export function GetPetsUuidQueryOptions<TData = GetPetsUuid["response"], TQueryData = GetPetsUuid["response"]>(options: GetPetsUuid["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetsUuid["response"], GetPetsUuid["error"], TData, TQueryData>, "queryKey"> {
+    const queryKey = GetPetsUuidQueryKey();
+    return {
+        queryKey,
+        queryFn: async () => {
+            const res = await client<GetPetsUuid["data"], GetPetsUuid["error"]>({
+                method: "get",
+                url: \`/pets/\${uuid}\`,
+                ...options
+            });
+            return res.data;
+        },
+    };
+}
+/**
+     * @link /pets/:uuid */
+export function get_pets() { }
+-uuid < TData;
+GetPetsUuid["response"], TQueryData = GetPetsUuid["response"], TQueryKey;
+QueryKey = GetPetsUuidQueryKey > (options);
+{
+    query ?  : Partial<UseBaseQueryOptions<GetPetsUuid["response"], GetPetsUuid["error"], TData, TQueryData, TQueryKey>>,
+        client ?  : GetPetsUuid["client"]["parameters"];
+}
+{ }
+UseQueryResult<TData, GetPetsUuid["error"]> & { queryKey: TQueryKey };
+{
+    const { query: queryOptions, client: clientOptions = {} } = options ?? {};
+    const queryKey = queryOptions?.queryKey ?? GetPetsUuidQueryKey();
+    const query = useQuery<GetPetsUuid["data"], GetPetsUuid["error"], TData, any>({
+        ...GetPetsUuidQueryOptions<TData, TQueryData>(clientOptions),
+        queryKey,
+        ...queryOptions
+    }) as UseQueryResult<TData, GetPetsUuid["error"]> & {
+        queryKey: TQueryKey;
+    };
+    query.queryKey = queryKey as TQueryKey;
+    return query;
+}
+"
+`;

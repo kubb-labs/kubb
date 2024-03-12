@@ -20,7 +20,7 @@ See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` in
 import { useOas } from '@kubb/react'
 
 function Component() {
-  const { oas } = useOas()
+  const oas = useOas()
 
   return null
 }
@@ -46,6 +46,24 @@ function Component() {
 
 :::
 
+## useOperations
+
+`useOperations` will return all the Operations.<br/>
+
+::: code-group
+
+```typescript
+import { useOperations } from '@kubb/react'
+
+function Component() {
+  const operations = useOperations()
+
+  return null
+}
+```
+
+:::
+
 ## useSchemas
 
 `useSchemas` will return the schemas of the current `Operation`.<br/>
@@ -57,6 +75,24 @@ import { useSchemas } from '@kubb/react'
 
 function Component() {
   const schemas = useSchemas()
+
+  return null
+}
+```
+
+:::
+
+## useOperationHelpers
+
+`useOperationHelpers` will return some helper functions that can be used to get the operation file, get the operation name.<br/>
+
+::: code-group
+
+```typescript
+import { useOperationHelpers } from '@kubb/react'
+
+function Component() {
+  const { getName, getFile } = useOperationHelpers()
 
   return null
 }

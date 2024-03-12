@@ -76,11 +76,11 @@ return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
   )
 }
 
-type EditorTemplateProps = {
+type RootTemplateProps = {
   children?: React.ReactNode
 }
 
-function EditorTemplate({ children }: EditorTemplateProps) {
+function RootTemplate({ children }: RootTemplateProps) {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
@@ -112,7 +112,7 @@ function EditorTemplate({ children }: EditorTemplateProps) {
   )
 }
 
-const defaultTemplates = { default: Template, editor: EditorTemplate } as const
+const defaultTemplates = { default: Template, root: RootTemplate } as const
 
 type Templates = Partial<typeof defaultTemplates>
 
@@ -195,12 +195,12 @@ Client.File = function(props: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
-  const EditorTemplate = templates.editor
+  const RootTemplate = templates.root
 
   return (
-    <EditorTemplate>
+    <RootTemplate>
       <Client Template={Template} />
-    </EditorTemplate>
+    </RootTemplate>
   )
 }
 

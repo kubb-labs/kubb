@@ -27,6 +27,7 @@ export default defineConfig({
         '**/packages/swagger-client/client.ts',
         '**/e2e/**',
         '**/coverage/**',
+        '**/__snapshots__/**',
         '**/packages/*/test?(s)/**',
         '**/*.d.ts',
         'test?(s)/**',

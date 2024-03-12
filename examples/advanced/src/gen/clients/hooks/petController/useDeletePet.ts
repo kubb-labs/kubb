@@ -21,14 +21,23 @@ type DeletePet = {
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
-export function useDeletePet(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], void>
+export function useDeletePet(options: {
+  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], {
+    petId: DeletePetPathParams['petId']
+    headers?: DeletePet['headerParams']
+  }>
   client?: DeletePet['client']['parameters']
-} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], void> {
+} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], {
+  petId: DeletePetPathParams['petId']
+  headers?: DeletePet['headerParams']
+}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeletePet['response'], DeletePet['error'], void>({
-    mutationFn: async () => {
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+  return useMutation<DeletePet['response'], DeletePet['error'], {
+    petId: DeletePetPathParams['petId']
+    headers?: DeletePet['headerParams']
+  }>({
+    mutationFn: async ({ petId, headers }) => {
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },

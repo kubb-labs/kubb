@@ -81,6 +81,9 @@ export default defineConfig(async () => {
                 queryParam: 'test',
                 initialPageParam: '0',
               },
+              mutate: {
+                variablesType: 'mutate',
+              },
             },
           },
         ],

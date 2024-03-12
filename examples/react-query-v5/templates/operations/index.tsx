@@ -8,12 +8,11 @@ import { usePluginManager } from '@kubb/react'
 
 export const templates = {
   ...Operations.templates,
-  editor: function({}: React.ComponentProps<typeof Operations.templates.editor>) {
+  root: function({}: React.ComponentProps<typeof Operations.templates.root>) {
     const pluginManager = usePluginManager()
     const { key: pluginKey } = usePlugin<PluginOptions>()
     const operations = useOperations()
-    const { getSchemas } = useOas()
-    const { getOperationName } = useOperationHelpers()
+    const { getName, getSchemas } = useOperationHelpers()
 
     const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
 
@@ -24,7 +23,7 @@ export const templates = {
     }).flat().filter(Boolean)
 
     const invalidations = operations.reduce((acc, operation) => {
-      const name = getOperationName(operation, { pluginKey, type: 'function' })
+      const name = getName(operation, { pluginKey, type: 'function' })
       const schemas = getSchemas(operation)
 
       acc[name] = `UseMutationOptions<${schemas.response.name}, unknown, ${schemas.request?.name || 'void'}>['onSuccess']`
