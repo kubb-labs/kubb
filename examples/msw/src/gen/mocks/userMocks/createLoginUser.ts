@@ -18,7 +18,7 @@ export function createLoginUser400(override?: NonNullable<Partial<LoginUser400>>
 
 export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUserQueryParams>> = {}): NonNullable<LoginUserQueryParams> {
   return {
-    ...{ 'username': faker.string.alpha(), 'password': faker.internet.password() },
+    ...{ 'username': faker.string.alpha(), 'password': faker.string.alpha() },
     ...override,
   }
 }

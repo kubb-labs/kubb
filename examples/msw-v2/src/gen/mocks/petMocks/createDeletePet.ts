@@ -26,7 +26,7 @@ export function createDeletePetMutationResponse(override?: NonNullable<Partial<D
 export function createDeletePetPathParams(override: NonNullable<Partial<DeletePetPathParams>> = {}): NonNullable<DeletePetPathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.int({}) },
+    ...{ 'petId': faker.number.int() },
     ...override,
   }
 }

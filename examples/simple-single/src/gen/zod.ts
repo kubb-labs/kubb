@@ -13,7 +13,7 @@ export const orderSchema = z.object({
   'petId': z.number().optional(),
   'quantity': z.number().optional(),
   'shipDate': z.string().datetime().optional(),
-  'status': z.enum([`placed`, `approved`, `delivered`]).describe(`Order Status`).optional(),
+  'status': z.enum(['placed', 'approved', 'delivered']).describe(`Order Status`).optional(),
   'http_status': z.union([z.literal(200), z.literal(400), z.literal(500)]).describe(`HTTP Status`).optional(),
   'complete': z.boolean().optional(),
 })
@@ -41,7 +41,7 @@ export const addPetRequestSchema = z.object({
   'category': z.lazy(() => categorySchema).optional(),
   'photoUrls': z.array(z.string()),
   'tags': z.array(z.lazy(() => tagSchema)).optional(),
-  'status': z.enum([`available`, `pending`, `sold`]).describe(`pet status in the store`).optional(),
+  'status': z.enum(['available', 'pending', 'sold']).describe(`pet status in the store`).optional(),
 })
 export const petSchema = z.object({
   'id': z.number().optional(),
@@ -49,7 +49,7 @@ export const petSchema = z.object({
   'category': z.lazy(() => categorySchema).optional(),
   'photoUrls': z.array(z.string()),
   'tags': z.array(z.lazy(() => tagSchema)).optional(),
-  'status': z.enum([`available`, `pending`, `sold`]).describe(`pet status in the store`).optional(),
+  'status': z.enum(['available', 'pending', 'sold']).describe(`pet status in the store`).optional(),
 })
 
 /**
@@ -103,7 +103,7 @@ export const addPetMutationResponseSchema = z.lazy(() => petSchema)
  */
 export const findPetsByStatus400Schema = z.any()
 export const findPetsByStatusQueryParamsSchema = z.object({
-  'status': z.enum([`available`, `pending`, `sold`]).default('available').describe(`Status values that need to be considered for filter`).optional(),
+  'status': z.enum(['available', 'pending', 'sold']).default('available').describe(`Status values that need to be considered for filter`).optional(),
 }).optional()
 
 /**

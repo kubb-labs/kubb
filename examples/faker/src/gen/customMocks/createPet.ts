@@ -6,12 +6,12 @@ import type { Pet } from '../models/Pet'
 export function createPet(override: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
   return {
     ...{
-      'id': faker.number.int({}),
+      'id': faker.number.int(),
       'name': faker.commerce.productName(),
       'category': createCategory(),
       'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,
       'tags': faker.helpers.arrayElements([createTag()]) as any,
-      'status': faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]),
+      'status': faker.helpers.arrayElement<any>(['available', 'pending', 'sold']),
     },
     ...override,
   }

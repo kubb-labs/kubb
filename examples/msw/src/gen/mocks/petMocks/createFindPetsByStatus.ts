@@ -12,7 +12,7 @@ export function createFindPetsByStatus400(override?: NonNullable<Partial<FindPet
 
 export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}): NonNullable<FindPetsByStatusQueryParams> {
   return {
-    ...{ 'status': faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]) },
+    ...{ 'status': faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) },
     ...override,
   }
 }

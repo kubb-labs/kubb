@@ -9,5 +9,5 @@ export const addPetRequestSchema = z.object({
   'category': z.lazy(() => categorySchema).optional(),
   'photoUrls': z.array(z.string()),
   'tags': z.array(z.lazy(() => tagTagSchema)).optional(),
-  'status': z.enum([`available`, `pending`, `sold`]).describe(`pet status in the store`).optional(),
+  'status': z.enum(['available', 'pending', 'sold']).describe(`pet status in the store`).optional(),
 }) as z.ZodType<AddPetRequest>
