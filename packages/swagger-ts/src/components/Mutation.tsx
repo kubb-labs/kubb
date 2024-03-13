@@ -103,7 +103,7 @@ type FileProps = {
 }
 
 Mutation.File = function({ mode }: FileProps): ReactNode {
-  const { options } = usePlugin<PluginOptions>()
+  const plugin = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
@@ -112,7 +112,7 @@ Mutation.File = function({ mode }: FileProps): ReactNode {
   const factoryName = useOperationName({ type: 'type' })
   const operation = useOperation()
 
-  const builder = new TypeBuilder(options, { oas, pluginManager })
+  const builder = new TypeBuilder(plugin.options, { plugin, oas, pluginManager })
     .add(schemas.pathParams)
     .add(schemas.queryParams)
     .add(schemas.headerParams)

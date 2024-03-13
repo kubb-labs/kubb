@@ -26,14 +26,14 @@ export function Mutation({
 type FileProps = {}
 
 Mutation.File = function({}: FileProps): ReactNode {
-  const { options } = usePlugin<PluginOptions>()
+  const plugin = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
   const oas = useOas()
   const file = useOperationFile()
 
-  const builder = new FakerBuilder(options, { oas, pluginManager })
+  const builder = new FakerBuilder(plugin.options, { plugin, oas, pluginManager })
     .add(schemas.pathParams)
     .add(schemas.queryParams)
     .add(schemas.headerParams)

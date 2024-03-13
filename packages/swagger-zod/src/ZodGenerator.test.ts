@@ -5,7 +5,9 @@ import { OasManager } from '@kubb/swagger'
 
 import { ZodGenerator } from './ZodGenerator.ts'
 
+import type { Plugin } from '@kubb/core'
 import type { OasTypes } from '@kubb/swagger/oas'
+import type { PluginOptions } from './types.ts'
 
 describe('ZodGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -13,16 +15,14 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for Pet', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
-      typed: false,
       dateType: 'string',
       unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -33,16 +33,14 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for Pets', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
-      typed: false,
       dateType: 'string',
       unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -53,16 +51,14 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for OptionalPet', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
-      typed: false,
       dateType: 'string',
       unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -73,9 +69,7 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for OptionalPet typed', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
       typed: true,
       dateType: 'string',
@@ -83,6 +77,7 @@ describe('ZodGenerator PetStore', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -93,16 +88,14 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for PetArray', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
-      typed: false,
       dateType: 'string',
       unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -116,16 +109,14 @@ describe('ZodGenerator constCases', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
   const generator = new ZodGenerator({
-    exclude: undefined,
-    include: undefined,
-    override: undefined,
+    mapper: {},
     transformers: {},
-    typed: false,
     dateType: 'string',
     unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,
+    plugin: {} as Plugin<PluginOptions>,
   })
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const schemas = oas.getDefinition().components?.schemas!
@@ -193,16 +184,14 @@ describe('ZodGenerator lazy', async () => {
 
   test('generate schema for Example', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
-      typed: false,
       dateType: 'string',
       unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -216,16 +205,14 @@ describe('ZodGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
   const generator = new ZodGenerator({
-    exclude: undefined,
-    include: undefined,
-    override: undefined,
+    mapper: {},
     transformers: {},
-    typed: false,
     dateType: 'string',
     unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,
+    plugin: {} as Plugin<PluginOptions>,
   })
 
   const schemas = oas.getDefinition().components?.schemas
@@ -249,16 +236,14 @@ describe('ZodGenerator recursive', async () => {
 
   test('generate schema for Example', async () => {
     const generator = new ZodGenerator({
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
+      mapper: {},
       transformers: {},
-      typed: false,
       dateType: 'string',
       unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -272,16 +257,14 @@ describe('ZodGenerator anyof', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
   const generator = new ZodGenerator({
-    exclude: undefined,
-    include: undefined,
-    override: undefined,
+    mapper: {},
     transformers: {},
-    typed: false,
     dateType: 'string',
     unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,
+    plugin: {} as Plugin<PluginOptions>,
   })
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const schemas = oas.getDefinition().components?.schemas!

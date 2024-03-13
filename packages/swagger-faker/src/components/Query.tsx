@@ -26,14 +26,14 @@ export function Query({
 type FileProps = {}
 
 Query.File = function({}: FileProps): ReactNode {
-  const { options } = usePlugin<PluginOptions>()
+  const plugin = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
   const oas = useOas()
   const file = useOperationFile()
 
-  const builder = new FakerBuilder(options, { oas, pluginManager })
+  const builder = new FakerBuilder(plugin.options, { oas, plugin, pluginManager })
     .add(schemas.pathParams)
     .add(schemas.queryParams)
     .add(schemas.headerParams)
