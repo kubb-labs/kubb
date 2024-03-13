@@ -20,7 +20,7 @@ export const zodKeywordMapper = {
   enum: 'z.enum',
   union: 'z.union',
   literal: 'z.literal',
-  datetime: '.datetime',
+  datetime: 'z.string().datetime',
   date: 'z.date',
   email: '.email',
   uuid: '.uuid',
@@ -65,7 +65,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
   if (isKeyword(item, schemaKeywords.enum)) {
     return `${value}(${
       Array.isArray(item.args)
-        ? `[${item.args.map(item => typeof item.key === 'number' ? item.key : JSON.stringify(item.key)).join(',')}]`
+        ? `[${item.args.map(item => item.key).join(',')}]`
         : parseZodMeta(item.args)
     })`
   }

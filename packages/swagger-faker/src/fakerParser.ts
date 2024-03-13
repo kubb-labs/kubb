@@ -15,7 +15,8 @@ export const fakerKeywordMapper = {
   tuple: 'faker.helpers.arrayElements',
   enum: 'faker.helpers.arrayElement<any>',
   union: 'faker.helpers.arrayElement',
-  datetime: 'faker.date.anytime',
+  date: 'faker.date.anytime',
+  datetime: 'faker.string.alpha',
   uuid: 'faker.string.uuid',
   url: 'faker.internet.url',
   /* intersection */
@@ -79,13 +80,13 @@ export function parseFakerMeta(
   if (isKeyword(item, schemaKeywords.enum)) {
     return `${value}(${
       Array.isArray(item.args)
-        ? `[${item.args.map(item => typeof item.value === 'number' ? item.value : JSON.stringify(item.value)).join(', ')}]`
+        ? `[${item.args.map(item => item.value).join(', ')}]`
         : parseFakerMeta(item.args)
     })`
   }
 
   if (isKeyword(item, schemaKeywords.catchall)) {
-    throw new Error('catchall is not implemented')
+    return undefined
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
@@ -113,7 +114,7 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.literal)) {
-    return `\`${item.args.value}\``
+    return item.args.value?.toString()
   }
 
   // custom type

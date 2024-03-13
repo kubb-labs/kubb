@@ -1,4 +1,8 @@
+import { toIndexKey } from '@kubb/core/transformers'
+
 import { parseZodMeta, zodParser } from './zodParser.ts'
+
+// TODO also check on not set items/undefined
 
 const input = [
   {
@@ -18,6 +22,18 @@ const input = [
       keyword: 'boolean',
     }),
     expected: 'z.boolean()',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'date',
+    }),
+    expected: 'z.date()',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'datetime',
+    }),
+    expected: 'z.string().datetime()',
   },
   {
     input: parseZodMeta({
@@ -70,7 +86,10 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'enum',
-      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }],
+      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }].map(({ value, key }) => ({
+        key: toIndexKey(key),
+        value: toIndexKey(value),
+      })),
     }),
     expected: 'z.enum(["A","B","C",2])',
   },

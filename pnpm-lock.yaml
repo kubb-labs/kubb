@@ -1180,6 +1180,9 @@ importers:
       '@types/lodash.isequal':
         specifier: ^4.5.8
         version: 4.5.8
+      '@types/lodash.tonumber':
+        specifier: ^4.0.3
+        version: 4.0.9
       '@types/react':
         specifier: ^18.2.64
         version: 18.2.64
@@ -1195,6 +1198,9 @@ importers:
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
+      lodash.tonumber:
+        specifier: ^4.0.3
+        version: 4.0.3
       ora:
         specifier: ^8.0.1
         version: 8.0.1
@@ -10282,7 +10288,7 @@ packages:
       joycon: 3.1.1
       postcss-load-config: 4.0.2(ts-node@10.9.2)
       resolve-from: 5.0.0
-      rollup: 4.12.1
+      rollup: 4.12.0
       source-map: 0.8.0-beta.0
       sucrase: 3.34.0
       tree-kill: 1.2.2

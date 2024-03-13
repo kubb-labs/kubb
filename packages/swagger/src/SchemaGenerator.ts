@@ -288,8 +288,8 @@ export abstract class SchemaGenerator<
           return [{
             keyword: schemaKeywords.enum,
             args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((value, index) => ({
-              key: schema.enum![index],
-              value,
+              key: transformers.toIndexKey(schema.enum![index] as string),
+              value: transformers.toIndexKey(value),
             })),
           }, ...baseItems]
         })
@@ -304,13 +304,13 @@ export abstract class SchemaGenerator<
               ? enumNames?.args?.map(({ key, value }, index) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: { key, value },
+                  args: { key: transformers.toIndexKey(key as string), value: transformers.toIndexKey(value) },
                 }
               })
               : [...new Set(schema.enum)].map((value: string) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: { key: value, value },
+                  args: { key: transformers.toIndexKey(value), value: transformers.toIndexKey(value) },
                 }
               }),
           },
@@ -326,8 +326,8 @@ export abstract class SchemaGenerator<
         {
           keyword: schemaKeywords.enum,
           args: [...new Set(schema.enum)].map((value: string) => ({
-            key: `\`${value}\``,
-            value: `\`${value}\``,
+            key: transformers.toIndexKey(value),
+            value: transformers.toIndexKey(value),
           })),
         },
         ...baseItems,
@@ -422,13 +422,15 @@ export abstract class SchemaGenerator<
         baseItems.unshift({ keyword: schemaKeywords.matches, args: regexp })
       }
 
-      if (schema.format === 'date-time') {
-        if (this.options.dateType === 'date' && ['date', 'date-time'].some((item) => item === schema.format)) {
+      if (['date', 'date-time'].some((item) => item === schema.format)) {
+        if (this.options.dateType === 'date') {
           baseItems.unshift({ keyword: schemaKeywords.date })
 
           return baseItems
         } else {
           baseItems.unshift({ keyword: schemaKeywords.datetime })
+
+          return baseItems
         }
       }
 

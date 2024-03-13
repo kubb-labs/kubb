@@ -1,5 +1,8 @@
+import { toIndexKey } from '@kubb/core/transformers'
+
 import { parseFakerMeta } from './fakerParser.ts'
 
+// TODO also check on not set items/undefined
 const input = [
   {
     input: parseFakerMeta({
@@ -24,6 +27,18 @@ const input = [
       keyword: 'boolean',
     }),
     expected: 'faker.datatype.boolean()',
+  },
+  {
+    input: parseFakerMeta({
+      keyword: 'date',
+    }),
+    expected: undefined,
+  },
+  {
+    input: parseFakerMeta({
+      keyword: 'datetime',
+    }),
+    expected: 'faker.date.anytime()',
   },
   {
     input: parseFakerMeta({
@@ -68,7 +83,10 @@ const input = [
   {
     input: parseFakerMeta({
       keyword: 'enum',
-      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }],
+      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }].map(({ value, key }) => ({
+        key: toIndexKey(key),
+        value: toIndexKey(value),
+      })),
     }),
     expected: 'faker.helpers.arrayElement<any>(["A", "B", "C", 2])',
   },
