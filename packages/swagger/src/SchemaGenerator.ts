@@ -9,7 +9,7 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
-import type { Schema } from './SchemaMapper.ts'
+import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 import type { ImportMeta, Refs } from './types.ts'
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
@@ -24,7 +24,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 export type SchemaGeneratorOptions = {
   dateType: 'string' | 'date'
   unknownType: 'any' | 'unknown'
-  mapper?: Record<string, string>
+  mapper?: SchemaMapper
   typed?: boolean
   transformers: {
     /**
@@ -287,30 +287,30 @@ export abstract class SchemaGenerator<
         .map((extensionKey) => {
           return [{
             keyword: schemaKeywords.enum,
-            args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((_value, index) => `\`${schema.enum![index]}\``),
+            args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((value, index) => ({
+              key: schema.enum![index],
+              value,
+            })),
           }, ...baseItems]
         })
 
       if (schema.type === 'number' || schema.type === 'integer') {
         // we cannot use z.enum when enum type is number/integer
-        const enumNames = extensionEnums[0]?.find(item => item.keyword === schemaKeywords.enum) as {
-          keyword: typeof schemaKeywords.enum
-          args?: Array<string | number>
-        }
+        const enumNames = extensionEnums[0]?.find(item => isKeyword(item, schemaKeywords.enum)) as SchemaKeywordMapper['enum']
         return [
           {
             keyword: schemaKeywords.union,
             args: enumNames
-              ? enumNames?.args?.map((_value, index) => {
+              ? enumNames?.args?.map(({ key, value }, index) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: schema.enum![index],
+                  args: { key, value },
                 }
               })
               : [...new Set(schema.enum)].map((value: string) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: value,
+                  args: { key: value, value },
                 }
               }),
           },
@@ -325,7 +325,10 @@ export abstract class SchemaGenerator<
       return [
         {
           keyword: schemaKeywords.enum,
-          args: [...new Set(schema.enum)].map((value: string) => `\`${value}\``),
+          args: [...new Set(schema.enum)].map((value: string) => ({
+            key: `\`${value}\``,
+            value: `\`${value}\``,
+          })),
         },
         ...baseItems,
       ]
@@ -371,12 +374,12 @@ export abstract class SchemaGenerator<
       // const keyword takes precendence over the actual type.
       if (schema['const']) {
         if (typeof schema['const'] === 'string') {
-          return [{ keyword: schemaKeywords.literal, args: `"${schema['const']}"` }]
+          return [{ keyword: schemaKeywords.literal, args: { key: `"${schema['const']}"`, value: `"${schema['const']}"` } }]
         } else if (typeof schema['const'] === 'number') {
-          return [{ keyword: schemaKeywords.literal, args: schema['const'] }]
+          return [{ keyword: schemaKeywords.literal, args: { key: schema['const'], value: schema['const'] } }]
         }
       } else {
-        return [{ keyword: schemaKeywords.literal, args: 'z.null()' }]
+        return [{ keyword: schemaKeywords.literal, args: { key: 'z.null()', value: 'z.null()' } }]
       }
     }
 
@@ -437,9 +440,6 @@ export abstract class SchemaGenerator<
         baseItems.unshift({ keyword: schemaKeywords.url })
       }
 
-      if (schema.format === 'hostname') {
-        baseItems.unshift({ keyword: schemaKeywords.url })
-      }
       if (schema.format === 'uuid') {
         baseItems.unshift({ keyword: schemaKeywords.uuid })
       }

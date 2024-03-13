@@ -68,9 +68,9 @@ const input = [
   {
     input: parseFakerMeta({
       keyword: 'enum',
-      args: ['"A"', '"B"', '"C"', 2],
+      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }],
     }),
-    expected: 'faker.helpers.arrayElement<any>("A","B","C",2)',
+    expected: 'faker.helpers.arrayElement<any>(["A", "B", "C", 2])',
   },
 
   {

@@ -70,7 +70,7 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'enum',
-      args: ['"A"', '"B"', '"C"', 2],
+      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }],
     }),
     expected: 'z.enum(["A","B","C",2])',
   },

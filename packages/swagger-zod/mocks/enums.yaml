@@ -24,7 +24,7 @@ paths:
       consumes:
       - application/json
       responses:
-        200: 
+        200:
           description: Success
           schema:
             $ref: '#/definitions/enumVarNames.Type'
@@ -33,7 +33,7 @@ paths:
       consumes:
       - application/json
       responses:
-        200: 
+        200:
           description: Success
           schema:
             $ref: '#/definitions/enumNames.Type'

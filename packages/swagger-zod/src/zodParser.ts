@@ -1,6 +1,6 @@
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaMapper, SchemaMapperBase } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
 
 export const zodKeywordMapper = {
   any: 'z.any',
@@ -39,11 +39,7 @@ export const zodKeywordMapper = {
   // custom ones
   ref: 'ref',
   matches: '.regex',
-  firstName: undefined,
-  lastName: undefined,
-  password: undefined,
-  phone: undefined,
-} satisfies { [K in keyof SchemaMapper]: string | undefined }
+} satisfies SchemaMapper
 
 /**
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
@@ -57,19 +53,27 @@ function zodKeywordSorter(a: Schema, b: Schema): 1 | -1 | 0 {
   return 0
 }
 
-export function parseZodMeta(item: Schema = {} as Schema, mapper: typeof zodKeywordMapper = zodKeywordMapper): string {
+export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper = zodKeywordMapper): string | undefined {
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (isKeyword(item, schemaKeywords.tuple)) {
-    return `${value}(${Array.isArray(item.args) ? `[${item.args.map((tupleItem) => parseZodMeta(tupleItem, mapper)).join(',')}]` : parseZodMeta(item.args)})`
+    return `${value}(${
+      Array.isArray(item.args) ? `[${item.args.map((tupleItem) => parseZodMeta(tupleItem, mapper)).filter(Boolean).join(',')}]` : parseZodMeta(item.args)
+    })`
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
-    return `${value}(${Array.isArray(item.args) ? `[${item.args.join(',')}]` : parseZodMeta(item.args)})`
+    return `${value}(${
+      Array.isArray(item.args)
+        ? `[${item.args.map(item => typeof item.key === 'number' ? item.key : JSON.stringify(item.key)).join(',')}]`
+        : parseZodMeta(item.args)
+    })`
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}(${Array.isArray(item.args) ? `${item.args.map((arrayItem) => parseZodMeta(arrayItem, mapper)).join('')}` : parseZodMeta(item.args)})`
+    return `${value}(${
+      Array.isArray(item.args) ? `${item.args.map((arrayItem) => parseZodMeta(arrayItem, mapper)).filter(Boolean).join('')}` : parseZodMeta(item.args)
+    })`
   }
   if (isKeyword(item, schemaKeywords.union)) {
     // zod union type needs at least 2 items
@@ -80,11 +84,17 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: typeof zodKeyw
       return ''
     }
 
-    return `${Array.isArray(item.args) ? `${value}([${item.args.map((unionItem) => parseZodMeta(unionItem, mapper)).join(',')}])` : parseZodMeta(item.args)}`
+    return `${
+      Array.isArray(item.args)
+        ? `${value}([${item.args.map((unionItem) => parseZodMeta(unionItem, mapper)).filter(Boolean).join(',')}])`
+        : parseZodMeta(item.args)
+    }`
   }
 
   if (isKeyword(item, schemaKeywords.catchall)) {
-    return `${value}(${Array.isArray(item.args) ? `${item.args.map((catchAllItem) => parseZodMeta(catchAllItem, mapper)).join('')}` : parseZodMeta(item.args)})`
+    return `${value}(${
+      Array.isArray(item.args) ? `${item.args.map((catchAllItem) => parseZodMeta(catchAllItem, mapper)).filter(Boolean).join('')}` : parseZodMeta(item.args)
+    })`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
@@ -113,6 +123,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: typeof zodKeyw
           schema
             .sort(zodKeywordSorter)
             .map((item) => parseZodMeta(item, mapper))
+            .filter(Boolean)
             .join('')
         }`
       })
@@ -125,25 +136,29 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: typeof zodKeyw
     return `${value}({${argsObject}})`
   }
 
+  if (isKeyword(item, schemaKeywords.literal)) {
+    return `${value}(${item.args.key})`
+  }
+
   // custom type
   if (isKeyword(item, schemaKeywords.ref)) {
     return `${mapper.lazy}(() => ${item.args?.name})`
   }
 
   if (item.keyword in mapper && 'args' in item) {
-    return `${value}(${(item as SchemaMapperBase<unknown>).args as string})`
+    return `${value}(${(item as SchemaKeywordBase<unknown>).args as string})`
   }
 
   if (item.keyword in mapper) {
     return `${value}()`
   }
 
-  return '""'
+  return undefined
 }
 
 export function zodParser(
   items: Schema[],
-  options: { required?: boolean; keysToOmit?: string[]; mapper?: typeof zodKeywordMapper; name: string; typeName?: string },
+  options: { required?: boolean; keysToOmit?: string[]; mapper?: SchemaMapper; name: string; typeName?: string },
 ): string {
   if (!items.length) {
     return `export const ${options.name} = '';`
@@ -154,8 +169,10 @@ export function zodParser(
 
   if (options.keysToOmit?.length) {
     const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
-    return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText}${typeName};`
+    return `${constName} = ${
+      items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')
+    }${omitText}${typeName};`
   }
 
-  return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${typeName};`
+  return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')}${typeName};`
 }
