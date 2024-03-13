@@ -441,11 +441,14 @@ export function createEnumDeclaration({
                 value ? factory.createTrue() : factory.createFalse(),
               )
             }
+            if (value) {
+              return factory.createLiteralTypeNode(
+                factory.createStringLiteral(value.toString()),
+              )
+            }
 
-            return factory.createLiteralTypeNode(
-              factory.createStringLiteral(value?.toString()),
-            )
-          }),
+            return undefined
+          }).filter(Boolean),
         ),
       ),
     ]
@@ -480,11 +483,15 @@ export function createEnumDeclaration({
             )
           }
 
-          return factory.createEnumMember(
-            factory.createStringLiteral(`${key}`),
-            initializer,
-          )
-        }),
+          if (key) {
+            return factory.createEnumMember(
+              factory.createStringLiteral(`${key}`),
+              initializer,
+            )
+          }
+
+          return undefined
+        }).filter(Boolean),
       ),
     ]
   }
@@ -517,11 +524,15 @@ export function createEnumDeclaration({
                       : factory.createFalse()
                   }
 
-                  return factory.createPropertyAssignment(
-                    factory.createStringLiteral(`${key}`),
-                    initializer,
-                  )
-                }),
+                  if (key) {
+                    return factory.createPropertyAssignment(
+                      factory.createStringLiteral(`${key}`),
+                      initializer,
+                    )
+                  }
+
+                  return undefined
+                }).filter(Boolean),
                 true,
               ),
               factory.createTypeReferenceNode(

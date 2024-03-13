@@ -16,7 +16,7 @@ export const templates = {
       </>
     )
   },
-  editor({ children }: React.ComponentProps<typeof Client.templates.editor>) {
+  root({ children }: React.ComponentProps<typeof Client.templates.root>) {
     const filePython = useOperationFile({ extName: '.py' })
 
     return (
