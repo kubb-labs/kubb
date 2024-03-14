@@ -1,5 +1,5 @@
 import { trimQuotes } from './trim'
 
-export function toString(text: string | number): string {
+export function stringify(text: string | number): string {
   return JSON.stringify(trimQuotes(text.toString()))
 }

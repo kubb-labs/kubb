@@ -1,3 +1,4 @@
+import transformers from '@kubb/core/transformers'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
@@ -140,7 +141,24 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
     return `${value}(${item.args.key})`
   }
 
-  // custom type
+  if (isKeyword(item, schemaKeywords.matches)) {
+    if (item.args) {
+      return `${value}(${transformers.toRegExpString(item.args)})`
+    }
+  }
+
+  if (isKeyword(item, schemaKeywords.default)) {
+    if (item.args) {
+      return `${value}(${transformers.stringify(item.args?.toString())})`
+    }
+  }
+
+  if (isKeyword(item, schemaKeywords.describe)) {
+    if (item.args) {
+      return `${value}(${transformers.stringify(item.args?.toString())})`
+    }
+  }
+
   if (isKeyword(item, schemaKeywords.ref)) {
     return `${mapper.lazy}(() => ${item.args?.name})`
   }

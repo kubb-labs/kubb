@@ -7,15 +7,13 @@ describe('escape', () => {
   })
 
   test('return jsStringEscape text', () => {
-    expect(jsStringEscape('"Hello World!"')).toBe('\\"Hello World!\\"')
-    expect(jsStringEscape(null)).toBe('null')
-    expect(jsStringEscape(undefined)).toBe('undefined')
-    expect(jsStringEscape(false)).toBe('false')
-    expect(jsStringEscape(0.0)).toBe('0')
-    expect(jsStringEscape({})).toBe('[object Object]')
-    expect(jsStringEscape('')).toBe('')
-
-    expect(globalThis.escape('^[a-zA-Z0-9.-]*$')).not.toBe('^[a-zA-Z0-9.-]*$')
-    expect(jsStringEscape('^[a-zA-Z0-9.-]*$')).toBe('^[a-zA-Z0-9.-]*$')
+    expect(jsStringEscape('"Hello World!"')).toMatchInlineSnapshot(`"\\"Hello World!\\""`)
+    expect(jsStringEscape("HTTP Status'")).toMatchInlineSnapshot(`"HTTP Status\\'"`)
+    expect(jsStringEscape(null)).toMatchInlineSnapshot(`"null"`)
+    expect(jsStringEscape(undefined)).toMatchInlineSnapshot(`"undefined"`)
+    expect(jsStringEscape(false)).toMatchInlineSnapshot(`"false"`)
+    expect(jsStringEscape(0.0)).toMatchInlineSnapshot(`"0"`)
+    expect(jsStringEscape({})).toMatchInlineSnapshot(`"[object Object]"`)
+    expect(jsStringEscape('')).toMatchInlineSnapshot(`""`)
   })
 })

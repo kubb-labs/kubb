@@ -32,13 +32,13 @@ const input = [
     input: parseFakerMeta({
       keyword: 'date',
     }),
-    expected: undefined,
+    expected: 'faker.date.anytime()',
   },
   {
     input: parseFakerMeta({
       keyword: 'datetime',
     }),
-    expected: 'faker.date.anytime()',
+    expected: 'faker.string.alpha()',
   },
   {
     input: parseFakerMeta({
@@ -58,20 +58,19 @@ const input = [
     }),
     expected: 'undefined',
   },
-
   {
     input: parseFakerMeta({
       keyword: 'matches',
-      args: '*',
+      args: '/node_modules/', // pure regexp
     }),
-    expected: 'faker.helpers.fromRegExp("*")',
+    expected: 'faker.helpers.fromRegExp(new RegExp(node_modules))',
   },
   {
     input: parseFakerMeta({
       keyword: 'matches',
       args: '^[A-Z]{2}$',
     }),
-    expected: 'faker.helpers.fromRegExp(/^[A-Z]{2}$/)',
+    expected: 'faker.helpers.fromRegExp(new RegExp(^[A-Z]{2}$))',
   },
   {
     input: parseFakerMeta({

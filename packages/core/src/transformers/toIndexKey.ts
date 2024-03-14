@@ -1,6 +1,5 @@
+import { stringify } from './stringify'
 import { isNumber, toNumber } from './toNumber'
-import { toString } from './toString'
-import { trimQuotes } from './trim'
 
 export function toIndexKey(text: string | number): string | number {
   if (isNumber(text)) {
@@ -8,8 +7,8 @@ export function toIndexKey(text: string | number): string | number {
   }
 
   if (typeof text === 'string') {
-    return JSON.stringify(trimQuotes(text))
+    return stringify(text)
   }
 
-  return toString(text || '')
+  return stringify(text || '')
 }

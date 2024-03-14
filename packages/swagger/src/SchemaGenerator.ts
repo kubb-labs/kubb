@@ -187,7 +187,7 @@ export abstract class SchemaGenerator<
 
     if (schema.default !== undefined && !Array.isArray(schema.default)) {
       if (typeof schema.default === 'string') {
-        baseItems.push({ keyword: schemaKeywords.default, args: `"${schema.default}"` })
+        baseItems.push({ keyword: schemaKeywords.default, args: schema.default })
       }
       if (typeof schema.default === 'boolean') {
         baseItems.push({ keyword: schemaKeywords.default, args: schema.default ?? false })
@@ -195,7 +195,7 @@ export abstract class SchemaGenerator<
     }
 
     if (schema.description) {
-      baseItems.push({ keyword: schemaKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
+      baseItems.push({ keyword: schemaKeywords.describe, args: schema.description })
     }
 
     if (schema.oneOf) {
@@ -415,11 +415,7 @@ export abstract class SchemaGenerator<
       }
 
       if (schema.pattern) {
-        const isStartWithSlash = schema.pattern.startsWith('/')
-        const isEndWithSlash = schema.pattern.endsWith('/')
-
-        const regexp = `new RegExp('${transformers.jsStringEscape(schema.pattern.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
-        baseItems.unshift({ keyword: schemaKeywords.matches, args: regexp })
+        baseItems.unshift({ keyword: schemaKeywords.matches, args: schema.pattern })
       }
 
       if (['date', 'date-time'].some((item) => item === schema.format)) {

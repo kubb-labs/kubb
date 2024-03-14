@@ -70,9 +70,16 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'matches',
-      args: '*',
+      args: '/node_modules/', // pure regexp
     }),
-    expected: '.regex(*)',
+    expected: '.regex(new RegExp(node_modules))',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'matches',
+      args: '^[A-Z]{2}$',
+    }),
+    expected: '.regex(new RegExp(^[A-Z]{2}$))',
   },
   {
     input: parseZodMeta({
@@ -190,9 +197,9 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'default',
-      args: "'default'",
+      args: 'default',
     }),
-    expected: ".default('default')",
+    expected: '.default("default")',
   },
   {
     input: parseZodMeta({

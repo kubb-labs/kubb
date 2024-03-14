@@ -1,3 +1,4 @@
+import transformers from '@kubb/core/transformers'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
@@ -117,7 +118,6 @@ export function parseFakerMeta(
     return item.args.value?.toString()
   }
 
-  // custom type
   if (isKeyword(item, schemaKeywords.ref)) {
     if (!item.args?.name) {
       throw new Error(`Name not defined for keyword ${item.keyword}`)
@@ -134,15 +134,9 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.matches)) {
-    const options = (item as SchemaKeywordBase<unknown>).args as string
-    let regex
-    try {
-      regex = new RegExp(options)
-    } catch (_e) {
-      regex = JSON.stringify(options)
+    if (item.args) {
+      return `${value}(${transformers.toRegExpString(item.args)})`
     }
-
-    return `${value}(${regex ?? ''})`
   }
 
   if (item.keyword in mapper) {
