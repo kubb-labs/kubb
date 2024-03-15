@@ -1,5 +1,3 @@
-import { toIndexKey } from '@kubb/core/transformers'
-
 import { parseFakerMeta } from './fakerParser.ts'
 
 // TODO also check on not set items/undefined
@@ -63,14 +61,14 @@ const input = [
       keyword: 'matches',
       args: '/node_modules/', // pure regexp
     }),
-    expected: 'faker.helpers.fromRegExp(new RegExp(node_modules))',
+    expected: `faker.helpers.fromRegExp(new RegExp('node_modules'))`,
   },
   {
     input: parseFakerMeta({
       keyword: 'matches',
       args: '^[A-Z]{2}$',
     }),
-    expected: 'faker.helpers.fromRegExp(new RegExp(^[A-Z]{2}$))',
+    expected: `faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))`,
   },
   {
     input: parseFakerMeta({
@@ -82,10 +80,7 @@ const input = [
   {
     input: parseFakerMeta({
       keyword: 'enum',
-      args: [{ key: 'A', value: 'A' }, { key: 'B', value: 'B' }, { key: 'C', value: 'C' }, { key: 2, value: 2 }].map(({ value, key }) => ({
-        key: toIndexKey(key),
-        value: toIndexKey(value),
-      })),
+      args: [{ name: '"A"', value: '"A"' }, { name: '"B"', value: '"B"' }, { name: '"C"', value: '"C"' }, { name: 2, value: 2 }],
     }),
     expected: 'faker.helpers.arrayElement<any>(["A", "B", "C", 2])',
   },

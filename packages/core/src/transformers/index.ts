@@ -6,7 +6,6 @@ import { createIndent } from './indent.ts'
 import { nameSorter } from './nameSorter.ts'
 import { searchAndReplace } from './searchAndReplace.ts'
 import { stringify } from './stringify.ts'
-import { toIndexKey } from './toIndexKey.ts'
 import { isNumber, toNumber } from './toNumber.ts'
 import { toRegExp, toRegExpString } from './toRegExp.ts'
 import { transformReservedWord } from './transformReservedWord.ts'
@@ -20,7 +19,6 @@ export { createIndent } from './indent.ts'
 export { nameSorter } from './nameSorter.ts'
 export { searchAndReplace } from './searchAndReplace.ts'
 export { stringify } from './stringify.ts'
-export { toIndexKey } from './toIndexKey.ts'
 export { isNumber, toNumber } from './toNumber.ts'
 export { toRegExp, toRegExpString } from './toRegExp.ts'
 export { transformReservedWord } from './transformReservedWord.ts'
@@ -37,7 +35,6 @@ export default {
   toNumber,
   isNumber,
   stringify,
-  toIndexKey,
   toRegExp,
   toRegExpString,
   trim,

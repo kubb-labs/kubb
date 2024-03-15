@@ -81,7 +81,7 @@ export function parseFakerMeta(
   if (isKeyword(item, schemaKeywords.enum)) {
     return `${value}(${
       Array.isArray(item.args)
-        ? `[${item.args.map(item => item.value).join(', ')}]`
+        ? `[${item.args.map(item => item.name).join(', ')}]`
         : parseFakerMeta(item.args)
     })`
   }
@@ -115,7 +115,7 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.literal)) {
-    return item.args.value?.toString()
+    return item.args.name?.toString()
   }
 
   if (isKeyword(item, schemaKeywords.ref)) {

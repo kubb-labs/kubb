@@ -6,7 +6,7 @@ import { petSchema } from '../petSchema'
  */
 export const findPetsByStatus400Schema = z.any()
 export const findPetsByStatusQueryParamsSchema = z.object({
-  'status': z.enum(['available', 'pending', 'sold']).default('available').describe(`Status values that need to be considered for filter`).optional(),
+  'status': z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter').optional(),
 }).optional()
 
 /**

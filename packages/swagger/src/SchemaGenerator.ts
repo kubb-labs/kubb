@@ -187,7 +187,7 @@ export abstract class SchemaGenerator<
 
     if (schema.default !== undefined && !Array.isArray(schema.default)) {
       if (typeof schema.default === 'string') {
-        baseItems.push({ keyword: schemaKeywords.default, args: schema.default })
+        baseItems.push({ keyword: schemaKeywords.default, args: transformers.stringify(schema.default) })
       }
       if (typeof schema.default === 'boolean') {
         baseItems.push({ keyword: schemaKeywords.default, args: schema.default ?? false })
@@ -287,9 +287,9 @@ export abstract class SchemaGenerator<
         .map((extensionKey) => {
           return [{
             keyword: schemaKeywords.enum,
-            args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((value, index) => ({
-              key: transformers.toIndexKey(schema.enum![index] as string),
-              value: transformers.toIndexKey(value),
+            args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
+              name: transformers.stringify(name),
+              value: schema.enum![index] as string | number,
             })),
           }, ...baseItems]
         })
@@ -301,16 +301,16 @@ export abstract class SchemaGenerator<
           {
             keyword: schemaKeywords.union,
             args: enumNames
-              ? enumNames?.args?.map(({ key, value }, index) => {
+              ? enumNames?.args?.map(({ name, value }) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: { key: transformers.toIndexKey(key as string), value: transformers.toIndexKey(value) },
+                  args: { name, value: transformers.toNumber(value) },
                 }
               })
               : [...new Set(schema.enum)].map((value: string) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: { key: transformers.toIndexKey(value), value: transformers.toIndexKey(value) },
+                  args: { name: value, value: transformers.toNumber(value) },
                 }
               }),
           },
@@ -326,8 +326,8 @@ export abstract class SchemaGenerator<
         {
           keyword: schemaKeywords.enum,
           args: [...new Set(schema.enum)].map((value: string) => ({
-            key: transformers.toIndexKey(value),
-            value: transformers.toIndexKey(value),
+            name: transformers.stringify(value),
+            value: transformers.stringify(value),
           })),
         },
         ...baseItems,
@@ -374,12 +374,12 @@ export abstract class SchemaGenerator<
       // const keyword takes precendence over the actual type.
       if (schema['const']) {
         if (typeof schema['const'] === 'string') {
-          return [{ keyword: schemaKeywords.literal, args: { key: `"${schema['const']}"`, value: `"${schema['const']}"` } }]
+          return [{ keyword: schemaKeywords.literal, args: { name: `"${schema['const']}"`, value: `"${schema['const']}"` } }]
         } else if (typeof schema['const'] === 'number') {
-          return [{ keyword: schemaKeywords.literal, args: { key: schema['const'], value: schema['const'] } }]
+          return [{ keyword: schemaKeywords.literal, args: { name: schema['const'], value: schema['const'] } }]
         }
       } else {
-        return [{ keyword: schemaKeywords.literal, args: { key: 'z.null()', value: 'z.null()' } }]
+        return [{ keyword: schemaKeywords.literal, args: { name: 'z.null()', value: 'z.null()' } }]
       }
     }
 

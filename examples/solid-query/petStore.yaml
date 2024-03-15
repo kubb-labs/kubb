@@ -756,7 +756,7 @@ components:
           type: string
       xml:
         name: tag
-        
+
     Pet:
       required:
         - name

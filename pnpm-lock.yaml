@@ -1164,6 +1164,9 @@ importers:
       semver:
         specifier: ^7.6.0
         version: 7.6.0
+      unraw:
+        specifier: ^3.0.0
+        version: 3.0.0
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -10600,6 +10603,10 @@ packages:
       chokidar: 3.6.0
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.6.1
+
+  /unraw@3.0.0:
+    resolution: {integrity: sha512-08/DA66UF65OlpUDIQtbJyrqTR0jTAlJ+jsnkQ4jxR7+K5g5YG1APZKQSMCE1vqqmD+2pv6+IdEjmopFatacvg==}
+    dev: false
 
   /untyped@1.4.2:
     resolution: {integrity: sha512-nC5q0DnPEPVURPhfPQLahhSTnemVtPzdx7ofiRxXpOB2SYnb3MfdU3DVGyJdS8Lx+tBWeAePO8BfU/3EgksM7Q==}
