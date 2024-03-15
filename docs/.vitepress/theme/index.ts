@@ -1,6 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
 import { inject } from '@vercel/analytics'
 import DefaultTheme from 'vitepress/theme'
+import { injectSpeedInsights } from '@vercel/speed-insights'
 import { h } from 'vue'
 
 import HomePage from './HomePage.vue'
@@ -22,6 +23,7 @@ export default {
     })
   },
   enhanceApp(ctx: any) {
+    injectSpeedInsights()
     DefaultTheme.enhanceApp(ctx)
   },
 }

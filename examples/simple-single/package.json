@@ -31,7 +31,7 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/react-query": "^4.36.1",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
     "zod": "^3.22.4"
