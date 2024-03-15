@@ -26,7 +26,7 @@ export type Query = {
 
 export type Mutate = {
   /**
-   * Define the way of passing thought the queryParams, headerParams and data.
+   * Define the way of passing through the queryParams, headerParams and data.
    * @default `'hook'`
    */
   variablesType?: 'mutate' | 'hook'

@@ -65,9 +65,9 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "@types/lodash.tonumber": "^4.0.9",
     "eslint": "^8.57.0",
     "lodash.tonumber": "^4.0.3",
-    "@types/lodash.tonumber": "^4.0.3",
     "tsup": "^8.0.2"
   },
   "packageManager": "pnpm@8.3.0",

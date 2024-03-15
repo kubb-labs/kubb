@@ -24,7 +24,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "tsup": "^8.0.2"
   },
   "devDependencies": {

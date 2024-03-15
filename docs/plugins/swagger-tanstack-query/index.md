@@ -365,9 +365,11 @@ export default defineConfig({
 
 :::
 
-### variablesType
+### mutate
 
-Define the way of passing thought the queryParams, headerParams and data.
+#### variablesType
+
+Define the way of passing through the queryParams, headerParams and data.
 
 `'mutate'` will use the `mutate` or `mutateAsync` function. <br/>
 `'hook'` will use the `useMutation` hook.
@@ -417,7 +419,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerTanstackQuery(
       {
-        variablesType: 'mutate',
+        mutate: {
+          variablesType: 'mutate',
+        },
       },
     ),
   ],
@@ -442,7 +446,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerTanstackQuery(
       {
-        variablesType: 'hook',
+        mutate: {
+          variablesType: 'hook',
+        },
       },
     ),
   ],
