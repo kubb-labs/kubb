@@ -70,6 +70,9 @@ importers:
       '@vercel/analytics':
         specifier: ^1.2.2
         version: 1.2.2
+      '@vercel/speed-insights':
+        specifier: ^1.0.10
+        version: 1.0.10(vue@3.4.21)
       sitemap:
         specifier: ^7.1.1
         version: 7.1.1
@@ -4577,6 +4580,33 @@ packages:
         optional: true
     dependencies:
       server-only: 0.0.1
+    dev: false
+
+  /@vercel/speed-insights@1.0.10(vue@3.4.21):
+    resolution: {integrity: sha512-4uzdKB0RW6Ff2FkzshzjZ+RlJfLPxgm/00i0XXgxfMPhwnnsk92YgtqsxT9OcPLdJUyVU1DqFlSWWjIQMPkh0g==}
+    requiresBuild: true
+    peerDependencies:
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19
+      svelte: ^4
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
+    dependencies:
+      vue: 3.4.21(typescript@5.4.2)
     dev: false
 
   /@vitejs/plugin-react@4.2.1(vite@4.5.2):
