@@ -52,7 +52,7 @@ describe('OperationGenerator', async () => {
         override: undefined,
       },
     )
-    const operation = oas.operation('/pets/{uuid}', 'get')
+    const operation = oas.operation('/pet/{petId}', 'get')
     const files = await og.get(operation, options) as KubbFile.File[]
 
     files.forEach(file => {
@@ -92,7 +92,7 @@ describe('OperationGenerator', async () => {
         override: undefined,
       },
     )
-    const operation = oas.operation('/pets/{pet_id}', 'get')
+    const operation = oas.operation('/pet/{petId}', 'get')
     const files = await og.get(operation, options) as KubbFile.File[]
 
     files.forEach(file => {
@@ -135,7 +135,7 @@ describe('OperationGenerator', async () => {
         override: undefined,
       },
     )
-    const operation = oas.operation('/pets', 'post')
+    const operation = oas.operation('/pet', 'post')
     const files = await og.post(operation, options) as KubbFile.File[]
 
     files.forEach(file => {

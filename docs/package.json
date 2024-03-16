@@ -20,12 +20,13 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.2.2",
+    "@vercel/speed-insights": "^1.0.10",
     "sitemap": "^7.1.1",
     "vitepress": "^1.0.0-rc.45",
     "vue": "^3.4.21"
   },
   "devDependencies": {
-    "@types/node": "^20.11.25"
+    "@types/node": "^20.11.28"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

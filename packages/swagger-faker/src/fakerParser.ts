@@ -81,7 +81,14 @@ export function parseFakerMeta(
   if (isKeyword(item, schemaKeywords.enum)) {
     return `${value}(${
       Array.isArray(item.args)
-        ? `[${item.args.map(item => item.name).join(', ')}]`
+        ? `[${
+          item.args.map(item => {
+            if (item.format === 'number') {
+              return item.name
+            }
+            return transformers.stringify(item.name)
+          }).join(', ')
+        }]`
         : parseFakerMeta(item.args)
     })`
   }
@@ -115,7 +122,10 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.literal)) {
-    return item.args.name?.toString()
+    if (item.args.format === 'number') {
+      return item.args.name?.toString()
+    }
+    return transformers.stringify(item.args.value)
   }
 
   if (isKeyword(item, schemaKeywords.ref)) {

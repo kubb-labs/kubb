@@ -44,7 +44,7 @@ exports[`ZodGenerator constCases > MixedValueTypeConst generates zod literal val
 
 exports[`ZodGenerator constCases > NullConst zodifies correctly 1`] = `
 [
-  "export const NullConst = z.literal(z.null());",
+  "export const NullConst = z.null();",
 ]
 `;
 

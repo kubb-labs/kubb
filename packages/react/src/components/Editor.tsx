@@ -12,6 +12,7 @@ export type EditorContextProps = {
 const EditorContext = createContext<EditorContextProps>({ language: 'text' })
 
 type Props = {
+  key?: React.Key
   /**
    * Name of the language used.
    * @default 'text'
@@ -30,9 +31,9 @@ export function TypeScript({ children }: Omit<Props, 'language'>): KubbNode {
   return children
 }
 
-export function Editor({ language = 'text', children }: Props): KubbNode {
+export function Editor({ key, language = 'text', children }: Props): KubbNode {
   return (
-    <kubb-editor language={language}>
+    <kubb-editor key={key} language={language}>
       <EditorContext.Provider value={{ language }}>
         {children}
       </EditorContext.Provider>

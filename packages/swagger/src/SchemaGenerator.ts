@@ -290,6 +290,7 @@ export abstract class SchemaGenerator<
             args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
               name: transformers.stringify(name),
               value: schema.enum![index] as string | number,
+              format: transformers.isNumber(schema.enum![index]) ? 'number' : 'string',
             })),
           }, ...baseItems]
         })
@@ -304,13 +305,13 @@ export abstract class SchemaGenerator<
               ? enumNames?.args?.map(({ name, value }) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: { name, value: transformers.toNumber(value) },
+                  args: { name, format: 'number', value },
                 }
               })
               : [...new Set(schema.enum)].map((value: string) => {
                 return {
                   keyword: schemaKeywords.literal,
-                  args: { name: value, value: transformers.toNumber(value) },
+                  args: { name: value, format: 'number', value },
                 }
               }),
           },
@@ -327,7 +328,8 @@ export abstract class SchemaGenerator<
           keyword: schemaKeywords.enum,
           args: [...new Set(schema.enum)].map((value: string) => ({
             name: transformers.stringify(value),
-            value: transformers.stringify(value),
+            value,
+            format: transformers.isNumber(value) ? 'number' : 'string',
           })),
         },
         ...baseItems,
@@ -373,13 +375,12 @@ export abstract class SchemaGenerator<
     if (version === '3.1' && 'const' in schema) {
       // const keyword takes precendence over the actual type.
       if (schema['const']) {
-        if (typeof schema['const'] === 'string') {
-          return [{ keyword: schemaKeywords.literal, args: { name: `"${schema['const']}"`, value: `"${schema['const']}"` } }]
-        } else if (typeof schema['const'] === 'number') {
-          return [{ keyword: schemaKeywords.literal, args: { name: schema['const'], value: schema['const'] } }]
-        }
+        return [{
+          keyword: schemaKeywords.literal,
+          args: { name: schema['const'], format: typeof schema['const'] === 'number' ? 'number' : 'string', value: schema['const'] },
+        }]
       } else {
-        return [{ keyword: schemaKeywords.literal, args: { name: 'z.null()', value: 'z.null()' } }]
+        return [{ keyword: schemaKeywords.null }]
       }
     }
 

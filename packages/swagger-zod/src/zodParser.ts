@@ -66,7 +66,14 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
   if (isKeyword(item, schemaKeywords.enum)) {
     return `${value}(${
       Array.isArray(item.args)
-        ? `[${item.args.map(item => item.value).join(',')}]`
+        ? `[${
+          item.args.map(item => {
+            if (item.format === 'number') {
+              return item.value
+            }
+            return transformers.stringify(item.value)
+          }).join(',')
+        }]`
         : parseZodMeta(item.args)
     })`
   }
@@ -138,7 +145,10 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
   }
 
   if (isKeyword(item, schemaKeywords.literal)) {
-    return `${value}(${item.args.value})`
+    if (item.args.format === 'number') {
+      return `${value}(${transformers.toNumber(item.args.value)})`
+    }
+    return `${value}(${transformers.stringify(item.args.value)})`
   }
 
   if (isKeyword(item, schemaKeywords.matches)) {
