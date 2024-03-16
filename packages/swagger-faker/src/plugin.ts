@@ -86,7 +86,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = await swaggerPlugin.api.getSchemas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
-      const builder = new FakerBuilder(this.plugin.options, { oas, pluginManager: this.pluginManager })
+      const builder = new FakerBuilder(this.plugin.options, { oas, plugin: this.plugin, pluginManager: this.pluginManager })
 
       builder.add(
         Object.entries(schemas).map(([name, schema]: [string, OasTypes.SchemaObject]) => ({ name, schema })),

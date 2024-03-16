@@ -40,10 +40,12 @@ declare global {
       }
 
       'kubb-import': KubbFile.Import & {
+        key?: Key
         print?: boolean
       }
 
       'kubb-export': KubbFile.Export & {
+        key?: Key
         print?: boolean
       }
 

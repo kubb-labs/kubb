@@ -104,7 +104,7 @@ type FileProps = {
 }
 
 Query.File = function({ mode }: FileProps): ReactNode {
-  const { options } = usePlugin<PluginOptions>()
+  const plugin = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
@@ -113,7 +113,7 @@ Query.File = function({ mode }: FileProps): ReactNode {
   const factoryName = useOperationName({ type: 'type' })
   const operation = useOperation()
 
-  const builder = new TypeBuilder(options, { oas, pluginManager })
+  const builder = new TypeBuilder(plugin.options, { oas, plugin, pluginManager })
     .add(schemas.pathParams)
     .add(schemas.queryParams)
     .add(schemas.headerParams)
