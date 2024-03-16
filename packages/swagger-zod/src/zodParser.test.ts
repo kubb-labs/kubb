@@ -98,7 +98,7 @@ const input = [
         { name: 2, value: 2, format: 'number' },
       ],
     }),
-    expected: 'z.enum(["A","B","C",2])',
+    expected: 'z.enum(["A","B","C","2"])',
   },
 
   {

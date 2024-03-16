@@ -92,7 +92,7 @@ exports[`ZodGenerator enums > generate x-enum-varnames types 1`] = `
 
 exports[`ZodGenerator enums > generate x-enumNames types 1`] = `
 [
-  "export const enumNames = z.enum([0,1]);",
+  "export const enumNames = z.enum(["0","1"]);",
 ]
 `;
 

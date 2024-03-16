@@ -1,7 +1,7 @@
 import { trimQuotes } from './trim'
 
 export function stringify(text: string | number | undefined): string {
-  if (!text) {
+  if (text === undefined) {
     return '""'
   }
   return JSON.stringify(trimQuotes(text.toString()))

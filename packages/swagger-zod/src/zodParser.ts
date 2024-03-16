@@ -69,7 +69,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
         ? `[${
           item.args.map(item => {
             if (item.format === 'number') {
-              return item.value
+              return transformers.stringify(item.value)
             }
             return transformers.stringify(item.value)
           }).join(',')
