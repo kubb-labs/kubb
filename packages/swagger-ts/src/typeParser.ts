@@ -106,10 +106,11 @@ export function typeParser(
   options: { name: string; required?: boolean; keysToOmit?: string[]; mapper?: typeof typeKeywordMapper },
 ): string {
   if (!items.length) {
-    return ``
+    return ''
   }
 
   const type = items.map((item) => parseTypeMeta(item, { ...typeKeywordMapper, ...options.mapper })).filter(Boolean).at(0) as ts.TypeNode
+    || typeKeywordMapper.undefined()
 
   const node = factory.createTypeAliasDeclaration({
     modifiers: [factory.modifiers.export],
