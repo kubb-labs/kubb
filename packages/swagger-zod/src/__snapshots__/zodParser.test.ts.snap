@@ -1,55 +1,61 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 1`] = `"z.string()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'and', schema: { keyword: 'and', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"z.string().and(z.number())"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 2`] = `"z.number()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'any', schema: { keyword: 'any' } } 1`] = `"z.any()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 3`] = `"z.boolean()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'array', schema: { keyword: 'array', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"z.array(z.string()z.number())"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 4`] = `"z.date()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'arrayEmpty', schema: { keyword: 'array', args: [] } } 1`] = `"z.array()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 5`] = `"z.string().datetime()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `"z.array(z.lazy(() => Pet))"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 6`] = `"z.any()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'blob', schema: { keyword: 'blob' } } 1`] = `undefined`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 7`] = `".nullable()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'boolean', schema: { keyword: 'boolean' } } 1`] = `"z.boolean()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 8`] = `"z.undefined()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'catchall', schema: { keyword: 'catchall', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `".catchall(z.lazy(() => Pet))"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 9`] = `".min(2)"`;
+exports[`parseZodMeta > parseZodMeta { name: 'date', schema: { keyword: 'date' } } 1`] = `"z.date()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 10`] = `".max(2)"`;
+exports[`parseZodMeta > parseZodMeta { name: 'datetime', schema: { keyword: 'datetime' } } 1`] = `"z.string().datetime()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 11`] = `".regex(new RegExp('node_modules'))"`;
+exports[`parseZodMeta > parseZodMeta { name: 'default', schema: { keyword: 'default' } } 1`] = `".default()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 12`] = `".regex(new RegExp('^[A-Z]{2}$'))"`;
+exports[`parseZodMeta > parseZodMeta { name: 'default', schema: { keyword: 'default', args: 'default' } } 1`] = `".default(default)"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 13`] = `"z.lazy(() => Pet)"`;
+exports[`parseZodMeta > parseZodMeta { name: 'matches', schema: { keyword: 'matches', args: '^[A-Z]{2}$' } } 1`] = `".regex(new RegExp('^[A-Z]{2}$'))"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 14`] = `"z.enum(["A","B","C","2"])"`;
+exports[`parseZodMeta > parseZodMeta { name: 'matchesReg', schema: { keyword: 'matches', args: '/node_modules/' } } 1`] = `".regex(new RegExp('node_modules'))"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 15`] = `"z.tuple([])"`;
+exports[`parseZodMeta > parseZodMeta { name: 'max', schema: { keyword: 'max', args: 2 } } 1`] = `".max(2)"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 16`] = `"z.tuple([z.string(),z.number()])"`;
+exports[`parseZodMeta > parseZodMeta { name: 'min', schema: { keyword: 'min', args: 2 } } 1`] = `".min(2)"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 17`] = `"z.array()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'nullable', schema: { keyword: 'nullable' } } 1`] = `".nullable()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 18`] = `"z.array(z.lazy(() => Pet))"`;
+exports[`parseZodMeta > parseZodMeta { name: 'number', schema: { keyword: 'number' } } 1`] = `"z.number()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 19`] = `"z.union([z.string(),z.number()])"`;
+exports[`parseZodMeta > parseZodMeta { name: 'object', schema: { keyword: 'object', args: { entries: { firstName: [ { keyword: 'string' }, { keyword: 'min', args: 2 } ], address: [ { keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' } ] } } } } 1`] = `"z.object({"firstName": z.string().min(2),"address": z.string().nullable().describe("Your address")})"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 20`] = `"z.string()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'objectEmpty', schema: { keyword: 'object' } } 1`] = `"z.object({})"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 21`] = `".catchall(z.lazy(() => Pet))"`;
+exports[`parseZodMeta > parseZodMeta { name: 'ref', schema: { keyword: 'enum', args: [ { name: 'A', value: 'A', format: 'string' }, { name: 'B', value: 'B', format: 'string' }, { name: 'C', value: 'C', format: 'string' }, { name: 2, value: 2, format: 'number' } ] } } 1`] = `"z.enum(["A","B","C","2"])"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 22`] = `"z.string().and(z.number())"`;
+exports[`parseZodMeta > parseZodMeta { name: 'ref', schema: { keyword: 'ref', args: { name: 'Pet' } } } 1`] = `"z.lazy(() => Pet)"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 23`] = `"z.object({"firstName": z.string().min(2),"address": z.string().nullable().describe("Your address")})"`;
+exports[`parseZodMeta > parseZodMeta { name: 'string', schema: { keyword: 'string' } } 1`] = `"z.string()"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 24`] = `"z.object({})"`;
+exports[`parseZodMeta > parseZodMeta { name: 'tuple', schema: { keyword: 'tuple', args: [] } } 1`] = `"z.tuple([])"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 25`] = `".default()"`;
+exports[`parseZodMeta > parseZodMeta { name: 'tupleMulti', schema: { keyword: 'tuple', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"z.tuple([z.string(),z.number()])"`;
 
-exports[`parseZodMeta > .parseZodMeta(undefined, undefined) 26`] = `".default(default)"`;
+exports[`parseZodMeta > parseZodMeta { name: 'undefined', schema: { keyword: 'undefined' } } 1`] = `"z.undefined()"`;
 
-exports[`zodParser > .zodParser(undefined, undefined) 1`] = `"export const blob = '';"`;
+exports[`parseZodMeta > parseZodMeta { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"z.union([z.string(),z.number()])"`;
+
+exports[`parseZodMeta > parseZodMeta { name: 'unionOne', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `"z.string()"`;
+
+exports[`parseZodMeta > parseZodMeta { name: 'unknown', schema: { keyword: 'unknown' } } 1`] = `"z.unknown()"`;
+
+exports[`zodParser > zodParser { name: 'blob', schema: [] } 1`] = `"export const blob = '';"`;

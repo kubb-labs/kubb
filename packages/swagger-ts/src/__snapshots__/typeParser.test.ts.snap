@@ -15,21 +15,9 @@ exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'arra
 "
 `;
 
-exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'array', args: [] } } 1`] = `""`;
-
-exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
-"(string | number)
-"
-`;
-
 exports[`parseTypeMeta > parseTypeMeta { name: 'arrayEmpty', schema: { keyword: 'array', args: [] } } 1`] = `""`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `""`;
-
-exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
-"(string | number)
-"
-`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'blob', schema: { keyword: 'blob' } } 1`] = `
 "Blob
@@ -97,11 +85,6 @@ exports[`parseTypeMeta > parseTypeMeta { name: 'tupleMulti', schema: { keyword: 
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'undefined', schema: { keyword: 'undefined' } } 1`] = `
 "undefined
-"
-`;
-
-exports[`parseTypeMeta > parseTypeMeta { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `
-"string
 "
 `;
 
