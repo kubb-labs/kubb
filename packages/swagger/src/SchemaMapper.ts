@@ -11,24 +11,24 @@ export type SchemaKeywordMapper = {
   password: { keyword: 'password' }
   date: { keyword: 'date' }
   datetime: { keyword: 'datetime' }
-  tuple: { keyword: 'tuple'; args?: Schema[] }
+  tuple: { keyword: 'tuple'; args: Schema[] }
   array: { keyword: 'array'; args: Schema[] }
-  enum: { keyword: 'enum'; args?: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }> }
+  enum: { keyword: 'enum'; args: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }> }
   and: { keyword: 'and'; args: Schema[] }
   literal: { keyword: 'literal'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
   union: { keyword: 'union'; args: Schema[] }
-  ref: { keyword: 'ref'; args?: { name: string } }
+  ref: { keyword: 'ref'; args: { name: string } }
   catchall: { keyword: 'catchall'; args?: Schema[] }
   lazy: { keyword: 'lazy' }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
-  default: { keyword: 'default'; args?: string | number | boolean }
+  default: { keyword: 'default'; args: string | number | boolean }
   string: { keyword: 'string'; args?: { min?: number; max?: number } }
   integer: { keyword: 'integer'; args?: { min?: number; max?: number } }
   number: { keyword: 'number'; args?: { min?: number; max?: number } }
-  max: { keyword: 'max'; args?: number }
-  min: { keyword: 'min'; args?: number }
-  describe: { keyword: 'describe'; args?: string }
+  max: { keyword: 'max'; args: number }
+  min: { keyword: 'min'; args: number }
+  describe: { keyword: 'describe'; args: string }
   optional: { keyword: 'optional' }
   undefined: { keyword: 'undefined' }
   nullish: { keyword: 'nullish' }

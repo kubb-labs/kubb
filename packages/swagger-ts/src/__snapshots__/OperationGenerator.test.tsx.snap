@@ -3,7 +3,7 @@
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`] = `
 "import type { DeletePetPetidMutationResponse } from "./DeletePetPetidMutationResponse";
 
- export type DeletePetPetidMutationResponse = ;
+ export type DeletePetPetidMutationResponse = any;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
@@ -13,7 +13,7 @@ export type DeletePetPetidMutation = {
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\` 1`] = `
 "import type { DeletePetPetidMutationResponse } from "./DeletePetPetidMutationResponse";
 
- export type DeletePetPetidMutationResponse = ;
+ export type DeletePetPetidMutationResponse = unknown;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
@@ -28,7 +28,7 @@ import type { ListPetsError } from "./ListPetsError";
 import type { ListPetsQueryParams } from "./ListPetsQueryParams";
 import type { ListPetsQueryResponse } from "./ListPetsQueryResponse";
 
- export type ListPetsQueryParams = ;
+ export type ListPetsQueryParams = object;
 
  /**
  * @description A paged array of pets
@@ -59,7 +59,7 @@ import type { ShowPetByIdError } from "./ShowPetByIdError";
 import type { ShowPetByIdPathParams } from "./ShowPetByIdPathParams";
 import type { ShowPetByIdQueryResponse } from "./ShowPetByIdQueryResponse";
 
- export type ShowPetByIdPathParams = ;
+ export type ShowPetByIdPathParams = object;
 
  /**
  * @description Expected response to a valid request
@@ -89,7 +89,7 @@ import type { CreatePetsError } from "./CreatePetsError";
 import type { CreatePetsMutationRequest } from "./CreatePetsMutationRequest";
 import type { CreatePetsMutationResponse } from "./CreatePetsMutationResponse";
 
- export type CreatePetsMutationRequest = ;
+ export type CreatePetsMutationRequest = object;
 
  /**
  * @description unexpected error
@@ -99,12 +99,12 @@ export type CreatePetsError = ;
  /**
  * @description Null response
  */
-export type CreatePets201 = ;
+export type CreatePets201 = object;
 
  /**
  * @description Null response
  */
-export type CreatePetsMutationResponse = ;
+export type CreatePetsMutationResponse = object;
 export type CreatePetsMutation = {
     Response: CreatePetsMutationResponse;
     Request: CreatePetsMutationRequest;

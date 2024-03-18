@@ -8,7 +8,8 @@ import type { Schema } from '@kubb/swagger'
 
 describe('parseTypeMeta', () => {
   test.each(schemas)('parseTypeMeta %o', ({ schema }) => {
-    const text = print([parseTypeMeta(schema)])
+    const parsed = parseTypeMeta(schema)
+    const text = parsed ? print(parsed) : undefined
 
     expect(text).toMatchSnapshot()
   })

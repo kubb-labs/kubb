@@ -78,11 +78,11 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]`
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}] as any`
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.tuple)) {

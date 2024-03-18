@@ -18,16 +18,24 @@ export const typeKeywordMapper = {
   nullable: undefined,
   null: () => factory.keywordTypeNodes.null,
   nullish: undefined,
-  array: (nodes: ts.TypeNode[]) => {
-    return factory.createArrayDeclaration({ nodes })!
+  array: (nodes?: ts.TypeNode[]) => {
+    if (!nodes) {
+      return undefined
+    }
+
+    return factory.createArrayDeclaration({ nodes })
   },
   tuple: undefined,
   enum: undefined,
-  union: (nodes: ts.TypeNode[]) => {
+  union: (nodes?: ts.TypeNode[]) => {
+    if (!nodes) {
+      return undefined
+    }
+
     return factory.createUnionDeclaration({
       withParentheses: true,
       nodes,
-    })!
+    })
   },
   literal: undefined,
   datetime: () => factory.keywordTypeNodes.string,
@@ -36,11 +44,15 @@ export const typeKeywordMapper = {
   url: undefined,
   strict: undefined,
   default: undefined,
-  and: (nodes: ts.TypeNode[]) => {
+  and: (nodes?: ts.TypeNode[]) => {
+    if (!nodes) {
+      return undefined
+    }
+
     return factory.createIntersectionDeclaration({
       withParentheses: true,
       nodes,
-    })!
+    })
   },
   describe: undefined,
   min: undefined,
@@ -57,9 +69,9 @@ export const typeKeywordMapper = {
   ref: undefined,
 
   blob: () => factory.createTypeReferenceNode('Blob', []),
-} satisfies SchemaMapper<(ctx?: any) => ts.Node>
+} satisfies SchemaMapper<(ctx?: any) => ts.Node | null | undefined>
 
-export function parseTypeMeta(item: Schema = {} as Schema, mapper: SchemaMapper<(ctx?: any) => ts.Node> = typeKeywordMapper): ts.Node | undefined {
+export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKeywordMapper = typeKeywordMapper): ts.Node | null | undefined {
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
@@ -91,7 +103,7 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: SchemaMapper<
 
 export function typeParser(
   items: Schema[],
-  options: { name: string; required?: boolean; keysToOmit?: string[]; mapper?: SchemaMapper<(ctx?: any) => ts.Node> },
+  options: { name: string; required?: boolean; keysToOmit?: string[]; mapper?: typeof typeKeywordMapper },
 ): string {
   if (!items.length) {
     return ``

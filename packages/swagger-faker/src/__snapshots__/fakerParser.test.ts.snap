@@ -13,11 +13,11 @@ exports[`parseFakerMeta > parseFaker { name: 'and', schema: { keyword: 'and', ar
 
 exports[`parseFakerMeta > parseFaker { name: 'any', schema: { keyword: 'any' } } 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'array', schema: { keyword: 'array', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()] as any"`;
+exports[`parseFakerMeta > parseFaker { name: 'array', schema: { keyword: 'array', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'arrayEmpty', schema: { keyword: 'array', args: [] } } 1`] = `"faker.helpers.arrayElements([] as any"`;
+exports[`parseFakerMeta > parseFaker { name: 'arrayEmpty', schema: { keyword: 'array', args: [] } } 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `"faker.helpers.arrayElements([Pet()] as any"`;
+exports[`parseFakerMeta > parseFaker { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
 
 exports[`parseFakerMeta > parseFaker { name: 'blob', schema: { keyword: 'blob' } } 1`] = `undefined`;
 
@@ -61,8 +61,8 @@ exports[`parseFakerMeta > parseFaker { name: 'tupleMulti', schema: { keyword: 't
 
 exports[`parseFakerMeta > parseFaker { name: 'undefined', schema: { keyword: 'undefined' } } 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElement([faker.string.alpha(),faker.number.float()]"`;
+exports[`parseFakerMeta > parseFaker { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElement([faker.string.alpha(),faker.number.float()]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'unionOne', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `"faker.helpers.arrayElement([faker.string.alpha()]"`;
+exports[`parseFakerMeta > parseFaker { name: 'unionOne', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `"faker.helpers.arrayElement([faker.string.alpha()]) as any"`;
 
 exports[`parseFakerMeta > parseFaker { name: 'unknown', schema: { keyword: 'unknown' } } 1`] = `"unknown()"`;

@@ -7,7 +7,13 @@ import { typeParser } from './typeParser.ts'
 
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions } from '@kubb/swagger'
 
-type Options = SchemaGeneratorOptions & {}
+type Options = SchemaGeneratorOptions & {
+  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumSuffix?: string
+  usedEnumNames: Record<string, number>
+  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
+  oasType: 'infer' | false
+}
 
 export class TypeGenerator extends SchemaGenerator<Options> {
   build({
@@ -26,7 +32,7 @@ export class TypeGenerator extends SchemaGenerator<Options> {
     const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' })
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const fakerOutput = typeParser(fakerInput, {
+    const typeOutput = typeParser(fakerInput, {
       name,
       typeName,
       mapper: this.options.mapper,
@@ -54,7 +60,7 @@ export class TypeGenerator extends SchemaGenerator<Options> {
       }
     }
 
-    texts.push(fakerOutput)
+    texts.push(typeOutput)
 
     return texts
   }
