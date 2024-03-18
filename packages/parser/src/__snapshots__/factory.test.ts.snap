@@ -14,6 +14,16 @@ exports[`codegen > appendJSDocToNode 2`] = `
 "
 `;
 
+exports[`codegen > createArrayDeclaration 1`] = `
+"Array<string | number>
+"
+`;
+
+exports[`codegen > createArrayDeclaration 2`] = `
+"string[]
+"
+`;
+
 exports[`codegen > createEnumDeclaration 1`] = `
 "export enum Hello {
   'hello' = 'world',

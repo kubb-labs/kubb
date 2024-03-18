@@ -107,6 +107,25 @@ export function createTupleDeclaration({
 
   return node
 }
+
+export function createArrayDeclaration({
+  nodes,
+}: {
+  nodes: Array<ts.TypeNode>
+}): ts.TypeNode | null {
+  if (!nodes.length) {
+    return null
+  }
+
+  if (nodes.length == 1) {
+    return factory.createArrayTypeNode(nodes.at(0)!)
+  }
+
+  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [
+    factory.createUnionTypeNode(nodes),
+  ])
+}
+
 /**
  * Minimum nodes length of 2
  * @example `string | number`
