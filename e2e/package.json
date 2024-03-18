@@ -33,7 +33,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
     "@tanstack/react-query": "^5.28.4",
-    "@tanstack/solid-query": "^5.28.4",
+    "@tanstack/solid-query": "^5.28.5",
     "@tanstack/svelte-query": "^5.28.4",
     "@tanstack/vue-query": "^5.28.4",
     "@zodios/core": "^10.9.6",
