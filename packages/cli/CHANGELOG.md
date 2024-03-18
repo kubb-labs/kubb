@@ -1,5 +1,12 @@
 # @kubb/cli
 
+## 2.9.1
+
+### Patch Changes
+
+- Updated dependencies [[`6109ffa`](https://github.com/kubb-project/kubb/commit/6109ffa77aa9e6d629eff06850d2fe4bcd62088c)]:
+  - @kubb/core@2.9.1
+
 ## 2.9.0
 
 ### Patch Changes
