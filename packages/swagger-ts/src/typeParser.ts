@@ -1,3 +1,4 @@
+import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
@@ -66,7 +67,13 @@ export const typeKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
-  ref: undefined,
+  ref: (propertyName?: string) => {
+    if (!propertyName) {
+      return undefined
+    }
+
+    return factory.createTypeReferenceNode(propertyName, undefined)
+  },
 
   blob: () => factory.createTypeReferenceNode('Blob', []),
 } satisfies SchemaMapper<(ctx?: any) => ts.Node | null | undefined>
@@ -79,20 +86,29 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['union']
     return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['and']
     return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['array']
     return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+  }
+
+  if (isKeyword(item, schemaKeywords.ref)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['ref']
+    return value(item.args.name)
   }
 
   if (isKeyword(item, schemaKeywords.blob)) {
     return value()
   }
+  // TODO for object: loop over all keyword and search for describe, default, .. and use appendJSDocToNode
 
   if (item.keyword in mapper) {
     return value()
@@ -103,14 +119,20 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
 
 export function typeParser(
   items: Schema[],
-  options: { name: string; required?: boolean; keysToOmit?: string[]; mapper?: typeof typeKeywordMapper },
+  options: { name: string; description?: string; required?: boolean; keysToOmit?: string[]; mapper?: typeof typeKeywordMapper },
 ): string {
+  const nodes: ts.Node[] = []
+
   if (!items.length) {
     return ''
   }
 
-  const type = items.map((item) => parseTypeMeta(item, { ...typeKeywordMapper, ...options.mapper })).filter(Boolean).at(0) as ts.TypeNode
+  let type = items.map((item) => parseTypeMeta(item, { ...typeKeywordMapper, ...options.mapper })).filter(Boolean).at(0) as ts.TypeNode
     || typeKeywordMapper.undefined()
+
+  if (!options.required) {
+    type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
+  }
 
   const node = factory.createTypeAliasDeclaration({
     modifiers: [factory.modifiers.export],
@@ -118,7 +140,16 @@ export function typeParser(
     type: options.keysToOmit?.length ? factory.createOmitDeclaration({ keys: options.keysToOmit, type, nonNullable: true }) : type,
   })
 
-  const nodes = [node]
+  if (options.description) {
+    nodes.push(
+      factory.appendJSDocToNode({
+        node,
+        comments: [`@description ${transformers.trim(options.description)}`],
+      }),
+    )
+  } else {
+    nodes.push(node)
+  }
 
   return print(nodes)
 }

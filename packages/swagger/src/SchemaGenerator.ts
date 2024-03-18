@@ -90,10 +90,12 @@ export abstract class SchemaGenerator<
         const validationFunctions: Schema[] = []
 
         const schema = properties[name] as OasTypes.SchemaObject & { 'x-nullable': boolean }
+        // TODO replace name with this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey, type: 'type' }
         const isRequired = Array.isArray(required) ? required.includes(name) : !!required
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
+        // TODO null check to getTypeFromSchema?
         const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
 
         if (!isRequired && nullable) {
@@ -103,6 +105,7 @@ export abstract class SchemaGenerator<
         } else if (!isRequired) {
           validationFunctions.push({ keyword: schemaKeywords.optional })
         }
+        // TODO add keyword readOnly
 
         return {
           [name]: validationFunctions,
@@ -192,6 +195,8 @@ export abstract class SchemaGenerator<
     if (schema.description) {
       baseItems.push({ keyword: schemaKeywords.describe, args: schema.description })
     }
+    // TODO schema.example, schema.decpreacted, ...
+    // TODO optionalType
 
     if (schema.oneOf) {
       // union
@@ -274,6 +279,36 @@ export abstract class SchemaGenerator<
 
       return [and]
     }
+
+    /**
+     * Enum will be defined outside the baseType(hints the baseName check)
+     */
+    // TODO enumref type that will be extracted inside of typeParser(no need to use extraNodes)
+    // if (schema.enum && baseName) {
+    //   const enumName = getUniqueName(pascalCase([baseName, this.options.enumSuffix].join(' ')), this.options.usedEnumNames)
+
+    //   let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
+
+    //   const extensionEnums: Array<typeof enums> = ['x-enumNames', 'x-enum-varnames']
+    //     .filter(extensionKey => extensionKey in schema)
+    //     .map((extensionKey) =>
+    //       [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((key, index) => [key, schema.enum?.[index] as string] as const)
+    //     )
+
+    //   if (extensionEnums.length > 0 && extensionEnums[0]) {
+    //     enums = extensionEnums[0]
+    //   }
+
+    //   this.extraNodes.push(
+    //     ...factory.createEnumDeclaration({
+    //       name: transformers.camelCase(enumName),
+    //       typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }),
+    //       enums,
+    //       type: this.options.enumType,
+    //     }),
+    //   )
+    //   return factory.createTypeReferenceNode(this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }), undefined)
+    // }
 
     if (schema.enum) {
       // x-enumNames has priority
