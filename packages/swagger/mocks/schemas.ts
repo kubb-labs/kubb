@@ -122,6 +122,13 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     name: 'array',
     schema: {
       keyword: schemaKeywords.array,
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    },
+  },
+  {
+    name: 'arrayEmpty',
+    schema: {
+      keyword: schemaKeywords.array,
       args: [],
     },
   },
@@ -133,14 +140,14 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: 'arrayRef',
+    name: 'union',
     schema: {
       keyword: schemaKeywords.union,
       args: [{ keyword: 'string' }, { keyword: 'number' }],
     },
   },
   {
-    name: 'union',
+    name: 'unionOne',
     schema: {
       keyword: schemaKeywords.union,
       args: [{ keyword: 'string' }],

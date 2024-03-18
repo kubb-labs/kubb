@@ -6,30 +6,42 @@ import type { ts } from '@kubb/parser'
 import type { Schema, SchemaMapper } from '@kubb/swagger'
 
 export const typeKeywordMapper = {
-  any: factory.keywordTypeNodes.any,
-  unknown: factory.keywordTypeNodes.unknown,
-  number: factory.keywordTypeNodes.number,
-  integer: factory.keywordTypeNodes.number,
-  object: factory.keywordTypeNodes.object,
+  any: () => factory.keywordTypeNodes.any,
+  unknown: () => factory.keywordTypeNodes.unknown,
+  number: () => factory.keywordTypeNodes.number,
+  integer: () => factory.keywordTypeNodes.number,
+  object: () => factory.keywordTypeNodes.object,
   lazy: undefined,
-  string: factory.keywordTypeNodes.string,
-  boolean: factory.keywordTypeNodes.boolean,
-  undefined: factory.keywordTypeNodes.undefined,
+  string: () => factory.keywordTypeNodes.string,
+  boolean: () => factory.keywordTypeNodes.boolean,
+  undefined: () => factory.keywordTypeNodes.undefined,
   nullable: undefined,
-  null: factory.keywordTypeNodes.null,
+  null: () => factory.keywordTypeNodes.null,
   nullish: undefined,
-  array: undefined,
+  array: (nodes: ts.TypeNode[]) => {
+    return factory.createArrayDeclaration({ nodes })!
+  },
   tuple: undefined,
   enum: undefined,
-  union: undefined,
+  union: (nodes: ts.TypeNode[]) => {
+    return factory.createUnionDeclaration({
+      withParentheses: true,
+      nodes,
+    })!
+  },
   literal: undefined,
-  datetime: undefined,
-  date: undefined,
+  datetime: () => factory.keywordTypeNodes.string,
+  date: () => factory.createTypeReferenceNode(factory.createIdentifier('Date')),
   uuid: undefined,
   url: undefined,
   strict: undefined,
   default: undefined,
-  and: undefined,
+  and: (nodes: ts.TypeNode[]) => {
+    return factory.createIntersectionDeclaration({
+      withParentheses: true,
+      nodes,
+    })!
+  },
   describe: undefined,
   min: undefined,
   max: undefined,
@@ -44,22 +56,34 @@ export const typeKeywordMapper = {
   readOnly: undefined,
   ref: undefined,
 
-  blob: factory.createTypeReferenceNode('Blob', []),
-} satisfies SchemaMapper<ts.Node>
+  blob: () => factory.createTypeReferenceNode('Blob', []),
+} satisfies SchemaMapper<(ctx?: any) => ts.Node>
 
-export function parseTypeMeta(item: Schema = {} as Schema, mapper: SchemaMapper<ts.Node> = typeKeywordMapper): ts.Node | undefined {
+export function parseTypeMeta(item: Schema = {} as Schema, mapper: SchemaMapper<(ctx?: any) => ts.Node> = typeKeywordMapper): ts.Node | undefined {
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
     return undefined
   }
 
+  if (isKeyword(item, schemaKeywords.union)) {
+    return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+  }
+
+  if (isKeyword(item, schemaKeywords.and)) {
+    return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+  }
+
+  if (isKeyword(item, schemaKeywords.array)) {
+    return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+  }
+
   if (isKeyword(item, schemaKeywords.blob)) {
-    return value
+    return value()
   }
 
   if (item.keyword in mapper) {
-    return value
+    return value()
   }
 
   return undefined
@@ -67,7 +91,7 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: SchemaMapper<
 
 export function typeParser(
   items: Schema[],
-  options: { name: string; required?: boolean; keysToOmit?: string[]; mapper?: SchemaMapper<ts.Node> },
+  options: { name: string; required?: boolean; keysToOmit?: string[]; mapper?: SchemaMapper<(ctx?: any) => ts.Node> },
 ): string {
   if (!items.length) {
     return ``

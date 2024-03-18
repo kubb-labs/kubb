@@ -85,10 +85,9 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}(${
-      Array.isArray(item.args) ? `${item.args.map((arrayItem) => parseZodMeta(arrayItem, mapper)).filter(Boolean).join('')}` : parseZodMeta(item.args)
-    })`
+    return `${value}(${item.args.map((arrayItem) => parseZodMeta(arrayItem, mapper)).filter(Boolean).join('')})`
   }
+
   if (isKeyword(item, schemaKeywords.union)) {
     // zod union type needs at least 2 items
     if (Array.isArray(item.args) && item.args.length === 1) {
@@ -98,11 +97,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
       return ''
     }
 
-    return `${
-      Array.isArray(item.args)
-        ? `${value}([${item.args.map((unionItem) => parseZodMeta(unionItem, mapper)).filter(Boolean).join(',')}])`
-        : parseZodMeta(item.args)
-    }`
+    return `${value}([${item.args.map((unionItem) => parseZodMeta(unionItem, mapper)).filter(Boolean).join(',')}])`
   }
 
   if (isKeyword(item, schemaKeywords.catchall)) {
@@ -112,16 +107,13 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return `${
-      item.args
-        ?.filter((item: Schema) => {
-          return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
-        })
-        .map((item: Schema) => parseZodMeta(item, mapper))
-        .filter(Boolean)
-        .map((item, index) => (index === 0 ? item : `${value}(${item})`))
-        .join('')
-    }`
+    return item.args.filter((item: Schema) => {
+      return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
+    })
+      .map((item: Schema) => parseZodMeta(item, mapper))
+      .filter(Boolean)
+      .map((item, index) => (index === 0 ? item : `${value}(${item})`))
+      .join('')
   }
 
   if (isKeyword(item, schemaKeywords.object)) {

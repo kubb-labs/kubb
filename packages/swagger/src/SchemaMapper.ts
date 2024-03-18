@@ -12,11 +12,11 @@ export type SchemaKeywordMapper = {
   date: { keyword: 'date' }
   datetime: { keyword: 'datetime' }
   tuple: { keyword: 'tuple'; args?: Schema[] }
-  array: { keyword: 'array'; args?: Schema[] }
+  array: { keyword: 'array'; args: Schema[] }
   enum: { keyword: 'enum'; args?: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }> }
-  and: { keyword: 'and'; args?: Schema[] }
+  and: { keyword: 'and'; args: Schema[] }
   literal: { keyword: 'literal'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
-  union: { keyword: 'union'; args?: Schema[] }
+  union: { keyword: 'union'; args: Schema[] }
   ref: { keyword: 'ref'; args?: { name: string } }
   catchall: { keyword: 'catchall'; args?: Schema[] }
   lazy: { keyword: 'lazy' }

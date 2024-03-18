@@ -77,7 +77,15 @@ export function parseFakerMeta(
     return undefined
   }
 
-  if (isKeyword(item, schemaKeywords.tuple) || isKeyword(item, schemaKeywords.array) || isKeyword(item, schemaKeywords.union)) {
+  if (isKeyword(item, schemaKeywords.union)) {
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]`
+  }
+
+  if (isKeyword(item, schemaKeywords.array)) {
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}] as any`
+  }
+
+  if (isKeyword(item, schemaKeywords.tuple)) {
     return `${value}(${
       Array.isArray(item.args)
         ? `[${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]`
@@ -86,9 +94,7 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return `${value}({},${
-      Array.isArray(item.args) ? `${item.args.map((andItem) => parseFakerMeta(andItem, { mapper })).filter(Boolean).join(',')}` : parseFakerMeta(item.args)
-    })`
+    return `${value}({},${item.args.map((andItem) => parseFakerMeta(andItem, { mapper })).filter(Boolean).join(',')})`
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {

@@ -1,17 +1,35 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`parseTypeMeta > parseTypeMeta { name: 'and', schema: { keyword: 'and', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `""`;
+exports[`parseTypeMeta > parseTypeMeta { name: 'and', schema: { keyword: 'and', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
+"(string & number)
+"
+`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'any', schema: { keyword: 'any' } } 1`] = `
 "any
 "
 `;
 
+exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'array', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
+"Array<string | number>
+"
+`;
+
 exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'array', args: [] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
+"(string | number)
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'arrayEmpty', schema: { keyword: 'array', args: [] } } 1`] = `""`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `""`;
 
-exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `""`;
+exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
+"(string | number)
+"
+`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'blob', schema: { keyword: 'blob' } } 1`] = `
 "Blob
@@ -25,9 +43,15 @@ exports[`parseTypeMeta > parseTypeMeta { name: 'boolean', schema: { keyword: 'bo
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'catchall', schema: { keyword: 'catchall', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `""`;
 
-exports[`parseTypeMeta > parseTypeMeta { name: 'date', schema: { keyword: 'date' } } 1`] = `""`;
+exports[`parseTypeMeta > parseTypeMeta { name: 'date', schema: { keyword: 'date' } } 1`] = `
+"Date
+"
+`;
 
-exports[`parseTypeMeta > parseTypeMeta { name: 'datetime', schema: { keyword: 'datetime' } } 1`] = `""`;
+exports[`parseTypeMeta > parseTypeMeta { name: 'datetime', schema: { keyword: 'datetime' } } 1`] = `
+"string
+"
+`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'default', schema: { keyword: 'default' } } 1`] = `""`;
 
@@ -76,7 +100,20 @@ exports[`parseTypeMeta > parseTypeMeta { name: 'undefined', schema: { keyword: '
 "
 `;
 
-exports[`parseTypeMeta > parseTypeMeta { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `""`;
+exports[`parseTypeMeta > parseTypeMeta { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `
+"string
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `
+"(string | number)
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'unionOne', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `
+"string
+"
+`;
 
 exports[`parseTypeMeta > parseTypeMeta { name: 'unknown', schema: { keyword: 'unknown' } } 1`] = `
 "unknown
