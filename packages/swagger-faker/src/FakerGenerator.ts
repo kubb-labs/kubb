@@ -59,6 +59,6 @@ export class FakerGenerator extends SchemaGenerator<Options> {
 
     texts.push(fakerOutput)
 
-    return [...this.extraTexts, ...texts]
+    return texts
   }
 }

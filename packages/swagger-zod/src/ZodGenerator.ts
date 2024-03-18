@@ -64,6 +64,6 @@ export class ZodGenerator extends SchemaGenerator {
 
     texts.push(zodOutput)
 
-    return [...this.extraTexts, ...texts]
+    return texts
   }
 }

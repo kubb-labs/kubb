@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'and', schema: { keyword: 'and', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'any', schema: { keyword: 'any' } } 1`] = `
+"any
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'array', schema: { keyword: 'array', args: [] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'arrayRef', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'blob', schema: { keyword: 'blob' } } 1`] = `
+"Blob
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'boolean', schema: { keyword: 'boolean' } } 1`] = `
+"boolean
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'catchall', schema: { keyword: 'catchall', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'date', schema: { keyword: 'date' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'datetime', schema: { keyword: 'datetime' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'default', schema: { keyword: 'default' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'default', schema: { keyword: 'default', args: 'default' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'matches', schema: { keyword: 'matches', args: '^[A-Z]{2}$' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'matchesReg', schema: { keyword: 'matches', args: '/node_modules/' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'max', schema: { keyword: 'max', args: 2 } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'min', schema: { keyword: 'min', args: 2 } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'nullable', schema: { keyword: 'nullable' } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'number', schema: { keyword: 'number' } } 1`] = `
+"number
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'object', schema: { keyword: 'object', args: { entries: { firstName: [ { keyword: 'string' }, { keyword: 'min', args: 2 } ], address: [ { keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' } ] } } } } 1`] = `
+"object
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'objectEmpty', schema: { keyword: 'object' } } 1`] = `
+"object
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'ref', schema: { keyword: 'enum', args: [ { name: 'A', value: 'A', format: 'string' }, { name: 'B', value: 'B', format: 'string' }, { name: 'C', value: 'C', format: 'string' }, { name: 2, value: 2, format: 'number' } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'ref', schema: { keyword: 'ref', args: { name: 'Pet' } } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'string', schema: { keyword: 'string' } } 1`] = `
+"string
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'tuple', schema: { keyword: 'tuple', args: [] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'tupleMulti', schema: { keyword: 'tuple', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'undefined', schema: { keyword: 'undefined' } } 1`] = `
+"undefined
+"
+`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `""`;
+
+exports[`parseTypeMeta > parseTypeMeta { name: 'unknown', schema: { keyword: 'unknown' } } 1`] = `
+"unknown
+"
+`;
+
+exports[`typeParser > typeParser { name: 'blob', schema: [ { keyword: 'blob' } ] } 1`] = `
+"export type blob = Blob;
+"
+`;

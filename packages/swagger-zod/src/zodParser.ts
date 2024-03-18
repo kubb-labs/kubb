@@ -23,11 +23,9 @@ export const zodKeywordMapper = {
   literal: 'z.literal',
   datetime: 'z.string().datetime',
   date: 'z.date',
-  email: '.email',
   uuid: '.uuid',
   url: '.url',
   strict: '.strict',
-  /* intersection */
   default: '.default',
   and: '.and',
   describe: '.describe',
@@ -35,11 +33,15 @@ export const zodKeywordMapper = {
   max: '.max',
   optional: '.optional',
   catchall: '.catchall',
-  readOnly: '.readonly',
-
-  // custom ones
-  ref: 'ref',
   matches: '.regex',
+  email: '.email',
+  firstName: undefined,
+  lastName: undefined,
+  password: undefined,
+  phone: undefined,
+  readOnly: undefined,
+  ref: 'ref',
+  blob: undefined,
 } satisfies SchemaMapper
 
 /**
@@ -56,6 +58,10 @@ function zodKeywordSorter(a: Schema, b: Schema): 1 | -1 | 0 {
 
 export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper = zodKeywordMapper): string | undefined {
   const value = mapper[item.keyword as keyof typeof mapper]
+
+  if (!value) {
+    return undefined
+  }
 
   if (isKeyword(item, schemaKeywords.tuple)) {
     return `${value}(${

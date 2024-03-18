@@ -36,6 +36,7 @@ export type SchemaKeywordMapper = {
   null: { keyword: 'null' }
   any: { keyword: 'any' }
   unknown: { keyword: 'unknown' }
+  blob: { keyword: 'blob' }
 }
 
 export const schemaKeywords = {
@@ -79,11 +80,12 @@ export const schemaKeywords = {
   lastName: 'lastName',
   password: 'password',
   phone: 'phone',
+  blob: 'blob',
 } satisfies { [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword'] }
 
 export type SchemaKeyword = keyof SchemaKeywordMapper
 
-export type SchemaMapper = { [K in keyof SchemaKeywordMapper]?: string }
+export type SchemaMapper<T = string> = { [K in keyof SchemaKeywordMapper]: T | undefined }
 
 export type SchemaKeywordBase<T> = {
   keyword: SchemaKeyword

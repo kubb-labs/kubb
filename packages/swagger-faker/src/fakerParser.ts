@@ -20,10 +20,7 @@ export const fakerKeywordMapper = {
   datetime: 'faker.string.alpha',
   uuid: 'faker.string.uuid',
   url: 'faker.internet.url',
-  /* intersection */
   and: 'Object.assign',
-
-  // custom ones
   object: 'object',
   ref: 'ref',
   catchall: 'catchall',
@@ -33,6 +30,18 @@ export const fakerKeywordMapper = {
   lastName: 'faker.person.lastName',
   password: 'faker.internet.password',
   phone: 'faker.phone.number',
+  blob: undefined,
+  default: undefined,
+  describe: undefined,
+  lazy: undefined,
+  literal: undefined,
+  max: undefined,
+  min: undefined,
+  nullable: undefined,
+  nullish: undefined,
+  optional: undefined,
+  readOnly: undefined,
+  strict: undefined,
 } satisfies SchemaMapper
 
 /**
@@ -63,6 +72,10 @@ export function parseFakerMeta(
   { mapper = fakerKeywordMapper, withOverride }: { mapper?: SchemaMapper; withOverride?: boolean } = {},
 ): string | undefined {
   const value = mapper[item.keyword as keyof typeof mapper]
+
+  if (!value) {
+    return undefined
+  }
 
   if (isKeyword(item, schemaKeywords.tuple) || isKeyword(item, schemaKeywords.array) || isKeyword(item, schemaKeywords.union)) {
     return `${value}(${

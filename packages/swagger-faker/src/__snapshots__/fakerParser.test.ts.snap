@@ -1,0 +1,67 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fakerParser > .fakerParser(undefined, undefined) 1`] = `
+"export function blob(override?: NonNullable<Partial<undefined>>) {
+  
+  return undefined;
+}"
+`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 1`] = `"faker.string.alpha()"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 2`] = `"faker.number.float()"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 3`] = `"faker.datatype.boolean()"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 4`] = `"faker.date.anytime()"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 5`] = `"faker.string.alpha()"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 6`] = `"undefined"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 7`] = `undefined`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 8`] = `"undefined"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 9`] = `undefined`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 10`] = `undefined`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 11`] = `"faker.helpers.fromRegExp(new RegExp('node_modules'))"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 12`] = `"faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 13`] = `"Pet()"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 14`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 15`] = `"faker.helpers.arrayElements([]) as any"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 16`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 17`] = `"faker.helpers.arrayElements([]) as any"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 18`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 19`] = `"faker.helpers.arrayElement([faker.string.alpha(),faker.number.float()]) as any"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 20`] = `"faker.helpers.arrayElement([faker.string.alpha()]) as any"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 21`] = `undefined`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 22`] = `"Object.assign({},faker.string.alpha(),faker.number.float())"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 23`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 24`] = `"{}"`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 25`] = `undefined`;
+
+exports[`fakerParser > .parseFaker(undefined, undefined) 26`] = `undefined`;
+
+exports[`fakerParser > .typeParser(undefined, undefined) 1`] = `
+"export function blob(override?: NonNullable<Partial<undefined>>) {
+  
+  return undefined;
+}"
+`;

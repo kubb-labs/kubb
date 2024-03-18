@@ -1,5 +1,4 @@
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/parser'
 import { OasBuilder } from '@kubb/swagger'
 import { refsSorter } from '@kubb/swagger/utils'
 
@@ -26,9 +25,9 @@ export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
           baseName: operationSchema.name,
           description: operationSchema.description,
           keysToOmit: operationSchema.keysToOmit,
+          operation: operationSchema.operation,
           optional: !required && !!operationSchema.name.includes('Params'),
         })
-
         importMeta.push(...generator.imports)
 
         return {
@@ -42,7 +41,7 @@ export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .sort(refsSorter)
 
     generated.forEach((item) => {
-      codes.push(print(item.sources))
+      codes.push(...item.sources)
     })
 
     const imports: KubbFile.Import[] = importMeta.map((item) => {

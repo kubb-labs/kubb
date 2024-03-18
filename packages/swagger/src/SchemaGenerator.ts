@@ -7,7 +7,6 @@ import { isReference } from './utils/isReference.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { ts } from '@kubb/parser'
 import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 import type { ImportMeta, Refs } from './types.ts'
@@ -57,10 +56,6 @@ export abstract class SchemaGenerator<
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
   imports: ImportMeta[] = []
-
-  extraTexts: string[] = []
-
-  aliases: ts.TypeAliasDeclaration[] = []
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
@@ -452,7 +447,7 @@ export abstract class SchemaGenerator<
     }
 
     if (schema.format === 'binary') {
-      // TODO binary
+      return [{ keyword: schemaKeywords.blob }]
     }
 
     return [{ keyword: this.#unknownReturn }]
