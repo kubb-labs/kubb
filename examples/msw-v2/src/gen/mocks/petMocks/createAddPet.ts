@@ -6,7 +6,7 @@ import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationRespons
 export function createAddPet405(override: NonNullable<Partial<AddPet405>> = {}): NonNullable<AddPet405> {
   faker.seed([220])
   return {
-    ...{ 'code': faker.number.int({}), 'message': faker.string.alpha() },
+    ...{ 'code': faker.number.int(), 'message': faker.string.alpha() },
     ...override,
   }
 }

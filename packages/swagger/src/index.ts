@@ -7,7 +7,7 @@ export { OperationGenerator } from './OperationGenerator.ts'
 export { definePlugin, pluginKey, pluginName } from './plugin.ts'
 export type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions } from './SchemaGenerator.ts'
 export { SchemaGenerator } from './SchemaGenerator.ts'
-export type { Schema, SchemaKeyword, SchemaMapper, SchemaMapperBase } from './SchemaMapper.ts'
+export type { Schema, SchemaKeyword, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
 

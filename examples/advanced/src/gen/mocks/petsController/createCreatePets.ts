@@ -20,7 +20,7 @@ export function createCreatePets201(override?: NonNullable<Partial<CreatePets201
 
 export function createCreatePetsHeaderParams(override: NonNullable<Partial<CreatePetsHeaderParams>> = {}): NonNullable<CreatePetsHeaderParams> {
   return {
-    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>([`ONE`, `TWO`, `THREE`]) },
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) },
     ...override,
   }
 }
@@ -45,7 +45,7 @@ export function createCreatePetsPathParams(override: NonNullable<Partial<CreateP
 
 export function createCreatePetsQueryParams(override: NonNullable<Partial<CreatePetsQueryParams>> = {}): NonNullable<CreatePetsQueryParams> {
   return {
-    ...{ 'offset': faker.number.int({}) },
+    ...{ 'offset': faker.number.int() },
     ...override,
   }
 }

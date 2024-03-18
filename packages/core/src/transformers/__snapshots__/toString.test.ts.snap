@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toString > return toString text 1`] = `"Hello World!"`;
+
+exports[`toString > return toString text 2`] = `""Hello World!""`;
+
+exports[`toString > return toString text 3`] = `""Hello World!""`;
+
+exports[`toString > return toString text 4`] = `""Hello World!""`;
+
+exports[`toString > return toString text 5`] = `""Hello World!""`;
+
+exports[`toString > return toString text escaped 1`] = `
+"Hello World!
+"
+`;
+
+exports[`toString > return toString text escaped 2`] = `""Hello World!\\\\n""`;
+
+exports[`toString > return toString text escaped 3`] = `""\\\\\\"Hello World!\\\\\\"\\\\n    ""`;
+
+exports[`toString > return toString text escaped 4`] = `""Hello World!""`;
+
+exports[`toString > return toString text escaped 5`] = `""Hello World!""`;

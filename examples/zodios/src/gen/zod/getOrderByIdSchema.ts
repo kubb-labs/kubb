@@ -10,7 +10,7 @@ export const getOrderById400Schema = z.any()
  * @description Order not found
  */
 export const getOrderById404Schema = z.any()
-export const getOrderByIdPathParamsSchema = z.object({ orderId: z.number().describe(`ID of order that needs to be fetched`) })
+export const getOrderByIdPathParamsSchema = z.object({ orderId: z.number().describe('ID of order that needs to be fetched') })
 
 /**
  * @description successful operation

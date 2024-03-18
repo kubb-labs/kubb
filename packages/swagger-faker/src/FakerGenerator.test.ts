@@ -5,7 +5,9 @@ import { OasManager } from '@kubb/swagger'
 
 import { FakerGenerator } from './FakerGenerator'
 
+import type { Plugin } from '@kubb/core'
 import type { OasTypes } from '@kubb/swagger/oas'
+import type { PluginOptions } from './types'
 
 describe('FakeGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
@@ -19,6 +21,7 @@ describe('FakeGenerator enums', async () => {
   }, {
     oas,
     pluginManager: mockedPluginManager,
+    plugin: {} as Plugin<PluginOptions>,
   })
 
   const schemas = oas.getDefinition().components?.schemas

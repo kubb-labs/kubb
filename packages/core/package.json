@@ -107,7 +107,8 @@
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
     "seedrandom": "^3.0.5",
-    "semver": "^7.6.0"
+    "semver": "^7.6.0",
+    "unraw": "^3.0.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -115,11 +116,13 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.isequal": "^4.5.8",
-    "@types/react": "^18.2.66",
+    "@types/lodash.tonumber": "^4.0.3",
+    "@types/react": "^18.2.64",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "eslint": "^8.57.0",
     "lodash.isequal": "^4.5.0",
+    "lodash.tonumber": "^4.0.3",
     "ora": "^8.0.1",
     "tinyrainbow": "^1.1.1",
     "tsup": "^8.0.2",

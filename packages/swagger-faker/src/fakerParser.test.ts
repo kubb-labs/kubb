@@ -1,5 +1,6 @@
 import { parseFakerMeta } from './fakerParser.ts'
 
+// TODO also check on not set items/undefined
 const input = [
   {
     input: parseFakerMeta({
@@ -27,6 +28,18 @@ const input = [
   },
   {
     input: parseFakerMeta({
+      keyword: 'date',
+    }),
+    expected: 'faker.date.anytime()',
+  },
+  {
+    input: parseFakerMeta({
+      keyword: 'datetime',
+    }),
+    expected: 'faker.string.alpha()',
+  },
+  {
+    input: parseFakerMeta({
       keyword: 'any',
     }),
     expected: 'undefined',
@@ -43,20 +56,19 @@ const input = [
     }),
     expected: 'undefined',
   },
-
   {
     input: parseFakerMeta({
       keyword: 'matches',
-      args: '*',
+      args: '/node_modules/', // pure regexp
     }),
-    expected: 'faker.helpers.fromRegExp("*")',
+    expected: `faker.helpers.fromRegExp(new RegExp('node_modules'))`,
   },
   {
     input: parseFakerMeta({
       keyword: 'matches',
       args: '^[A-Z]{2}$',
     }),
-    expected: 'faker.helpers.fromRegExp(/^[A-Z]{2}$/)',
+    expected: `faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))`,
   },
   {
     input: parseFakerMeta({
@@ -68,9 +80,14 @@ const input = [
   {
     input: parseFakerMeta({
       keyword: 'enum',
-      args: ['"A"', '"B"', '"C"', 2],
+      args: [
+        { name: 'A', value: 'A', format: 'string' },
+        { name: 'B', value: 'B', format: 'string' },
+        { name: 'C', value: 'C', format: 'string' },
+        { name: 2, value: 2, format: 'number' },
+      ],
     }),
-    expected: 'faker.helpers.arrayElement<any>("A","B","C",2)',
+    expected: 'faker.helpers.arrayElement<any>(["A", "B", "C", 2])',
   },
 
   {

@@ -1,5 +1,7 @@
 import { parseZodMeta, zodParser } from './zodParser.ts'
 
+// TODO also check on not set items/undefined
+
 const input = [
   {
     input: parseZodMeta({
@@ -18,6 +20,18 @@ const input = [
       keyword: 'boolean',
     }),
     expected: 'z.boolean()',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'date',
+    }),
+    expected: 'z.date()',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'datetime',
+    }),
+    expected: 'z.string().datetime()',
   },
   {
     input: parseZodMeta({
@@ -54,9 +68,16 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'matches',
-      args: '*',
+      args: '/node_modules/', // pure regexp
     }),
-    expected: '.regex(*)',
+    expected: `.regex(new RegExp('node_modules'))`,
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'matches',
+      args: '^[A-Z]{2}$',
+    }),
+    expected: `.regex(new RegExp('^[A-Z]{2}$'))`,
   },
   {
     input: parseZodMeta({
@@ -70,9 +91,14 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'enum',
-      args: ['"A"', '"B"', '"C"', 2],
+      args: [
+        { name: 'A', value: 'A', format: 'string' },
+        { name: 'B', value: 'B', format: 'string' },
+        { name: 'C', value: 'C', format: 'string' },
+        { name: 2, value: 2, format: 'number' },
+      ],
     }),
-    expected: 'z.enum(["A","B","C",2])',
+    expected: 'z.enum(["A","B","C","2"])',
   },
 
   {
@@ -171,9 +197,9 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'default',
-      args: "'default'",
+      args: '"default"',
     }),
-    expected: ".default('default')",
+    expected: '.default("default")',
   },
   {
     input: parseZodMeta({

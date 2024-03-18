@@ -9,5 +9,5 @@ export const userSchema = z.object({
   'email': z.string().optional(),
   'password': z.string().optional(),
   'phone': z.string().optional(),
-  'userStatus': z.number().describe(`User Status`).optional(),
+  'userStatus': z.number().describe('User Status').optional(),
 }) as z.ZodType<User>

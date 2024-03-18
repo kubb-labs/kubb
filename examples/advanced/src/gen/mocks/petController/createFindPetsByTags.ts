@@ -18,7 +18,7 @@ export function createFindPetsByTags400(override?: NonNullable<Partial<FindPetsB
 
 export function createFindPetsByTagsHeaderParams(override: NonNullable<Partial<FindPetsByTagsHeaderParams>> = {}): NonNullable<FindPetsByTagsHeaderParams> {
   return {
-    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>([`ONE`, `TWO`, `THREE`]) },
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) },
     ...override,
   }
 }

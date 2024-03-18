@@ -1,4 +1,4 @@
-export type SchemaMapper = {
+export type SchemaKeywordMapper = {
   object: { keyword: 'object'; args: { entries: { [x: string]: Schema[] }; strict?: boolean } }
   strict: { keyword: 'strict' }
   url: { keyword: 'url' }
@@ -13,9 +13,9 @@ export type SchemaMapper = {
   datetime: { keyword: 'datetime' }
   tuple: { keyword: 'tuple'; args?: Schema[] }
   array: { keyword: 'array'; args?: Schema[] }
-  enum: { keyword: 'enum'; args?: Array<string | number> }
+  enum: { keyword: 'enum'; args?: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }> }
   and: { keyword: 'and'; args?: Schema[] }
-  literal: { keyword: 'literal'; args: string | number }
+  literal: { keyword: 'literal'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
   union: { keyword: 'union'; args?: Schema[] }
   ref: { keyword: 'ref'; args?: { name: string } }
   catchall: { keyword: 'catchall'; args?: Schema[] }
@@ -79,19 +79,21 @@ export const schemaKeywords = {
   lastName: 'lastName',
   password: 'password',
   phone: 'phone',
-} satisfies { [K in keyof SchemaMapper]: SchemaMapper[K]['keyword'] }
+} satisfies { [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword'] }
 
-export type SchemaKeyword = keyof SchemaMapper
+export type SchemaKeyword = keyof SchemaKeywordMapper
 
-export type SchemaMapperBase<T> = {
+export type SchemaMapper = { [K in keyof SchemaKeywordMapper]?: string }
+
+export type SchemaKeywordBase<T> = {
   keyword: SchemaKeyword
   args: T
 }
 
 export type Schema =
   | { keyword: string }
-  | SchemaMapper[keyof SchemaMapper]
+  | SchemaKeywordMapper[keyof SchemaKeywordMapper]
 
-export function isKeyword<T extends Schema, K extends keyof SchemaMapper>(meta: T, keyword: K): meta is Extract<T, SchemaMapper[K]> {
+export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {
   return meta.keyword === keyword
 }

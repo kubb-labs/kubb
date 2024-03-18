@@ -19,7 +19,7 @@ export function createGetOrderById404(override?: NonNullable<Partial<GetOrderByI
 
 export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOrderByIdPathParams>> = {}): NonNullable<GetOrderByIdPathParams> {
   return {
-    ...{ 'orderId': faker.number.int({}) },
+    ...{ 'orderId': faker.number.int() },
     ...override,
   }
 }
