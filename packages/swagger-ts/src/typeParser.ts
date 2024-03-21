@@ -109,6 +109,7 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
     return value()
   }
   // TODO for object: loop over all keyword and search for describe, default, .. and use appendJSDocToNode
+  // TOOD check on undfined and optionalType
 
   if (item.keyword in mapper) {
     return value()
@@ -117,6 +118,8 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
   return undefined
 }
 
+// TODO required should be part of the items(schema), we can append those when calling zodParser instead of options, same for description, ...
+// omit then all the schema items that have already been used + create extraNodes when needed(enum)
 export function typeParser(
   items: Schema[],
   options: { name: string; description?: string; required?: boolean; keysToOmit?: string[]; mapper?: typeof typeKeywordMapper },
@@ -126,6 +129,9 @@ export function typeParser(
   if (!items.length) {
     return ''
   }
+
+  // TODO for object: loop over all keyword and search for describe, default, .. and use appendJSDocToNode
+  // TOOD check on undfined and optionalType
 
   let type = items.map((item) => parseTypeMeta(item, { ...typeKeywordMapper, ...options.mapper })).filter(Boolean).at(0) as ts.TypeNode
     || typeKeywordMapper.undefined()
