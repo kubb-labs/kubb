@@ -1,5 +1,6 @@
 import merge from 'lodash.merge'
 import toNumber from 'lodash.tonumber'
+import { orderBy } from 'natural-orderby'
 
 import { camelCase, pascalCase, pathCase } from './casing.ts'
 import { combineCodes } from './combineCodes.ts'
@@ -28,6 +29,7 @@ export { transformReservedWord } from './transformReservedWord.ts'
 export { trim, trimExtName, trimQuotes } from './trim.ts'
 export { default as merge } from 'lodash.merge'
 export { default as toNumber } from 'lodash.tonumber'
+export { orderBy } from 'natural-orderby'
 
 export default {
   combineCodes,
@@ -48,6 +50,7 @@ export default {
   JSDoc: {
     createJSDocBlockText,
   },
+  orderBy,
   merge,
   camelCase,
   pascalCase,

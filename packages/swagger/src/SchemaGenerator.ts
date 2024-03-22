@@ -214,10 +214,10 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [...this.getTypeFromSchema(schemaWithoutOneOf, baseName), union]
+        return [...baseItems, ...this.getTypeFromSchema(schemaWithoutOneOf, baseName), union]
       }
 
-      return [union]
+      return [...baseItems, union]
     }
 
     if (schema.anyOf) {
@@ -247,10 +247,10 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutAnyOf.properties) {
-        return [...this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union]
+        return [...baseItems, ...this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union]
       }
 
-      return [union]
+      return [...baseItems, union]
     }
     if (schema.allOf) {
       // intersection/add
@@ -270,6 +270,7 @@ export abstract class SchemaGenerator<
 
       if (schemaWithoutAllOf.properties) {
         return [
+          ...baseItems,
           {
             ...and,
             args: [...(and.args || []), ...this.getTypeFromSchema(schemaWithoutAllOf, baseName)],
@@ -277,7 +278,7 @@ export abstract class SchemaGenerator<
         ]
       }
 
-      return [and]
+      return [...baseItems, and]
     }
 
     if (schema.enum) {

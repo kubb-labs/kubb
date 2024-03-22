@@ -13,7 +13,7 @@ export default defineConfig([
       fs: 'src/fs/index.ts',
       mocks: 'mocks/index.ts',
     },
-    noExternal: [/fs-extra/, /p-queue/, /find-up/, /lodash.isequal/, /lodash.tonumber/, /change-case/, /tinyrainbow/],
+    noExternal: [/fs-extra/, /p-queue/, /find-up/, /lodash.isequal/, /lodash.tonumber/, /natural-orderby/, /change-case/, /tinyrainbow/],
   },
   {
     ...optionsESM,
@@ -25,6 +25,6 @@ export default defineConfig([
       fs: 'src/fs/index.ts',
       mocks: 'mocks/index.ts',
     },
-    noExternal: [/lodash.isequal/, /lodash.tonumber/, /tinyrainbow/],
+    noExternal: [/lodash.isequal/, /lodash.tonumber/, /natural-orderby/, /tinyrainbow/],
   },
 ])
