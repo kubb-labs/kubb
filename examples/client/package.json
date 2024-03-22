@@ -32,7 +32,7 @@
     "@kubb/ts-config": "workspace:*",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

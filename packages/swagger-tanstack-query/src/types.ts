@@ -33,7 +33,7 @@ export type Query = {
    */
   queryKey: (key: unknown[]) => unknown[]
   /**
-   * Define which HttpMethods can be used for query
+   * Define which HttpMethods can be used for queries
    * @default ['get']
    */
   methods: Array<HttpMethod>
@@ -48,7 +48,7 @@ export type Mutate = {
    */
   variablesType: 'mutate' | 'hook'
   /**
-   * Define which HttpMethods can be used for mutate
+   * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
    */
   methods: Array<HttpMethod>

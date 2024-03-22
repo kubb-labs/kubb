@@ -9,7 +9,6 @@ import * as mutation from './templates/mutate/index'
 
 import { Query } from '@kubb/swagger-tanstack-query/components'
 
-
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
   root: '.',
@@ -61,16 +60,15 @@ export const config = {
             queryKey: queryKey.templates,
           },
         },
-      },
-        {
-          type: 'operationId',
-          pattern: 'updatePetWithForm',
-          options: {
-
-           mutate: false,
-
+      }, {
+        type: 'operationId',
+        pattern: 'updatePetWithForm',
+        options: {
+          query: {
+            methods: ['post'],
           },
-        }],
+        },
+      }],
       templates: {
         operations: operations.templates,
         mutation: mutation.templates,
