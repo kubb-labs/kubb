@@ -41,7 +41,7 @@ export function useGetInventory<TData = GetInventory['response']>(options?: {
   shouldFetch?: boolean
 }): SWRResponse<TData, GetInventory['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/store/inventory` as const
+  const url = `/store/inventory`
   const query = useSWR<TData, GetInventory['error'], typeof url | null>(shouldFetch ? url : null, {
     ...getInventoryQueryOptions<TData>(clientOptions),
     ...queryOptions,

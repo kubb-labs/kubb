@@ -45,7 +45,7 @@ export function useLoginUser<TData = LoginUser['response']>(
   },
 ): SWRResponse<TData, LoginUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/login` as const
+  const url = `/user/login`
   const query = useSWR<TData, LoginUser['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...loginUserQueryOptions<TData>(params, clientOptions),
     ...queryOptions,

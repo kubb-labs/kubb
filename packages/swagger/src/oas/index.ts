@@ -8,3 +8,14 @@ export type * as OasTypes from 'oas/types'
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 export type SchemaObject = OasTypes.SchemaObject & { 'x-nullable'?: boolean }
+
+export const HttpMethods = {
+  GET: 'get',
+  POST: 'post',
+  PUT: 'put',
+  PATCH: 'patch',
+  DELETE: 'delete',
+  HEAD: 'head',
+  OPTIONS: 'options',
+  TRACE: 'trace',
+} satisfies Record<Uppercase<OasTypes.HttpMethods>, OasTypes.HttpMethods>

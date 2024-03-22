@@ -1,4 +1,6 @@
-import { isNumber, toNumber } from './toNumber.ts'
+import toNumber from 'lodash.tonumber'
+
+import { isNumber } from './toNumber.ts'
 
 describe('toNumber', () => {
   test('return toNumber text', () => {

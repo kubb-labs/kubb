@@ -58,6 +58,15 @@ export const config = {
             queryKey: queryKey.templates,
           },
         },
+      }, {
+        type: 'operationId',
+        pattern: 'updatePetWithForm',
+        options: {
+          query: {
+            queryKey: (key: unknown[]) => key,
+            methods: ['post'],
+          },
+        },
       }],
       templates: {
         operations: operations.templates,

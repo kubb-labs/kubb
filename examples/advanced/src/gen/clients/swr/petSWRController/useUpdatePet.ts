@@ -27,7 +27,7 @@ export function useUpdatePet(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<UpdatePet['response'], UpdatePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet` as const
+  const url = `/pet`
   return useSWRMutation<UpdatePet['response'], UpdatePet['error'], typeof url | null>(shouldFetch ? url : null, async (_url, { arg: data }) => {
     const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
       method: 'put',

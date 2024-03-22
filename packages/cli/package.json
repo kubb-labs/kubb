@@ -66,10 +66,10 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.11.29",
+    "@types/node": "^20.11.30",
     "source-map-support": "^0.5.21",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

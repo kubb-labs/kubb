@@ -2,7 +2,12 @@ import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import {
+  useOperation,
+  useOperationFile,
+  useOperationName,
+  useSchemas,
+} from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -72,7 +77,9 @@ function Template({
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
     client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
+    client.withHeaders
+      ? 'headers: { ...headers, ...clientOptions.headers }'
+      : undefined,
     '...clientOptions',
   ].filter(Boolean)
 
@@ -100,7 +107,14 @@ function Template({
   }
 
   return (
-    <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+    <Function
+      export
+      name={name}
+      generics={generics}
+      returnType={returnType}
+      params={params}
+      JSDoc={JSDoc}
+    >
       {`
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
@@ -130,35 +144,21 @@ type FrameworkProps = TemplateProps & {
 const defaultTemplates = {
   get react() {
     return function(props: FrameworkProps): ReactNode {
-      return (
-        <Template
-          {...props}
-        />
-      )
+      return <Template {...props} />
     }
   },
   get solid() {
     return function(props: FrameworkProps): ReactNode {
-      return (
-        <Template
-          {...props}
-        />
-      )
+      return <Template {...props} />
     }
   },
   get svelte() {
     return function(props: FrameworkProps): ReactNode {
-      return (
-        <Template
-          {...props}
-        />
-      )
+      return <Template {...props} />
     }
   },
   get vue() {
-    return function(
-      { client, context, ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function({ client, context, ...rest }: FrameworkProps): ReactNode {
       const { factory } = context
 
       const importNames = getImportNames()
@@ -181,7 +181,9 @@ const defaultTemplates = {
           typed: true,
           override: (item) => ({
             ...item,
-            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+            name: item.name
+              ? `ref${transformers.pascalCase(item.name)}`
+              : undefined,
             enabled: !!item.name,
             type: `MaybeRef<${item.type}>`,
           }),
@@ -211,7 +213,9 @@ const defaultTemplates = {
       const unrefs = params.items
         .filter((item) => item.enabled)
         .map((item) => {
-          return item.name ? `const ${transformers.camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
+          return item.name
+            ? `const ${transformers.camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+            : undefined
         })
         .join('\n')
 
@@ -263,7 +267,14 @@ export function Mutation({
   Template = defaultTemplates.react,
 }: Props): ReactNode {
   // TODO do checks on pathParamsType
-  const { options: { dataReturnType, pathParamsType, mutate } } = usePlugin<PluginOptions>()
+  const {
+    options: { dataReturnType, mutate },
+  } = usePlugin<PluginOptions>()
+
+  if (!mutate) {
+    return null
+  }
+
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
   const schemas = useSchemas()
@@ -271,30 +282,28 @@ export function Mutation({
   const params = new FunctionParams()
   const mutateParams = new FunctionParams()
 
-  const requestType = mutate?.variablesType === 'mutate'
-    ? FunctionParams.toObject(
-      [
-        ...getASTParams(schemas.pathParams, { typed: true }),
-        {
-          name: 'params',
-          type: `${factory.name}['queryParams']`,
-          enabled: !!schemas.queryParams?.name,
-          required: isRequired(schemas.queryParams?.schema),
-        },
-        {
-          name: 'headers',
-          type: `${factory.name}['headerParams']`,
-          enabled: !!schemas.headerParams?.name,
-          required: isRequired(schemas.headerParams?.schema),
-        },
-        {
-          name: 'data',
-          type: `${factory.name}['request']`,
-          enabled: !!schemas.request?.name,
-          required: isRequired(schemas.request?.schema),
-        },
-      ],
-    )?.type
+  const requestType = mutate.variablesType === 'mutate'
+    ? FunctionParams.toObject([
+      ...getASTParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'params',
+        type: `${factory.name}['queryParams']`,
+        enabled: !!schemas.queryParams?.name,
+        required: isRequired(schemas.queryParams?.schema),
+      },
+      {
+        name: 'headers',
+        type: `${factory.name}['headerParams']`,
+        enabled: !!schemas.headerParams?.name,
+        required: isRequired(schemas.headerParams?.schema),
+      },
+      {
+        name: 'data',
+        type: `${factory.name}['request']`,
+        enabled: !!schemas.request?.name,
+        required: isRequired(schemas.request?.schema),
+      },
+    ])?.type
     : schemas.request?.name
     ? `${factory.name}['request']`
     : 'never'
@@ -324,7 +333,9 @@ export function Mutation({
   const resultGenerics = [
     `${factory.name}["response"]`,
     `${factory.name}["error"]`,
-    mutate?.variablesType === 'mutate' ? requestType : `${factory.name}["request"]`,
+    mutate?.variablesType === 'mutate'
+      ? requestType
+      : `${factory.name}["request"]`,
   ]
 
   if (mutate?.variablesType === 'mutate') {
@@ -421,8 +432,16 @@ type FileProps = {
   imports?: typeof MutationImports.templates
 }
 
-Mutation.File = function({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
-  const { options: { client: { importPath }, framework } } = usePlugin<PluginOptions>()
+Mutation.File = function({
+  templates = defaultTemplates,
+  imports = MutationImports.templates,
+}: FileProps): ReactNode {
+  const {
+    options: {
+      client: { importPath },
+      framework,
+    },
+  } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -451,10 +470,8 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.errors?.map((error) => error.name) || [],
-          ].filter(
-            Boolean,
-          )}
+            ...(schemas.errors?.map((error) => error.name) || []),
+          ].filter(Boolean)}
           root={file.path}
           path={fileType.path}
           isTypeOnly

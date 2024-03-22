@@ -11,7 +11,7 @@ const queryClient = new QueryClient()
 function Pets(): JSX.Element {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatus>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
-  const { mutateAsync } = useUpdatePetWithFormHook(2)
+  const { data } = useUpdatePetWithFormHook(2)
   const { queryKey: _queryKey, initialData } = findPetsByStatusQueryOptions()
   const statuses: FindPetsByStatusQueryParamsStatus[] = ['available', 'pending']
 
@@ -19,7 +19,7 @@ function Pets(): JSX.Element {
     queries: statuses.map((status) => findPetsByStatusQueryOptions({ status })),
   })
 
-  console.log(mutateAsync)
+  console.log(data)
   //            ^?
 
   console.log(pets)

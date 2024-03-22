@@ -82,6 +82,7 @@ export default defineConfig(async () => {
                 initialPageParam: '0',
               },
               mutate: {
+                methods: ['post', 'put', 'delete'],
                 variablesType: 'mutate',
               },
             },
