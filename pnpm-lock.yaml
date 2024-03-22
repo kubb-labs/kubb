@@ -298,7 +298,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -331,7 +331,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -476,7 +476,7 @@ importers:
         version: 18.2.22
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -637,7 +637,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -676,7 +676,7 @@ importers:
         version: 1.8.15
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
     devDependencies:
       typescript:
         specifier: ^5.4.2
@@ -716,7 +716,7 @@ importers:
         version: 3.59.2
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
     devDependencies:
       typescript:
         specifier: ^5.4.2
@@ -756,7 +756,7 @@ importers:
         version: 2.2.5(react@18.2.0)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
 
   examples/typescript:
     dependencies:
@@ -777,7 +777,7 @@ importers:
         version: 1.6.8
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
     devDependencies:
       typescript:
         specifier: ^5.4.2
@@ -906,7 +906,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -971,7 +971,7 @@ importers:
         version: 4.17.21
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1029,7 +1029,7 @@ importers:
         version: 0.5.21
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1096,7 +1096,7 @@ importers:
         version: 8.57.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1155,6 +1155,9 @@ importers:
       js-runtime:
         specifier: ^0.0.7
         version: 0.0.7
+      lodash.merge:
+        specifier: ^4.6.2
+        version: 4.6.2
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2
@@ -1186,6 +1189,9 @@ importers:
       '@types/lodash.isequal':
         specifier: ^4.5.8
         version: 4.5.8
+      '@types/lodash.merge':
+        specifier: ^4.6.9
+        version: 4.6.9
       '@types/lodash.tonumber':
         specifier: ^4.0.9
         version: 4.0.9
@@ -1215,7 +1221,7 @@ importers:
         version: 1.1.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1240,7 +1246,7 @@ importers:
         version: 20.11.29
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1271,7 +1277,7 @@ importers:
         version: 4.0.3
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
 
   packages/react:
     dependencies:
@@ -1308,7 +1314,7 @@ importers:
         version: 0.29.0(react@18.2.0)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1366,7 +1372,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1412,7 +1418,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1455,7 +1461,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1501,7 +1507,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1547,7 +1553,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1596,7 +1602,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1651,7 +1657,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
 
   packages/swagger-zod:
     dependencies:
@@ -1691,7 +1697,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1734,7 +1740,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1755,7 +1761,7 @@ importers:
         version: 8.57.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1801,7 +1807,7 @@ importers:
         version: 4.13.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
+        version: 8.0.2(ts-node@10.9.2)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -4179,6 +4185,12 @@ packages:
 
   /@types/lodash.isequal@4.5.8:
     resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
+    dependencies:
+      '@types/lodash': 4.14.202
+    dev: true
+
+  /@types/lodash.merge@4.6.9:
+    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
     dependencies:
       '@types/lodash': 4.14.202
     dev: true
@@ -10311,7 +10323,7 @@ packages:
       joycon: 3.1.1
       postcss-load-config: 4.0.2(ts-node@10.9.2)
       resolve-from: 5.0.0
-      rollup: 4.13.0
+      rollup: 4.12.0
       source-map: 0.8.0-beta.0
       sucrase: 3.34.0
       tree-kill: 1.2.2
@@ -10319,6 +10331,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
+    dev: true
 
   /tsup@8.0.2(ts-node@10.9.2)(typescript@5.2.2):
     resolution: {integrity: sha512-NY8xtQXdH7hDUAZwcQdY/Vzlw9johQsaqf7iwZ6g1DOUlFYQ5/AtVAjTvihhEyeRlGo4dLRVHtrRaL35M1daqQ==}
@@ -10354,6 +10367,44 @@ packages:
       sucrase: 3.34.0
       tree-kill: 1.2.2
       typescript: 5.2.2
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+
+  /tsup@8.0.2(ts-node@10.9.2)(typescript@5.4.2):
+    resolution: {integrity: sha512-NY8xtQXdH7hDUAZwcQdY/Vzlw9johQsaqf7iwZ6g1DOUlFYQ5/AtVAjTvihhEyeRlGo4dLRVHtrRaL35M1daqQ==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      '@microsoft/api-extractor': ^7.36.0
+      '@swc/core': ^1
+      postcss: ^8.4.12
+      typescript: '>=4.5.0'
+    peerDependenciesMeta:
+      '@microsoft/api-extractor':
+        optional: true
+      '@swc/core':
+        optional: true
+      postcss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      bundle-require: 4.0.2(esbuild@0.19.12)
+      cac: 6.7.14
+      chokidar: 3.6.0
+      debug: 4.3.4
+      esbuild: 0.19.12
+      execa: 5.1.1
+      globby: 11.1.0
+      joycon: 3.1.1
+      postcss-load-config: 4.0.2(ts-node@10.9.2)
+      resolve-from: 5.0.0
+      rollup: 4.13.0
+      source-map: 0.8.0-beta.0
+      sucrase: 3.34.0
+      tree-kill: 1.2.2
+      typescript: 5.4.2
     transitivePeerDependencies:
       - supports-color
       - ts-node
