@@ -48,6 +48,7 @@ describe('<Query/>', async () => {
     },
     parser: undefined,
     query: {
+      methods: ['get'],
       queryKey: (key: unknown[]) => key,
     },
     queryOptions: {

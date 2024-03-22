@@ -51,7 +51,7 @@ describe('<Mutation/>', async () => {
       parser: undefined,
       query: false,
       queryOptions: false,
-      mutate: { variablesType: 'hook' },
+      mutate: { variablesType: 'hook', methods: ['post'] },
     }
 
     const plugin = { options } as Plugin<PluginOptions>
@@ -108,7 +108,7 @@ describe('<Mutation/>', async () => {
       parser: undefined,
       query: false,
       queryOptions: false,
-      mutate: { variablesType: 'mutate' },
+      mutate: { variablesType: 'mutate', methods: ['post'] },
     }
 
     const plugin = { options } as Plugin<PluginOptions>
