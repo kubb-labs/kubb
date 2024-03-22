@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 0.1.21
+
+### Patch Changes
+
+- Updated dependencies [[`a80cc2d`](https://github.com/kubb-project/kubb/commit/a80cc2d2a4f109ff1e814707e5dd104bd730fb64)]:
+  - @kubb/core@2.10.0
+
 ## 0.1.20
 
 ### Patch Changes
