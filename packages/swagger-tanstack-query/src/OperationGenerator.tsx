@@ -10,7 +10,7 @@ import { QueryOptions } from './components/QueryOptions.tsx'
 
 import type { AppContextProps } from '@kubb/react'
 import type { OperationMethodResult } from '@kubb/swagger'
-import { HttpMethods, type Operation } from '@kubb/swagger/oas'
+import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<
@@ -66,11 +66,10 @@ export class OperationGenerator extends Generator<
       ...options.templates,
     }
 
-    const isMutate = options.mutate
-      && options.mutate.methods.some((method) => operation.method === method)
-
     const isQuery = options.query
       && options.query.methods.some((method) => operation.method === method)
+
+    const isMutate = !isQuery && options.mutate && options.mutate.methods.some((method) => operation.method === method)
 
     root.render(
       <Oas
