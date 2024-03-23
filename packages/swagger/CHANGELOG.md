@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 2.10.0
+
+### Minor Changes
+
+- [#878](https://github.com/kubb-project/kubb/pull/878) [`a80cc2d`](https://github.com/kubb-project/kubb/commit/a80cc2d2a4f109ff1e814707e5dd104bd730fb64) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for useQuery for post/put/delete/patch methods
+
+### Patch Changes
+
+- Updated dependencies [[`a80cc2d`](https://github.com/kubb-project/kubb/commit/a80cc2d2a4f109ff1e814707e5dd104bd730fb64)]:
+  - @kubb/core@2.10.0
+  - @kubb/react@2.10.0
+
 ## 2.9.1
 
 ### Patch Changes
