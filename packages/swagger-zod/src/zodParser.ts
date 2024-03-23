@@ -47,7 +47,15 @@ export const zodKeywordMapper = {
  */
 
 function sort(items?: Schema[]): Schema[] {
-  const order: string[] = [schemaKeywords.describe, schemaKeywords.optional, schemaKeywords.null]
+  const order: string[] = [
+    schemaKeywords.object,
+    schemaKeywords.catchall,
+    schemaKeywords.describe,
+    schemaKeywords.optional,
+    schemaKeywords.nullable,
+    schemaKeywords.nullish,
+    schemaKeywords.null,
+  ]
 
   if (!items) {
     return []
