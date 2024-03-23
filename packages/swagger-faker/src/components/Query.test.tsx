@@ -31,7 +31,6 @@ describe('<Query/>', async () => {
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
     dateType: 'date',
-    mapper: {},
     seed: undefined,
     transformers: {},
     unknownType: 'any',

@@ -42,6 +42,10 @@ export const fakerKeywordMapper = {
   optional: undefined,
   readOnly: undefined,
   strict: undefined,
+  deprecated: undefined,
+  example: undefined,
+  type: undefined,
+  format: undefined,
 } satisfies SchemaMapper
 
 /**
@@ -67,10 +71,19 @@ function joinItems(items: string[]): string {
   }
 }
 
+type ParserOptions = {
+  name: string
+  typeName?: string
+
+  seed?: number | number[]
+  mapper?: typeof fakerKeywordMapper
+}
+
 export function parseFakerMeta(
-  item: Schema = {} as Schema,
-  { mapper = fakerKeywordMapper, withOverride }: { mapper?: SchemaMapper; withOverride?: boolean } = {},
+  item: Schema,
+  options: ParserOptions,
 ): string | undefined {
+  const mapper = options.mapper || fakerKeywordMapper
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
@@ -78,42 +91,38 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]) as any`
-  }
-
-  if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]) as any`
-  }
-
-  if (isKeyword(item, schemaKeywords.tuple)) {
-    return `${value}(${
-      Array.isArray(item.args)
-        ? `[${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).filter(Boolean).join(',')}]`
-        : parseFakerMeta(item.args)
-    }) as any`
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, options)).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return `${value}({},${item.args.map((andItem) => parseFakerMeta(andItem, { mapper })).filter(Boolean).join(',')})`
+    return `${value}({},${item.args.map((andItem) => parseFakerMeta(andItem, options)).filter(Boolean).join(',')})`
   }
 
-  if (isKeyword(item, schemaKeywords.enum)) {
-    return `${value}(${
-      Array.isArray(item.args)
-        ? `[${
-          item.args.map(item => {
-            if (item.format === 'number') {
-              return item.name
-            }
-            return transformers.stringify(item.name)
-          }).join(', ')
-        }]`
-        : parseFakerMeta(item.args)
-    })`
+  if (isKeyword(item, schemaKeywords.array)) {
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, options)).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.catchall)) {
     return undefined
+  }
+
+  if (isKeyword(item, schemaKeywords.enum)) {
+    return `${value}([${
+      item.args.items.map(item => {
+        if (item.format === 'number') {
+          return item.name
+        }
+        return transformers.stringify(item.name)
+      }).join(', ')
+    }])`
+  }
+
+  if (isKeyword(item, schemaKeywords.ref)) {
+    if (!item.args?.name) {
+      throw new Error(`Name not defined for keyword ${item.keyword}`)
+    }
+
+    return `${item.args.name}(override)`
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
@@ -130,7 +139,7 @@ export function parseFakerMeta(
           joinItems(
             schema
               .sort(schemaKeywordsorter)
-              .map((item) => parseFakerMeta(item, { mapper }))
+              .map((item) => parseFakerMeta(item, options))
               .filter(Boolean),
           )
         }`
@@ -140,6 +149,14 @@ export function parseFakerMeta(
     return `{${argsObject}}`
   }
 
+  if (isKeyword(item, schemaKeywords.tuple)) {
+    return `${value}(${
+      Array.isArray(item.args)
+        ? `[${item.args.map((orItem) => parseFakerMeta(orItem, options)).filter(Boolean).join(',')}]`
+        : parseFakerMeta(item.args, options)
+    }) as any`
+  }
+
   if (isKeyword(item, schemaKeywords.literal)) {
     if (item.args.format === 'number') {
       return item.args.name?.toString()
@@ -147,25 +164,14 @@ export function parseFakerMeta(
     return transformers.stringify(item.args.value)
   }
 
-  if (isKeyword(item, schemaKeywords.ref)) {
-    if (!item.args?.name) {
-      throw new Error(`Name not defined for keyword ${item.keyword}`)
-    }
-
-    if (withOverride) {
-      return `${item.args.name}(override)`
-    }
-    return `${item.args.name}()`
-  }
-
-  if (isKeyword(item, schemaKeywords.null) || isKeyword(item, schemaKeywords.undefined) || isKeyword(item, schemaKeywords.any)) {
-    return value || ''
-  }
-
   if (isKeyword(item, schemaKeywords.matches)) {
     if (item.args) {
       return `${value}(${transformers.toRegExpString(item.args)})`
     }
+  }
+
+  if (isKeyword(item, schemaKeywords.null) || isKeyword(item, schemaKeywords.undefined) || isKeyword(item, schemaKeywords.any)) {
+    return value || ''
   }
 
   if (item.keyword in mapper) {
@@ -178,10 +184,10 @@ export function parseFakerMeta(
 
 export function fakerParser(
   items: Schema[],
-  options: { seed?: number | number[]; mapper?: SchemaMapper; name: string; typeName?: string | null },
+  options: ParserOptions,
 ): string {
   const fakerText = joinItems(
-    items.map((item) => parseFakerMeta(item, { mapper: { ...fakerKeywordMapper, ...options.mapper }, withOverride: true })).filter(Boolean),
+    items.map((item) => parseFakerMeta(item, options)).filter(Boolean),
   )
 
   let fakerDefaultOverride: '' | '[]' | '{}' = ''

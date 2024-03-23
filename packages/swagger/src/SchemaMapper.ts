@@ -13,12 +13,19 @@ export type SchemaKeywordMapper = {
   datetime: { keyword: 'datetime' }
   tuple: { keyword: 'tuple'; args: Schema[] }
   array: { keyword: 'array'; args: Schema[] }
-  enum: { keyword: 'enum'; args: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }> }
+  enum: {
+    keyword: 'enum'
+    args: {
+      name: string
+      typeName: string
+      items: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }>
+    }
+  }
   and: { keyword: 'and'; args: Schema[] }
   literal: { keyword: 'literal'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
   union: { keyword: 'union'; args: Schema[] }
   ref: { keyword: 'ref'; args: { name: string } }
-  catchall: { keyword: 'catchall'; args?: Schema[] }
+  catchall: { keyword: 'catchall'; args: Schema[] }
   lazy: { keyword: 'lazy' }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
@@ -29,6 +36,8 @@ export type SchemaKeywordMapper = {
   max: { keyword: 'max'; args: number }
   min: { keyword: 'min'; args: number }
   describe: { keyword: 'describe'; args: string }
+  example: { keyword: 'example'; args: string }
+  deprecated: { keyword: 'deprecated' }
   optional: { keyword: 'optional' }
   undefined: { keyword: 'undefined' }
   nullish: { keyword: 'nullish' }
@@ -37,6 +46,11 @@ export type SchemaKeywordMapper = {
   any: { keyword: 'any' }
   unknown: { keyword: 'unknown' }
   blob: { keyword: 'blob' }
+  type: {
+    keyword: 'type'
+    args: string
+  }
+  format: { keyword: 'format'; args: string }
 }
 
 export const schemaKeywords = {
@@ -81,6 +95,10 @@ export const schemaKeywords = {
   password: 'password',
   phone: 'phone',
   blob: 'blob',
+  deprecated: 'deprecated',
+  example: 'example',
+  type: 'type',
+  format: 'format',
 } satisfies { [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword'] }
 
 export type SchemaKeyword = keyof SchemaKeywordMapper

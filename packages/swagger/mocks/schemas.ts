@@ -1,6 +1,6 @@
 import { schemaKeywords, type Schema } from '../src/SchemaMapper'
 
-export const schemas: Array<{ name: string; schema: Schema }> = [
+const basic: Array<{ name: string; schema: Schema }> = [
   {
     name: 'any',
     schema: {
@@ -14,13 +14,13 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: 'string',
+    name: schemaKeywords.string,
     schema: {
       keyword: schemaKeywords.string,
     },
   },
   {
-    name: 'number',
+    name: schemaKeywords.number,
     schema: {
       keyword: schemaKeywords.number,
     },
@@ -56,7 +56,7 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: 'min',
+    name: schemaKeywords.min,
     schema: {
       keyword: schemaKeywords.min,
       args: 2,
@@ -93,15 +93,19 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: 'ref',
+    name: 'enum',
     schema: {
       keyword: schemaKeywords.enum,
-      args: [
-        { name: 'A', value: 'A', format: 'string' },
-        { name: 'B', value: 'B', format: 'string' },
-        { name: 'C', value: 'C', format: 'string' },
-        { name: 2, value: 2, format: 'number' },
-      ],
+      args: {
+        name: 'enum',
+        typeName: 'Enum',
+        items: [
+          { name: 'A', value: 'A', format: schemaKeywords.string },
+          { name: 'B', value: 'B', format: schemaKeywords.string },
+          { name: 'C', value: 'C', format: schemaKeywords.string },
+          { name: 2, value: 2, format: schemaKeywords.number },
+        ],
+      },
     },
   },
   {
@@ -115,14 +119,14 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     name: 'tupleMulti',
     schema: {
       keyword: schemaKeywords.tuple,
-      args: [{ keyword: 'string' }, { keyword: 'number' }],
+      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
     },
   },
   {
     name: 'array',
     schema: {
       keyword: schemaKeywords.array,
-      args: [{ keyword: 'string' }, { keyword: 'number' }],
+      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
     },
   },
   {
@@ -143,14 +147,14 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     name: 'union',
     schema: {
       keyword: schemaKeywords.union,
-      args: [{ keyword: 'string' }, { keyword: 'number' }],
+      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
     },
   },
   {
     name: 'unionOne',
     schema: {
       keyword: schemaKeywords.union,
-      args: [{ keyword: 'string' }],
+      args: [{ keyword: schemaKeywords.string }],
     },
   },
   {
@@ -164,7 +168,7 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     name: 'and',
     schema: {
       keyword: schemaKeywords.and,
-      args: [{ keyword: 'string' }, { keyword: 'number' }],
+      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
     },
   },
   {
@@ -173,8 +177,20 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.object,
       args: {
         entries: {
-          firstName: [{ keyword: 'string' }, { keyword: 'min', args: 2 }],
-          address: [{ keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' }],
+          firstName: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.min, args: 2 }],
+          address: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.nullable }, { keyword: schemaKeywords.describe, args: '"Your address"' }],
+        },
+      },
+    },
+  },
+  {
+    name: 'objectOptional',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        entries: {
+          firstName: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.optional }, { keyword: schemaKeywords.min, args: 2 }],
+          address: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.nullable }, { keyword: schemaKeywords.describe, args: '"Your address"' }],
         },
       },
     },
@@ -182,11 +198,39 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
   {
     name: 'objectAnd',
     schema: {
-      keyword: 'object',
+      keyword: schemaKeywords.object,
       args: {
         entries: {
-          firstName: [{ keyword: 'string' }, { keyword: 'min', args: 2 }],
-          address: [{ keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' }],
+          firstName: [
+            { keyword: schemaKeywords.deprecated },
+            { keyword: schemaKeywords.default, args: 'test' },
+            {
+              keyword: schemaKeywords.min,
+              args: 2,
+            },
+            {
+              keyword: schemaKeywords.string,
+            },
+          ],
+          age: [
+            { keyword: schemaKeywords.example, args: '2' },
+            { keyword: schemaKeywords.default, args: 2 },
+            {
+              keyword: schemaKeywords.min,
+              args: 2,
+            },
+            {
+              keyword: schemaKeywords.number,
+            },
+          ],
+          address: [
+            {
+              keyword: schemaKeywords.and,
+              args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+            },
+            { keyword: schemaKeywords.nullable },
+            { keyword: schemaKeywords.describe, args: 'Your address' },
+          ],
         },
       },
     },
@@ -217,3 +261,87 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     },
   },
 ]
+
+const full: Array<{ name: string; schema: Schema[] }> = [
+  {
+    name: 'Upload',
+    schema: [
+      {
+        keyword: schemaKeywords.blob,
+      },
+    ],
+  },
+  {
+    name: 'Object',
+    schema: [
+      { keyword: schemaKeywords.nullable },
+      { keyword: schemaKeywords.describe, args: 'Your address' },
+      {
+        keyword: schemaKeywords.object,
+        args: {
+          entries: {
+            firstName: [
+              { keyword: schemaKeywords.deprecated },
+              { keyword: schemaKeywords.default, args: 'test' },
+              {
+                keyword: schemaKeywords.min,
+                args: 2,
+              },
+              {
+                keyword: schemaKeywords.string,
+              },
+            ],
+            age: [
+              { keyword: schemaKeywords.example, args: '2' },
+              { keyword: schemaKeywords.default, args: 2 },
+              {
+                keyword: schemaKeywords.min,
+                args: 2,
+              },
+              {
+                keyword: schemaKeywords.number,
+              },
+            ],
+            address: [
+              {
+                keyword: schemaKeywords.and,
+                args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+              },
+              { keyword: schemaKeywords.nullable },
+              { keyword: schemaKeywords.describe, args: 'Your address' },
+            ],
+          },
+        },
+      },
+    ],
+  },
+  {
+    name: 'Order',
+    schema: [
+      {
+        keyword: schemaKeywords.type,
+        args: 'object',
+      },
+      {
+        keyword: schemaKeywords.object,
+        args: {
+          entries: {
+            'status': [{
+              keyword: schemaKeywords.enum,
+              args: {
+                name: 'orderStatus',
+                typeName: 'OrderStatus',
+                items: [{ name: 'Placed', value: 'placed', format: 'string' }, { name: 'Approved', value: 'approved', format: 'string' }],
+              },
+            }],
+          },
+        },
+      },
+    ],
+  },
+]
+
+export const schemas = {
+  basic,
+  full,
+}

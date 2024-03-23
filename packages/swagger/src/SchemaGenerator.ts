@@ -1,5 +1,5 @@
 import { Generator } from '@kubb/core'
-import transformers from '@kubb/core/transformers'
+import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -23,6 +23,9 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 export type SchemaGeneratorOptions = {
   dateType: 'string' | 'date'
   unknownType: 'any' | 'unknown'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumSuffix?: string
+  usedEnumNames?: Record<string, number>
   mapper?: SchemaMapper
   typed?: boolean
   transformers: {
@@ -77,10 +80,12 @@ export abstract class SchemaGenerator<
     return schemaKeywords.unknown
   }
 
+  #usedEnumNames = this.options.usedEnumNames || {}
+
   /**
    * Recursively creates a type literal with the given props.
    */
-  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, _baseName?: string): Schema[] {
+  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): Schema[] {
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
@@ -88,14 +93,12 @@ export abstract class SchemaGenerator<
     const objectMembers = Object.keys(properties)
       .map((name) => {
         const validationFunctions: Schema[] = []
-
         const schema = properties[name] as OasTypes.SchemaObject & { 'x-nullable': boolean }
-        // TODO replace name with this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey, type: 'type' }
         const isRequired = Array.isArray(required) ? required.includes(name) : !!required
+        const resolvedName = this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey: this.context.plugin.key, type: 'type' })
 
-        validationFunctions.push(...this.getTypeFromSchema(schema, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, resolvedName || name))
 
-        // TODO null check to getTypeFromSchema?
         const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
 
         if (!isRequired && nullable) {
@@ -105,7 +108,6 @@ export abstract class SchemaGenerator<
         } else if (!isRequired) {
           validationFunctions.push({ keyword: schemaKeywords.optional })
         }
-        // TODO add keyword readOnly
 
         return {
           [name]: validationFunctions,
@@ -195,8 +197,28 @@ export abstract class SchemaGenerator<
     if (schema.description) {
       baseItems.push({ keyword: schemaKeywords.describe, args: schema.description })
     }
-    // TODO schema.example, schema.decpreacted, ...
-    // TODO optionalType
+
+    if (schema.type) {
+      baseItems.push({ keyword: schemaKeywords.type, args: schema.type as string })
+    }
+
+    if (schema.format) {
+      baseItems.push({ keyword: schemaKeywords.format, args: schema.format })
+    }
+
+    const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
+
+    if (!schema.required && nullable) {
+      baseItems.push({ keyword: schemaKeywords.nullish })
+    } else if (nullable) {
+      baseItems.push({ keyword: schemaKeywords.nullable })
+    } else if (!schema.required) {
+      baseItems.push({ keyword: schemaKeywords.optional })
+    }
+
+    if (schema.readOnly) {
+      baseItems.push({ keyword: schemaKeywords.readOnly })
+    }
 
     if (schema.oneOf) {
       // union
@@ -214,10 +236,10 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [ ...this.getTypeFromSchema(schemaWithoutOneOf, baseName), union,...baseItems,]
+        return [...this.getTypeFromSchema(schemaWithoutOneOf, baseName), union, ...baseItems]
       }
 
-      return [union,...baseItems,]
+      return [union, ...baseItems]
     }
 
     if (schema.anyOf) {
@@ -247,10 +269,10 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutAnyOf.properties) {
-        return [ ...this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union,...baseItems,]
+        return [...this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union, ...baseItems]
       }
 
-      return [ union,...baseItems,]
+      return [union, ...baseItems]
     }
     if (schema.allOf) {
       // intersection/add
@@ -278,51 +300,28 @@ export abstract class SchemaGenerator<
         ]
       }
 
-      return [ and,...baseItems,]
+      return [and, ...baseItems]
     }
 
-    /**
-     * Enum will be defined outside the baseType(hints the baseName check)
-     */
-    // TODO enumref type that will be extracted inside of typeParser(no need to use extraNodes)
-    // if (schema.enum && baseName) {
-    //   const enumName = getUniqueName(pascalCase([baseName, this.options.enumSuffix].join(' ')), this.options.usedEnumNames)
-
-    //   let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
-
-    //   const extensionEnums: Array<typeof enums> = ['x-enumNames', 'x-enum-varnames']
-    //     .filter(extensionKey => extensionKey in schema)
-    //     .map((extensionKey) =>
-    //       [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((key, index) => [key, schema.enum?.[index] as string] as const)
-    //     )
-
-    //   if (extensionEnums.length > 0 && extensionEnums[0]) {
-    //     enums = extensionEnums[0]
-    //   }
-
-    //   this.extraNodes.push(
-    //     ...factory.createEnumDeclaration({
-    //       name: transformers.camelCase(enumName),
-    //       typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }),
-    //       enums,
-    //       type: this.options.enumType,
-    //     }),
-    //   )
-    //   return factory.createTypeReferenceNode(this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }), undefined)
-    // }
-
     if (schema.enum) {
+      const name = getUniqueName(pascalCase([baseName, this.options.enumSuffix].join(' ')), this.#usedEnumNames)
+      const typeName = this.context.pluginManager.resolveName({ name, pluginKey: this.context.plugin.key, type: 'type' })
+
       // x-enumNames has priority
       const extensionEnums = ['x-enumNames', 'x-enum-varnames']
         .filter(extensionKey => extensionKey in schema)
         .map((extensionKey) => {
           return [{
             keyword: schemaKeywords.enum,
-            args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
-              name: transformers.stringify(name),
-              value: schema.enum![index] as string | number,
-              format: transformers.isNumber(schema.enum![index]) ? 'number' : 'string',
-            })),
+            args: {
+              name,
+              typeName,
+              items: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
+                name: transformers.stringify(name),
+                value: schema.enum![index] as string | number,
+                format: transformers.isNumber(schema.enum![index]) ? 'number' : 'string',
+              })),
+            },
           }, ...baseItems]
         })
 
@@ -333,7 +332,7 @@ export abstract class SchemaGenerator<
           {
             keyword: schemaKeywords.union,
             args: enumNames
-              ? enumNames?.args?.map(({ name, value }) => {
+              ? enumNames?.args?.items?.map(({ name, value }) => {
                 return {
                   keyword: schemaKeywords.literal,
                   args: { name, format: 'number', value },
@@ -357,11 +356,15 @@ export abstract class SchemaGenerator<
       return [
         {
           keyword: schemaKeywords.enum,
-          args: [...new Set(schema.enum)].map((value: string) => ({
-            name: transformers.stringify(value),
-            value,
-            format: transformers.isNumber(value) ? 'number' : 'string',
-          })),
+          args: {
+            name,
+            typeName,
+            items: [...new Set(schema.enum)].map((value: string) => ({
+              name: transformers.stringify(value),
+              value,
+              format: transformers.isNumber(value) ? 'number' : 'string',
+            })),
+          },
         },
         ...baseItems,
       ]

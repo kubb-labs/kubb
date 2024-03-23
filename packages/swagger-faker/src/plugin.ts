@@ -8,7 +8,6 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { FakerBuilder } from './FakerBuilder.ts'
-import { fakerKeywordMapper } from './fakerParser.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile, Plugin } from '@kubb/core'
@@ -28,7 +27,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     transformers = {},
-    mapper = fakerKeywordMapper,
     dateType = 'string',
     unknownType = 'any',
   } = options
@@ -38,7 +36,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options: {
       transformers,
-      mapper,
       dateType,
       seed,
       unknownType,

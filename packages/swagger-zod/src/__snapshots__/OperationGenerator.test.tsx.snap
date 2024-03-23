@@ -42,7 +42,7 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
 import { Pets } from "./Pets";
 import { Error } from "./Error";
 
- export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() }).optional();
+ export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional().optional() }).optional();
 
  /**
        * @description A paged array of pets
@@ -66,7 +66,7 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
 import { Pet } from "./Pet";
 import { Error } from "./Error";
 
- export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve"), "testId": z.string().describe("The id of the pet to retrieve") });
+ export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve").optional(), "testId": z.string().describe("The id of the pet to retrieve").optional() });
 
  /**
        * @description Expected response to a valid request
@@ -94,7 +94,7 @@ import { Error } from "./Error";
  * @description Null response
  */
 export const CreatePets201 = z.any();
-export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
+export const CreatePetsMutationRequest = z.object({ "name": z.string().optional(), "tag": z.string().optional() });
 export const CreatePetsMutationResponse = z.any();
 
  /**

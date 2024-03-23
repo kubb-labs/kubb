@@ -8,9 +8,6 @@ import { typeParser } from './typeParser.ts'
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions } from '@kubb/swagger'
 
 type Options = SchemaGeneratorOptions & {
-  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
-  enumSuffix?: string
-  usedEnumNames: Record<string, number>
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   oasType: 'infer' | false
 }
@@ -35,7 +32,8 @@ export class TypeGenerator extends SchemaGenerator<Options> {
     const typeOutput = typeParser(fakerInput, {
       name,
       typeName,
-      mapper: this.options.mapper,
+      enumType: this.options.enumType || 'asConst',
+      optionalType: this.options.optionalType,
     })
     // hack to add typescript imports
     if (typeName) {

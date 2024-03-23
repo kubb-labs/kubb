@@ -1,68 +1,96 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fakerParser > fakerParser { name: 'blob', schema: [] } 1`] = `
+exports[`fakerParser > 'Object' 1`] = `
 "
-export function blob(override?: NonNullable<Partial<undefined>>) {
+export function Object(override: NonNullable<Partial<undefined>> = {}) {
+  
+  return {
+  ...{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({},faker.string.alpha(),faker.number.float())},
+  ...override
+};
+}
+  "
+`;
+
+exports[`fakerParser > 'Order' 1`] = `
+"
+export function Order(override: NonNullable<Partial<undefined>> = {}) {
+  
+  return {
+  ...{"status": faker.helpers.arrayElement<any>(["Placed", "Approved"])},
+  ...override
+};
+}
+  "
+`;
+
+exports[`fakerParser > 'Upload' 1`] = `
+"
+export function Upload(override?: NonNullable<Partial<undefined>>) {
   
   return undefined;
 }
   "
 `;
 
-exports[`parseFakerMeta > parseFaker { name: 'and', schema: { keyword: 'and', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"Object.assign({},faker.string.alpha(),faker.number.float())"`;
+exports[`parseFakerMeta > 'and' 1`] = `"Object.assign({},faker.string.alpha(),faker.number.float())"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'any', schema: { keyword: 'any' } } 1`] = `"undefined"`;
+exports[`parseFakerMeta > 'any' 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'array', schema: { keyword: 'array', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'arrayEmpty', schema: { keyword: 'array', args: [] } } 1`] = `"faker.helpers.arrayElements([]) as any"`;
+exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'arrayRef', schema: { keyword: 'array', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
+exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet(override)]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'blob', schema: { keyword: 'blob' } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'blob' 1`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'boolean', schema: { keyword: 'boolean' } } 1`] = `"faker.datatype.boolean()"`;
+exports[`parseFakerMeta > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'catchall', schema: { keyword: 'catchall', args: [ { keyword: 'ref', args: { name: 'Pet' } } ] } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'catchall' 1`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'date', schema: { keyword: 'date' } } 1`] = `"faker.date.anytime()"`;
+exports[`parseFakerMeta > 'date' 1`] = `"faker.date.anytime()"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'datetime', schema: { keyword: 'datetime' } } 1`] = `"faker.string.alpha()"`;
+exports[`parseFakerMeta > 'datetime' 1`] = `"faker.string.alpha()"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'default', schema: { keyword: 'default' } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'default' 1`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'default', schema: { keyword: 'default', args: 'default' } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'default' 2`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'matches', schema: { keyword: 'matches', args: '^[A-Z]{2}$' } } 1`] = `"faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))"`;
+exports[`parseFakerMeta > 'enum' 1`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'matchesReg', schema: { keyword: 'matches', args: '/node_modules/' } } 1`] = `"faker.helpers.fromRegExp(new RegExp('node_modules'))"`;
+exports[`parseFakerMeta > 'matches' 1`] = `"faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'max', schema: { keyword: 'max', args: 2 } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'matchesReg' 1`] = `"faker.helpers.fromRegExp(new RegExp('node_modules'))"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'min', schema: { keyword: 'min', args: 2 } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'max' 1`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'nullable', schema: { keyword: 'nullable' } } 1`] = `undefined`;
+exports[`parseFakerMeta > 'min' 1`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'number', schema: { keyword: 'number' } } 1`] = `"faker.number.float()"`;
+exports[`parseFakerMeta > 'nullable' 1`] = `undefined`;
 
-exports[`parseFakerMeta > parseFaker { name: 'object', schema: { keyword: 'object', args: { entries: { firstName: [ { keyword: 'string' }, { keyword: 'min', args: 2 } ], address: [ { keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' } ] } } } } 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
+exports[`parseFakerMeta > 'number' 1`] = `"faker.number.float()"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'objectEmpty', schema: { keyword: 'object' } } 1`] = `"{}"`;
+exports[`parseFakerMeta > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'ref', schema: { keyword: 'enum', args: [ { name: 'A', value: 'A', format: 'string' }, { name: 'B', value: 'B', format: 'string' }, { name: 'C', value: 'C', format: 'string' }, { name: 2, value: 2, format: 'number' } ] } } 1`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
+exports[`parseFakerMeta > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({},faker.string.alpha(),faker.number.float())}"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'ref', schema: { keyword: 'ref', args: { name: 'Pet' } } } 1`] = `"Pet()"`;
+exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'string', schema: { keyword: 'string' } } 1`] = `"faker.string.alpha()"`;
+exports[`parseFakerMeta > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'tuple', schema: { keyword: 'tuple', args: [] } } 1`] = `"faker.helpers.arrayElements([]) as any"`;
+exports[`parseFakerMeta > 'ref' 1`] = `"Pet(override)"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'tupleMulti', schema: { keyword: 'tuple', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'string' 1`] = `"faker.string.alpha()"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'undefined', schema: { keyword: 'undefined' } } 1`] = `"undefined"`;
+exports[`parseFakerMeta > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'union', schema: { keyword: 'union', args: [ { keyword: 'string' }, { keyword: 'number' } ] } } 1`] = `"faker.helpers.arrayElement([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'tupleMulti' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'unionOne', schema: { keyword: 'union', args: [ { keyword: 'string' } ] } } 1`] = `"faker.helpers.arrayElement([faker.string.alpha()]) as any"`;
+exports[`parseFakerMeta > 'undefined' 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > parseFaker { name: 'unknown', schema: { keyword: 'unknown' } } 1`] = `"unknown()"`;
+exports[`parseFakerMeta > 'union' 1`] = `"faker.helpers.arrayElement([faker.string.alpha(),faker.number.float()]) as any"`;
+
+exports[`parseFakerMeta > 'unionOne' 1`] = `"faker.helpers.arrayElement([faker.string.alpha()]) as any"`;
+
+exports[`parseFakerMeta > 'unknown' 1`] = `"unknown()"`;

@@ -4,14 +4,20 @@ import * as factory from '@kubb/parser/factory'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { ts } from '@kubb/parser'
-import type { Schema, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
 
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
   unknown: () => factory.keywordTypeNodes.unknown,
   number: () => factory.keywordTypeNodes.number,
   integer: () => factory.keywordTypeNodes.number,
-  object: () => factory.keywordTypeNodes.object,
+  object: (nodes?: ts.TypeElement[]) => {
+    if (!nodes) {
+      return factory.keywordTypeNodes.object
+    }
+
+    return factory.createTypeLiteralNode(nodes)
+  },
   lazy: undefined,
   string: () => factory.keywordTypeNodes.string,
   boolean: () => factory.keywordTypeNodes.boolean,
@@ -27,7 +33,13 @@ export const typeKeywordMapper = {
     return factory.createArrayDeclaration({ nodes })
   },
   tuple: undefined,
-  enum: undefined,
+  enum: (name?: string) => {
+    if (!name) {
+      return undefined
+    }
+
+    return factory.createTypeReferenceNode(name, undefined)
+  },
   union: (nodes?: ts.TypeNode[]) => {
     if (!nodes) {
       return undefined
@@ -59,7 +71,16 @@ export const typeKeywordMapper = {
   min: undefined,
   max: undefined,
   optional: undefined,
-  catchall: undefined,
+  catchall: (nodes?: ts.TypeNode[]) => {
+    if (!nodes) {
+      return undefined
+    }
+
+    return factory.createIntersectionDeclaration({
+      withParentheses: true,
+      nodes,
+    })
+  },
   matches: undefined,
   email: undefined,
   firstName: undefined,
@@ -74,11 +95,30 @@ export const typeKeywordMapper = {
 
     return factory.createTypeReferenceNode(propertyName, undefined)
   },
-
   blob: () => factory.createTypeReferenceNode('Blob', []),
+  deprecated: undefined,
+  example: undefined,
+  type: undefined,
+  format: undefined,
 } satisfies SchemaMapper<(ctx?: any) => ts.Node | null | undefined>
 
-export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKeywordMapper = typeKeywordMapper): ts.Node | null | undefined {
+type ParserOptions = {
+  name: string
+  typeName?: string
+  /**
+   * @default `'questionToken'`
+   */
+  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
+  /**
+   * @default `'asConst'`
+   */
+  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  keysToOmit?: string[]
+  mapper?: typeof typeKeywordMapper
+}
+
+export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | null | undefined {
+  const mapper = options.mapper || typeKeywordMapper
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
@@ -87,17 +127,28 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
 
   if (isKeyword(item, schemaKeywords.union)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['union']
-    return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+    return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['and']
-    return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+    return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['array']
-    return value(item.args.map(orItem => parseTypeMeta(orItem, mapper)).filter(Boolean) as ts.TypeNode[])
+    return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
+  }
+
+  if (isKeyword(item, schemaKeywords.catchall)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['catchall']
+
+    return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
+  }
+
+  if (isKeyword(item, schemaKeywords.enum)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['enum']
+    return value(item.args.typeName)
   }
 
   if (isKeyword(item, schemaKeywords.ref)) {
@@ -108,8 +159,71 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
   if (isKeyword(item, schemaKeywords.blob)) {
     return value()
   }
-  // TODO for object: loop over all keyword and search for describe, default, .. and use appendJSDocToNode
-  // TOOD check on undfined and optionalType
+
+  if (isKeyword(item, schemaKeywords.object)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['object']
+
+    const argsObject = Object.entries(item.args?.entries || '{}')
+      .filter((item) => {
+        const schemas = item[1]
+        return schemas && typeof schemas.map === 'function'
+      })
+      .map((item) => {
+        const name = item[0]
+        const schemas = item[1]
+
+        const isNullish = schemas.some(item => item.keyword === schemaKeywords.nullish)
+        const isNullable = schemas.some(item => item.keyword === schemaKeywords.nullable)
+        const isOptional = schemas.some(item => item.keyword === schemaKeywords.optional)
+        const isReadonly = schemas.some(item => item.keyword === schemaKeywords.readOnly)
+        const describe = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+        const deprecated = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
+        const defaultSchema = schemas.find(item => item.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
+        const example = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
+        const typeSchema = schemas.find(item => item.keyword === schemaKeywords.type) as SchemaKeywordMapper['type'] | undefined
+        const formatSchema = schemas.find(item => item.keyword === schemaKeywords.format) as SchemaKeywordMapper['format'] | undefined
+
+        let type = schemas
+          .map((item) => parseTypeMeta(item, options))
+          .filter(Boolean)[0] as ts.TypeNode
+
+        if (isNullable) {
+          type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] }) as ts.TypeNode
+        }
+
+        if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+          type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
+        }
+
+        if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+          type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
+        }
+
+        const propertySignature = factory.createPropertySignature({
+          questionToken: isOptional && ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string),
+          name,
+          type,
+          readOnly: isReadonly,
+        })
+
+        return factory.appendJSDocToNode({
+          node: propertySignature,
+          comments: [
+            describe ? `@description ${transformers.stringify(describe.args)}` : undefined,
+            deprecated ? `@deprecated` : undefined,
+            defaultSchema
+              ? `@default ${typeof defaultSchema.args === 'number' ? defaultSchema.args : transformers.stringify(defaultSchema.args as string)}`
+              : undefined,
+            example ? `@example ${transformers.stringify(example.args)}` : undefined,
+            typeSchema
+              ? `@type ${transformers.stringify(typeSchema.args)}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
+              : undefined,
+          ].filter(Boolean),
+        })
+      })
+
+    return value(argsObject)
+  }
 
   if (item.keyword in mapper) {
     return value()
@@ -118,25 +232,58 @@ export function parseTypeMeta(item: Schema = {} as Schema, mapper: typeof typeKe
   return undefined
 }
 
-// TODO required should be part of the items(schema), we can append those when calling zodParser instead of options, same for description, ...
-// omit then all the schema items that have already been used + create extraNodes when needed(enum)
 export function typeParser(
-  items: Schema[],
-  options: { name: string; description?: string; required?: boolean; keysToOmit?: string[]; mapper?: typeof typeKeywordMapper },
+  schemas: Schema[],
+  options: ParserOptions,
 ): string {
   const nodes: ts.Node[] = []
 
-  if (!items.length) {
+  if (!schemas.length) {
     return ''
   }
 
-  // TODO for object: loop over all keyword and search for describe, default, .. and use appendJSDocToNode
-  // TOOD check on undfined and optionalType
+  const isNullish = schemas.some(item => item.keyword === schemaKeywords.nullish)
+  const isNullable = schemas.some(item => item.keyword === schemaKeywords.nullable)
+  const isOptional = schemas.some(item => item.keyword === schemaKeywords.optional)
+  const describe = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+  const deprecated = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
+  const defaultSchema = schemas.find(item => item.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
+  const example = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
+  const typeSchema = schemas.find(item => item.keyword === schemaKeywords.type) as SchemaKeywordMapper['type'] | undefined
+  const formatSchema = schemas.find(item => item.keyword === schemaKeywords.format) as SchemaKeywordMapper['format'] | undefined
+  const findEnum = (items: Schema[]): SchemaKeywordMapper['enum'] | undefined => {
+    let foundItem: Schema | undefined = undefined
 
-  let type = items.map((item) => parseTypeMeta(item, { ...typeKeywordMapper, ...options.mapper })).filter(Boolean).at(0) as ts.TypeNode
+    items.forEach(item => {
+      if (item.keyword === schemaKeywords.enum) {
+        foundItem = item
+      }
+
+      if (item.keyword === schemaKeywords.object) {
+        const subItem = item as SchemaKeywordMapper['object']
+        return Object.values(subItem.args.entries).forEach(entrySchema => {
+          foundItem = findEnum(entrySchema)
+        })
+      }
+    })
+
+    return foundItem
+  }
+
+  const enumSchema = findEnum(schemas)
+
+  let type = schemas.map((schema) => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode
     || typeKeywordMapper.undefined()
 
-  if (!options.required) {
+  if (isNullable) {
+    type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] }) as ts.TypeNode
+  }
+
+  if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+    type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
+  }
+
+  if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
     type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
   }
 
@@ -146,16 +293,34 @@ export function typeParser(
     type: options.keysToOmit?.length ? factory.createOmitDeclaration({ keys: options.keysToOmit, type, nonNullable: true }) : type,
   })
 
-  if (options.description) {
-    nodes.push(
-      factory.appendJSDocToNode({
-        node,
-        comments: [`@description ${transformers.trim(options.description)}`],
-      }),
-    )
-  } else {
-    nodes.push(node)
+  if (enumSchema) {
+    nodes.push(...factory.createEnumDeclaration({
+      name: transformers.camelCase(enumSchema.args.name),
+      typeName: enumSchema.args.typeName,
+      enums: enumSchema.args.items.map(item => item.value === undefined ? undefined : [item.name, item.value]).filter(Boolean) as unknown as [
+        string,
+        string,
+      ][],
+      type: options.enumType,
+    }))
   }
+
+  nodes.push(
+    factory.appendJSDocToNode({
+      node,
+      comments: [
+        describe ? `@description ${transformers.stringify(describe.args)}` : undefined,
+        deprecated ? `@deprecated` : undefined,
+        defaultSchema
+          ? `@default ${typeof defaultSchema.args === 'number' ? defaultSchema.args : transformers.stringify(defaultSchema.args as string)}`
+          : undefined,
+        example ? `@example ${transformers.stringify(example.args)}` : undefined,
+        typeSchema
+          ? `@type ${transformers.stringify(typeSchema.args)}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
+          : undefined,
+      ].filter(Boolean),
+    }),
+  )
 
   return print(nodes)
 }

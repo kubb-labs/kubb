@@ -28,22 +28,31 @@ import type { ListPetsError } from "./ListPetsError";
 import type { ListPetsQueryParams } from "./ListPetsQueryParams";
 import type { ListPetsQueryResponse } from "./ListPetsQueryResponse";
 
- export type ListPetsQueryParams = object;
+ /**
+ * @type "object"
+*/
+export type ListPetsQueryParams = {
+    /**
+     * @description "How many items to return at one time (max 100)"
+     * @type "string" | undefined
+    */
+    limit?: string;
+};
 
  /**
  * @description A paged array of pets
  */
-export type ListPets200 = ;
+export type ListPets200 = Pets;
 
  /**
  * @description unexpected error
  */
-export type ListPetsError = ;
+export type ListPetsError = Error;
 
  /**
  * @description A paged array of pets
  */
-export type ListPetsQueryResponse = ;
+export type ListPetsQueryResponse = Pets;
 export type ListPetsQuery = {
     Response: ListPetsQueryResponse;
     QueryParams: ListPetsQueryParams;
@@ -59,22 +68,36 @@ import type { ShowPetByIdError } from "./ShowPetByIdError";
 import type { ShowPetByIdPathParams } from "./ShowPetByIdPathParams";
 import type { ShowPetByIdQueryResponse } from "./ShowPetByIdQueryResponse";
 
- export type ShowPetByIdPathParams = object;
+ /**
+ * @type "object"
+*/
+export type ShowPetByIdPathParams = {
+    /**
+     * @description "The id of the pet to retrieve"
+     * @type "string" | undefined
+    */
+    petId?: string;
+    /**
+     * @description "The id of the pet to retrieve"
+     * @type "string" | undefined
+    */
+    testId?: string;
+};
 
  /**
  * @description Expected response to a valid request
  */
-export type ShowPetById200 = ;
+export type ShowPetById200 = Pet;
 
  /**
  * @description unexpected error
  */
-export type ShowPetByIdError = ;
+export type ShowPetByIdError = Error;
 
  /**
  * @description Expected response to a valid request
  */
-export type ShowPetByIdQueryResponse = ;
+export type ShowPetByIdQueryResponse = Pet;
 export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
     PathParams: ShowPetByIdPathParams;
@@ -84,27 +107,44 @@ export type ShowPetByIdQuery = {
 
 exports[`OperationGenerator > [POST] /pets 201 1`] = `
 "import { Error } from "./Error";
+import { ErrorCode } from "./ErrorCode";
 import type { CreatePets201 } from "./CreatePets201";
 import type { CreatePetsError } from "./CreatePetsError";
 import type { CreatePetsMutationRequest } from "./CreatePetsMutationRequest";
 import type { CreatePetsMutationResponse } from "./CreatePetsMutationResponse";
 
- export type CreatePetsMutationRequest = object;
+ /**
+ * @type "object"
+*/
+export type CreatePetsMutationRequest = {
+    /**
+     * @type "string" | undefined
+    */
+    name?: string;
+    /**
+     * @type "string" | undefined
+    */
+    tag?: string;
+};
 
  /**
  * @description unexpected error
  */
-export type CreatePetsError = ;
+export type CreatePetsError = Error;
 
  /**
  * @description Null response
  */
-export type CreatePets201 = object;
+export type CreatePets201 = (Error & {
+    name?: ErrorCode;
+});
 
  /**
  * @description Null response
  */
-export type CreatePetsMutationResponse = object;
+export type CreatePetsMutationResponse = (Error & {
+    name?: ErrorCode;
+});
 export type CreatePetsMutation = {
     Response: CreatePetsMutationResponse;
     Request: CreatePetsMutationRequest;

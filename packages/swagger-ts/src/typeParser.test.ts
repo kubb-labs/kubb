@@ -1,14 +1,11 @@
 import { print } from '@kubb/parser'
-import { schemaKeywords } from '@kubb/swagger'
 
 import { schemas } from '../../swagger/mocks/schemas.ts'
 import { parseTypeMeta, typeParser } from './typeParser.ts'
 
-import type { Schema } from '@kubb/swagger'
-
 describe('parseTypeMeta', () => {
-  test.each(schemas)('parseTypeMeta %o', ({ schema }) => {
-    const parsed = parseTypeMeta(schema)
+  test.each(schemas.basic)('$name', ({ schema, name }) => {
+    const parsed = parseTypeMeta(schema, { name, optionalType: 'questionToken', enumType: 'asConst' })
     const text = parsed ? print(parsed) : undefined
 
     expect(text).toMatchSnapshot()
@@ -16,19 +13,8 @@ describe('parseTypeMeta', () => {
 })
 
 describe('typeParser', () => {
-  const input: Array<{ name: string; schema: Schema[] }> = [
-    {
-      name: 'blob',
-      schema: [
-        {
-          keyword: schemaKeywords.blob,
-        },
-      ],
-    },
-  ]
-
-  test.each(input)('typeParser %o', ({ schema, name }) => {
-    const text = typeParser(schema, { name })
+  test.each(schemas.full)('$name', ({ schema, name }) => {
+    const text = typeParser(schema, { name, optionalType: 'questionToken', enumType: 'asConst' })
     expect(text).toMatchSnapshot()
   })
 })

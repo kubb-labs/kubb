@@ -1,6 +1,6 @@
 export const ShowPetByIdPathParams = z.object({
-  petId: z.string().describe('The id of the pet to retrieve'),
-  testId: z.string().describe('The id of the pet to retrieve'),
+  petId: z.string().describe('The id of the pet to retrieve').optional(),
+  testId: z.string().describe('The id of the pet to retrieve').optional(),
 })
 
 /**

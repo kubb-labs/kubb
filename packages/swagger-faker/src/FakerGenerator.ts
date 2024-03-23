@@ -31,7 +31,6 @@ export class FakerGenerator extends SchemaGenerator<Options> {
     const fakerOutput = fakerParser(fakerInput, {
       name,
       typeName,
-      mapper: this.options.mapper,
       seed: this.options.seed,
     })
     // hack to add typescript imports

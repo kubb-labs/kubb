@@ -114,7 +114,7 @@ export function createArrayDeclaration({
   nodes: Array<ts.TypeNode>
 }): ts.TypeNode | null {
   if (!nodes.length) {
-    return null
+    return factory.createTupleTypeNode([])
   }
 
   if (nodes.length == 1) {

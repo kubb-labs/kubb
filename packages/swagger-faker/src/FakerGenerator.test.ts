@@ -14,10 +14,12 @@ describe('FakeGenerator enums', async () => {
   const oas = await new OasManager().parse(schemaPath)
   const generator = new FakerGenerator({
     dateType: 'string',
-    mapper: {},
+    mapper: undefined,
     seed: 1,
     transformers: {},
     unknownType: 'any',
+    enumType: 'asConst',
+    usedEnumNames: {},
   }, {
     oas,
     pluginManager: mockedPluginManager,

@@ -37,7 +37,6 @@ export class ZodGenerator extends SchemaGenerator {
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
     const zodOutput = zodParser(zodInput, {
-      required: !!schema?.required,
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
       typeName: withTypeAnnotation

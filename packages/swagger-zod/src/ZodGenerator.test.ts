@@ -15,7 +15,7 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for Pet', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
@@ -33,10 +33,12 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for Pets', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
+      enumType: 'asConst',
+      usedEnumNames: {},
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -51,10 +53,12 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for OptionalPet', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
+      enumType: 'asConst',
+      usedEnumNames: {},
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -69,11 +73,13 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for OptionalPet typed', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       typed: true,
       dateType: 'string',
       unknownType: 'any',
+      enumType: 'asConst',
+      usedEnumNames: {},
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -88,10 +94,12 @@ describe('ZodGenerator PetStore', async () => {
 
   test('generate schema for PetArray', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
+      enumType: 'asConst',
+      usedEnumNames: {},
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -109,10 +117,12 @@ describe('ZodGenerator constCases', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
   const generator = new ZodGenerator({
-    mapper: {},
+    mapper: undefined,
     transformers: {},
     dateType: 'string',
     unknownType: 'any',
+    enumType: 'asConst',
+    usedEnumNames: {},
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -184,10 +194,12 @@ describe('ZodGenerator lazy', async () => {
 
   test('generate schema for Example', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
+      enumType: 'asConst',
+      usedEnumNames: {},
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -205,10 +217,12 @@ describe('ZodGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
   const generator = new ZodGenerator({
-    mapper: {},
+    mapper: undefined,
     transformers: {},
     dateType: 'string',
     unknownType: 'any',
+    enumType: 'asConst',
+    usedEnumNames: {},
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -236,10 +250,12 @@ describe('ZodGenerator recursive', async () => {
 
   test('generate schema for Example', async () => {
     const generator = new ZodGenerator({
-      mapper: {},
+      mapper: undefined,
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
+      enumType: 'asConst',
+      usedEnumNames: {},
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -257,10 +273,12 @@ describe('ZodGenerator anyof', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
   const generator = new ZodGenerator({
-    mapper: {},
+    mapper: undefined,
     transformers: {},
     dateType: 'string',
     unknownType: 'any',
+    enumType: 'asConst',
+    usedEnumNames: {},
   }, {
     oas,
     pluginManager: mockedPluginManager,

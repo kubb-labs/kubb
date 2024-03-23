@@ -42,6 +42,10 @@ export const zodKeywordMapper = {
   readOnly: undefined,
   ref: 'ref',
   blob: undefined,
+  deprecated: undefined,
+  example: undefined,
+  type: undefined,
+  format: undefined,
 } satisfies SchemaMapper
 
 /**
@@ -66,66 +70,64 @@ function sort(items?: Schema[]): Schema[] {
   return transformers.orderBy(items, [(v) => order.indexOf(v.keyword)], ['asc'])
 }
 
-export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper = zodKeywordMapper): string | undefined {
+type ParserOptions = {
+  name: string
+  typeName?: string
+
+  keysToOmit?: string[]
+  mapper?: typeof zodKeywordMapper
+}
+
+export function parseZodMeta(item: Schema, options: ParserOptions): string | undefined {
+  const mapper = options.mapper || zodKeywordMapper
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
     return undefined
   }
 
-  if (isKeyword(item, schemaKeywords.tuple)) {
-    return `${value}(${
-      Array.isArray(item.args) ? `[${sort(item.args).map((tupleItem) => parseZodMeta(tupleItem, mapper)).filter(Boolean).join(',')}]` : parseZodMeta(item.args)
-    })`
-  }
-
-  if (isKeyword(item, schemaKeywords.enum)) {
-    return `${value}(${
-      Array.isArray(item.args)
-        ? `[${
-          item.args.map(item => {
-            if (item.format === 'number') {
-              return transformers.stringify(item.value)
-            }
-            return transformers.stringify(item.value)
-          }).join(',')
-        }]`
-        : parseZodMeta(item.args)
-    })`
-  }
-
-  if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}(${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, mapper)).filter(Boolean).join('')})`
-  }
-
   if (isKeyword(item, schemaKeywords.union)) {
     // zod union type needs at least 2 items
     if (Array.isArray(item.args) && item.args.length === 1) {
-      return parseZodMeta(item.args[0] as Schema)
+      return parseZodMeta(item.args[0] as Schema, options)
     }
     if (Array.isArray(item.args) && !item.args.length) {
       return ''
     }
 
-    return `${value}([${sort(item.args).map((unionItem) => parseZodMeta(unionItem, mapper)).filter(Boolean).join(',')}])`
-  }
-
-  if (isKeyword(item, schemaKeywords.catchall)) {
-    return `${value}(${
-      Array.isArray(item.args)
-        ? `${sort(item.args).map((catchAllItem) => parseZodMeta(catchAllItem, mapper)).filter(Boolean).join('')}`
-        : parseZodMeta(item.args)
-    })`
+    return `${value}([${sort(item.args).map((unionItem) => parseZodMeta(unionItem, options)).filter(Boolean).join(',')}])`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
     return sort(item.args).filter((item: Schema) => {
       return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
     })
-      .map((item: Schema) => parseZodMeta(item, mapper))
+      .map((item: Schema) => parseZodMeta(item, options))
       .filter(Boolean)
       .map((item, index) => (index === 0 ? item : `${value}(${item})`))
       .join('')
+  }
+
+  if (isKeyword(item, schemaKeywords.array)) {
+    return `${value}(${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')})`
+  }
+
+  if (isKeyword(item, schemaKeywords.catchall)) {
+    return `${value}(${`${sort(item.args).map((catchAllItem) => parseZodMeta(catchAllItem, options)).filter(Boolean).join('')}`})`
+  }
+  if (isKeyword(item, schemaKeywords.enum)) {
+    return `${value}([${
+      item.args.items.map(item => {
+        if (item.format === 'number') {
+          return transformers.stringify(item.value)
+        }
+        return transformers.stringify(item.value)
+      }).join(', ')
+    }])`
+  }
+
+  if (isKeyword(item, schemaKeywords.ref)) {
+    return `${mapper.lazy}(() => ${item.args?.name})`
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
@@ -140,7 +142,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
 
         return `"${name}": ${
           sort(schema)
-            .map((item) => parseZodMeta(item, mapper))
+            .map((item) => parseZodMeta(item, options))
             .filter(Boolean)
             .join('')
         }`
@@ -152,6 +154,10 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
     }
 
     return `${value}({${argsObject}})`
+  }
+
+  if (isKeyword(item, schemaKeywords.tuple)) {
+    return `${value}([${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')}])`
   }
 
   if (isKeyword(item, schemaKeywords.literal)) {
@@ -179,10 +185,6 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
     }
   }
 
-  if (isKeyword(item, schemaKeywords.ref)) {
-    return `${mapper.lazy}(() => ${item.args?.name})`
-  }
-
   if (item.keyword in mapper && 'args' in item) {
     return `${value}(${(item as SchemaKeywordBase<unknown>).args as string})`
   }
@@ -193,10 +195,9 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
 
   return undefined
 }
-
 export function zodParser(
   items: Schema[],
-  options: { required?: boolean; keysToOmit?: string[]; mapper?: SchemaMapper; name: string; typeName?: string },
+  options: ParserOptions,
 ): string {
   if (!items.length) {
     return `export const ${options.name} = '';`
@@ -209,10 +210,8 @@ export function zodParser(
 
   if (options.keysToOmit?.length) {
     const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
-    return `${constName} = ${
-      sortedItems.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')
-    }${omitText}${typeName};`
+    return `${constName} = ${sortedItems.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${omitText}${typeName};`
   }
 
-  return `${constName} = ${sortedItems.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')}${typeName};`
+  return `${constName} = ${sortedItems.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${typeName};`
 }
