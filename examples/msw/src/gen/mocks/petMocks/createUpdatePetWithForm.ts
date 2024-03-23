@@ -9,7 +9,6 @@ import type {
 /**
  * @description Invalid input
  */
-
 export function createUpdatePetWithForm405(override?: NonNullable<Partial<UpdatePetWithForm405>>): NonNullable<UpdatePetWithForm405> {
   return undefined
 }

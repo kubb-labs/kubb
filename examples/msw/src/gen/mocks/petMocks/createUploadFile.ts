@@ -19,17 +19,17 @@ export function createUploadFileQueryParams(override: NonNullable<Partial<Upload
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
 export function createUploadFile200(override?: NonNullable<Partial<UploadFile200>>): NonNullable<UploadFile200> {
   return createApiResponse(override)
 }
+
 /**
  * @description successful operation
  */
-
 export function createUploadFileMutationResponse(override?: NonNullable<Partial<UploadFileMutationResponse>>): NonNullable<UploadFileMutationResponse> {
   return createApiResponse(override)
 }

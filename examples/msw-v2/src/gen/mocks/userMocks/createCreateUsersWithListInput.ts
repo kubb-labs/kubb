@@ -10,17 +10,16 @@ import type {
 /**
  * @description successful operation
  */
-
 export function createCreateUsersWithListInputError(
   override?: NonNullable<Partial<CreateUsersWithListInputError>>,
 ): NonNullable<CreateUsersWithListInputError> {
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description Successful operation
  */
-
 export function createCreateUsersWithListInput200(override?: NonNullable<Partial<CreateUsersWithListInput200>>): NonNullable<CreateUsersWithListInput200> {
   faker.seed([220])
   return createUser(override)
@@ -35,10 +34,10 @@ export function createCreateUsersWithListInputMutationRequest(
     ...override,
   ]
 }
+
 /**
  * @description Successful operation
  */
-
 export function createCreateUsersWithListInputMutationResponse(
   override?: NonNullable<Partial<CreateUsersWithListInputMutationResponse>>,
 ): NonNullable<CreateUsersWithListInputMutationResponse> {

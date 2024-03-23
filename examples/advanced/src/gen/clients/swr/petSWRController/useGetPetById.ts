@@ -43,7 +43,7 @@ export function useGetPetById<TData = GetPetById['response']>(petId: GetPetByIdP
   shouldFetch?: boolean
 }): SWRResponse<TData, GetPetById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}` as const
+  const url = `/pet/${petId}`
   const query = useSWR<TData, GetPetById['error'], typeof url | null>(shouldFetch ? url : null, {
     ...getPetByIdQueryOptions<TData>(petId, clientOptions),
     ...queryOptions,

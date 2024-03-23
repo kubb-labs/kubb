@@ -10,6 +10,7 @@ export const placeOrderPatch405Schema = z.any()
  * @description successful operation
  */
 export const placeOrderPatch200Schema = z.lazy(() => orderSchema)
+
 export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
 
 /**

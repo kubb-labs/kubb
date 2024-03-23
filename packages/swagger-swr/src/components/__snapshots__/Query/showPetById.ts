@@ -45,7 +45,7 @@ export function useShowPetById<TData = ShowPetById['response']>(
 ): SWRResponse<TData, ShowPetById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const url = `/pets/${petId}` as const
+  const url = `/pets/${petId}`
   const query = useSWR<TData, ShowPetById['error'], typeof url | null>(shouldFetch ? url : null, {
     ...ShowPetByIdQueryOptions<TData>(petId, testId, clientOptions),
     ...queryOptions,

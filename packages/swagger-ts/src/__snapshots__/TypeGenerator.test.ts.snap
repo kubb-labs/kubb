@@ -4,10 +4,10 @@ exports[`TypeGenerator discriminator > Cat.type defined as const 1`] = `
 [
   "export type Cat = {
     /**
-     * @type string | undefined uuid
+     * @type string uuid
     */
-    id?: string;
-    type?;
+    id: string;
+    type;
     /**
      * @type boolean | undefined
     */
@@ -21,14 +21,14 @@ exports[`TypeGenerator discriminator > Dog.type defined as const 1`] = `
 [
   "export type Dog = {
     /**
-     * @type string | undefined uuid
+     * @type string uuid
     */
-    id?: string;
+    id: string;
     /**
      * @type number | undefined
     */
     bark?: number;
-    type?;
+    type;
 };
 ",
 ]
@@ -65,9 +65,9 @@ exports[`TypeGenerator discriminator > PetStore defined as array with type union
 [
   "export type Petstore = {
     /**
-     * @type integer | undefined
+     * @type integer
     */
-    id?: number;
+    id: number;
     /**
      * @type array | undefined
     */
@@ -156,13 +156,13 @@ exports[`TypeGenerator petStore > generate type for Pet with optionalType \`ques
 [
   "export type Pet = {
     /**
-     * @type integer | undefined int64
+     * @type integer int64
     */
-    id?: number;
+    id: number;
     /**
-     * @type string | undefined
+     * @type string
     */
-    name?: string;
+    name: string;
     /**
      * @type string | undefined
     */
@@ -176,13 +176,13 @@ exports[`TypeGenerator petStore > generate type for Pet with optionalType \`ques
 [
   "export type Pet = {
     /**
-     * @type integer | undefined int64
+     * @type integer int64
     */
-    id?: number | undefined;
+    id: number;
     /**
-     * @type string | undefined
+     * @type string
     */
-    name?: string | undefined;
+    name: string;
     /**
      * @type string | undefined
     */
@@ -196,13 +196,13 @@ exports[`TypeGenerator petStore > generate type for Pet with optionalType \`unde
 [
   "export type Pet = {
     /**
-     * @type integer | undefined int64
+     * @type integer int64
     */
-    id: number | undefined;
+    id: number;
     /**
-     * @type string | undefined
+     * @type string
     */
-    name: string | undefined;
+    name: string;
     /**
      * @type string | undefined
     */
@@ -216,13 +216,13 @@ exports[`TypeGenerator petStore > generate type for Pets 1`] = `
 [
   "export type Pets = {
     /**
-     * @type integer | undefined int64
+     * @type integer int64
     */
-    id?: number;
+    id: number;
     /**
-     * @type string | undefined
+     * @type string
     */
-    name?: string;
+    name: string;
     /**
      * @type string | undefined
     */

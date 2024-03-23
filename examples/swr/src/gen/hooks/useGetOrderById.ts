@@ -46,7 +46,7 @@ export function useGetOrderById<TData = GetOrderById['response']>(
   },
 ): SWRResponse<TData, GetOrderById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/store/order/${orderId}` as const
+  const url = `/store/order/${orderId}`
   const query = useSWR<TData, GetOrderById['error'], typeof url | null>(shouldFetch ? url : null, {
     ...getOrderByIdQueryOptions<TData>(orderId, clientOptions),
     ...queryOptions,

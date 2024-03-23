@@ -1,3 +1,3 @@
-import type { User } from '../../models'
+import type { User } from './User'
 
 export type UserArray = User[]

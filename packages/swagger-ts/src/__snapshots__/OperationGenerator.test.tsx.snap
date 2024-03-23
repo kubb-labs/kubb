@@ -56,14 +56,14 @@ import type { Error } from "./Error";
  export type ShowPetByIdPathParams = {
     /**
      * @description The id of the pet to retrieve
-     * @type string | undefined
+     * @type string
     */
-    petId?: string;
+    petId: string;
     /**
      * @description The id of the pet to retrieve
-     * @type string | undefined
+     * @type string
     */
-    testId?: string;
+    testId: string;
 };
 
  /**
@@ -93,13 +93,13 @@ import type { ErrorCode } from "./ErrorCode";
 
  export type CreatePetsMutationRequest = {
     /**
-     * @type string | undefined
+     * @type string
     */
-    name?: string;
+    name: string;
     /**
-     * @type string | undefined
+     * @type string
     */
-    tag?: string;
+    tag: string;
 };
 
  /**

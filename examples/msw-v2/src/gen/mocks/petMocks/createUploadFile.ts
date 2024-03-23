@@ -22,18 +22,18 @@ export function createUploadFileQueryParams(override: NonNullable<Partial<Upload
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
 export function createUploadFile200(override?: NonNullable<Partial<UploadFile200>>): NonNullable<UploadFile200> {
   faker.seed([220])
   return createApiResponse(override)
 }
+
 /**
  * @description successful operation
  */
-
 export function createUploadFileMutationResponse(override?: NonNullable<Partial<UploadFileMutationResponse>>): NonNullable<UploadFileMutationResponse> {
   faker.seed([220])
   return createApiResponse(override)

@@ -16,7 +16,7 @@ export type UploadFileQueryParams = {
    * @type string | undefined
    */
   additionalMetadata?: string
-} | undefined
+}
 
 /**
  * @description successful operation

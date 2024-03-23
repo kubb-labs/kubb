@@ -60,7 +60,7 @@ function Template({
           {`
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-         const url = ${client.path.template} as const
+         const url = ${client.path.template}
          const query = ${hook.name}<${hook.generics}>(
           shouldFetch ? [url, params]: null,
           {
@@ -82,7 +82,7 @@ function Template({
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-       const url = ${client.path.template} as const
+       const url = ${client.path.template}
        const query = ${hook.name}<${hook.generics}>(
         shouldFetch ? url : null,
         {

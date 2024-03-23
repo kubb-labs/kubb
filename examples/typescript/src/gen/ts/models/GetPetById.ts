@@ -1,4 +1,4 @@
-import type { Pet } from '../../models'
+import type { Pet } from './Pet'
 
 /**
  * @description Invalid ID supplied

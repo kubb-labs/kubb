@@ -1,22 +1,18 @@
 export type Address = {
   /**
    * @type string | undefined
-   * @example 437 Lytton
    */
   street?: string
   /**
    * @type string | undefined
-   * @example Palo Alto
    */
   city?: string
   /**
    * @type string | undefined
-   * @example CA
    */
   state?: string
   /**
    * @type string | undefined
-   * @example 94301
    */
   zip?: string
 }
@@ -39,12 +35,10 @@ export type ApiResponse = {
 export type Category = {
   /**
    * @type integer | undefined int64
-   * @example 1
    */
   id?: number
   /**
    * @type string | undefined
-   * @example Dogs
    */
   name?: string
 }
@@ -62,17 +56,14 @@ export const enum OrderHttpStatus {
 export type Order = {
   /**
    * @type integer | undefined int64
-   * @example 10
    */
   id?: number
   /**
    * @type integer | undefined int64
-   * @example 198772
    */
   petId?: number
   /**
    * @type integer | undefined int32
-   * @example 7
    */
   quantity?: number
   /**
@@ -82,13 +73,11 @@ export type Order = {
   /**
    * @description Order Status
    * @type string | undefined
-   * @example approved
    */
   status?: OrderStatus
   /**
    * @description HTTP Status
    * @type number | undefined
-   * @example 200
    */
   http_status?: OrderHttpStatus
   /**
@@ -122,43 +111,35 @@ export type Tag = {
 export type User = {
   /**
    * @type integer | undefined int64
-   * @example 10
    */
   id?: number
   /**
    * @type string | undefined
-   * @example theUser
    */
   username?: string
   /**
    * @type string | undefined
-   * @example John
    */
   firstName?: string
   /**
    * @type string | undefined
-   * @example James
    */
   lastName?: string
   /**
    * @type string | undefined
-   * @example john@email.com
    */
   email?: string
   /**
    * @type string | undefined
-   * @example 12345
    */
   password?: string
   /**
    * @type string | undefined
-   * @example 12345
    */
   phone?: string
   /**
    * @description User Status
    * @type integer | undefined int32
-   * @example 1
    */
   userStatus?: number
 }
@@ -166,12 +147,10 @@ export type User = {
 export type Customer = {
   /**
    * @type integer | undefined int64
-   * @example 100000
    */
   id?: number
   /**
    * @type string | undefined
-   * @example fehguy
    */
   username?: string
   /**
@@ -190,12 +169,10 @@ export const enum AddPetRequestStatus {
 export type AddPetRequest = {
   /**
    * @type integer | undefined int64
-   * @example 10
    */
   id?: number
   /**
    * @type string
-   * @example doggie
    */
   name: string
   category?: Category
@@ -222,12 +199,10 @@ export const enum PetStatus {
 export type Pet = {
   /**
    * @type integer | undefined int64
-   * @example 10
    */
   id?: number
   /**
    * @type string
-   * @example doggie
    */
   name: string
   category?: Category
@@ -322,16 +297,14 @@ export const enum FindPetsByStatusQueryParamsStatus {
   'pending' = 'pending',
   'sold' = 'sold',
 }
-export type FindPetsByStatusQueryParams =
-  | {
-    /**
-     * @description Status values that need to be considered for filter
-     * @type string | undefined
-     * @default 'available'
-     */
-    status?: FindPetsByStatusQueryParamsStatus
-  }
-  | undefined
+export type FindPetsByStatusQueryParams = {
+  /**
+   * @description Status values that need to be considered for filter
+   * @default "available"
+   * @type string | undefined
+   */
+  status?: FindPetsByStatusQueryParamsStatus
+}
 
 /**
  * @description successful operation
@@ -353,25 +326,23 @@ export type FindPetsByStatusQuery = {
  */
 export type FindPetsByTags400 = any
 
-export type FindPetsByTagsQueryParams =
-  | {
-    /**
-     * @description Tags to filter by
-     * @type array | undefined
-     */
-    tags?: string[]
-    /**
-     * @description to request with required page number or pagination
-     * @type string | undefined
-     */
-    page?: string
-    /**
-     * @description to request with required page size
-     * @type string | undefined
-     */
-    pageSize?: string
-  }
-  | undefined
+export type FindPetsByTagsQueryParams = {
+  /**
+   * @description Tags to filter by
+   * @type array | undefined
+   */
+  tags?: string[]
+  /**
+   * @description to request with required page number or pagination
+   * @type string | undefined
+   */
+  page?: string
+  /**
+   * @description to request with required page size
+   * @type string | undefined
+   */
+  pageSize?: string
+}
 
 /**
  * @description successful operation
@@ -436,20 +407,18 @@ export type UpdatePetWithFormPathParams = {
   petId: number
 }
 
-export type UpdatePetWithFormQueryParams =
-  | {
-    /**
-     * @description Name of pet that needs to be updated
-     * @type string | undefined
-     */
-    name?: string
-    /**
-     * @description Status of pet that needs to be updated
-     * @type string | undefined
-     */
-    status?: string
-  }
-  | undefined
+export type UpdatePetWithFormQueryParams = {
+  /**
+   * @description Name of pet that needs to be updated
+   * @type string | undefined
+   */
+  name?: string
+  /**
+   * @description Status of pet that needs to be updated
+   * @type string | undefined
+   */
+  status?: string
+}
 export type UpdatePetWithFormMutation = {
   Response: UpdatePetWithFormMutationResponse
   PathParams: UpdatePetWithFormPathParams
@@ -462,14 +431,12 @@ export type UpdatePetWithFormMutation = {
  */
 export type DeletePet400 = any
 
-export type DeletePetHeaderParams =
-  | {
-    /**
-     * @type string | undefined
-     */
-    api_key?: string
-  }
-  | undefined
+export type DeletePetHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  api_key?: string
+}
 
 export type DeletePetMutationResponse = any
 
@@ -497,15 +464,13 @@ export type UploadFilePathParams = {
   petId: number
 }
 
-export type UploadFileQueryParams =
-  | {
-    /**
-     * @description Additional Metadata
-     * @type string | undefined
-     */
-    additionalMetadata?: string
-  }
-  | undefined
+export type UploadFileQueryParams = {
+  /**
+   * @description Additional Metadata
+   * @type string | undefined
+   */
+  additionalMetadata?: string
+}
 
 /**
  * @description successful operation
@@ -689,20 +654,18 @@ export type LoginUser200 = string
  */
 export type LoginUser400 = any
 
-export type LoginUserQueryParams =
-  | {
-    /**
-     * @description The user name for login
-     * @type string | undefined
-     */
-    username?: string
-    /**
-     * @description The password for login in clear text
-     * @type string | undefined
-     */
-    password?: string
-  }
-  | undefined
+export type LoginUserQueryParams = {
+  /**
+   * @description The user name for login
+   * @type string | undefined
+   */
+  username?: string
+  /**
+   * @description The password for login in clear text
+   * @type string | undefined
+   */
+  password?: string
+}
 
 /**
  * @description successful operation

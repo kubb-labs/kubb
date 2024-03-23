@@ -48,7 +48,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatusHook<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
@@ -99,7 +100,8 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatusHookInfinite<
   TData = InfiniteData<FindPetsByStatus['response']>,
   TQueryData = FindPetsByStatus['response'],

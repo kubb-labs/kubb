@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
-import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
+import { isKeyword, SchemaGenerator, schemaKeywords } from '@kubb/swagger'
 
 import type { ts } from '@kubb/parser'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
@@ -50,7 +50,7 @@ export const typeKeywordMapper = {
       nodes,
     })
   },
-  literal: undefined,
+  const: undefined,
   datetime: () => factory.keywordTypeNodes.string,
   date: () => factory.createTypeReferenceNode(factory.createIdentifier('Date')),
   uuid: undefined,

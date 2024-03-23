@@ -8,9 +8,9 @@ export function Object(override: NonNullable<Partial<undefined>> = {}) {
   return {
   ...{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({},faker.string.alpha(),faker.number.float())},
   ...override
-};
 }
-  "
+}
+"
 `;
 
 exports[`fakerParser > 'Order' 1`] = `
@@ -21,9 +21,9 @@ export function Order(override: NonNullable<Partial<undefined>> = {}) {
   return {
   ...{"status": faker.helpers.arrayElement<any>(["Placed", "Approved"])},
   ...override
-};
 }
-  "
+}
+"
 `;
 
 exports[`fakerParser > 'Record' 1`] = `
@@ -34,9 +34,9 @@ export function Record(override: NonNullable<Partial<undefined>> = {}) {
   return {
   ...{},
   ...override
-};
 }
-  "
+}
+"
 `;
 
 exports[`fakerParser > 'Upload' 1`] = `
@@ -44,9 +44,9 @@ exports[`fakerParser > 'Upload' 1`] = `
 
 export function Upload(override?: NonNullable<Partial<undefined>>) {
   
-  return undefined;
+  return undefined
 }
-  "
+"
 `;
 
 exports[`parseFakerMeta > 'and' 1`] = `"Object.assign({},faker.string.alpha(),faker.number.float())"`;

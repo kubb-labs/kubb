@@ -1,4 +1,4 @@
-import { Pet } from '../Pet'
+import type { Pet } from '../Pet'
 
 /**
  * @description Invalid status value

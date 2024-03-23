@@ -14,11 +14,11 @@ export type FindPetsByStatusQueryParamsStatus = (typeof FindPetsByStatusQueryPar
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
+   * @default "available"
    * @type string | undefined
-   * @default 'available'
    */
   status?: FindPetsByStatusQueryParamsStatus
-} | undefined
+}
 
 /**
  * @description successful operation

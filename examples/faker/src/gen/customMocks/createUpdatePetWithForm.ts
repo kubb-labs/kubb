@@ -9,7 +9,6 @@ import type {
 /**
  * @description Invalid input
  */
-
 export function createUpdatePetWithForm405(override?: NonNullable<Partial<UpdatePetWithForm405>>): NonNullable<UpdatePetWithForm405> {
   return undefined
 }
@@ -31,7 +30,7 @@ export function createUpdatePetWithFormQueryParams(
   override: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {},
 ): NonNullable<UpdatePetWithFormQueryParams> {
   return {
-    ...{ 'name': faker.commerce.productName(), 'status': faker.string.alpha() },
+    ...{ 'name': faker.string.alpha(), 'status': faker.string.alpha() },
     ...override,
   }
 }

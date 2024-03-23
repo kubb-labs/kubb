@@ -1,4 +1,4 @@
-import type { Order } from '../../models'
+import type { Order } from './Order'
 
 /**
  * @description Invalid ID supplied

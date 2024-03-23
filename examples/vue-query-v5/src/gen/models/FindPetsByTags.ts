@@ -5,15 +5,13 @@ import type { Pet } from './Pet'
  */
 export type FindPetsByTags400 = any
 
-export type FindPetsByTagsQueryParams =
-  | {
-    /**
-     * @description Tags to filter by
-     * @type array | undefined
-     */
-    tags?: string[]
-  }
-  | undefined
+export type FindPetsByTagsQueryParams = {
+  /**
+   * @description Tags to filter by
+   * @type array | undefined
+   */
+  tags?: string[]
+}
 
 /**
  * @description successful operation

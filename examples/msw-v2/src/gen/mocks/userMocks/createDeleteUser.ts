@@ -4,15 +4,14 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
 /**
  * @description Invalid username supplied
  */
-
 export function createDeleteUser400(override?: NonNullable<Partial<DeleteUser400>>): NonNullable<DeleteUser400> {
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description User not found
  */
-
 export function createDeleteUser404(override?: NonNullable<Partial<DeleteUser404>>): NonNullable<DeleteUser404> {
   faker.seed([220])
   return undefined

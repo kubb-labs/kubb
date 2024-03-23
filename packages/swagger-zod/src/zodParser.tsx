@@ -230,7 +230,7 @@ export function zodParser(
     return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${omitText}${typeName};`
   }
 
-  return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${typeName};`
+  return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${typeName}\n`
 
   // const root = createRoot()
 

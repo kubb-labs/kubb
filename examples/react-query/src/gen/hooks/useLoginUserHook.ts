@@ -47,7 +47,8 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUserHook<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
@@ -95,7 +96,8 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUserHookInfinite<
   TData = InfiniteData<LoginUser['response']>,
   TQueryData = LoginUser['response'],

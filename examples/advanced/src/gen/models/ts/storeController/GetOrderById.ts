@@ -1,4 +1,4 @@
-import { Order } from '../Order'
+import type { Order } from '../Order'
 
 /**
  * @description Invalid ID supplied
@@ -13,9 +13,9 @@ export type GetOrderById404 = any
 export type GetOrderByIdPathParams = {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer | undefined int64
+   * @type integer int64
    */
-  orderId?: number
+  orderId: number
 }
 
 /**

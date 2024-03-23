@@ -5,6 +5,7 @@ import { petSchema } from './petSchema'
  * @description Invalid tag value
  */
 export const findPetsByTags400Schema = z.any()
+
 export const findPetsByTagsQueryParamsSchema = z
   .object({
     tags: z.array(z.string()).describe('Tags to filter by').optional(),

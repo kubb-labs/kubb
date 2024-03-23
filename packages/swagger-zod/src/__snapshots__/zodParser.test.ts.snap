@@ -64,20 +64,24 @@ exports[`parseZodMeta > 'unknown' 1`] = `"z.unknown()"`;
 
 exports[`zodParser > 'Object' 1`] = `
 "
-export const Object = z.object({"firstName": .default(test).min(2)z.string(),"age": .default(2).min(2)z.number(),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable();"
+export const Object = z.object({"firstName": .default(test).min(2)z.string(),"age": .default(2).min(2)z.number(),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
+"
 `;
 
 exports[`zodParser > 'Order' 1`] = `
 "
-export const Order = z.object({"status": z.enum(["placed", "approved"])});"
+export const Order = z.object({"status": z.enum(["placed", "approved"])})
+"
 `;
 
 exports[`zodParser > 'Record' 1`] = `
 "
-export const Record = z.object({}).catchall(z.number()).optional();"
+export const Record = z.object({}).catchall(z.number()).optional()
+"
 `;
 
 exports[`zodParser > 'Upload' 1`] = `
 "
-export const Upload = ;"
+export const Upload = 
+"
 `;

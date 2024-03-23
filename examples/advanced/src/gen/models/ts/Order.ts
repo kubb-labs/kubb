@@ -17,17 +17,14 @@ export type OrderHttpStatusEnum = (typeof OrderHttpStatusEnum)[keyof typeof Orde
 export type Order = {
   /**
    * @type integer | undefined int64
-   * @example 10
    */
   id?: number
   /**
    * @type integer | undefined int64
-   * @example 198772
    */
   petId?: number
   /**
    * @type integer | undefined int32
-   * @example 7
    */
   quantity?: number
   /**
@@ -37,7 +34,6 @@ export type Order = {
   /**
    * @description Order Status
    * @type string | undefined
-   * @example approved
    */
   type?: string
   /**
@@ -47,13 +43,11 @@ export type Order = {
   /**
    * @description Order Status
    * @type string | undefined
-   * @example approved
    */
   status?: OrderStatusEnum
   /**
    * @description HTTP Status
    * @type number | undefined
-   * @example 200
    */
   http_status?: OrderHttpStatusEnum
   /**

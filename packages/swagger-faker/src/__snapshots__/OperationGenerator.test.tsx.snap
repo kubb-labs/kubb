@@ -26,21 +26,24 @@ import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResp
     };
 }
 
- /**
+
+/**
  * @description A paged array of pets
  */
 export function ListPets200(override?: NonNullable<Partial<ListPets200>>): NonNullable<ListPets200> {
     return Pets(override);
 }
 
- /**
+
+/**
  * @description unexpected error
  */
 export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): NonNullable<ListPetsError> {
     return Error(override);
 }
 
- /**
+
+/**
  * @description A paged array of pets
  */
 export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQueryResponse>>): NonNullable<ListPetsQueryResponse> {
@@ -64,21 +67,24 @@ import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetBy
     };
 }
 
- /**
+
+/**
  * @description Expected response to a valid request
  */
 export function ShowPetById200(override?: NonNullable<Partial<ShowPetById200>>): NonNullable<ShowPetById200> {
     return Pet(override);
 }
 
- /**
+
+/**
  * @description unexpected error
  */
 export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
     return Error(override);
 }
 
- /**
+
+/**
  * @description Expected response to a valid request
  */
 export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
@@ -103,7 +109,8 @@ import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResp
     };
 }
 
- /**
+
+/**
  * @description A paged array of pets
  */
 export function ListPets200(override?: NonNullable<Partial<ListPets200>>): NonNullable<ListPets200> {
@@ -111,7 +118,8 @@ export function ListPets200(override?: NonNullable<Partial<ListPets200>>): NonNu
     return Pets(override);
 }
 
- /**
+
+/**
  * @description unexpected error
  */
 export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): NonNullable<ListPetsError> {
@@ -119,7 +127,8 @@ export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): N
     return Error(override);
 }
 
- /**
+
+/**
  * @description A paged array of pets
  */
 export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQueryResponse>>): NonNullable<ListPetsQueryResponse> {
@@ -145,7 +154,8 @@ import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetBy
     };
 }
 
- /**
+
+/**
  * @description Expected response to a valid request
  */
 export function ShowPetById200(override?: NonNullable<Partial<ShowPetById200>>): NonNullable<ShowPetById200> {
@@ -153,7 +163,8 @@ export function ShowPetById200(override?: NonNullable<Partial<ShowPetById200>>):
     return Pet(override);
 }
 
- /**
+
+/**
  * @description unexpected error
  */
 export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
@@ -161,7 +172,8 @@ export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError
     return Error(override);
 }
 
- /**
+
+/**
  * @description Expected response to a valid request
  */
 export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
@@ -185,7 +197,8 @@ export function CreatePets201(override?: NonNullable<Partial<CreatePets201>>): N
 }
 
 
-export function CreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
+
+ export function CreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
     return {
         ...{ "name": faker.string.alpha(), "tag": faker.string.alpha() },
         ...override
@@ -193,11 +206,13 @@ export function CreatePetsMutationRequest(override: NonNullable<Partial<CreatePe
 }
 
 
-export function CreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
+
+ export function CreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
     return undefined;
 }
 
- /**
+
+/**
  * @description unexpected error
  */
 export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {

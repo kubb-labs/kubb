@@ -10,15 +10,13 @@ export type UploadFilePathParams = {
   petId: number
 }
 
-export type UploadFileQueryParams =
-  | {
-    /**
-     * @description Additional Metadata
-     * @type string | undefined
-     */
-    additionalMetadata?: string
-  }
-  | undefined
+export type UploadFileQueryParams = {
+  /**
+   * @description Additional Metadata
+   * @type string | undefined
+   */
+  additionalMetadata?: string
+}
 
 /**
  * @description successful operation

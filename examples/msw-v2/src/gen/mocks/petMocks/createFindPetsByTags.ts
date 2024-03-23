@@ -5,7 +5,6 @@ import type { FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryParams, F
 /**
  * @description Invalid tag value
  */
-
 export function createFindPetsByTags400(override?: NonNullable<Partial<FindPetsByTags400>>): NonNullable<FindPetsByTags400> {
   faker.seed([220])
   return undefined
@@ -18,10 +17,10 @@ export function createFindPetsByTagsQueryParams(override: NonNullable<Partial<Fi
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
 export function createFindPetsByTags200(override: NonNullable<Partial<FindPetsByTags200>> = []): NonNullable<FindPetsByTags200> {
   faker.seed([220])
   return [
@@ -29,10 +28,10 @@ export function createFindPetsByTags200(override: NonNullable<Partial<FindPetsBy
     ...override,
   ]
 }
+
 /**
  * @description successful operation
  */
-
 export function createFindPetsByTagsQueryResponse(override: NonNullable<Partial<FindPetsByTagsQueryResponse>> = []): NonNullable<FindPetsByTagsQueryResponse> {
   faker.seed([220])
   return [

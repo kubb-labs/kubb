@@ -222,9 +222,8 @@ export function ${options.name}(${
       : `override?: NonNullable<Partial<${options.typeName}>>`
   })${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
   ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
-  return ${fakerTextWithOverride};
-}
-  `
+  return ${fakerTextWithOverride}
+}\n`
 
   // const root = createRoot()
 

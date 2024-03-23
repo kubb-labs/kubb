@@ -1,5 +1,5 @@
-import { Pet } from '../Pet'
-import { AddPetRequest } from '../AddPetRequest'
+import type { Pet } from '../Pet'
+import type { AddPetRequest } from '../AddPetRequest'
 
 export type AddPet405 = {
   /**

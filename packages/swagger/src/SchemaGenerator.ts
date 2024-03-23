@@ -99,6 +99,7 @@ export abstract class SchemaGenerator<
   #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): Schema[] {
     const properties = baseSchema?.properties || {}
     const additionalProperties = baseSchema?.additionalProperties
+    const required = baseSchema?.required
 
     const propertiesSchemas = Object.keys(properties)
       .map((name) => {
@@ -106,7 +107,7 @@ export abstract class SchemaGenerator<
         const schema = properties[name] as SchemaObject
         const resolvedName = this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey: this.context.plugin.key, type: 'type' })
 
-        const isRequired = Array.isArray(schema.required) ? schema.required && schema.required.includes(name) : !!schema.required
+        const isRequired = Array.isArray(required) ? required && required.includes(name) : !!required
         const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
 
         validationFunctions.push(...this.getTypeFromSchema(schema, resolvedName))

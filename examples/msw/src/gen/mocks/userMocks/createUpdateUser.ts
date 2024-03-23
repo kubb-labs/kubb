@@ -5,7 +5,6 @@ import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResp
 /**
  * @description successful operation
  */
-
 export function createUpdateUserError(override?: NonNullable<Partial<UpdateUserError>>): NonNullable<UpdateUserError> {
   return undefined
 }
@@ -20,10 +19,10 @@ export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateU
     ...override,
   }
 }
+
 /**
  * @description Update an existent user in the store
  */
-
 export function createUpdateUserMutationRequest(override?: NonNullable<Partial<UpdateUserMutationRequest>>): NonNullable<UpdateUserMutationRequest> {
   return createUser(override)
 }
