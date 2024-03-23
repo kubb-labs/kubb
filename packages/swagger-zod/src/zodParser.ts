@@ -32,7 +32,6 @@ export const zodKeywordMapper = {
   min: '.min',
   max: '.max',
   optional: '.optional',
-  catchall: '.catchall',
   matches: '.regex',
   email: '.email',
   firstName: undefined,
@@ -55,7 +54,6 @@ export const zodKeywordMapper = {
 function sort(items?: Schema[]): Schema[] {
   const order: string[] = [
     schemaKeywords.object,
-    schemaKeywords.catchall,
     schemaKeywords.describe,
     schemaKeywords.optional,
     schemaKeywords.nullable,
@@ -112,9 +110,6 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
     return `${value}(${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')})`
   }
 
-  if (isKeyword(item, schemaKeywords.catchall)) {
-    return `${value}(${`${sort(item.args).map((catchAllItem) => parseZodMeta(catchAllItem, options)).filter(Boolean).join('')}`})`
-  }
   if (isKeyword(item, schemaKeywords.enum)) {
     return `${value}([${
       item.args.items.map(item => {
@@ -131,7 +126,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
-    const argsObject = Object.entries(item.args?.entries || '{}')
+    const properties = Object.entries(item.args.properties)
       .filter((item) => {
         const schema = item[1]
         return schema && typeof schema.map === 'function'
@@ -149,11 +144,17 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
       })
       .join(',')
 
-    if (item.args?.strict) {
-      return `${value}({${argsObject}}).strict()`
-    }
+    const additionalProperties = item.args.additionalProperties.length
+      ? item.args.additionalProperties.map(schema => parseZodMeta(schema, options)).filter(Boolean).at(0)
+      : undefined
 
-    return `${value}({${argsObject}})`
+    const text = [
+      `${value}({${properties}})`,
+      item.args.strict ? 'strict()' : undefined,
+      additionalProperties ? `catchall(${additionalProperties})` : undefined,
+    ].filter(Boolean)
+
+    return text.join('.')
   }
 
   if (isKeyword(item, schemaKeywords.tuple)) {
@@ -184,6 +185,10 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
       return `${value}(${transformers.stringify(item.args.toString())})`
     }
   }
+
+  // if (isKeyword(item, schemaKeywords.optional)) {
+  // return undefined
+  // }
 
   if (item.keyword in mapper && 'args' in item) {
     return `${value}(${(item as SchemaKeywordBase<unknown>).args as string})`

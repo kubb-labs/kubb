@@ -11,32 +11,18 @@ export class ZodGenerator extends SchemaGenerator {
   build({
     schema,
     baseName,
-    description,
-    optional,
     keysToOmit,
     operation,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
-    const zodInput = this.getTypeFromSchema(schema, baseName)
-    if (description) {
-      texts.push(`
-      /**
-       * @description ${transformers.trim(description)}
-       */`)
-    }
-
-    if (optional) {
-      zodInput.push({
-        keyword: schemaKeywords.optional,
-      })
-    }
+    const input = this.getTypeFromSchema(schema, baseName)
 
     const withTypeAnnotation = this.options.typed && !operation
 
     // used for this.options.typed
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const zodOutput = zodParser(zodInput, {
+    const output = zodParser(input, {
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
       typeName: withTypeAnnotation
@@ -61,7 +47,7 @@ export class ZodGenerator extends SchemaGenerator {
       }
     }
 
-    texts.push(zodOutput)
+    texts.push(output)
 
     return texts
   }

@@ -10,7 +10,7 @@ export type Cat = {
      * @type "string" | undefined uuid
     */
     id?: string;
-    type;
+    type?;
     /**
      * @type "boolean" | undefined
     */
@@ -34,7 +34,7 @@ export type Dog = {
      * @type "number" | undefined
     */
     bark?: number;
-    type;
+    type?;
 };
 ",
 ]
@@ -111,8 +111,8 @@ export type StringValueConst = {
 exports[`TypeGenerator enums > generate with enumtype asPascalConst 1`] = `
 [
   "export const EnumNames = {
-    "\\"Pending\\"": 0,
-    "\\"Received\\"": 1
+    "Pending": 0,
+    "Received": 1
 } as const;
 export type EnumNames = (typeof EnumNames)[keyof typeof EnumNames];
 export type enumNames = EnumNames;
@@ -123,8 +123,8 @@ export type enumNames = EnumNames;
 exports[`TypeGenerator enums > generate with enumtype constEnum 1`] = `
 [
   "export const enum EnumNames {
-    "\\"Pending\\"" = 0,
-    "\\"Received\\"" = 1
+    "Pending" = 0,
+    "Received" = 1
 }
 export type enumNames = EnumNames;
 ",
@@ -134,8 +134,8 @@ export type enumNames = EnumNames;
 exports[`TypeGenerator enums > generate with enumtype enum 1`] = `
 [
   "export enum EnumNames {
-    "\\"Pending\\"" = 0,
-    "\\"Received\\"" = 1
+    "Pending" = 0,
+    "Received" = 1
 }
 export type enumNames = EnumNames;
 ",
@@ -153,7 +153,7 @@ export type enumNames = EnumNames;
 exports[`TypeGenerator enums > generate x-enum-varnames types 1`] = `
 [
   "/**
- * @type "integer" | undefined
+ * @type "integer"
 */
 export type enumVarNames = undefined;
 ",
@@ -163,8 +163,8 @@ export type enumVarNames = undefined;
 exports[`TypeGenerator enums > generate x-enumNames types 1`] = `
 [
   "export const enumNames = {
-    "\\"Pending\\"": 0,
-    "\\"Received\\"": 1
+    "Pending": 0,
+    "Received": 1
 } as const;
 export type EnumNames = (typeof enumNames)[keyof typeof enumNames];
 export type enumNames = EnumNames;
@@ -244,7 +244,7 @@ export type Pet = {
 exports[`TypeGenerator petStore > generate type for Pets 1`] = `
 [
   "/**
- * @type "array" | undefined
+ * @type "array"
 */
 export type Pets = {
     /**
@@ -267,13 +267,13 @@ export type Pets = {
 exports[`TypeGenerator petStore > generate type for nullable fields 1`] = `
 [
   "/**
- * @type "object" | undefined
+ * @type "object"
 */
 export type Test = {
     /**
      * @type "string"
     */
-    foo: string;
+    foo: string | null;
 };
 ",
 ]
@@ -282,7 +282,7 @@ export type Test = {
 exports[`TypeGenerator petStoreRef > generate type for Pets 1`] = `
 [
   "/**
- * @type "array" | undefined
+ * @type "array"
 */
 export type Pets = Pet[];
 ",

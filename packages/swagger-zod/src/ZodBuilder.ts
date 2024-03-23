@@ -23,7 +23,6 @@ export class ZodBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
         const sources = generator.build({
           schema: operationSchema.schema,
           baseName: operationSchema.name,
-          description: operationSchema.description,
           keysToOmit: operationSchema.keysToOmit,
           operation: operationSchema.operation,
           optional: !required && !!operationSchema.name.includes('Params'),

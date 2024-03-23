@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { SchemaGenerator } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
@@ -15,20 +14,16 @@ export class FakerGenerator extends SchemaGenerator<Options> {
   build({
     schema,
     baseName,
-    description,
     operationName,
     operation,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
-    const fakerInput = this.getTypeFromSchema(schema, baseName)
-    if (description) {
-      texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${transformers.trim(description)}`] }))
-    }
+    const input = this.getTypeFromSchema(schema, baseName)
 
     const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' })
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const fakerOutput = fakerParser(fakerInput, {
+    const output = fakerParser(input, {
       name,
       typeName,
       seed: this.options.seed,
@@ -56,7 +51,7 @@ export class FakerGenerator extends SchemaGenerator<Options> {
       }
     }
 
-    texts.push(fakerOutput)
+    texts.push(output)
 
     return texts
   }

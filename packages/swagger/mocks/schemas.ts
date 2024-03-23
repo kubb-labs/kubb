@@ -160,8 +160,11 @@ const basic: Array<{ name: string; schema: Schema }> = [
   {
     name: 'catchall',
     schema: {
-      keyword: schemaKeywords.catchall,
-      args: [{ keyword: 'ref', args: { name: 'Pet' } }],
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {},
+        additionalProperties: [{ keyword: 'ref', args: { name: 'Pet' } }],
+      },
     },
   },
   {
@@ -176,10 +179,11 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.object,
       args: {
-        entries: {
+        properties: {
           firstName: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.min, args: 2 }],
           address: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.nullable }, { keyword: schemaKeywords.describe, args: '"Your address"' }],
         },
+        additionalProperties: [],
       },
     },
   },
@@ -188,10 +192,11 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.object,
       args: {
-        entries: {
+        properties: {
           firstName: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.optional }, { keyword: schemaKeywords.min, args: 2 }],
           address: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.nullable }, { keyword: schemaKeywords.describe, args: '"Your address"' }],
         },
+        additionalProperties: [],
       },
     },
   },
@@ -200,7 +205,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.object,
       args: {
-        entries: {
+        properties: {
           firstName: [
             { keyword: schemaKeywords.deprecated },
             { keyword: schemaKeywords.default, args: 'test' },
@@ -232,6 +237,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
             { keyword: schemaKeywords.describe, args: 'Your address' },
           ],
         },
+        additionalProperties: [],
       },
     },
   },
@@ -239,6 +245,10 @@ const basic: Array<{ name: string; schema: Schema }> = [
     name: 'objectEmpty',
     schema: {
       keyword: schemaKeywords.object,
+      args: {
+        properties: {},
+        additionalProperties: [],
+      },
     },
   },
   {
@@ -279,7 +289,7 @@ const full: Array<{ name: string; schema: Schema[] }> = [
       {
         keyword: schemaKeywords.object,
         args: {
-          entries: {
+          properties: {
             firstName: [
               { keyword: schemaKeywords.deprecated },
               { keyword: schemaKeywords.default, args: 'test' },
@@ -311,6 +321,7 @@ const full: Array<{ name: string; schema: Schema[] }> = [
               { keyword: schemaKeywords.describe, args: 'Your address' },
             ],
           },
+          additionalProperties: [],
         },
       },
     ],
@@ -325,7 +336,7 @@ const full: Array<{ name: string; schema: Schema[] }> = [
       {
         keyword: schemaKeywords.object,
         args: {
-          entries: {
+          properties: {
             'status': [{
               keyword: schemaKeywords.enum,
               args: {
@@ -335,7 +346,42 @@ const full: Array<{ name: string; schema: Schema[] }> = [
               },
             }],
           },
+          additionalProperties: [],
         },
+      },
+    ],
+  },
+  {
+    name: 'Record',
+    schema: [
+      {
+        'keyword': schemaKeywords.object,
+        'args': {
+          'properties': {},
+          'additionalProperties': [
+            {
+              'keyword': schemaKeywords.integer,
+            },
+            {
+              'keyword': schemaKeywords.type,
+              'args': 'integer',
+            },
+            {
+              'keyword': schemaKeywords.format,
+              'args': 'int32',
+            },
+            {
+              'keyword': schemaKeywords.optional,
+            },
+          ],
+        },
+      },
+      {
+        'keyword': 'type',
+        'args': 'object',
+      },
+      {
+        'keyword': 'optional',
       },
     ],
   },

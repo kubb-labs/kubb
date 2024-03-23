@@ -37,7 +37,9 @@ exports[`parseTypeMeta > 'boolean' 1`] = `
 `;
 
 exports[`parseTypeMeta > 'catchall' 1`] = `
-"Pet
+"{
+    [key: string]: Pet;
+}
 "
 `;
 
@@ -190,6 +192,16 @@ export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus];
 */
 export type Order = {
     status: OrderStatus;
+};
+"
+`;
+
+exports[`typeParser > 'Record' 1`] = `
+"/**
+ * @type "object" | undefined
+*/
+export type Record = {
+    [key: string]: number;
 };
 "
 `;

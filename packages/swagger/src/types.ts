@@ -80,7 +80,6 @@ export type OperationSchema = {
    * OperationName in PascalCase, only being used in OperationGenerator
    */
   operationName?: string
-  description?: string
   statusCode?: number
   keys?: string[]
   keysToOmit?: string[]

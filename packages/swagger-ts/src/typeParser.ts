@@ -71,16 +71,6 @@ export const typeKeywordMapper = {
   min: undefined,
   max: undefined,
   optional: undefined,
-  catchall: (nodes?: ts.TypeNode[]) => {
-    if (!nodes) {
-      return undefined
-    }
-
-    return factory.createIntersectionDeclaration({
-      withParentheses: true,
-      nodes,
-    })
-  },
   matches: undefined,
   email: undefined,
   firstName: undefined,
@@ -140,12 +130,6 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
     return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
-  if (isKeyword(item, schemaKeywords.catchall)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['catchall']
-
-    return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
-  }
-
   if (isKeyword(item, schemaKeywords.enum)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['enum']
     return value(item.args.typeName)
@@ -163,7 +147,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
   if (isKeyword(item, schemaKeywords.object)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['object']
 
-    const argsObject = Object.entries(item.args?.entries || '{}')
+    const properties = Object.entries(item.args.properties)
       .filter((item) => {
         const schemas = item[1]
         return schemas && typeof schemas.map === 'function'
@@ -176,10 +160,10 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         const isNullable = schemas.some(item => item.keyword === schemaKeywords.nullable)
         const isOptional = schemas.some(item => item.keyword === schemaKeywords.optional)
         const isReadonly = schemas.some(item => item.keyword === schemaKeywords.readOnly)
-        const describe = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
-        const deprecated = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
+        const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+        const deprecatedSchema = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
         const defaultSchema = schemas.find(item => item.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
-        const example = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
+        const exampleSchema = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
         const typeSchema = schemas.find(item => item.keyword === schemaKeywords.type) as SchemaKeywordMapper['type'] | undefined
         const formatSchema = schemas.find(item => item.keyword === schemaKeywords.format) as SchemaKeywordMapper['format'] | undefined
 
@@ -209,12 +193,12 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         return factory.appendJSDocToNode({
           node: propertySignature,
           comments: [
-            describe ? `@description ${transformers.stringify(describe.args)}` : undefined,
-            deprecated ? `@deprecated` : undefined,
+            describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined,
+            deprecatedSchema ? `@deprecated` : undefined,
             defaultSchema
               ? `@default ${typeof defaultSchema.args === 'number' ? defaultSchema.args : transformers.stringify(defaultSchema.args as string)}`
               : undefined,
-            example ? `@example ${transformers.stringify(example.args)}` : undefined,
+            exampleSchema ? `@example ${transformers.stringify(exampleSchema.args)}` : undefined,
             typeSchema
               ? `@type ${transformers.stringify(typeSchema.args)}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
               : undefined,
@@ -222,7 +206,11 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         })
       })
 
-    return value(argsObject)
+    const additionalProperties = item.args.additionalProperties.length
+      ? factory.createIndexSignature(item.args.additionalProperties.map(schema => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode)
+      : undefined
+
+    return value([...properties, additionalProperties].filter(Boolean))
   }
 
   if (item.keyword in mapper) {
@@ -237,6 +225,7 @@ export function typeParser(
   options: ParserOptions,
 ): string {
   const nodes: ts.Node[] = []
+  const extraNodes: ts.Node[] = []
 
   if (!schemas.length) {
     return ''
@@ -245,32 +234,33 @@ export function typeParser(
   const isNullish = schemas.some(item => item.keyword === schemaKeywords.nullish)
   const isNullable = schemas.some(item => item.keyword === schemaKeywords.nullable)
   const isOptional = schemas.some(item => item.keyword === schemaKeywords.optional)
-  const describe = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
-  const deprecated = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
+  const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+  const deprecatedSchema = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
   const defaultSchema = schemas.find(item => item.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
-  const example = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
+  const exampleSchema = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
   const typeSchema = schemas.find(item => item.keyword === schemaKeywords.type) as SchemaKeywordMapper['type'] | undefined
   const formatSchema = schemas.find(item => item.keyword === schemaKeywords.format) as SchemaKeywordMapper['format'] | undefined
-  const findEnum = (items: Schema[]): SchemaKeywordMapper['enum'] | undefined => {
-    let foundItem: Schema | undefined = undefined
+  // TODO move
+  const findEnum = (items: Schema[]): SchemaKeywordMapper['enum'][] => {
+    const enums: SchemaKeywordMapper['enum'][] = []
 
     items.forEach(item => {
       if (item.keyword === schemaKeywords.enum) {
-        foundItem = item
+        enums.push(item as SchemaKeywordMapper['enum'])
       }
 
       if (item.keyword === schemaKeywords.object) {
         const subItem = item as SchemaKeywordMapper['object']
-        return Object.values(subItem.args.entries).forEach(entrySchema => {
-          foundItem = findEnum(entrySchema)
+        return Object.values(subItem.args.properties).forEach(entrySchema => {
+          enums.push(...findEnum(entrySchema))
         })
       }
     })
 
-    return foundItem
+    return enums
   }
 
-  const enumSchema = findEnum(schemas)
+  const enumSchemas = findEnum(schemas)
 
   let type = schemas.map((schema) => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode
     || typeKeywordMapper.undefined()
@@ -293,28 +283,32 @@ export function typeParser(
     type: options.keysToOmit?.length ? factory.createOmitDeclaration({ keys: options.keysToOmit, type, nonNullable: true }) : type,
   })
 
-  if (enumSchema) {
-    nodes.push(...factory.createEnumDeclaration({
-      name: transformers.camelCase(enumSchema.args.name),
-      typeName: enumSchema.args.typeName,
-      enums: enumSchema.args.items.map(item => item.value === undefined ? undefined : [item.name, item.value]).filter(Boolean) as unknown as [
-        string,
-        string,
-      ][],
-      type: options.enumType,
-    }))
+  if (enumSchemas) {
+    enumSchemas.forEach(enumSchema => {
+      extraNodes.push(...factory.createEnumDeclaration({
+        name: transformers.camelCase(enumSchema.args.name),
+        typeName: enumSchema.args.typeName,
+        enums: enumSchema.args.items.map(item => item.value === undefined ? undefined : [transformers.trimQuotes(item.name?.toString()), item.value]).filter(
+          Boolean,
+        ) as unknown as [
+          string,
+          string,
+        ][],
+        type: options.enumType,
+      }))
+    })
   }
 
   nodes.push(
     factory.appendJSDocToNode({
       node,
       comments: [
-        describe ? `@description ${transformers.stringify(describe.args)}` : undefined,
-        deprecated ? `@deprecated` : undefined,
+        describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined,
+        deprecatedSchema ? `@deprecated` : undefined,
         defaultSchema
           ? `@default ${typeof defaultSchema.args === 'number' ? defaultSchema.args : transformers.stringify(defaultSchema.args as string)}`
           : undefined,
-        example ? `@example ${transformers.stringify(example.args)}` : undefined,
+        exampleSchema ? `@example ${transformers.stringify(exampleSchema.args)}` : undefined,
         typeSchema
           ? `@type ${transformers.stringify(typeSchema.args)}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
           : undefined,
@@ -322,5 +316,12 @@ export function typeParser(
     }),
   )
 
-  return print(nodes)
+  const filterdNodes = nodes.filter(
+    (node: ts.Node) =>
+      !extraNodes.some(
+        (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText,
+      ),
+  )
+
+  return print([...extraNodes, ...filterdNodes])
 }

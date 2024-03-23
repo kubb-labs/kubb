@@ -23,7 +23,6 @@ export const fakerKeywordMapper = {
   and: 'Object.assign',
   object: 'object',
   ref: 'ref',
-  catchall: 'catchall',
   matches: 'faker.helpers.fromRegExp',
   email: 'faker.internet.email',
   firstName: 'faker.person.firstName',
@@ -76,6 +75,7 @@ type ParserOptions = {
   typeName?: string
 
   seed?: number | number[]
+  withOverride?: boolean
   mapper?: typeof fakerKeywordMapper
 }
 
@@ -91,19 +91,15 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, options)).filter(Boolean).join(',')}]) as any`
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return `${value}({},${item.args.map((andItem) => parseFakerMeta(andItem, options)).filter(Boolean).join(',')})`
+    return `${value}({},${item.args.map((andItem) => parseFakerMeta(andItem, { ...options, withOverride: false })).filter(Boolean).join(',')})`
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, options)).filter(Boolean).join(',')}]) as any`
-  }
-
-  if (isKeyword(item, schemaKeywords.catchall)) {
-    return undefined
+    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
@@ -122,11 +118,15 @@ export function parseFakerMeta(
       throw new Error(`Name not defined for keyword ${item.keyword}`)
     }
 
-    return `${item.args.name}(override)`
+    if (options.withOverride) {
+      return `${item.args.name}(override)`
+    }
+
+    return `${item.args.name}()`
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
-    const argsObject = Object.entries(item.args?.entries || '{}')
+    const argsObject = Object.entries(item.args.properties)
       .filter((item) => {
         const schema = item[1]
         return schema && typeof schema.map === 'function'
@@ -139,7 +139,7 @@ export function parseFakerMeta(
           joinItems(
             schema
               .sort(schemaKeywordsorter)
-              .map((item) => parseFakerMeta(item, options))
+              .map((item) => parseFakerMeta(item, { ...options, withOverride: false }))
               .filter(Boolean),
           )
         }`
@@ -152,8 +152,8 @@ export function parseFakerMeta(
   if (isKeyword(item, schemaKeywords.tuple)) {
     return `${value}(${
       Array.isArray(item.args)
-        ? `[${item.args.map((orItem) => parseFakerMeta(orItem, options)).filter(Boolean).join(',')}]`
-        : parseFakerMeta(item.args, options)
+        ? `[${item.args.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean).join(',')}]`
+        : parseFakerMeta(item.args, { ...options, withOverride: false })
     }) as any`
   }
 
@@ -187,7 +187,7 @@ export function fakerParser(
   options: ParserOptions,
 ): string {
   const fakerText = joinItems(
-    items.map((item) => parseFakerMeta(item, options)).filter(Boolean),
+    items.map((item) => parseFakerMeta(item, { ...options, withOverride: true })).filter(Boolean),
   )
 
   let fakerDefaultOverride: '' | '[]' | '{}' = ''
@@ -208,6 +208,7 @@ export function fakerParser(
       ...override
     ]`
   }
+  // TODO add jsdocs
 
   return `
 export function ${options.name}(${

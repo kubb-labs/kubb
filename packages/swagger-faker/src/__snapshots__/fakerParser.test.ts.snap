@@ -24,6 +24,18 @@ export function Order(override: NonNullable<Partial<undefined>> = {}) {
   "
 `;
 
+exports[`fakerParser > 'Record' 1`] = `
+"
+export function Record(override: NonNullable<Partial<undefined>> = {}) {
+  
+  return {
+  ...{},
+  ...override
+};
+}
+  "
+`;
+
 exports[`fakerParser > 'Upload' 1`] = `
 "
 export function Upload(override?: NonNullable<Partial<undefined>>) {
@@ -41,13 +53,13 @@ exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.str
 
 exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet(override)]) as any"`;
+exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
 
 exports[`parseFakerMeta > 'blob' 1`] = `undefined`;
 
 exports[`parseFakerMeta > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
-exports[`parseFakerMeta > 'catchall' 1`] = `undefined`;
+exports[`parseFakerMeta > 'catchall' 1`] = `"{}"`;
 
 exports[`parseFakerMeta > 'date' 1`] = `"faker.date.anytime()"`;
 
@@ -79,7 +91,7 @@ exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
 
 exports[`parseFakerMeta > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
-exports[`parseFakerMeta > 'ref' 1`] = `"Pet(override)"`;
+exports[`parseFakerMeta > 'ref' 1`] = `"Pet()"`;
 
 exports[`parseFakerMeta > 'string' 1`] = `"faker.string.alpha()"`;
 

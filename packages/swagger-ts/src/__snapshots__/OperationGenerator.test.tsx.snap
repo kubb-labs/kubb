@@ -1,9 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`] = `
-"import type { DeletePetPetidMutationResponse } from "./DeletePetPetidMutationResponse";
-
- export type DeletePetPetidMutationResponse = any;
+"export type DeletePetPetidMutationResponse = any;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
@@ -11,9 +9,7 @@ export type DeletePetPetidMutation = {
 `;
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\` 1`] = `
-"import type { DeletePetPetidMutationResponse } from "./DeletePetPetidMutationResponse";
-
- export type DeletePetPetidMutationResponse = unknown;
+"export type DeletePetPetidMutationResponse = unknown;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
@@ -23,10 +19,6 @@ export type DeletePetPetidMutation = {
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`] = `
 "import { Pets } from "./Pets";
 import { Error } from "./Error";
-import type { ListPets200 } from "./ListPets200";
-import type { ListPetsError } from "./ListPetsError";
-import type { ListPetsQueryParams } from "./ListPetsQueryParams";
-import type { ListPetsQueryResponse } from "./ListPetsQueryResponse";
 
  /**
  * @type "object"
@@ -39,20 +31,11 @@ export type ListPetsQueryParams = {
     limit?: string;
 };
 
- /**
- * @description A paged array of pets
- */
-export type ListPets200 = Pets;
+ export type ListPets200 = Pets;
 
- /**
- * @description unexpected error
- */
-export type ListPetsError = Error;
+ export type ListPetsError = Error;
 
- /**
- * @description A paged array of pets
- */
-export type ListPetsQueryResponse = Pets;
+ export type ListPetsQueryResponse = Pets;
 export type ListPetsQuery = {
     Response: ListPetsQueryResponse;
     QueryParams: ListPetsQueryParams;
@@ -63,10 +46,6 @@ export type ListPetsQuery = {
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`] = `
 "import { Pet } from "./Pet";
 import { Error } from "./Error";
-import type { ShowPetById200 } from "./ShowPetById200";
-import type { ShowPetByIdError } from "./ShowPetByIdError";
-import type { ShowPetByIdPathParams } from "./ShowPetByIdPathParams";
-import type { ShowPetByIdQueryResponse } from "./ShowPetByIdQueryResponse";
 
  /**
  * @type "object"
@@ -84,20 +63,11 @@ export type ShowPetByIdPathParams = {
     testId?: string;
 };
 
- /**
- * @description Expected response to a valid request
- */
-export type ShowPetById200 = Pet;
+ export type ShowPetById200 = Pet;
 
- /**
- * @description unexpected error
- */
-export type ShowPetByIdError = Error;
+ export type ShowPetByIdError = Error;
 
- /**
- * @description Expected response to a valid request
- */
-export type ShowPetByIdQueryResponse = Pet;
+ export type ShowPetByIdQueryResponse = Pet;
 export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
     PathParams: ShowPetByIdPathParams;
@@ -108,10 +78,6 @@ export type ShowPetByIdQuery = {
 exports[`OperationGenerator > [POST] /pets 201 1`] = `
 "import { Error } from "./Error";
 import { ErrorCode } from "./ErrorCode";
-import type { CreatePets201 } from "./CreatePets201";
-import type { CreatePetsError } from "./CreatePetsError";
-import type { CreatePetsMutationRequest } from "./CreatePetsMutationRequest";
-import type { CreatePetsMutationResponse } from "./CreatePetsMutationResponse";
 
  /**
  * @type "object"
@@ -127,21 +93,18 @@ export type CreatePetsMutationRequest = {
     tag?: string;
 };
 
- /**
- * @description unexpected error
- */
-export type CreatePetsError = Error;
+ export type CreatePetsError = Error;
 
  /**
- * @description Null response
- */
+ * @description "Null response"
+*/
 export type CreatePets201 = (Error & {
     name?: ErrorCode;
 });
 
  /**
- * @description Null response
- */
+ * @description "Null response"
+*/
 export type CreatePetsMutationResponse = (Error & {
     name?: ErrorCode;
 });

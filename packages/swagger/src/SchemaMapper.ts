@@ -1,5 +1,5 @@
 export type SchemaKeywordMapper = {
-  object: { keyword: 'object'; args: { entries: { [x: string]: Schema[] }; strict?: boolean } }
+  object: { keyword: 'object'; args: { properties: { [x: string]: Schema[] }; additionalProperties: Schema[]; strict?: boolean } }
   strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
@@ -25,7 +25,6 @@ export type SchemaKeywordMapper = {
   literal: { keyword: 'literal'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
   union: { keyword: 'union'; args: Schema[] }
   ref: { keyword: 'ref'; args: { name: string } }
-  catchall: { keyword: 'catchall'; args: Schema[] }
   lazy: { keyword: 'lazy' }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
@@ -83,7 +82,6 @@ export const schemaKeywords = {
   min: 'min',
   max: 'max',
   optional: 'optional',
-  catchall: 'catchall',
   readOnly: 'readOnly',
 
   // custom ones

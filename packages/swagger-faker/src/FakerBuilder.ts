@@ -21,7 +21,6 @@ export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
         const sources = generator.build({
           schema: operationSchema.schema,
           baseName: operationSchema.name,
-          description: operationSchema.description,
           operationName: operationSchema.operationName,
           operation: operationSchema.operation,
         })

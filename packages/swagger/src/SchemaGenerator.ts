@@ -7,7 +7,7 @@ import { isReference } from './utils/isReference.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
+import type { Oas, OasTypes, OpenAPIV3, Operation, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 import type { ImportMeta, Refs } from './types.ts'
 
@@ -45,8 +45,6 @@ export type SchemaGeneratorOptions = {
 export type SchemaGeneratorBuildOptions = {
   schema: OasTypes.SchemaObject
   baseName: string
-  description?: string
-  optional?: boolean
   keysToOmit?: string[]
   operationName?: string
   operation?: Operation
@@ -68,7 +66,7 @@ export abstract class SchemaGenerator<
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  getTypeFromSchema(schema: OasTypes.SchemaObject, baseName?: string): Schema[] {
+  getTypeFromSchema(schema: SchemaObject, baseName?: string): Schema[] {
     return this.options.transformers.schema?.(schema, baseName) || this.#getBaseTypeFromSchema(schema, baseName) || []
   }
 
@@ -87,24 +85,21 @@ export abstract class SchemaGenerator<
    */
   #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): Schema[] {
     const properties = baseSchema?.properties || {}
-    const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
-    const objectMembers = Object.keys(properties)
+    const propertiesSchemas = Object.keys(properties)
       .map((name) => {
         const validationFunctions: Schema[] = []
-        const schema = properties[name] as OasTypes.SchemaObject & { 'x-nullable': boolean }
-        const isRequired = Array.isArray(required) ? required.includes(name) : !!required
+        const schema = properties[name] as SchemaObject
         const resolvedName = this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey: this.context.plugin.key, type: 'type' })
 
-        validationFunctions.push(...this.getTypeFromSchema(schema, resolvedName || name))
-
+        const isRequired = Array.isArray(schema.required) ? schema.required && schema.required.includes(name) : !!schema.required
         const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
+
+        validationFunctions.push(...this.getTypeFromSchema(schema, resolvedName))
 
         if (!isRequired && nullable) {
           validationFunctions.push({ keyword: schemaKeywords.nullish })
-        } else if (nullable) {
-          validationFunctions.push({ keyword: schemaKeywords.nullable })
         } else if (!isRequired) {
           validationFunctions.push({ keyword: schemaKeywords.optional })
         }
@@ -114,18 +109,16 @@ export abstract class SchemaGenerator<
         }
       })
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
-
+    let additionalPropertieschemas: Schema[] = []
     const members: Schema[] = []
 
-    members.push({ keyword: schemaKeywords.object, args: { entries: objectMembers } })
-
     if (additionalProperties) {
-      const addionalValidationFunctions: Schema[] = additionalProperties === true
+      additionalPropertieschemas = additionalProperties === true
         ? [{ keyword: this.#unknownReturn }]
         : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
-
-      members.push({ keyword: schemaKeywords.catchall, args: addionalValidationFunctions })
     }
+
+    members.push({ keyword: schemaKeywords.object, args: { properties: propertiesSchemas, additionalProperties: additionalPropertieschemas } })
 
     return members
   }
@@ -163,7 +156,7 @@ export abstract class SchemaGenerator<
     return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName } }]
   }
 
-  #getParsedSchema(schema?: OasTypes.SchemaObject) {
+  #getParsedSchema(schema?: SchemaObject) {
     const parsedSchema = getSchemaFactory(this.context.oas)(schema)
     return parsedSchema
   }
@@ -172,7 +165,7 @@ export abstract class SchemaGenerator<
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #getBaseTypeFromSchema(_schema: OasTypes.SchemaObject | undefined, baseName?: string): Schema[] {
+  #getBaseTypeFromSchema(_schema: SchemaObject | undefined, baseName?: string): Schema[] {
     const { schema, version } = this.#getParsedSchema(_schema)
 
     if (!schema) {
@@ -208,12 +201,8 @@ export abstract class SchemaGenerator<
 
     const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
 
-    if (!schema.required && nullable) {
-      baseItems.push({ keyword: schemaKeywords.nullish })
-    } else if (nullable) {
+    if (nullable) {
       baseItems.push({ keyword: schemaKeywords.nullable })
-    } else if (!schema.required) {
-      baseItems.push({ keyword: schemaKeywords.optional })
     }
 
     if (schema.readOnly) {
@@ -228,7 +217,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -250,7 +239,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -282,7 +271,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
