@@ -166,7 +166,6 @@ const input = [
     }),
     expected: '.catchall(z.lazy(() => Pet))',
   },
-
   {
     input: parseZodMeta({
       keyword: 'and',
@@ -174,7 +173,6 @@ const input = [
     }),
     expected: 'z.string().and(z.number())',
   },
-
   {
     input: parseZodMeta({
       keyword: 'object',
@@ -185,7 +183,27 @@ const input = [
         },
       },
     }),
-    expected: 'z.object({"firstName": z.string().min(2),"address": z.string().nullable().describe("Your address")})',
+    expected: 'z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'object',
+      args: {
+        entries: {
+          test: [
+            {
+              keyword: 'describe',
+              args: 'description',
+            },
+            {
+              keyword: 'and',
+              args: [{ keyword: 'string' }, { keyword: 'number' }],
+            },
+          ],
+        },
+      },
+    }),
+    expected: 'z.object({"test": z.string().and(z.number()).describe("description")})',
   },
   {
     input: parseZodMeta({

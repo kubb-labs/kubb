@@ -80,6 +80,17 @@
           },
           "name": {
             "$ref": "#/components/schemas/TestName"
+          },
+          "place": {
+            "description": "The message body",
+            "allOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
           }
         }
       },
