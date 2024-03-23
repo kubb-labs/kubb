@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet'
+import { Pet } from '../Pet'
 
 /**
  * @description Invalid tag value
@@ -14,9 +14,9 @@ export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeade
 export type FindPetsByTagsHeaderParams = {
   /**
    * @description Header parameters
-   * @type string
+   * @type string | undefined
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExampleEnum
+  'X-EXAMPLE'?: FindPetsByTagsHeaderParamsXExampleEnum
 }
 
 export type FindPetsByTagsQueryParams = {
@@ -35,7 +35,7 @@ export type FindPetsByTagsQueryParams = {
    * @type string | undefined
    */
   pageSize?: string
-} | undefined
+}
 
 /**
  * @description successful operation

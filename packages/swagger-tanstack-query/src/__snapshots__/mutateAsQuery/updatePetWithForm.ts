@@ -35,8 +35,9 @@ export function UpdatePetWithFormQueryOptions<TData = UpdatePetWithForm["respons
     };
 }
 /**
-     * @summary Updates a pet in the store with form data
-     * @link /pet/:petId */
+ * @summary Updates a pet in the store with form data
+ * @link /pet/:petId
+ */
 export function updatePetWithForm<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"], TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>({ petId }: UpdatePetWithFormPathParams, params?: UpdatePetWithForm["queryParams"], options: {
     query?: Partial<UseBaseQueryOptions<UpdatePetWithForm["response"], UpdatePetWithForm["error"], TData, TQueryData, TQueryKey>>;
     client?: UpdatePetWithForm["client"]["parameters"];

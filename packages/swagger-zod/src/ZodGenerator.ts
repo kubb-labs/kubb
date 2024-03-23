@@ -1,4 +1,4 @@
-import { SchemaGenerator } from '@kubb/swagger'
+import { SchemaGenerator, schemaKeywords } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
@@ -21,6 +21,15 @@ export class ZodGenerator extends SchemaGenerator {
 
     // used for this.options.typed
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+
+    // hack so Params will be optional when needed
+    const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
+    const optional = !required && !!baseName.includes('Params')
+    if (optional) {
+      input.push({
+        keyword: schemaKeywords.optional,
+      })
+    }
 
     const output = zodParser(input, {
       keysToOmit,

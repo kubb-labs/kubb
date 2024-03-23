@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet'
+import { Pet } from '../Pet'
 
 /**
  * @description Invalid ID supplied
@@ -13,9 +13,9 @@ export type GetPetById404 = any
 export type GetPetByIdPathParams = {
   /**
    * @description ID of pet to return
-   * @type integer int64
+   * @type integer | undefined int64
    */
-  petId: number
+  petId?: number
 }
 
 /**

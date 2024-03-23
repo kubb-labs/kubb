@@ -20,7 +20,7 @@ export const zodKeywordMapper = {
   tuple: 'z.tuple',
   enum: 'z.enum',
   union: 'z.union',
-  literal: 'z.literal',
+  const: 'z.literal',
   datetime: 'z.string().datetime',
   date: 'z.date',
   uuid: '.uuid',
@@ -112,6 +112,17 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
+    if (item.args.asConst) {
+      return `${zodKeywordMapper.union}([${
+        item.args.items.map(item => {
+          return parseZodMeta({
+            keyword: schemaKeywords.const,
+            args: item,
+          }, options)
+        }).join(', ')
+      }])`
+    }
+
     return `${value}([${
       item.args.items.map(item => {
         if (item.format === 'number') {
@@ -162,7 +173,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
     return `${value}([${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')}])`
   }
 
-  if (isKeyword(item, schemaKeywords.literal)) {
+  if (isKeyword(item, schemaKeywords.const)) {
     if (item.args.format === 'number') {
       return `${value}(${transformers.toNumber(item.args.value)})`
     }
@@ -211,7 +222,7 @@ export function zodParser(
     comments: [options.description ? `@description ${options.description}` : undefined].filter(Boolean),
   })
 
-  const constName = `${JSDoc}export const ${options.name}`
+  const constName = `${JSDoc}\nexport const ${options.name}`
   const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
 
   if (options.keysToOmit?.length) {

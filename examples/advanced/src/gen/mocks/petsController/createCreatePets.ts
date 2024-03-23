@@ -13,7 +13,6 @@ import type {
 /**
  * @description Null response
  */
-
 export function createCreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
   return undefined
 }
@@ -49,10 +48,10 @@ export function createCreatePetsQueryParams(override: NonNullable<Partial<Create
     ...override,
   }
 }
+
 /**
  * @description unexpected error
  */
-
 export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
   return createPetNotFound(override)
 }

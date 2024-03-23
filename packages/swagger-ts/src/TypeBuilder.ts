@@ -40,7 +40,7 @@ export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       return {
         name: [item.ref.propertyName],
         path: item.path,
-        isTypeOnly: item.isTypeOnly,
+        isTypeOnly: true,
       }
     })
 

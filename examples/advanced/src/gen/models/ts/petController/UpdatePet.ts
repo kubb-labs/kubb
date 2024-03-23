@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet'
+import { Pet } from '../Pet'
 
 /**
  * @description Invalid ID supplied

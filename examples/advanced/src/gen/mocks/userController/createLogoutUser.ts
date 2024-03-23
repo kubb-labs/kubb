@@ -3,7 +3,6 @@ import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/u
 /**
  * @description successful operation
  */
-
 export function createLogoutUserError(override?: NonNullable<Partial<LogoutUserError>>): NonNullable<LogoutUserError> {
   return undefined
 }

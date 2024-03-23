@@ -6,8 +6,9 @@ import type { ResponseConfig } from "@kubb/swagger-client/client";
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from "./";
 
  /**
-     * @summary Info for a specific pet
-     * @link /pets/:pet_id */
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
 export async function showPetById(petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
     const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
@@ -25,8 +26,9 @@ import type { ResponseConfig } from "@kubb/swagger-client/client";
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from "./";
 
  /**
-     * @summary Info for a specific pet
-     * @link /pets/:pet_id */
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
 export async function showPetById({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
     const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
@@ -45,8 +47,9 @@ import type { ResponseConfig } from "@kubb/swagger-client/client";
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from "./";
 
  /**
-     * @summary Info for a specific pet
-     * @link /pets/:pet_id */
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
 export async function showPetById({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
     return axios.get(\`/pets/\${petId}\`, options);
 }

@@ -18,11 +18,12 @@ export type SchemaKeywordMapper = {
     args: {
       name: string
       typeName: string
+      asConst: boolean
       items: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }>
     }
   }
   and: { keyword: 'and'; args: Schema[] }
-  literal: { keyword: 'literal'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
+  const: { keyword: 'const'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
   union: { keyword: 'union'; args: Schema[] }
   ref: { keyword: 'ref'; args: { name: string } }
   lazy: { keyword: 'lazy' }
@@ -76,7 +77,7 @@ export const schemaKeywords = {
   url: 'url',
   /* intersection */
   default: 'default',
-  literal: 'literal',
+  const: 'const',
   and: 'and',
   describe: 'describe',
   min: 'min',

@@ -1,13 +1,13 @@
-import type { ApiResponse } from '../ApiResponse'
+import { ApiResponse } from '../ApiResponse'
 
 export type UploadFileMutationRequest = string
 
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
-   * @type integer int64
+   * @type integer | undefined int64
    */
-  petId: number
+  petId?: number
 }
 
 export type UploadFileQueryParams = {
@@ -16,7 +16,7 @@ export type UploadFileQueryParams = {
    * @type string | undefined
    */
   additionalMetadata?: string
-} | undefined
+}
 
 /**
  * @description successful operation

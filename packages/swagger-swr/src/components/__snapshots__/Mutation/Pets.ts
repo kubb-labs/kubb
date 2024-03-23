@@ -15,8 +15,8 @@ type CreatePets = {
 
 /**
  * @summary Create a pet
- * @link /pets */
-
+ * @link /pets
+ */
 export function useCreatePets(options?: {
   mutation?: SWRMutationConfiguration<CreatePets['response'], CreatePets['error']>
   client?: CreatePets['client']['parameters']

@@ -3,7 +3,8 @@
 exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 1`] = `
 "import { z } from "zod";
 
- export const DeletePetPetidMutationResponse = z.any();
+
+export const DeletePetPetidMutationResponse = z.any();
 "
 `;
 
@@ -32,7 +33,8 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
     },
     "override": undefined,
     "path": "delete_pet-petid.ts",
-    "source": "export const DeletePetPetidMutationResponse = z.unknown()",
+    "source": "
+export const DeletePetPetidMutationResponse = z.unknown();",
   },
 ]
 `;
@@ -42,9 +44,19 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
 import { Pets } from "./Pets";
 import { Error } from "./Error";
 
- export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() });
+
+export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() }).optional();
+/**
+ * @description A paged array of pets
+ */
 export const ListPets200 = z.lazy(() => Pets);
+/**
+ * @description unexpected error
+ */
 export const ListPetsError = z.lazy(() => Error);
+/**
+ * @description A paged array of pets
+ */
 export const ListPetsQueryResponse = z.lazy(() => Pets);
 "
 `;
@@ -54,9 +66,19 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
 import { Pet } from "./Pet";
 import { Error } from "./Error";
 
- export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve").optional(), "testId": z.string().describe("The id of the pet to retrieve").optional() });
+
+export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve").optional(), "testId": z.string().describe("The id of the pet to retrieve").optional() });
+/**
+ * @description Expected response to a valid request
+ */
 export const ShowPetById200 = z.lazy(() => Pet);
+/**
+ * @description unexpected error
+ */
 export const ShowPetByIdError = z.lazy(() => Error);
+/**
+ * @description Expected response to a valid request
+ */
 export const ShowPetByIdQueryResponse = z.lazy(() => Pet);
 "
 `;
@@ -65,9 +87,17 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
 "import { z } from "zod";
 import { Error } from "./Error";
 
- export const CreatePets201 = z.any();
-export const CreatePetsMutationRequest = z.object({ "name": z.string().optional(), "tag": z.string().optional() });
-export const CreatePetsMutationResponse = z.any();
+ /**
+ * @description Null response
+ */
+export const CreatePets201 = z.any();
+
+ export const CreatePetsMutationRequest = z.object({ "name": z.string().optional(), "tag": z.string().optional() });
+
+ export const CreatePetsMutationResponse = z.any();
+/**
+ * @description unexpected error
+ */
 export const CreatePetsError = z.lazy(() => Error);
 "
 `;

@@ -73,7 +73,7 @@ const parameters = {
     parameters.push(`
     {
       name: "${item.name}",
-      description: \`${transformers.escape(item.schema.description)}\`,
+      description: \`${transformers.escape(item.description)}\`,
       type: "Body",
       schema: ${name}
     }
@@ -201,7 +201,7 @@ export function getDefinitions(
               errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
-                description: \`${transformers.escape(errorOperationSchema.schema.description)}\`,
+                description: \`${transformers.escape(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)

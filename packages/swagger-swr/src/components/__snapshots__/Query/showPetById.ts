@@ -32,8 +32,8 @@ export function ShowPetByIdQueryOptions<TData = ShowPetById['response']>(
 }
 /**
  * @summary Info for a specific pet
- * @link /pets/:petId */
-
+ * @link /pets/:petId
+ */
 export function useShowPetById<TData = ShowPetById['response']>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],

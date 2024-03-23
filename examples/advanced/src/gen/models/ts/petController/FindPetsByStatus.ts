@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet'
+import { Pet } from '../Pet'
 
 /**
  * @description Invalid status value
@@ -13,11 +13,11 @@ export enum FindPetsByStatusQueryParamsStatusEnum {
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
+   * @default "available"
    * @type string | undefined
-   * @default 'available'
    */
   status?: FindPetsByStatusQueryParamsStatusEnum
-} | undefined
+}
 
 /**
  * @description successful operation

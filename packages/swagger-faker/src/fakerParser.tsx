@@ -1,7 +1,7 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
 
 export const fakerKeywordMapper = {
   any: 'undefined',
@@ -33,7 +33,7 @@ export const fakerKeywordMapper = {
   default: undefined,
   describe: undefined,
   lazy: undefined,
-  literal: undefined,
+  const: undefined,
   max: undefined,
   min: undefined,
   nullable: undefined,
@@ -158,7 +158,7 @@ export function parseFakerMeta(
     }) as any`
   }
 
-  if (isKeyword(item, schemaKeywords.literal)) {
+  if (isKeyword(item, schemaKeywords.const)) {
     if (item.args.format === 'number') {
       return item.args.name?.toString()
     }

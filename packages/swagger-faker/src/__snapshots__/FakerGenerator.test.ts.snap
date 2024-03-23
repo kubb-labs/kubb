@@ -3,19 +3,23 @@
 exports[`FakeGenerator enums > generate x-enum-varnames types 1`] = `
 [
   "
+
 export function enumVarNames(override?: NonNullable<Partial<EnumVarNames>>): NonNullable<EnumVarNames> {
   faker.seed(1)
-return faker.helpers.arrayElement([]) as any;
-}",
+  return faker.helpers.arrayElement<any>(["Pending", "Received"]);
+}
+  ",
 ]
 `;
 
 exports[`FakeGenerator enums > generate x-enumNames types 1`] = `
 [
   "
+
 export function enumNames(override?: NonNullable<Partial<EnumNames>>): NonNullable<EnumNames> {
   faker.seed(1)
-return faker.helpers.arrayElement<any>(["Pending", "Received"]);
-}",
+  return faker.helpers.arrayElement<any>(["Pending", "Received"]);
+}
+  ",
 ]
 `;

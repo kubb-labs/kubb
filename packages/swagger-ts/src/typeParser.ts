@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
-import { isKeyword, schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { ts } from '@kubb/parser'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
@@ -235,33 +235,7 @@ export function typeParser(
   const isNullish = schemas.some(item => item.keyword === schemaKeywords.nullish)
   const isNullable = schemas.some(item => item.keyword === schemaKeywords.nullable)
   const isOptional = schemas.some(item => item.keyword === schemaKeywords.optional)
-  const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
-  const deprecatedSchema = schemas.find(item => item.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
-  const defaultSchema = schemas.find(item => item.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
-  const exampleSchema = schemas.find(item => item.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
-  const typeSchema = schemas.find(item => item.keyword === schemaKeywords.type) as SchemaKeywordMapper['type'] | undefined
-  const formatSchema = schemas.find(item => item.keyword === schemaKeywords.format) as SchemaKeywordMapper['format'] | undefined
-  // TODO move
-  const findEnum = (items: Schema[]): SchemaKeywordMapper['enum'][] => {
-    const enums: SchemaKeywordMapper['enum'][] = []
 
-    items.forEach(item => {
-      if (item.keyword === schemaKeywords.enum) {
-        enums.push(item as SchemaKeywordMapper['enum'])
-      }
-
-      if (item.keyword === schemaKeywords.object) {
-        const subItem = item as SchemaKeywordMapper['object']
-        return Object.values(subItem.args.properties).forEach(entrySchema => {
-          enums.push(...findEnum(entrySchema))
-        })
-      }
-    })
-
-    return enums
-  }
-
-  const enumSchemas = findEnum(schemas)
   let type = schemas.map((schema) => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode
     || typeKeywordMapper.undefined()
 
@@ -283,6 +257,7 @@ export function typeParser(
     type: options.keysToOmit?.length ? factory.createOmitDeclaration({ keys: options.keysToOmit, type, nonNullable: true }) : type,
   })
 
+  const enumSchemas = SchemaGenerator.getEnum(schemas)
   if (enumSchemas) {
     enumSchemas.forEach(enumSchema => {
       extraNodes.push(...factory.createEnumDeclaration({

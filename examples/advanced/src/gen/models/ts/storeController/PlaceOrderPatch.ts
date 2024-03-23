@@ -1,4 +1,4 @@
-import type { Order } from '../Order'
+import { Order } from '../Order'
 
 /**
  * @description Invalid input

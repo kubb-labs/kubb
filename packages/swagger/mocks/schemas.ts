@@ -99,6 +99,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
       args: {
         name: 'enum',
         typeName: 'Enum',
+        asConst: false,
         items: [
           { name: 'A', value: 'A', format: schemaKeywords.string },
           { name: 'B', value: 'B', format: schemaKeywords.string },
@@ -341,6 +342,7 @@ const full: Array<{ name: string; schema: Schema[] }> = [
               keyword: schemaKeywords.enum,
               args: {
                 name: 'orderStatus',
+                asConst: false,
                 typeName: 'OrderStatus',
                 items: [{ name: 'Placed', value: 'placed', format: 'string' }, { name: 'Approved', value: 'approved', format: 'string' }],
               },

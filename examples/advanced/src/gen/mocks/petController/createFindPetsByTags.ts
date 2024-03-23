@@ -11,7 +11,6 @@ import type {
 /**
  * @description Invalid tag value
  */
-
 export function createFindPetsByTags400(override?: NonNullable<Partial<FindPetsByTags400>>): NonNullable<FindPetsByTags400> {
   return undefined
 }
@@ -29,20 +28,20 @@ export function createFindPetsByTagsQueryParams(override: NonNullable<Partial<Fi
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
 export function createFindPetsByTags200(override: NonNullable<Partial<FindPetsByTags200>> = []): NonNullable<FindPetsByTags200> {
   return [
     ...faker.helpers.arrayElements([createPet()]) as any,
     ...override,
   ]
 }
+
 /**
  * @description successful operation
  */
-
 export function createFindPetsByTagsQueryResponse(override: NonNullable<Partial<FindPetsByTagsQueryResponse>> = []): NonNullable<FindPetsByTagsQueryResponse> {
   return [
     ...faker.helpers.arrayElements([createPet()]) as any,

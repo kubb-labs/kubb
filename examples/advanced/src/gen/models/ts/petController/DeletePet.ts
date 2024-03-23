@@ -8,16 +8,16 @@ export type DeletePetHeaderParams = {
    * @type string | undefined
    */
   api_key?: string
-} | undefined
+}
 
 export type DeletePetMutationResponse = any
 
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
-   * @type integer int64
+   * @type integer | undefined int64
    */
-  petId: number
+  petId?: number
 }
 export type DeletePetMutation = {
   Response: DeletePetMutationResponse

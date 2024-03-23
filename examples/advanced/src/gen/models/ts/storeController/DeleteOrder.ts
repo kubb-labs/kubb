@@ -13,9 +13,9 @@ export type DeleteOrderMutationResponse = any
 export type DeleteOrderPathParams = {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer int64
+   * @type integer | undefined int64
    */
-  orderId: number
+  orderId?: number
 }
 export type DeleteOrderMutation = {
   Response: DeleteOrderMutationResponse

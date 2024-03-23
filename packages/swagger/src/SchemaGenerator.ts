@@ -7,7 +7,7 @@ import { isReference } from './utils/isReference.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Oas, OasTypes, OpenAPIV3, Operation, SchemaObject } from './oas/index.ts'
+import type { Oas, OasTypes, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 import type { ImportMeta, OperationSchema, Refs } from './types.ts'
 
@@ -62,6 +62,25 @@ export abstract class SchemaGenerator<
    */
   getTypeFromSchema(schema: SchemaObject, baseName?: string): Schema[] {
     return this.options.transformers.schema?.(schema, baseName) || this.#getBaseTypeFromSchema(schema, baseName) || []
+  }
+
+  static getEnum(items: Schema[]): SchemaKeywordMapper['enum'][] {
+    const enums: SchemaKeywordMapper['enum'][] = []
+
+    items.forEach(item => {
+      if (item.keyword === schemaKeywords.enum) {
+        enums.push(item as SchemaKeywordMapper['enum'])
+      }
+
+      if (item.keyword === schemaKeywords.object) {
+        const subItem = item as SchemaKeywordMapper['object']
+        return Object.values(subItem.args.properties).forEach(entrySchema => {
+          enums.push(...SchemaGenerator.getEnum(entrySchema))
+        })
+      }
+    })
+
+    return enums
   }
 
   get #unknownReturn() {
@@ -299,6 +318,7 @@ export abstract class SchemaGenerator<
             args: {
               name,
               typeName,
+              asConst: false,
               items: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
                 name: transformers.stringify(name),
                 value: schema.enum![index] as string | number,
@@ -313,20 +333,25 @@ export abstract class SchemaGenerator<
         const enumNames = extensionEnums[0]?.find(item => isKeyword(item, schemaKeywords.enum)) as SchemaKeywordMapper['enum']
         return [
           {
-            keyword: schemaKeywords.union,
-            args: enumNames
-              ? enumNames?.args?.items?.map(({ name, value }) => {
-                return {
-                  keyword: schemaKeywords.literal,
-                  args: { name, format: 'number', value },
-                }
-              })
-              : [...new Set(schema.enum)].map((value: string) => {
-                return {
-                  keyword: schemaKeywords.literal,
-                  args: { name: value, format: 'number', value },
-                }
-              }),
+            keyword: schemaKeywords.enum,
+            args: {
+              name,
+              typeName,
+              asConst: true,
+              items: enumNames?.args?.items
+                ? [...new Set(enumNames.args.items)].map(({ name, value }) => ({
+                  name,
+                  value,
+                  format: 'number',
+                }))
+                : [...new Set(schema.enum)].map((value: string) => {
+                  return {
+                    name: value,
+                    value,
+                    format: 'number',
+                  }
+                }),
+            },
           },
           ...baseItems,
         ]
@@ -342,6 +367,7 @@ export abstract class SchemaGenerator<
           args: {
             name,
             typeName,
+            asConst: false,
             items: [...new Set(schema.enum)].map((value: string) => ({
               name: transformers.stringify(value),
               value,
@@ -393,7 +419,7 @@ export abstract class SchemaGenerator<
       // const keyword takes precendence over the actual type.
       if (schema['const']) {
         return [{
-          keyword: schemaKeywords.literal,
+          keyword: schemaKeywords.const,
           args: { name: schema['const'], format: typeof schema['const'] === 'number' ? 'number' : 'string', value: schema['const'] },
         }]
       } else {

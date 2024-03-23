@@ -92,16 +92,16 @@ exports[`parseTypeMeta > 'objectAnd' 1`] = `
 "{
     /**
      * @deprecated
-     * @default "test"
+     * @default test
     */
     firstName: string;
     /**
      * @default 2
-     * @example "2"
+     * @example 2
     */
     age: number;
     /**
-     * @description "Your address"
+     * @description Your address
     */
     address: (string & number) | null;
 }
@@ -159,22 +159,19 @@ exports[`parseTypeMeta > 'unknown' 1`] = `
 `;
 
 exports[`typeParser > 'Object' 1`] = `
-"/**
- * @description "Your address"
-*/
-export type Object = {
+"export type Object = {
     /**
      * @deprecated
-     * @default "test"
+     * @default test
     */
     firstName: string;
     /**
      * @default 2
-     * @example "2"
+     * @example 2
     */
     age: number;
     /**
-     * @description "Your address"
+     * @description Your address
     */
     address: (string & number) | null;
 } | null;
@@ -187,9 +184,6 @@ exports[`typeParser > 'Order' 1`] = `
     "Approved": "approved"
 } as const;
 export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus];
-/**
- * @type "object"
-*/
 export type Order = {
     status: OrderStatus;
 };
@@ -197,10 +191,7 @@ export type Order = {
 `;
 
 exports[`typeParser > 'Record' 1`] = `
-"/**
- * @type "object" | undefined
-*/
-export type Record = {
+"export type Record = {
     [key: string]: number;
 };
 "

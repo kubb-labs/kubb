@@ -2,17 +2,14 @@
 
 exports[`TypeGenerator discriminator > Cat.type defined as const 1`] = `
 [
-  "/**
- * @type "object"
-*/
-export type Cat = {
+  "export type Cat = {
     /**
-     * @type "string" | undefined uuid
+     * @type string | undefined uuid
     */
     id?: string;
     type?;
     /**
-     * @type "boolean" | undefined
+     * @type boolean | undefined
     */
     meow?: boolean;
 };
@@ -22,16 +19,13 @@ export type Cat = {
 
 exports[`TypeGenerator discriminator > Dog.type defined as const 1`] = `
 [
-  "/**
- * @type "object"
-*/
-export type Dog = {
+  "export type Dog = {
     /**
-     * @type "string" | undefined uuid
+     * @type string | undefined uuid
     */
     id?: string;
     /**
-     * @type "number" | undefined
+     * @type number | undefined
     */
     bark?: number;
     type?;
@@ -42,10 +36,7 @@ export type Dog = {
 
 exports[`TypeGenerator discriminator > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
 [
-  "/**
- * @description "This probably should fail miserably"
-*/
-export type MixedValueTypeConst = {
+  "export type MixedValueTypeConst = {
     foobar?;
 };
 ",
@@ -54,10 +45,7 @@ export type MixedValueTypeConst = {
 
 exports[`TypeGenerator discriminator > NullConst correctly produces "null" 1`] = `
 [
-  "/**
- * @description "The value of this keyword MAY be null. \\nUse of this keyword is functionally equivalent to an \\"enum\\" (Section 6.1.2) with a single value.\\nAn instance validates successfully against this keyword if its value is equal to the value of the keyword.\\n"
-*/
-export type NullConst = {
+  "export type NullConst = {
     withoutValue?: null;
 };
 ",
@@ -66,10 +54,7 @@ export type NullConst = {
 
 exports[`TypeGenerator discriminator > NumberValueConst const correctly produces \`42\` 1`] = `
 [
-  "/**
- * @description "its value is equal to the value of the keyword"
-*/
-export type NumberValueConst = {
+  "export type NumberValueConst = {
     foobar?;
 };
 ",
@@ -78,17 +63,13 @@ export type NumberValueConst = {
 
 exports[`TypeGenerator discriminator > PetStore defined as array with type union 1`] = `
 [
-  "/**
- * @description "A project is an analysis project. It has a name, an id, and has a dataset"
- * @type "object"
-*/
-export type Petstore = {
+  "export type Petstore = {
     /**
-     * @type "integer" | undefined
+     * @type integer | undefined
     */
     id?: number;
     /**
-     * @type "array" | undefined
+     * @type array | undefined
     */
     pets?: (Cat | Dog)[];
 };
@@ -98,10 +79,7 @@ export type Petstore = {
 
 exports[`TypeGenerator discriminator > StringValueConst const correctly produces "foobar" 1`] = `
 [
-  "/**
- * @description "its value is equal to the value of the keyword"
-*/
-export type StringValueConst = {
+  "export type StringValueConst = {
     foobar?;
 };
 ",
@@ -152,10 +130,12 @@ export type enumNames = EnumNames;
 
 exports[`TypeGenerator enums > generate x-enum-varnames types 1`] = `
 [
-  "/**
- * @type "integer"
-*/
-export type enumVarNames = undefined;
+  "export const enumVarNames = {
+    "Pending": 0,
+    "Received": 1
+} as const;
+export type EnumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames];
+export type enumVarNames = EnumVarNames;
 ",
 ]
 `;
@@ -174,20 +154,17 @@ export type enumNames = EnumNames;
 
 exports[`TypeGenerator petStore > generate type for Pet with optionalType \`questionToken\` 1`] = `
 [
-  "/**
- * @type "object"
-*/
-export type Pet = {
+  "export type Pet = {
     /**
-     * @type "integer" | undefined int64
+     * @type integer | undefined int64
     */
     id?: number;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     name?: string;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     tag?: string;
 };
@@ -197,20 +174,17 @@ export type Pet = {
 
 exports[`TypeGenerator petStore > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
 [
-  "/**
- * @type "object"
-*/
-export type Pet = {
+  "export type Pet = {
     /**
-     * @type "integer" | undefined int64
+     * @type integer | undefined int64
     */
     id?: number | undefined;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     name?: string | undefined;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     tag?: string | undefined;
 };
@@ -220,20 +194,17 @@ export type Pet = {
 
 exports[`TypeGenerator petStore > generate type for Pet with optionalType \`undefined\` 1`] = `
 [
-  "/**
- * @type "object"
-*/
-export type Pet = {
+  "export type Pet = {
     /**
-     * @type "integer" | undefined int64
+     * @type integer | undefined int64
     */
     id: number | undefined;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     name: string | undefined;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     tag: string | undefined;
 };
@@ -243,20 +214,17 @@ export type Pet = {
 
 exports[`TypeGenerator petStore > generate type for Pets 1`] = `
 [
-  "/**
- * @type "array"
-*/
-export type Pets = {
+  "export type Pets = {
     /**
-     * @type "integer" | undefined int64
+     * @type integer | undefined int64
     */
     id?: number;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     name?: string;
     /**
-     * @type "string" | undefined
+     * @type string | undefined
     */
     tag?: string;
 }[];
@@ -266,12 +234,9 @@ export type Pets = {
 
 exports[`TypeGenerator petStore > generate type for nullable fields 1`] = `
 [
-  "/**
- * @type "object"
-*/
-export type Test = {
+  "export type Test = {
     /**
-     * @type "string"
+     * @type string
     */
     foo: string | null;
 };
@@ -281,10 +246,7 @@ export type Test = {
 
 exports[`TypeGenerator petStoreRef > generate type for Pets 1`] = `
 [
-  "/**
- * @type "array"
-*/
-export type Pets = Pet[];
+  "export type Pets = Pet[];
 ",
 ]
 `;
