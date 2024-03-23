@@ -367,6 +367,18 @@ export default defineConfig({
 
 ### mutate
 
+To disable mutations pass `false`.
+
+::: info type
+
+::: code-group
+
+```typescript [Suspense]
+type QueryOptions = {} |
+```
+
+:::
+
 #### variablesType
 
 Define the way of passing through the queryParams, headerParams and data.
@@ -448,6 +460,48 @@ export default defineConfig({
       {
         mutate: {
           variablesType: 'hook',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### methods
+
+Define which HttpMethods can be used for mutations <br/>
+
+::: info type
+
+::: info
+
+Type: `'Array<HttpMethod>` <br/>
+Default: `['post', 'put', 'delete']`
+
+::: code-group
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery(
+      {
+        mutate: {
+          methods: ['post', 'put', 'delete'],
         },
       },
     ),
@@ -559,7 +613,8 @@ export default defineConfig({
 
 ### infinite
 
-When set, an 'infiniteQuery' hook will be added.
+When set, an 'infiniteQuery' hook will be added. <br/>
+To disable infinite queries pass `false`.
 
 ::: info type
 
@@ -582,7 +637,7 @@ type Infinite = {
    * @default `0`
    */
   initialPageParam: unknown
-}
+} | false
 ```
 
 :::
@@ -732,7 +787,8 @@ export default defineConfig({
 
 ### query
 
-Override some useQuery behaviours.
+Override some useQuery behaviours. <br/>
+To disable queries pass `false`.
 
 ::: info type
 
@@ -744,7 +800,8 @@ type Query = {
    * Customize the queryKey, here you can specify a suffix.
    */
   queryKey?: (key: unknown[]) => unknown[]
-}
+  methods: Array<HttpMethod>
+} | false
 ```
 
 :::
@@ -817,6 +874,89 @@ export default defineConfig({
 
 :::
 
+#### query.methods
+
+Define which HttpMethods can be used for queries
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+::: info
+Type: `Array<HttpMethod>` <br/>
+Default: `['get']` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      query: {
+        methods: ['get'],
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+### queryOptions
+
+To disable queryOptions pass `false`.
+
+::: info type
+
+::: code-group
+
+```typescript [Query]
+type QueryOptions = {} | false
+```
+
+:::
+
+::: info
+Type: `QueryOptions` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({ queryOptions: {} }),
+  ],
+})
+```
+
+:::
+
 ### suspense
 
 When set, a suspenseQuery hook will be added. This will only work for v5 and react.
@@ -826,7 +966,7 @@ When set, a suspenseQuery hook will be added. This will only work for v5 and rea
 ::: code-group
 
 ```typescript [Suspense]
-type Suspense = {}
+type Suspense = {} | false
 ```
 
 :::

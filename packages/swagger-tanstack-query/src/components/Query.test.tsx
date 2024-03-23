@@ -34,8 +34,8 @@ describe('<Query/>', async () => {
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
     framework: 'react',
-    infinite: undefined,
-    suspense: undefined,
+    infinite: false,
+    suspense: false,
     dataReturnType: 'data',
     pathParamsType: 'inline',
     templates: {
@@ -47,31 +47,40 @@ describe('<Query/>', async () => {
       importPath: '@kubb/swagger-client/client',
     },
     parser: undefined,
-    query: {},
-    mutate: {},
+    query: {
+      methods: ['get'],
+      queryKey: (key: unknown[]) => key,
+    },
+    queryOptions: {
+      methods: ['get'],
+    },
+    mutate: false,
   }
 
   const plugin = { options } as Plugin<PluginOptions>
-  const og = await new OperationGenerator(
-    options,
-    {
-      oas,
-      exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin,
-      contentType: undefined,
-      override: undefined,
-    },
-  )
+  const og = await new OperationGenerator(options, {
+    oas,
+    exclude: [],
+    include: undefined,
+    pluginManager: mockedPluginManager,
+    plugin,
+    contentType: undefined,
+    override: undefined,
+  })
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{uuid}', 'get')
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
+    const context: AppContextProps<PluginOptions['appMeta']> = {
+      meta: { pluginManager: mockedPluginManager, plugin },
+    }
 
     const Component = () => {
       return (
-        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+        <Oas
+          oas={oas}
+          operations={[operation]}
+          getSchemas={(...props) => og.getSchemas(...props)}
+        >
           <Oas.Operation operation={operation}>
             <Query.File />
           </Oas.Operation>
@@ -81,6 +90,6 @@ describe('<Query/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchFileSnapshot('./__snapshots__/Query/showPetById.ts')
+    expect(output).toMatchFileSnapshot('./__snapshots__/gen/showPetById.ts')
   })
 })

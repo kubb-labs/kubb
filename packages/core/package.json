@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -104,6 +104,7 @@
     "find-up": "^7.0.0",
     "fs-extra": "^11.2.0",
     "js-runtime": "^0.0.7",
+    "lodash.merge": "^4.6.2",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
     "seedrandom": "^3.0.5",
@@ -116,8 +117,9 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.isequal": "^4.5.8",
+    "@types/lodash.merge": "^4.6.9",
     "@types/lodash.tonumber": "^4.0.9",
-    "@types/react": "^18.2.67",
+    "@types/react": "^18.2.69",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "eslint": "^8.57.0",
@@ -126,7 +128,7 @@
     "ora": "^8.0.1",
     "tinyrainbow": "^1.1.1",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

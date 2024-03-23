@@ -180,6 +180,18 @@ export const schemas: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'objectAnd',
+    schema: {
+      keyword: 'object',
+      args: {
+        entries: {
+          firstName: [{ keyword: 'string' }, { keyword: 'min', args: 2 }],
+          address: [{ keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' }],
+        },
+      },
+    },
+  },
+  {
     name: 'objectEmpty',
     schema: {
       keyword: schemaKeywords.object,

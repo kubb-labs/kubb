@@ -27,7 +27,7 @@ export function usePlaceOrderPatch(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<PlaceOrderPatch['response'], PlaceOrderPatch['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/store/order` as const
+  const url = `/store/order`
   return useSWRMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], typeof url | null>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {

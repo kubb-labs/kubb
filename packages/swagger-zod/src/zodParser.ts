@@ -48,12 +48,22 @@ export const zodKeywordMapper = {
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 
-function zodKeywordSorter(a: Schema, b: Schema): 1 | -1 | 0 {
-  if (b.keyword === schemaKeywords.null) {
-    return -1
+function sort(items?: Schema[]): Schema[] {
+  const order: string[] = [
+    schemaKeywords.object,
+    schemaKeywords.catchall,
+    schemaKeywords.describe,
+    schemaKeywords.optional,
+    schemaKeywords.nullable,
+    schemaKeywords.nullish,
+    schemaKeywords.null,
+  ]
+
+  if (!items) {
+    return []
   }
 
-  return 0
+  return transformers.orderBy(items, [(v) => order.indexOf(v.keyword)], ['asc'])
 }
 
 export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper = zodKeywordMapper): string | undefined {
@@ -65,7 +75,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
 
   if (isKeyword(item, schemaKeywords.tuple)) {
     return `${value}(${
-      Array.isArray(item.args) ? `[${item.args.map((tupleItem) => parseZodMeta(tupleItem, mapper)).filter(Boolean).join(',')}]` : parseZodMeta(item.args)
+      Array.isArray(item.args) ? `[${sort(item.args).map((tupleItem) => parseZodMeta(tupleItem, mapper)).filter(Boolean).join(',')}]` : parseZodMeta(item.args)
     })`
   }
 
@@ -85,7 +95,7 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}(${item.args.map((arrayItem) => parseZodMeta(arrayItem, mapper)).filter(Boolean).join('')})`
+    return `${value}(${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, mapper)).filter(Boolean).join('')})`
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
@@ -97,17 +107,19 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
       return ''
     }
 
-    return `${value}([${item.args.map((unionItem) => parseZodMeta(unionItem, mapper)).filter(Boolean).join(',')}])`
+    return `${value}([${sort(item.args).map((unionItem) => parseZodMeta(unionItem, mapper)).filter(Boolean).join(',')}])`
   }
 
   if (isKeyword(item, schemaKeywords.catchall)) {
     return `${value}(${
-      Array.isArray(item.args) ? `${item.args.map((catchAllItem) => parseZodMeta(catchAllItem, mapper)).filter(Boolean).join('')}` : parseZodMeta(item.args)
+      Array.isArray(item.args)
+        ? `${sort(item.args).map((catchAllItem) => parseZodMeta(catchAllItem, mapper)).filter(Boolean).join('')}`
+        : parseZodMeta(item.args)
     })`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return item.args.filter((item: Schema) => {
+    return sort(item.args).filter((item: Schema) => {
       return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
     })
       .map((item: Schema) => parseZodMeta(item, mapper))
@@ -125,9 +137,9 @@ export function parseZodMeta(item: Schema = {} as Schema, mapper: SchemaMapper =
       .map((item) => {
         const name = item[0]
         const schema = item[1]
+
         return `"${name}": ${
-          schema
-            .sort(zodKeywordSorter)
+          sort(schema)
             .map((item) => parseZodMeta(item, mapper))
             .filter(Boolean)
             .join('')
@@ -190,15 +202,17 @@ export function zodParser(
     return `export const ${options.name} = '';`
   }
 
+  const sortedItems = sort(items)
+
   const constName = `export const ${options.name}`
   const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
 
   if (options.keysToOmit?.length) {
     const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
     return `${constName} = ${
-      items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')
+      sortedItems.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')
     }${omitText}${typeName};`
   }
 
-  return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')}${typeName};`
+  return `${constName} = ${sortedItems.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).filter(Boolean).join('')}${typeName};`
 }

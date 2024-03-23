@@ -1,35 +1,57 @@
-import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type {
+  KubbFile,
+  Plugin,
+  PluginFactoryOptions,
+  ResolveNameParams,
+} from '@kubb/core'
+import type {
+  Exclude,
+  Include,
+  Override,
+  ResolvePathOptions,
+} from '@kubb/swagger'
+import type { HttpMethod } from '@kubb/swagger/oas'
 import type { Mutation } from './components/Mutation.tsx'
 import type { Operations } from './components/Operations.tsx'
 import type { Query as QueryTemplate } from './components/Query.tsx'
 import type { QueryKey } from './components/QueryKey.tsx'
-import type { QueryOptions } from './components/QueryOptions.tsx'
+import type { QueryOptions as QueryOptionsTemplate } from './components/QueryOptions.tsx'
 
 type Templates = {
   operations?: typeof Operations.templates | false
   mutation?: typeof Mutation.templates | false
   query?: typeof QueryTemplate.templates | false
-  queryOptions?: typeof QueryOptions.templates | false
+  queryOptions?: typeof QueryOptionsTemplate.templates | false
   queryKey?: typeof QueryKey.templates | false
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type Suspense = {}
+export type Suspense = object
 
 export type Query = {
   /**
    * Customize the queryKey, here you can specify a suffix.
    */
-  queryKey?: (key: unknown[]) => unknown[]
+  queryKey: (key: unknown[]) => unknown[]
+  /**
+   * Define which HttpMethods can be used for queries
+   * @default ['get']
+   */
+  methods: Array<HttpMethod>
 }
+
+export type QueryOptions = object
 
 export type Mutate = {
   /**
    * Define the way of passing through the queryParams, headerParams and data.
    * @default `'hook'`
    */
-  variablesType?: 'mutate' | 'hook'
+  variablesType: 'mutate' | 'hook'
+  /**
+   * Define which HttpMethods can be used for mutations
+   * @default ['post', 'put', 'delete']
+   */
+  methods: Array<HttpMethod>
 }
 
 export type Infinite = {
@@ -158,24 +180,28 @@ export type Options = {
   /**
    * When set, an infiniteQuery hooks will be added.
    */
-  infinite?: Partial<Infinite>
+  infinite?: Partial<Infinite> | false
   /**
    * When set, a suspenseQuery hooks will be added.
    */
-  suspense?: Suspense
+  suspense?: Partial<Suspense> | false
   /**
    * Override some useQuery behaviours.
    */
-  query?: Query
+  query?: Partial<Query> | false
+  queryOptions?: Partial<QueryOptions> | false
   /**
    * Override some useMutation behaviours.
    */
-  mutate?: Mutate
+  mutate?: Mutate | false
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    name?: (
+      name: ResolveNameParams['name'],
+      type?: ResolveNameParams['type'],
+    ) => string
   }
   /**
    * Make it possible to override one of the templates
@@ -194,10 +220,11 @@ type ResolvedOptions = {
   /**
    * Only used of infinite
    */
-  infinite: Infinite | undefined
-  suspense: Suspense | undefined
-  query: Query | undefined
-  mutate: Mutate | undefined
+  infinite: Infinite | false
+  suspense: Suspense | false
+  query: Query | false
+  queryOptions: QueryOptions | false
+  mutate: Mutate | false
   templates: NonNullable<Templates>
 }
 
@@ -206,7 +233,13 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<
+  'swagger-tanstack-query',
+  Options,
+  ResolvedOptions,
+  never,
+  ResolvePathOptions
+>
 
 declare module '@kubb/core' {
   export interface _Register {

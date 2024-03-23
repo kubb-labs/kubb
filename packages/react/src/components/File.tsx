@@ -5,7 +5,6 @@ import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '../types.ts'
 
 type BasePropsWithBaseName = {
-  key?: React.Key
   /**
    * Name to be used to dynamicly create the baseName(based on input.path).
    * Based on UNIX basename
@@ -19,7 +18,6 @@ type BasePropsWithBaseName = {
 }
 
 type BasePropsWithoutBaseName = {
-  key?: React.Key
   baseName?: never
   /**
    * Path will be full qualified path to a specified file.
@@ -74,7 +72,6 @@ type FileSourceUnionProps = {
 }
 
 type FileSourceProps = FileSourceUnionProps & {
-  key?: React.Key
   /**
    * When true, it will return the generated import.
    * When false, it will add the import to a KubbFile instance(see fileManager).
@@ -82,9 +79,9 @@ type FileSourceProps = FileSourceUnionProps & {
   print?: boolean
 }
 
-function FileSource({ key, path, print, children }: FileSourceProps): KubbNode {
+function FileSource({ path, print, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source key={key} path={path} print={print}>
+    <kubb-source path={path} print={print}>
       {children}
     </kubb-source>
   )

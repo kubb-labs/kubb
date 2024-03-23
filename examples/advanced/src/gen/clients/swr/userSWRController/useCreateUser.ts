@@ -27,7 +27,7 @@ export function useCreateUser(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUser['response'], CreateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user` as const
+  const url = `/user`
   return useSWRMutation<CreateUser['response'], CreateUser['error'], typeof url | null>(shouldFetch ? url : null, async (_url, { arg: data }) => {
     const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
       method: 'post',

@@ -4,7 +4,7 @@
 import ReactJSXRuntime from 'react/jsx-runtime'
 
 import type { KubbFile } from '@kubb/core'
-import type { Key, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 /**
  * TODO add for Server Components
  * import type {} from 'react/experimental'
@@ -18,13 +18,11 @@ declare global {
     interface IntrinsicElements {
       'kubb-text': {
         children?: ReactNode
-        key?: Key
       }
 
       'kubb-file': {
         id?: string
         children?: ReactNode
-        key?: Key
         baseName: string
         path: string
         env?: NodeJS.ProcessEnv
@@ -34,29 +32,24 @@ declare global {
 
       'kubb-source': {
         children?: ReactNode
-        key?: Key
         path?: string
         print?: boolean
       }
 
       'kubb-import': KubbFile.Import & {
-        key?: Key
         print?: boolean
       }
 
       'kubb-export': KubbFile.Export & {
-        key?: Key
         print?: boolean
       }
 
       'kubb-editor': {
         language?: string
-        key?: Key
         children?: ReactNode
       }
       'kubb-editor-provider': {
         language?: string
-        key?: Key
         children?: ReactNode
       }
     }
