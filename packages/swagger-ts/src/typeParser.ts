@@ -95,6 +95,7 @@ export const typeKeywordMapper = {
 type ParserOptions = {
   name: string
   typeName?: string
+  description?: string
   /**
    * @default `'questionToken'`
    */
@@ -193,14 +194,14 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         return factory.appendJSDocToNode({
           node: propertySignature,
           comments: [
-            describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined,
+            describeSchema ? `@description ${describeSchema.args}` : undefined,
             deprecatedSchema ? `@deprecated` : undefined,
             defaultSchema
-              ? `@default ${typeof defaultSchema.args === 'number' ? defaultSchema.args : transformers.stringify(defaultSchema.args as string)}`
+              ? `@default ${defaultSchema.args}`
               : undefined,
-            exampleSchema ? `@example ${transformers.stringify(exampleSchema.args)}` : undefined,
+            exampleSchema ? `@example ${exampleSchema.args}` : undefined,
             typeSchema
-              ? `@type ${transformers.stringify(typeSchema.args)}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
+              ? `@type ${typeSchema.args}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
               : undefined,
           ].filter(Boolean),
         })
@@ -261,7 +262,6 @@ export function typeParser(
   }
 
   const enumSchemas = findEnum(schemas)
-
   let type = schemas.map((schema) => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode
     || typeKeywordMapper.undefined()
 
@@ -303,15 +303,7 @@ export function typeParser(
     factory.appendJSDocToNode({
       node,
       comments: [
-        describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined,
-        deprecatedSchema ? `@deprecated` : undefined,
-        defaultSchema
-          ? `@default ${typeof defaultSchema.args === 'number' ? defaultSchema.args : transformers.stringify(defaultSchema.args as string)}`
-          : undefined,
-        exampleSchema ? `@example ${transformers.stringify(exampleSchema.args)}` : undefined,
-        typeSchema
-          ? `@type ${transformers.stringify(typeSchema.args)}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}`
-          : undefined,
+        options.description ? `@description ${options.description}` : undefined,
       ].filter(Boolean),
     }),
   )

@@ -19,12 +19,7 @@ export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .map((operationSchema) => {
         const generator = new TypeGenerator(this.options, this.context)
 
-        const sources = generator.build({
-          schema: operationSchema.schema,
-          baseName: operationSchema.name,
-          keysToOmit: operationSchema.keysToOmit,
-          operation: operationSchema.operation,
-        })
+        const sources = generator.build(operationSchema)
         importMeta.push(...generator.imports)
 
         return {

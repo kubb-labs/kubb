@@ -13,9 +13,10 @@ type Options = SchemaGeneratorOptions & {
 export class FakerGenerator extends SchemaGenerator<Options> {
   build({
     schema,
-    baseName,
+    name: baseName,
     operationName,
     operation,
+    description,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
     const input = this.getTypeFromSchema(schema, baseName)
@@ -26,6 +27,7 @@ export class FakerGenerator extends SchemaGenerator<Options> {
     const output = fakerParser(input, {
       name,
       typeName,
+      description,
       seed: this.options.seed,
     })
     // hack to add typescript imports

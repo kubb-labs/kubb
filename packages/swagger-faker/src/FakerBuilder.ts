@@ -18,12 +18,7 @@ export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new FakerGenerator(this.options, this.context)
-        const sources = generator.build({
-          schema: operationSchema.schema,
-          baseName: operationSchema.name,
-          operationName: operationSchema.operationName,
-          operation: operationSchema.operation,
-        })
+        const sources = generator.build(operationSchema)
 
         importMeta.push(...generator.imports)
 

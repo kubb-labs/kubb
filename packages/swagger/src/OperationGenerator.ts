@@ -240,10 +240,8 @@ export abstract class OperationGenerator<
 
         return {
           name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),
-          schema: {
-            description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
-            ...schema,
-          },
+          description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
+          schema,
           operation,
           operationName: transformers.pascalCase(`${operation.getOperationId()}`),
           statusCode: name === 'error' ? undefined : Number(statusCode),
@@ -282,12 +280,10 @@ export abstract class OperationGenerator<
       request: requestSchema
         ? {
           name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
-          schema: {
-            description: (operation.schema.requestBody as RequestBodyObject)?.description,
-            ...requestSchema,
-          },
+          description: (operation.schema.requestBody as RequestBodyObject)?.description,
           operation,
           operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+          schema: requestSchema,
           keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
           keysToOmit: requestSchema.properties
             ? Object.keys(requestSchema.properties).filter((key) => {
@@ -300,12 +296,10 @@ export abstract class OperationGenerator<
         : undefined,
       response: {
         name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
-        schema: {
-          description: operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.description,
-          ...responseSchema,
-        },
+        description: operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.description,
         operation,
         operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+        schema: responseSchema,
         statusCode: Number(responseStatusCode),
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
         keysToOmit: responseSchema?.properties

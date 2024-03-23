@@ -1,5 +1,4 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
-import { createRoot, Function } from '@kubb/react'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
@@ -74,6 +73,7 @@ function joinItems(items: string[]): string {
 type ParserOptions = {
   name: string
   typeName?: string
+  description?: string
 
   seed?: number | number[]
   withOverride?: boolean
@@ -191,8 +191,6 @@ export function fakerParser(
     schemas.map((item) => parseFakerMeta(item, { ...options, withOverride: true })).filter(Boolean),
   )
 
-  const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
-
   let fakerDefaultOverride: '' | '[]' | '{}' = ''
   let fakerTextWithOverride = fakerText
 
@@ -213,7 +211,7 @@ export function fakerParser(
   }
 
   const JSDoc = createJSDocBlockText({
-    comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean),
+    comments: [options.description ? `@description ${options.description}` : undefined].filter(Boolean),
   })
 
   return `

@@ -1,5 +1,4 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
-import { createNode, createRoot, Text } from '@kubb/react'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
@@ -72,6 +71,7 @@ function sort(items?: Schema[]): Schema[] {
 type ParserOptions = {
   name: string
   typeName?: string
+  description?: string
 
   keysToOmit?: string[]
   mapper?: typeof zodKeywordMapper
@@ -205,11 +205,10 @@ export function zodParser(
     return `export const ${options.name} = '';`
   }
 
-  const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
   const sortedSchemas = sort(schemas)
 
   const JSDoc = createJSDocBlockText({
-    comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean),
+    comments: [options.description ? `@description ${options.description}` : undefined].filter(Boolean),
   })
 
   const constName = `${JSDoc}export const ${options.name}`

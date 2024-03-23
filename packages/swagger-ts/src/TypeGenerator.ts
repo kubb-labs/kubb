@@ -14,7 +14,9 @@ type Options = SchemaGeneratorOptions & {
 export class TypeGenerator extends SchemaGenerator<Options> {
   build({
     schema,
-    baseName,
+    name: baseName,
+    keysToOmit,
+    description,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
     const input = this.getTypeFromSchema(schema, baseName)
@@ -25,8 +27,10 @@ export class TypeGenerator extends SchemaGenerator<Options> {
     const typeOutput = typeParser(input, {
       name,
       typeName,
+      description,
       enumType: this.options.enumType || 'asConst',
       optionalType: this.options.optionalType,
+      keysToOmit,
     })
 
     texts.push(typeOutput)

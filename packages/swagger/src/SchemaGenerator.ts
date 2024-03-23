@@ -9,7 +9,7 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { Oas, OasTypes, OpenAPIV3, Operation, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
-import type { ImportMeta, Refs } from './types.ts'
+import type { ImportMeta, OperationSchema, Refs } from './types.ts'
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
@@ -42,13 +42,7 @@ export type SchemaGeneratorOptions = {
   }
 }
 
-export type SchemaGeneratorBuildOptions = {
-  schema: OasTypes.SchemaObject
-  baseName: string
-  keysToOmit?: string[]
-  operationName?: string
-  operation?: Operation
-}
+export type SchemaGeneratorBuildOptions = OperationSchema
 
 export abstract class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
@@ -172,10 +166,6 @@ export abstract class SchemaGenerator<
       return [{ keyword: this.#unknownReturn }]
     }
 
-    if (isReference(schema)) {
-      return this.#getRefAlias(schema, baseName)
-    }
-
     const baseItems: Schema[] = []
 
     if (schema.default !== undefined && !Array.isArray(schema.default)) {
@@ -207,6 +197,10 @@ export abstract class SchemaGenerator<
 
     if (schema.readOnly) {
       baseItems.push({ keyword: schemaKeywords.readOnly })
+    }
+
+    if (isReference(schema)) {
+      return [...this.#getRefAlias(schema, baseName), ...baseItems]
     }
 
     if (schema.oneOf) {

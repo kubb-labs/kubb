@@ -31,7 +31,7 @@ export function useCreateUsersWithListInput(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/createWithList` as const
+  const url = `/user/createWithList`
   return useSWRMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], typeof url | null>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {

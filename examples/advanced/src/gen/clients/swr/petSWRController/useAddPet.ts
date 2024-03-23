@@ -28,7 +28,7 @@ export function useAddPet(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<AddPet['response'], AddPet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet` as const
+  const url = `/pet`
   return useSWRMutation<AddPet['response'], AddPet['error'], typeof url | null>(shouldFetch ? url : null, async (_url, { arg: data }) => {
     const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
       method: 'post',

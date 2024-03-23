@@ -29,13 +29,13 @@ describe('FakeGenerator enums', async () => {
   const schemas = oas.getDefinition().components?.schemas
 
   test('generate x-enum-varnames types', async () => {
-    const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })
+    const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, name: 'enumVarNames' })
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate x-enumNames types', async () => {
-    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
 
     expect(node).toMatchSnapshot()
   })

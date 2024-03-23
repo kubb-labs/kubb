@@ -9,9 +9,10 @@ import type { SchemaGeneratorBuildOptions } from '@kubb/swagger'
 export class ZodGenerator extends SchemaGenerator {
   build({
     schema,
-    baseName,
+    name: baseName,
     keysToOmit,
     operation,
+    description,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
     const input = this.getTypeFromSchema(schema, baseName)
@@ -24,6 +25,7 @@ export class ZodGenerator extends SchemaGenerator {
     const output = zodParser(input, {
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
+      description,
       typeName: withTypeAnnotation
         ? typeName
         : undefined,

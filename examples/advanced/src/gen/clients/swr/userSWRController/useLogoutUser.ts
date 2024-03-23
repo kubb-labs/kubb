@@ -41,7 +41,7 @@ export function useLogoutUser<TData = LogoutUser['response']>(options?: {
   shouldFetch?: boolean
 }): SWRResponse<TData, LogoutUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/logout` as const
+  const url = `/user/logout`
   const query = useSWR<TData, LogoutUser['error'], typeof url | null>(shouldFetch ? url : null, {
     ...logoutUserQueryOptions<TData>(clientOptions),
     ...queryOptions,
