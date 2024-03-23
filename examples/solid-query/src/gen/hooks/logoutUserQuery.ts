@@ -37,7 +37,8 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
     query?: Partial<CreateBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>

@@ -25,7 +25,8 @@ type CreatePets = {
 }
 /**
  * @summary Create a pet
- * @link /pets/:uuid */
+ * @link /pets/:uuid
+ */
 export function useCreatePets(options: {
   mutation?: UseMutationOptions<CreatePets['response'], CreatePets['error'], {
     uuid: CreatePetsPathParams['uuid']

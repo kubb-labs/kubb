@@ -43,7 +43,8 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   refPetId: GetPetByIdPathParams['petId'],
   options: {

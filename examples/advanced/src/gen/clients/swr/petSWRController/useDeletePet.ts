@@ -20,7 +20,8 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useDeletePet(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options?: {
   mutation?: SWRMutationConfiguration<DeletePet['response'], DeletePet['error']>
   client?: DeletePet['client']['parameters']

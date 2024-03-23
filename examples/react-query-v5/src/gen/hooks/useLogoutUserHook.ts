@@ -35,7 +35,8 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
     query?: Partial<QueryObserverOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
@@ -74,7 +75,8 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(options: {
   query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
   client?: LogoutUser['client']['parameters']

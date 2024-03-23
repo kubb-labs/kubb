@@ -48,7 +48,8 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags */
+ * @link /pet/findByTags
+ */
 export function findPetsByTagsQuery<
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
@@ -101,7 +102,8 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags */
+ * @link /pet/findByTags
+ */
 export function findPetsByTagsQueryInfinite<
   TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],

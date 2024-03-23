@@ -36,7 +36,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatus<TData = FindPetsByStatus['response']>(
   params?: FindPetsByStatus['queryParams'],
   options?: {

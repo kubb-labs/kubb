@@ -20,7 +20,8 @@ type CreateUsersWithListInput = {
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
- * @link /user/createWithList */
+ * @link /user/createWithList
+ */
 export function createUsersWithListInputQuery(
   options: {
     mutation?: CreateMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>

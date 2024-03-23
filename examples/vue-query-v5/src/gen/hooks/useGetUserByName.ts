@@ -39,7 +39,8 @@ export function getUserByNameQueryOptions(refUsername: MaybeRef<GetUserByNamePat
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   refUsername: GetUserByNamePathParams['username'],
   options: {

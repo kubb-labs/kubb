@@ -34,7 +34,8 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByName<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options?: {

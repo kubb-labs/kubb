@@ -20,7 +20,8 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useDeletePet(options: {
   mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], {
     petId: DeletePetPathParams['petId']

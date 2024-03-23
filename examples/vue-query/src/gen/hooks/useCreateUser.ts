@@ -21,7 +21,8 @@ type CreateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user */
+ * @link /user
+ */
 export function useCreateUser(
   options: {
     mutation?: VueMutationObserverOptions<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>

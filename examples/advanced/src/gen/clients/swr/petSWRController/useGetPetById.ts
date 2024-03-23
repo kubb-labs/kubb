@@ -35,7 +35,8 @@ export function getPetByIdQueryOptions<TData = GetPetById['response']>(
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useGetPetById<TData = GetPetById['response']>(petId: GetPetByIdPathParams['petId'], options?: {
   query?: SWRConfiguration<TData, GetPetById['error']>
   client?: GetPetById['client']['parameters']

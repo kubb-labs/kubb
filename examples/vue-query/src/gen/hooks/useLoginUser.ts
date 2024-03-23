@@ -43,7 +43,8 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {

@@ -47,7 +47,8 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {
@@ -91,7 +92,8 @@ export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['respons
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByNameInfinite<
   TData = InfiniteData<GetUserByName['response']>,
   TQueryData = GetUserByName['response'],

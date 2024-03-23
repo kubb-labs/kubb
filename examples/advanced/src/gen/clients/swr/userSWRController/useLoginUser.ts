@@ -35,14 +35,15 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUser<TData = LoginUser['response']>(params?: LoginUser['queryParams'], options?: {
   query?: SWRConfiguration<TData, LoginUser['error']>
   client?: LoginUser['client']['parameters']
   shouldFetch?: boolean
 }): SWRResponse<TData, LoginUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/login`
+  const url = `/user/login` as const
   const query = useSWR<
     TData,
     LoginUser['error'],

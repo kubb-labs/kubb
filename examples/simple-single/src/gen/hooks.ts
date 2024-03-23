@@ -85,7 +85,8 @@ type UpdatePet = {
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet */
+ * @link /pet
+ */
 export function useUpdatePet(options: {
   mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
   client?: UpdatePet['client']['parameters']
@@ -122,7 +123,8 @@ type AddPet = {
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet */
+ * @link /pet
+ */
 export function useAddPet(options: {
   mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
   client?: AddPet['client']['parameters']
@@ -179,7 +181,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatus<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
@@ -240,7 +243,8 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags */
+ * @link /pet/findByTags
+ */
 export function useFindPetsByTags<
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
@@ -300,7 +304,8 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
@@ -339,7 +344,8 @@ type UpdatePetWithForm = {
 }
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
   mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
   client?: UpdatePetWithForm['client']['parameters']
@@ -376,7 +382,8 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useDeletePet(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
   mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
   client?: DeletePet['client']['parameters']
@@ -412,7 +419,8 @@ type UploadFile = {
 }
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage */
+ * @link /pet/:petId/uploadImage
+ */
 export function useUploadFile(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
   mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
   client?: UploadFile['client']['parameters']
@@ -468,7 +476,8 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory */
+ * @link /store/inventory
+ */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
     query?: Partial<UseBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
@@ -507,7 +516,8 @@ type PlaceOrder = {
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order */
+ * @link /store/order
+ */
 export function usePlaceOrder(options: {
   mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
   client?: PlaceOrder['client']['parameters']
@@ -544,7 +554,8 @@ type PlaceOrderPatch = {
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order */
+ * @link /store/order
+ */
 export function usePlaceOrderPatch(options: {
   mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
   client?: PlaceOrderPatch['client']['parameters']
@@ -600,7 +611,8 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId */
+ * @link /store/order/:orderId
+ */
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
@@ -640,7 +652,8 @@ type DeleteOrder = {
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId */
+ * @link /store/order/:orderId
+ */
 export function useDeleteOrder(orderId: DeleteOrderPathParams['orderId'], options: {
   mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
   client?: DeleteOrder['client']['parameters']
@@ -676,7 +689,8 @@ type CreateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user */
+ * @link /user
+ */
 export function useCreateUser(options: {
   mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
   client?: CreateUser['client']['parameters']
@@ -713,7 +727,8 @@ type CreateUsersWithListInput = {
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
- * @link /user/createWithList */
+ * @link /user/createWithList
+ */
 export function useCreateUsersWithListInput(options: {
   mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['parameters']
@@ -769,7 +784,8 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
@@ -826,7 +842,8 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(options: {
   query?: Partial<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
   client?: LogoutUser['client']['parameters']
@@ -881,7 +898,8 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {
@@ -921,7 +939,8 @@ type UpdateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useUpdateUser(username: UpdateUserPathParams['username'], options: {
   mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
   client?: UpdateUser['client']['parameters']
@@ -958,7 +977,8 @@ type DeleteUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useDeleteUser(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
   client?: DeleteUser['client']['parameters']

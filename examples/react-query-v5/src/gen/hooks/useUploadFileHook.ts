@@ -20,7 +20,8 @@ type UploadFile = {
 }
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage */
+ * @link /pet/:petId/uploadImage
+ */
 export function useUploadFileHook(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
   mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
   client?: UploadFile['client']['parameters']

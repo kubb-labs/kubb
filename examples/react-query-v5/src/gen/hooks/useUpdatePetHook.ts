@@ -21,7 +21,8 @@ type UpdatePet = {
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet */
+ * @link /pet
+ */
 export function useUpdatePetHook(options: {
   mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
   client?: UpdatePet['client']['parameters']

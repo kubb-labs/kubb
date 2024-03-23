@@ -46,7 +46,8 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory */
+ * @link /store/inventory
+ */
 export function getInventoryQuery<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
     query?: Partial<CreateBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
@@ -88,7 +89,8 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory */
+ * @link /store/inventory
+ */
 export function getInventoryQueryInfinite<
   TData = InfiniteData<GetInventory['response']>,
   TQueryData = GetInventory['response'],

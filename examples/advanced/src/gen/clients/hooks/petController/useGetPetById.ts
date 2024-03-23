@@ -48,7 +48,8 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
@@ -92,7 +93,8 @@ export function getPetByIdInfiniteQueryOptions<TData = GetPetById['response'], T
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useGetPetByIdInfinite<
   TData = InfiniteData<GetPetById['response']>,
   TQueryData = GetPetById['response'],

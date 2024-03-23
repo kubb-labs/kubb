@@ -25,7 +25,8 @@ type CreatePets = {
 }
 /**
  * @summary Create a pet
- * @link /pets/:uuid */
+ * @link /pets/:uuid
+ */
 export function useCreatePets(uuid: CreatePetsPathParams['uuid'], params?: CreatePets['queryParams'], headers?: CreatePets['headerParams'], options?: {
   mutation?: SWRMutationConfiguration<CreatePets['response'], CreatePets['error']>
   client?: CreatePets['client']['parameters']

@@ -20,7 +20,8 @@ type UpdatePet = {
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet */
+ * @link /pet
+ */
 export function updatePetQuery(
   options: {
     mutation?: CreateMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
