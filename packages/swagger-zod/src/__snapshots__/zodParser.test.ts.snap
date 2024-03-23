@@ -62,10 +62,24 @@ exports[`parseZodMeta > 'unionOne' 1`] = `"z.string()"`;
 
 exports[`parseZodMeta > 'unknown' 1`] = `"z.unknown()"`;
 
-exports[`zodParser > 'Object' 1`] = `"export const Object = z.object({"firstName": .default(test).min(2)z.string(),"age": .default(2).min(2)z.number(),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable();"`;
+exports[`zodParser > 'Object' 1`] = `
+"/**
+ * @description "Your address"
+ */
+export const Object = z.object({"firstName": .default(test).min(2)z.string(),"age": .default(2).min(2)z.number(),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()"
+`;
 
-exports[`zodParser > 'Order' 1`] = `"export const Order = z.object({"status": z.enum(["placed", "approved"])});"`;
+exports[`zodParser > 'Order' 1`] = `
+"
+export const Order = z.object({"status": z.enum(["placed", "approved"])})"
+`;
 
-exports[`zodParser > 'Record' 1`] = `"export const Record = z.object({}).catchall(z.number()).optional();"`;
+exports[`zodParser > 'Record' 1`] = `
+"
+export const Record = z.object({}).catchall(z.number()).optional()"
+`;
 
-exports[`zodParser > 'Upload' 1`] = `"export const Upload = ;"`;
+exports[`zodParser > 'Upload' 1`] = `
+"
+export const Upload = undefined"
+`;

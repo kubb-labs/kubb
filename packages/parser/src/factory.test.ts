@@ -134,7 +134,7 @@ describe('codegen', () => {
       await formatTS(
         createJSDoc({
           comments: ['@description description', '@example example'],
-        }),
+        })!,
       ),
     ).toMatchSnapshot()
   })

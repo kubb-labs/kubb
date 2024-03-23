@@ -1,9 +1,8 @@
-import transformers from '@kubb/core/transformers'
-import { SchemaGenerator, schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
-import { zodParser } from './zodParser.ts'
+import { zodParser } from './zodParser.tsx'
 
 import type { SchemaGeneratorBuildOptions } from '@kubb/swagger'
 

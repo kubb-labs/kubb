@@ -1,7 +1,8 @@
-import transformers from '@kubb/core/transformers'
+import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
+import { createRoot, Function } from '@kubb/react'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
 
 export const fakerKeywordMapper = {
   any: 'undefined',
@@ -183,12 +184,14 @@ export function parseFakerMeta(
 }
 
 export function fakerParser(
-  items: Schema[],
+  schemas: Schema[],
   options: ParserOptions,
 ): string {
   const fakerText = joinItems(
-    items.map((item) => parseFakerMeta(item, { ...options, withOverride: true })).filter(Boolean),
+    schemas.map((item) => parseFakerMeta(item, { ...options, withOverride: true })).filter(Boolean),
   )
+
+  const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
 
   let fakerDefaultOverride: '' | '[]' | '{}' = ''
   let fakerTextWithOverride = fakerText
@@ -208,9 +211,13 @@ export function fakerParser(
       ...override
     ]`
   }
-  // TODO add jsdocs
+
+  const JSDoc = createJSDocBlockText({
+    comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean),
+  })
 
   return `
+${JSDoc}
 export function ${options.name}(${
     fakerDefaultOverride
       ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
@@ -220,4 +227,24 @@ export function ${options.name}(${
   return ${fakerTextWithOverride};
 }
   `
+
+  // const root = createRoot()
+
+  // root.render(
+  //   <Function
+  //     export
+  //     name={options.name}
+  //     JSDoc={{ comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean) }}
+  //     params={fakerDefaultOverride
+  //       ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
+  //       : `override?: NonNullable<Partial<${options.typeName}>>`}
+  //     returnType={options.typeName ? `NonNullable<${options.typeName}>` : ''}
+  //   >
+  //     {options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
+
+  //     {`return ${fakerTextWithOverride}`}
+  //   </Function>,
+  // )
+
+  // return root.output
 }

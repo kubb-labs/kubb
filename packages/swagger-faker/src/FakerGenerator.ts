@@ -1,7 +1,7 @@
 import { SchemaGenerator } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
-import { fakerParser } from './fakerParser.ts'
+import { fakerParser } from './fakerParser.tsx'
 import { pluginKey } from './plugin.ts'
 
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions } from '@kubb/swagger'

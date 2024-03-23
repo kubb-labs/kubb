@@ -1,5 +1,5 @@
 import { schemas } from '../../swagger/mocks/schemas.ts'
-import { parseZodMeta, zodParser } from './zodParser.ts'
+import { parseZodMeta, zodParser } from './zodParser.tsx'
 
 describe('parseZodMeta', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

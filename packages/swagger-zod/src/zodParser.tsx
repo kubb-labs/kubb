@@ -1,7 +1,8 @@
-import transformers from '@kubb/core/transformers'
+import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
+import { createNode, createRoot, Text } from '@kubb/react'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
 
 export const zodKeywordMapper = {
   any: 'z.any',
@@ -186,10 +187,6 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
     }
   }
 
-  // if (isKeyword(item, schemaKeywords.optional)) {
-  // return undefined
-  // }
-
   if (item.keyword in mapper && 'args' in item) {
     return `${value}(${(item as SchemaKeywordBase<unknown>).args as string})`
   }
@@ -201,22 +198,57 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
   return undefined
 }
 export function zodParser(
-  items: Schema[],
+  schemas: Schema[],
   options: ParserOptions,
 ): string {
-  if (!items.length) {
+  if (!schemas.length) {
     return `export const ${options.name} = '';`
   }
 
-  const sortedItems = sort(items)
+  const describeSchema = schemas.find(item => item.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+  const sortedSchemas = sort(schemas)
 
-  const constName = `export const ${options.name}`
+  const JSDoc = createJSDocBlockText({
+    comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean),
+  })
+
+  const constName = `${JSDoc}export const ${options.name}`
   const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
 
   if (options.keysToOmit?.length) {
     const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
-    return `${constName} = ${sortedItems.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${omitText}${typeName};`
+    return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${omitText}${typeName};`
   }
 
-  return `${constName} = ${sortedItems.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${typeName};`
+  return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${typeName};`
+
+  // const root = createRoot()
+
+  // if (!schemas.length) {
+  //   root.render(
+  //     <Text.Const
+  //       export
+  //       name={options.name}
+  //       JSDoc={{ comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean) }}
+  //     >
+  //       {'undefined'}
+  //     </Text.Const>,
+  //   )
+  // } else {
+  //   root.render(
+  //     <Text.Const
+  //       export
+  //       name={options.name}
+  //       JSDoc={{ comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean) }}
+  //     >
+  //       {[
+  //         sortedItems.map((item) => parseZodMeta(item, options)).filter(Boolean).join(''),
+  //         options.keysToOmit?.length ? `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
+  //         options.typeName ? ` as z.ZodType<${options.typeName}>` : '',
+  //       ].filter(Boolean).join('') || ''}
+  //     </Text.Const>,
+  //   )
+  // }
+
+  // return root.output
 }

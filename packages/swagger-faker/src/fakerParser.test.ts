@@ -1,5 +1,6 @@
-import { schemas } from '../../swagger/mocks/schemas.ts'
-import { fakerParser, parseFakerMeta } from './fakerParser.ts'
+import { schemas } from '@kubb/swagger/mocks/schemas.js'
+
+import { fakerParser, parseFakerMeta } from './fakerParser.tsx'
 
 describe('parseFakerMeta', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

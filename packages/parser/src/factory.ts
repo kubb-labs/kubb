@@ -206,9 +206,12 @@ export function createParameterSignature(
 }
 
 export function createJSDoc({ comments }: { comments: string[] }) {
+  if (!comments.length) {
+    return null
+  }
   return factory.createJSDocComment(
     factory.createNodeArray(
-      comments?.map((comment, i) => {
+      comments.map((comment, i) => {
         if (i === comments.length - 1) {
           return factory.createJSDocText(comment)
         }
