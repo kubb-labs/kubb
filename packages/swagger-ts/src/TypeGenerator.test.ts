@@ -338,14 +338,32 @@ describe('TypeGenerator enums', async () => {
 
   const schemas = oas.getDefinition().components?.schemas
 
-  test('generate x-enum-varnames types', async () => {
+  test('generate x-enum-varnames Type', async () => {
     const node = defaultGenerator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, name: 'enumVarNames' })
 
     expect(node).toMatchSnapshot()
   })
 
-  test('generate x-enumNames types', async () => {
+  test('generate x-enumNames Type', async () => {
     const node = defaultGenerator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum Items', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.Items'] as OasTypes.SchemaObject, name: 'enumItems' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum String', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.String'] as OasTypes.SchemaObject, name: 'enumString' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum InObject', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.InObject'] as OasTypes.SchemaObject, name: 'enumObject' })
 
     expect(node).toMatchSnapshot()
   })

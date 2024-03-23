@@ -64,18 +64,43 @@ export abstract class SchemaGenerator<
     return this.options.transformers.schema?.(schema, baseName) || this.#getBaseTypeFromSchema(schema, baseName) || []
   }
 
-  static getEnum(items: Schema[]): SchemaKeywordMapper['enum'][] {
+  static getEnum(items?: Schema[]): SchemaKeywordMapper['enum'][] {
     const enums: SchemaKeywordMapper['enum'][] = []
 
-    items.forEach(item => {
+    items?.forEach(item => {
       if (item.keyword === schemaKeywords.enum) {
         enums.push(item as SchemaKeywordMapper['enum'])
       }
 
       if (item.keyword === schemaKeywords.object) {
         const subItem = item as SchemaKeywordMapper['object']
-        return Object.values(subItem.args.properties).forEach(entrySchema => {
+
+        Object.values(subItem.args?.properties || {}).forEach(entrySchema => {
           enums.push(...SchemaGenerator.getEnum(entrySchema))
+        })
+      }
+
+      if (item.keyword === schemaKeywords.array) {
+        const subItem = item as SchemaKeywordMapper['array']
+
+        subItem.args.items.forEach(entrySchema => {
+          enums.push(...SchemaGenerator.getEnum([entrySchema]))
+        })
+      }
+
+      if (item.keyword === schemaKeywords.and) {
+        const subItem = item as SchemaKeywordMapper['and']
+
+        subItem.args.forEach(entrySchema => {
+          enums.push(...SchemaGenerator.getEnum([entrySchema]))
+        })
+      }
+
+      if (item.keyword === schemaKeywords.tuple) {
+        const subItem = item as SchemaKeywordMapper['tuple']
+
+        subItem.args.forEach(entrySchema => {
+          enums.push(...SchemaGenerator.getEnum([entrySchema]))
         })
       }
     })
@@ -384,16 +409,15 @@ export abstract class SchemaGenerator<
       const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
-      if (max !== undefined) {
-        baseItems.unshift({ keyword: schemaKeywords.max, args: max })
-      }
-
-      if (min !== undefined) {
-        baseItems.unshift({ keyword: schemaKeywords.min, args: min })
-      }
-
       // items -> array
-      return [{ keyword: schemaKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }, ...baseItems]
+      return [{
+        keyword: schemaKeywords.array,
+        args: {
+          items: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName),
+          min,
+          max,
+        },
+      }, ...baseItems]
     }
 
     if ('prefixItems' in schema) {

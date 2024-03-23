@@ -6,6 +6,8 @@ exports[`parseZodMeta > 'any' 1`] = `"z.any()"`;
 
 exports[`parseZodMeta > 'array' 1`] = `"z.array(z.string(), z.number())"`;
 
+exports[`parseZodMeta > 'arrayAdvanced' 1`] = `"z.array(z.string(), z.number()).min(3).max(10)"`;
+
 exports[`parseZodMeta > 'arrayEmpty' 1`] = `"z.array()"`;
 
 exports[`parseZodMeta > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet))"`;

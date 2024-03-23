@@ -26,7 +26,6 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
     spinner.warn(c.yellow(error.message))
     process.exit(0)
   }
-
   spinner.fail(message)
   process.exit(1)
 }

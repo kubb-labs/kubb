@@ -127,21 +127,38 @@ const basic: Array<{ name: string; schema: Schema }> = [
     name: 'array',
     schema: {
       keyword: schemaKeywords.array,
-      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+      args: {
+        items: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+      },
     },
   },
   {
     name: 'arrayEmpty',
     schema: {
       keyword: schemaKeywords.array,
-      args: [],
+      args: {
+        items: [],
+      },
     },
   },
   {
     name: 'arrayRef',
     schema: {
       keyword: schemaKeywords.array,
-      args: [{ keyword: 'ref', args: { name: 'Pet' } }],
+      args: {
+        items: [{ keyword: schemaKeywords.ref, args: { name: 'Pet' } }],
+      },
+    },
+  },
+  {
+    name: 'arrayAdvanced',
+    schema: {
+      keyword: schemaKeywords.array,
+      args: {
+        items: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+        min: 3,
+        max: 10,
+      },
     },
   },
   {
@@ -164,7 +181,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.object,
       args: {
         properties: {},
-        additionalProperties: [{ keyword: 'ref', args: { name: 'Pet' } }],
+        additionalProperties: [{ keyword: schemaKeywords.ref, args: { name: 'Pet' } }],
       },
     },
   },

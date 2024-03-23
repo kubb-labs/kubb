@@ -20,17 +20,18 @@ export const prettyError = new PrettyError()
   } as PrettyError.Callback)
   .start()
 
-function getErrorCauses(errors: Error[]): string[] {
+function getErrorCauses(errors: Error[]): Error[] {
   return errors
     .reduce((prev, error) => {
       const causedError = error?.cause as Error
       if (causedError) {
         prev = [...prev, ...getErrorCauses([causedError])]
+        return prev
       }
-      prev = [...prev, prettyError.render(error)]
+      prev = [...prev, error]
 
       return prev
-    }, [] as string[])
+    }, [] as Error[])
     .filter(Boolean)
 }
 
@@ -51,5 +52,9 @@ export function renderErrors(error: Error | undefined, { logLevel = LogLevel.sil
 
   const errors = getErrorCauses([error])
 
-  return errors.filter(Boolean).join('\n')
+  if (logLevel === LogLevel.debug) {
+    console.log(errors)
+  }
+
+  return errors.filter(Boolean).map(error => prettyError.render(error)).join('\n')
 }

@@ -45,6 +45,7 @@ export const fakerKeywordMapper = {
   example: undefined,
   type: undefined,
   format: undefined,
+  catchall: undefined,
 } satisfies SchemaMapper
 
 /**
@@ -100,7 +101,7 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}([${item.args.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean).join(',')}]) as any`
+    return `${value}([${item.args.items.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean).join(',')}]) as any`
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
@@ -127,7 +128,7 @@ export function parseFakerMeta(
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
-    const argsObject = Object.entries(item.args.properties)
+    const argsObject = Object.entries(item.args?.properties || {})
       .filter((item) => {
         const schema = item[1]
         return schema && typeof schema.map === 'function'

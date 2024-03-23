@@ -55,6 +55,8 @@ exports[`parseFakerMeta > 'any' 1`] = `"undefined"`;
 
 exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
 
+exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+
 exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
 exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;

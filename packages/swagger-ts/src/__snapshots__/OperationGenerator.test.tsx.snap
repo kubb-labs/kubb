@@ -17,8 +17,8 @@ export type DeletePetPetidMutation = {
 `;
 
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`] = `
-"import { Pets } from "./Pets";
-import { Error } from "./Error";
+"import type { Pets } from "./Pets";
+import type { Error } from "./Error";
 
  /**
  * @description A paged array of pets
@@ -50,8 +50,8 @@ export type ListPetsQuery = {
 `;
 
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`] = `
-"import { Pet } from "./Pet";
-import { Error } from "./Error";
+"import type { Pet } from "./Pet";
+import type { Error } from "./Error";
 
  /**
  * @description Expected response to a valid request
@@ -88,8 +88,8 @@ export type ShowPetByIdQuery = {
 `;
 
 exports[`OperationGenerator > [POST] /pets 201 1`] = `
-"import { Error } from "./Error";
-import { ErrorCode } from "./ErrorCode";
+"import type { Error } from "./Error";
+import type { ErrorCode } from "./ErrorCode";
 
  /**
  * @description Null response

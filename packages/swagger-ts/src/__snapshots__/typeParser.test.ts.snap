@@ -15,6 +15,11 @@ exports[`parseTypeMeta > 'array' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'arrayAdvanced' 1`] = `
+"Array<string | number>
+"
+`;
+
 exports[`parseTypeMeta > 'arrayEmpty' 1`] = `
 "[
 ]

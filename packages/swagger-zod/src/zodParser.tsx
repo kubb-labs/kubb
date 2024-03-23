@@ -45,6 +45,7 @@ export const zodKeywordMapper = {
   example: undefined,
   type: undefined,
   format: undefined,
+  catchall: '.catchall',
 } satisfies SchemaMapper
 
 /**
@@ -108,7 +109,11 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}(${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')})`
+    return [
+      `${value}(${sort(item.args.items).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')})`,
+      item.args.min ? `${mapper.min}(${item.args.min})` : undefined,
+      item.args.max ? `${mapper.max}(${item.args.max})` : undefined,
+    ].filter(Boolean).join('')
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
@@ -138,7 +143,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
-    const properties = Object.entries(item.args.properties)
+    const properties = Object.entries(item.args?.properties || {})
       .filter((item) => {
         const schema = item[1]
         return schema && typeof schema.map === 'function'
@@ -156,17 +161,17 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
       })
       .join(',')
 
-    const additionalProperties = item.args.additionalProperties.length
+    const additionalProperties = item.args?.additionalProperties.length
       ? item.args.additionalProperties.map(schema => parseZodMeta(schema, options)).filter(Boolean).at(0)
       : undefined
 
     const text = [
       `${value}({${properties}})`,
-      item.args.strict ? 'strict()' : undefined,
-      additionalProperties ? `catchall(${additionalProperties})` : undefined,
+      item.args?.strict ? `${mapper.strict}()` : undefined,
+      additionalProperties ? `${mapper.catchall}(${additionalProperties})` : undefined,
     ].filter(Boolean)
 
-    return text.join('.')
+    return text.join('')
   }
 
   if (isKeyword(item, schemaKeywords.tuple)) {

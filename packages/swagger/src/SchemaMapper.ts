@@ -12,7 +12,7 @@ export type SchemaKeywordMapper = {
   date: { keyword: 'date' }
   datetime: { keyword: 'datetime' }
   tuple: { keyword: 'tuple'; args: Schema[] }
-  array: { keyword: 'array'; args: Schema[] }
+  array: { keyword: 'array'; args: { items: Schema[]; min?: number; max?: number } }
   enum: {
     keyword: 'enum'
     args: {
@@ -51,6 +51,7 @@ export type SchemaKeywordMapper = {
     args: string
   }
   format: { keyword: 'format'; args: string }
+  catchall: { keyword: 'catchall' }
 }
 
 export const schemaKeywords = {
@@ -98,6 +99,7 @@ export const schemaKeywords = {
   example: 'example',
   type: 'type',
   format: 'format',
+  catchall: 'catchall',
 } satisfies { [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword'] }
 
 export type SchemaKeyword = keyof SchemaKeywordMapper

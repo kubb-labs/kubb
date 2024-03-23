@@ -90,6 +90,7 @@ export const typeKeywordMapper = {
   example: undefined,
   type: undefined,
   format: undefined,
+  catchall: undefined,
 } satisfies SchemaMapper<(ctx?: any) => ts.Node | null | undefined>
 
 type ParserOptions = {
@@ -128,7 +129,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
 
   if (isKeyword(item, schemaKeywords.array)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['array']
-    return value(item.args.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
+    return value(item.args.items.map(orItem => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
@@ -148,7 +149,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
   if (isKeyword(item, schemaKeywords.object)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['object']
 
-    const properties = Object.entries(item.args.properties)
+    const properties = Object.entries(item.args?.properties || {})
       .filter((item) => {
         const schemas = item[1]
         return schemas && typeof schemas.map === 'function'
@@ -207,7 +208,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         })
       })
 
-    const additionalProperties = item.args.additionalProperties.length
+    const additionalProperties = item.args?.additionalProperties.length
       ? factory.createIndexSignature(item.args.additionalProperties.map(schema => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode)
       : undefined
 
