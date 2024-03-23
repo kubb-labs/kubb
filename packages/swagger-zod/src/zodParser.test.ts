@@ -183,7 +183,7 @@ const input = [
         },
       },
     }),
-    expected: 'z.object({"firstName": z.string().min(2),"address": z.string().nullable().describe("Your address")})',
+    expected: 'z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})',
   },
   {
     input: parseZodMeta({
