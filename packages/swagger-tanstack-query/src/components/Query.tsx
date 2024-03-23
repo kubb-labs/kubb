@@ -4,7 +4,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
 import {
   useOperation,
-  useOperationFile,
+  useGetOperationFile,
   useOperationName,
   useSchemas,
 } from '@kubb/swagger/hooks'
@@ -577,10 +577,9 @@ Query.File = function({
   } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
-
-  const fileZodSchemas = useOperationFile({ pluginKey: swaggerZodPluginKey })
+  const file = useGetOperationFile()
+  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
+  const fileZodSchemas = useGetOperationFile({ pluginKey: swaggerZodPluginKey })
   const zodResponseName = useResolveName({
     name: schemas.response.name,
     pluginKey: swaggerZodPluginKey,

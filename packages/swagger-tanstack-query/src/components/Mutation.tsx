@@ -4,7 +4,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
 import {
   useOperation,
-  useOperationFile,
+  useGetOperationFile,
   useOperationName,
   useSchemas,
 } from '@kubb/swagger/hooks'
@@ -443,8 +443,8 @@ Mutation.File = function({
     },
   } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const file = useGetOperationFile()
+  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
   const factoryName = useOperationName({ type: 'type' })
 
   const importNames = getImportNames()

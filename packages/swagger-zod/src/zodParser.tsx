@@ -1,7 +1,7 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
 import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
 
 export const zodKeywordMapper = {
   any: 'z.any',

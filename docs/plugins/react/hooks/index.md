@@ -127,7 +127,7 @@ function Component() {
 
 ## useFile
 
-With `useFile` you can get all props needed to create a file(path, baseName, source).
+With `useFile` you can get the context of the current file(basePath, name, ...)
 
 ::: code-group
 
@@ -136,7 +136,24 @@ import { File, useFile } from '@kubb/react'
 
 function Component() {
   const pluginName = 'custom-plugin'
-  const file = useFile({
+  const file = useFile()
+
+  return file.baseName
+}
+```
+
+## useGetFile
+
+With `useGetFile` you can get all props needed to create a file(path, baseName, source).
+
+::: code-group
+
+```typescript
+import { File, useGetFile } from '@kubb/react'
+
+function Component() {
+  const pluginName = 'custom-plugin'
+  const file = useGetFile({
     name: 'fileName' // no extension needed
     pluginKey: [pluginName],
     options: {

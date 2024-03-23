@@ -1,6 +1,11 @@
 import type { Pet } from '../Pet'
 
 /**
+ * @description successful operation
+ */
+export type FindPetsByTags200 = Pet[]
+
+/**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any
@@ -36,11 +41,6 @@ export type FindPetsByTagsQueryParams = {
    */
   pageSize?: string
 }
-
-/**
- * @description successful operation
- */
-export type FindPetsByTags200 = Pet[]
 
 /**
  * @description successful operation

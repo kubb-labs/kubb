@@ -1,4 +1,4 @@
-import type { GetInventory200, GetInventoryQueryResponse } from '../../models/GetInventory'
+import { GetInventory200, GetInventoryQueryResponse } from '../../models/GetInventory'
 
 /**
  * @description successful operation

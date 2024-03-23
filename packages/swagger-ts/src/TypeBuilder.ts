@@ -8,6 +8,9 @@ import type { KubbFile } from '@kubb/core'
 import type { ImportMeta } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
+/**
+ * @deprecated replace with Schema component
+ */
 export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
   build(name?: string): Required<Pick<KubbFile.File, 'imports' | 'source'>> {
     const importMeta: ImportMeta[] = []

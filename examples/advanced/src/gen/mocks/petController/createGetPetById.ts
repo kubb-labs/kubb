@@ -1,6 +1,13 @@
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById'
+import { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById'
+
+/**
+ * @description successful operation
+ */
+export function createGetPetById200(override?: NonNullable<Partial<GetPetById200>>): NonNullable<GetPetById200> {
+  return createPet(override)
+}
 
 /**
  * @description Invalid ID supplied
@@ -21,13 +28,6 @@ export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetB
     ...{ 'petId': faker.number.int() },
     ...override,
   }
-}
-
-/**
- * @description successful operation
- */
-export function createGetPetById200(override?: NonNullable<Partial<GetPetById200>>): NonNullable<GetPetById200> {
-  return createPet(override)
 }
 
 /**

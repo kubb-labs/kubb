@@ -1,11 +1,21 @@
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import type {
+import {
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQueryParams,
   FindPetsByStatusQueryResponse,
 } from '../../models/ts/petController/FindPetsByStatus'
+
+/**
+ * @description successful operation
+ */
+export function createFindPetsByStatus200(override: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
+  return [
+    ...faker.helpers.arrayElements([createPet()]) as any,
+    ...override,
+  ]
+}
 
 /**
  * @description Invalid status value
@@ -19,16 +29,6 @@ export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<
     ...{ 'status': faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) },
     ...override,
   }
-}
-
-/**
- * @description successful operation
- */
-export function createFindPetsByStatus200(override: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
-  return [
-    ...faker.helpers.arrayElements([createPet()]) as any,
-    ...override,
-  ]
 }
 
 /**

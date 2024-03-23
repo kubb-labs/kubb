@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser'
+import { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser'
 
 /**
  * @description successful operation

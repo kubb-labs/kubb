@@ -1,6 +1,16 @@
 import type { ApiResponse } from '../ApiResponse'
 
+/**
+ * @description successful operation
+ */
+export type UploadFile200 = ApiResponse
+
 export type UploadFileMutationRequest = string
+
+/**
+ * @description successful operation
+ */
+export type UploadFileMutationResponse = ApiResponse
 
 export type UploadFilePathParams = {
   /**
@@ -17,16 +27,6 @@ export type UploadFileQueryParams = {
    */
   additionalMetadata?: string
 }
-
-/**
- * @description successful operation
- */
-export type UploadFile200 = ApiResponse
-
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest

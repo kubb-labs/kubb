@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { createPetNotFound } from '../createPetNotFound'
-import type {
+import {
   CreatePets201,
   CreatePetsError,
   CreatePetsHeaderParams,
@@ -9,12 +8,20 @@ import type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
 } from '../../models/ts/petsController/CreatePets'
+import { createPetNotFound } from '../createPetNotFound'
 
 /**
  * @description Null response
  */
 export function createCreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
   return undefined
+}
+
+/**
+ * @description unexpected error
+ */
+export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
+  return createPetNotFound(override)
 }
 
 export function createCreatePetsHeaderParams(override: NonNullable<Partial<CreatePetsHeaderParams>> = {}): NonNullable<CreatePetsHeaderParams> {
@@ -47,11 +54,4 @@ export function createCreatePetsQueryParams(override: NonNullable<Partial<Create
     ...{ 'offset': faker.number.int() },
     ...override,
   }
-}
-
-/**
- * @description unexpected error
- */
-export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-  return createPetNotFound(override)
 }

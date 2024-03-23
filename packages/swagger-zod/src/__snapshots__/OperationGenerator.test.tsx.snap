@@ -45,9 +45,6 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
 import { Pets } from "./Pets";
 import { Error } from "./Error";
 
-
-export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() }).optional();
-
  /**
  * @description A paged array of pets
  */
@@ -57,6 +54,9 @@ export const ListPets200 = z.lazy(() => Pets);
  * @description unexpected error
  */
 export const ListPetsError = z.lazy(() => Error);
+
+
+export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() }).optional();
 
  /**
  * @description A paged array of pets
@@ -70,9 +70,6 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
 import { Pet } from "./Pet";
 import { Error } from "./Error";
 
-
-export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve"), "testId": z.string().describe("The id of the pet to retrieve") });
-
  /**
  * @description Expected response to a valid request
  */
@@ -82,6 +79,9 @@ export const ShowPetById200 = z.lazy(() => Pet);
  * @description unexpected error
  */
 export const ShowPetByIdError = z.lazy(() => Error);
+
+
+export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve"), "testId": z.string().describe("The id of the pet to retrieve") });
 
  /**
  * @description Expected response to a valid request
@@ -99,15 +99,15 @@ import { Error } from "./Error";
  */
 export const CreatePets201 = z.any();
 
+ /**
+ * @description unexpected error
+ */
+export const CreatePetsError = z.lazy(() => Error);
+
 
 export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
 
 
 export const CreatePetsMutationResponse = z.any();
-
- /**
- * @description unexpected error
- */
-export const CreatePetsError = z.lazy(() => Error);
 "
 `;

@@ -7,6 +7,7 @@ export {
   useApp,
   useFile,
   useFileManager,
+  useGetFile,
   useIndent,
   useLanguage,
   useMeta,

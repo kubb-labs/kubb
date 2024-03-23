@@ -206,6 +206,11 @@ export type Pet = {
 }
 
 /**
+ * @description Successful operation
+ */
+export type UpdatePet200 = Pet
+
+/**
  * @description Invalid ID supplied
  */
 export type UpdatePet400 = any
@@ -219,11 +224,6 @@ export type UpdatePet404 = any
  * @description Validation exception
  */
 export type UpdatePet405 = any
-
-/**
- * @description Successful operation
- */
-export type UpdatePet200 = Pet
 
 /**
  * @description Update an existent pet in the store
@@ -240,6 +240,11 @@ export type UpdatePetMutation = {
   Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }
 
+/**
+ * @description Successful operation
+ */
+export type AddPet200 = Pet
+
 export type AddPet405 = {
   /**
    * @type integer | undefined int32
@@ -250,11 +255,6 @@ export type AddPet405 = {
    */
   message?: string
 }
-
-/**
- * @description Successful operation
- */
-export type AddPet200 = Pet
 
 /**
  * @description Create a new pet in the store
@@ -270,6 +270,11 @@ export type AddPetMutation = {
   Request: AddPetMutationRequest
   Errors: AddPet405
 }
+
+/**
+ * @description successful operation
+ */
+export type FindPetsByStatus200 = Pet[]
 
 /**
  * @description Invalid status value
@@ -289,17 +294,17 @@ export type FindPetsByStatusQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
-
-/**
- * @description successful operation
- */
 export type FindPetsByStatusQueryResponse = Pet[]
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
   QueryParams: FindPetsByStatusQueryParams
   Errors: FindPetsByStatus400
 }
+
+/**
+ * @description successful operation
+ */
+export type FindPetsByTags200 = Pet[]
 
 /**
  * @description Invalid tag value
@@ -327,17 +332,17 @@ export type FindPetsByTagsQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
-
-/**
- * @description successful operation
- */
 export type FindPetsByTagsQueryResponse = Pet[]
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse
   QueryParams: FindPetsByTagsQueryParams
   Errors: FindPetsByTags400
 }
+
+/**
+ * @description successful operation
+ */
+export type GetPetById200 = Pet
 
 /**
  * @description Invalid ID supplied
@@ -356,11 +361,6 @@ export type GetPetByIdPathParams = {
    */
   petId: number
 }
-
-/**
- * @description successful operation
- */
-export type GetPetById200 = Pet
 
 /**
  * @description successful operation
@@ -434,7 +434,17 @@ export type DeletePetMutation = {
   Errors: DeletePet400
 }
 
+/**
+ * @description successful operation
+ */
+export type UploadFile200 = ApiResponse
+
 export type UploadFileMutationRequest = string
+
+/**
+ * @description successful operation
+ */
+export type UploadFileMutationResponse = ApiResponse
 
 export type UploadFilePathParams = {
   /**
@@ -451,16 +461,6 @@ export type UploadFileQueryParams = {
    */
   additionalMetadata?: string
 }
-
-/**
- * @description successful operation
- */
-export type UploadFile200 = ApiResponse
-
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest
@@ -486,14 +486,14 @@ export type GetInventoryQuery = {
 }
 
 /**
- * @description Invalid input
- */
-export type PlaceOrder405 = any
-
-/**
  * @description successful operation
  */
 export type PlaceOrder200 = Order
+
+/**
+ * @description Invalid input
+ */
+export type PlaceOrder405 = any
 
 export type PlaceOrderMutationRequest = Order
 
@@ -508,14 +508,14 @@ export type PlaceOrderMutation = {
 }
 
 /**
- * @description Invalid input
- */
-export type PlaceOrderPatch405 = any
-
-/**
  * @description successful operation
  */
 export type PlaceOrderPatch200 = Order
+
+/**
+ * @description Invalid input
+ */
+export type PlaceOrderPatch405 = any
 
 export type PlaceOrderPatchMutationRequest = Order
 
@@ -528,6 +528,11 @@ export type PlaceOrderPatchMutation = {
   Request: PlaceOrderPatchMutationRequest
   Errors: PlaceOrderPatch405
 }
+
+/**
+ * @description successful operation
+ */
+export type GetOrderById200 = Order
 
 /**
  * @description Invalid ID supplied
@@ -546,11 +551,6 @@ export type GetOrderByIdPathParams = {
    */
   orderId: number
 }
-
-/**
- * @description successful operation
- */
-export type GetOrderById200 = Order
 
 /**
  * @description successful operation
@@ -587,8 +587,6 @@ export type DeleteOrderMutation = {
   Errors: DeleteOrder400 | DeleteOrder404
 }
 
-export type CreateUserMutationResponse = any
-
 /**
  * @description successful operation
  */
@@ -598,20 +596,22 @@ export type CreateUserError = User
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
+
+export type CreateUserMutationResponse = any
 export type CreateUserMutation = {
   Response: CreateUserMutationResponse
   Request: CreateUserMutationRequest
 }
 
 /**
- * @description successful operation
- */
-export type CreateUsersWithListInputError = any
-
-/**
  * @description Successful operation
  */
 export type CreateUsersWithListInput200 = User
+
+/**
+ * @description successful operation
+ */
+export type CreateUsersWithListInputError = any
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
@@ -668,6 +668,11 @@ export type LogoutUserQuery = {
 }
 
 /**
+ * @description successful operation
+ */
+export type GetUserByName200 = User
+
+/**
  * @description Invalid username supplied
  */
 export type GetUserByName400 = any
@@ -688,11 +693,6 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByName200 = User
-
-/**
- * @description successful operation
- */
 export type GetUserByNameQueryResponse = User
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse
@@ -705,6 +705,11 @@ export type GetUserByNameQuery = {
  */
 export type UpdateUserError = any
 
+/**
+ * @description Update an existent user in the store
+ */
+export type UpdateUserMutationRequest = User
+
 export type UpdateUserMutationResponse = any
 
 export type UpdateUserPathParams = {
@@ -714,11 +719,6 @@ export type UpdateUserPathParams = {
    */
   username: string
 }
-
-/**
- * @description Update an existent user in the store
- */
-export type UpdateUserMutationRequest = User
 export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse
   Request: UpdateUserMutationRequest

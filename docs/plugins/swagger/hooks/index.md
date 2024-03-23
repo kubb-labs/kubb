@@ -121,9 +121,9 @@ function Component() {
 
 :::
 
-## useOperationFile
+## useGetOperationFile
 
-`useOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when `pluginKey` is not provided)<br/>
+`useGetOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when `pluginKey` is not provided)<br/>
 
 ::: tip
 Internally `useFile` of `@kubb/react` is getting used.
@@ -132,10 +132,10 @@ Internally `useFile` of `@kubb/react` is getting used.
 ::: code-group
 
 ```typescript
-import { File, useOperationFile } from '@kubb/react'
+import { File, useGetOperationFile } from '@kubb/react'
 
 function Component() {
-  const file = useOperationFile({
+  const file = useGetOperationFile({
     pluginKey: ['custom-plugin'], // optional
   })
 

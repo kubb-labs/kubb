@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 1`] = `
-"import type { DeletePetPetidMutationResponse } from "./DeletePetPetid";
+"import { DeletePetPetidMutationResponse } from "./DeletePetPetid";
 
 
 
@@ -14,17 +14,8 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
 exports[`OperationGenerator > [GET] should generate 1`] = `
 "import { faker } from "@faker-js/faker";
 import { Pets } from "./Pets";
+import { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
 import { Error } from "./Error";
-import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
-
-
-
- export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
-    return {
-        ...{ "limit": faker.string.alpha() },
-        ...override
-    };
-}
 
 
 /**
@@ -43,6 +34,15 @@ export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): N
 }
 
 
+
+ export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
+    return {
+        ...{ "limit": faker.string.alpha() },
+        ...override
+    };
+}
+
+
 /**
  * @description A paged array of pets
  */
@@ -55,17 +55,8 @@ export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQue
 exports[`OperationGenerator > [GET] should generate 2`] = `
 "import { faker } from "@faker-js/faker";
 import { Pet } from "./Pet";
+import { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
 import { Error } from "./Error";
-import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
-
-
-
- export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
-    return {
-        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
-        ...override
-    };
-}
 
 
 /**
@@ -84,6 +75,15 @@ export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError
 }
 
 
+
+ export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+    return {
+        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
+        ...override
+    };
+}
+
+
 /**
  * @description Expected response to a valid request
  */
@@ -96,18 +96,8 @@ export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetB
 exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
 "import { faker } from "@faker-js/faker";
 import { Pets } from "./Pets";
+import { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
 import { Error } from "./Error";
-import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
-
-
-
- export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
-    faker.seed([222]);
-    return {
-        ...{ "limit": faker.string.alpha() },
-        ...override
-    };
-}
 
 
 /**
@@ -125,6 +115,16 @@ export function ListPets200(override?: NonNullable<Partial<ListPets200>>): NonNu
 export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): NonNullable<ListPetsError> {
     faker.seed([222]);
     return Error(override);
+}
+
+
+
+ export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
+    faker.seed([222]);
+    return {
+        ...{ "limit": faker.string.alpha() },
+        ...override
+    };
 }
 
 
@@ -141,18 +141,8 @@ export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQue
 exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
 "import { faker } from "@faker-js/faker";
 import { Pet } from "./Pet";
+import { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
 import { Error } from "./Error";
-import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
-
-
-
- export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
-    faker.seed([222]);
-    return {
-        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
-        ...override
-    };
-}
 
 
 /**
@@ -173,6 +163,16 @@ export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError
 }
 
 
+
+ export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+    faker.seed([222]);
+    return {
+        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
+        ...override
+    };
+}
+
+
 /**
  * @description Expected response to a valid request
  */
@@ -185,8 +185,8 @@ export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetB
 
 exports[`OperationGenerator > [POST] should generate 1`] = `
 "import { faker } from "@faker-js/faker";
+import { CreatePets201, CreatePetsError, CreatePetsMutationRequest, CreatePetsMutationResponse } from "./CreatePets";
 import { Error } from "./Error";
-import type { CreatePets201, CreatePetsError, CreatePetsMutationRequest, CreatePetsMutationResponse } from "./CreatePets";
 
 
 /**
@@ -194,6 +194,14 @@ import type { CreatePets201, CreatePetsError, CreatePetsMutationRequest, CreateP
  */
 export function CreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
     return undefined;
+}
+
+
+/**
+ * @description unexpected error
+ */
+export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
+    return Error(override);
 }
 
 
@@ -209,14 +217,6 @@ export function CreatePets201(override?: NonNullable<Partial<CreatePets201>>): N
 
  export function CreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
     return undefined;
-}
-
-
-/**
- * @description unexpected error
- */
-export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-    return Error(override);
 }
 "
 `;

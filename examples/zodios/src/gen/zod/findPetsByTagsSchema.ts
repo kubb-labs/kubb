@@ -2,6 +2,11 @@ import { z } from 'zod'
 import { petSchema } from './petSchema'
 
 /**
+ * @description successful operation
+ */
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+
+/**
  * @description Invalid tag value
  */
 export const findPetsByTags400Schema = z.any()
@@ -13,11 +18,6 @@ export const findPetsByTagsQueryParamsSchema = z
     pageSize: z.string().describe('to request with required page size').optional(),
   })
   .optional()
-
-/**
- * @description successful operation
- */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
 
 /**
  * @description successful operation

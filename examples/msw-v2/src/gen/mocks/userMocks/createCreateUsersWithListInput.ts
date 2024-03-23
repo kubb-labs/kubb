@@ -1,11 +1,19 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type {
+import {
   CreateUsersWithListInput200,
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../models/CreateUsersWithListInput'
+
+/**
+ * @description Successful operation
+ */
+export function createCreateUsersWithListInput200(override?: NonNullable<Partial<CreateUsersWithListInput200>>): NonNullable<CreateUsersWithListInput200> {
+  faker.seed([220])
+  return createUser(override)
+}
 
 /**
  * @description successful operation
@@ -15,14 +23,6 @@ export function createCreateUsersWithListInputError(
 ): NonNullable<CreateUsersWithListInputError> {
   faker.seed([220])
   return undefined
-}
-
-/**
- * @description Successful operation
- */
-export function createCreateUsersWithListInput200(override?: NonNullable<Partial<CreateUsersWithListInput200>>): NonNullable<CreateUsersWithListInput200> {
-  faker.seed([220])
-  return createUser(override)
 }
 
 export function createCreateUsersWithListInputMutationRequest(

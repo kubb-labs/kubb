@@ -1,5 +1,5 @@
 import { Editor, File, usePlugin } from '@kubb/react'
-import { useFile } from '@kubb/react'
+import { useGetFile } from '@kubb/react'
 
 import type { KubbNode } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
@@ -19,7 +19,7 @@ type RootTemplateProps = {
 
 function RootTemplate({ children }: RootTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name: 'operations', mode: 'directory', extName: '.ts', pluginKey })
+  const file = useGetFile({ name: 'operations', mode: 'directory', extName: '.ts', pluginKey })
 
   return (
     <Editor language="typescript">

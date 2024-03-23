@@ -5,14 +5,14 @@ import { OasManager } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Query } from './Query.tsx'
+import { Schema } from './Schema.tsx'
 
 import type { Plugin, ResolveNameParams } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
 
-describe('<Query/>', async () => {
+describe('<Schema/>', async () => {
   const oas = await OasManager.parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
@@ -58,7 +58,7 @@ describe('<Query/>', async () => {
       return (
         <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
-            <Query.File />
+            <Schema.File mode="directory" />
           </Oas.Operation>
         </Oas>
       )
@@ -66,6 +66,25 @@ describe('<Query/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchFileSnapshot('./__snapshots__/Query/showPetById.ts')
+    expect(output).toMatchFileSnapshot('./__snapshots__/schema/showPetById.ts')
+  })
+
+  test('pets', async () => {
+    const operation = oas.operation('/pets', 'post')
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
+
+    const Component = () => {
+      return (
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            <Schema.File mode="directory" />
+          </Oas.Operation>
+        </Oas>
+      )
+    }
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />, context)
+
+    expect(output).toMatchFileSnapshot('./__snapshots__/schema/Pets.ts')
   })
 })

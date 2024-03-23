@@ -1,5 +1,12 @@
 import { createPet } from '../createPet'
-import type { UpdatePet200, UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
+import { UpdatePet200, UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
+
+/**
+ * @description Successful operation
+ */
+export function createUpdatePet200(override?: NonNullable<Partial<UpdatePet200>>): NonNullable<UpdatePet200> {
+  return createPet(override)
+}
 
 /**
  * @description Invalid ID supplied
@@ -20,13 +27,6 @@ export function createUpdatePet404(override?: NonNullable<Partial<UpdatePet404>>
  */
 export function createUpdatePet405(override?: NonNullable<Partial<UpdatePet405>>): NonNullable<UpdatePet405> {
   return undefined
-}
-
-/**
- * @description Successful operation
- */
-export function createUpdatePet200(override?: NonNullable<Partial<UpdatePet200>>): NonNullable<UpdatePet200> {
-  return createPet(override)
 }
 
 /**

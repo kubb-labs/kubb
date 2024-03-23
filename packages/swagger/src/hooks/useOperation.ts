@@ -44,16 +44,16 @@ type FileMeta = KubbFile.FileMetaBase & {
   tag?: string
 }
 
-type UseOperationFileProps = {
+type UseGetOperationFileProps = {
   extName?: KubbFile.Extname
   pluginKey?: Plugin['key']
 }
 
 /**
- * `useOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when `pluginKey` is not provided)
+ * `useGetOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when `pluginKey` is not provided)
  * Internally `useFile` of `@kubb/react` is getting used.
  */
-export function useOperationFile(props: UseOperationFileProps = {}): KubbFile.File<FileMeta> {
+export function useGetOperationFile(props: UseGetOperationFileProps = {}): KubbFile.File<FileMeta> {
   const plugin = usePlugin()
   const operation = useOperation()
 

@@ -1,5 +1,5 @@
 import { createPet } from '../createPet'
-import type {
+import {
   UpdatePet200,
   UpdatePet400,
   UpdatePet404,
@@ -7,6 +7,13 @@ import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
 } from '../../models/ts/petController/UpdatePet'
+
+/**
+ * @description Successful operation
+ */
+export function createUpdatePet200(override?: NonNullable<Partial<UpdatePet200>>): NonNullable<UpdatePet200> {
+  return createPet(override)
+}
 
 /**
  * @description Invalid ID supplied
@@ -27,13 +34,6 @@ export function createUpdatePet404(override?: NonNullable<Partial<UpdatePet404>>
  */
 export function createUpdatePet405(override?: NonNullable<Partial<UpdatePet405>>): NonNullable<UpdatePet405> {
   return undefined
-}
-
-/**
- * @description Successful operation
- */
-export function createUpdatePet200(override?: NonNullable<Partial<UpdatePet200>>): NonNullable<UpdatePet200> {
-  return createPet(override)
 }
 
 /**

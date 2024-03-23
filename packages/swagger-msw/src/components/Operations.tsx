@@ -1,5 +1,5 @@
 import { Editor, File, usePlugin } from '@kubb/react'
-import { useFile } from '@kubb/react'
+import { useGetFile } from '@kubb/react'
 import { useOperationHelpers, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
@@ -32,7 +32,7 @@ type EditorTemplateProps = {
 function RootTemplate({ children }: EditorTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
 
-  const file = useFile({ name: 'handlers', extName: '.ts', pluginKey })
+  const file = useGetFile({ name: 'handlers', extName: '.ts', pluginKey })
   const operations = useOperations()
 
   const { getName, getFile } = useOperationHelpers()

@@ -4,14 +4,14 @@ import { OasManager } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Mutation } from './Mutation.tsx'
+import { Schema } from './Schema.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
 
-describe('<Mutation/>', async () => {
+describe('<Schema/>', async () => {
   const oas = await OasManager.parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
@@ -42,15 +42,15 @@ describe('<Mutation/>', async () => {
     },
   )
 
-  test('pets', async () => {
-    const operation = oas.operation('/pets', 'post')
+  test('showPetById', async () => {
+    const operation = oas.operation('/pets/{petId}', 'get')
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
       return (
         <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
-            <Mutation.File mode="directory" />
+            <Schema.File mode="directory" />
           </Oas.Operation>
         </Oas>
       )
@@ -59,6 +59,26 @@ describe('<Mutation/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchFileSnapshot('./__snapshots__/Mutation/pets.ts')
+    expect(output).toMatchFileSnapshot('./__snapshots__/Schema/showPetById.ts')
+  })
+
+  test('pets', async () => {
+    const operation = oas.operation('/pets', 'post')
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
+
+    const Component = () => {
+      return (
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            <Schema.File mode="directory" />
+          </Oas.Operation>
+        </Oas>
+      )
+    }
+
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />, context)
+
+    expect(output).toMatchFileSnapshot('./__snapshots__/Schema/pets.ts')
   })
 })

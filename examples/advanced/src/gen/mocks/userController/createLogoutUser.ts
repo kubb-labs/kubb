@@ -1,4 +1,4 @@
-import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser'
+import { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser'
 
 /**
  * @description successful operation

@@ -1,6 +1,7 @@
 export { useApp } from './useApp.ts'
 export { useFile } from './useFile.ts'
 export { useFileManager } from './useFileManager.ts'
+export { useGetFile } from './useGetFile.ts'
 export { useIndent } from './useIndent.ts'
 export { useLanguage } from './useLanguage.ts'
 export { useMeta } from './useMeta.ts'
