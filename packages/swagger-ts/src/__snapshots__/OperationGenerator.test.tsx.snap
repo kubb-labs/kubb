@@ -98,9 +98,14 @@ import type { ErrorCode } from "./ErrorCode";
  /**
  * @description Null response
 */
-export type CreatePetsMutationResponse = (Error & {
+export type CreatePets201 = (Error & {
     name?: ErrorCode;
 });
+
+ /**
+ * @description unexpected error
+*/
+export type CreatePetsError = Error;
 
  export type CreatePetsMutationRequest = {
     /**
@@ -116,7 +121,7 @@ export type CreatePetsMutationResponse = (Error & {
  /**
  * @description Null response
 */
-export type CreatePets201 = (Error & {
+export type CreatePetsMutationResponse = (Error & {
     name?: ErrorCode;
 });
 

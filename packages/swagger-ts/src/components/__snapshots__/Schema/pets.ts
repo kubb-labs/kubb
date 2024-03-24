@@ -1,4 +1,12 @@
-export type CreatePetsMutationResponse = any
+/**
+ * @description Null response
+ */
+export type CreatePets201 = any
+
+/**
+ * @description unexpected error
+ */
+export type CreatePetsError = Error
 
 export type CreatePetsMutationRequest = {
   /**
