@@ -19,14 +19,14 @@ export type UploadFileQueryParams = {
 /**
  * @description successful operation
  */
-export type UploadFileMutationResponse = ApiResponse
+export type UploadFile200 = ApiResponse
 
 export type UploadFileMutationRequest = string
 
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFileMutationResponse = ApiResponse
 
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse

@@ -1,6 +1,13 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/ts/userController/UpdateUser'
+import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/ts/userController/UpdateUser'
+
+export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateUserPathParams>> = {}): NonNullable<UpdateUserPathParams> {
+  return {
+    ...{ 'username': faker.string.alpha() },
+    ...override,
+  }
+}
 
 /**
  * @description successful operation
@@ -18,11 +25,4 @@ export function createUpdateUserMutationRequest(override?: NonNullable<Partial<U
 
 export function createUpdateUserMutationResponse(override?: NonNullable<Partial<UpdateUserMutationResponse>>): NonNullable<UpdateUserMutationResponse> {
   return undefined
-}
-
-export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateUserPathParams>> = {}): NonNullable<UpdateUserPathParams> {
-  return {
-    ...{ 'username': faker.string.alpha() },
-    ...override,
-  }
 }

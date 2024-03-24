@@ -11,11 +11,6 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByNameQueryResponse = User
-
-/**
- * @description successful operation
- */
 export type GetUserByName200 = User
 
 /**
@@ -27,6 +22,11 @@ export type GetUserByName400 = any
  * @description User not found
  */
 export type GetUserByName404 = any
+
+/**
+ * @description successful operation
+ */
+export type GetUserByNameQueryResponse = User
 
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse

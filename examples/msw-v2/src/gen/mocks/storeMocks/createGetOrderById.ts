@@ -1,6 +1,14 @@
 import { faker } from '@faker-js/faker'
 import { createOrder } from '../createOrder'
-import type { GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
+import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
+
+export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOrderByIdPathParams>> = {}): NonNullable<GetOrderByIdPathParams> {
+  faker.seed([220])
+  return {
+    ...{ 'orderId': faker.number.int() },
+    ...override,
+  }
+}
 
 /**
  * @description successful operation
@@ -24,14 +32,6 @@ export function createGetOrderById400(override?: NonNullable<Partial<GetOrderByI
 export function createGetOrderById404(override?: NonNullable<Partial<GetOrderById404>>): NonNullable<GetOrderById404> {
   faker.seed([220])
   return undefined
-}
-
-export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOrderByIdPathParams>> = {}): NonNullable<GetOrderByIdPathParams> {
-  faker.seed([220])
-  return {
-    ...{ 'orderId': faker.number.int() },
-    ...override,
-  }
 }
 
 /**

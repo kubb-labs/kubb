@@ -1,5 +1,12 @@
 import { faker } from '@faker-js/faker'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser'
+import type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse } from '../../models/DeleteUser'
+
+export function createDeleteUserPathParams(override: NonNullable<Partial<DeleteUserPathParams>> = {}): NonNullable<DeleteUserPathParams> {
+  return {
+    ...{ 'username': faker.string.alpha() },
+    ...override,
+  }
+}
 
 /**
  * @description Invalid username supplied
@@ -17,11 +24,4 @@ export function createDeleteUser404(override?: NonNullable<Partial<DeleteUser404
 
 export function createDeleteUserMutationResponse(override?: NonNullable<Partial<DeleteUserMutationResponse>>): NonNullable<DeleteUserMutationResponse> {
   return undefined
-}
-
-export function createDeleteUserPathParams(override: NonNullable<Partial<DeleteUserPathParams>> = {}): NonNullable<DeleteUserPathParams> {
-  return {
-    ...{ 'username': faker.string.alpha() },
-    ...override,
-  }
 }

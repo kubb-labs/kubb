@@ -13,12 +13,12 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
-export type DeletePetMutationResponse = any
-
 /**
  * @description Invalid pet value
  */
 export type DeletePet400 = any
+
+export type DeletePetMutationResponse = any
 
 export type DeletePetMutation = {
   Response: DeletePetMutationResponse

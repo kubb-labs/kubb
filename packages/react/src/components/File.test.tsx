@@ -32,7 +32,7 @@ describe('<File/>', () => {
     expect(root.files.at(0)?.exports).toStrictEqual([
       {
         asAlias: true,
-        isTypeOnly: undefined,
+        isTypeOnly: false,
         name: undefined,
         path: './index.ts',
       },
@@ -40,7 +40,7 @@ describe('<File/>', () => {
 
     expect(root.files.at(0)?.imports).toStrictEqual([
       {
-        isTypeOnly: undefined,
+        isTypeOnly: false,
         name: 'React',
         path: 'react',
         root: undefined,
@@ -142,7 +142,7 @@ describe('<File/>', () => {
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
     expect(root.files[0]?.imports).toStrictEqual([{
-      'isTypeOnly': undefined,
+      'isTypeOnly': false,
       'name': 'node',
       'path': 'node',
       'root': undefined,
@@ -202,7 +202,7 @@ describe('<File/>', () => {
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
     expect(root.files[0]?.imports).toStrictEqual([{
-      'isTypeOnly': undefined,
+      'isTypeOnly': false,
       'name': 'node',
       'path': 'node',
       'root': undefined,

@@ -19,7 +19,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
     "id": undefined,
     "imports": [
       {
-        "isTypeOnly": undefined,
+        "isTypeOnly": false,
         "name": [
           "z",
         ],
@@ -47,7 +47,6 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
 "import { z } from "zod";
 import { Pets } from "./Pets";
 import { Error } from "./Error";
-import { Pets } from "./Pets";
 
 
 export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() }).optional().optional();
@@ -75,7 +74,6 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
 "import { z } from "zod";
 import { Pet } from "./Pet";
 import { Error } from "./Error";
-import { Pet } from "./Pet";
 
 
 export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve"), "testId": z.string().describe("The id of the pet to retrieve") }).optional();

@@ -68,14 +68,6 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     // used for this.options.typed
     const typeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    // this has been moved to OperationSchema
-    const optional = !required && !!name.includes('Params')
-    if (optional) {
-      schemas.push({
-        keyword: schemaKeywords.optional,
-      })
-    }
-
     const output = zodParser(schemas, {
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: name, pluginKey, type: 'function' }),

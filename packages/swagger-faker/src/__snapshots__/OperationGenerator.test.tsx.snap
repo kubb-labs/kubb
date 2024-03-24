@@ -17,7 +17,6 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
 "import { faker } from "@faker-js/faker";
 import { Pets } from "./Pets";
 import { Error } from "./Error";
-import { Pets } from "./Pets";
 import type { ListPetsQueryParams, ListPets200, ListPetsError, ListPetsQueryResponse } from "./ListPets";
 
 
@@ -61,7 +60,6 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
 "import { faker } from "@faker-js/faker";
 import { Pet } from "./Pet";
 import { Error } from "./Error";
-import { Pet } from "./Pet";
 import type { ShowPetByIdPathParams, ShowPetById200, ShowPetByIdError, ShowPetByIdQueryResponse } from "./ShowPetById";
 
 
@@ -105,7 +103,6 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
 "import { faker } from "@faker-js/faker";
 import { Pets } from "./Pets";
 import { Error } from "./Error";
-import { Pets } from "./Pets";
 import type { ListPetsQueryParams, ListPets200, ListPetsError, ListPetsQueryResponse } from "./ListPets";
 
 
@@ -153,7 +150,6 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
 "import { faker } from "@faker-js/faker";
 import { Pet } from "./Pet";
 import { Error } from "./Error";
-import { Pet } from "./Pet";
 import type { ShowPetByIdPathParams, ShowPetById200, ShowPetByIdError, ShowPetByIdQueryResponse } from "./ShowPetById";
 
 
