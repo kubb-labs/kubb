@@ -7,7 +7,7 @@ import { pluginKey } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
 
 import type { AppContextProps } from '@kubb/react'
-import type { SchemaGeneratorBuildOptions, SchemaMethodResult } from '@kubb/swagger'
+import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaMethodResult } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -28,13 +28,12 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
 
     return root.files
   }
-
-  buildSource(name: string, schema: SchemaObject, {
+  // TODO convert to a react component called `Schema.Parser` with props parser as part of the SchemaContext
+  getSource(name: string, schemas: SchemaType[], {
     keysToOmit,
     description,
-  }: SchemaGeneratorBuildOptions = {}): string[] {
+  }: SchemaGeneratorBuildOptions = {}) {
     const texts: string[] = []
-    const schemas = this.buildSchemas(schema, name)
 
     const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })
     const resvoledTypeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
@@ -51,5 +50,11 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     texts.push(typeOutput)
 
     return texts
+  }
+
+  buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
+    const schemas = this.buildSchemas(schema, name)
+
+    return this.getSource(name, schemas, options)
   }
 }

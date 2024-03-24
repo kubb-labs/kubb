@@ -127,8 +127,6 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
         path={file.path}
         meta={file.meta}
       >
-        <File.Import name={['z']} path="zod" />
-
         {items.map(({ name, schema: object, ...options }, i) => {
           return (
             <Oas.Schema key={i} generator={generator} name={name} object={object}>

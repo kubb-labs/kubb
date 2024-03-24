@@ -331,9 +331,9 @@ export abstract class OperationGenerator<
     const { oas } = this.context
 
     const paths = oas.getPaths()
-    this.operationsByMethod = Object.keys(paths).reduce(
-      (acc, path) => {
-        const methods = Object.keys(paths[path]!) as HttpMethod[]
+    this.operationsByMethod = Object.entries(paths).reduce(
+      (acc, [path, method]) => {
+        const methods = Object.keys(method) as HttpMethod[]
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)

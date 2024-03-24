@@ -93,11 +93,14 @@ export type ShowPetByIdError = Error;
 
 exports[`OperationGenerator > [POST] /pets 201 1`] = `
 "import type { Error } from "./Error";
+import type { ErrorCode } from "./ErrorCode";
 
  /**
  * @description Null response
 */
-export type CreatePetsMutationResponse = (Error & Error);
+export type CreatePetsMutationResponse = (Error & {
+    name?: ErrorCode;
+});
 
  export type CreatePetsMutationRequest = {
     /**
@@ -113,7 +116,9 @@ export type CreatePetsMutationResponse = (Error & Error);
  /**
  * @description Null response
 */
-export type CreatePets201 = (Error & Error);
+export type CreatePets201 = (Error & {
+    name?: ErrorCode;
+});
 
  /**
  * @description unexpected error

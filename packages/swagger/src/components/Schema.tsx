@@ -6,15 +6,16 @@ import { schemaKeywords } from '../SchemaMapper.ts'
 import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
-import type { Operation as OperationType, SchemaObject } from '../oas/index.ts'
+import type { SchemaObject } from '../oas/index.ts'
 import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '../SchemaGenerator.ts'
+import type { Schema as SchemaType } from '../SchemaMapper.ts'
 import type { PluginOptions } from '../types.ts'
 
 export type SchemaContextProps = {
   name: string
   object?: SchemaObject
   generator?: SchemaGenerator
-  operation?: OperationType
+  schemas: SchemaType[]
 }
 
 type Props = {
@@ -24,11 +25,13 @@ type Props = {
   children?: KubbNode
 }
 
-const SchemaContext = createContext<SchemaContextProps>({ name: 'unknown' })
+const SchemaContext = createContext<SchemaContextProps>({ name: 'unknown', schemas: [] })
 
 export function Schema({ name, object, generator, children }: Props): KubbNode {
+  const schemas = generator.buildSchemas(object, name)
+
   return (
-    <SchemaContext.Provider value={{ name, object, generator }}>
+    <SchemaContext.Provider value={{ name, schemas, object, generator }}>
       {children}
     </SchemaContext.Provider>
   )
@@ -102,11 +105,9 @@ type SchemaImportsProps = {
 }
 
 Schema.Imports = ({ root, isTypeOnly }: SchemaImportsProps): ReactNode => {
-  const { name, object, generator } = useSchema()
+  const { generator, schemas } = useSchema()
 
-  // TODO replace with React component
-  const schemas = generator?.buildSchemas(object, name)
-  const refs = generator?.deepSearch(schemas, schemaKeywords.ref)
+  const refs = generator.deepSearch(schemas, schemaKeywords.ref)
 
   return (
     <>
@@ -125,10 +126,9 @@ type SchemaSourceProps = {
 }
 
 Schema.Source = ({ options }: SchemaSourceProps): ReactNode => {
-  const { name, object, generator } = useSchema()
+  const { name, generator, schemas } = useSchema()
 
-  // TODO replace with React component
-  const source = generator?.buildSource(name, object, options)
+  const source = generator.getSource(name, schemas, options)
 
   return (
     <>

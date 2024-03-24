@@ -76,17 +76,6 @@ export abstract class SchemaGenerator<
    * optionally adds a union with null.
    */
   buildSchemas(schema: SchemaObject | undefined, baseName?: string): Schema[] {
-    if (baseName) {
-      // use cached schemas so we have the same state for usedEnumNames
-      if (this.#schemasCache[baseName]) {
-        return this.#schemasCache[baseName]!
-      }
-
-      this.#schemasCache[baseName] = this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
-
-      return this.#schemasCache[baseName]!
-    }
-
     return this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
   }
 
@@ -108,6 +97,10 @@ export abstract class SchemaGenerator<
         Object.values(subItem.args?.properties || {}).forEach(entrySchema => {
           foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
         })
+
+        Object.values(subItem.args?.additionalProperties || {}).forEach(entrySchema => {
+          foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
+        })
       }
 
       if (schema.keyword === schemaKeywords.array) {
@@ -128,6 +121,14 @@ export abstract class SchemaGenerator<
 
       if (schema.keyword === schemaKeywords.tuple) {
         const subItem = schema as SchemaKeywordMapper['tuple']
+
+        subItem.args.forEach(entrySchema => {
+          foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
+        })
+      }
+
+      if (schema.keyword === schemaKeywords.union) {
+        const subItem = schema as SchemaKeywordMapper['union']
 
         subItem.args.forEach(entrySchema => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
@@ -558,13 +559,9 @@ export abstract class SchemaGenerator<
 
     const object = getSchemas({ oas, contentType, includes: include })
 
-    const promises = Object.keys(object).reduce(
-      (acc, name) => {
-        if (!object[name]) {
-          return acc
-        }
-
-        const promiseOperation = this.schema.call(this, name, object[name]!)
+    const promises = Object.entries(object).reduce(
+      (acc, [name, schema]) => {
+        const promiseOperation = this.schema.call(this, name, schema)
 
         if (promiseOperation) {
           acc.push(promiseOperation)
@@ -585,6 +582,8 @@ export abstract class SchemaGenerator<
    * Schema
    */
   abstract schema(name: string, object: SchemaObject): SchemaMethodResult<TFileMeta>
+
+  abstract getSource(name: string, schemas: Schema[], options?: SchemaGeneratorBuildOptions): string[]
 
   /**
    * Returns the source, in the future it an return a react component
