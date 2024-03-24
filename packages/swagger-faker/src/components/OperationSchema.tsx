@@ -8,6 +8,7 @@ import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
+import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -43,6 +44,29 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
     schemas.response,
   ].flat().filter(Boolean)
 
+  const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
+    // used for this.options.typed
+    const typeName = pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+    const typeFileName = pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
+    const typePath = pluginManager.resolvePath({
+      baseName: options.operationName || typeFileName,
+      pluginKey: swaggerTypeScriptPluginKey,
+      options: { tag: options.operation?.getTags()[0]?.name },
+    })
+
+    return (
+      <Oas.Schema key={i} generator={generator} name={name} object={object}>
+        {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
+
+        {mode === 'directory'
+          && <Schema.Imports root={file.path} />}
+        <File.Source>
+          <Schema.Source options={options} />
+        </File.Source>
+      </Oas.Schema>
+    )
+  }
+
   return (
     <Editor language="typescript">
       <File<FileMeta>
@@ -51,28 +75,7 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
         meta={file.meta}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />
-        {items.map(({ name, schema: object, ...options }, i) => {
-          // used for this.options.typed
-          const typeName = pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
-          const typeFileName = pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
-          const typePath = pluginManager.resolvePath({
-            baseName: options.operationName || typeFileName,
-            pluginKey: swaggerTypeScriptPluginKey,
-            options: { tag: options.operation?.getTags()[0]?.name },
-          })
-
-          return (
-            <Oas.Schema key={i} generator={generator} name={name} object={object}>
-              {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
-
-              {mode === 'directory'
-                && <Schema.Imports isTypeOnly root={file.path} />}
-              <File.Source>
-                <Schema.Source options={options} />
-              </File.Source>
-            </Oas.Schema>
-          )
-        })}
+        {items.map(mapItem)}
       </File>
     </Editor>
   )

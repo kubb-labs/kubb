@@ -1,4 +1,4 @@
-import { createRoot } from '@kubb/react'
+import { createRoot, File } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
@@ -24,7 +24,9 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     root.render(
       <Oas oas={oas}>
         <Oas.Schema generator={this} name={name} object={object}>
-          <Schema.File isTypeOnly output={output} mode={mode} />
+          <Schema.File output={output} mode={mode}>
+            <File.Import name={['faker']} path="@faker-js/faker" />
+          </Schema.File>
         </Oas.Schema>
       </Oas>,
       { meta: { pluginManager, plugin } },

@@ -15,9 +15,10 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
 
 exports[`OperationGenerator > [GET] should generate 1`] = `
 "import { faker } from "@faker-js/faker";
+import { Pets } from "./Pets";
 import { Error } from "./Error";
+import { Pets } from "./Pets";
 import type { ListPetsQueryParams, ListPets200, ListPetsError, ListPetsQueryResponse } from "./ListPets";
-import type { Pets } from "./Pets";
 
 
 
@@ -58,9 +59,10 @@ export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQue
 
 exports[`OperationGenerator > [GET] should generate 2`] = `
 "import { faker } from "@faker-js/faker";
+import { Pet } from "./Pet";
 import { Error } from "./Error";
+import { Pet } from "./Pet";
 import type { ShowPetByIdPathParams, ShowPetById200, ShowPetByIdError, ShowPetByIdQueryResponse } from "./ShowPetById";
-import type { Pet } from "./Pet";
 
 
 
@@ -101,9 +103,10 @@ export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetB
 
 exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
 "import { faker } from "@faker-js/faker";
+import { Pets } from "./Pets";
 import { Error } from "./Error";
+import { Pets } from "./Pets";
 import type { ListPetsQueryParams, ListPets200, ListPetsError, ListPetsQueryResponse } from "./ListPets";
-import type { Pets } from "./Pets";
 
 
 
@@ -148,9 +151,10 @@ export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQue
 
 exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
 "import { faker } from "@faker-js/faker";
+import { Pet } from "./Pet";
 import { Error } from "./Error";
+import { Pet } from "./Pet";
 import type { ShowPetByIdPathParams, ShowPetById200, ShowPetByIdError, ShowPetByIdQueryResponse } from "./ShowPetById";
-import type { Pet } from "./Pet";
 
 
 

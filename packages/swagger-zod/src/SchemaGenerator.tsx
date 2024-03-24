@@ -1,4 +1,4 @@
-import { createRoot } from '@kubb/react'
+import { createRoot, File } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
@@ -21,7 +21,9 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     root.render(
       <Oas oas={oas}>
         <Oas.Schema generator={this} name={name} object={object}>
-          <Schema.File isTypeOnly output={output} mode={mode} />
+          <Schema.File output={output} mode={mode}>
+            <File.Import name={['z']} path="zod" />
+          </Schema.File>
         </Oas.Schema>
       </Oas>,
       { meta: { pluginManager, plugin } },

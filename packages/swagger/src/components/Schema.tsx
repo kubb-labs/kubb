@@ -41,9 +41,10 @@ type FileProps = {
   mode: KubbFile.Mode | undefined
   isTypeOnly?: boolean
   output: string | undefined
+  children?: KubbNode
 }
 
-Schema.File = function({ output, isTypeOnly, mode = 'directory' }: FileProps): ReactNode {
+Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: FileProps): ReactNode {
   const plugin = usePlugin<PluginOptions>()
 
   const pluginManager = usePluginManager()
@@ -69,6 +70,7 @@ Schema.File = function({ output, isTypeOnly, mode = 'directory' }: FileProps): R
           <File.Source>
             <Schema.Source />
           </File.Source>
+          {children}
         </File>
       </Editor>
     )
@@ -94,6 +96,7 @@ Schema.File = function({ output, isTypeOnly, mode = 'directory' }: FileProps): R
         <File.Source>
           <Schema.Source />
         </File.Source>
+        {children}
       </File>
     </Editor>
   )
