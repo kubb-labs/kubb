@@ -17,10 +17,6 @@ export function Schema({ generator, options }: Props): ReactNode {
   const name = useSchemaName()
   const schemaObject = useSchemaObject()
 
-  if (!schemaObject) {
-    return null
-  }
-
   // TODO replace with React component
   const source = generator.buildSource(name, schemaObject, options)
 

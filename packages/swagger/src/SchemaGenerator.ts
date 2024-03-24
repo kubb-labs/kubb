@@ -71,7 +71,7 @@ export abstract class SchemaGenerator<
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  buildSchemas(schema: SchemaObject, baseName?: string): Schema[] {
+  buildSchemas(schema: SchemaObject | undefined, baseName?: string): Schema[] {
     return this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
   }
 
@@ -576,7 +576,7 @@ export abstract class SchemaGenerator<
    */
   abstract buildSource(
     name: string,
-    object: SchemaObject,
+    object: SchemaObject | undefined,
     options?: SchemaGeneratorBuildOptions,
   ): string[]
 }

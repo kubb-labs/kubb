@@ -15,10 +15,6 @@ export function SchemaImports({ root, isTypeOnly, generator }: Props): ReactNode
   const name = useSchemaName()
   const schemaObject = useSchemaObject()
 
-  if (!schemaObject) {
-    return null
-  }
-
   // TODO replace with React component
   const schemas = generator.buildSchemas(schemaObject, name)
   const refs = generator.deepSearch(schemas, schemaKeywords.ref)
