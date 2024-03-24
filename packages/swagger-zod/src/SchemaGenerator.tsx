@@ -1,5 +1,4 @@
 import { createRoot, File, useFile, usePlugin, usePluginManager } from '@kubb/react'
-import { schemaKeywords } from '@kubb/swagger'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
@@ -58,7 +57,6 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     keysToOmit,
     operation,
     description,
-    required,
   }: SchemaGeneratorBuildOptions & { required?: boolean } = {}): string[] {
     const texts: string[] = []
 
