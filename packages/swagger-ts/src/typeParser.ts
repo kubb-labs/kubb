@@ -287,7 +287,7 @@ export function typeParser(
     type: options.keysToOmit?.length ? factory.createOmitDeclaration({ keys: options.keysToOmit, type, nonNullable: true }) : type,
   })
 
-  const enumSchemas = SchemaGenerator.getEnum(schemas)
+  const enumSchemas = SchemaGenerator.deepSearch(schemas, schemaKeywords.enum)
   if (enumSchemas) {
     enumSchemas.forEach(enumSchema => {
       extraNodes.push(...factory.createEnumDeclaration({

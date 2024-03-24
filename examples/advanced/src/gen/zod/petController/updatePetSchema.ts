@@ -25,6 +25,7 @@ export const updatePet405Schema = z.any()
  * @description Update an existent pet in the store
  */
 export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.and(z.object({ id: z.never() }))
+
 /**
  * @description Successful operation
  */

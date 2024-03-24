@@ -64,19 +64,19 @@ export abstract class SchemaGenerator<
     return this.options.transformers.schema?.(schema, baseName) || this.#getBaseTypeFromSchema(schema, baseName) || []
   }
 
-  static getEnum(items?: Schema[]): SchemaKeywordMapper['enum'][] {
-    const enums: SchemaKeywordMapper['enum'][] = []
+  static deepSearch<T extends keyof SchemaKeywordMapper>(items: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
+    const foundItems: SchemaKeywordMapper[T][] = []
 
     items?.forEach(item => {
-      if (item.keyword === schemaKeywords.enum) {
-        enums.push(item as SchemaKeywordMapper['enum'])
+      if (item.keyword === keyword) {
+        foundItems.push(item as SchemaKeywordMapper[T])
       }
 
       if (item.keyword === schemaKeywords.object) {
         const subItem = item as SchemaKeywordMapper['object']
 
         Object.values(subItem.args?.properties || {}).forEach(entrySchema => {
-          enums.push(...SchemaGenerator.getEnum(entrySchema))
+          foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
         })
       }
 
@@ -84,7 +84,7 @@ export abstract class SchemaGenerator<
         const subItem = item as SchemaKeywordMapper['array']
 
         subItem.args.items.forEach(entrySchema => {
-          enums.push(...SchemaGenerator.getEnum([entrySchema]))
+          foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
@@ -92,7 +92,7 @@ export abstract class SchemaGenerator<
         const subItem = item as SchemaKeywordMapper['and']
 
         subItem.args.forEach(entrySchema => {
-          enums.push(...SchemaGenerator.getEnum([entrySchema]))
+          foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
@@ -100,12 +100,12 @@ export abstract class SchemaGenerator<
         const subItem = item as SchemaKeywordMapper['tuple']
 
         subItem.args.forEach(entrySchema => {
-          enums.push(...SchemaGenerator.getEnum([entrySchema]))
+          foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
     })
 
-    return enums
+    return foundItems
   }
 
   get #unknownReturn() {

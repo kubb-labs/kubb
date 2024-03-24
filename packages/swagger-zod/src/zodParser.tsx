@@ -241,13 +241,15 @@ export function zodParser(
 
   const constName = `${JSDoc}\nexport const ${options.name}`
   const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
+  const output = sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')
 
   if (options.keysToOmit?.length) {
-    const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
-    return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${omitText}${typeName};`
+    const suffix = output.endsWith('.nullable()') ? `.unwrap().schema.and` : `.schema.and`
+    const omitText = `${suffix}(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
+    return `${constName} = ${output}${omitText}${typeName}\n`
   }
 
-  return `${constName} = ${sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')}${typeName}\n`
+  return `${constName} = ${output}${typeName}\n`
 
   // const root = createRoot()
 
