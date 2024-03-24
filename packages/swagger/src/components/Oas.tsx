@@ -1,6 +1,5 @@
 import { createContext } from '@kubb/react'
 
-import { OasParser } from './OasParser.tsx'
 import { Operation } from './Operation.tsx'
 import { Schema } from './Schema.tsx'
 
@@ -32,4 +31,3 @@ export function Oas({ oas, children, operations, getOperationSchemas }: Props): 
 Oas.Context = OasContext
 Oas.Operation = Operation
 Oas.Schema = Schema
-Oas.Parser = OasParser

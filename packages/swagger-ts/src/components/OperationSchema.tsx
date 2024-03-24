@@ -4,12 +4,10 @@ import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
-import { Oas } from '@kubb/swagger/components'
+import { Oas, Schema } from '@kubb/swagger/components'
 import { useGetOperationFile, useOas, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
-import { Schema } from './Schema.tsx'
-import { SchemaImports } from './SchemaImports.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { ts } from '@kubb/parser'
@@ -133,10 +131,12 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
 
         {items.map(({ name, schema: object, ...options }, i) => {
           return (
-            <Oas.Schema key={i} name={name} object={object}>
+            <Oas.Schema key={i} generator={generator} name={name} object={object}>
               {mode === 'directory'
-                && <SchemaImports isTypeOnly generator={generator} root={file.path} />}
-              <Schema generator={generator} options={options} />
+                && <Schema.Imports isTypeOnly root={file.path} />}
+              <File.Source>
+                <Schema.Source options={options} />
+              </File.Source>
             </Oas.Schema>
           )
         })}

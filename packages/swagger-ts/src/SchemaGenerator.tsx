@@ -1,9 +1,8 @@
 import { createRoot } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
-import { Oas } from '@kubb/swagger/components'
+import { Oas, Schema } from '@kubb/swagger/components'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
-import { Schema } from './components/Schema.tsx'
 import { pluginKey } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
 
@@ -20,8 +19,8 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
 
     root.render(
       <Oas oas={oas}>
-        <Oas.Schema name={name} object={object}>
-          <Schema.File generator={this} output={output} mode={mode} />
+        <Oas.Schema generator={this} name={name} object={object}>
+          <Schema.File isTypeOnly output={output} mode={mode} />
         </Oas.Schema>
       </Oas>,
       { meta: { pluginManager, plugin } },
@@ -35,12 +34,12 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     description,
   }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
-    const input = this.buildSchemas(schema, name)
+    const schemas = this.buildSchemas(schema, name)
 
     const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })
     const resvoledTypeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const typeOutput = typeParser(input, {
+    const typeOutput = typeParser(schemas, {
       name: resolvedName,
       typeName: resvoledTypeName,
       description,

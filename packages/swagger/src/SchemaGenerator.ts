@@ -67,12 +67,23 @@ export abstract class SchemaGenerator<
   #usedAliasNames: Record<string, number> = {}
   #usedEnumNames = this.options.usedEnumNames || {}
   /**
+   * Cached schemas
+   */
+  #schemas?: Schema[] = undefined
+  /**
    * Creates a type node from a given schema.
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
   buildSchemas(schema: SchemaObject | undefined, baseName?: string): Schema[] {
-    return this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
+    // use cached schemas so we have the same state for usedEnumNames
+    if (this.#schemas) {
+      return this.#schemas
+    }
+
+    this.#schemas = this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
+
+    return this.#schemas
   }
 
   deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
