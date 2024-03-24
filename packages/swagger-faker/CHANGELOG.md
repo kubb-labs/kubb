@@ -1,5 +1,20 @@
 # @kubb/swagger-faker
 
+## 2.11.0
+
+### Minor Changes
+
+- [#883](https://github.com/kubb-project/kubb/pull/883) [`b97c061`](https://github.com/kubb-project/kubb/commit/b97c0616c231f8aa51e4551e5558573ad43ada98) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of unified SchemaGenerator to create schemas for TypeScript, Zod and the Fake Plugin
+
+### Patch Changes
+
+- Updated dependencies [[`b97c061`](https://github.com/kubb-project/kubb/commit/b97c0616c231f8aa51e4551e5558573ad43ada98), [`b97c061`](https://github.com/kubb-project/kubb/commit/b97c0616c231f8aa51e4551e5558573ad43ada98)]:
+  - @kubb/swagger-ts@2.11.0
+  - @kubb/swagger@2.11.0
+  - @kubb/react@2.11.0
+  - @kubb/core@2.11.0
+  - @kubb/parser@2.11.0
+
 ## 2.10.0
 
 ### Patch Changes
