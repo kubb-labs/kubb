@@ -1,13 +1,13 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable @typescript-eslint/ban-types */
-import { File, Editor, usePlugin, usePluginManager } from '@kubb/react'
-import { useOas, useSchema, useSchemaName } from '@kubb/swagger/hooks'
-
-import { SchemaGenerator } from '../SchemaGenerator.tsx'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { useSchemaName, useSchemaObject } from '@kubb/swagger/hooks'
 
 import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
+import type { SchemaGenerator } from '../SchemaGenerator.tsx'
 import type { FileMeta, PluginOptions } from '../types.ts'
+import { schemaKeywords } from '@kubb/swagger'
 
 type Props = {}
 
@@ -28,15 +28,16 @@ Schema.File = function({ generator, mode = 'directory' }: FileProps): ReactNode 
 
   const pluginManager = usePluginManager()
   const name = useSchemaName()
-  const schema = useSchema()
+  const schemaObject = useSchemaObject()
 
   if (mode === 'directory') {
     const baseName = `${pluginManager.resolveName({ name, pluginKey: plugin.key, type: 'file' })}.ts` as const
     const resolvedPath = pluginManager.resolvePath({ baseName, pluginKey: plugin.key })
     // TODO replace with React component
-    const source = generator.buildSchema(name, schema)
+    const source = generator.buildSource(name, schemaObject)
+    const schemas = generator.buildSchemas(schemaObject, name)
 
-    console.log(source)
+    console.log(generator.deepSearch(schemas, schemaKeywords.ref))
 
     if (!resolvedPath) {
       return null

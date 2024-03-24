@@ -26,7 +26,7 @@ export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const generator = new SchemaGenerator(this.options, this.context as any)
 
-        const sources = generator.buildSchema(operationSchema.name, operationSchema.schema, operationSchema)
+        const sources = generator.buildSource(operationSchema.name, operationSchema.schema, operationSchema)
         importMeta.push(...generator.imports)
 
         return {

@@ -3,4 +3,4 @@ export { useGetOperationFile, useOperation, useOperationName } from './useOperat
 export { useOperationHelpers } from './useOperationHelpers.ts'
 export { useOperations } from './useOperations.ts'
 export { useOperationSchemas } from './useOperationSchemas.ts'
-export { useSchema, useSchemaName } from './useSchema.ts'
+export { useSchemaName, useSchemaObject } from './useSchema.ts'

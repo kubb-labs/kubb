@@ -28,7 +28,7 @@ describe('ZodGenerator PetStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pet', schemas?.Pet as SchemaObject)
+    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -50,7 +50,7 @@ describe('ZodGenerator PetStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pets', schemas?.Pets as SchemaObject)
+    const node = generator.buildSource('Pets', schemas?.Pets as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -72,7 +72,7 @@ describe('ZodGenerator PetStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('OptionalPet', schemas?.OptionalPet as SchemaObject)
+    const node = generator.buildSource('OptionalPet', schemas?.OptionalPet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -95,7 +95,7 @@ describe('ZodGenerator PetStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('OptionalPet', schemas?.OptionalPet as SchemaObject)
+    const node = generator.buildSource('OptionalPet', schemas?.OptionalPet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -117,7 +117,7 @@ describe('ZodGenerator PetStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('PetArray', schemas?.PetArray as SchemaObject)
+    const node = generator.buildSource('PetArray', schemas?.PetArray as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -145,56 +145,56 @@ describe('ZodGenerator constCases', async () => {
 
   test('UuidSchema generates a string with uuid format constraint', async () => {
     const schema = schemas['UuidSchema'] as SchemaObject
-    const node = generator.buildSchema('UuidSchema', schema)
+    const node = generator.buildSource('UuidSchema', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullableString zodifies correctly', async () => {
     const schema = schemas?.['NullableString'] as SchemaObject
-    const node = generator.buildSchema('NullableString', schema)
+    const node = generator.buildSource('NullableString', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullableStringWithAnyOf results in union of string and null', async () => {
     const schema = schemas['NullableStringWithAnyOf'] as SchemaObject
-    const node = generator.buildSchema('NullableStringWithAnyOf', schema)
+    const node = generator.buildSource('NullableStringWithAnyOf', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullableStringUuid zodifies correctly to a uuid or null', async () => {
     const schema = schemas['NullableStringUuid'] as SchemaObject
-    const node = generator.buildSchema('NullableStringUuid', schema)
+    const node = generator.buildSource('NullableStringUuid', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullConst zodifies correctly', async () => {
     const schema = schemas['NullConst'] as SchemaObject
-    const node = generator.buildSchema('NullConst', schema)
+    const node = generator.buildSource('NullConst', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('StringValueConst correctly generates zod literal', async () => {
     const schema = schemas['StringValueConst'] as SchemaObject
-    const node = generator.buildSchema('StringValueConst', schema)
+    const node = generator.buildSource('StringValueConst', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NumberValueConst correctly generates zod literal', async () => {
     const schema = schemas['NumberValueConst'] as SchemaObject
-    const node = generator.buildSchema('NumberValueConst', schema)
+    const node = generator.buildSource('NumberValueConst', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('MixedValueTypeConst generates zod literal value correctly, overriding the type constraint', async () => {
     const schema = schemas['MixedValueTypeConst'] as SchemaObject
-    const node = generator.buildSchema('MixedValueTypeConst', schema)
+    const node = generator.buildSource('MixedValueTypeConst', schema)
 
     expect(node).toMatchSnapshot()
   })
@@ -221,7 +221,7 @@ describe('ZodGenerator lazy', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Example', schemas?.Example as SchemaObject)
+    const node = generator.buildSource('Example', schemas?.Example as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -248,13 +248,13 @@ describe('ZodGenerator enums', async () => {
   const schemas = oas.getDefinition().components?.schemas
 
   test('generate x-enum-varnames types', async () => {
-    const node = generator.buildSchema('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
+    const node = generator.buildSource('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate x-enumNames types', async () => {
-    const node = generator.buildSchema('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
+    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -281,7 +281,7 @@ describe('ZodGenerator recursive', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Example', schemas?.Example as SchemaObject)
+    const node = generator.buildSource('Example', schemas?.Example as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -309,7 +309,7 @@ describe('ZodGenerator anyof', async () => {
 
   test('anyof with 2 objects', async () => {
     const schema = schemas['test'] as SchemaObject
-    const node = generator.buildSchema('test', schema)
+    const node = generator.buildSource('test', schema)
 
     expect(node).toMatchSnapshot()
   })

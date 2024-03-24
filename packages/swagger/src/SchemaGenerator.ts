@@ -8,7 +8,7 @@ import { isReference } from './utils/isReference.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Oas, OasTypes, OpenAPIV3, SchemaObject } from './oas/index.ts'
+import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 import type { ContentType, ImportMeta, OperationSchema, Refs } from './types.ts'
 
@@ -45,7 +45,7 @@ export type SchemaGeneratorOptions = {
      * TODO TODO add docs
      * @beta
      */
-    schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => Schema[] | undefined
+    schema?: (schema: SchemaObject | undefined, baseName?: string) => Schema[] | undefined
   }
 }
 
@@ -65,50 +65,54 @@ export abstract class SchemaGenerator<
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
-
+  #usedEnumNames = this.options.usedEnumNames || {}
   /**
    * Creates a type node from a given schema.
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  getTypeFromSchema(schema: SchemaObject, baseName?: string): Schema[] {
-    return this.options.transformers.schema?.(schema, baseName) || this.#getBaseTypeFromSchema(schema, baseName) || []
+  buildSchemas(schema: SchemaObject, baseName?: string): Schema[] {
+    return this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
   }
 
-  static deepSearch<T extends keyof SchemaKeywordMapper>(items: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
+  deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
+    return SchemaGenerator.deepSearch<T>(schemas, keyword)
+  }
+
+  static deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
     const foundItems: SchemaKeywordMapper[T][] = []
 
-    items?.forEach(item => {
-      if (item.keyword === keyword) {
-        foundItems.push(item as SchemaKeywordMapper[T])
+    schemas?.forEach(schema => {
+      if (schema.keyword === keyword) {
+        foundItems.push(schema as SchemaKeywordMapper[T])
       }
 
-      if (item.keyword === schemaKeywords.object) {
-        const subItem = item as SchemaKeywordMapper['object']
+      if (schema.keyword === schemaKeywords.object) {
+        const subItem = schema as SchemaKeywordMapper['object']
 
         Object.values(subItem.args?.properties || {}).forEach(entrySchema => {
           foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
         })
       }
 
-      if (item.keyword === schemaKeywords.array) {
-        const subItem = item as SchemaKeywordMapper['array']
+      if (schema.keyword === schemaKeywords.array) {
+        const subItem = schema as SchemaKeywordMapper['array']
 
         subItem.args.items.forEach(entrySchema => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
-      if (item.keyword === schemaKeywords.and) {
-        const subItem = item as SchemaKeywordMapper['and']
+      if (schema.keyword === schemaKeywords.and) {
+        const subItem = schema as SchemaKeywordMapper['and']
 
         subItem.args.forEach(entrySchema => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
-      if (item.keyword === schemaKeywords.tuple) {
-        const subItem = item as SchemaKeywordMapper['tuple']
+      if (schema.keyword === schemaKeywords.tuple) {
+        const subItem = schema as SchemaKeywordMapper['tuple']
 
         subItem.args.forEach(entrySchema => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
@@ -127,12 +131,10 @@ export abstract class SchemaGenerator<
     return schemaKeywords.unknown
   }
 
-  #usedEnumNames = this.options.usedEnumNames || {}
-
   /**
    * Recursively creates a type literal with the given props.
    */
-  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): Schema[] {
+  #parseProperties(baseSchema?: SchemaObject, baseName?: string): Schema[] {
     const properties = baseSchema?.properties || {}
     const additionalProperties = baseSchema?.additionalProperties
     const required = baseSchema?.required
@@ -146,7 +148,7 @@ export abstract class SchemaGenerator<
         const isRequired = Array.isArray(required) ? required && required.includes(name) : !!required
         const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
 
-        validationFunctions.push(...this.getTypeFromSchema(schema, resolvedName))
+        validationFunctions.push(...this.buildSchemas(schema, resolvedName))
 
         if (!isRequired && nullable) {
           validationFunctions.push({ keyword: schemaKeywords.nullish })
@@ -165,7 +167,7 @@ export abstract class SchemaGenerator<
     if (additionalProperties) {
       additionalPropertieschemas = additionalProperties === true
         ? [{ keyword: this.#unknownReturn }]
-        : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
+        : this.buildSchemas(additionalProperties as SchemaObject)
     }
 
     members.push({ keyword: schemaKeywords.object, args: { properties: propertiesSchemas, additionalProperties: additionalPropertieschemas } })
@@ -207,7 +209,7 @@ export abstract class SchemaGenerator<
     return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref?.path } }]
   }
 
-  #getParsedSchema(schema?: SchemaObject) {
+  #getParsedSchemaObject(schema?: SchemaObject) {
     const parsedSchema = getSchemaFactory(this.context.oas)(schema)
     return parsedSchema
   }
@@ -216,8 +218,8 @@ export abstract class SchemaGenerator<
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #getBaseTypeFromSchema(_schema: SchemaObject | undefined, baseName?: string): Schema[] {
-    const { schema, version } = this.#getParsedSchema(_schema)
+  #parseSchemaObject(_schema: SchemaObject | undefined, baseName?: string): Schema[] {
+    const { schema, version } = this.#getParsedSchemaObject(_schema)
 
     if (!schema) {
       return [{ keyword: this.#unknownReturn }]
@@ -268,7 +270,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as SchemaObject, baseName)[0]
+            return item && this.buildSchemas(item as SchemaObject, baseName)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -276,7 +278,7 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [...this.getTypeFromSchema(schemaWithoutOneOf, baseName), union, ...baseItems]
+        return [...this.buildSchemas(schemaWithoutOneOf, baseName), union, ...baseItems]
       }
 
       return [union, ...baseItems]
@@ -290,7 +292,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as SchemaObject, baseName)[0]
+            return item && this.buildSchemas(item as SchemaObject, baseName)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -309,7 +311,7 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutAnyOf.properties) {
-        return [...this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union, ...baseItems]
+        return [...this.buildSchemas(schemaWithoutAnyOf, baseName), union, ...baseItems]
       }
 
       return [union, ...baseItems]
@@ -322,7 +324,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as SchemaObject, baseName)[0]
+            return item && this.buildSchemas(item as SchemaObject, baseName)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -334,7 +336,7 @@ export abstract class SchemaGenerator<
         return [
           {
             ...and,
-            args: [...(and.args || []), ...this.getTypeFromSchema(schemaWithoutAllOf, baseName)],
+            args: [...(and.args || []), ...this.buildSchemas(schemaWithoutAllOf, baseName)],
           },
           ...baseItems,
         ]
@@ -418,14 +420,14 @@ export abstract class SchemaGenerator<
     }
 
     if ('prefixItems' in schema) {
-      const prefixItems = schema.prefixItems as OasTypes.SchemaObject[]
+      const prefixItems = schema.prefixItems as SchemaObject[]
 
       return [
         {
           keyword: schemaKeywords.tuple,
           args: prefixItems
             .map((item) => {
-              return this.getTypeFromSchema(item, baseName)[0]
+              return this.buildSchemas(item, baseName)[0]
             })
             .filter(Boolean),
         },
@@ -435,7 +437,7 @@ export abstract class SchemaGenerator<
     if ('items' in schema) {
       const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-      const items = this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName)
+      const items = this.buildSchemas(schema.items as SchemaObject, baseName)
 
       return [{
         keyword: schemaKeywords.array,
@@ -448,7 +450,7 @@ export abstract class SchemaGenerator<
     }
 
     if (schema.properties || schema.additionalProperties) {
-      return [...this.#getTypeFromProperties(schema, baseName), ...baseItems]
+      return [...this.#parseProperties(schema, baseName), ...baseItems]
     }
 
     if (version === '3.1' && 'const' in schema) {
@@ -469,7 +471,7 @@ export abstract class SchemaGenerator<
         const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
-          ...this.getTypeFromSchema(
+          ...this.buildSchemas(
             {
               ...schema,
               type,
@@ -539,15 +541,15 @@ export abstract class SchemaGenerator<
   async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
-    const schemas = getSchemas({ oas, contentType, includes: include })
+    const object = getSchemas({ oas, contentType, includes: include })
 
-    const promises = Object.keys(schemas).reduce(
+    const promises = Object.keys(object).reduce(
       (acc, name) => {
-        if (!schemas[name]) {
+        if (!object[name]) {
           return acc
         }
 
-        const promiseOperation = this.schema.call(this, name, schemas[name]!)
+        const promiseOperation = this.schema.call(this, name, object[name]!)
 
         if (promiseOperation) {
           acc.push(promiseOperation)
@@ -567,14 +569,14 @@ export abstract class SchemaGenerator<
   /**
    * Schema
    */
-  abstract schema(name: string, schema: SchemaObject): SchemaMethodResult<TFileMeta>
+  abstract schema(name: string, object: SchemaObject): SchemaMethodResult<TFileMeta>
 
   /**
    * Returns the source, in the future it an return a react component
    */
-  abstract buildSchema(
+  abstract buildSource(
     name: string,
-    schema: SchemaObject,
+    object: SchemaObject,
     options?: SchemaGeneratorBuildOptions,
   ): string[]
 }

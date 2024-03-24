@@ -28,7 +28,7 @@ export function OasParser({ name, items, mode, generator, isTypeOnly }: Props): 
     .filter((operationSchema) => (name ? operationSchema.name === name : true))
     .sort(transformers.nameSorter)
     .map((operationSchema) => {
-      const sources = generator.buildSchema(operationSchema.name, operationSchema.schema, operationSchema)
+      const sources = generator.buildSource(operationSchema.name, operationSchema.schema, operationSchema)
       importMeta.push(...generator.imports)
 
       return {

@@ -5,7 +5,7 @@ import { Operation } from './Operation.tsx'
 import { Schema } from './Schema.tsx'
 
 import type { KubbNode } from '@kubb/react'
-import type { Oas as OasType, Operation as OperationType, SchemaObject } from '../oas/index.ts'
+import type { Oas as OasType, Operation as OperationType } from '../oas/index.ts'
 import type { OperationSchemas } from '../types.ts'
 
 export type GetOperationSchemas = (operation: OperationType, statusCode?: string | number) => OperationSchemas
@@ -13,7 +13,6 @@ export type GetOperationSchemas = (operation: OperationType, statusCode?: string
 type Props = {
   oas: OasType
   operations?: OperationType[]
-  schemas?: SchemaObject[]
   getOperationSchemas?: GetOperationSchemas
   children?: KubbNode
 }
@@ -21,14 +20,13 @@ type Props = {
 type OasContextProps = {
   oas?: OasType
   operations?: OperationType[]
-  schemas?: SchemaObject[]
   getOperationSchemas?: GetOperationSchemas
 }
 
 const OasContext = createContext<OasContextProps>({})
 
-export function Oas({ oas, children, operations, schemas, getOperationSchemas }: Props): KubbNode {
-  return <OasContext.Provider value={{ oas, getOperationSchemas, schemas, operations }}>{children}</OasContext.Provider>
+export function Oas({ oas, children, operations, getOperationSchemas }: Props): KubbNode {
+  return <OasContext.Provider value={{ oas, getOperationSchemas, operations }}>{children}</OasContext.Provider>
 }
 
 Oas.Context = OasContext

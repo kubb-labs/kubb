@@ -32,7 +32,7 @@ describe('SchemaGenerator petStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pet', schemas?.Pet as SchemaObject)
+    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -56,7 +56,7 @@ describe('SchemaGenerator petStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pet', schemas?.Pet as SchemaObject)
+    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -80,7 +80,7 @@ describe('SchemaGenerator petStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pet', schemas?.Pet as SchemaObject)
+    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -113,7 +113,7 @@ describe('SchemaGenerator petStore', async () => {
       },
     }
 
-    const node = generator.buildSchema('Test', schema)
+    const node = generator.buildSource('Test', schema)
 
     expect(node).toMatchSnapshot()
   })
@@ -137,7 +137,7 @@ describe('SchemaGenerator petStore', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pets', schemas?.Pets as SchemaObject)
+    const node = generator.buildSource('Pets', schemas?.Pets as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -166,7 +166,7 @@ describe('SchemaGenerator petStoreRef', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Pets', schemas?.Pets as SchemaObject)
+    const node = generator.buildSource('Pets', schemas?.Pets as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -195,7 +195,7 @@ describe('SchemaGenerator discriminator', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Petstore', schemas?.Petstore as SchemaObject)
+    const node = generator.buildSource('Petstore', schemas?.Petstore as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -219,7 +219,7 @@ describe('SchemaGenerator discriminator', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Cat', schemas?.Cat as SchemaObject)
+    const node = generator.buildSource('Cat', schemas?.Cat as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -243,7 +243,7 @@ describe('SchemaGenerator discriminator', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('Dog', schemas?.Dog as SchemaObject)
+    const node = generator.buildSource('Dog', schemas?.Dog as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -266,7 +266,7 @@ describe('SchemaGenerator discriminator', async () => {
       include: undefined,
     })
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('NullConst', schemas?.NullConst as SchemaObject)
+    const node = generator.buildSource('NullConst', schemas?.NullConst as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -290,7 +290,7 @@ describe('SchemaGenerator discriminator', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('StringValueConst', schemas?.StringValueConst as SchemaObject)
+    const node = generator.buildSource('StringValueConst', schemas?.StringValueConst as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -314,7 +314,7 @@ describe('SchemaGenerator discriminator', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('NumberValueConst', schemas?.NumberValueConst as SchemaObject)
+    const node = generator.buildSource('NumberValueConst', schemas?.NumberValueConst as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -338,7 +338,7 @@ describe('SchemaGenerator discriminator', async () => {
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSchema('MixedValueTypeConst', schemas?.MixedValueTypeConst as SchemaObject)
+    const node = generator.buildSource('MixedValueTypeConst', schemas?.MixedValueTypeConst as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -367,43 +367,43 @@ describe('SchemaGenerator enums', async () => {
   const schemas = oas.getDefinition().components?.schemas
 
   test('generate x-enum-varnames Type', async () => {
-    const node = defaultGenerator.buildSchema('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate x-enumNames Type', async () => {
-    const node = defaultGenerator.buildSchema('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate enum Items', async () => {
-    const node = defaultGenerator.buildSchema('enumItems', schemas?.['enum.Items'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumItems', schemas?.['enum.Items'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate enum String', async () => {
-    const node = defaultGenerator.buildSchema('enumString', schemas?.['enum.String'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumString', schemas?.['enum.String'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate enum AllOf', async () => {
-    const node = defaultGenerator.buildSchema('enumObject', schemas?.['enum.AllOf'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumObject', schemas?.['enum.AllOf'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate enum InObject', async () => {
-    const node = defaultGenerator.buildSchema('enumObject', schemas?.['enum.InObject'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumObject', schemas?.['enum.InObject'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate enum Array', async () => {
-    const node = defaultGenerator.buildSchema('enumArray', schemas?.['enum.Array'] as SchemaObject)
+    const node = defaultGenerator.buildSource('enumArray', schemas?.['enum.Array'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -426,7 +426,7 @@ describe('SchemaGenerator enums', async () => {
       include: undefined,
     })
 
-    const node = generator.buildSchema('enumNames', schemas?.['enumNames.Type'] as OasTypes.SchemaObject)
+    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as OasTypes.SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -449,7 +449,7 @@ describe('SchemaGenerator enums', async () => {
       include: undefined,
     })
 
-    const node = generator.buildSchema('enumNames', schemas?.['enumNames.Type'] as OasTypes.SchemaObject)
+    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as OasTypes.SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -472,7 +472,7 @@ describe('SchemaGenerator enums', async () => {
       include: undefined,
     })
 
-    const node = generator.buildSchema('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
+    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -495,7 +495,7 @@ describe('SchemaGenerator enums', async () => {
       include: undefined,
     })
 
-    const node = generator.buildSchema('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
+    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })

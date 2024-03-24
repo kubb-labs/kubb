@@ -22,7 +22,7 @@ export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .map((operationSchema) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const generator = new FakerGenerator(this.options, this.context as any)
-        const sources = generator.buildSchema(operationSchema.name, operationSchema.schema, operationSchema)
+        const sources = generator.buildSource(operationSchema.name, operationSchema.schema, operationSchema)
 
         importMeta.push(...generator.imports)
 

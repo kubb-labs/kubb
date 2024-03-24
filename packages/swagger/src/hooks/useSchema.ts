@@ -5,16 +5,16 @@ import { Schema } from '../components/Schema.tsx'
 import type { SchemaObject } from '../oas/index.ts'
 
 /**
- * `useSchema` will return the current `Schema`
+ * `useSchemaObject` will return the current `SchemaObject`
  */
-export function useSchema(): SchemaObject {
-  const { schema } = useContext(Schema.Context)
+export function useSchemaObject(): SchemaObject {
+  const { object } = useContext(Schema.Context)
 
-  if (!schema) {
-    throw new Error('schema is not defined')
+  if (!object) {
+    throw new Error('object is not defined')
   }
 
-  return schema
+  return object
 }
 
 /**

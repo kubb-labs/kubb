@@ -6,13 +6,13 @@ import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
+import { SchemaGenerator } from './SchemaGenerator.tsx'
 import { TypeBuilder } from './TypeBuilder.ts'
 
 import type { KubbFile, Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { OasTypes } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
-import { SchemaGenerator } from './SchemaGenerator.tsx'
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
@@ -172,7 +172,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.addFile(...operationFiles)
 
       const schemaFiles = await schemaGenerator.build()
-      console.log(schemaFiles)
+
       await this.addFile(...schemaFiles)
     },
     async buildEnd() {

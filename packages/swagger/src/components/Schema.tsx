@@ -5,20 +5,20 @@ import type { Operation as OperationType, SchemaObject } from '../oas/index.ts'
 
 type Props = {
   name?: string
-  schema?: SchemaObject
+  object?: SchemaObject
   children?: KubbNode
 }
 
 type SchemaContextProps = {
   name?: string
-  schema?: SchemaObject
+  object?: SchemaObject
   operation?: OperationType
 }
 
 const SchemaContext = createContext<SchemaContextProps>({})
 
-export function Schema({ name, schema, children }: Props): KubbNode {
-  return <SchemaContext.Provider value={{ name, schema }}>{children}</SchemaContext.Provider>
+export function Schema({ name, object, children }: Props): KubbNode {
+  return <SchemaContext.Provider value={{ name, object }}>{children}</SchemaContext.Provider>
 }
 
 Schema.Context = SchemaContext

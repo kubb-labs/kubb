@@ -16,18 +16,18 @@ export class FakerGenerator extends SchemaGenerator<Options> {
     return null
   }
 
-  buildSchema(baseName: string, schema: SchemaObject, {
+  buildSource(baseName: string, schema: SchemaObject, {
     operationName,
     operation,
     description,
   }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
-    const input = this.getTypeFromSchema(schema, baseName)
+    const schemas = this.buildSchemas(schema, baseName)
 
     const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' })
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const output = fakerParser(input, {
+    const output = fakerParser(schemas, {
       name,
       typeName,
       description,
