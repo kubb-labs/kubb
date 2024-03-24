@@ -1,10 +1,3 @@
-export const addressIdentifier = {
-  NW: 'NW',
-  NE: 'NE',
-  SW: 'SW',
-  SE: 'SE',
-} as const
-export type AddressIdentifier = (typeof addressIdentifier)[keyof typeof addressIdentifier]
 export type Address = {
   /**
    * @type string | undefined
@@ -22,5 +15,5 @@ export type Address = {
    * @type string | undefined
    */
   zip?: string
-  identifier?: [number, string, AddressIdentifier]
+  identifier?: [number, number, number]
 }

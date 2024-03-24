@@ -1,5 +1,18 @@
 import type { User } from '../User'
 
+export type GetUserByNamePathParams = {
+  /**
+   * @description The name that needs to be fetched. Use user1 for testing.
+   * @type string
+   */
+  username: string
+}
+
+/**
+ * @description successful operation
+ */
+export type GetUserByNameQueryResponse = User
+
 /**
  * @description successful operation
  */
@@ -15,18 +28,6 @@ export type GetUserByName400 = any
  */
 export type GetUserByName404 = any
 
-export type GetUserByNamePathParams = {
-  /**
-   * @description The name that needs to be fetched. Use user1 for testing.
-   * @type string
-   */
-  username: string
-}
-
-/**
- * @description successful operation
- */
-export type GetUserByNameQueryResponse = User
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse
   PathParams: GetUserByNamePathParams

@@ -1,17 +1,5 @@
 import type { User } from '../User'
 
-/**
- * @description successful operation
- */
-export type UpdateUserError = any
-
-/**
- * @description Update an existent user in the store
- */
-export type UpdateUserMutationRequest = User
-
-export type UpdateUserMutationResponse = any
-
 export type UpdateUserPathParams = {
   /**
    * @description name that need to be deleted
@@ -19,6 +7,19 @@ export type UpdateUserPathParams = {
    */
   username: string
 }
+
+export type UpdateUserMutationResponse = any
+
+/**
+ * @description Update an existent user in the store
+ */
+export type UpdateUserMutationRequest = User
+
+/**
+ * @description successful operation
+ */
+export type UpdateUserError = any
+
 export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse
   Request: UpdateUserMutationRequest
