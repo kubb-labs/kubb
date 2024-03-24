@@ -128,7 +128,13 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+        items: [{
+          keyword: schemaKeywords.union,
+          args: [
+            { keyword: schemaKeywords.number },
+            { keyword: schemaKeywords.string },
+          ],
+        }],
       },
     },
   },
@@ -155,7 +161,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+        items: [{ keyword: schemaKeywords.min, args: 1 }, { keyword: schemaKeywords.number }],
         min: 3,
         max: 10,
       },

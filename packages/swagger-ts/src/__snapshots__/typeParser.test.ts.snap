@@ -11,12 +11,12 @@ exports[`parseTypeMeta > 'any' 1`] = `
 `;
 
 exports[`parseTypeMeta > 'array' 1`] = `
-"Array<string | number>
+"(number | string)[]
 "
 `;
 
 exports[`parseTypeMeta > 'arrayAdvanced' 1`] = `
-"Array<string | number>
+"number[]
 "
 `;
 
@@ -86,7 +86,7 @@ exports[`parseTypeMeta > 'object' 1`] = `
 "{
     firstName: string;
     /**
-     * @description "Your address"
+     * @description \\"Your address\\"
     */
     address: string | null;
 }
@@ -122,7 +122,7 @@ exports[`parseTypeMeta > 'objectOptional' 1`] = `
 "{
     firstName?: string;
     /**
-     * @description "Your address"
+     * @description \\"Your address\\"
     */
     address: string | null;
 }
@@ -139,9 +139,19 @@ exports[`parseTypeMeta > 'string' 1`] = `
 "
 `;
 
-exports[`parseTypeMeta > 'tuple' 1`] = `undefined`;
+exports[`parseTypeMeta > 'tuple' 1`] = `
+"[
+]
+"
+`;
 
-exports[`parseTypeMeta > 'tupleMulti' 1`] = `undefined`;
+exports[`parseTypeMeta > 'tupleMulti' 1`] = `
+"[
+    string,
+    number
+]
+"
+`;
 
 exports[`parseTypeMeta > 'undefined' 1`] = `
 "undefined

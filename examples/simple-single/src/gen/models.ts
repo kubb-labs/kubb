@@ -78,7 +78,7 @@ export type Order = {
    */
   status?: OrderStatus
   /**
-   * @description HTTP Status's and item of this
+   * @description HTTP Status\'s and item of this
    * @type number | undefined
    */
   http_status?: OrderHttpStatus

@@ -7,7 +7,7 @@ exports[`TypeGenerator discriminator > Cat.type defined as const 1`] = `
      * @type string uuid
     */
     id: string;
-    type;
+    type: "Cat";
     /**
      * @type boolean | undefined
     */
@@ -28,7 +28,7 @@ exports[`TypeGenerator discriminator > Dog.type defined as const 1`] = `
      * @type number | undefined
     */
     bark?: number;
-    type;
+    type: "Dog";
 };
 ",
 ]
@@ -37,7 +37,7 @@ exports[`TypeGenerator discriminator > Dog.type defined as const 1`] = `
 exports[`TypeGenerator discriminator > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
 [
   "export type MixedValueTypeConst = {
-    foobar?;
+    foobar?: "foobar";
 };
 ",
 ]
@@ -55,7 +55,7 @@ exports[`TypeGenerator discriminator > NullConst correctly produces "null" 1`] =
 exports[`TypeGenerator discriminator > NumberValueConst const correctly produces \`42\` 1`] = `
 [
   "export type NumberValueConst = {
-    foobar?;
+    foobar?: 42;
 };
 ",
 ]
@@ -80,13 +80,13 @@ exports[`TypeGenerator discriminator > PetStore defined as array with type union
 exports[`TypeGenerator discriminator > StringValueConst const correctly produces "foobar" 1`] = `
 [
   "export type StringValueConst = {
-    foobar?;
+    foobar?: "foobar";
 };
 ",
 ]
 `;
 
-exports[`TypeGenerator enums > generate enum InObject 1`] = `
+exports[`TypeGenerator enums > generate enum AllOf 1`] = `
 [
   "export const enumObjectReason = {
     "created_at": "created_at",
@@ -94,10 +94,44 @@ exports[`TypeGenerator enums > generate enum InObject 1`] = `
 } as const;
 export type EnumObjectReason = (typeof enumObjectReason)[keyof typeof enumObjectReason];
 export type enumObject = {
+    reason?: EnumObjectReason;
+};
+",
+]
+`;
+
+exports[`TypeGenerator enums > generate enum Array 1`] = `
+[
+  "export const enumArrayIdentifier = {
+    "NW": "NW",
+    "NE": "NE",
+    "SW": "SW",
+    "SE": "SE"
+} as const;
+export type EnumArrayIdentifier = (typeof enumArrayIdentifier)[keyof typeof enumArrayIdentifier];
+export type enumArray = {
+    identifier?: [
+        number,
+        string,
+        EnumArrayIdentifier
+    ];
+};
+",
+]
+`;
+
+exports[`TypeGenerator enums > generate enum InObject 1`] = `
+[
+  "export const enumObjectReason2 = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
+export type EnumObjectReason2 = (typeof enumObjectReason2)[keyof typeof enumObjectReason2];
+export type enumObject = {
     /**
      * @type string | undefined
     */
-    reason?: EnumObjectReason;
+    reason?: EnumObjectReason2;
 };
 ",
 ]
@@ -119,7 +153,9 @@ exports[`TypeGenerator enums > generate enum String 1`] = `
 [
   "export const enumString = {
     "created_at": "created_at",
-    "description": "description"
+    "description": "description",
+    "FILE.UPLOADED": "FILE.UPLOADED",
+    "FILE.DOWNLOADED": "FILE.DOWNLOADED"
 } as const;
 export type EnumString = (typeof enumString)[keyof typeof enumString];
 export type enumString = EnumString;

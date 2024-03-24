@@ -212,7 +212,7 @@ export function fakerParser(
   }
 
   const JSDoc = createJSDocBlockText({
-    comments: [options.description ? `@description ${options.description}` : undefined].filter(Boolean),
+    comments: [options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined].filter(Boolean),
   })
 
   return `

@@ -54,7 +54,19 @@ export const zodKeywordMapper = {
 
 function sort(items?: Schema[]): Schema[] {
   const order: string[] = [
+    schemaKeywords.string,
+    schemaKeywords.number,
     schemaKeywords.object,
+    schemaKeywords.url,
+    schemaKeywords.email,
+    schemaKeywords.firstName,
+    schemaKeywords.lastName,
+    schemaKeywords.password,
+    schemaKeywords.matches,
+    schemaKeywords.uuid,
+    schemaKeywords.min,
+    schemaKeywords.max,
+    schemaKeywords.default,
     schemaKeywords.describe,
     schemaKeywords.optional,
     schemaKeywords.nullable,
@@ -95,7 +107,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
       return ''
     }
 
-    return `${value}([${sort(item.args).map((unionItem) => parseZodMeta(unionItem, options)).filter(Boolean).join(',')}])`
+    return `${value}([${sort(item.args).map((unionItem) => parseZodMeta(unionItem, options)).filter(Boolean).join(', ')}])`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
@@ -110,7 +122,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
 
   if (isKeyword(item, schemaKeywords.array)) {
     return [
-      `${value}(${sort(item.args.items).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')})`,
+      `${value}(${sort(item.args.items).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join('')})`,
       item.args.min ? `${mapper.min}(${item.args.min})` : undefined,
       item.args.max ? `${mapper.max}(${item.args.max})` : undefined,
     ].filter(Boolean).join('')
@@ -161,7 +173,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
       })
       .join(',')
 
-    const additionalProperties = item.args?.additionalProperties.length
+    const additionalProperties = item.args?.additionalProperties?.length
       ? item.args.additionalProperties.map(schema => parseZodMeta(schema, options)).filter(Boolean).at(0)
       : undefined
 
@@ -224,7 +236,7 @@ export function zodParser(
   const sortedSchemas = sort(schemas)
 
   const JSDoc = createJSDocBlockText({
-    comments: [options.description ? `@description ${options.description}` : undefined].filter(Boolean),
+    comments: [options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined].filter(Boolean),
   })
 
   const constName = `${JSDoc}\nexport const ${options.name}`

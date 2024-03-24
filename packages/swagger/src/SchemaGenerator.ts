@@ -256,7 +256,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as SchemaObject, baseName)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -278,7 +278,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as SchemaObject, baseName)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -310,7 +310,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as SchemaObject, baseName)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -405,21 +405,6 @@ export abstract class SchemaGenerator<
       ]
     }
 
-    if ('items' in schema) {
-      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-
-      // items -> array
-      return [{
-        keyword: schemaKeywords.array,
-        args: {
-          items: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName),
-          min,
-          max,
-        },
-      }, ...baseItems]
-    }
-
     if ('prefixItems' in schema) {
       const prefixItems = schema.prefixItems as OasTypes.SchemaObject[]
 
@@ -428,12 +413,26 @@ export abstract class SchemaGenerator<
           keyword: schemaKeywords.tuple,
           args: prefixItems
             .map((item) => {
-              // no baseType so we can fall back on an union when using enum
-              return this.getTypeFromSchema(item, undefined)[0]
+              return this.getTypeFromSchema(item, baseName)[0]
             })
             .filter(Boolean),
         },
       ]
+    }
+
+    if ('items' in schema) {
+      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+      const items = this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName)
+
+      return [{
+        keyword: schemaKeywords.array,
+        args: {
+          items,
+          min,
+          max,
+        },
+      }, ...baseItems]
     }
 
     if (schema.properties || schema.additionalProperties) {
@@ -454,7 +453,6 @@ export abstract class SchemaGenerator<
 
     if (schema.type) {
       if (Array.isArray(schema.type)) {
-        // TODO  remove hardcoded first type, second nullable
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
         const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 

@@ -283,6 +283,20 @@ describe('codegen', () => {
     expect(
       await formatTS(
         createEnumDeclaration({
+          type: 'asConst',
+          name: 'hello',
+          typeName: 'Hello',
+          enums: [
+            ['FILE.UPLOADED', 'FILE.UPLOADED'],
+            ['FILE.PREVIEWE', 'FILE.PREVIEWE'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
           type: 'asPascalConst',
           name: 'hello',
           typeName: 'Hello',

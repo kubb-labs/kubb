@@ -540,6 +540,7 @@ export function createEnumDeclaration({
                   if (isNumber(value)) {
                     initializer = factory.createNumericLiteral(value)
                   }
+
                   if (typeof value === 'boolean') {
                     initializer = value
                       ? factory.createTrue()
@@ -649,3 +650,5 @@ export const createArrayTypeNode = factory.createArrayTypeNode
 export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull
 export const createIdentifier = factory.createIdentifier
+
+export const createTupleTypeNode = factory.createTupleTypeNode

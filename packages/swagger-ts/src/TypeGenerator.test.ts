@@ -362,8 +362,20 @@ describe('TypeGenerator enums', async () => {
     expect(node).toMatchSnapshot()
   })
 
+  test('generate enum AllOf', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.AllOf'] as OasTypes.SchemaObject, name: 'enumObject' })
+
+    expect(node).toMatchSnapshot()
+  })
+
   test('generate enum InObject', async () => {
     const node = defaultGenerator.build({ schema: schemas?.['enum.InObject'] as OasTypes.SchemaObject, name: 'enumObject' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum Array', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.Array'] as OasTypes.SchemaObject, name: 'enumArray' })
 
     expect(node).toMatchSnapshot()
   })

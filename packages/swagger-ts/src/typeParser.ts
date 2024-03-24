@@ -32,7 +32,13 @@ export const typeKeywordMapper = {
 
     return factory.createArrayDeclaration({ nodes })
   },
-  tuple: undefined,
+  tuple: (nodes?: ts.TypeNode[]) => {
+    if (!nodes) {
+      return undefined
+    }
+
+    return factory.createTupleTypeNode(nodes)
+  },
   enum: (name?: string) => {
     if (!name) {
       return undefined
@@ -50,7 +56,17 @@ export const typeKeywordMapper = {
       nodes,
     })
   },
-  const: undefined,
+  const: (name?: string | number, format?: 'string' | 'number') => {
+    if (!name) {
+      return undefined
+    }
+
+    if (format === 'number') {
+      return factory.createLiteralTypeNode(factory.createNumericLiteral(name))
+    }
+
+    return factory.createLiteralTypeNode(factory.createStringLiteral(name.toString()))
+  },
   datetime: () => factory.keywordTypeNodes.string,
   date: () => factory.createTypeReferenceNode(factory.createIdentifier('Date')),
   uuid: undefined,
@@ -146,6 +162,19 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
     return value()
   }
 
+  if (isKeyword(item, schemaKeywords.tuple)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['tuple']
+    return value(
+      item.args.map(tupleItem => parseTypeMeta(tupleItem, options)).filter(Boolean) as ts.TypeNode[],
+    )
+  }
+
+  if (isKeyword(item, schemaKeywords.const)) {
+    const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['const']
+
+    return value(item.args.name, item.args.format)
+  }
+
   if (isKeyword(item, schemaKeywords.object)) {
     const value = mapper[item.keyword as keyof typeof mapper] as typeof typeKeywordMapper['object']
 
@@ -195,7 +224,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         return factory.appendJSDocToNode({
           node: propertySignature,
           comments: [
-            describeSchema ? `@description ${describeSchema.args}` : undefined,
+            describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
             deprecatedSchema ? `@deprecated` : undefined,
             defaultSchema
               ? `@default ${defaultSchema.args}`
@@ -208,7 +237,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         })
       })
 
-    const additionalProperties = item.args?.additionalProperties.length
+    const additionalProperties = item.args?.additionalProperties?.length
       ? factory.createIndexSignature(item.args.additionalProperties.map(schema => parseTypeMeta(schema, options)).filter(Boolean).at(0) as ts.TypeNode)
       : undefined
 
@@ -279,7 +308,7 @@ export function typeParser(
     factory.appendJSDocToNode({
       node,
       comments: [
-        options.description ? `@description ${options.description}` : undefined,
+        options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined,
       ].filter(Boolean),
     }),
   )

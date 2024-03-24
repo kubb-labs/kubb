@@ -4,9 +4,9 @@ exports[`parseZodMeta > 'and' 1`] = `"z.string().and(z.number())"`;
 
 exports[`parseZodMeta > 'any' 1`] = `"z.any()"`;
 
-exports[`parseZodMeta > 'array' 1`] = `"z.array(z.string(), z.number())"`;
+exports[`parseZodMeta > 'array' 1`] = `"z.array(z.union([z.string(), z.number()]))"`;
 
-exports[`parseZodMeta > 'arrayAdvanced' 1`] = `"z.array(z.string(), z.number()).min(3).max(10)"`;
+exports[`parseZodMeta > 'arrayAdvanced' 1`] = `"z.array(z.number().min(1)).min(3).max(10)"`;
 
 exports[`parseZodMeta > 'arrayEmpty' 1`] = `"z.array()"`;
 
@@ -42,7 +42,7 @@ exports[`parseZodMeta > 'number' 1`] = `"z.number()"`;
 
 exports[`parseZodMeta > 'object' 1`] = `"z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})"`;
 
-exports[`parseZodMeta > 'objectAnd' 1`] = `"z.object({"firstName": .default(test).min(2)z.string(),"age": .default(2).min(2)z.number(),"address": z.string().and(z.number()).describe("Your address").nullable()})"`;
+exports[`parseZodMeta > 'objectAnd' 1`] = `"z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(2).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()})"`;
 
 exports[`parseZodMeta > 'objectEmpty' 1`] = `"z.object({})"`;
 
@@ -58,7 +58,7 @@ exports[`parseZodMeta > 'tupleMulti' 1`] = `"z.tuple([z.string(), z.number()])"`
 
 exports[`parseZodMeta > 'undefined' 1`] = `"z.undefined()"`;
 
-exports[`parseZodMeta > 'union' 1`] = `"z.union([z.string(),z.number()])"`;
+exports[`parseZodMeta > 'union' 1`] = `"z.union([z.string(), z.number()])"`;
 
 exports[`parseZodMeta > 'unionOne' 1`] = `"z.string()"`;
 
@@ -66,7 +66,7 @@ exports[`parseZodMeta > 'unknown' 1`] = `"z.unknown()"`;
 
 exports[`zodParser > 'Object' 1`] = `
 "
-export const Object = z.object({"firstName": .default(test).min(2)z.string(),"age": .default(2).min(2)z.number(),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
+export const Object = z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(2).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
 "
 `;
 

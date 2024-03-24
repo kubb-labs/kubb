@@ -53,9 +53,9 @@ exports[`parseFakerMeta > 'and' 1`] = `"Object.assign({},faker.string.alpha(),fa
 
 exports[`parseFakerMeta > 'any' 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement([faker.number.float(),faker.string.alpha()]) as any]) as any"`;
 
-exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float()]) as any"`;
 
 exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
