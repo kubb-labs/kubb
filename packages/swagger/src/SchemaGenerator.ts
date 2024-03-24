@@ -10,7 +10,7 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
-import type { ContentType, ImportMeta, OperationSchema, Refs } from './types.ts'
+import type { ContentType, OperationSchema, Refs } from './types.ts'
 
 export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
