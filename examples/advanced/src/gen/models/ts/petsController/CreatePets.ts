@@ -5,6 +5,11 @@ import type { PetNotFound } from '../PetNotFound'
  */
 export type CreatePets201 = any
 
+/**
+ * @description unexpected error
+ */
+export type CreatePetsError = PetNotFound
+
 export const CreatePetsHeaderParamsXExampleEnum = {
   'ONE': 'ONE',
   'TWO': 'TWO',
@@ -46,12 +51,7 @@ export type CreatePetsQueryParams = {
    * @type integer | undefined
    */
   offset?: number
-} | undefined
-
-/**
- * @description unexpected error
- */
-export type CreatePetsError = PetNotFound
+}
 export type CreatePetsMutation = {
   Response: CreatePetsMutationResponse
   Request: CreatePetsMutationRequest

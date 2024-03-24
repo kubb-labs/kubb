@@ -26,7 +26,8 @@ type UpdatePetWithForm = {
 }
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useUpdatePetWithForm(
   refPetId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   refParams?: MaybeRef<UpdatePetWithFormQueryParams>,

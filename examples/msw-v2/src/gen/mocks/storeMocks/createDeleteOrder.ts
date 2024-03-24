@@ -4,15 +4,14 @@ import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, Delet
 /**
  * @description Invalid ID supplied
  */
-
 export function createDeleteOrder400(override?: NonNullable<Partial<DeleteOrder400>>): NonNullable<DeleteOrder400> {
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description Order not found
  */
-
 export function createDeleteOrder404(override?: NonNullable<Partial<DeleteOrder404>>): NonNullable<DeleteOrder404> {
   faker.seed([220])
   return undefined

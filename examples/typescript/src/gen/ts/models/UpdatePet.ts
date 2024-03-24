@@ -1,4 +1,9 @@
-import type { Pet } from '../../models'
+import type { Pet } from './Pet'
+
+/**
+ * @description Successful operation
+ */
+export type UpdatePet200 = Pet
 
 /**
  * @description Invalid ID supplied
@@ -14,11 +19,6 @@ export type UpdatePet404 = any
  * @description Validation exception
  */
 export type UpdatePet405 = any
-
-/**
- * @description Successful operation
- */
-export type UpdatePet200 = Pet
 
 /**
  * @description Update an existent pet in the store

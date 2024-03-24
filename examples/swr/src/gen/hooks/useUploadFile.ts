@@ -19,7 +19,8 @@ type UploadFile = {
 }
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage */
+ * @link /pet/:petId/uploadImage
+ */
 export function useUploadFile(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],

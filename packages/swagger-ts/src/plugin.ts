@@ -37,10 +37,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options: {
       transformers,
       dateType,
-      enumType,
-      enumSuffix,
       optionalType,
       oasType,
+      enumType,
+      enumSuffix,
       // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
       unknownType,

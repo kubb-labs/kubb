@@ -36,7 +36,8 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByNameHook<
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
@@ -78,7 +79,8 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {

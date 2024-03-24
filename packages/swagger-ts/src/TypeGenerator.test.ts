@@ -1,14 +1,13 @@
 import path from 'node:path'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { print } from '@kubb/parser'
 import { OasManager } from '@kubb/swagger'
 
-import { format } from '../mocks/format.ts'
 import { TypeGenerator } from './TypeGenerator.ts'
 
-import type { PluginManager } from '@kubb/core'
+import type { Plugin, PluginManager } from '@kubb/core'
 import type { Oas, OasTypes } from '@kubb/swagger/oas'
+import type { PluginOptions } from './types.ts'
 
 describe('TypeGenerator petStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -27,16 +26,13 @@ describe('TypeGenerator petStore', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, baseName: 'Pet' })
+    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, name: 'Pet' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('generate type for Pet with optionalType `undefined`', async () => {
@@ -52,16 +48,13 @@ describe('TypeGenerator petStore', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, baseName: 'Pet' })
+    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, name: 'Pet' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('generate type for Pet with optionalType `questionTokenAndUndefined`', async () => {
@@ -77,16 +70,13 @@ describe('TypeGenerator petStore', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, baseName: 'Pet' })
+    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, name: 'Pet' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('generate type for nullable fields', async () => {
@@ -102,6 +92,7 @@ describe('TypeGenerator petStore', async () => {
     }, {
       oas: {} as Oas,
       pluginManager: { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schema: OasTypes.SchemaObject = {
@@ -114,9 +105,9 @@ describe('TypeGenerator petStore', async () => {
       },
     }
 
-    const node = generator.build({ schema, baseName: 'Test' })
-    const output = print(node, undefined)
-    expect(await format(output)).toMatchSnapshot()
+    const node = generator.build({ schema, name: 'Test' })
+
+    expect(node).toMatchSnapshot()
   })
 
   test('generate type for Pets', async () => {
@@ -132,15 +123,13 @@ describe('TypeGenerator petStore', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, baseName: 'Pets' })
+    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, name: 'Pets' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 })
 
@@ -161,15 +150,13 @@ describe('TypeGenerator petStoreRef', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, baseName: 'Pets' })
+    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, name: 'Pets' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 })
 
@@ -190,15 +177,13 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Petstore as OasTypes.SchemaObject, baseName: 'Petstore' })
+    const node = generator.build({ schema: schemas?.Petstore as OasTypes.SchemaObject, name: 'Petstore' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-    expect(output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('Cat.type defined as const', async () => {
@@ -214,14 +199,13 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const cat = generator.build({ schema: schemas?.Cat as OasTypes.SchemaObject, baseName: 'Cat' })
+    const node = generator.build({ schema: schemas?.Cat as OasTypes.SchemaObject, name: 'Cat' })
 
-    const cat_output = print(cat, undefined)
-    expect(cat_output).toBeDefined()
-    expect(cat_output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('Dog.type defined as const', async () => {
@@ -237,14 +221,13 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const dog = generator.build({ schema: schemas?.Dog as OasTypes.SchemaObject, baseName: 'Dog' })
+    const node = generator.build({ schema: schemas?.Dog as OasTypes.SchemaObject, name: 'Dog' })
 
-    const dog_output = print(dog, undefined)
-    expect(dog_output).toBeDefined()
-    expect(dog_output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('NullConst correctly produces "null"', async () => {
@@ -260,13 +243,12 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
     const schemas = oas.getDefinition().components?.schemas
-    const ast = generator.build({ schema: schemas?.NullConst as OasTypes.SchemaObject, baseName: 'NullConst' })
+    const node = generator.build({ schema: schemas?.NullConst as OasTypes.SchemaObject, name: 'NullConst' })
 
-    const ast_output = print(ast, undefined)
-    expect(ast_output).toBeDefined()
-    expect(ast_output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('StringValueConst const correctly produces "foobar"', async () => {
@@ -282,14 +264,13 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const ast = generator.build({ schema: schemas?.StringValueConst as OasTypes.SchemaObject, baseName: 'StringValueConst' })
+    const node = generator.build({ schema: schemas?.StringValueConst as OasTypes.SchemaObject, name: 'StringValueConst' })
 
-    const ast_output = print(ast, undefined)
-    expect(ast_output).toBeDefined()
-    expect(ast_output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('NumberValueConst const correctly produces `42`', async () => {
@@ -305,14 +286,13 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const ast = generator.build({ schema: schemas?.NumberValueConst as OasTypes.SchemaObject, baseName: 'NumberValueConst' })
+    const node = generator.build({ schema: schemas?.NumberValueConst as OasTypes.SchemaObject, name: 'NumberValueConst' })
 
-    const ast_output = print(ast, undefined)
-    expect(ast_output).toBeDefined()
-    expect(ast_output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('MixedValueTypeConst ignores type constraint in favor of const constraint', async () => {
@@ -328,15 +308,13 @@ describe('TypeGenerator discriminator', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const ast = generator.build({ schema: schemas?.MixedValueTypeConst as OasTypes.SchemaObject, baseName: 'MixedValueTypeConst' })
+    const node = generator.build({ schema: schemas?.MixedValueTypeConst as OasTypes.SchemaObject, name: 'MixedValueTypeConst' })
 
-    const ast_output = print(ast, undefined)
-
-    expect(ast_output).toBeDefined()
-    expect(ast_output).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 })
 
@@ -355,28 +333,51 @@ describe('TypeGenerator enums', async () => {
   }, {
     oas,
     pluginManager: mockedPluginManager,
+    plugin: {} as Plugin<PluginOptions>,
   })
 
   const schemas = oas.getDefinition().components?.schemas
 
-  test('generate x-enum-varnames types', async () => {
-    const node = defaultGenerator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })
+  test('generate x-enum-varnames Type', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, name: 'enumVarNames' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
-  test('generate x-enumNames types', async () => {
-    const node = defaultGenerator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+  test('generate x-enumNames Type', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
 
-    const output = print(node, undefined)
+    expect(node).toMatchSnapshot()
+  })
 
-    expect(output).toBeDefined()
+  test('generate enum Items', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.Items'] as OasTypes.SchemaObject, name: 'enumItems' })
 
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum String', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.String'] as OasTypes.SchemaObject, name: 'enumString' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum AllOf', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.AllOf'] as OasTypes.SchemaObject, name: 'enumObject' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum InObject', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.InObject'] as OasTypes.SchemaObject, name: 'enumObject' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate enum Array', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enum.Array'] as OasTypes.SchemaObject, name: 'enumArray' })
+
+    expect(node).toMatchSnapshot()
   })
 
   test('generate with enumtype enum', async () => {
@@ -392,15 +393,12 @@ describe('TypeGenerator enums', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
-    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('generate with enumtype asPascalConst', async () => {
@@ -416,15 +414,12 @@ describe('TypeGenerator enums', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
-    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('generate with enumtype constEnum', async () => {
@@ -440,15 +435,12 @@ describe('TypeGenerator enums', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
-    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 
   test('generate with enumtype literal', async () => {
@@ -464,14 +456,11 @@ describe('TypeGenerator enums', async () => {
     }, {
       oas,
       pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
     })
 
-    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
 
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-
-    expect(await format(output)).toMatchSnapshot()
+    expect(node).toMatchSnapshot()
   })
 })

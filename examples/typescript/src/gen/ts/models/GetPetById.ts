@@ -1,4 +1,9 @@
-import type { Pet } from '../../models'
+import type { Pet } from './Pet'
+
+/**
+ * @description successful operation
+ */
+export type GetPetById200 = Pet
 
 /**
  * @description Invalid ID supplied
@@ -17,11 +22,6 @@ export type GetPetByIdPathParams = {
    */
   petId: number
 }
-
-/**
- * @description successful operation
- */
-export type GetPetById200 = Pet
 
 /**
  * @description successful operation

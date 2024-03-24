@@ -4,14 +4,13 @@ import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryRe
 /**
  * @description successful operation
  */
-
 export function createLoginUser200(override?: NonNullable<Partial<LoginUser200>>): NonNullable<LoginUser200> {
   return faker.string.alpha()
 }
+
 /**
  * @description Invalid username/password supplied
  */
-
 export function createLoginUser400(override?: NonNullable<Partial<LoginUser400>>): NonNullable<LoginUser400> {
   return undefined
 }
@@ -22,10 +21,10 @@ export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUs
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
 export function createLoginUserQueryResponse(override?: NonNullable<Partial<LoginUserQueryResponse>>): NonNullable<LoginUserQueryResponse> {
   return faker.string.alpha()
 }

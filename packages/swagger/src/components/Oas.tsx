@@ -1,5 +1,6 @@
 import { createContext } from '@kubb/react'
 
+import { OasParser } from './OasParser.tsx'
 import { Operation } from './Operation.tsx'
 
 import type { KubbNode } from '@kubb/react'
@@ -10,8 +11,8 @@ export type GetSchemas = (operation: OperationType, statusCode?: string | number
 
 type Props = {
   oas: OasType
-  operations: OperationType[]
-  getSchemas: GetSchemas
+  operations?: OperationType[]
+  getSchemas?: GetSchemas
   children?: KubbNode
 }
 
@@ -29,3 +30,4 @@ export function Oas({ oas, children, operations, getSchemas }: Props): KubbNode 
 
 Oas.Context = OasContext
 Oas.Operation = Operation
+Oas.Parser = OasParser

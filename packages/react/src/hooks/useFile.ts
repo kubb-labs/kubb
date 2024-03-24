@@ -1,20 +1,15 @@
-import { usePluginManager } from '@kubb/react'
+import { useContext } from 'react'
 
-import type { KubbFile, Plugin } from '@kubb/core'
+import { File } from '../components/File.tsx'
 
-type Props<TOptions = object> = {
-  name: string
-  mode?: KubbFile.Mode
-  extName: KubbFile.Extname
-  pluginKey: Plugin['key']
-  options?: TOptions
-}
+import type { KubbFile } from '@kubb/core'
+import type { FileContextProps } from '../components/File.tsx'
 
 /**
- * With `useFile` you can get all props needed to create a file(path, baseName, source).
+ * `useFile` will return the current file when <File/> is used.
  */
-export function useFile<TOptions = object>({ name, mode, extName, pluginKey, options }: Props<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
-  const pluginManager = usePluginManager()
+export function useFile<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(): FileContextProps<TMeta> {
+  const file = useContext(File.Context)
 
-  return pluginManager.getFile<TOptions>({ name, mode, extName, pluginKey, options })
+  return file as FileContextProps<TMeta>
 }

@@ -7,17 +7,17 @@ export type CreateUser = {
   email?: string
 }
 
+/**
+ * @description OK
+ */
+export type CreateUser201 = CreateUserResult
+
 export type CreateUserMutationRequest = {
   /**
    * @type string
    */
   name: string
 }
-
-/**
- * @description OK
- */
-export type CreateUser201 = CreateUserResult
 
 /**
  * @description OK

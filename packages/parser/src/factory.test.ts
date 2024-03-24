@@ -3,6 +3,7 @@ import ts from 'typescript'
 import { format as prettierFormat } from '../mocks/format.ts'
 import {
   appendJSDocToNode,
+  createArrayDeclaration,
   createEnumDeclaration,
   createExportDeclaration,
   createImportDeclaration,
@@ -41,6 +42,29 @@ describe('codegen', () => {
   test('createQuestionToken', () => {
     expect(createQuestionToken()).toBeUndefined()
     expect(createQuestionToken(true)).toBeDefined()
+  })
+
+  test('createArrayDeclaration', () => {
+    expect(
+      print(
+        createArrayDeclaration({
+          nodes: [
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+            factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      print(
+        createArrayDeclaration({
+          nodes: [
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   test('createIntersectionDeclaration', () => {
@@ -110,7 +134,7 @@ describe('codegen', () => {
       await formatTS(
         createJSDoc({
           comments: ['@description description', '@example example'],
-        }),
+        })!,
       ),
     ).toMatchSnapshot()
   })
@@ -251,6 +275,20 @@ describe('codegen', () => {
             ['hello', 'world'],
             ['end', 2050],
             ['survive', true],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asConst',
+          name: 'hello',
+          typeName: 'Hello',
+          enums: [
+            ['FILE.UPLOADED', 'FILE.UPLOADED'],
+            ['FILE.PREVIEWE', 'FILE.PREVIEWE'],
           ],
         }),
       ),

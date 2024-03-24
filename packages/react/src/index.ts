@@ -7,6 +7,7 @@ export {
   useApp,
   useFile,
   useFileManager,
+  useGetFile,
   useIndent,
   useLanguage,
   useMeta,
@@ -16,5 +17,6 @@ export {
   useResolveName,
   useResolvePath,
 } from './hooks/index.ts'
+export { createNode } from './shared/dom.ts'
 export type * from './types.ts'
 export { createContext, useContext } from 'react'

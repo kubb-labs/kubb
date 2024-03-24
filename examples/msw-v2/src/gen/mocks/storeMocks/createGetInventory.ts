@@ -4,7 +4,6 @@ import type { GetInventory200, GetInventoryQueryResponse } from '../../models/Ge
 /**
  * @description successful operation
  */
-
 export function createGetInventory200(override: NonNullable<Partial<GetInventory200>> = {}): NonNullable<GetInventory200> {
   faker.seed([220])
   return {
@@ -12,10 +11,10 @@ export function createGetInventory200(override: NonNullable<Partial<GetInventory
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
 export function createGetInventoryQueryResponse(override: NonNullable<Partial<GetInventoryQueryResponse>> = {}): NonNullable<GetInventoryQueryResponse> {
   faker.seed([220])
   return {

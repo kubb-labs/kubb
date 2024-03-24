@@ -36,7 +36,8 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUserHook<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
@@ -77,7 +78,8 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
   params?: LoginUser['queryParams'],
   options: {

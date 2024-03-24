@@ -5,7 +5,8 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../
 
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export async function getUserByName(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},

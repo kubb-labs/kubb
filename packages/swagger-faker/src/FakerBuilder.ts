@@ -8,6 +8,9 @@ import type { KubbFile } from '@kubb/core'
 import type { ImportMeta } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
+/**
+ * @deprecated replace with Schema component
+ */
 export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
   build(name?: string): Required<Pick<KubbFile.File, 'imports' | 'source'>> {
     const importMeta: ImportMeta[] = []
@@ -18,13 +21,7 @@ export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new FakerGenerator(this.options, this.context)
-        const sources = generator.build({
-          schema: operationSchema.schema,
-          baseName: operationSchema.name,
-          description: operationSchema.description,
-          operationName: operationSchema.operationName,
-          operation: operationSchema.operation,
-        })
+        const sources = generator.build(operationSchema)
 
         importMeta.push(...generator.imports)
 

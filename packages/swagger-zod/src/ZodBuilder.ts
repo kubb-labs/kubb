@@ -8,6 +8,9 @@ import type { KubbFile } from '@kubb/core'
 import type { ImportMeta } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
+/**
+ * @deprecated replace with Schema component
+ */
 export class ZodBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
   build(name?: string): Required<Pick<KubbFile.File, 'imports' | 'source'>> {
     const importMeta: ImportMeta[] = []
@@ -18,16 +21,8 @@ export class ZodBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new ZodGenerator(this.options, this.context)
-        const required = Array.isArray(operationSchema.schema?.required) ? !!operationSchema.schema.required.length : !!operationSchema.schema?.required
 
-        const sources = generator.build({
-          schema: operationSchema.schema,
-          baseName: operationSchema.name,
-          description: operationSchema.description,
-          keysToOmit: operationSchema.keysToOmit,
-          operation: operationSchema.operation,
-          optional: !required && !!operationSchema.name.includes('Params'),
-        })
+        const sources = generator.build(operationSchema)
         importMeta.push(...generator.imports)
 
         return {

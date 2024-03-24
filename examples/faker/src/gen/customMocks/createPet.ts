@@ -7,7 +7,7 @@ export function createPet(override: NonNullable<Partial<Pet>> = {}): NonNullable
   return {
     ...{
       'id': faker.number.int(),
-      'name': faker.commerce.productName(),
+      'name': faker.string.alpha(),
       'category': createCategory(),
       'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,
       'tags': faker.helpers.arrayElements([createTag()]) as any,

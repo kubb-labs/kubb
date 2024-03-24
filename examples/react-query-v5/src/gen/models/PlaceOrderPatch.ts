@@ -1,14 +1,14 @@
 import type { Order } from './Order'
 
 /**
- * @description Invalid input
- */
-export type PlaceOrderPatch405 = any
-
-/**
  * @description successful operation
  */
 export type PlaceOrderPatch200 = Order
+
+/**
+ * @description Invalid input
+ */
+export type PlaceOrderPatch405 = any
 
 export type PlaceOrderPatchMutationRequest = Order
 

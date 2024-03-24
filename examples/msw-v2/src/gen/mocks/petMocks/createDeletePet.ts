@@ -4,7 +4,6 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
 /**
  * @description Invalid pet value
  */
-
 export function createDeletePet400(override?: NonNullable<Partial<DeletePet400>>): NonNullable<DeletePet400> {
   faker.seed([220])
   return undefined

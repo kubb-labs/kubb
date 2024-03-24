@@ -1,6 +1,6 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOperation, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -60,7 +60,7 @@ function Template({
           {`
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-         const url = ${client.path.template} as const
+         const url = ${client.path.template}
          const query = ${hook.name}<${hook.generics}>(
           shouldFetch ? [url, params]: null,
           {
@@ -82,7 +82,7 @@ function Template({
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-       const url = ${client.path.template} as const
+       const url = ${client.path.template}
        const query = ${hook.name}<${hook.generics}>(
         shouldFetch ? url : null,
         {
@@ -230,8 +230,8 @@ type FileProps = {
 Query.File = function({ templates }: FileProps): ReactNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const file = useGetOperationFile()
+  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
   const factoryName = useOperationName({ type: 'type' })
 
   const Template = templates?.query.default || defaultTemplates.default

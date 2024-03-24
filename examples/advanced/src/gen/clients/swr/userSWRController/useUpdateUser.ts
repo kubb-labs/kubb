@@ -20,7 +20,8 @@ type UpdateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useUpdateUser(username: UpdateUserPathParams['username'], options?: {
   mutation?: SWRMutationConfiguration<UpdateUser['response'], UpdateUser['error']>
   client?: UpdateUser['client']['parameters']

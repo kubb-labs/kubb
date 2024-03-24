@@ -1,4 +1,9 @@
-import type { User } from '../../models'
+import type { User } from './User'
+
+/**
+ * @description successful operation
+ */
+export type GetUserByName200 = User
 
 /**
  * @description Invalid username supplied
@@ -17,11 +22,6 @@ export type GetUserByNamePathParams = {
    */
   username: string
 }
-
-/**
- * @description successful operation
- */
-export type GetUserByName200 = User
 
 /**
  * @description successful operation

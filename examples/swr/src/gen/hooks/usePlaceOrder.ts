@@ -20,7 +20,8 @@ type PlaceOrder = {
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order */
+ * @link /store/order
+ */
 export function usePlaceOrder(options?: {
   mutation?: SWRMutationConfiguration<PlaceOrder['response'], PlaceOrder['error']>
   client?: PlaceOrder['client']['parameters']

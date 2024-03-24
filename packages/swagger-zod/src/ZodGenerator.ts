@@ -1,45 +1,40 @@
-import transformers from '@kubb/core/transformers'
 import { SchemaGenerator, schemaKeywords } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
-import { zodParser } from './zodParser.ts'
+import { zodParser } from './zodParser.tsx'
 
 import type { SchemaGeneratorBuildOptions } from '@kubb/swagger'
 
 export class ZodGenerator extends SchemaGenerator {
   build({
     schema,
-    baseName,
-    description,
-    optional,
+    name: baseName,
     keysToOmit,
     operation,
+    description,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
-    const zodInput = this.getTypeFromSchema(schema, baseName)
-    if (description) {
-      texts.push(`
-      /**
-       * @description ${transformers.trim(description)}
-       */`)
-    }
-
-    if (optional) {
-      zodInput.push({
-        keyword: schemaKeywords.optional,
-      })
-    }
+    const input = this.getTypeFromSchema(schema, baseName)
 
     const withTypeAnnotation = this.options.typed && !operation
 
     // used for this.options.typed
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const zodOutput = zodParser(zodInput, {
-      required: !!schema?.required,
+    // hack so Params will be optional when needed
+    const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
+    const optional = !required && !!baseName.includes('Params')
+    if (optional) {
+      input.push({
+        keyword: schemaKeywords.optional,
+      })
+    }
+
+    const output = zodParser(input, {
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
+      description,
       typeName: withTypeAnnotation
         ? typeName
         : undefined,
@@ -62,8 +57,8 @@ export class ZodGenerator extends SchemaGenerator {
       }
     }
 
-    texts.push(zodOutput)
+    texts.push(output)
 
-    return [...this.extraTexts, ...texts]
+    return texts
   }
 }

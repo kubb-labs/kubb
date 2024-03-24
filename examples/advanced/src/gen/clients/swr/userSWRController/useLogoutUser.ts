@@ -33,7 +33,8 @@ export function logoutUserQueryOptions<TData = LogoutUser['response']>(
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function useLogoutUser<TData = LogoutUser['response']>(options?: {
   query?: SWRConfiguration<TData, LogoutUser['error']>
   client?: LogoutUser['client']['parameters']

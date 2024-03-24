@@ -18,7 +18,6 @@ describe('OperationGenerator', async () => {
   test('[GET] should generate', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dateType: 'date',
-      mapper: {},
       seed: undefined,
       transformers: {},
       unknownType: 'any',
@@ -54,7 +53,6 @@ describe('OperationGenerator', async () => {
   test('[GET] should generate with seed `[222]`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dateType: 'date',
-      mapper: {},
       seed: [222],
       transformers: {},
       unknownType: 'any',
@@ -90,7 +88,6 @@ describe('OperationGenerator', async () => {
   test('[POST] should generate', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dateType: 'date',
-      mapper: {},
       seed: undefined,
       transformers: {},
       unknownType: 'any',
@@ -119,7 +116,6 @@ describe('OperationGenerator', async () => {
   test('[DELETE] should generate with unknownType `any`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dateType: 'date',
-      mapper: {},
       seed: undefined,
       transformers: {},
       unknownType: 'any',

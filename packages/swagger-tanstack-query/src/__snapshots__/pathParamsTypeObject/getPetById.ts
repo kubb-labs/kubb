@@ -34,9 +34,10 @@ export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryDat
     };
 }
 /**
-     * @description Returns a single pet
-     * @summary Find pet by ID
-     * @link /pet/:petId */
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * @link /pet/:petId
+ */
 export function getPetById<TData = GetPetById["response"], TQueryData = GetPetById["response"], TQueryKey extends QueryKey = GetPetByIdQueryKey>({ petId }: GetPetByIdPathParams, options: {
     query?: Partial<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData, TQueryKey>>;
     client?: GetPetById["client"]["parameters"];

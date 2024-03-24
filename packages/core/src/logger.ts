@@ -18,7 +18,7 @@ export type LogLevel = keyof typeof LogLevel
 type Events = {
   start: [message: string]
   end: [message: string]
-  error: [message: string]
+  error: [message: string, cause: Error]
   warning: [message: string]
   debug: [logs: string[]]
 }
@@ -62,8 +62,11 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
     }
   })
 
-  events.on('error', (message) => {
-    throw new Error(message || 'Something went wrong')
+  events.on('error', (message, cause) => {
+    const error = new Error(message || 'Something went wrong')
+    error.cause = cause
+
+    throw error
   })
 
   events.on('debug', async (messages) => {

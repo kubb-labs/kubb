@@ -34,8 +34,8 @@ export function GetPetsUuidQueryOptions<TData = GetPetsUuid['response'], TQueryD
   }
 }
 /**
- * @link /pets/:uuid */
-
+ * @link /pets/:uuid
+ */
 export function useGetPetsUuid<TData = GetPetsUuid['response'], TQueryData = GetPetsUuid['response'], TQueryKey extends QueryKey = GetPetsUuidQueryKey>(
   options: {
     query?: Partial<UseBaseQueryOptions<GetPetsUuid['response'], GetPetsUuid['error'], TData, TQueryData, TQueryKey>>

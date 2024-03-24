@@ -20,7 +20,8 @@ type DeleteUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useDeleteUserHook(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
   client?: DeleteUser['client']['parameters']

@@ -35,14 +35,14 @@
       "default": "./dist/jsx-runtime.cjs"
     },
     "./client": {
-      "import": "./dist/client/index.js",
-      "require": "./dist/client/index.cjs",
-      "default": "./dist/client/index.cjs"
+      "import": "./dist/client.js",
+      "require": "./dist/client.cjs",
+      "default": "./dist/client.cjs"
     },
     "./server": {
-      "import": "./dist/server/index.js",
-      "require": "./dist/server/index.cjs",
-      "default": "./dist/server/index.cjs"
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs",
+      "default": "./dist/server.cjs"
     },
     "./*": "./*"
   },
@@ -52,10 +52,10 @@
   "typesVersions": {
     "*": {
       "client": [
-        "./dist/client/index.d.ts"
+        "./dist/client.d.ts"
       ],
       "server": [
-        "./dist/server/index.d.ts"
+        "./dist/server.d.ts"
       ]
     }
   },

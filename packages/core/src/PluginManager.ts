@@ -607,11 +607,11 @@ export class PluginManager {
     }
   }
 
-  #catcher<H extends PluginLifecycleHooks>(e: Error, plugin?: Plugin, hookName?: H) {
-    const text = `${e.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})\n`
+  #catcher<H extends PluginLifecycleHooks>(cause: Error, plugin?: Plugin, hookName?: H) {
+    const text = `${cause.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})`
 
-    this.logger.emit('error', text)
-    this.events.emit('error', e)
+    this.logger.emit('error', text, cause)
+    this.events.emit('error', cause)
   }
 
   #parse<TPlugin extends UserPluginWithLifeCycle>(

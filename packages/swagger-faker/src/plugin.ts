@@ -27,7 +27,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     transformers = {},
-    mapper = {},
     dateType = 'string',
     unknownType = 'any',
   } = options
@@ -37,7 +36,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options: {
       transformers,
-      mapper,
       dateType,
       seed,
       unknownType,

@@ -46,7 +46,8 @@ export function updatePetWithFormQueryOptions(
 }
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useUpdatePetWithFormHook<
   TData = UpdatePetWithForm['response'],
   TQueryData = UpdatePetWithForm['response'],
@@ -93,7 +94,8 @@ export function updatePetWithFormSuspenseQueryOptions(
 }
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useUpdatePetWithFormHookSuspense<TData = UpdatePetWithForm['response'], TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],

@@ -43,7 +43,8 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags */
+ * @link /pet/findByTags
+ */
 export function useFindPetsByTags<TData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   headers?: FindPetsByTags['headerParams'],

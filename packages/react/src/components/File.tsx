@@ -1,8 +1,25 @@
+import { createContext } from 'react'
+
 import { Export } from './Export.tsx'
 import { Import } from './Import.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '../types.ts'
+
+export type FileContextProps<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = {
+  /**
+   * Name to be used to dynamicly create the baseName(based on input.path).
+   * Based on UNIX basename
+   * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
+   */
+  baseName: KubbFile.BaseName
+  /**
+   * Path will be full qualified path to a specified file.
+   */
+  path: KubbFile.Path
+  meta?: TMeta
+}
+const FileContext = createContext<FileContextProps>({} as FileContextProps)
 
 type BasePropsWithBaseName = {
   /**
@@ -47,12 +64,18 @@ type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BasePr
   children?: KubbNode
 }
 
-export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(props: Props<TMeta>): KubbNode {
-  if (!props.baseName || !props.path) {
-    return props.children
+export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>({ children, ...rest }: Props<TMeta>): KubbNode {
+  if (!rest.baseName || !rest.path) {
+    return children
   }
 
-  return <kubb-file {...props} />
+  return (
+    <kubb-file {...rest}>
+      <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>
+        {children}
+      </FileContext.Provider>
+    </kubb-file>
+  )
 }
 
 type FileSourceUnionProps = {
@@ -90,3 +113,4 @@ function FileSource({ path, print, children }: FileSourceProps): KubbNode {
 File.Export = Export
 File.Import = Import
 File.Source = FileSource
+File.Context = FileContext

@@ -5,10 +5,17 @@ import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResp
 /**
  * @description successful operation
  */
-
 export function createUpdateUserError(override?: NonNullable<Partial<UpdateUserError>>): NonNullable<UpdateUserError> {
   faker.seed([220])
   return undefined
+}
+
+/**
+ * @description Update an existent user in the store
+ */
+export function createUpdateUserMutationRequest(override?: NonNullable<Partial<UpdateUserMutationRequest>>): NonNullable<UpdateUserMutationRequest> {
+  faker.seed([220])
+  return createUser(override)
 }
 
 export function createUpdateUserMutationResponse(override?: NonNullable<Partial<UpdateUserMutationResponse>>): NonNullable<UpdateUserMutationResponse> {
@@ -22,12 +29,4 @@ export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateU
     ...{ 'username': faker.string.alpha() },
     ...override,
   }
-}
-/**
- * @description Update an existent user in the store
- */
-
-export function createUpdateUserMutationRequest(override?: NonNullable<Partial<UpdateUserMutationRequest>>): NonNullable<UpdateUserMutationRequest> {
-  faker.seed([220])
-  return createUser(override)
 }

@@ -36,7 +36,8 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory */
+ * @link /store/inventory
+ */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
     query?: Partial<QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>

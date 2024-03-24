@@ -107,6 +107,25 @@ export function createTupleDeclaration({
 
   return node
 }
+
+export function createArrayDeclaration({
+  nodes,
+}: {
+  nodes: Array<ts.TypeNode>
+}): ts.TypeNode | null {
+  if (!nodes.length) {
+    return factory.createTupleTypeNode([])
+  }
+
+  if (nodes.length == 1) {
+    return factory.createArrayTypeNode(nodes.at(0)!)
+  }
+
+  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [
+    factory.createUnionTypeNode(nodes),
+  ])
+}
+
 /**
  * Minimum nodes length of 2
  * @example `string | number`
@@ -187,9 +206,12 @@ export function createParameterSignature(
 }
 
 export function createJSDoc({ comments }: { comments: string[] }) {
+  if (!comments.length) {
+    return null
+  }
   return factory.createJSDocComment(
     factory.createNodeArray(
-      comments?.map((comment, i) => {
+      comments.map((comment, i) => {
         if (i === comments.length - 1) {
           return factory.createJSDocText(comment)
         }
@@ -518,6 +540,7 @@ export function createEnumDeclaration({
                   if (isNumber(value)) {
                     initializer = factory.createNumericLiteral(value)
                   }
+
                   if (typeof value === 'boolean') {
                     initializer = value
                       ? factory.createTrue()
@@ -627,3 +650,5 @@ export const createArrayTypeNode = factory.createArrayTypeNode
 export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull
 export const createIdentifier = factory.createIdentifier
+
+export const createTupleTypeNode = factory.createTupleTypeNode

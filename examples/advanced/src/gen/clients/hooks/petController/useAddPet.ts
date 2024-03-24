@@ -20,7 +20,8 @@ type AddPet = {
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet */
+ * @link /pet
+ */
 export function useAddPet(options: {
   mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], {
     data: AddPet['request']

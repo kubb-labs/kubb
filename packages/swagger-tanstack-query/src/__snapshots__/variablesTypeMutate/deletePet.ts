@@ -18,9 +18,10 @@ type DeletePet = {
     };
 };
 /**
-     * @description delete a pet
-     * @summary Deletes a pet
-     * @link /pet/:petId */
+ * @description delete a pet
+ * @summary Deletes a pet
+ * @link /pet/:petId
+ */
 export function deletePet(options: {
     mutation?: UseMutationOptions<DeletePet["response"], DeletePet["error"], {
         petId: DeletePetPathParams["petId"];

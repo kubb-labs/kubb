@@ -2,8 +2,7 @@ import { createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
-import { Mutation } from './components/Mutation.tsx'
-import { Query } from './components/Query.tsx'
+import { Schema } from './components/Schema.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
@@ -16,14 +15,17 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return null
   }
 
-  async get(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async operation(
+    operation: Operation,
+    options: PluginOptions['resolvedOptions'],
+  ): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
       <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
-          <Query.File mode={mode} />
+          <Schema.File mode={mode} />
         </Oas.Operation>
       </Oas>,
       { meta: { pluginManager, plugin: { ...plugin, options } } },
@@ -32,29 +34,35 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async post(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin, mode } = this.context
-
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
-    root.render(
-      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
-        <Oas.Operation operation={operation}>
-          <Mutation.File mode={mode} />
-        </Oas.Operation>
-      </Oas>,
-      { meta: { pluginManager, plugin: { ...plugin, options } } },
-    )
-
-    return root.files
+  async get(
+    operation: Operation,
+    options: PluginOptions['resolvedOptions'],
+  ): OperationMethodResult<FileMeta> {
+    return this.operation(operation, options)
+  }
+  async post(
+    operation: Operation,
+    options: PluginOptions['resolvedOptions'],
+  ): OperationMethodResult<FileMeta> {
+    return this.operation(operation, options)
   }
 
-  async put(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, options)
+  async put(
+    operation: Operation,
+    options: PluginOptions['resolvedOptions'],
+  ): OperationMethodResult<FileMeta> {
+    return this.operation(operation, options)
   }
-  async patch(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, options)
+  async patch(
+    operation: Operation,
+    options: PluginOptions['resolvedOptions'],
+  ): OperationMethodResult<FileMeta> {
+    return this.operation(operation, options)
   }
-  async delete(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, options)
+  async delete(
+    operation: Operation,
+    options: PluginOptions['resolvedOptions'],
+  ): OperationMethodResult<FileMeta> {
+    return this.operation(operation, options)
   }
 }

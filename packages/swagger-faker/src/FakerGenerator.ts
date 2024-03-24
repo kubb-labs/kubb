@@ -1,8 +1,7 @@
-import transformers from '@kubb/core/transformers'
 import { SchemaGenerator } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
-import { fakerParser } from './fakerParser.ts'
+import { fakerParser } from './fakerParser.tsx'
 import { pluginKey } from './plugin.ts'
 
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions } from '@kubb/swagger'
@@ -14,24 +13,21 @@ type Options = SchemaGeneratorOptions & {
 export class FakerGenerator extends SchemaGenerator<Options> {
   build({
     schema,
-    baseName,
-    description,
+    name: baseName,
     operationName,
     operation,
+    description,
   }: SchemaGeneratorBuildOptions): string[] {
     const texts: string[] = []
-    const fakerInput = this.getTypeFromSchema(schema, baseName)
-    if (description) {
-      texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${transformers.trim(description)}`] }))
-    }
+    const input = this.getTypeFromSchema(schema, baseName)
 
     const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' })
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const fakerOutput = fakerParser(fakerInput, {
+    const output = fakerParser(input, {
       name,
       typeName,
-      mapper: this.options.mapper,
+      description,
       seed: this.options.seed,
     })
     // hack to add typescript imports
@@ -57,8 +53,8 @@ export class FakerGenerator extends SchemaGenerator<Options> {
       }
     }
 
-    texts.push(fakerOutput)
+    texts.push(output)
 
-    return [...this.extraTexts, ...texts]
+    return texts
   }
 }

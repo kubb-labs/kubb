@@ -1,6 +1,11 @@
 import type { Pet } from '../Pet'
 
 /**
+ * @description successful operation
+ */
+export type FindPetsByStatus200 = Pet[]
+
+/**
  * @description Invalid status value
  */
 export type FindPetsByStatus400 = any
@@ -13,16 +18,11 @@ export enum FindPetsByStatusQueryParamsStatusEnum {
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
+   * @default "available"
    * @type string | undefined
-   * @default 'available'
    */
   status?: FindPetsByStatusQueryParamsStatusEnum
-} | undefined
-
-/**
- * @description successful operation
- */
-export type FindPetsByStatus200 = Pet[]
+}
 
 /**
  * @description successful operation

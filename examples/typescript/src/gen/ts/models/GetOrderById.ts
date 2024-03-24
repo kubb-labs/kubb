@@ -1,4 +1,9 @@
-import type { Order } from '../../models'
+import type { Order } from './Order'
+
+/**
+ * @description successful operation
+ */
+export type GetOrderById200 = Order
 
 /**
  * @description Invalid ID supplied
@@ -17,11 +22,6 @@ export type GetOrderByIdPathParams = {
    */
   orderId: number
 }
-
-/**
- * @description successful operation
- */
-export type GetOrderById200 = Order
 
 /**
  * @description successful operation

@@ -1,8 +1,8 @@
 import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from '../types.ts'
 
-export const createNode = (nodeName: ElementNames): DOMElement => {
+export const createNode = (nodeName: string): DOMElement => {
   const node: DOMElement = {
-    nodeName,
+    nodeName: nodeName as DOMElement['nodeName'],
     attributes: {},
     childNodes: [],
     parentNode: undefined,

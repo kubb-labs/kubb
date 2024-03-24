@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOperation, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -84,8 +84,8 @@ function RootTemplate({ children }: RootTemplateProps) {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const file = useGetOperationFile()
+  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
 
   return (
     <Editor language="typescript">

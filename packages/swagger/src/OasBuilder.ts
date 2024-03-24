@@ -13,6 +13,7 @@ type Context = {
 
 /**
  * Abstract class that contains the building blocks for creating a type/zod builder
+ * @deprecated
  */
 export abstract class OasBuilder<TOptions = unknown, TContext = Context> {
   #options: TOptions = {} as TOptions

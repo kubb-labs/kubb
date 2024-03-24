@@ -38,7 +38,8 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function getUserByNameQuery<
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],

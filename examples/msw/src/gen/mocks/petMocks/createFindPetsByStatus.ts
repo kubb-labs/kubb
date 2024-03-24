@@ -3,9 +3,18 @@ import { createPet } from '../createPet'
 import type { FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
 
 /**
+ * @description successful operation
+ */
+export function createFindPetsByStatus200(override: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
+  return [
+    ...faker.helpers.arrayElements([createPet()]) as any,
+    ...override,
+  ]
+}
+
+/**
  * @description Invalid status value
  */
-
 export function createFindPetsByStatus400(override?: NonNullable<Partial<FindPetsByStatus400>>): NonNullable<FindPetsByStatus400> {
   return undefined
 }
@@ -16,20 +25,10 @@ export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */
-
-export function createFindPetsByStatus200(override: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
-  return [
-    ...faker.helpers.arrayElements([createPet()]) as any,
-    ...override,
-  ]
-}
-/**
- * @description successful operation
- */
-
 export function createFindPetsByStatusQueryResponse(
   override: NonNullable<Partial<FindPetsByStatusQueryResponse>> = [],
 ): NonNullable<FindPetsByStatusQueryResponse> {

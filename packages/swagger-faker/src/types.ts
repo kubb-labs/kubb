@@ -82,12 +82,6 @@ export type Options = {
     schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => Schema[] | undefined
   }
   /**
-   * Override FakerMapper with extra mappers(that can be overriden by `transformers.schema`)
-   * TODO TODO add docs
-   * @beta
-   */
-  mapper?: Record<string, string>
-  /**
    * The use of Seed is intended to allow for consistent values in a test.
    */
   seed?: number | number[]
@@ -96,7 +90,6 @@ export type Options = {
 type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
-  mapper: NonNullable<Options['mapper']>
   transformers: NonNullable<Options['transformers']>
   seed: NonNullable<Options['seed']> | undefined
 }

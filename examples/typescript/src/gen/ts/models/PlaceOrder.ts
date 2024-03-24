@@ -1,14 +1,14 @@
-import type { Order } from '../../models'
-
-/**
- * @description Invalid input
- */
-export type PlaceOrder405 = any
+import type { Order } from './Order'
 
 /**
  * @description successful operation
  */
 export type PlaceOrder200 = Order
+
+/**
+ * @description Invalid input
+ */
+export type PlaceOrder405 = any
 
 export type PlaceOrderMutationRequest = Order
 

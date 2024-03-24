@@ -20,14 +20,6 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
 "import type { Pets } from "./Pets";
 import type { Error } from "./Error";
 
- export type ListPetsQueryParams = {
-    /**
-     * @description How many items to return at one time (max 100)
-     * @type string | undefined
-    */
-    limit?: string;
-} | undefined;
-
  /**
  * @description A paged array of pets
 */
@@ -37,6 +29,14 @@ export type ListPets200 = Pets;
  * @description unexpected error
 */
 export type ListPetsError = Error;
+
+ export type ListPetsQueryParams = {
+    /**
+     * @description How many items to return at one time (max 100)
+     * @type string | undefined
+    */
+    limit?: string;
+};
 
  /**
  * @description A paged array of pets
@@ -52,6 +52,16 @@ export type ListPetsQuery = {
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`] = `
 "import type { Pet } from "./Pet";
 import type { Error } from "./Error";
+
+ /**
+ * @description Expected response to a valid request
+*/
+export type ShowPetById200 = Pet;
+
+ /**
+ * @description unexpected error
+*/
+export type ShowPetByIdError = Error;
 
  export type ShowPetByIdPathParams = {
     /**
@@ -69,16 +79,6 @@ import type { Error } from "./Error";
  /**
  * @description Expected response to a valid request
 */
-export type ShowPetById200 = Pet;
-
- /**
- * @description unexpected error
-*/
-export type ShowPetByIdError = Error;
-
- /**
- * @description Expected response to a valid request
-*/
 export type ShowPetByIdQueryResponse = Pet;
 export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
@@ -91,6 +91,18 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
 "import type { Error } from "./Error";
 import type { ErrorCode } from "./ErrorCode";
 
+ /**
+ * @description Null response
+*/
+export type CreatePets201 = (Error & {
+    name?: ErrorCode;
+});
+
+ /**
+ * @description unexpected error
+*/
+export type CreatePetsError = Error;
+
  export type CreatePetsMutationRequest = {
     /**
      * @type string
@@ -101,18 +113,6 @@ import type { ErrorCode } from "./ErrorCode";
     */
     tag: string;
 };
-
- /**
- * @description unexpected error
-*/
-export type CreatePetsError = Error;
-
- /**
- * @description Null response
-*/
-export type CreatePets201 = (Error & {
-    name?: ErrorCode;
-});
 
  /**
  * @description Null response

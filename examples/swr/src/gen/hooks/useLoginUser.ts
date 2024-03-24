@@ -35,7 +35,8 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUser<TData = LoginUser['response']>(
   params?: LoginUser['queryParams'],
   options?: {
