@@ -3,7 +3,7 @@ import { useContext, usePluginManager } from '@kubb/react'
 import { Oas } from '../components/Oas.tsx'
 
 import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
-import type { GetSchemas } from '../components/Oas.tsx'
+import type { GetOperationSchemas } from '../components/Oas.tsx'
 import type { Operation as OperationType } from '../oas/index.ts'
 
 type FileMeta = KubbFile.FileMetaBase & {
@@ -15,7 +15,7 @@ type FileMeta = KubbFile.FileMetaBase & {
 type UseOperationHelpersResult = {
   getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
   getFile: (operation: OperationType, params: { pluginKey: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
-  getSchemas: GetSchemas
+  getSchemas: GetOperationSchemas
 }
 
 /**
@@ -23,7 +23,7 @@ type UseOperationHelpersResult = {
  */
 export function useOperationHelpers(): UseOperationHelpersResult {
   const pluginManager = usePluginManager()
-  const { getSchemas } = useContext(Oas.Context)
+  const { getOperationSchemas: getSchemas } = useContext(Oas.Context)
 
   const getName: UseOperationHelpersResult['getName'] = (operation, { pluginKey, type }) => {
     return pluginManager.resolveName({ name: operation.getOperationId(), pluginKey, type })

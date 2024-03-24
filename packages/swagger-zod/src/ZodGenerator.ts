@@ -5,15 +5,17 @@ import { pluginKey } from './plugin.ts'
 import { zodParser } from './zodParser.tsx'
 
 import type { SchemaGeneratorBuildOptions } from '@kubb/swagger'
+import type { SchemaObject } from '@kubb/swagger/oas'
 
 export class ZodGenerator extends SchemaGenerator {
-  build({
-    schema,
-    name: baseName,
+  async schema() {
+    return null
+  }
+  buildSchema(baseName: string, schema: SchemaObject, {
     keysToOmit,
     operation,
     description,
-  }: SchemaGeneratorBuildOptions): string[] {
+  }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
     const input = this.getTypeFromSchema(schema, baseName)
 
@@ -49,6 +51,7 @@ export class ZodGenerator extends SchemaGenerator {
           ref: {
             propertyName: typeName,
             originalName: baseName,
+            path: typePath,
             pluginKey: swaggerTypeScriptPluginKey,
           },
           path: typePath,

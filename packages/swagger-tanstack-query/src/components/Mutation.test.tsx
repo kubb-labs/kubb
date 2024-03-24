@@ -75,7 +75,7 @@ describe('<Mutation/>', async () => {
         <Oas
           oas={oas}
           operations={[operation]}
-          getSchemas={(...props) => og.getSchemas(...props)}
+          getOperationSchemas={(...props) => og.getSchemas(...props)}
         >
           <Oas.Operation operation={operation}>
             <Mutation.File />
@@ -132,7 +132,7 @@ describe('<Mutation/>', async () => {
         <Oas
           oas={oas}
           operations={[operation]}
-          getSchemas={(...props) => og.getSchemas(...props)}
+          getOperationSchemas={(...props) => og.getSchemas(...props)}
         >
           <Oas.Operation operation={operation}>
             <Mutation.File />

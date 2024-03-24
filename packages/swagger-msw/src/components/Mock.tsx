@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
 import { Editor, File, useResolveName } from '@kubb/react'
-import { useOperation, useGetOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
@@ -81,7 +81,7 @@ type Props = {
 export function Mock({
   Template = defaultTemplates.default,
 }: Props): ReactNode {
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const name = useOperationName({ type: 'function' })
   const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
   const operation = useOperation()
@@ -99,7 +99,7 @@ type FileProps = {
 }
 
 Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileFaker = useGetOperationFile({ pluginKey: fakerPluginKey })
   const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'function' })

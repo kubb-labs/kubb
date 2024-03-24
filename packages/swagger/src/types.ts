@@ -57,7 +57,7 @@ export type Options = {
  * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; pluginKey?: Plugin['key'] }
+export type Ref = { propertyName: string; originalName: string; path: KubbFile.OptionalPath; pluginKey?: Plugin['key'] }
 export type Refs = Record<string, Ref>
 
 export type Resolver = {
@@ -74,7 +74,7 @@ export type OperationSchema = {
    * Converted name, contains already `PathParams`, `QueryParams`, ...
    */
   name: string
-  schema: SchemaObject & { $ref?: string }
+  schema: SchemaObject
   operation?: Operation
   /**
    * OperationName in PascalCase, only being used in OperationGenerator

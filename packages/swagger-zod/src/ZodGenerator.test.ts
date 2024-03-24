@@ -6,7 +6,7 @@ import { OasManager } from '@kubb/swagger'
 import { ZodGenerator } from './ZodGenerator.ts'
 
 import type { Plugin } from '@kubb/core'
-import type { OasTypes } from '@kubb/swagger/oas'
+import type { SchemaObject } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
 describe('ZodGenerator PetStore', async () => {
@@ -23,10 +23,12 @@ describe('ZodGenerator PetStore', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, name: 'Pet' })
+    const node = generator.buildSchema('Pet', schemas?.Pet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -43,10 +45,12 @@ describe('ZodGenerator PetStore', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, name: 'Pets' })
+    const node = generator.buildSchema('Pets', schemas?.Pets as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -63,10 +67,12 @@ describe('ZodGenerator PetStore', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.OptionalPet as OasTypes.SchemaObject, name: 'OptionalPet' })
+    const node = generator.buildSchema('OptionalPet', schemas?.OptionalPet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -84,10 +90,12 @@ describe('ZodGenerator PetStore', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.OptionalPet as OasTypes.SchemaObject, name: 'OptionalPet' })
+    const node = generator.buildSchema('OptionalPet', schemas?.OptionalPet as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -104,10 +112,12 @@ describe('ZodGenerator PetStore', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.PetArray as OasTypes.SchemaObject, name: 'PetArray' })
+    const node = generator.buildSchema('PetArray', schemas?.PetArray as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -127,62 +137,64 @@ describe('ZodGenerator constCases', async () => {
     oas,
     pluginManager: mockedPluginManager,
     plugin: {} as Plugin<PluginOptions>,
+    contentType: undefined,
+    include: undefined,
   })
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const schemas = oas.getDefinition().components?.schemas!
 
   test('UuidSchema generates a string with uuid format constraint', async () => {
-    const schema = schemas['UuidSchema'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'UuidSchema' })
+    const schema = schemas['UuidSchema'] as SchemaObject
+    const node = generator.buildSchema('UuidSchema', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullableString zodifies correctly', async () => {
-    const schema = schemas?.['NullableString'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'NullableString' })
+    const schema = schemas?.['NullableString'] as SchemaObject
+    const node = generator.buildSchema('NullableString', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullableStringWithAnyOf results in union of string and null', async () => {
-    const schema = schemas['NullableStringWithAnyOf'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'NullableStringWithAnyOf' })
+    const schema = schemas['NullableStringWithAnyOf'] as SchemaObject
+    const node = generator.buildSchema('NullableStringWithAnyOf', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullableStringUuid zodifies correctly to a uuid or null', async () => {
-    const schema = schemas['NullableStringUuid'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'NullableStringUuid' })
+    const schema = schemas['NullableStringUuid'] as SchemaObject
+    const node = generator.buildSchema('NullableStringUuid', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NullConst zodifies correctly', async () => {
-    const schema = schemas['NullConst'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'NullConst' })
+    const schema = schemas['NullConst'] as SchemaObject
+    const node = generator.buildSchema('NullConst', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('StringValueConst correctly generates zod literal', async () => {
-    const schema = schemas['StringValueConst'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'StringValueConst' })
+    const schema = schemas['StringValueConst'] as SchemaObject
+    const node = generator.buildSchema('StringValueConst', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('NumberValueConst correctly generates zod literal', async () => {
-    const schema = schemas['NumberValueConst'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'NumberValueConst' })
+    const schema = schemas['NumberValueConst'] as SchemaObject
+    const node = generator.buildSchema('NumberValueConst', schema)
 
     expect(node).toMatchSnapshot()
   })
 
   test('MixedValueTypeConst generates zod literal value correctly, overriding the type constraint', async () => {
-    const schema = schemas['MixedValueTypeConst'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'MixedValueTypeConst' })
+    const schema = schemas['MixedValueTypeConst'] as SchemaObject
+    const node = generator.buildSchema('MixedValueTypeConst', schema)
 
     expect(node).toMatchSnapshot()
   })
@@ -204,10 +216,12 @@ describe('ZodGenerator lazy', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Example as OasTypes.SchemaObject, name: 'Example' })
+    const node = generator.buildSchema('Example', schemas?.Example as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -227,18 +241,20 @@ describe('ZodGenerator enums', async () => {
     oas,
     pluginManager: mockedPluginManager,
     plugin: {} as Plugin<PluginOptions>,
+    contentType: undefined,
+    include: undefined,
   })
 
   const schemas = oas.getDefinition().components?.schemas
 
   test('generate x-enum-varnames types', async () => {
-    const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, name: 'enumVarNames' })
+    const node = generator.buildSchema('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
 
   test('generate x-enumNames types', async () => {
-    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, name: 'enumNames' })
+    const node = generator.buildSchema('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -260,10 +276,12 @@ describe('ZodGenerator recursive', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Example as OasTypes.SchemaObject, name: 'Example' })
+    const node = generator.buildSchema('Example', schemas?.Example as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })
@@ -283,13 +301,15 @@ describe('ZodGenerator anyof', async () => {
     oas,
     pluginManager: mockedPluginManager,
     plugin: {} as Plugin<PluginOptions>,
+    contentType: undefined,
+    include: undefined,
   })
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const schemas = oas.getDefinition().components?.schemas!
 
   test('anyof with 2 objects', async () => {
-    const schema = schemas['test'] as OasTypes.SchemaObject
-    const node = generator.build({ schema, name: 'test' })
+    const schema = schemas['test'] as SchemaObject
+    const node = generator.buildSchema('test', schema)
 
     expect(node).toMatchSnapshot()
   })

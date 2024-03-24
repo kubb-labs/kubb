@@ -49,7 +49,7 @@ describe('<Operations/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Operations.File />
           </Oas.Operation>

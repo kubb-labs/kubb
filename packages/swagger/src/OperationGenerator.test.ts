@@ -3,10 +3,15 @@ import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { KubbFile, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
+import type { FileMeta } from '@kubb/swagger-ts'
 import type { Operation } from './oas/index.ts'
+import type { OperationMethodResult } from './OperationGenerator.ts'
 import type { Resolver } from './types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
+  operation(): OperationMethodResult<FileMeta> {
+    return Promise.resolve(null)
+  }
   resolve(_operation: Operation): Resolver {
     return {
       baseName: 'baseName.ts',

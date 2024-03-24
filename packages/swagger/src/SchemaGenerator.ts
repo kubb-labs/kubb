@@ -3,21 +3,28 @@ import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
+import { getSchemas } from './utils/getSchemas.ts'
 import { isReference } from './utils/isReference.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
-import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { Oas, OasTypes, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
-import type { ImportMeta, OperationSchema, Refs } from './types.ts'
+import type { ContentType, ImportMeta, OperationSchema, Refs } from './types.ts'
+
+export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
+
+  include: Array<'schemas' | 'responses' | 'requestBodies'> | undefined
+  contentType: ContentType | undefined
   pluginManager: PluginManager
   /**
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
+  mode?: KubbFile.Mode
 }
 
 export type SchemaGeneratorOptions = {
@@ -42,14 +49,18 @@ export type SchemaGeneratorOptions = {
   }
 }
 
-export type SchemaGeneratorBuildOptions = OperationSchema
+export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
 
 export abstract class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
+  TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
+  /**
+   * @deprecated use ref in schema instead(it has path)
+   */
   imports: ImportMeta[] = []
 
   // Keep track of already used type aliases
@@ -173,16 +184,17 @@ export abstract class SchemaGenerator<
     const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey: this.context.plugin.key, 'type': 'function' })
 
     if (ref) {
-      return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName } }]
-    }
-
-    ref = this.refs[$ref] = {
-      propertyName,
-      originalName,
+      return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref.path } }]
     }
 
     const fileName = this.context.pluginManager.resolveName({ name: originalName, pluginKey: this.context.plugin.key, type: 'file' })
     const path = this.context.pluginManager.resolvePath({ baseName: fileName, pluginKey: this.context.plugin.key })
+
+    ref = this.refs[$ref] = {
+      propertyName,
+      originalName,
+      path,
+    }
 
     if (path) {
       this.imports.push({
@@ -192,7 +204,7 @@ export abstract class SchemaGenerator<
       })
     }
 
-    return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName } }]
+    return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref?.path } }]
   }
 
   #getParsedSchema(schema?: SchemaObject) {
@@ -524,7 +536,45 @@ export abstract class SchemaGenerator<
     return [{ keyword: this.#unknownReturn }]
   }
 
-  abstract build(
-    options: SchemaGeneratorBuildOptions,
+  async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const { oas, contentType, include } = this.context
+
+    const schemas = getSchemas({ oas, contentType, includes: include })
+
+    const promises = Object.keys(schemas).reduce(
+      (acc, name) => {
+        if (!schemas[name]) {
+          return acc
+        }
+
+        const promiseOperation = this.schema.call(this, name, schemas[name]!)
+
+        if (promiseOperation) {
+          acc.push(promiseOperation)
+        }
+
+        return acc
+      },
+      [] as SchemaMethodResult<TFileMeta>[],
+    )
+
+    const files = await Promise.all(promises)
+
+    // using .flat because schemaGenerator[method] can return a array of files or just one file
+    return files.flat().filter(Boolean)
+  }
+
+  /**
+   * Schema
+   */
+  abstract schema(name: string, schema: SchemaObject): SchemaMethodResult<TFileMeta>
+
+  /**
+   * Returns the source, in the future it an return a react component
+   */
+  abstract buildSchema(
+    name: string,
+    schema: SchemaObject,
+    options?: SchemaGeneratorBuildOptions,
   ): string[]
 }

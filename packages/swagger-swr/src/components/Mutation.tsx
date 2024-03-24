@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -135,7 +135,7 @@ export function Mutation({
   const { options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
 
   const params = new FunctionParams()
   const client = {
@@ -206,7 +206,7 @@ type FileProps = {
 
 Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
   const factoryName = useOperationName({ type: 'type' })

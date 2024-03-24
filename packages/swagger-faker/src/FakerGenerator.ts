@@ -5,19 +5,22 @@ import { fakerParser } from './fakerParser.tsx'
 import { pluginKey } from './plugin.ts'
 
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions } from '@kubb/swagger'
+import type { SchemaObject } from '@kubb/swagger/oas'
 
 type Options = SchemaGeneratorOptions & {
   seed?: number | number[]
 }
 
 export class FakerGenerator extends SchemaGenerator<Options> {
-  build({
-    schema,
-    name: baseName,
+  async schema() {
+    return null
+  }
+
+  buildSchema(baseName: string, schema: SchemaObject, {
     operationName,
     operation,
     description,
-  }: SchemaGeneratorBuildOptions): string[] {
+  }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
     const input = this.getTypeFromSchema(schema, baseName)
 
@@ -45,6 +48,7 @@ export class FakerGenerator extends SchemaGenerator<Options> {
           ref: {
             propertyName: typeName,
             originalName: baseName,
+            path: typePath,
             pluginKey: swaggerTypeScriptPluginKey,
           },
           path: typePath,

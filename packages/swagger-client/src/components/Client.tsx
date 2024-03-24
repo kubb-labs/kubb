@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -83,7 +83,7 @@ type RootTemplateProps = {
 function RootTemplate({ children }: RootTemplateProps) {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
 
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
 
@@ -127,7 +127,7 @@ export function Client({
   Template = defaultTemplates.default,
 }: ClientProps): KubbNode {
   const { options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
 

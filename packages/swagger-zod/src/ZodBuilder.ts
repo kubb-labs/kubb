@@ -20,9 +20,10 @@ export class ZodBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
-        const generator = new ZodGenerator(this.options, this.context)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const generator = new ZodGenerator(this.options, (this.context) as any)
 
-        const sources = generator.build(operationSchema)
+        const sources = generator.buildSchema(operationSchema.name, operationSchema.schema, operationSchema)
         importMeta.push(...generator.imports)
 
         return {

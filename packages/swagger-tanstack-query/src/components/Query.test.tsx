@@ -79,7 +79,7 @@ describe('<Query/>', async () => {
         <Oas
           oas={oas}
           operations={[operation]}
-          getSchemas={(...props) => og.getSchemas(...props)}
+          getOperationSchemas={(...props) => og.getSchemas(...props)}
         >
           <Oas.Operation operation={operation}>
             <Query.File />

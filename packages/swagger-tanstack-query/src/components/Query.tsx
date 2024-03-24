@@ -3,10 +3,10 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
 import {
-  useOperation,
   useGetOperationFile,
+  useOperation,
   useOperationName,
-  useSchemas,
+  useOperationSchemas,
 } from '@kubb/swagger/hooks'
 import {
   getASTParams,
@@ -183,7 +183,7 @@ const defaultTemplates = {
         ? importNames.queryInfinite.vue.optionsType
         : importNames.query.vue.optionsType
 
-      const schemas = useSchemas()
+      const schemas = useOperationSchemas()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
@@ -342,7 +342,7 @@ export function Query({
     options: { dataReturnType, pathParamsType },
   } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const name = useOperationName({ type: 'function' })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
@@ -576,7 +576,7 @@ Query.File = function({
     },
   } = usePlugin<PluginOptions>()
 
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
   const fileZodSchemas = useGetOperationFile({ pluginKey: swaggerZodPluginKey })

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { OasParser } from '@kubb/swagger/components'
-import { useGetOperationFile, useOas, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOas, useOperationSchemas } from '@kubb/swagger/hooks'
 
 import { ZodGenerator } from '../ZodGenerator.ts'
 
@@ -28,10 +28,10 @@ Schema.File = function({ mode = 'directory' }: FileProps): ReactNode {
 
   const pluginManager = usePluginManager()
   const oas = useOas()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
 
-  const generator = new ZodGenerator(plugin.options, { oas, plugin, pluginManager })
+  const generator = new ZodGenerator(plugin.options, { oas, plugin, pluginManager, contentType: undefined, include: undefined })
 
   const items = [
     schemas.pathParams,

@@ -38,7 +38,7 @@ export class OperationGenerator extends Generator<
       <Oas
         oas={oas}
         operations={operations}
-        getSchemas={(...props) => this.getSchemas(...props)}
+        getOperationSchemas={(...props) => this.getSchemas(...props)}
       >
         {templates.operations && <Operations.File templates={templates.operations} />}
       </Oas>,
@@ -75,7 +75,7 @@ export class OperationGenerator extends Generator<
       <Oas
         oas={oas}
         operations={[operation]}
-        getSchemas={(...props) => this.getSchemas(...props)}
+        getOperationSchemas={(...props) => this.getSchemas(...props)}
       >
         <Oas.Operation operation={operation}>
           {isMutate && templates?.mutation && <Mutation.File templates={templates.mutation} />}
@@ -96,34 +96,21 @@ export class OperationGenerator extends Generator<
     return root.files
   }
 
-  async get(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+  async get(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async post(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+
+  async post(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async put(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+
+  async put(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async patch(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+  async patch(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async delete(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+  async delete(): OperationMethodResult<FileMeta> {
+    return null
   }
 }

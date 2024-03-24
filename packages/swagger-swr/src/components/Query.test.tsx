@@ -61,7 +61,7 @@ describe('<Query/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Query.File />
           </Oas.Operation>

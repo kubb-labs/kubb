@@ -89,6 +89,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.ref,
       args: {
         name: 'Pet',
+        path: './pet.ts',
       },
     },
   },
@@ -152,7 +153,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.ref, args: { name: 'Pet' } }],
+        items: [{ keyword: schemaKeywords.ref, args: { name: 'Pet', path: './pet.ts' } }],
       },
     },
   },
@@ -187,7 +188,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.object,
       args: {
         properties: {},
-        additionalProperties: [{ keyword: schemaKeywords.ref, args: { name: 'Pet' } }],
+        additionalProperties: [{ keyword: schemaKeywords.ref, args: { name: 'Pet', path: './Pet.ts' } }],
       },
     },
   },

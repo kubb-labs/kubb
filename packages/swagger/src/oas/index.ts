@@ -9,6 +9,7 @@ export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 export type SchemaObject = OasTypes.SchemaObject & {
   'x-nullable'?: boolean
+  $ref?: string
 }
 
 export const HttpMethods = {

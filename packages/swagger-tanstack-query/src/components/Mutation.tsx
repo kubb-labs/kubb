@@ -3,10 +3,10 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
 import {
-  useOperation,
   useGetOperationFile,
+  useOperation,
   useOperationName,
-  useSchemas,
+  useOperationSchemas,
 } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -166,7 +166,7 @@ const defaultTemplates = {
       const hookName = importNames.mutation.vue.hookName
       const resultType = importNames.mutation.vue.resultType
       const optionsType = importNames.mutation.vue.optionsType
-      const schemas = useSchemas()
+      const schemas = useOperationSchemas()
       const params = new FunctionParams()
 
       const resultGenerics = [
@@ -277,7 +277,7 @@ export function Mutation({
 
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
 
   const params = new FunctionParams()
   const mutateParams = new FunctionParams()
@@ -442,7 +442,7 @@ Mutation.File = function({
       framework,
     },
   } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
   const factoryName = useOperationName({ type: 'type' })

@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { OasBuilder } from '@kubb/swagger'
 import { refsSorter } from '@kubb/swagger/utils'
 
-import { TypeGenerator } from './TypeGenerator.ts'
+import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { ImportMeta } from '@kubb/swagger'
@@ -12,6 +12,9 @@ import type { PluginOptions } from './types.ts'
  * @deprecated replace with Schema component
  */
 export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
+  /**
+   * @deprecated replace with Schema component
+   */
   build(name?: string): Required<Pick<KubbFile.File, 'imports' | 'source'>> {
     const importMeta: ImportMeta[] = []
     const codes: string[] = []
@@ -20,9 +23,10 @@ export class TypeBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
-        const generator = new TypeGenerator(this.options, this.context)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const generator = new SchemaGenerator(this.options, this.context as any)
 
-        const sources = generator.build(operationSchema)
+        const sources = generator.buildSchema(operationSchema.name, operationSchema.schema, operationSchema)
         importMeta.push(...generator.imports)
 
         return {

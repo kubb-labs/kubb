@@ -23,7 +23,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+      <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
           <Schema.File mode={mode} />
         </Oas.Operation>
@@ -34,35 +34,21 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async get(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
-  }
-  async post(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+  async get(): OperationMethodResult<FileMeta> {
+    return null
   }
 
-  async put(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+  async post(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async patch(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+
+  async put(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async delete(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
-    return this.operation(operation, options)
+  async patch(): OperationMethodResult<FileMeta> {
+    return null
+  }
+  async delete(): OperationMethodResult<FileMeta> {
+    return null
   }
 }
