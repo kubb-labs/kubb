@@ -2,7 +2,7 @@ import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
@@ -256,7 +256,7 @@ const defaultTemplates = {
         options: { pathParamsType },
       } = usePlugin<PluginOptions>()
 
-      const schemas = useSchemas()
+      const schemas = useOperationSchemas()
       const params = new FunctionParams()
 
       const pathParams = getParams(schemas.pathParams, {
@@ -363,7 +363,7 @@ export function QueryOptions({
     return null
   }
 
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const operation = useOperation()
 
   const queryKey = useResolveName({

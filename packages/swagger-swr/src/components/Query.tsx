@@ -1,6 +1,6 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -123,7 +123,7 @@ export function Query({
 }: Props): ReactNode {
   const { key: pluginKey, options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const name = useOperationName({ type: 'function' })
 
   const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
@@ -229,7 +229,7 @@ type FileProps = {
 
 Query.File = function({ templates }: FileProps): ReactNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
   const factoryName = useOperationName({ type: 'type' })

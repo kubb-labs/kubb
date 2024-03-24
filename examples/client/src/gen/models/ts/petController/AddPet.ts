@@ -4,6 +4,16 @@ import type { AddPetRequest } from '../AddPetRequest'
 /**
  * @description Successful operation
  */
+export type AddPetMutationResponse = Pet
+
+/**
+ * @description Create a new pet in the store
+ */
+export type AddPetMutationRequest = AddPetRequest
+
+/**
+ * @description Successful operation
+ */
 export type AddPet200 = Pet
 
 export type AddPet405 = {
@@ -17,15 +27,6 @@ export type AddPet405 = {
   message?: string
 }
 
-/**
- * @description Create a new pet in the store
- */
-export type AddPetMutationRequest = AddPetRequest
-
-/**
- * @description Successful operation
- */
-export type AddPetMutationResponse = Pet
 export type AddPetMutation = {
   Response: AddPetMutationResponse
   Request: AddPetMutationRequest

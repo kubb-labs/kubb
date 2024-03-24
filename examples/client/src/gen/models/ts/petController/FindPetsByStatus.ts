@@ -1,15 +1,5 @@
 import type { Pet } from '../Pet'
 
-/**
- * @description successful operation
- */
-export type FindPetsByStatus200 = Pet[]
-
-/**
- * @description Invalid status value
- */
-export type FindPetsByStatus400 = any
-
 export const FindPetsByStatusQueryParamsStatus = {
   'available': 'available',
   'pending': 'pending',
@@ -29,6 +19,17 @@ export type FindPetsByStatusQueryParams = {
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
+/**
+ * @description successful operation
+ */
+export type FindPetsByStatus200 = Pet[]
+
+/**
+ * @description Invalid status value
+ */
+export type FindPetsByStatus400 = any
+
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
   QueryParams: FindPetsByStatusQueryParams

@@ -18,6 +18,9 @@ type Props = {
   // parser?: any
 }
 
+/**
+ * @deprecated find better solution
+ */
 export function OasParser({ name, items, mode, generator, isTypeOnly }: Props): KubbNode {
   const file = useFile()
 
@@ -28,7 +31,7 @@ export function OasParser({ name, items, mode, generator, isTypeOnly }: Props): 
     .filter((operationSchema) => (name ? operationSchema.name === name : true))
     .sort(transformers.nameSorter)
     .map((operationSchema) => {
-      const sources = generator.build(operationSchema)
+      const sources = generator.buildSource(operationSchema.name, operationSchema.schema, operationSchema)
       importMeta.push(...generator.imports)
 
       return {

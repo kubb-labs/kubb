@@ -1,0 +1,329 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SchemaGenerator discriminator > Cat.type defined as const 1`] = `
+[
+  "export type Cat = {
+    /**
+     * @type string uuid
+    */
+    id: string;
+    type: "Cat";
+    /**
+     * @type boolean | undefined
+    */
+    meow?: boolean;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator discriminator > Dog.type defined as const 1`] = `
+[
+  "export type Dog = {
+    /**
+     * @type string uuid
+    */
+    id: string;
+    /**
+     * @type number | undefined
+    */
+    bark?: number;
+    type: "Dog";
+};
+",
+]
+`;
+
+exports[`SchemaGenerator discriminator > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
+[
+  "export type MixedValueTypeConst = {
+    foobar?: "foobar";
+};
+",
+]
+`;
+
+exports[`SchemaGenerator discriminator > NullConst correctly produces "null" 1`] = `
+[
+  "export type NullConst = {
+    withoutValue?: null;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator discriminator > NumberValueConst const correctly produces \`42\` 1`] = `
+[
+  "export type NumberValueConst = {
+    foobar?: 42;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator discriminator > PetStore defined as array with type union 1`] = `
+[
+  "export type Petstore = {
+    /**
+     * @type integer
+    */
+    id: number;
+    /**
+     * @type array | undefined
+    */
+    pets?: (Cat | Dog)[];
+};
+",
+]
+`;
+
+exports[`SchemaGenerator discriminator > StringValueConst const correctly produces "foobar" 1`] = `
+[
+  "export type StringValueConst = {
+    foobar?: "foobar";
+};
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate enum AllOf 1`] = `
+[
+  "export const enumObjectReason = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
+export type EnumObjectReason = (typeof enumObjectReason)[keyof typeof enumObjectReason];
+export type enumObject = {
+    reason?: EnumObjectReason;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate enum Array 1`] = `
+[
+  "export const enumArrayIdentifier = {
+    "NW": "NW",
+    "NE": "NE",
+    "SW": "SW",
+    "SE": "SE"
+} as const;
+export type EnumArrayIdentifier = (typeof enumArrayIdentifier)[keyof typeof enumArrayIdentifier];
+export type enumArray = {
+    identifier?: [
+        number,
+        string,
+        EnumArrayIdentifier
+    ];
+};
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate enum InObject 1`] = `
+[
+  "export const enumObjectReason2 = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
+export type EnumObjectReason2 = (typeof enumObjectReason2)[keyof typeof enumObjectReason2];
+export type enumObject = {
+    /**
+     * @type string | undefined
+    */
+    reason?: EnumObjectReason2;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate enum Items 1`] = `
+[
+  "export const enumItems = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
+export type EnumItems = (typeof enumItems)[keyof typeof enumItems];
+export type enumItems = EnumItems[];
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate enum String 1`] = `
+[
+  "export const enumString = {
+    "created_at": "created_at",
+    "description": "description",
+    "FILE.UPLOADED": "FILE.UPLOADED",
+    "FILE.DOWNLOADED": "FILE.DOWNLOADED"
+} as const;
+export type EnumString = (typeof enumString)[keyof typeof enumString];
+export type enumString = EnumString;
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate with enumtype asPascalConst 1`] = `
+[
+  "export const EnumNames = {
+    "Pending": 0,
+    "Received": 1
+} as const;
+export type EnumNames = (typeof EnumNames)[keyof typeof EnumNames];
+export type enumNames = EnumNames;
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate with enumtype constEnum 1`] = `
+[
+  "export const enum EnumNames {
+    "Pending" = 0,
+    "Received" = 1
+}
+export type enumNames = EnumNames;
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate with enumtype enum 1`] = `
+[
+  "export enum EnumNames {
+    "Pending" = 0,
+    "Received" = 1
+}
+export type enumNames = EnumNames;
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate with enumtype literal 1`] = `
+[
+  "export type EnumNames = 0 | 1;
+export type enumNames = EnumNames;
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate x-enum-varnames Type 1`] = `
+[
+  "export const enumVarNames = {
+    "Pending": 0,
+    "Received": 1
+} as const;
+export type EnumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames];
+export type enumVarNames = EnumVarNames;
+",
+]
+`;
+
+exports[`SchemaGenerator enums > generate x-enumNames Type 1`] = `
+[
+  "export const enumNames = {
+    "Pending": 0,
+    "Received": 1
+} as const;
+export type EnumNames = (typeof enumNames)[keyof typeof enumNames];
+export type enumNames = EnumNames;
+",
+]
+`;
+
+exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`questionToken\` 1`] = `
+[
+  "export type Pet = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
+[
+  "export type Pet = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string | undefined;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`undefined\` 1`] = `
+[
+  "export type Pet = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag: string | undefined;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator petStore > generate type for Pets 1`] = `
+[
+  "export type Pets = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+}[];
+",
+]
+`;
+
+exports[`SchemaGenerator petStore > generate type for nullable fields 1`] = `
+[
+  "export type Test = {
+    /**
+     * @type string
+    */
+    foo: string | null;
+};
+",
+]
+`;
+
+exports[`SchemaGenerator petStoreRef > generate type for Pets 1`] = `
+[
+  "export type Pets = Pet[];
+",
+]
+`;

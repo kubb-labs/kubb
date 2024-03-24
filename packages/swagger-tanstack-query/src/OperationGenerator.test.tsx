@@ -206,7 +206,7 @@ describe('OperationGenerator', async () => {
       override: undefined,
     })
 
-    const files = (await og[method](operation, options)) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
 
     files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchFileSnapshot(

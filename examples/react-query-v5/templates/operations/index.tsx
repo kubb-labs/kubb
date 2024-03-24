@@ -1,5 +1,5 @@
 import { Editor, Type, File, usePlugin } from '@kubb/react'
-import { useOperationHelpers, useOperations, useOas } from '@kubb/swagger/hooks'
+import { useOperationHelpers, useOperations } from '@kubb/swagger/hooks'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import React from 'react'
 import { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'

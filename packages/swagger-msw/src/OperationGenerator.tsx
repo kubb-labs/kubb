@@ -23,7 +23,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas} operations={operations} getSchemas={(...props) => this.getSchemas(...props)}>
+      <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         {templates?.operations && <Operations.File templates={templates.operations} />}
       </Oas>,
       { meta: { pluginManager, plugin } },
@@ -32,7 +32,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async #generate(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
@@ -48,7 +48,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+      <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
           <Mock.File templates={templates.mock} />
         </Oas.Operation>
@@ -59,21 +59,21 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async get(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.#generate(operation, options)
+  async get(): OperationMethodResult<FileMeta> {
+    return null
   }
 
-  async post(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.#generate(operation, options)
+  async post(): OperationMethodResult<FileMeta> {
+    return null
   }
 
-  async put(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.#generate(operation, options)
+  async put(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async patch(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.#generate(operation, options)
+  async patch(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async delete(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.#generate(operation, options)
+  async delete(): OperationMethodResult<FileMeta> {
+    return null
   }
 }

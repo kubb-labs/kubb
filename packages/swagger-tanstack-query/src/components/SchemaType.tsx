@@ -1,5 +1,5 @@
 import { Type, usePlugin } from '@kubb/react'
-import { useSchemas } from '@kubb/swagger/hooks'
+import { useOperationSchemas } from '@kubb/swagger/hooks'
 
 import type { ReactNode } from 'react'
 import type { PluginOptions } from '../types.ts'
@@ -13,7 +13,7 @@ type Props = {
 export function SchemaType({ factory }: Props): ReactNode {
   const { options: { dataReturnType } } = usePlugin<PluginOptions>()
 
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,

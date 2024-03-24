@@ -16,6 +16,10 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return null
   }
 
+  async operation(): Promise<KubbFile.File | null> {
+    return null
+  }
+
   async get(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
@@ -26,7 +30,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+      <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
           <Query.File templates={{ query: options.templates.query, queryOptions: options.templates.queryOptions }} />
         </Oas.Operation>
@@ -47,7 +51,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+      <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
           <Mutation.File templates={options.templates.mutation} />
         </Oas.Operation>

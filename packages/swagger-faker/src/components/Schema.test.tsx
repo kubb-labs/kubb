@@ -56,7 +56,7 @@ describe('<Schema/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Schema.File mode="directory" />
           </Oas.Operation>
@@ -75,7 +75,7 @@ describe('<Schema/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Schema.File mode="directory" />
           </Oas.Operation>

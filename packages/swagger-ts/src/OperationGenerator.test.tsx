@@ -42,8 +42,8 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pets', 'get')
     const operationShowById = oas.operation('/pets/{petId}', 'get')
 
-    const files = await og.get(operation, options) as KubbFile.File[]
-    const getShowByIdFiles = await og.get(operationShowById, options) as KubbFile.File[]
+    const files = await og.operation(operation, options) as KubbFile.File[]
+    const getShowByIdFiles = await og.operation(operationShowById, options) as KubbFile.File[]
 
     files.forEach(file => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
@@ -79,7 +79,7 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets', 'post')
-    const files = await og.post(operation, options) as KubbFile.File[]
+    const files = await og.operation(operation, options) as KubbFile.File[]
 
     files.forEach(file => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
@@ -111,7 +111,7 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.delete(operation, options) as KubbFile.File[]
+    const files = await og.operation(operation, options) as KubbFile.File[]
 
     files.forEach(file => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
@@ -142,7 +142,7 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.delete(operation, options) as KubbFile.File[]
+    const files = await og.operation(operation, options) as KubbFile.File[]
 
     files.forEach(file => {
       expect(FileManager.getSource(file)).toMatchSnapshot()

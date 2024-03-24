@@ -3,6 +3,16 @@ import type { Pet } from './Pet'
 /**
  * @description Successful operation
  */
+export type UpdatePetMutationResponse = Pet
+
+/**
+ * @description Update an existent pet in the store
+ */
+export type UpdatePetMutationRequest = Pet
+
+/**
+ * @description Successful operation
+ */
 export type UpdatePet200 = Pet
 
 /**
@@ -20,15 +30,6 @@ export type UpdatePet404 = any
  */
 export type UpdatePet405 = any
 
-/**
- * @description Update an existent pet in the store
- */
-export type UpdatePetMutationRequest = Pet
-
-/**
- * @description Successful operation
- */
-export type UpdatePetMutationResponse = Pet
 export type UpdatePetMutation = {
   Response: UpdatePetMutationResponse
   Request: UpdatePetMutationRequest

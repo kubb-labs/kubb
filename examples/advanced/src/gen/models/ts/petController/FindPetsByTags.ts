@@ -1,29 +1,5 @@
 import type { Pet } from '../Pet'
 
-/**
- * @description successful operation
- */
-export type FindPetsByTags200 = Pet[]
-
-/**
- * @description Invalid tag value
- */
-export type FindPetsByTags400 = any
-
-export const FindPetsByTagsHeaderParamsXExampleEnum = {
-  'ONE': 'ONE',
-  'TWO': 'TWO',
-  'THREE': 'THREE',
-} as const
-export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
-export type FindPetsByTagsHeaderParams = {
-  /**
-   * @description Header parameters
-   * @type string
-   */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExampleEnum
-}
-
 export type FindPetsByTagsQueryParams = {
   /**
    * @description Tags to filter by
@@ -42,10 +18,35 @@ export type FindPetsByTagsQueryParams = {
   pageSize?: string
 }
 
+export const FindPetsByTagsHeaderParamsXExampleEnum = {
+  'ONE': 'ONE',
+  'TWO': 'TWO',
+  'THREE': 'THREE',
+} as const
+export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
+export type FindPetsByTagsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExampleEnum
+}
+
 /**
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
+
+/**
+ * @description successful operation
+ */
+export type FindPetsByTags200 = Pet[]
+
+/**
+ * @description Invalid tag value
+ */
+export type FindPetsByTags400 = any
+
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse
   QueryParams: FindPetsByTagsQueryParams

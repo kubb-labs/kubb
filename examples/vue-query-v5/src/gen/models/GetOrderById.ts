@@ -1,5 +1,18 @@
 import type { Order } from './Order'
 
+export type GetOrderByIdPathParams = {
+  /**
+   * @description ID of order that needs to be fetched
+   * @type integer int64
+   */
+  orderId: number
+}
+
+/**
+ * @description successful operation
+ */
+export type GetOrderByIdQueryResponse = Order
+
 /**
  * @description successful operation
  */
@@ -15,18 +28,6 @@ export type GetOrderById400 = any
  */
 export type GetOrderById404 = any
 
-export type GetOrderByIdPathParams = {
-  /**
-   * @description ID of order that needs to be fetched
-   * @type integer int64
-   */
-  orderId: number
-}
-
-/**
- * @description successful operation
- */
-export type GetOrderByIdQueryResponse = Order
 export type GetOrderByIdQuery = {
   Response: GetOrderByIdQueryResponse
   PathParams: GetOrderByIdPathParams

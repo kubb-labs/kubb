@@ -1,2 +1,2 @@
 export { OasType } from './OasType.tsx'
-export { Schema } from './Schema.tsx'
+export { OperationSchema } from './OperationSchema.tsx'

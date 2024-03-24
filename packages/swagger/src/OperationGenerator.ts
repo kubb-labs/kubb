@@ -331,9 +331,9 @@ export abstract class OperationGenerator<
     const { oas } = this.context
 
     const paths = oas.getPaths()
-    this.operationsByMethod = Object.keys(paths).reduce(
-      (acc, path) => {
-        const methods = Object.keys(paths[path]!) as HttpMethod[]
+    this.operationsByMethod = Object.entries(paths).reduce(
+      (acc, [path, method]) => {
+        const methods = Object.keys(method) as HttpMethod[]
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
@@ -368,10 +368,14 @@ export abstract class OperationGenerator<
         methods.forEach((method) => {
           const { operation } = this.operationsByMethod[path]![method]
           const options = this.#getOptions(operation, method)
-          const promise = this.#methods[method]!.call(this, operation, { ...this.options, ...options })
+          const promiseMethod = this.#methods[method]!.call(this, operation, { ...this.options, ...options })
+          const promiseOperation = this.operation.call(this, operation, { ...this.options, ...options })
 
-          if (promise) {
-            acc.push(promise)
+          if (promiseMethod) {
+            acc.push(promiseMethod)
+          }
+          if (promiseOperation) {
+            acc.push(promiseOperation)
           }
         })
 
@@ -389,6 +393,11 @@ export abstract class OperationGenerator<
     // using .flat because operationGenerator[method] can return a array of files or just one file
     return files.flat().filter(Boolean)
   }
+
+  /**
+   * Operation
+   */
+  abstract operation(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * GET

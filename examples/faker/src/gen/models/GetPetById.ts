@@ -1,5 +1,18 @@
 import type { Pet } from './Pet'
 
+export type GetPetByIdPathParams = {
+  /**
+   * @description ID of pet to return
+   * @type integer int64
+   */
+  petId: number
+}
+
+/**
+ * @description successful operation
+ */
+export type GetPetByIdQueryResponse = Pet
+
 /**
  * @description successful operation
  */
@@ -15,18 +28,6 @@ export type GetPetById400 = any
  */
 export type GetPetById404 = any
 
-export type GetPetByIdPathParams = {
-  /**
-   * @description ID of pet to return
-   * @type integer int64
-   */
-  petId: number
-}
-
-/**
- * @description successful operation
- */
-export type GetPetByIdQueryResponse = Pet
 export type GetPetByIdQuery = {
   Response: GetPetByIdQueryResponse
   PathParams: GetPetByIdPathParams

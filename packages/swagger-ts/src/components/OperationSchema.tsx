@@ -4,10 +4,10 @@ import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
-import { OasParser } from '@kubb/swagger/components'
-import { useGetOperationFile, useOas, useOperation, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { Oas, Schema } from '@kubb/swagger/components'
+import { useGetOperationFile, useOas, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 
-import { TypeGenerator } from '../TypeGenerator.ts'
+import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { ts } from '@kubb/parser'
@@ -88,7 +88,7 @@ function printCombinedSchema(name: string, operation: Operation, schemas: Operat
   return print(namespaceNode)
 }
 
-export function Schema({}: Props): ReactNode {
+export function OperationSchema({}: Props): ReactNode {
   return (
     <>
     </>
@@ -99,17 +99,17 @@ type FileProps = {
   mode: KubbFile.Mode | undefined
 }
 
-Schema.File = function({ mode = 'directory' }: FileProps): ReactNode {
+OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const plugin = usePlugin<PluginOptions>()
 
   const pluginManager = usePluginManager()
   const oas = useOas()
-  const schemas = useSchemas()
+  const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const factoryName = useOperationName({ type: 'type' })
   const operation = useOperation()
 
-  const generator = new TypeGenerator(plugin.options, { oas, plugin, pluginManager })
+  const generator = new SchemaGenerator(plugin.options, { oas, plugin, pluginManager })
 
   const items = [
     schemas.pathParams,
@@ -127,14 +127,18 @@ Schema.File = function({ mode = 'directory' }: FileProps): ReactNode {
         path={file.path}
         meta={file.meta}
       >
-        <File.Import name={['z']} path="zod" />
-        <OasParser
-          name={undefined}
-          items={items}
-          mode={mode}
-          generator={generator}
-          isTypeOnly
-        />
+        {items.map(({ name, schema: object, ...options }, i) => {
+          return (
+            <Oas.Schema key={i} generator={generator} name={name} object={object}>
+              {mode === 'directory'
+                && <Schema.Imports isTypeOnly root={file.path} />}
+              <File.Source>
+                <Schema.Source options={options} />
+              </File.Source>
+            </Oas.Schema>
+          )
+        })}
+
         <File.Source>
           {printCombinedSchema(factoryName, operation, schemas)}
         </File.Source>
