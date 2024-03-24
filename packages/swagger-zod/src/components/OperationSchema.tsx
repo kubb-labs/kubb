@@ -4,7 +4,6 @@ import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useGetOperationFile, useOas, useOperationSchemas } from '@kubb/swagger/hooks'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -46,22 +45,14 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
   ].flat().filter(Boolean)
 
   const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
-    // hack so Params will be optional when needed
+    // hack so Params can be optional when needed
     const required = Array.isArray(object?.required) ? !!object.required.length : !!object?.required
     const optional = !required && !!name.includes('Params')
-    const withTypeAnnotation = plugin.options.typed && !options.operation
-
-    // used for this.options.typed
-    const typeName = pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
-    const typeFileName = pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
-    const typePath = pluginManager.resolvePath({ baseName: typeFileName, pluginKey: swaggerTypeScriptPluginKey })
 
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {withTypeAnnotation && typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
-
         {mode === 'directory'
-          && <Schema.Imports root={file.path} />}
+          && <Schema.Imports />}
         <File.Source>
           <Schema.Source extraSchemas={optional ? [{ keyword: schemaKeywords.optional }] : undefined} options={options} />
         </File.Source>

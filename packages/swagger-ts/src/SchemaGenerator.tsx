@@ -32,7 +32,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   getSource(name: string, schemas: SchemaType[], {
     keysToOmit,
     description,
-  }: SchemaGeneratorBuildOptions = {}) {
+  }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
 
     const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })

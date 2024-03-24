@@ -1,6 +1,7 @@
-import { createRoot, File } from '@kubb/react'
+import { createRoot, File, useFile, usePluginManager } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
+import { useSchema } from '@kubb/swagger/hooks'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { fakerParser } from './fakerParser.tsx'
@@ -11,8 +12,25 @@ import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaGenerator
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
-type Options = SchemaGeneratorOptions & {
-  seed?: number | number[]
+function SchemaImports() {
+  const pluginManager = usePluginManager()
+  const { path: root } = useFile()
+  const { name } = useSchema()
+
+  // used for this.options.typed
+  const typeName = pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+  const typeFileName = pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
+  const typePath = pluginManager.resolvePath({
+    baseName: typeFileName,
+    pluginKey: swaggerTypeScriptPluginKey,
+  })
+
+  return (
+    <>
+      <File.Import name={['faker']} path="@faker-js/faker" />
+      {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
+    </>
+  )
 }
 
 export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
@@ -25,7 +43,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       <Oas oas={oas}>
         <Oas.Schema generator={this} name={name} object={object}>
           <Schema.File output={output} mode={mode}>
-            <File.Import name={['faker']} path="@faker-js/faker" />
+            <SchemaImports />
           </Schema.File>
         </Oas.Schema>
       </Oas>,
@@ -40,6 +58,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
 
+    // all checks are also inside this.schema(React)
     const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })
     const typeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 

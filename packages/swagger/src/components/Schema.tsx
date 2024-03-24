@@ -1,4 +1,4 @@
-import { createContext, Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { createContext, Editor, File, useFile, usePlugin, usePluginManager } from '@kubb/react'
 
 import { useSchema } from '../hooks/useSchema.ts'
 import { schemaKeywords } from '../SchemaMapper.ts'
@@ -92,7 +92,7 @@ Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: Fil
           pluginKey: plugin.key,
         }}
       >
-        <Schema.Imports isTypeOnly={isTypeOnly} root={resolvedPath} />
+        <Schema.Imports isTypeOnly={isTypeOnly} />
         <File.Source>
           <Schema.Source />
         </File.Source>
@@ -103,12 +103,12 @@ Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: Fil
 }
 
 type SchemaImportsProps = {
-  root: string
   isTypeOnly?: boolean
 }
 
-Schema.Imports = ({ root, isTypeOnly }: SchemaImportsProps): ReactNode => {
+Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
   const { generator, schemas } = useSchema()
+  const { path: root } = useFile()
 
   const refs = generator.deepSearch(schemas, schemaKeywords.ref)
 

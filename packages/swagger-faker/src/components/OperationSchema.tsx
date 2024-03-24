@@ -59,7 +59,7 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
         {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
 
         {mode === 'directory'
-          && <Schema.Imports root={file.path} />}
+          && <Schema.Imports />}
         <File.Source>
           <Schema.Source options={options} />
         </File.Source>
