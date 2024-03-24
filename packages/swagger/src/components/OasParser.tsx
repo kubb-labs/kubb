@@ -18,6 +18,9 @@ type Props = {
   // parser?: any
 }
 
+/**
+ * @deprecated find better solution
+ */
 export function OasParser({ name, items, mode, generator, isTypeOnly }: Props): KubbNode {
   const file = useFile()
 

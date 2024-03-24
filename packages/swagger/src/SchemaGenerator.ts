@@ -16,15 +16,15 @@ export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promis
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
-
-  include: Array<'schemas' | 'responses' | 'requestBodies'> | undefined
-  contentType: ContentType | undefined
   pluginManager: PluginManager
   /**
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
+  include?: Array<'schemas' | 'responses' | 'requestBodies'>
+  contentType?: ContentType
   mode?: KubbFile.Mode
+  output?: string
 }
 
 export type SchemaGeneratorOptions = {

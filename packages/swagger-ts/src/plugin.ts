@@ -7,11 +7,9 @@ import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { SchemaGenerator } from './SchemaGenerator.tsx'
-import { TypeBuilder } from './TypeBuilder.ts'
 
-import type { KubbFile, Plugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
-import type { OasTypes } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -87,60 +85,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
-
-      const schemas = await swaggerPlugin.api.getSchemas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
-      const builder = new TypeBuilder(this.plugin.options, { oas, plugin: this.plugin, pluginManager: this.pluginManager })
-
-      builder.add(
-        Object.entries(schemas).map(([name, schema]: [string, OasTypes.SchemaObject]) => ({ name, schema })),
-      )
-
-      if (mode === 'directory') {
-        const mapFolderSchema = async ([name]: [string, OasTypes.SchemaObject]) => {
-          const baseName = `${this.resolveName({ name, pluginKey: this.plugin.key, type: 'file' })}.ts` as const
-          const resolvedPath = this.resolvePath({ baseName, pluginKey: this.plugin.key })
-          const { source, imports } = builder.build(name)
-
-          if (!resolvedPath) {
-            return null
-          }
-
-          return this.addFile({
-            path: resolvedPath,
-            baseName,
-            source,
-            imports: imports.map(item => ({ ...item, root: resolvedPath })),
-            meta: {
-              pluginKey: this.plugin.key,
-            },
-          })
-        }
-
-        const promises = Object.entries(schemas).map(mapFolderSchema)
-
-        await Promise.all(promises)
-      }
-
-      if (mode === 'file') {
-        const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
-        const { source } = builder.build()
-
-        if (!resolvedPath) {
-          return
-        }
-
-        await this.addFile({
-          path: resolvedPath,
-          baseName: output.path as KubbFile.BaseName,
-          source,
-          imports: [],
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-        })
-      }
 
       const operationGenerator = new OperationGenerator(
         this.plugin.options,
@@ -165,6 +111,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           contentType: swaggerPlugin.api.contentType,
           include: undefined,
           mode,
+          output: output.path,
         },
       )
 

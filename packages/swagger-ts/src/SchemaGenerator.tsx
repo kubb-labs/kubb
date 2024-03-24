@@ -14,14 +14,14 @@ import type { FileMeta, PluginOptions } from './types.ts'
 
 export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
-    const { oas, pluginManager, mode, plugin } = this.context
+    const { oas, pluginManager, mode, plugin, output } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     root.render(
       <Oas oas={oas}>
         <Oas.Schema name={name} object={object}>
-          <Schema.File generator={this} mode={mode} />
+          <Schema.File generator={this} output={output} mode={mode} />
         </Oas.Schema>
       </Oas>,
       { meta: { pluginManager, plugin } },
