@@ -4,10 +4,12 @@ import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
-import { OasParser } from '@kubb/swagger/components'
+import { Oas } from '@kubb/swagger/components'
 import { useGetOperationFile, useOas, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
+import { Schema } from './Schema.tsx'
+import { SchemaImports } from './SchemaImports.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { ts } from '@kubb/parser'
@@ -109,7 +111,7 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const factoryName = useOperationName({ type: 'type' })
   const operation = useOperation()
 
-  const generator = new SchemaGenerator(plugin.options, { oas, plugin, pluginManager, contentType: undefined, include: undefined })
+  const generator = new SchemaGenerator(plugin.options, { oas, plugin, pluginManager })
 
   const items = [
     schemas.pathParams,
@@ -128,13 +130,17 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
         meta={file.meta}
       >
         <File.Import name={['z']} path="zod" />
-        <OasParser
-          name={undefined}
-          items={items}
-          mode={mode}
-          generator={generator}
-          isTypeOnly
-        />
+
+        {items.map(({ name, schema: object, ...options }, i) => {
+          return (
+            <Oas.Schema key={i} name={name} object={object}>
+              {mode === 'directory'
+                && <SchemaImports isTypeOnly generator={generator} root={file.path} />}
+              <Schema generator={generator} options={options} />
+            </Oas.Schema>
+          )
+        })}
+
         <File.Source>
           {printCombinedSchema(factoryName, operation, schemas)}
         </File.Source>

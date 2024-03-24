@@ -7,12 +7,8 @@ import type { SchemaObject } from '../oas/index.ts'
 /**
  * `useSchemaObject` will return the current `SchemaObject`
  */
-export function useSchemaObject(): SchemaObject {
+export function useSchemaObject(): SchemaObject | undefined {
   const { object } = useContext(Schema.Context)
-
-  if (!object) {
-    throw new Error('object is not defined')
-  }
 
   return object
 }

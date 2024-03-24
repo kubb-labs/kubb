@@ -1,19 +1,32 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable @typescript-eslint/ban-types */
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
-import { schemaKeywords } from '@kubb/swagger'
 import { useSchemaName, useSchemaObject } from '@kubb/swagger/hooks'
 
+import { SchemaImports } from './SchemaImports.tsx'
+
 import type { KubbFile } from '@kubb/core'
+import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { SchemaGenerator } from '../SchemaGenerator.tsx'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-type Props = {}
+type Props = {
+  generator: SchemaGenerator
+  options?: SchemaGeneratorBuildOptions
+}
 
-export function Schema({}: Props): ReactNode {
+export function Schema({ generator, options }: Props): ReactNode {
+  const name = useSchemaName()
+  const schemaObject = useSchemaObject()
+
+  if (!schemaObject) {
+    return null
+  }
+
+  // TODO replace with React component
+  const source = generator.buildSource(name, schemaObject, options)
+
   return (
     <>
+      {source}
     </>
   )
 }
@@ -29,10 +42,6 @@ Schema.File = function({ generator, output, mode = 'directory' }: FileProps): Re
 
   const pluginManager = usePluginManager()
   const name = useSchemaName()
-  const schemaObject = useSchemaObject()
-
-  // TODO replace with React component
-  const source = generator.buildSource(name, schemaObject)
 
   if (mode === 'file') {
     const baseName = output as KubbFile.BaseName
@@ -52,7 +61,7 @@ Schema.File = function({ generator, output, mode = 'directory' }: FileProps): Re
           }}
         >
           <File.Source>
-            {source}
+            <Schema generator={generator} />
           </File.Source>
         </File>
       </Editor>
@@ -61,9 +70,6 @@ Schema.File = function({ generator, output, mode = 'directory' }: FileProps): Re
 
   const baseName = `${pluginManager.resolveName({ name, pluginKey: plugin.key, type: 'file' })}.ts` as const
   const resolvedPath = pluginManager.resolvePath({ baseName, pluginKey: plugin.key })
-  const schemas = generator.buildSchemas(schemaObject, name)
-
-  const refs = generator.deepSearch(schemas, schemaKeywords.ref)
 
   if (!resolvedPath) {
     return null
@@ -78,14 +84,9 @@ Schema.File = function({ generator, output, mode = 'directory' }: FileProps): Re
           pluginKey: plugin.key,
         }}
       >
-        {refs.map((ref, i) => {
-          if (!ref.args.path) {
-            return undefined
-          }
-          return <File.Import key={i} root={resolvedPath} name={[ref.args.name]} path={ref.args.path} isTypeOnly />
-        }).filter(Boolean)}
+        <SchemaImports generator={generator} root={resolvedPath} />
         <File.Source>
-          {source}
+          <Schema generator={generator} />
         </File.Source>
       </File>
     </Editor>

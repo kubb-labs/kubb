@@ -116,10 +116,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       )
 
       const operationFiles = await operationGenerator.build()
-      await this.addFile(...operationFiles)
-
       const schemaFiles = await schemaGenerator.build()
 
+      await this.addFile(...operationFiles)
       await this.addFile(...schemaFiles)
     },
     async buildEnd() {
