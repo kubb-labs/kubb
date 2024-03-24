@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
 import { createAddPetRequest } from '../createAddPetRequest'
+import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
 
 /**
  * @description Successful operation

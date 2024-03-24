@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import { GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName'
+import type { GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName'
 
 /**
  * @description successful operation

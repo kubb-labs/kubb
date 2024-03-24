@@ -48,7 +48,9 @@ export function OasParser({ name, items, mode, generator, isTypeOnly }: Props): 
   return (
     <>
       {mode === 'directory'
-        && importMeta.map((item, i) => <File.Import key={i} root={file.path} name={[item.ref.propertyName]} path={item.path} isTypeOnly={isTypeOnly} />)}
+        && importMeta.map((item, i) => (
+          <File.Import key={i} root={file.path} name={[item.ref.propertyName]} path={item.path} isTypeOnly={isTypeOnly ?? item.isTypeOnly} />
+        ))}
       <File.Source>
         {transformers.combineCodes(codes)}
       </File.Source>

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import {
+import type {
   GetUserByName200,
   GetUserByName400,
   GetUserByName404,

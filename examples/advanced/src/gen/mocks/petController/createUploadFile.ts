@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createApiResponse } from '../createApiResponse'
-import {
+import type {
   UploadFile200,
   UploadFileMutationRequest,
   UploadFileMutationResponse,

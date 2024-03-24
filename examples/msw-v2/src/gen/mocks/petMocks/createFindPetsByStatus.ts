@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import { FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
+import type { FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
 
 /**
  * @description successful operation

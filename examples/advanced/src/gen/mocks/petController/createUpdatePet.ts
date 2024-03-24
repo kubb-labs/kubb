@@ -1,5 +1,5 @@
 import { createPet } from '../createPet'
-import {
+import type {
   UpdatePet200,
   UpdatePet400,
   UpdatePet404,

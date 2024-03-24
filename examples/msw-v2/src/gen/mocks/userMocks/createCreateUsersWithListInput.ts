@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import {
+import type {
   CreateUsersWithListInput200,
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,

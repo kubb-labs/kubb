@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser'
+import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser'
 
 /**
  * @description successful operation

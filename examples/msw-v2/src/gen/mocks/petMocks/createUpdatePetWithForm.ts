@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import {
+import type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
