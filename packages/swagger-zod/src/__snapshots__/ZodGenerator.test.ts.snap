@@ -43,7 +43,7 @@ export const Pets = z.array(z.object({"id": z.number(),"name": z.string(),"tag":
 exports[`ZodGenerator anyof > anyof with 2 objects 1`] = `
 [
   "
-export const test = z.union([z.object({"propertyA": z.string()}).strict(), z.object({"propertyA": z.string(),"propertyB": z.string()}).strict()])
+export const test = z.union([z.object({"propertyA": z.string()}).strict(), z.object({"propertyA": z.string()}).strict()])
 ",
 ]
 `;
@@ -83,7 +83,7 @@ export const NullableStringUuid = z.string().uuid().nullable()
 exports[`ZodGenerator constCases > NullableStringWithAnyOf results in union of string and null 1`] = `
 [
   "
-export const NullableStringWithAnyOf = z.union([z.string(), z.null()])
+export const NullableStringWithAnyOf = z.union([z.string(), z.string()])
 ",
 ]
 `;

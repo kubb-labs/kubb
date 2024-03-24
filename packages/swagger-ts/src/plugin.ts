@@ -40,7 +40,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       oasType,
       enumType,
       enumSuffix,
-      // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
+      // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
       unknownType,
     },
@@ -88,6 +88,22 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
 
+      const schemaGenerator = new SchemaGenerator(
+        this.plugin.options,
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          plugin: this.plugin,
+          contentType: swaggerPlugin.api.contentType,
+          include: undefined,
+          mode,
+          output: output.path,
+        },
+      )
+
+      const schemaFiles = await schemaGenerator.build()
+      await this.addFile(...schemaFiles)
+
       const operationGenerator = new OperationGenerator(
         this.plugin.options,
         {
@@ -102,24 +118,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         },
       )
 
-      const schemaGenerator = new SchemaGenerator(
-        this.plugin.options,
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.api.contentType,
-          include: undefined,
-          mode,
-          output: output.path,
-        },
-      )
-
       const operationFiles = await operationGenerator.build()
-      const schemaFiles = await schemaGenerator.build()
-
       await this.addFile(...operationFiles)
-      await this.addFile(...schemaFiles)
     },
     async buildEnd() {
       if (this.config.output.write === false) {

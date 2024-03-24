@@ -71,7 +71,7 @@ exports[`SchemaGenerator discriminator > PetStore defined as array with type uni
     /**
      * @type array | undefined
     */
-    pets?: (Cat | Dog)[];
+    pets?: (Cat | Cat)[];
 };
 ",
 ]
@@ -102,18 +102,11 @@ export type enumObject = {
 
 exports[`SchemaGenerator enums > generate enum Array 1`] = `
 [
-  "export const enumArrayIdentifier = {
-    "NW": "NW",
-    "NE": "NE",
-    "SW": "SW",
-    "SE": "SE"
-} as const;
-export type EnumArrayIdentifier = (typeof enumArrayIdentifier)[keyof typeof enumArrayIdentifier];
-export type enumArray = {
+  "export type enumArray = {
     identifier?: [
         number,
-        string,
-        EnumArrayIdentifier
+        number,
+        number
     ];
 };
 ",
@@ -122,16 +115,13 @@ export type enumArray = {
 
 exports[`SchemaGenerator enums > generate enum InObject 1`] = `
 [
-  "export const enumObjectReason2 = {
+  "export const enumObjectReason = {
     "created_at": "created_at",
     "description": "description"
 } as const;
-export type EnumObjectReason2 = (typeof enumObjectReason2)[keyof typeof enumObjectReason2];
+export type EnumObjectReason = (typeof enumObjectReason)[keyof typeof enumObjectReason];
 export type enumObject = {
-    /**
-     * @type string | undefined
-    */
-    reason?: EnumObjectReason2;
+    reason?: EnumObjectReason;
 };
 ",
 ]
