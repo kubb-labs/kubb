@@ -12,7 +12,7 @@ import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
 
-describe('<Schema/>', async () => {
+describe('<OperationSchema/>', async () => {
   const oas = await OasManager.parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },

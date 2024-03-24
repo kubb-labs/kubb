@@ -3,13 +3,17 @@ import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
+import { fakerParser } from './fakerParser.tsx'
 import { pluginKey } from './plugin.ts'
-import { typeParser } from './typeParser.ts'
 
 import type { AppContextProps } from '@kubb/react'
-import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaMethodResult } from '@kubb/swagger'
+import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaGeneratorOptions, SchemaMethodResult } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
+
+type Options = SchemaGeneratorOptions & {
+  seed?: number | number[]
+}
 
 export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
@@ -28,33 +32,29 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
 
     return root.files
   }
-  // TODO convert to a react component called `Schema.Parser` with props parser as part of the SchemaContext
+
   getSource(name: string, schemas: SchemaType[], {
-    keysToOmit,
     description,
-  }: SchemaGeneratorBuildOptions = {}) {
+  }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
 
     const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })
-    const resvoledTypeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+    const typeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
-    const typeOutput = typeParser(schemas, {
+    const output = fakerParser(schemas, {
       name: resolvedName,
-      typeName: resvoledTypeName,
+      typeName,
       description,
-      enumType: this.options.enumType || 'asConst',
-      optionalType: this.options.optionalType,
-      keysToOmit,
+      seed: this.options.seed,
     })
 
-    texts.push(typeOutput)
+    texts.push(output)
 
     return texts
   }
   /**
    * @deprecated only used for testing
    */
-
   buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
     const schemas = this.buildSchemas(schema, name)
 

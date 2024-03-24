@@ -115,9 +115,9 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
     schemas.pathParams,
     schemas.queryParams,
     schemas.headerParams,
-    schemas.response,
-    schemas.request,
     schemas.statusCodes,
+    schemas.request,
+    schemas.response,
   ].flat().filter(Boolean)
 
   return (

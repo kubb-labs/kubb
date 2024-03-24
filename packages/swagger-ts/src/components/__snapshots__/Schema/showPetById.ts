@@ -14,17 +14,17 @@ export type ShowPetByIdPathParams = {
 /**
  * @description Expected response to a valid request
  */
-export type ShowPetByIdQueryResponse = Pet
-
-/**
- * @description Expected response to a valid request
- */
 export type ShowPetById200 = Pet
 
 /**
  * @description unexpected error
  */
 export type ShowPetByIdError = Error
+
+/**
+ * @description Expected response to a valid request
+ */
+export type ShowPetByIdQueryResponse = Pet
 
 export type ShowPetByIdQuery = {
   Response: ShowPetByIdQueryResponse

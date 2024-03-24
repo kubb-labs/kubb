@@ -9,7 +9,7 @@ import type { Plugin, PluginManager } from '@kubb/core'
 import type { Oas, OasTypes, SchemaObject } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
-describe('SchemaGenerator petStore', async () => {
+describe('TypeScript SchemaGenerator petStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
   const oas = await new OasManager().parse(petStorePath)
 

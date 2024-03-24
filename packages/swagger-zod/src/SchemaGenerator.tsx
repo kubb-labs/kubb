@@ -1,15 +1,33 @@
-import { SchemaGenerator, schemaKeywords } from '@kubb/swagger'
+import { createRoot } from '@kubb/react'
+import { schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator as Generator } from '@kubb/swagger'
+import { Oas, Schema } from '@kubb/swagger/components'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
 import { zodParser } from './zodParser.tsx'
 
-import type { Schema as SchemaType, SchemaGeneratorBuildOptions } from '@kubb/swagger'
+import type { AppContextProps } from '@kubb/react'
+import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaMethodResult } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
+import type { FileMeta, PluginOptions } from './types.ts'
 
-export class ZodGenerator extends SchemaGenerator {
-  async schema() {
-    return null
+export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+  async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
+    const { oas, pluginManager, mode, plugin, output } = this.context
+
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+
+    root.render(
+      <Oas oas={oas}>
+        <Oas.Schema generator={this} name={name} object={object}>
+          <Schema.File isTypeOnly output={output} mode={mode} />
+        </Oas.Schema>
+      </Oas>,
+      { meta: { pluginManager, plugin } },
+    )
+
+    return root.files
   }
 
   getSource(name: string, schemas: SchemaType[], {
@@ -24,6 +42,7 @@ export class ZodGenerator extends SchemaGenerator {
     // used for this.options.typed
     const typeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
+    // this has been moved to OperationSchema
     const optional = !required && !!name.includes('Params')
     if (optional) {
       schemas.push({
@@ -40,28 +59,13 @@ export class ZodGenerator extends SchemaGenerator {
         : undefined,
     })
 
-    if (withTypeAnnotation && typeName) {
-      const typeFileName = this.context.pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
-      const typePath = this.context.pluginManager.resolvePath({ baseName: typeFileName, pluginKey: swaggerTypeScriptPluginKey })
-
-      if (typePath) {
-        this.imports.push({
-          ref: {
-            propertyName: typeName,
-            originalName: name,
-            path: typePath,
-            pluginKey: swaggerTypeScriptPluginKey,
-          },
-          path: typePath,
-          isTypeOnly: true,
-        })
-      }
-    }
-
     texts.push(output)
 
     return texts
   }
+  /**
+   * @deprecated only used for testing
+   */
   buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
     const schemas = this.buildSchemas(schema, name)
 

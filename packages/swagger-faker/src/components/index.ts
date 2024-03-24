@@ -1,1 +1,1 @@
-export { Schema } from './Schema.tsx'
+export { OperationSchema } from './OperationSchema.tsx'

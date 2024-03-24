@@ -3,22 +3,25 @@ import path from 'node:path'
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
-import { ZodGenerator } from './ZodGenerator.ts'
+import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
-describe('ZodGenerator PetStore', async () => {
+describe('Zod SchemaGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
   const oas = await new OasManager().parse(petStorePath)
 
   test('generate schema for Pet', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
-      transformers: {},
+    const generator = new SchemaGenerator({
       dateType: 'string',
+      include: undefined,
+      transformers: {},
       unknownType: 'any',
+      exclude: undefined,
+      override: undefined,
+      typed: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -34,13 +37,14 @@ describe('ZodGenerator PetStore', async () => {
   })
 
   test('generate schema for Pets', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
+    const generator = new SchemaGenerator({
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
-      enumType: 'asConst',
-      usedEnumNames: {},
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -56,13 +60,14 @@ describe('ZodGenerator PetStore', async () => {
   })
 
   test('generate schema for OptionalPet', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
+    const generator = new SchemaGenerator({
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
-      enumType: 'asConst',
-      usedEnumNames: {},
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -78,14 +83,14 @@ describe('ZodGenerator PetStore', async () => {
   })
 
   test('generate schema for OptionalPet typed', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
+    const generator = new SchemaGenerator({
       transformers: {},
       typed: true,
       dateType: 'string',
       unknownType: 'any',
-      enumType: 'asConst',
-      usedEnumNames: {},
+      exclude: undefined,
+      override: undefined,
+      include: undefined,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -101,13 +106,14 @@ describe('ZodGenerator PetStore', async () => {
   })
 
   test('generate schema for PetArray', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
+    const generator = new SchemaGenerator({
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
-      enumType: 'asConst',
-      usedEnumNames: {},
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -126,13 +132,14 @@ describe('ZodGenerator PetStore', async () => {
 describe('ZodGenerator constCases', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
-  const generator = new ZodGenerator({
-    mapper: undefined,
+  const generator = new SchemaGenerator({
     transformers: {},
     dateType: 'string',
     unknownType: 'any',
-    enumType: 'asConst',
-    usedEnumNames: {},
+    exclude: undefined,
+    override: undefined,
+    typed: false,
+    include: undefined,
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -200,18 +207,19 @@ describe('ZodGenerator constCases', async () => {
   })
 })
 
-describe('ZodGenerator lazy', async () => {
+describe('Zod SchemaGenerator lazy', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/lazy.yaml')
   const oas = await new OasManager().parse(petStorePath)
 
   test('generate schema for Example', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
+    const generator = new SchemaGenerator({
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
-      enumType: 'asConst',
-      usedEnumNames: {},
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -227,16 +235,17 @@ describe('ZodGenerator lazy', async () => {
   })
 })
 
-describe('ZodGenerator enums', async () => {
+describe('Zod SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
-  const generator = new ZodGenerator({
-    mapper: undefined,
+  const generator = new SchemaGenerator({
     transformers: {},
     dateType: 'string',
     unknownType: 'any',
-    enumType: 'asConst',
-    usedEnumNames: {},
+    exclude: undefined,
+    override: undefined,
+    typed: false,
+    include: undefined,
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -260,18 +269,19 @@ describe('ZodGenerator enums', async () => {
   })
 })
 
-describe('ZodGenerator recursive', async () => {
+describe('Zod SchemaGenerator recursive', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/recursive.yaml')
   const oas = await new OasManager().parse(petStorePath)
 
   test('generate schema for Example', async () => {
-    const generator = new ZodGenerator({
-      mapper: undefined,
+    const generator = new SchemaGenerator({
       transformers: {},
       dateType: 'string',
       unknownType: 'any',
-      enumType: 'asConst',
-      usedEnumNames: {},
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -287,16 +297,17 @@ describe('ZodGenerator recursive', async () => {
   })
 })
 
-describe('ZodGenerator anyof', async () => {
+describe('Zod SchemaGenerator anyof', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
-  const generator = new ZodGenerator({
-    mapper: undefined,
+  const generator = new SchemaGenerator({
     transformers: {},
     dateType: 'string',
     unknownType: 'any',
-    enumType: 'asConst',
-    usedEnumNames: {},
+    exclude: undefined,
+    override: undefined,
+    typed: false,
+    include: undefined,
   }, {
     oas,
     pluginManager: mockedPluginManager,

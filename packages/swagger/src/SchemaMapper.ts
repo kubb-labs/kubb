@@ -27,7 +27,7 @@ export type SchemaKeywordMapper = {
   and: { keyword: 'and'; args: Schema[] }
   const: { keyword: 'const'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
   union: { keyword: 'union'; args: Schema[] }
-  ref: { keyword: 'ref'; args: { name: string; path: KubbFile.OptionalPath } }
+  ref: { keyword: 'ref'; args: { name: string; path: KubbFile.OptionalPath; isTypeOnly?: boolean } }
   lazy: { keyword: 'lazy' }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }

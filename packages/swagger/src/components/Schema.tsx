@@ -111,24 +111,27 @@ Schema.Imports = ({ root, isTypeOnly }: SchemaImportsProps): ReactNode => {
 
   return (
     <>
-      {refs?.map((ref, i) => {
-        if (!ref.args.path) {
+      {refs?.map((item, i) => {
+        if (!item.args.path) {
           return undefined
         }
-        return <File.Import key={i} root={root} name={[ref.args.name]} path={ref.args.path} isTypeOnly={isTypeOnly} />
+        return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
       }).filter(Boolean)}
     </>
   )
 }
 
-type SchemaSourceProps = {
-  options?: SchemaGeneratorBuildOptions
+type SchemaSourceProps<TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions> = {
+  extraSchemas?: SchemaType[]
+  options?: TOptions
 }
 
-Schema.Source = ({ options }: SchemaSourceProps): ReactNode => {
+Schema.Source = <TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>(
+  { options, extraSchemas = [] }: SchemaSourceProps<TOptions>,
+): ReactNode => {
   const { name, generator, schemas } = useSchema()
 
-  const source = generator.getSource(name, schemas, options)
+  const source = generator.getSource(name, [...schemas, ...extraSchemas], options as SchemaGeneratorBuildOptions)
 
   return (
     <>

@@ -2,7 +2,7 @@ import { createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
-import { Schema } from './components/Schema.tsx'
+import { OperationSchema } from './components/OperationSchema.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
@@ -25,7 +25,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     root.render(
       <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
-          <Schema.File mode={mode} />
+          <OperationSchema.File mode={mode} output={undefined} />
         </Oas.Operation>
       </Oas>,
       { meta: { pluginManager, plugin: { ...plugin, options } } },

@@ -229,7 +229,14 @@ export type enumNames = EnumNames;
 ]
 `;
 
-exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`questionToken\` 1`] = `
+exports[`SchemaGenerator petStoreRef > generate type for Pets 1`] = `
+[
+  "export type Pets = Pet[];
+",
+]
+`;
+
+exports[`TypeScript SchemaGenerator petStore > generate type for Pet with optionalType \`questionToken\` 1`] = `
 [
   "export type Pet = {
     /**
@@ -249,7 +256,7 @@ exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`qu
 ]
 `;
 
-exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
+exports[`TypeScript SchemaGenerator petStore > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
 [
   "export type Pet = {
     /**
@@ -269,7 +276,7 @@ exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`qu
 ]
 `;
 
-exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`undefined\` 1`] = `
+exports[`TypeScript SchemaGenerator petStore > generate type for Pet with optionalType \`undefined\` 1`] = `
 [
   "export type Pet = {
     /**
@@ -289,7 +296,7 @@ exports[`SchemaGenerator petStore > generate type for Pet with optionalType \`un
 ]
 `;
 
-exports[`SchemaGenerator petStore > generate type for Pets 1`] = `
+exports[`TypeScript SchemaGenerator petStore > generate type for Pets 1`] = `
 [
   "export type Pets = {
     /**
@@ -309,7 +316,7 @@ exports[`SchemaGenerator petStore > generate type for Pets 1`] = `
 ]
 `;
 
-exports[`SchemaGenerator petStore > generate type for nullable fields 1`] = `
+exports[`TypeScript SchemaGenerator petStore > generate type for nullable fields 1`] = `
 [
   "export type Test = {
     /**
@@ -317,13 +324,6 @@ exports[`SchemaGenerator petStore > generate type for nullable fields 1`] = `
     */
     foo: string | null;
 };
-",
-]
-`;
-
-exports[`SchemaGenerator petStoreRef > generate type for Pets 1`] = `
-[
-  "export type Pets = Pet[];
 ",
 ]
 `;
