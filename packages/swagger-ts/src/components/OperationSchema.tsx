@@ -11,6 +11,7 @@ import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { ts } from '@kubb/parser'
+import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { OperationSchemas } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
@@ -115,10 +116,22 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
     schemas.pathParams,
     schemas.queryParams,
     schemas.headerParams,
-    schemas.response,
-    schemas.request,
     schemas.statusCodes,
+    schemas.request,
+    schemas.response,
   ].flat().filter(Boolean)
+
+  const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
+    return (
+      <Oas.Schema key={i} generator={generator} name={name} object={object}>
+        {mode === 'directory'
+          && <Schema.Imports isTypeOnly />}
+        <File.Source>
+          <Schema.Source options={options} />
+        </File.Source>
+      </Oas.Schema>
+    )
+  }
 
   return (
     <Editor language="typescript">
@@ -127,17 +140,7 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
         path={file.path}
         meta={file.meta}
       >
-        {items.map(({ name, schema: object, ...options }, i) => {
-          return (
-            <Oas.Schema key={i} generator={generator} name={name} object={object}>
-              {mode === 'directory'
-                && <Schema.Imports isTypeOnly root={file.path} />}
-              <File.Source>
-                <Schema.Source options={options} />
-              </File.Source>
-            </Oas.Schema>
-          )
-        })}
+        {items.map(mapItem)}
 
         <File.Source>
           {printCombinedSchema(factoryName, operation, schemas)}

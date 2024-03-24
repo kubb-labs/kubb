@@ -1,4 +1,4 @@
-import { createContext, Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { createContext, Editor, File, useFile, usePlugin, usePluginManager } from '@kubb/react'
 
 import { useSchema } from '../hooks/useSchema.ts'
 import { schemaKeywords } from '../SchemaMapper.ts'
@@ -41,9 +41,10 @@ type FileProps = {
   mode: KubbFile.Mode | undefined
   isTypeOnly?: boolean
   output: string | undefined
+  children?: KubbNode
 }
 
-Schema.File = function({ output, isTypeOnly, mode = 'directory' }: FileProps): ReactNode {
+Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: FileProps): ReactNode {
   const plugin = usePlugin<PluginOptions>()
 
   const pluginManager = usePluginManager()
@@ -69,6 +70,7 @@ Schema.File = function({ output, isTypeOnly, mode = 'directory' }: FileProps): R
           <File.Source>
             <Schema.Source />
           </File.Source>
+          {children}
         </File>
       </Editor>
     )
@@ -90,45 +92,49 @@ Schema.File = function({ output, isTypeOnly, mode = 'directory' }: FileProps): R
           pluginKey: plugin.key,
         }}
       >
-        <Schema.Imports isTypeOnly={isTypeOnly} root={resolvedPath} />
+        <Schema.Imports isTypeOnly={isTypeOnly} />
         <File.Source>
           <Schema.Source />
         </File.Source>
+        {children}
       </File>
     </Editor>
   )
 }
 
 type SchemaImportsProps = {
-  root: string
   isTypeOnly?: boolean
 }
 
-Schema.Imports = ({ root, isTypeOnly }: SchemaImportsProps): ReactNode => {
+Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
   const { generator, schemas } = useSchema()
+  const { path: root } = useFile()
 
   const refs = generator.deepSearch(schemas, schemaKeywords.ref)
 
   return (
     <>
-      {refs?.map((ref, i) => {
-        if (!ref.args.path) {
+      {refs?.map((item, i) => {
+        if (!item.args.path) {
           return undefined
         }
-        return <File.Import key={i} root={root} name={[ref.args.name]} path={ref.args.path} isTypeOnly={isTypeOnly} />
+        return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
       }).filter(Boolean)}
     </>
   )
 }
 
-type SchemaSourceProps = {
-  options?: SchemaGeneratorBuildOptions
+type SchemaSourceProps<TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions> = {
+  extraSchemas?: SchemaType[]
+  options?: TOptions
 }
 
-Schema.Source = ({ options }: SchemaSourceProps): ReactNode => {
+Schema.Source = <TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>(
+  { options, extraSchemas = [] }: SchemaSourceProps<TOptions>,
+): ReactNode => {
   const { name, generator, schemas } = useSchema()
 
-  const source = generator.getSource(name, schemas, options)
+  const source = generator.getSource(name, [...schemas, ...extraSchemas], options as SchemaGeneratorBuildOptions)
 
   return (
     <>

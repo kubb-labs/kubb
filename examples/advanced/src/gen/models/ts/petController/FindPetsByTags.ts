@@ -35,17 +35,17 @@ export type FindPetsByTagsHeaderParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTagsQueryResponse = Pet[]
-
-/**
- * @description successful operation
- */
 export type FindPetsByTags200 = Pet[]
 
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any
+
+/**
+ * @description successful operation
+ */
+export type FindPetsByTagsQueryResponse = Pet[]
 
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse

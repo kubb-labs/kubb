@@ -1,4 +1,4 @@
-import type { User } from '../User'
+import { User } from '../User'
 
 export type UpdateUserPathParams = {
   /**
@@ -8,17 +8,17 @@ export type UpdateUserPathParams = {
   username: string
 }
 
-export type UpdateUserMutationResponse = any
+/**
+ * @description successful operation
+ */
+export type UpdateUserError = any
 
 /**
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User
 
-/**
- * @description successful operation
- */
-export type UpdateUserError = any
+export type UpdateUserMutationResponse = any
 
 export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse

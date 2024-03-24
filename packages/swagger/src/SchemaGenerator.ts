@@ -10,7 +10,7 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
-import type { ContentType, ImportMeta, OperationSchema, Refs } from './types.ts'
+import type { ContentType, OperationSchema, Refs } from './types.ts'
 
 export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -58,10 +58,6 @@ export abstract class SchemaGenerator<
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
-  /**
-   * @deprecated use ref in schema instead(it has path)
-   */
-  imports: ImportMeta[] = []
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
@@ -214,15 +210,7 @@ export abstract class SchemaGenerator<
       path,
     }
 
-    if (path) {
-      this.imports.push({
-        ref,
-        path,
-        isTypeOnly: false,
-      })
-    }
-
-    return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref?.path } }]
+    return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref?.path, isTypeOnly: false } }]
   }
 
   #getParsedSchemaObject(schema?: SchemaObject) {
@@ -582,11 +570,13 @@ export abstract class SchemaGenerator<
    * Schema
    */
   abstract schema(name: string, object: SchemaObject): SchemaMethodResult<TFileMeta>
-
-  abstract getSource(name: string, schemas: Schema[], options?: SchemaGeneratorBuildOptions): string[]
-
   /**
    * Returns the source, in the future it an return a react component
+   */
+  abstract getSource<TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>(name: string, schemas: Schema[], options?: TOptions): string[]
+
+  /**
+   * @deprecated only used for testing
    */
   abstract buildSource(
     name: string,

@@ -1,3 +1,10 @@
+export function createShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+  return {
+    ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
+    ...override,
+  }
+}
+
 /**
  * @description Expected response to a valid request
  */
@@ -10,13 +17,6 @@ export function createShowPetById200(override?: NonNullable<Partial<ShowPetById2
  */
 export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
   return createError(override)
-}
-
-export function createShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
-  return {
-    ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
-    ...override,
-  }
 }
 
 /**

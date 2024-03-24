@@ -1,6 +1,14 @@
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById'
+import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/GetPetById'
+
+export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
+  faker.seed([220])
+  return {
+    ...{ 'petId': faker.number.int() },
+    ...override,
+  }
+}
 
 /**
  * @description successful operation
@@ -24,14 +32,6 @@ export function createGetPetById400(override?: NonNullable<Partial<GetPetById400
 export function createGetPetById404(override?: NonNullable<Partial<GetPetById404>>): NonNullable<GetPetById404> {
   faker.seed([220])
   return undefined
-}
-
-export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
-  faker.seed([220])
-  return {
-    ...{ 'petId': faker.number.int() },
-    ...override,
-  }
 }
 
 /**

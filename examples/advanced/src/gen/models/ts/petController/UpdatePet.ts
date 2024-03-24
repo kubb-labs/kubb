@@ -3,16 +3,6 @@ import type { Pet } from '../Pet'
 /**
  * @description Successful operation
  */
-export type UpdatePetMutationResponse = Omit<NonNullable<Pet>, 'name'>
-
-/**
- * @description Update an existent pet in the store
- */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'id'>
-
-/**
- * @description Successful operation
- */
 export type UpdatePet200 = Pet
 
 /**
@@ -29,6 +19,16 @@ export type UpdatePet404 = any
  * @description Validation exception
  */
 export type UpdatePet405 = any
+
+/**
+ * @description Update an existent pet in the store
+ */
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'id'>
+
+/**
+ * @description Successful operation
+ */
+export type UpdatePetMutationResponse = Omit<NonNullable<Pet>, 'name'>
 
 export type UpdatePetMutation = {
   Response: UpdatePetMutationResponse

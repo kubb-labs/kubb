@@ -10,5 +10,5 @@ type Props = KubbFile.Export & {
 }
 
 export function Export({ name, path, isTypeOnly, asAlias, print }: Props): KubbNode {
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly} asAlias={asAlias} print={print} />
+  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} print={print} />
 }

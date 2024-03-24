@@ -5,7 +5,7 @@ import { OasManager } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Schema } from './Schema.tsx'
+import { OperationSchema } from './OperationSchema.tsx'
 
 import type { Plugin, ResolveNameParams } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
@@ -58,7 +58,7 @@ describe('<Schema/>', async () => {
       return (
         <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
-            <Schema.File mode="directory" />
+            <OperationSchema.File mode="directory" />
           </Oas.Operation>
         </Oas>
       )
@@ -77,7 +77,7 @@ describe('<Schema/>', async () => {
       return (
         <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
-            <Schema.File mode="directory" />
+            <OperationSchema.File mode="directory" />
           </Oas.Operation>
         </Oas>
       )

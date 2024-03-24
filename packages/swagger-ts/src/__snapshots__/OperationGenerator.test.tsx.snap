@@ -19,8 +19,8 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\`
 `;
 
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`] = `
-"import type { Pets } from "./Pets";
-import type { Error } from "./Error";
+"import { Error } from "./Error";
+import type { Pets } from "./Pets";
 
  export type ListPetsQueryParams = {
     /**
@@ -33,17 +33,17 @@ import type { Error } from "./Error";
  /**
  * @description A paged array of pets
 */
-export type ListPetsQueryResponse = Pets;
-
- /**
- * @description A paged array of pets
-*/
 export type ListPets200 = Pets;
 
  /**
  * @description unexpected error
 */
 export type ListPetsError = Error;
+
+ /**
+ * @description A paged array of pets
+*/
+export type ListPetsQueryResponse = Pets;
 
  export type ListPetsQuery = {
     Response: ListPetsQueryResponse;
@@ -53,8 +53,8 @@ export type ListPetsError = Error;
 `;
 
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`] = `
-"import type { Pet } from "./Pet";
-import type { Error } from "./Error";
+"import { Error } from "./Error";
+import type { Pet } from "./Pet";
 
  export type ShowPetByIdPathParams = {
     /**
@@ -72,17 +72,17 @@ import type { Error } from "./Error";
  /**
  * @description Expected response to a valid request
 */
-export type ShowPetByIdQueryResponse = Pet;
-
- /**
- * @description Expected response to a valid request
-*/
 export type ShowPetById200 = Pet;
 
  /**
  * @description unexpected error
 */
 export type ShowPetByIdError = Error;
+
+ /**
+ * @description Expected response to a valid request
+*/
+export type ShowPetByIdQueryResponse = Pet;
 
  export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
@@ -98,9 +98,14 @@ import type { ErrorCode } from "./ErrorCode";
  /**
  * @description Null response
 */
-export type CreatePetsMutationResponse = (Error & {
+export type CreatePets201 = (Error & {
     name?: ErrorCode;
 });
+
+ /**
+ * @description unexpected error
+*/
+export type CreatePetsError = Error;
 
  export type CreatePetsMutationRequest = {
     /**
@@ -116,14 +121,9 @@ export type CreatePetsMutationResponse = (Error & {
  /**
  * @description Null response
 */
-export type CreatePets201 = (Error & {
+export type CreatePetsMutationResponse = (Error & {
     name?: ErrorCode;
 });
-
- /**
- * @description unexpected error
-*/
-export type CreatePetsError = Error;
 
  export type CreatePetsMutation = {
     Response: CreatePetsMutationResponse;

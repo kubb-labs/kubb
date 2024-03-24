@@ -8,6 +8,8 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
  export function DeletePetPetidMutationResponse(override?: NonNullable<Partial<DeletePetPetidMutationResponse>>): NonNullable<DeletePetPetidMutationResponse> {
     return undefined;
 }
+
+ 
 "
 `;
 
@@ -15,7 +17,16 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
 "import { faker } from "@faker-js/faker";
 import { Pets } from "./Pets";
 import { Error } from "./Error";
-import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
+import type { ListPetsQueryParams, ListPets200, ListPetsError, ListPetsQueryResponse } from "./ListPets";
+
+
+
+ export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
+    return {
+        ...{ "limit": faker.string.alpha() },
+        ...override
+    };
+}
 
 
 /**
@@ -34,21 +45,14 @@ export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): N
 }
 
 
-
- export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
-    return {
-        ...{ "limit": faker.string.alpha() },
-        ...override
-    };
-}
-
-
 /**
  * @description A paged array of pets
  */
 export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQueryResponse>>): NonNullable<ListPetsQueryResponse> {
     return Pets(override);
 }
+
+ 
 "
 `;
 
@@ -56,7 +60,16 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
 "import { faker } from "@faker-js/faker";
 import { Pet } from "./Pet";
 import { Error } from "./Error";
-import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
+import type { ShowPetByIdPathParams, ShowPetById200, ShowPetByIdError, ShowPetByIdQueryResponse } from "./ShowPetById";
+
+
+
+ export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+    return {
+        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
+        ...override
+    };
+}
 
 
 /**
@@ -75,21 +88,14 @@ export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError
 }
 
 
-
- export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
-    return {
-        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
-        ...override
-    };
-}
-
-
 /**
  * @description Expected response to a valid request
  */
 export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
     return Pet(override);
 }
+
+ 
 "
 `;
 
@@ -97,7 +103,17 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
 "import { faker } from "@faker-js/faker";
 import { Pets } from "./Pets";
 import { Error } from "./Error";
-import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
+import type { ListPetsQueryParams, ListPets200, ListPetsError, ListPetsQueryResponse } from "./ListPets";
+
+
+
+ export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
+    faker.seed([222]);
+    return {
+        ...{ "limit": faker.string.alpha() },
+        ...override
+    };
+}
 
 
 /**
@@ -118,16 +134,6 @@ export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): N
 }
 
 
-
- export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
-    faker.seed([222]);
-    return {
-        ...{ "limit": faker.string.alpha() },
-        ...override
-    };
-}
-
-
 /**
  * @description A paged array of pets
  */
@@ -135,6 +141,8 @@ export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQue
     faker.seed([222]);
     return Pets(override);
 }
+
+ 
 "
 `;
 
@@ -142,7 +150,17 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
 "import { faker } from "@faker-js/faker";
 import { Pet } from "./Pet";
 import { Error } from "./Error";
-import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
+import type { ShowPetByIdPathParams, ShowPetById200, ShowPetByIdError, ShowPetByIdQueryResponse } from "./ShowPetById";
+
+
+
+ export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+    faker.seed([222]);
+    return {
+        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
+        ...override
+    };
+}
 
 
 /**
@@ -163,16 +181,6 @@ export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError
 }
 
 
-
- export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
-    faker.seed([222]);
-    return {
-        ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
-        ...override
-    };
-}
-
-
 /**
  * @description Expected response to a valid request
  */
@@ -180,6 +188,8 @@ export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetB
     faker.seed([222]);
     return Pet(override);
 }
+
+ 
 "
 `;
 
@@ -218,5 +228,7 @@ export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>
  export function CreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
     return undefined;
 }
+
+ 
 "
 `;

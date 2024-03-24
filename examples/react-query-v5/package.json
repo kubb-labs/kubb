@@ -43,7 +43,7 @@
     "tsup": "^8.0.2",
     "typescript": "~5.2.2",
     "unplugin-kubb": "workspace:*",
-    "vite": "^4.5.2"
+    "vite": "^4.5.3"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

@@ -19,12 +19,12 @@ export type UpdatePetWithFormQueryParams = {
   status?: string
 }
 
-export type UpdatePetWithFormMutationResponse = any
-
 /**
  * @description Invalid input
  */
 export type UpdatePetWithForm405 = any
+
+export type UpdatePetWithFormMutationResponse = any
 
 export type UpdatePetWithFormMutation = {
   Response: UpdatePetWithFormMutationResponse

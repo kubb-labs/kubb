@@ -10,7 +10,7 @@ export type CreateUser = {
 /**
  * @description OK
  */
-export type CreateUserMutationResponse = CreateUserResult
+export type CreateUser201 = CreateUserResult
 
 export type CreateUserMutationRequest = {
   /**
@@ -22,7 +22,7 @@ export type CreateUserMutationRequest = {
 /**
  * @description OK
  */
-export type CreateUser201 = CreateUserResult
+export type CreateUserMutationResponse = CreateUserResult
 
 export type CreateUserMutation = {
   Response: CreateUserMutationResponse
