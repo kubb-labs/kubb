@@ -1,16 +1,16 @@
-import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../../models/ts/userController/GetUserByName'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -98,10 +98,13 @@ export function useGetUserByNameInfinite<
   TData = InfiniteData<GetUserByName['response']>,
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
+>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

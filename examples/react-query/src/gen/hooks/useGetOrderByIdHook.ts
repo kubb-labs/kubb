@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
 type GetOrderById = {
@@ -99,10 +99,13 @@ export function useGetOrderByIdHookInfinite<
   TData = InfiniteData<GetOrderById['response']>,
   TQueryData = GetOrderById['response'],
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
->(orderId: GetOrderByIdPathParams['orderId'], options: {
-  query?: Partial<UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
-  client?: GetOrderById['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetOrderById['error']> & {
+>(
+  orderId: GetOrderByIdPathParams['orderId'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
+    client?: GetOrderById['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

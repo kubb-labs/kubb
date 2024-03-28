@@ -15,11 +15,7 @@ type TemplateProps = {
   api: OasTypes.OASDocument
 }
 
-function Template({
-  name,
-  typeName,
-  api,
-}: TemplateProps): ReactNode {
+function Template({ name, typeName, api }: TemplateProps): ReactNode {
   return (
     <>
       {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
@@ -42,11 +38,7 @@ type Props = {
   Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
-export function OasType({
-  name,
-  typeName,
-  Template = defaultTemplates.default,
-}: Props): ReactNode {
+export function OasType({ name, typeName, Template = defaultTemplates.default }: Props): ReactNode {
   const oas = useOas()
 
   return <Template name={name} typeName={typeName} api={oas.api} />
@@ -61,7 +53,7 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-OasType.File = function({ name, typeName, templates = defaultTemplates }: FileProps): ReactNode {
+OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useGetFile({ name, extName: '.ts', pluginKey })
 
@@ -69,11 +61,7 @@ OasType.File = function({ name, typeName, templates = defaultTemplates }: FilePr
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['Infer']} path="@kubb/swagger-ts/oas" isTypeOnly />
         <File.Source>
           <OasType Template={Template} name={name} typeName={typeName} />

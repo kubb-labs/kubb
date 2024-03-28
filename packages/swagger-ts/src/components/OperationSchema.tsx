@@ -21,47 +21,29 @@ type Props = {}
 
 function printCombinedSchema(name: string, operation: Operation, schemas: OperationSchemas): string {
   const properties: Record<string, ts.TypeNode> = {
-    'response': factory.createTypeReferenceNode(
-      factory.createIdentifier(schemas.response.name),
-      undefined,
-    ),
+    response: factory.createTypeReferenceNode(factory.createIdentifier(schemas.response.name), undefined),
   }
 
   if (schemas.request) {
-    properties['request'] = factory.createTypeReferenceNode(
-      factory.createIdentifier(schemas.request.name),
-      undefined,
-    )
+    properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.request.name), undefined)
   }
 
   if (schemas.pathParams) {
-    properties['pathParams'] = factory.createTypeReferenceNode(
-      factory.createIdentifier(schemas.pathParams.name),
-      undefined,
-    )
+    properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.pathParams.name), undefined)
   }
 
   if (schemas.queryParams) {
-    properties['queryParams'] = factory.createTypeReferenceNode(
-      factory.createIdentifier(schemas.queryParams.name),
-      undefined,
-    )
+    properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.queryParams.name), undefined)
   }
 
   if (schemas.headerParams) {
-    properties['headerParams'] = factory.createTypeReferenceNode(
-      factory.createIdentifier(schemas.headerParams.name),
-      undefined,
-    )
+    properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.headerParams.name), undefined)
   }
 
   if (schemas.errors) {
     properties['errors'] = factory.createUnionDeclaration({
-      nodes: schemas.errors.map(error => {
-        return factory.createTypeReferenceNode(
-          factory.createIdentifier(error.name),
-          undefined,
-        )
+      nodes: schemas.errors.map((error) => {
+        return factory.createTypeReferenceNode(factory.createIdentifier(error.name), undefined)
       }),
     })!
   }
@@ -69,19 +51,19 @@ function printCombinedSchema(name: string, operation: Operation, schemas: Operat
   const namespaceNode = factory.createTypeAliasDeclaration({
     name: operation.method === 'get' ? `${name}Query` : `${name}Mutation`,
     type: factory.createTypeLiteralNode(
-      Object.keys(properties).map(key => {
-        const type = properties[key]
-        if (!type) {
-          return undefined
-        }
+      Object.keys(properties)
+        .map((key) => {
+          const type = properties[key]
+          if (!type) {
+            return undefined
+          }
 
-        return factory.createPropertySignature(
-          {
+          return factory.createPropertySignature({
             name: transformers.pascalCase(key),
             type,
-          },
-        )
-      }).filter(Boolean),
+          })
+        })
+        .filter(Boolean),
     ),
     modifiers: [factory.modifiers.export],
   })
@@ -90,17 +72,14 @@ function printCombinedSchema(name: string, operation: Operation, schemas: Operat
 }
 
 export function OperationSchema({}: Props): ReactNode {
-  return (
-    <>
-    </>
-  )
+  return <></>
 }
 
 type FileProps = {
   mode: KubbFile.Mode | undefined
 }
 
-OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
+OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
   const plugin = usePlugin<PluginOptions>()
 
   const pluginManager = usePluginManager()
@@ -110,22 +89,18 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const factoryName = useOperationName({ type: 'type' })
   const operation = useOperation()
 
-  const generator = new SchemaGenerator(plugin.options, { oas, plugin, pluginManager })
+  const generator = new SchemaGenerator(plugin.options, {
+    oas,
+    plugin,
+    pluginManager,
+  })
 
-  const items = [
-    schemas.pathParams,
-    schemas.queryParams,
-    schemas.headerParams,
-    schemas.statusCodes,
-    schemas.request,
-    schemas.response,
-  ].flat().filter(Boolean)
+  const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
   const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {mode === 'directory'
-          && <Schema.Imports isTypeOnly />}
+        {mode === 'directory' && <Schema.Imports isTypeOnly />}
         <File.Source>
           <Schema.Source options={options} />
         </File.Source>
@@ -135,16 +110,10 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {items.map(mapItem)}
 
-        <File.Source>
-          {printCombinedSchema(factoryName, operation, schemas)}
-        </File.Source>
+        <File.Source>{printCombinedSchema(factoryName, operation, schemas)}</File.Source>
       </File>
     </Editor>
   )

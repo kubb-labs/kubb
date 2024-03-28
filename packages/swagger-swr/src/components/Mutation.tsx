@@ -50,19 +50,10 @@ type TemplateProps = {
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
-function Template({
-  name,
-  generics,
-  returnType,
-  params,
-  JSDoc,
-  client,
-  hook,
-  dataReturnType,
-}: TemplateProps): ReactNode {
+function Template({ name, generics, returnType, params, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
   const clientOptions = [
     `method: "${client.method}"`,
-    `url`,
+    'url',
     client.withQueryParams ? 'params' : undefined,
     client.withData ? 'data' : undefined,
     client.withHeaders ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
@@ -128,11 +119,10 @@ type Props = {
   Template?: React.ComponentType<TemplateProps>
 }
 
-export function Mutation({
-  factory,
-  Template = defaultTemplates.default,
-}: Props): ReactNode {
-  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
+export function Mutation({ factory, Template = defaultTemplates.default }: Props): ReactNode {
+  const {
+    options: { dataReturnType },
+  } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
   const schemas = useOperationSchemas()
@@ -148,10 +138,7 @@ export function Mutation({
     withHeaders: !!schemas.headerParams?.name,
   }
 
-  const resultGenerics = [
-    `${factory.name}["response"]`,
-    `${factory.name}["error"]`,
-  ]
+  const resultGenerics = [`${factory.name}["response"]`, `${factory.name}["error"]`]
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
@@ -181,7 +168,7 @@ export function Mutation({
 
   const hook = {
     name: 'useSWRMutation',
-    generics: [...resultGenerics, client.withQueryParams ? `[typeof url, typeof params] | null` : 'typeof url | null'].join(', '),
+    generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
   }
 
   return (
@@ -204,8 +191,12 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
+Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
+  const {
+    options: {
+      client: { importPath },
+    },
+  } = usePlugin<PluginOptions>()
   const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -218,11 +209,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name="useSWRMutation" path="swr/mutation" />
         <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
         <File.Import name={'client'} path={importPath} />
@@ -234,10 +221,8 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.errors?.map((error) => error.name) || [],
-          ].filter(
-            Boolean,
-          )}
+            ...(schemas.errors?.map((error) => error.name) || []),
+          ].filter(Boolean)}
           root={file.path}
           path={fileType.path}
           isTypeOnly
@@ -245,10 +230,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
 
         <File.Source>
           <SchemaType factory={factory} />
-          <Mutation
-            Template={Template}
-            factory={factory}
-          />
+          <Mutation Template={Template} factory={factory} />
         </File.Source>
       </File>
     </Editor>

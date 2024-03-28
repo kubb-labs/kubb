@@ -1,4 +1,4 @@
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import type { Invalidations } from './gen/invalidations.ts'
 
 const getInvalidationForMutation = <T extends keyof Invalidations = keyof Invalidations>({
@@ -20,9 +20,7 @@ const getInvalidationForMutation = <T extends keyof Invalidations = keyof Invali
   return invalidations[mutationName]
 }
 
-export const useInvalidationForMutation = <T extends keyof Invalidations = keyof Invalidations>(
-  mutationName: T,
-) => {
+export const useInvalidationForMutation = <T extends keyof Invalidations = keyof Invalidations>(mutationName: T) => {
   const queryClient = useQueryClient()
 
   return getInvalidationForMutation({ mutationName, queryClient })

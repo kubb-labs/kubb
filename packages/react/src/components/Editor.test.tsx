@@ -9,7 +9,7 @@ describe('<Editor/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatch(`export const test = 2;`)
+    expect(root.output).toMatch('export const test = 2;')
   })
 
   test('render Editor with language text', () => {
@@ -19,6 +19,6 @@ describe('<Editor/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatch(`test`)
+    expect(root.output).toMatch('test')
   })
 })

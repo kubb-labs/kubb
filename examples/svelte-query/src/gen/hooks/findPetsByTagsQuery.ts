@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import { createInfiniteQuery, createQuery } from '@tanstack/svelte-query'
 import type {
   CreateBaseQueryOptions,
-  CreateQueryResult,
-  QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  CreateQueryResult,
   InfiniteData,
+  QueryKey,
+  WithRequired,
 } from '@tanstack/svelte-query'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -37,7 +37,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })
@@ -87,7 +87,7 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         ...options,
         params: {
           ...params,

@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -52,10 +52,13 @@ export function useGetUserByNameHook<
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: Partial<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseQueryResult<TData, GetUserByName['error']> & {
+>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -98,10 +101,13 @@ export function useGetUserByNameHookInfinite<
   TData = InfiniteData<GetUserByName['response']>,
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
+>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

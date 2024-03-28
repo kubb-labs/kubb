@@ -81,7 +81,7 @@ describe('<File/>', () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
+          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
         </File>
       )
     }
@@ -95,7 +95,7 @@ describe('<File/>', () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
+          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
           <File.Source print>
             {`
             const test = 2;
@@ -141,12 +141,14 @@ describe('<File/>', () => {
 
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
-    expect(root.files[0]?.imports).toStrictEqual([{
-      'isTypeOnly': false,
-      'name': 'node',
-      'path': 'node',
-      'root': undefined,
-    }])
+    expect(root.files[0]?.imports).toStrictEqual([
+      {
+        isTypeOnly: false,
+        name: 'node',
+        path: 'node',
+        root: undefined,
+      },
+    ])
 
     expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })
@@ -155,7 +157,7 @@ describe('<File/>', () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
+          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
           <File.Source print>
             {`
             const test = 2;
@@ -201,12 +203,14 @@ describe('<File/>', () => {
 
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
-    expect(root.files[0]?.imports).toStrictEqual([{
-      'isTypeOnly': false,
-      'name': 'node',
-      'path': 'node',
-      'root': undefined,
-    }])
+    expect(root.files[0]?.imports).toStrictEqual([
+      {
+        isTypeOnly: false,
+        name: 'node',
+        path: 'node',
+        root: undefined,
+      },
+    ])
 
     expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })

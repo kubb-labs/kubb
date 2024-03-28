@@ -12,18 +12,21 @@ import type { PluginOptions } from './types'
 describe('Faker SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
-  const generator = new SchemaGenerator({
-    dateType: 'string',
-    seed: 1,
-    transformers: {},
-    unknownType: 'any',
-  }, {
-    oas,
-    pluginManager: mockedPluginManager,
-    plugin: {} as Plugin<PluginOptions>,
-    contentType: undefined,
-    include: undefined,
-  })
+  const generator = new SchemaGenerator(
+    {
+      dateType: 'string',
+      seed: 1,
+      transformers: {},
+      unknownType: 'any',
+    },
+    {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
+    },
+  )
 
   const schemas = oas.getDefinition().components?.schemas
 

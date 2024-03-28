@@ -23,14 +23,7 @@ describe('codegen', () => {
   const node = factory.createVariableStatement(
     undefined,
     factory.createVariableDeclarationList(
-      [
-        factory.createVariableDeclaration(
-          factory.createIdentifier('hello'),
-          undefined,
-          undefined,
-          factory.createStringLiteral('world'),
-        ),
-      ],
+      [factory.createVariableDeclaration(factory.createIdentifier('hello'), undefined, undefined, factory.createStringLiteral('world'))],
       ts.NodeFlags.Const,
     ),
   )
@@ -48,10 +41,7 @@ describe('codegen', () => {
     expect(
       print(
         createArrayDeclaration({
-          nodes: [
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-            factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
-          ],
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
         }),
       ),
     ).toMatchSnapshot()
@@ -59,9 +49,7 @@ describe('codegen', () => {
     expect(
       print(
         createArrayDeclaration({
-          nodes: [
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-          ],
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)],
         }),
       ),
     ).toMatchSnapshot()
@@ -71,10 +59,7 @@ describe('codegen', () => {
     expect(
       print(
         createIntersectionDeclaration({
-          nodes: [
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-            factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
-          ],
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
         }),
       ),
     ).toMatchSnapshot()
@@ -83,10 +68,7 @@ describe('codegen', () => {
     expect(
       print(
         createUnionDeclaration({
-          nodes: [
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-            factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
-          ],
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
         }),
       ),
     ).toMatchSnapshot()

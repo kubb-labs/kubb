@@ -72,11 +72,7 @@ describe('<Mutation/>', async () => {
 
     const Component = () => {
       return (
-        <Oas
-          oas={oas}
-          operations={[operation]}
-          getOperationSchemas={(...props) => og.getSchemas(...props)}
-        >
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Mutation.File />
           </Oas.Operation>
@@ -129,11 +125,7 @@ describe('<Mutation/>', async () => {
 
     const Component = () => {
       return (
-        <Oas
-          oas={oas}
-          operations={[operation]}
-          getOperationSchemas={(...props) => og.getSchemas(...props)}
-        >
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Mutation.File />
           </Oas.Operation>
@@ -143,8 +135,6 @@ describe('<Mutation/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchFileSnapshot(
-      './__snapshots__/gen/useCreatePetsMutate.ts',
-    )
+    expect(output).toMatchFileSnapshot('./__snapshots__/gen/useCreatePetsMutate.ts')
   })
 })

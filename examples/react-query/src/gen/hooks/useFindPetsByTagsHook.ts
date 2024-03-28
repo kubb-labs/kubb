@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -37,7 +37,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })
@@ -54,10 +54,13 @@ export function useFindPetsByTagsHook<
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
->(params?: FindPetsByTags['queryParams'], options: {
-  query?: Partial<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
-  client?: FindPetsByTags['client']['parameters']
-} = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
+>(
+  params?: FindPetsByTags['queryParams'],
+  options: {
+    query?: Partial<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
+    client?: FindPetsByTags['client']['parameters']
+  } = {},
+): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -84,7 +87,7 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         ...options,
         params: {
           ...params,
@@ -105,10 +108,13 @@ export function useFindPetsByTagsHookInfinite<
   TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
->(params?: FindPetsByTags['queryParams'], options: {
-  query?: Partial<UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
-  client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+>(
+  params?: FindPetsByTags['queryParams'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
+    client?: FindPetsByTags['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

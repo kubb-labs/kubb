@@ -1,5 +1,5 @@
-import useSWR from 'swr'
 import client from '@kubb/swagger-client/client'
+import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
@@ -24,7 +24,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response']>(
     fetcher: async () => {
       const res = await client<TData, GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -42,7 +42,7 @@ export function useGetInventory<TData = GetInventory['response']>(options?: {
   shouldFetch?: boolean
 }): SWRResponse<TData, GetInventory['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/store/inventory`
+  const url = '/store/inventory'
   const query = useSWR<TData, GetInventory['error'], typeof url | null>(shouldFetch ? url : null, {
     ...getInventoryQueryOptions<TData>(clientOptions),
     ...queryOptions,

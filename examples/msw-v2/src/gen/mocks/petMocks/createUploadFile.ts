@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker'
+import type { UploadFile200, UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile'
 import { createApiResponse } from '../createApiResponse'
-import type { UploadFilePathParams, UploadFileQueryParams, UploadFile200, UploadFileMutationRequest, UploadFileMutationResponse } from '../../models/UploadFile'
 
 export function createUploadFilePathParams(override: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }
@@ -13,7 +13,7 @@ export function createUploadFilePathParams(override: NonNullable<Partial<UploadF
 export function createUploadFileQueryParams(override: NonNullable<Partial<UploadFileQueryParams>> = {}): NonNullable<UploadFileQueryParams> {
   faker.seed([220])
   return {
-    ...{ 'additionalMetadata': faker.string.alpha() },
+    ...{ additionalMetadata: faker.string.alpha() },
     ...override,
   }
 }

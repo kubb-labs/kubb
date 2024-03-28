@@ -68,24 +68,15 @@ describe('objectToParameters', () => {
   })
 
   test('if object is resolved to a string with array typed parameters', () => {
-    expect(
-      new FunctionParams().add([
-        [{ name: 'id' }],
-        { name: 'params' },
-      ]).toString(),
-    ).toEqual('{ id }, params')
+    expect(new FunctionParams().add([[{ name: 'id' }], { name: 'params' }]).toString()).toEqual('{ id }, params')
+    expect(new FunctionParams().add([[{ name: 'id' }, { name: 'data' }], { name: 'params' }]).toString()).toEqual('{ id, data }, params')
     expect(
       new FunctionParams()
         .add([
-          [{ name: 'id' }, { name: 'data' }],
-          { name: 'params' },
-        ])
-        .toString(),
-    ).toEqual('{ id, data }, params')
-    expect(
-      new FunctionParams()
-        .add([
-          [{ name: 'id', type: 'Id' }, { name: 'data', type: 'Data' }],
+          [
+            { name: 'id', type: 'Id' },
+            { name: 'data', type: 'Data' },
+          ],
           { name: 'params', type: 'Params' },
         ])
         .toString(),

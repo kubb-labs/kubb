@@ -19,9 +19,9 @@ export type FindPetsByTagsQueryParams = {
 }
 
 export const FindPetsByTagsHeaderParamsXExample = {
-  'ONE': 'ONE',
-  'TWO': 'TWO',
-  'THREE': 'THREE',
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
 } as const
 export type FindPetsByTagsHeaderParamsXExample = (typeof FindPetsByTagsHeaderParamsXExample)[keyof typeof FindPetsByTagsHeaderParamsXExample]
 export type FindPetsByTagsHeaderParams = {

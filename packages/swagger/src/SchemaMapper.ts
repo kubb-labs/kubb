@@ -1,7 +1,14 @@
 import type { KubbFile } from '@kubb/core'
 
 export type SchemaKeywordMapper = {
-  object: { keyword: 'object'; args: { properties: { [x: string]: Schema[] }; additionalProperties: Schema[]; strict?: boolean } }
+  object: {
+    keyword: 'object'
+    args: {
+      properties: { [x: string]: Schema[] }
+      additionalProperties: Schema[]
+      strict?: boolean
+    }
+  }
   strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
@@ -14,20 +21,37 @@ export type SchemaKeywordMapper = {
   date: { keyword: 'date' }
   datetime: { keyword: 'datetime' }
   tuple: { keyword: 'tuple'; args: Schema[] }
-  array: { keyword: 'array'; args: { items: Schema[]; min?: number; max?: number } }
+  array: {
+    keyword: 'array'
+    args: { items: Schema[]; min?: number; max?: number }
+  }
   enum: {
     keyword: 'enum'
     args: {
       name: string
       typeName: string
       asConst: boolean
-      items: Array<{ name: string | number; format: 'string' | 'number'; value?: string | number }>
+      items: Array<{
+        name: string | number
+        format: 'string' | 'number'
+        value?: string | number
+      }>
     }
   }
   and: { keyword: 'and'; args: Schema[] }
-  const: { keyword: 'const'; args: { name: string | number; format: 'string' | 'number'; value?: string | number } }
+  const: {
+    keyword: 'const'
+    args: {
+      name: string | number
+      format: 'string' | 'number'
+      value?: string | number
+    }
+  }
   union: { keyword: 'union'; args: Schema[] }
-  ref: { keyword: 'ref'; args: { name: string; path: KubbFile.OptionalPath; isTypeOnly?: boolean } }
+  ref: {
+    keyword: 'ref'
+    args: { name: string; path: KubbFile.OptionalPath; isTypeOnly?: boolean }
+  }
   lazy: { keyword: 'lazy' }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
@@ -102,20 +126,22 @@ export const schemaKeywords = {
   type: 'type',
   format: 'format',
   catchall: 'catchall',
-} satisfies { [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword'] }
+} satisfies {
+  [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
+}
 
 export type SchemaKeyword = keyof SchemaKeywordMapper
 
-export type SchemaMapper<T = string> = { [K in keyof SchemaKeywordMapper]: T | undefined }
+export type SchemaMapper<T = string> = {
+  [K in keyof SchemaKeywordMapper]: T | undefined
+}
 
 export type SchemaKeywordBase<T> = {
   keyword: SchemaKeyword
   args: T
 }
 
-export type Schema =
-  | { keyword: string }
-  | SchemaKeywordMapper[keyof SchemaKeywordMapper]
+export type Schema = { keyword: string } | SchemaKeywordMapper[keyof SchemaKeywordMapper]
 
 export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {
   return meta.keyword === keyword

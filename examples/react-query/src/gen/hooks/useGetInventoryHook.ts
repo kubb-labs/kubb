@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -36,7 +36,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -79,7 +79,7 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
     queryFn: async ({ pageParam }) => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -95,10 +95,12 @@ export function useGetInventoryHookInfinite<
   TData = InfiniteData<GetInventory['response']>,
   TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
->(options: {
-  query?: Partial<UseInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
-  client?: GetInventory['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetInventory['error']> & {
+>(
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
+    client?: GetInventory['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

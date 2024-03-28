@@ -32,22 +32,19 @@ describe('OperationGenerator', async () => {
       },
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: { options } as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: { options } as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.operation(operation, options) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
   })
@@ -65,22 +62,19 @@ describe('OperationGenerator', async () => {
       },
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: { options } as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: { options } as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.operation(operation, options) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
   })
@@ -101,22 +95,19 @@ describe('OperationGenerator', async () => {
       },
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: { options } as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: { options } as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.operation(operation, options) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
   })

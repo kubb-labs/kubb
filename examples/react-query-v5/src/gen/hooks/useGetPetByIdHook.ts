@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -50,9 +50,9 @@ export function useGetPetByIdHook<TData = GetPetById['response'], TQueryData = G
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
   const query = useQuery({
-    ...getPetByIdQueryOptions(petId, clientOptions) as QueryObserverOptions,
+    ...(getPetByIdQueryOptions(petId, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
@@ -92,9 +92,9 @@ export function useGetPetByIdHookSuspense<TData = GetPetById['response'], TQuery
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
   const query = useSuspenseQuery({
-    ...getPetByIdSuspenseQueryOptions(petId, clientOptions) as QueryObserverOptions,
+    ...(getPetByIdSuspenseQueryOptions(petId, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }

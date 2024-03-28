@@ -33,9 +33,7 @@ export function TypeScript({ children }: Omit<Props, 'language'>): KubbNode {
 export function Editor({ language = 'text', children }: Props): KubbNode {
   return (
     <kubb-editor language={language}>
-      <EditorContext.Provider value={{ language }}>
-        {children}
-      </EditorContext.Provider>
+      <EditorContext.Provider value={{ language }}>{children}</EditorContext.Provider>
     </kubb-editor>
   )
 }

@@ -4,14 +4,14 @@ import type { User } from '../models/ts/User'
 export function createUser(override: NonNullable<Partial<User>> = {}): NonNullable<User> {
   return {
     ...{
-      'id': faker.number.int(),
-      'username': faker.string.alpha(),
-      'firstName': faker.string.alpha(),
-      'lastName': faker.string.alpha(),
-      'email': faker.string.alpha(),
-      'password': faker.string.alpha(),
-      'phone': faker.string.alpha(),
-      'userStatus': faker.number.int(),
+      id: faker.number.int(),
+      username: faker.string.alpha(),
+      firstName: faker.string.alpha(),
+      lastName: faker.string.alpha(),
+      email: faker.string.alpha(),
+      password: faker.string.alpha(),
+      phone: faker.string.alpha(),
+      userStatus: faker.number.int(),
     },
     ...override,
   }

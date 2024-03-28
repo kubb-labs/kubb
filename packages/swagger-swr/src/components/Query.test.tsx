@@ -42,22 +42,21 @@ describe('<Query/>', async () => {
   }
 
   const plugin = { options } as Plugin<PluginOptions>
-  const og = await new OperationGenerator(
-    options,
-    {
-      oas,
-      exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin,
-      contentType: undefined,
-      override: undefined,
-    },
-  )
+  const og = await new OperationGenerator(options, {
+    oas,
+    exclude: [],
+    include: undefined,
+    pluginManager: mockedPluginManager,
+    plugin,
+    contentType: undefined,
+    override: undefined,
+  })
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
+    const context: AppContextProps<PluginOptions['appMeta']> = {
+      meta: { pluginManager: mockedPluginManager, plugin },
+    }
 
     const Component = () => {
       return (

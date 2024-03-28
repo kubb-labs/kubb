@@ -1,16 +1,16 @@
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById'
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -99,10 +99,13 @@ export function useGetPetByIdInfinite<
   TData = InfiniteData<GetPetById['response']>,
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
->(petId: GetPetByIdPathParams['petId'], options: {
-  query?: Partial<UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
-  client?: GetPetById['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetPetById['error']> & {
+>(
+  petId: GetPetByIdPathParams['petId'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
+    client?: GetPetById['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetPetById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

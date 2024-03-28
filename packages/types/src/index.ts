@@ -1,9 +1,6 @@
-export type Prettify<T> =
-  & {
-    [K in keyof T]: T[K]
-  }
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  & {}
+export type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {} // eslint-disable-next-line @typescript-eslint/ban-types
 
 export type PossiblePromise<T> = Promise<T> | T
 
@@ -26,5 +23,4 @@ type ArrayWithLength<T extends number, U extends any[] = []> = U['length'] exten
 
 export type GreaterThan<T extends number, U extends number> = ArrayWithLength<U> extends [...ArrayWithLength<T>, ...infer _] ? false : true
 
-export type SplitByDelimiter<T extends string, D extends string> = T extends `${infer P}${D}${infer Q}` ? [P, ...SplitByDelimiter<Q, D>]
-  : [T]
+export type SplitByDelimiter<T extends string, D extends string> = T extends `${infer P}${D}${infer Q}` ? [P, ...SplitByDelimiter<Q, D>] : [T]

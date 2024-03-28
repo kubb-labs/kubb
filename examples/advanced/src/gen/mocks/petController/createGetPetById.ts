@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
+import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById'
 import { createPet } from '../createPet'
-import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById'
 
 export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }

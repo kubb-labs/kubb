@@ -33,13 +33,7 @@ type TemplateProps = {
   responseName: string
 }
 
-function Template({
-  name,
-  method,
-  path,
-  isV2,
-  responseName,
-}: TemplateProps): ReactNode {
+function Template({ name, method, path, isV2, responseName }: TemplateProps): ReactNode {
   if (isV2) {
     return (
       <>
@@ -78,12 +72,14 @@ type Props = {
   Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
-export function Mock({
-  Template = defaultTemplates.default,
-}: Props): ReactNode {
+export function Mock({ Template = defaultTemplates.default }: Props): ReactNode {
   const schemas = useOperationSchemas()
   const name = useOperationName({ type: 'function' })
-  const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
+  const responseName = useResolveName({
+    pluginKey: fakerPluginKey,
+    name: schemas.response.name,
+    type: 'type',
+  })
   const operation = useOperation()
 
   const isV2 = new PackageManager().isValidSync('msw', '>=2')
@@ -98,11 +94,15 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
+Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
   const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileFaker = useGetOperationFile({ pluginKey: fakerPluginKey })
-  const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'function' })
+  const responseName = useResolveName({
+    pluginKey: fakerPluginKey,
+    name: schemas.response.name,
+    type: 'function',
+  })
 
   const isV2 = new PackageManager().isValidSync('msw', '>=2')
 
@@ -110,11 +110,7 @@ Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {!isV2 && <File.Import name={['rest']} path={'msw'} />}
         {isV2 && <File.Import name={['http']} path={'msw'} />}
         {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}

@@ -1,8 +1,8 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
-import { useInvalidationForMutation } from '../../useInvalidationForMutation'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
 type DeletePet = {
@@ -23,10 +23,14 @@ type DeletePet = {
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function useDeletePetHook(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
-  client?: DeletePet['client']['parameters']
-} = {}) {
+export function useDeletePetHook(
+  petId: DeletePetPathParams['petId'],
+  headers?: DeletePet['headerParams'],
+  options: {
+    mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
+    client?: DeletePet['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useDeletePetHook')
   return useMutation({
@@ -40,12 +44,8 @@ export function useDeletePetHook(petId: DeletePetPathParams['petId'], headers?: 
       return res.data
     },
     onSuccess: (...args) => {
-      if (invalidationOnSuccess) {
-        invalidationOnSuccess(...args)
-      }
-      if (mutationOptions?.onSuccess) {
-        mutationOptions.onSuccess(...args)
-      }
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

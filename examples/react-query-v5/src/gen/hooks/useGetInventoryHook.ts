@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -26,7 +26,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -49,9 +49,9 @@ export function useGetInventoryHook<TData = GetInventory['response'], TQueryData
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
   const query = useQuery({
-    ...getInventoryQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(getInventoryQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
@@ -67,7 +67,7 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -79,18 +79,20 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(options: {
-  query?: Partial<UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
-  client?: GetInventory['client']['parameters']
-} = {}): UseSuspenseQueryResult<TData, GetInventory['error']> & {
+export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
+    client?: GetInventory['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...getInventorySuspenseQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(getInventorySuspenseQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }

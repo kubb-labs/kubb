@@ -1,12 +1,12 @@
 import { safeBuild } from '@kubb/core'
-import { createLogger, LogLevel, randomCliColour } from '@kubb/core/logger'
+import { LogLevel, createLogger, randomCliColour } from '@kubb/core/logger'
 
 import { execa } from 'execa'
 import { parseArgsStringToArgv } from 'string-argv'
 import c from 'tinyrainbow'
 
-import { getSummary } from './utils/getSummary.ts'
 import { OraWritable } from './utils/OraWritable.ts'
+import { getSummary } from './utils/getSummary.ts'
 import { spinner } from './utils/spinner.ts'
 
 import type { Writable } from 'node:stream'
@@ -24,7 +24,10 @@ type ExecutingHooksProps = {
   logLevel: LogLevel
 }
 
-type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
+type Executer = {
+  subProcess: ExecaReturnValue<string>
+  abort: AbortController['abort']
+}
 
 async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
   if (!hooks?.done) {
@@ -34,10 +37,10 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
 
   if (logLevel === LogLevel.silent) {
-    spinner.start(`Executing hooks`)
+    spinner.start('Executing hooks')
   }
 
-  const executers: Promise<Executer | null>[] = commands
+  const executers = commands
     .map(async (command) => {
       const oraWritable = new OraWritable(spinner, command)
       const abortController = new AbortController()
@@ -49,13 +52,18 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 
       spinner.start(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
 
-      const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
+      const subProcess = await execa(cmd, _args, {
+        detached: true,
+        signal: abortController.signal,
+      }).pipeStdout?.(oraWritable as Writable)
       spinner.suffixText = ''
 
       if (logLevel === LogLevel.silent) {
         spinner.succeed(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
 
-        console.log(subProcess.stdout)
+        if (subProcess) {
+          console.log(subProcess.stdout)
+        }
       }
 
       oraWritable.destroy()
@@ -66,12 +74,16 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   await Promise.all(executers)
 
   if (logLevel === LogLevel.silent) {
-    spinner.succeed(`Executing hooks`)
+    spinner.succeed('Executing hooks')
   }
 }
 
 export async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
-  const logger = createLogger({ logLevel: CLIOptions.logLevel || LogLevel.silent, name: config.name, spinner })
+  const logger = createLogger({
+    logLevel: CLIOptions.logLevel || LogLevel.silent,
+    name: config.name,
+    spinner,
+  })
 
   if (logger.name) {
     spinner.prefixText = randomCliColour(logger.name)
@@ -105,9 +117,9 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
       ...userConfig,
       input: inputPath
         ? {
-          ...userConfig.input,
-          path: inputPath,
-        }
+            ...userConfig.input,
+            path: inputPath,
+          }
         : userConfig.input,
       output: {
         write: true,
@@ -117,7 +129,13 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
     logger,
   })
 
-  const summary = getSummary({ pluginManager, config, status: error ? 'failed' : 'success', hrstart, logger })
+  const summary = getSummary({
+    pluginManager,
+    config,
+    status: error ? 'failed' : 'success',
+    hrstart,
+    logger,
+  })
 
   if (error) {
     spinner.suffixText = ''

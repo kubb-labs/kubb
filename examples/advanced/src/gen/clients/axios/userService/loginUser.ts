@@ -1,6 +1,6 @@
 import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
+import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser'
 
 /**
  * @summary Logs user into the system
@@ -12,7 +12,7 @@ export async function loginUser(
 ): Promise<ResponseConfig<LoginUserQueryResponse>> {
   const res = await client<LoginUserQueryResponse>({
     method: 'get',
-    url: `/user/login`,
+    url: '/user/login',
     params,
     ...options,
   })

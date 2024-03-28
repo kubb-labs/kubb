@@ -37,17 +37,20 @@ function Pets(): JSX.Element {
   console.log(queries)
   //            ^?
 
-  const { data: firstPet, queryKey: firstQueryKey } = useFindPetsByStatusHook({ status: 'available' }, {
-    query: {
-      queryKey: ['test'] as const,
-      enabled: false,
-      select: (data => {
-        const res = data.at(0)
-        //    ^?
-        return res
-      }),
+  const { data: firstPet, queryKey: firstQueryKey } = useFindPetsByStatusHook(
+    { status: 'available' },
+    {
+      query: {
+        queryKey: ['test'] as const,
+        enabled: false,
+        select: (data) => {
+          const res = data.at(0)
+          //    ^?
+          return res
+        },
+      },
     },
-  })
+  )
 
   console.log(firstPet)
   //            ^?
@@ -58,9 +61,17 @@ function Pets(): JSX.Element {
   return (
     <>
       <h1>Pets: {status}</h1>
-      <ul>{pets?.map((pet) => <li key={pet.id}>{pet.name}</li>)}</ul>
-      <button onClick={() => setStatus('available')}>Available</button>
-      <button onClick={() => setStatus('pending')}>Pending</button>
+      <ul>
+        {pets?.map((pet) => (
+          <li key={pet.id}>{pet.name}</li>
+        ))}
+      </ul>
+      <button type="button" onClick={() => setStatus('available')}>
+        Available
+      </button>
+      <button type="button" onClick={() => setStatus('pending')}>
+        Pending
+      </button>
     </>
   )
 }

@@ -2,12 +2,7 @@
   "name": "@kubb/react",
   "version": "2.11.1",
   "description": "Generator react",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -51,22 +46,11 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "client": [
-        "./dist/client.d.ts"
-      ],
-      "server": [
-        "./dist/server.d.ts"
-      ]
+      "client": ["./dist/client.d.ts"],
+      "server": ["./dist/server.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "*.d.ts",
-    "*.d.cts",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "*.d.ts", "*.d.cts", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -89,6 +73,7 @@
     "@types/react": "^18.2.73",
     "@types/react-reconciler": "^0.28.8",
     "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
     "react": "^18.2.0",
     "react-reconciler": "^0.29.0",
     "tsup": "^8.0.2",

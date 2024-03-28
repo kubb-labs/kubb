@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/svelte-query'
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 type UploadFile = {

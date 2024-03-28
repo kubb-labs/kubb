@@ -4,7 +4,7 @@ import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
 
 export function read(text: string, node: DOMElement): string {
-  const attributes = node.attributes as React.ComponentProps<(typeof File.Source)>
+  const attributes = node.attributes as React.ComponentProps<typeof File.Source>
   try {
     let source = text
 

@@ -1,8 +1,8 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
-import type { UseMutationOptions } from '@tanstack/react-query'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
 type UpdateUser = {
@@ -23,10 +23,13 @@ type UpdateUser = {
  * @summary Update user
  * @link /user/:username
  */
-export function useUpdateUserHook(username: UpdateUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
-  client?: UpdateUser['client']['parameters']
-} = {}) {
+export function useUpdateUserHook(
+  username: UpdateUserPathParams['username'],
+  options: {
+    mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
+    client?: UpdateUser['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useUpdateUserHook')
   return useMutation({
@@ -40,12 +43,8 @@ export function useUpdateUserHook(username: UpdateUserPathParams['username'], op
       return res.data
     },
     onSuccess: (...args) => {
-      if (invalidationOnSuccess) {
-        invalidationOnSuccess(...args)
-      }
-      if (mutationOptions?.onSuccess) {
-        mutationOptions.onSuccess(...args)
-      }
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

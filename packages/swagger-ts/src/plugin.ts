@@ -88,35 +88,29 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
 
-      const schemaGenerator = new SchemaGenerator(
-        this.plugin.options,
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.api.contentType,
-          include: undefined,
-          mode,
-          output: output.path,
-        },
-      )
+      const schemaGenerator = new SchemaGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.api.contentType,
+        include: undefined,
+        mode,
+        output: output.path,
+      })
 
       const schemaFiles = await schemaGenerator.build()
       await this.addFile(...schemaFiles)
 
-      const operationGenerator = new OperationGenerator(
-        this.plugin.options,
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.api.contentType,
-          exclude,
-          include,
-          override,
-          mode,
-        },
-      )
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.api.contentType,
+        exclude,
+        include,
+        override,
+        mode,
+      })
 
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)

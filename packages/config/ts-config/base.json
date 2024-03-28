@@ -28,13 +28,7 @@
     "forceConsistentCasingInFileNames": true,
     "noErrorTruncation": true,
     "baseUrl": ".",
-    "types": [
-      "vitest/globals",
-      "bun-types"
-    ]
+    "types": ["vitest/globals", "bun-types"]
   },
-  "exclude": [
-    "**/node_modules",
-    "**/types/**"
-  ]
+  "exclude": ["**/node_modules", "**/types/**"]
 }

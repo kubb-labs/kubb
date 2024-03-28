@@ -19,16 +19,12 @@ type TemplateProps = {
   baseURL: string | undefined
 }
 
-function Template({
-  name,
-  definitions,
-  baseURL,
-}: TemplateProps): ReactNode {
+function Template({ name, definitions, baseURL }: TemplateProps): ReactNode {
   return (
     <>
       {`export const endpoints = makeApi([${definitions.join(',')}])`}
       <br />
-      {`export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)`}
+      {'export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)'}
       <br />
       {baseURL && `export const ${name} = new Zodios('${baseURL}', endpoints)`}
       {!baseURL && `export const  ${name} = new Zodios(endpoints)`}
@@ -51,13 +47,12 @@ type Props = {
   Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
-export function Definitions({
-  baseURL,
-  operationsByMethod,
-  Template = defaultTemplates.default,
-}: Props): ReactNode {
+export function Definitions({ baseURL, operationsByMethod, Template = defaultTemplates.default }: Props): ReactNode {
   const pluginManager = usePluginManager()
-  const definitions = getDefinitions(operationsByMethod, { resolveName: pluginManager.resolveName, pluginKey: swaggerZodPluginKey })
+  const definitions = getDefinitions(operationsByMethod, {
+    resolveName: pluginManager.resolveName,
+    pluginKey: swaggerZodPluginKey,
+  })
 
   return (
     <Template
@@ -97,7 +92,7 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-Definitions.File = function({ name, baseURL, operationsByMethod, templates = defaultTemplates }: FileProps): ReactNode {
+Definitions.File = function ({ name, baseURL, operationsByMethod, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useGetFile({ name, extName: '.ts', pluginKey })
@@ -108,23 +103,21 @@ Definitions.File = function({ name, baseURL, operationsByMethod, templates = def
     pluginKey: swaggerZodPluginKey,
   })
 
-  const imports = definitionsImports.map(({ name, path }, index) => {
-    if (!path) {
-      return null
-    }
+  const imports = definitionsImports
+    .map(({ name, path }, index) => {
+      if (!path) {
+        return null
+      }
 
-    return <File.Import key={index} name={[name]} root={file.path} path={path} />
-  }).filter(Boolean)
+      return <File.Import key={index} name={[name]} root={file.path} path={path} />
+    })
+    .filter(Boolean)
 
   const Template = templates.default
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
         {imports}
         <File.Source>

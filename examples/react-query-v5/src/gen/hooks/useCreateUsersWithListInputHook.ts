@@ -1,8 +1,8 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
-import type { UseMutationOptions } from '@tanstack/react-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
@@ -23,29 +23,27 @@ type CreateUsersWithListInput = {
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-export function useCreateUsersWithListInputHook(options: {
-  mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
-  client?: CreateUsersWithListInput['client']['parameters']
-} = {}) {
+export function useCreateUsersWithListInputHook(
+  options: {
+    mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
+    client?: CreateUsersWithListInput['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useCreateUsersWithListInputHook')
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
-        url: `/user/createWithList`,
+        url: '/user/createWithList',
         data,
         ...clientOptions,
       })
       return res.data
     },
     onSuccess: (...args) => {
-      if (invalidationOnSuccess) {
-        invalidationOnSuccess(...args)
-      }
-      if (mutationOptions?.onSuccess) {
-        mutationOptions.onSuccess(...args)
-      }
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

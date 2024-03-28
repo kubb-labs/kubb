@@ -67,9 +67,6 @@ describe('executeStrategies', () => {
     ])
     //     ^?
 
-    expect(results.map(item => (item as any).value)).toEqual([
-      null,
-      2,
-    ])
+    expect(results.map((item) => (item as any).value)).toEqual([null, 2])
   })
 })

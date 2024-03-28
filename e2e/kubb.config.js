@@ -33,10 +33,13 @@ const baseConfig = {
     done: ['pnpm typecheck'],
   },
   plugins: [
-    ['@kubb/swagger', {
-      output: false,
-      validate: true,
-    }],
+    [
+      '@kubb/swagger',
+      {
+        output: false,
+        validate: true,
+      },
+    ],
     [
       '@kubb/swagger-ts',
       {
@@ -50,46 +53,64 @@ const baseConfig = {
         enumType: 'asPascalConst',
       },
     ],
-    ['@kubb/swagger-tanstack-query', {
-      output: {
-        path: './clients/hooks',
+    [
+      '@kubb/swagger-tanstack-query',
+      {
+        output: {
+          path: './clients/hooks',
+        },
+        group: { type: 'tag' },
+        mutate: {
+          variablesType: 'mutate',
+        },
       },
-      group: { type: 'tag' },
-      mutate: {
-        variablesType: 'mutate',
+    ],
+    [
+      '@kubb/swagger-swr',
+      {
+        output: {
+          path: './clients/swr',
+        },
+        group: { type: 'tag' },
       },
-    }],
-    ['@kubb/swagger-swr', {
-      output: {
-        path: './clients/swr',
+    ],
+    [
+      '@kubb/swagger-client',
+      {
+        output: {
+          path: './clients/axios',
+        },
+        group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
       },
-      group: { type: 'tag' },
-    }],
-    ['@kubb/swagger-client', {
-      output: {
-        path: './clients/axios',
+    ],
+    [
+      '@kubb/swagger-zod',
+      {
+        output: {
+          path: './zod',
+        },
+        group: { type: 'tag' },
       },
-      group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-    }],
-    ['@kubb/swagger-zod', {
-      output: {
-        path: './zod',
-      },
-      group: { type: 'tag' },
-    }],
+    ],
     ['@kubb/swagger-zodios', { output: { path: 'zodios.ts' } }],
-    ['@kubb/swagger-faker', {
-      output: {
-        path: 'mocks',
+    [
+      '@kubb/swagger-faker',
+      {
+        output: {
+          path: 'mocks',
+        },
+        group: { type: 'tag' },
       },
-      group: { type: 'tag' },
-    }],
-    ['@kubb/swagger-msw', {
-      output: {
-        path: 'msw',
+    ],
+    [
+      '@kubb/swagger-msw',
+      {
+        output: {
+          path: 'msw',
+        },
+        group: { type: 'tag' },
       },
-      group: { type: 'tag' },
-    }],
+    ],
   ],
 }
 

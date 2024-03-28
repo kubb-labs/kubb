@@ -1,25 +1,25 @@
 import { faker } from '@faker-js/faker'
-import { createPetNotFound } from '../createPetNotFound'
 import type {
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
-  CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
+  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
 } from '../../models/ts/petsController/CreatePets'
+import { createPetNotFound } from '../createPetNotFound'
 
 export function createCreatePetsPathParams(override: NonNullable<Partial<CreatePetsPathParams>> = {}): NonNullable<CreatePetsPathParams> {
   return {
-    ...{ 'uuid': faker.string.alpha() },
+    ...{ uuid: faker.string.alpha() },
     ...override,
   }
 }
 
 export function createCreatePetsQueryParams(override: NonNullable<Partial<CreatePetsQueryParams>> = {}): NonNullable<CreatePetsQueryParams> {
   return {
-    ...{ 'offset': faker.number.int() },
+    ...{ offset: faker.number.int() },
     ...override,
   }
 }
@@ -47,7 +47,7 @@ export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsE
 
 export function createCreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
   return {
-    ...{ 'name': faker.string.alpha(), 'tag': faker.string.alpha() },
+    ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...override,
   }
 }

@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
-import axios from 'axios'
+import type client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName'
+import axios from 'axios'
+import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../../models/ts/userController/GetUserByName'
 
 /**
  * @summary Get user by user name

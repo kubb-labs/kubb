@@ -16,7 +16,7 @@ export async function createUsersWithListInput(
 ): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>> {
   const res = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
     method: 'post',
-    url: `/user/createWithList`,
+    url: '/user/createWithList',
     data,
     ...options,
   })

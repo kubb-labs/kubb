@@ -1,6 +1,6 @@
-import client from '@kubb/swagger-client/client'
-import axios from 'axios'
+import type client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
 /**

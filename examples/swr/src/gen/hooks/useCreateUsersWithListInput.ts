@@ -1,5 +1,5 @@
-import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
+import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 
@@ -28,7 +28,7 @@ export function useCreateUsersWithListInput(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/createWithList`
+  const url = '/user/createWithList' as const
   return useSWRMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], typeof url | null>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {

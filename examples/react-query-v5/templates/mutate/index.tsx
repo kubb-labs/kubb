@@ -1,13 +1,13 @@
+import path from 'node:path'
+import transformers from '@kubb/core/transformers'
 import { File, Function, usePluginManager } from '@kubb/react'
 import { Mutation } from '@kubb/swagger-tanstack-query/components'
-import React from 'react'
-import path from 'node:path'
 import { useGetOperationFile } from '@kubb/swagger/hooks'
-import transformers from '@kubb/core/transformers'
+import type React from 'react'
 
 export const templates = {
   ...Mutation.templates,
-  react: function({ name, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
+  react: function ({ name, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
     const pluginManager = usePluginManager()
     const file = useGetOperationFile()
     const clientOptions = [
@@ -25,11 +25,7 @@ export const templates = {
 
     return (
       <>
-        <File.Import
-          name={['useInvalidationForMutation']}
-          path={path.join(root, '../useInvalidationForMutation.ts')}
-          root={file.path}
-        />
+        <File.Import name={['useInvalidationForMutation']} path={path.join(root, '../useInvalidationForMutation.ts')} root={file.path} />
         <Function export name={name} params={params} JSDoc={JSDoc}>
           {`
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

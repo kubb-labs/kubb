@@ -1,7 +1,7 @@
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
 type DeleteUser = {
@@ -22,10 +22,13 @@ type DeleteUser = {
  * @summary Delete user
  * @link /user/:username
  */
-export function useDeleteUser(username: DeleteUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
-  client?: DeleteUser['client']['parameters']
-} = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
+export function useDeleteUser(
+  username: DeleteUserPathParams['username'],
+  options: {
+    mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
+    client?: DeleteUser['client']['parameters']
+  } = {},
+): UseMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeleteUser['response'], DeleteUser['error'], never>({
     mutationFn: async () => {

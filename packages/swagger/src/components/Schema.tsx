@@ -25,16 +25,15 @@ type Props = {
   children?: KubbNode
 }
 
-const SchemaContext = createContext<SchemaContextProps>({ name: 'unknown', schemas: [] })
+const SchemaContext = createContext<SchemaContextProps>({
+  name: 'unknown',
+  schemas: [],
+})
 
 export function Schema({ name, object, generator, children }: Props): KubbNode {
   const schemas = generator.buildSchemas(object, name)
 
-  return (
-    <SchemaContext.Provider value={{ name, schemas, object, generator }}>
-      {children}
-    </SchemaContext.Provider>
-  )
+  return <SchemaContext.Provider value={{ name, schemas, object, generator }}>{children}</SchemaContext.Provider>
 }
 
 type FileProps = {
@@ -44,7 +43,7 @@ type FileProps = {
   children?: KubbNode
 }
 
-Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: FileProps): ReactNode {
+Schema.File = function ({ output, isTypeOnly, children, mode = 'directory' }: FileProps): ReactNode {
   const plugin = usePlugin<PluginOptions>()
 
   const pluginManager = usePluginManager()
@@ -52,7 +51,10 @@ Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: Fil
 
   if (mode === 'file') {
     const baseName = output as KubbFile.BaseName
-    const resolvedPath = pluginManager.resolvePath({ baseName: '', pluginKey: plugin.key })
+    const resolvedPath = pluginManager.resolvePath({
+      baseName: '',
+      pluginKey: plugin.key,
+    })
 
     if (!resolvedPath) {
       return null
@@ -76,8 +78,15 @@ Schema.File = function({ output, isTypeOnly, children, mode = 'directory' }: Fil
     )
   }
 
-  const baseName = `${pluginManager.resolveName({ name, pluginKey: plugin.key, type: 'file' })}.ts` as const
-  const resolvedPath = pluginManager.resolvePath({ baseName, pluginKey: plugin.key })
+  const baseName = `${pluginManager.resolveName({
+    name,
+    pluginKey: plugin.key,
+    type: 'file',
+  })}.ts` as const
+  const resolvedPath = pluginManager.resolvePath({
+    baseName,
+    pluginKey: plugin.key,
+  })
 
   if (!resolvedPath) {
     return null
@@ -114,12 +123,14 @@ Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
 
   return (
     <>
-      {refs?.map((item, i) => {
-        if (!item.args.path) {
-          return undefined
-        }
-        return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
-      }).filter(Boolean)}
+      {refs
+        ?.map((item, i) => {
+          if (!item.args.path) {
+            return undefined
+          }
+          return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
+        })
+        .filter(Boolean)}
     </>
   )
 }
@@ -129,9 +140,10 @@ type SchemaSourceProps<TOptions extends SchemaGeneratorBuildOptions = SchemaGene
   options?: TOptions
 }
 
-Schema.Source = <TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>(
-  { options, extraSchemas = [] }: SchemaSourceProps<TOptions>,
-): ReactNode => {
+Schema.Source = <TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>({
+  options,
+  extraSchemas = [],
+}: SchemaSourceProps<TOptions>): ReactNode => {
   const { name, generator, schemas } = useSchema()
 
   const source = generator.getSource(name, [...schemas, ...extraSchemas], options as SchemaGeneratorBuildOptions)

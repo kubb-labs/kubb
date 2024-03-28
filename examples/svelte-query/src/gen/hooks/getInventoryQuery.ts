@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import { createInfiniteQuery, createQuery } from '@tanstack/svelte-query'
 import type {
   CreateBaseQueryOptions,
-  CreateQueryResult,
-  QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  CreateQueryResult,
   InfiniteData,
+  QueryKey,
+  WithRequired,
 } from '@tanstack/svelte-query'
+import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -36,7 +36,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -79,7 +79,7 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
     queryFn: async ({ pageParam }) => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data

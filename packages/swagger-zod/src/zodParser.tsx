@@ -107,13 +107,17 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
       return ''
     }
 
-    return `${value}([${sort(item.args).map((unionItem) => parseZodMeta(unionItem, options)).filter(Boolean).join(', ')}])`
+    return `${value}([${sort(item.args)
+      .map((unionItem) => parseZodMeta(unionItem, options))
+      .filter(Boolean)
+      .join(', ')}])`
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return sort(item.args).filter((item: Schema) => {
-      return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
-    })
+    return sort(item.args)
+      .filter((item: Schema) => {
+        return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
+      })
       .map((item: Schema) => parseZodMeta(item, options))
       .filter(Boolean)
       .map((item, index) => (index === 0 ? item : `${value}(${item})`))
@@ -122,32 +126,40 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
 
   if (isKeyword(item, schemaKeywords.array)) {
     return [
-      `${value}(${sort(item.args.items).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join('')})`,
+      `${value}(${sort(item.args.items)
+        .map((arrayItem) => parseZodMeta(arrayItem, options))
+        .filter(Boolean)
+        .join('')})`,
       item.args.min ? `${mapper.min}(${item.args.min})` : undefined,
       item.args.max ? `${mapper.max}(${item.args.max})` : undefined,
-    ].filter(Boolean).join('')
+    ]
+      .filter(Boolean)
+      .join('')
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
     if (item.args.asConst) {
-      return `${zodKeywordMapper.union}([${
-        item.args.items.map(item => {
-          return parseZodMeta({
-            keyword: schemaKeywords.const,
-            args: item,
-          }, options)
-        }).join(', ')
-      }])`
+      return `${zodKeywordMapper.union}([${item.args.items
+        .map((item) => {
+          return parseZodMeta(
+            {
+              keyword: schemaKeywords.const,
+              args: item,
+            },
+            options,
+          )
+        })
+        .join(', ')}])`
     }
 
-    return `${value}([${
-      item.args.items.map(item => {
+    return `${value}([${item.args.items
+      .map((item) => {
         if (item.format === 'number') {
           return transformers.stringify(item.value)
         }
         return transformers.stringify(item.value)
-      }).join(', ')
-    }])`
+      })
+      .join(', ')}])`
   }
 
   if (isKeyword(item, schemaKeywords.ref)) {
@@ -164,17 +176,18 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
         const name = item[0]
         const schema = item[1]
 
-        return `"${name}": ${
-          sort(schema)
-            .map((item) => parseZodMeta(item, options))
-            .filter(Boolean)
-            .join('')
-        }`
+        return `"${name}": ${sort(schema)
+          .map((item) => parseZodMeta(item, options))
+          .filter(Boolean)
+          .join('')}`
       })
       .join(',')
 
     const additionalProperties = item.args?.additionalProperties?.length
-      ? item.args.additionalProperties.map(schema => parseZodMeta(schema, options)).filter(Boolean).at(0)
+      ? item.args.additionalProperties
+          .map((schema) => parseZodMeta(schema, options))
+          .filter(Boolean)
+          .at(0)
       : undefined
 
     const text = [
@@ -187,7 +200,10 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
   }
 
   if (isKeyword(item, schemaKeywords.tuple)) {
-    return `${value}([${sort(item.args).map((arrayItem) => parseZodMeta(arrayItem, options)).filter(Boolean).join(', ')}])`
+    return `${value}([${sort(item.args)
+      .map((arrayItem) => parseZodMeta(arrayItem, options))
+      .filter(Boolean)
+      .join(', ')}])`
   }
 
   if (isKeyword(item, schemaKeywords.const)) {
@@ -225,10 +241,7 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
 
   return undefined
 }
-export function zodParser(
-  schemas: Schema[],
-  options: ParserOptions,
-): string {
+export function zodParser(schemas: Schema[], options: ParserOptions): string {
   if (!schemas.length) {
     return `export const ${options.name} = '';`
   }
@@ -241,10 +254,13 @@ export function zodParser(
 
   const constName = `${JSDoc}\nexport const ${options.name}`
   const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
-  const output = sortedSchemas.map((item) => parseZodMeta(item, options)).filter(Boolean).join('')
+  const output = sortedSchemas
+    .map((item) => parseZodMeta(item, options))
+    .filter(Boolean)
+    .join('')
 
   if (options.keysToOmit?.length) {
-    const suffix = output.endsWith('.nullable()') ? `.unwrap().schema.and` : `.schema.and`
+    const suffix = output.endsWith('.nullable()') ? '.unwrap().schema.and' : '.schema.and'
     const omitText = `${suffix}(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
     return `${constName} = ${output}${omitText}${typeName}\n`
   }

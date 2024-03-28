@@ -71,28 +71,28 @@ export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase
 
   return (
     <kubb-file {...rest}>
-      <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>
-        {children}
-      </FileContext.Provider>
+      <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>{children}</FileContext.Provider>
     </kubb-file>
   )
 }
 
-type FileSourceUnionProps = {
-  /**
-   * When path is set it will copy-paste that file as a string inside the component.
-   * Children will then be ignored
-   */
-  path?: string
-  children?: never
-} | {
-  /**
-   * When path is set it will copy-paste that file as a string inside the component.
-   * Children will then be ignored
-   */
-  path?: never
-  children?: KubbNode
-}
+type FileSourceUnionProps =
+  | {
+      /**
+       * When path is set it will copy-paste that file as a string inside the component.
+       * Children will then be ignored
+       */
+      path?: string
+      children?: never
+    }
+  | {
+      /**
+       * When path is set it will copy-paste that file as a string inside the component.
+       * Children will then be ignored
+       */
+      path?: never
+      children?: KubbNode
+    }
 
 type FileSourceProps = FileSourceUnionProps & {
   /**

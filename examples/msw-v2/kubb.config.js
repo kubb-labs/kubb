@@ -14,37 +14,46 @@ export default defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
-    },
     plugins: [
-      ['@kubb/swagger', {
-        output: false,
-      }],
-      ['@kubb/swagger-ts', {
-        output: {
-          path: 'models',
+      [
+        '@kubb/swagger',
+        {
+          output: false,
         },
-      }],
-      ['@kubb/swagger-faker', {
-        output: {
-          path: './mocks',
+      ],
+      [
+        '@kubb/swagger-ts',
+        {
+          output: {
+            path: 'models',
+          },
         },
-        group: {
-          type: 'tag',
-          output: './mocks/{{tag}}Mocks',
+      ],
+      [
+        '@kubb/swagger-faker',
+        {
+          output: {
+            path: './mocks',
+          },
+          group: {
+            type: 'tag',
+            output: './mocks/{{tag}}Mocks',
+          },
+          seed: [220],
         },
-        seed: [220],
-      }],
-      ['@kubb/swagger-msw', {
-        output: {
-          path: './msw',
+      ],
+      [
+        '@kubb/swagger-msw',
+        {
+          output: {
+            path: './msw',
+          },
+          group: {
+            type: 'tag',
+            output: './msw/{{tag}}Handlers',
+          },
         },
-        group: {
-          type: 'tag',
-          output: './msw/{{tag}}Handlers',
-        },
-      }],
+      ],
     ],
   }
 })

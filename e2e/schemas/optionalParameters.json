@@ -20,20 +20,29 @@
             "name": "foo",
             "required": false,
             "in": "query",
-            "schema": { "minimum": 1, "format": "int32", "default": 1, "type": "integer" }
+            "schema": {
+              "minimum": 1,
+              "format": "int32",
+              "default": 1,
+              "type": "integer"
+            }
           },
           {
             "name": "baz",
             "required": false,
             "in": "query",
-            "schema": { "minimum": 1, "format": "int32", "default": 10, "type": "integer" }
+            "schema": {
+              "minimum": 1,
+              "format": "int32",
+              "default": 10,
+              "type": "integer"
+            }
           }
         ]
       }
     }
   },
   "components": {
-    "schemas": {
-    }
+    "schemas": {}
   }
 }

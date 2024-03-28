@@ -1,11 +1,11 @@
-import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
+import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>

@@ -19,18 +19,17 @@ type RootTemplateProps = {
 
 function RootTemplate({ children }: RootTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useGetFile({ name: 'operations', mode: 'directory', extName: '.ts', pluginKey })
+  const file = useGetFile({
+    name: 'operations',
+    mode: 'directory',
+    extName: '.ts',
+    pluginKey,
+  })
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Source>
-          {children}
-        </File.Source>
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+        <File.Source>{children}</File.Source>
       </File>
     </Editor>
   )
@@ -47,9 +46,7 @@ type Props = {
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Operations({
-  Template = defaultTemplates.default,
-}: Props): KubbNode {
+export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
   return <Template />
 }
 
@@ -60,7 +57,7 @@ type FileProps = {
   templates?: Templates
 }
 
-Operations.File = function(props: FileProps): KubbNode {
+Operations.File = function (props: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default

@@ -14,21 +14,24 @@ describe('Zod SchemaGenerator PetStore', async () => {
   const oas = await new OasManager().parse(petStorePath)
 
   test('generate schema for Pet', async () => {
-    const generator = new SchemaGenerator({
-      dateType: 'string',
-      include: undefined,
-      transformers: {},
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        dateType: 'string',
+        include: undefined,
+        transformers: {},
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
@@ -37,21 +40,24 @@ describe('Zod SchemaGenerator PetStore', async () => {
   })
 
   test('generate schema for Pets', async () => {
-    const generator = new SchemaGenerator({
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        transformers: {},
+        dateType: 'string',
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+        include: undefined,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('Pets', schemas?.Pets as SchemaObject)
@@ -60,21 +66,24 @@ describe('Zod SchemaGenerator PetStore', async () => {
   })
 
   test('generate schema for OptionalPet', async () => {
-    const generator = new SchemaGenerator({
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        transformers: {},
+        dateType: 'string',
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+        include: undefined,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('OptionalPet', schemas?.OptionalPet as SchemaObject)
@@ -83,21 +92,24 @@ describe('Zod SchemaGenerator PetStore', async () => {
   })
 
   test('generate schema for OptionalPet typed', async () => {
-    const generator = new SchemaGenerator({
-      transformers: {},
-      typed: true,
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      include: undefined,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        transformers: {},
+        typed: true,
+        dateType: 'string',
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        include: undefined,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('OptionalPet', schemas?.OptionalPet as SchemaObject)
@@ -106,21 +118,24 @@ describe('Zod SchemaGenerator PetStore', async () => {
   })
 
   test('generate schema for PetArray', async () => {
-    const generator = new SchemaGenerator({
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        transformers: {},
+        dateType: 'string',
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+        include: undefined,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('PetArray', schemas?.PetArray as SchemaObject)
@@ -132,21 +147,24 @@ describe('Zod SchemaGenerator PetStore', async () => {
 describe('ZodGenerator constCases', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
-  const generator = new SchemaGenerator({
-    transformers: {},
-    dateType: 'string',
-    unknownType: 'any',
-    exclude: undefined,
-    override: undefined,
-    typed: false,
-    include: undefined,
-  }, {
-    oas,
-    pluginManager: mockedPluginManager,
-    plugin: {} as Plugin<PluginOptions>,
-    contentType: undefined,
-    include: undefined,
-  })
+  const generator = new SchemaGenerator(
+    {
+      transformers: {},
+      dateType: 'string',
+      unknownType: 'any',
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
+    },
+    {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
+    },
+  )
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const schemas = oas.getDefinition().components?.schemas!
 
@@ -212,21 +230,24 @@ describe('Zod SchemaGenerator lazy', async () => {
   const oas = await new OasManager().parse(petStorePath)
 
   test('generate schema for Example', async () => {
-    const generator = new SchemaGenerator({
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        transformers: {},
+        dateType: 'string',
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+        include: undefined,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('Example', schemas?.Example as SchemaObject)
@@ -238,21 +259,24 @@ describe('Zod SchemaGenerator lazy', async () => {
 describe('Zod SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
-  const generator = new SchemaGenerator({
-    transformers: {},
-    dateType: 'string',
-    unknownType: 'any',
-    exclude: undefined,
-    override: undefined,
-    typed: false,
-    include: undefined,
-  }, {
-    oas,
-    pluginManager: mockedPluginManager,
-    plugin: {} as Plugin<PluginOptions>,
-    contentType: undefined,
-    include: undefined,
-  })
+  const generator = new SchemaGenerator(
+    {
+      transformers: {},
+      dateType: 'string',
+      unknownType: 'any',
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
+    },
+    {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
+    },
+  )
 
   const schemas = oas.getDefinition().components?.schemas
 
@@ -274,21 +298,24 @@ describe('Zod SchemaGenerator recursive', async () => {
   const oas = await new OasManager().parse(petStorePath)
 
   test('generate schema for Example', async () => {
-    const generator = new SchemaGenerator({
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
-      contentType: undefined,
-      include: undefined,
-    })
+    const generator = new SchemaGenerator(
+      {
+        transformers: {},
+        dateType: 'string',
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+        include: undefined,
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+      },
+    )
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.buildSource('Example', schemas?.Example as SchemaObject)
@@ -300,21 +327,24 @@ describe('Zod SchemaGenerator recursive', async () => {
 describe('Zod SchemaGenerator anyof', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
-  const generator = new SchemaGenerator({
-    transformers: {},
-    dateType: 'string',
-    unknownType: 'any',
-    exclude: undefined,
-    override: undefined,
-    typed: false,
-    include: undefined,
-  }, {
-    oas,
-    pluginManager: mockedPluginManager,
-    plugin: {} as Plugin<PluginOptions>,
-    contentType: undefined,
-    include: undefined,
-  })
+  const generator = new SchemaGenerator(
+    {
+      transformers: {},
+      dateType: 'string',
+      unknownType: 'any',
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
+    },
+    {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
+    },
+  )
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const schemas = oas.getDefinition().components?.schemas!
 

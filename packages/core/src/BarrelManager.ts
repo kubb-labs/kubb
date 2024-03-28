@@ -1,6 +1,6 @@
 import { getExports } from '@kubb/parser'
 
-import path from 'path'
+import path from 'node:path'
 
 import { trimExtName } from './transformers/trim.ts'
 import { TreeNode } from './utils/TreeNode.ts'
@@ -33,38 +33,42 @@ export class BarrelManager {
       return [item]
     }
 
-    return exportedNames.reduce((prev, curr) => {
-      if (!prev[0]?.name || !prev[1]?.name) {
+    return exportedNames.reduce(
+      (prev, curr) => {
+        if (!prev[0]?.name || !prev[1]?.name) {
+          return prev
+        }
+
+        if (curr.isTypeOnly) {
+          prev[1] = { ...prev[1], name: [...prev[1].name, curr.name] }
+        } else {
+          prev[0] = { ...prev[0], name: [...prev[0].name, curr.name] }
+        }
+
         return prev
-      }
-
-      if (curr.isTypeOnly) {
-        prev[1] = { ...prev[1], name: [...prev[1].name, curr.name] }
-      } else {
-        prev[0] = { ...prev[0], name: [...prev[0].name, curr.name] }
-      }
-
-      return prev
-    }, [{
-      ...item,
-      name: [],
-      isTypeOnly: false,
-    }, {
-      ...item,
-      name: [],
-      isTypeOnly: true,
-    }] as KubbFile.Export[])
+      },
+      [
+        {
+          ...item,
+          name: [],
+          isTypeOnly: false,
+        },
+        {
+          ...item,
+          name: [],
+          isTypeOnly: true,
+        },
+      ] as KubbFile.Export[],
+    )
   }
 
   getNamedExports(root: string, exports: KubbFile.Export[]): KubbFile.Export[] {
-    return exports?.map(item => {
+    return exports?.flatMap((item) => {
       return this.getNamedExport(root, item)
-    }).flat()
+    })
   }
 
-  getIndexes(
-    root: string,
-  ): Array<KubbFile.File> | null {
+  getIndexes(root: string): Array<KubbFile.File> | null {
     const { treeNode = {}, isTypeOnly, extName } = this.#options
     const tree = TreeNode.build(root, treeNode)
 
@@ -106,15 +110,11 @@ export class BarrelManager {
         const [treeNodeChild] = treeNode.children as [TreeNode]
 
         const indexPath = path.resolve(treeNode.data.path, 'index.ts')
-        const importPath = treeNodeChild.data.type === 'directory'
-          ? `./${treeNodeChild.data.name}/index`
-          : `./${trimExtName(treeNodeChild.data.name)}`
+        const importPath = treeNodeChild.data.type === 'directory' ? `./${treeNodeChild.data.name}/index` : `./${trimExtName(treeNodeChild.data.name)}`
 
         const exports = [
           {
-            path: extName
-              ? `${importPath}${extName}`
-              : importPath,
+            path: extName ? `${importPath}${extName}` : importPath,
             isTypeOnly,
           },
         ]

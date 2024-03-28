@@ -35,7 +35,10 @@ export class OasManager {
     const { validate } = this.#options
 
     if (validate) {
-      await new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true }).validate()
+      await new OASNormalize(pathOrApi, {
+        enablePaths: true,
+        colorizeErrors: true,
+      }).validate()
     }
 
     const document = (await SwaggerParser.parse(pathOrApi)) as OASDocument

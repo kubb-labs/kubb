@@ -1,7 +1,5 @@
 import type { OasTypes } from '@kubb/swagger/oas'
-import type {
-  FromSchema,
-} from 'json-schema-to-ts'
+import type { FromSchema } from 'json-schema-to-ts'
 import type { MethodMap, PathMap, StatusMap } from './mappers.ts'
 
 type Checks = {
@@ -20,14 +18,8 @@ type JSONResponseSchema<
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
   TStatus extends keyof StatusMap<TOAS, TPath, TMethod>,
-> = StatusMap<TOAS, TPath, TMethod>[TStatus] extends Checks['Content'] ? ResponseSchemas<TOAS, TPath, TMethod, TStatus>[
-    keyof ResponseSchemas<
-      TOAS,
-      TPath,
-      TMethod,
-      TStatus
-    >
-  ]['schema']
+> = StatusMap<TOAS, TPath, TMethod>[TStatus] extends Checks['Content']
+  ? ResponseSchemas<TOAS, TPath, TMethod, TStatus>[keyof ResponseSchemas<TOAS, TPath, TMethod, TStatus>]['schema']
   : StatusMap<TOAS, TPath, TMethod>[TStatus]['schema']
 
 export type Response<

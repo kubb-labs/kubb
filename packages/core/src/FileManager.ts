@@ -31,11 +31,12 @@ export namespace KubbFile {
     name:
       | string
       | Array<
-        string | {
-          propertyName: string
-          name?: string
-        }
-      >
+          | string
+          | {
+              propertyName: string
+              name?: string
+            }
+        >
     /**
      * Path for the import
      * @xample '@kubb/core'
@@ -109,10 +110,7 @@ export namespace KubbFile {
     pluginKey?: Plugin['key']
   }
 
-  export type File<
-    TMeta extends FileMetaBase = FileMetaBase,
-    TBaseName extends BaseName = BaseName,
-  > = {
+  export type File<TMeta extends FileMetaBase = FileMetaBase, TBaseName extends BaseName = BaseName> = {
     /**
      * Unique identifier to reuse later
      * @default crypto.randomUUID()
@@ -151,10 +149,7 @@ export namespace KubbFile {
     language?: string
   }
 
-  export type ResolvedFile<
-    TMeta extends FileMetaBase = FileMetaBase,
-    TBaseName extends BaseName = BaseName,
-  > = KubbFile.File<TMeta, TBaseName> & {
+  export type ResolvedFile<TMeta extends FileMetaBase = FileMetaBase, TBaseName extends BaseName = BaseName> = KubbFile.File<TMeta, TBaseName> & {
     /**
      * @default crypto.randomUUID()
      */
@@ -224,9 +219,7 @@ export class FileManager {
     return this.#queue.size !== 0 && this.#queue.pending !== 0
   }
 
-  async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(
-    ...files: T
-  ): AddResult<T> {
+  async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(...files: T): AddResult<T> {
     const promises = combineFiles(files).map((file) => {
       if (file.override) {
         return this.#add(file)
@@ -246,7 +239,11 @@ export class FileManager {
 
   async #add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     const controller = new AbortController()
-    const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), name: trimExtName(file.baseName), ...file }
+    const resolvedFile: KubbFile.ResolvedFile = {
+      id: crypto.randomUUID(),
+      name: trimExtName(file.baseName),
+      ...file,
+    }
 
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
@@ -286,7 +283,10 @@ export class FileManager {
     const pathToBuildFrom = resolve(root, output.path)
     const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
     const mode = FileManager.getMode(output.path)
-    const barrelManager = new BarrelManager({ extName: output.extName, ...options })
+    const barrelManager = new BarrelManager({
+      extName: output.extName,
+      ...options,
+    })
     let files = barrelManager.getIndexes(pathToBuildFrom)
 
     if (!files) {
@@ -294,7 +294,7 @@ export class FileManager {
     }
 
     if (exportType === 'barrelNamed') {
-      files = files.map(file => {
+      files = files.map((file) => {
         if (file.exports) {
           return {
             ...file,
@@ -322,15 +322,15 @@ export class FileManager {
       exports: [
         output.exportAs
           ? {
-            name: output.exportAs,
-            asAlias: true,
-            path: rootPath,
-            isTypeOnly: options.isTypeOnly,
-          }
+              name: output.exportAs,
+              asAlias: true,
+              path: rootPath,
+              isTypeOnly: options.isTypeOnly,
+            }
           : {
-            path: rootPath,
-            isTypeOnly: options.isTypeOnly,
-          },
+              path: rootPath,
+              isTypeOnly: options.isTypeOnly,
+            },
       ],
     }
 
@@ -399,39 +399,40 @@ export class FileManager {
   }
 }
 
-function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(
-  files: Array<KubbFile.File<TMeta> | null>,
-): Array<KubbFile.File<TMeta>> {
-  return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {
-    const prevIndex = acc.findIndex((item) => item.path === file.path)
+function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
+  return files.filter(Boolean).reduce(
+    (acc, file: KubbFile.File<TMeta>) => {
+      const prevIndex = acc.findIndex((item) => item.path === file.path)
 
-    if (prevIndex === -1) {
-      return [...acc, file]
-    }
-
-    const prev = acc[prevIndex]
-
-    if (prev && file.override) {
-      acc[prevIndex] = {
-        imports: [],
-        exports: [],
-        ...file,
+      if (prevIndex === -1) {
+        return [...acc, file]
       }
+
+      const prev = acc[prevIndex]
+
+      if (prev && file.override) {
+        acc[prevIndex] = {
+          imports: [],
+          exports: [],
+          ...file,
+        }
+        return acc
+      }
+
+      if (prev) {
+        acc[prevIndex] = {
+          ...file,
+          source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
+          imports: [...(prev.imports || []), ...(file.imports || [])],
+          exports: [...(prev.exports || []), ...(file.exports || [])],
+          env: { ...(prev.env || {}), ...(file.env || {}) },
+        }
+      }
+
       return acc
-    }
-
-    if (prev) {
-      acc[prevIndex] = {
-        ...file,
-        source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
-        imports: [...(prev.imports || []), ...(file.imports || [])],
-        exports: [...(prev.exports || []), ...(file.exports || [])],
-        env: { ...(prev.env || {}), ...(file.env || {}) },
-      }
-    }
-
-    return acc
-  }, [] as Array<KubbFile.File<TMeta>>)
+    },
+    [] as Array<KubbFile.File<TMeta>>,
+  )
 }
 
 export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
@@ -445,24 +446,26 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
   // imports should be defined and source should contain code or we have imports without them being used
   const imports = file.imports && file.source ? combineImports(file.imports, exports, file.source) : []
 
-  const importNodes = imports.filter(item => {
-    // isImportNotNeeded
-    // trim extName
-    return item.path !== trimExtName(file.path)
-  }).map((item) => {
-    return factory.createImportDeclaration({
-      name: item.name,
-      path: item.root ? getRelativePath(item.root, item.path) : item.path,
-      isTypeOnly: item.isTypeOnly,
+  const importNodes = imports
+    .filter((item) => {
+      // isImportNotNeeded
+      // trim extName
+      return item.path !== trimExtName(file.path)
     })
-  })
+    .map((item) => {
+      return factory.createImportDeclaration({
+        name: item.name,
+        path: item.root ? getRelativePath(item.root, item.path) : item.path,
+        isTypeOnly: item.isTypeOnly,
+      })
+    })
   const exportNodes = exports.map((item) =>
     factory.createExportDeclaration({
       name: item.name,
       path: item.path,
       isTypeOnly: item.isTypeOnly,
       asAlias: item.asAlias,
-    })
+    }),
   )
 
   const source = [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
@@ -472,98 +475,104 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
-  const combinedExports = orderBy(exports, [(v) => !v.isTypeOnly], ['asc']).reduce((prev, curr) => {
-    const name = curr.name
-    const prevByPath = prev.findLast((imp) => imp.path === curr.path)
-    const prevByPathAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+  const combinedExports = orderBy(exports, [(v) => !v.isTypeOnly], ['asc']).reduce(
+    (prev, curr) => {
+      const name = curr.name
+      const prevByPath = prev.findLast((imp) => imp.path === curr.path)
+      const prevByPathAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
 
-    if (prevByPathAndIsTypeOnly) {
-      // we already have an export that has the same path but uses `isTypeOnly` (export type ...)
-      return prev
-    }
+      if (prevByPathAndIsTypeOnly) {
+        // we already have an export that has the same path but uses `isTypeOnly` (export type ...)
+        return prev
+      }
 
-    const uniquePrev = prev.findLast(
-      (imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
-    )
+      const uniquePrev = prev.findLast(
+        (imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
+      )
 
-    if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
-      return prev
-    }
+      if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
+        return prev
+      }
 
-    if (!prevByPath) {
-      return [
-        ...prev,
-        {
-          ...curr,
-          name: Array.isArray(name) ? [...new Set(name)] : name,
-        },
-      ]
-    }
+      if (!prevByPath) {
+        return [
+          ...prev,
+          {
+            ...curr,
+            name: Array.isArray(name) ? [...new Set(name)] : name,
+          },
+        ]
+      }
 
-    if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(curr.name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
-      prevByPath.name = [...new Set([...prevByPath.name, ...curr.name])]
+      if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(curr.name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
+        prevByPath.name = [...new Set([...prevByPath.name, ...curr.name])]
 
-      return prev
-    }
+        return prev
+      }
 
-    return [...prev, curr]
-  }, [] as Array<KubbFile.Export>)
+      return [...prev, curr]
+    },
+    [] as Array<KubbFile.Export>,
+  )
 
   return orderBy(combinedExports, [(v) => !v.isTypeOnly, (v) => v.asAlias], ['desc', 'desc'])
 }
 
 export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
-  const combinedImports = orderBy(imports, [(v) => !v.isTypeOnly], ['asc']).reduce((prev, curr) => {
-    let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
+  const combinedImports = orderBy(imports, [(v) => !v.isTypeOnly], ['asc']).reduce(
+    (prev, curr) => {
+      let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
-    const hasImportInSource = (importName: string) => {
-      if (!source) {
-        return true
+      const hasImportInSource = (importName: string) => {
+        if (!source) {
+          return true
+        }
+
+        const checker = (name?: string) => name && !!source.includes(name)
+        return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
       }
 
-      const checker = (name?: string) => name && !!source.includes(name)
-      return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
-    }
+      if (Array.isArray(name)) {
+        name = name.filter((item) => (typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName)))
+      }
 
-    if (Array.isArray(name)) {
-      name = name.filter((item) => typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName))
-    }
+      const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
+      const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
+      const prevByPathNameAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
 
-    const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
-    const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
-    const prevByPathNameAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+      if (prevByPathNameAndIsTypeOnly) {
+        // we already have an export that has the same path but uses `isTypeOnly` (import type ...)
+        return prev
+      }
 
-    if (prevByPathNameAndIsTypeOnly) {
-      // we already have an export that has the same path but uses `isTypeOnly` (import type ...)
-      return prev
-    }
+      if (uniquePrev || (Array.isArray(name) && !name.length)) {
+        return prev
+      }
 
-    if (uniquePrev || (Array.isArray(name) && !name.length)) {
-      return prev
-    }
+      if (!prevByPath) {
+        return [
+          ...prev,
+          {
+            ...curr,
+            name,
+          },
+        ]
+      }
 
-    if (!prevByPath) {
-      return [
-        ...prev,
-        {
-          ...curr,
-          name,
-        },
-      ]
-    }
+      if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
+        prevByPath.name = [...new Set([...prevByPath.name, ...name])]
 
-    if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
-      prevByPath.name = [...new Set([...prevByPath.name, ...name])]
+        return prev
+      }
 
-      return prev
-    }
+      if (!Array.isArray(name) && name && !hasImportInSource(name)) {
+        return prev
+      }
 
-    if (!Array.isArray(name) && name && !hasImportInSource(name)) {
-      return prev
-    }
-
-    return [...prev, curr]
-  }, [] as Array<KubbFile.Import>)
+      return [...prev, curr]
+    },
+    [] as Array<KubbFile.Import>,
+  )
 
   return orderBy(combinedImports, [(v) => !v.isTypeOnly], ['desc'])
 }
@@ -588,9 +597,18 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
     }
 
     if (typeof replaceBy === 'string') {
-      prev = searchAndReplace({ text: prev.replaceAll(`process.env.${key}`, replaceBy), replaceBy, prefix: 'process.env', key })
+      prev = searchAndReplace({
+        text: prev.replaceAll(`process.env.${key}`, replaceBy),
+        replaceBy,
+        prefix: 'process.env',
+        key,
+      })
       // removes `declare const ...`
-      prev = searchAndReplace({ text: prev.replaceAll(new RegExp(`(declare const).*\n`, 'ig'), ''), replaceBy, key })
+      prev = searchAndReplace({
+        text: prev.replaceAll(/(declare const).*\n/gi, ''),
+        replaceBy,
+        key,
+      })
     }
 
     return prev

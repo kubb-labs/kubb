@@ -51,18 +51,7 @@ type TemplateProps = {
   parser: string | undefined
 }
 
-function Template({
-  name,
-  params,
-  generics,
-  returnType,
-  JSDoc,
-  hook,
-  client,
-  infinite,
-  dataReturnType,
-  parser,
-}: TemplateProps): ReactNode {
+function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
   const clientOptions = [
@@ -70,9 +59,7 @@ function Template({
     `url: ${client.path.template}`,
     client.withQueryParams && !infinite ? 'params' : undefined,
     client.withData ? 'data' : undefined,
-    client.withHeaders
-      ? 'headers: { ...headers, ...options.headers }'
-      : undefined,
+    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
     '...options',
     client.withQueryParams && !!infinite
       ? `params: {
@@ -84,35 +71,27 @@ function Template({
   ].filter(Boolean)
 
   const queryOptions = [
-    isV5 && !!infinite
-      ? `initialPageParam: ${infinite.initialPageParam}`
-      : undefined,
-    isV5 && !!infinite && !!infinite.cursorParam
-      ? `getNextPageParam: (lastPage) => lastPage['${infinite.cursorParam}']`
-      : undefined,
-    isV5 && !!infinite && !!infinite.cursorParam
-      ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']`
-      : undefined,
+    isV5 && !!infinite ? `initialPageParam: ${infinite.initialPageParam}` : undefined,
+    isV5 && !!infinite && !!infinite.cursorParam ? `getNextPageParam: (lastPage) => lastPage['${infinite.cursorParam}']` : undefined,
+    isV5 && !!infinite && !!infinite.cursorParam ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']` : undefined,
     isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'full'
-      ? `getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1`
+      ? 'getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'data'
-      ? `getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1`
+      ? 'getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam
-      ? `getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1`
+      ? 'getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1'
       : undefined,
   ].filter(Boolean)
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
   const resolvedQueryOptions = `${transformers.createIndent(4)}${queryOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
-  let returnRes = parser ? `return ${parser}(res.data)` : `return res.data`
+  let returnRes = parser ? `return ${parser}(res.data)` : 'return res.data'
 
   if (dataReturnType === 'full') {
-    returnRes = parser
-      ? `return {...res, data: ${parser}(res.data)}`
-      : `return res`
+    returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
   }
 
   if (infinite) {
@@ -141,14 +120,7 @@ function Template({
     }
 
     return (
-      <Function
-        name={name}
-        export
-        generics={generics}
-        returnType={returnType}
-        params={params}
-        JSDoc={JSDoc}
-      >
+      <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
          const queryKey = ${hook.queryKey}
 
@@ -195,14 +167,7 @@ function Template({
   }
 
   return (
-    <Function
-      name={name}
-      export
-      generics={generics}
-      returnType={returnType}
-      params={params}
-      JSDoc={JSDoc}
-    >
+    <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
        const queryKey = ${hook.queryKey}
 
@@ -235,22 +200,22 @@ type FrameworkProps = TemplateProps & {
 
 const defaultTemplates = {
   get react() {
-    return function(props: FrameworkProps): ReactNode {
+    return function (props: FrameworkProps): ReactNode {
       return <Template {...props} />
     }
   },
   get solid() {
-    return function(props: FrameworkProps): ReactNode {
+    return function (props: FrameworkProps): ReactNode {
       return <Template {...props} />
     }
   },
   get svelte() {
-    return function(props: FrameworkProps): ReactNode {
+    return function (props: FrameworkProps): ReactNode {
       return <Template {...props} />
     }
   },
   get vue() {
-    return function({ client, context, ...rest }: FrameworkProps): ReactNode {
+    return function ({ client, context, ...rest }: FrameworkProps): ReactNode {
       const { factory, queryKey } = context
       const {
         options: { pathParamsType },
@@ -262,9 +227,7 @@ const defaultTemplates = {
       const pathParams = getParams(schemas.pathParams, {
         override: (item) => ({
           ...item,
-          name: item.name
-            ? `ref${transformers.pascalCase(item.name)}`
-            : undefined,
+          name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
         }),
       }).toString()
 
@@ -274,9 +237,7 @@ const defaultTemplates = {
           asObject: pathParamsType === 'object',
           override: (item) => ({
             ...item,
-            name: item.name
-              ? `ref${transformers.pascalCase(item.name)}`
-              : undefined,
+            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
             enabled: !!item.name,
             type: `MaybeRef<${item.type}>`,
           }),
@@ -309,9 +270,7 @@ const defaultTemplates = {
       const unrefs = params.items
         .filter((item) => item.enabled)
         .map((item) => {
-          return item.name
-            ? `const ${transformers.camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
-            : undefined
+          return item.name ? `const ${transformers.camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
         })
         .join('\n')
 
@@ -320,14 +279,7 @@ const defaultTemplates = {
         children: unrefs,
       }
 
-      return (
-        <Template
-          {...rest}
-          params={params.toString()}
-          hook={hook}
-          client={client}
-        />
-      )
+      return <Template {...rest} params={params.toString()} hook={hook} client={client} />
     }
   },
 } as const
@@ -346,14 +298,7 @@ type Props = {
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
-export function QueryOptions({
-  factory,
-  infinite,
-  suspense,
-  resultType,
-  dataReturnType,
-  Template = defaultTemplates.react,
-}: Props): ReactNode {
+export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
   const {
     key: pluginKey,
     options: { parser, pathParamsType, queryOptions },
@@ -367,25 +312,11 @@ export function QueryOptions({
   const operation = useOperation()
 
   const queryKey = useResolveName({
-    name: [
-      factory.name,
-      infinite ? 'Infinite' : undefined,
-      suspense ? 'Suspense' : undefined,
-      'QueryKey',
-    ]
-      .filter(Boolean)
-      .join(''),
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
   })
   const queryOptionsName = useResolveName({
-    name: [
-      factory.name,
-      infinite ? 'Infinite' : undefined,
-      suspense ? 'Suspense' : undefined,
-      'QueryOptions',
-    ]
-      .filter(Boolean)
-      .join(''),
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
   })
 
@@ -400,25 +331,15 @@ export function QueryOptions({
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
 
-  const clientGenerics = [
-    `${factory.name}['data']`,
-    `${factory.name}['error']`,
-  ]
+  const clientGenerics = [`${factory.name}['data']`, `${factory.name}['error']`]
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const resultGenerics = suspense
     ? [`${factory.name}['response']`, `${factory.name}["error"]`, 'TData']
-    : [
-      `${factory.name}['response']`,
-      `${factory.name}["error"]`,
-      'TData',
-      'TQueryData',
-    ]
+    : [`${factory.name}['response']`, `${factory.name}["error"]`, 'TData', 'TQueryData']
 
   generics.add([
     { type: 'TData', default: `${factory.name}["response"]` },
-    suspense
-      ? undefined
-      : { type: 'TQueryData', default: `${factory.name}["response"]` },
+    suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
   ])
 
   params.add([

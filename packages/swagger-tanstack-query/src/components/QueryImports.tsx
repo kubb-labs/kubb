@@ -14,14 +14,7 @@ type TemplateProps = {
   isInfinite: boolean
 }
 
-function Template({
-  path,
-  isInfinite,
-  hookName,
-  queryOptions,
-  optionsType,
-  resultType,
-}: TemplateProps): ReactNode {
+function Template({ path, isInfinite, hookName, queryOptions, optionsType, resultType }: TemplateProps): ReactNode {
   return (
     <>
       <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
@@ -40,9 +33,7 @@ type FrameworkProps = Partial<TemplateProps> & {
 
 const defaultTemplates = {
   get react() {
-    return function(
-      { context, ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ context, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite, isSuspense } = context
@@ -50,17 +41,15 @@ const defaultTemplates = {
       return (
         <Template
           isInfinite={isInfinite}
-          {...isSuspense ? importNames.querySuspense.react : isInfinite ? importNames.queryInfinite.react : importNames.query.react}
-          queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
+          {...(isSuspense ? importNames.querySuspense.react : isInfinite ? importNames.queryInfinite.react : importNames.query.react)}
+          queryOptions={isV5 ? (isInfinite ? 'infiniteQueryOptions' : 'queryOptions') : undefined}
           {...rest}
         />
       )
     }
   },
   get solid() {
-    return function(
-      { context, ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ context, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite } = context
@@ -68,17 +57,15 @@ const defaultTemplates = {
       return (
         <Template
           isInfinite={isInfinite}
-          {...isInfinite ? importNames.queryInfinite.solid : importNames.query.solid}
-          queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
+          {...(isInfinite ? importNames.queryInfinite.solid : importNames.query.solid)}
+          queryOptions={isV5 ? (isInfinite ? 'infiniteQueryOptions' : 'queryOptions') : undefined}
           {...rest}
         />
       )
     }
   },
   get svelte() {
-    return function(
-      { context, ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ context, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite } = context
@@ -86,17 +73,15 @@ const defaultTemplates = {
       return (
         <Template
           isInfinite={isInfinite}
-          {...isInfinite ? importNames.queryInfinite.svelte : importNames.query.svelte}
-          queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
+          {...(isInfinite ? importNames.queryInfinite.svelte : importNames.query.svelte)}
+          queryOptions={isV5 ? (isInfinite ? 'infiniteQueryOptions' : 'queryOptions') : undefined}
           {...rest}
         />
       )
     }
   },
   get vue() {
-    return function(
-      { context, ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ context, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite } = context
@@ -104,18 +89,17 @@ const defaultTemplates = {
 
       return (
         <>
-          {isV5
-            && (
-              <>
-                <Template
-                  isInfinite={isInfinite}
-                  {...isInfinite ? importNames.queryInfinite.vue : importNames.query.vue}
-                  queryOptions={isInfinite ? 'infiniteQueryOptions' : 'queryOptions'}
-                  {...rest}
-                />
-                <File.Import name={['QueryObserverOptions']} path={path} isTypeOnly />
-              </>
-            )}
+          {isV5 && (
+            <>
+              <Template
+                isInfinite={isInfinite}
+                {...(isInfinite ? importNames.queryInfinite.vue : importNames.query.vue)}
+                queryOptions={isInfinite ? 'infiniteQueryOptions' : 'queryOptions'}
+                {...rest}
+              />
+              <File.Import name={['QueryObserverOptions']} path={path} isTypeOnly />
+            </>
+          )}
 
           {!isV5 && isInfinite && (
             <>

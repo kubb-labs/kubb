@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser'
+import { createInfiniteQuery, createQuery } from '@tanstack/svelte-query'
 import type {
   CreateBaseQueryOptions,
-  CreateQueryResult,
-  QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  CreateQueryResult,
   InfiniteData,
+  QueryKey,
+  WithRequired,
 } from '@tanstack/svelte-query'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
@@ -36,7 +36,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -78,7 +78,7 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
     queryFn: async ({ pageParam }) => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data

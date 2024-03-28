@@ -1,5 +1,5 @@
 import { File, Function } from '@kubb/react'
-import { Client } from '../src/components/Client.tsx'
+import type { Client } from '../src/components/Client.tsx'
 
 export default function CustomClientTemplate({
   name,

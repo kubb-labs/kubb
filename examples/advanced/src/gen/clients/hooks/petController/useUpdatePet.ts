@@ -1,7 +1,7 @@
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
 type UpdatePet = {
@@ -22,22 +22,36 @@ type UpdatePet = {
  * @summary Update an existing pet
  * @link /pet
  */
-export function useUpdatePet(options: {
-  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], {
+export function useUpdatePet(
+  options: {
+    mutation?: UseMutationOptions<
+      UpdatePet['response'],
+      UpdatePet['error'],
+      {
+        data: UpdatePet['request']
+      }
+    >
+    client?: UpdatePet['client']['parameters']
+  } = {},
+): UseMutationResult<
+  UpdatePet['response'],
+  UpdatePet['error'],
+  {
     data: UpdatePet['request']
-  }>
-  client?: UpdatePet['client']['parameters']
-} = {}): UseMutationResult<UpdatePet['response'], UpdatePet['error'], {
-  data: UpdatePet['request']
-}> {
+  }
+> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePet['response'], UpdatePet['error'], {
-    data: UpdatePet['request']
-  }>({
+  return useMutation<
+    UpdatePet['response'],
+    UpdatePet['error'],
+    {
+      data: UpdatePet['request']
+    }
+  >({
     mutationFn: async ({ data }) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })

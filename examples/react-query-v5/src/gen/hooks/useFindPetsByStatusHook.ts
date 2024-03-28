@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {
@@ -26,7 +26,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryPar
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -43,18 +43,21 @@ export function useFindPetsByStatusHook<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
->(params?: FindPetsByStatus['queryParams'], options: {
-  query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
-  client?: FindPetsByStatus['client']['parameters']
-} = {}): UseQueryResult<TData, FindPetsByStatus['error']> & {
+>(
+  params?: FindPetsByStatus['queryParams'],
+  options: {
+    query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
+    client?: FindPetsByStatus['client']['parameters']
+  } = {},
+): UseQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery({
-    ...findPetsByStatusQueryOptions(params, clientOptions) as QueryObserverOptions,
+    ...(findPetsByStatusQueryOptions(params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
@@ -71,7 +74,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -96,9 +99,9 @@ export function useFindPetsByStatusHookSuspense<TData = FindPetsByStatus['respon
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...findPetsByStatusSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
+    ...(findPetsByStatusSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }

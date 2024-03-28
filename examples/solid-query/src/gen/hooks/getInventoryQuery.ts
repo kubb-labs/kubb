@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -28,7 +28,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data

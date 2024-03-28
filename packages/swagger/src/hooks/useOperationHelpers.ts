@@ -26,7 +26,11 @@ export function useOperationHelpers(): UseOperationHelpersResult {
   const { getOperationSchemas: getSchemas } = useContext(Oas.Context)
 
   const getName: UseOperationHelpersResult['getName'] = (operation, { pluginKey, type }) => {
-    return pluginManager.resolveName({ name: operation.getOperationId(), pluginKey, type })
+    return pluginManager.resolveName({
+      name: operation.getOperationId(),
+      pluginKey,
+      type,
+    })
   }
 
   const getFile: UseOperationHelpersResult['getFile'] = (operation, { pluginKey, extName = '.ts' }) => {
@@ -34,7 +38,12 @@ export function useOperationHelpers(): UseOperationHelpersResult {
     const tag = operation?.getTags().at(0)?.name
     const name = getName(operation, { type: 'file', pluginKey })
 
-    const file = pluginManager.getFile({ name, extName, pluginKey, options: { type: 'file', pluginKey, tag } })
+    const file = pluginManager.getFile({
+      name,
+      extName,
+      pluginKey,
+      options: { type: 'file', pluginKey, tag },
+    })
 
     return {
       ...file,

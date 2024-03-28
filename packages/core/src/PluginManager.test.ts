@@ -256,8 +256,7 @@ describe('PluginManager', () => {
   test('if validatePlugins works with 2 plugins', () => {
     expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginA')).toBeTruthy()
     expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginB')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginC']))
-      .toBeTruthy()
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginC'])).toBeTruthy()
     try {
       PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginD'])
     } catch (e) {

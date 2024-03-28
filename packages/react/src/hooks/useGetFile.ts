@@ -16,5 +16,11 @@ type Props<TOptions = object> = {
 export function useGetFile<TOptions = object>({ name, mode, extName, pluginKey, options }: Props<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
   const pluginManager = usePluginManager()
 
-  return pluginManager.getFile<TOptions>({ name, mode, extName, pluginKey, options })
+  return pluginManager.getFile<TOptions>({
+    name,
+    mode,
+    extName,
+    pluginKey,
+    options,
+  })
 }

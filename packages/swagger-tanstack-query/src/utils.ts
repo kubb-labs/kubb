@@ -6,25 +6,25 @@ export function getImportNames() {
 
   return {
     mutation: {
-      'react': {
+      react: {
         path: '@tanstack/react-query',
         hookName: 'useMutation',
         optionsType: 'UseMutationOptions',
         resultType: 'UseMutationResult',
       },
-      'solid': {
+      solid: {
         path: '@tanstack/solid-query',
         hookName: 'createMutation',
         optionsType: 'CreateMutationOptions',
         resultType: 'CreateMutationResult',
       },
-      'svelte': {
+      svelte: {
         path: '@tanstack/svelte-query',
         hookName: 'createMutation',
         optionsType: 'CreateMutationOptions',
         resultType: 'CreateMutationResult',
       },
-      'vue': {
+      vue: {
         path: '@tanstack/vue-query',
         hookName: 'useMutation',
         optionsType: isV5 ? 'UseMutationOptions' : 'VueMutationObserverOptions',
@@ -32,25 +32,25 @@ export function getImportNames() {
       },
     },
     query: {
-      'react': {
+      react: {
         path: '@tanstack/react-query',
         hookName: 'useQuery',
         optionsType: isV5 ? 'QueryObserverOptions' : 'UseBaseQueryOptions',
         resultType: 'UseQueryResult',
       },
-      'solid': {
+      solid: {
         path: '@tanstack/solid-query',
         hookName: 'createQuery',
         optionsType: 'CreateBaseQueryOptions',
         resultType: 'CreateQueryResult',
       },
-      'svelte': {
+      svelte: {
         path: '@tanstack/svelte-query',
         hookName: 'createQuery',
         optionsType: 'CreateBaseQueryOptions',
         resultType: 'CreateQueryResult',
       },
-      'vue': {
+      vue: {
         path: '@tanstack/vue-query',
         hookName: 'useQuery',
         optionsType: isV5 ? 'QueryObserverOptions' : 'VueQueryObserverOptions',
@@ -58,25 +58,25 @@ export function getImportNames() {
       },
     },
     queryInfinite: {
-      'react': {
+      react: {
         path: '@tanstack/react-query',
         hookName: 'useInfiniteQuery',
         optionsType: isV5 ? 'InfiniteQueryObserverOptions' : 'UseInfiniteQueryOptions',
         resultType: 'UseInfiniteQueryResult',
       },
-      'solid': {
+      solid: {
         path: '@tanstack/solid-query',
         hookName: 'createInfiniteQuery',
         optionsType: 'CreateInfiniteQueryOptions',
         resultType: 'CreateInfiniteQueryResult',
       },
-      'svelte': {
+      svelte: {
         path: '@tanstack/svelte-query',
         hookName: 'createInfiniteQuery',
         optionsType: 'CreateInfiniteQueryOptions',
         resultType: 'CreateInfiniteQueryResult',
       },
-      'vue': {
+      vue: {
         path: '@tanstack/vue-query',
         hookName: 'useInfiniteQuery',
         optionsType: isV5 ? 'UseInfiniteQueryOptions' : 'VueInfiniteQueryObserverOptions',
@@ -84,7 +84,7 @@ export function getImportNames() {
       },
     },
     querySuspense: {
-      'react': {
+      react: {
         path: '@tanstack/react-query',
         hookName: 'useSuspenseQuery',
         optionsType: 'UseSuspenseQueryOptions',

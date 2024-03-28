@@ -8,7 +8,7 @@ describe('toNumber', () => {
     expect(toNumber(1)).toBe(1)
     expect(toNumber('2')).toBe(2)
     expect(toNumber('')).toBe(0)
-    expect(toNumber('test')).toBe(NaN)
+    expect(toNumber('test')).toBe(Number.NaN)
   })
 })
 

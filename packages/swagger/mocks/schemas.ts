@@ -129,13 +129,12 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{
-          keyword: schemaKeywords.union,
-          args: [
-            { keyword: schemaKeywords.number },
-            { keyword: schemaKeywords.string },
-          ],
-        }],
+        items: [
+          {
+            keyword: schemaKeywords.union,
+            args: [{ keyword: schemaKeywords.number }, { keyword: schemaKeywords.string }],
+          },
+        ],
       },
     },
   },
@@ -153,7 +152,12 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.ref, args: { name: 'Pet', path: './pet.ts' } }],
+        items: [
+          {
+            keyword: schemaKeywords.ref,
+            args: { name: 'Pet', path: './pet.ts' },
+          },
+        ],
       },
     },
   },
@@ -188,7 +192,12 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.object,
       args: {
         properties: {},
-        additionalProperties: [{ keyword: schemaKeywords.ref, args: { name: 'Pet', path: './Pet.ts' } }],
+        additionalProperties: [
+          {
+            keyword: schemaKeywords.ref,
+            args: { name: 'Pet', path: './Pet.ts' },
+          },
+        ],
       },
     },
   },
@@ -362,15 +371,20 @@ const full: Array<{ name: string; schema: Schema[] }> = [
         keyword: schemaKeywords.object,
         args: {
           properties: {
-            'status': [{
-              keyword: schemaKeywords.enum,
-              args: {
-                name: 'orderStatus',
-                asConst: false,
-                typeName: 'OrderStatus',
-                items: [{ name: 'Placed', value: 'placed', format: 'string' }, { name: 'Approved', value: 'approved', format: 'string' }],
+            status: [
+              {
+                keyword: schemaKeywords.enum,
+                args: {
+                  name: 'orderStatus',
+                  asConst: false,
+                  typeName: 'OrderStatus',
+                  items: [
+                    { name: 'Placed', value: 'placed', format: 'string' },
+                    { name: 'Approved', value: 'approved', format: 'string' },
+                  ],
+                },
               },
-            }],
+            ],
           },
           additionalProperties: [],
         },
@@ -381,33 +395,33 @@ const full: Array<{ name: string; schema: Schema[] }> = [
     name: 'Record',
     schema: [
       {
-        'keyword': schemaKeywords.object,
-        'args': {
-          'properties': {},
-          'additionalProperties': [
+        keyword: schemaKeywords.object,
+        args: {
+          properties: {},
+          additionalProperties: [
             {
-              'keyword': schemaKeywords.integer,
+              keyword: schemaKeywords.integer,
             },
             {
-              'keyword': schemaKeywords.type,
-              'args': 'integer',
+              keyword: schemaKeywords.type,
+              args: 'integer',
             },
             {
-              'keyword': schemaKeywords.format,
-              'args': 'int32',
+              keyword: schemaKeywords.format,
+              args: 'int32',
             },
             {
-              'keyword': schemaKeywords.optional,
+              keyword: schemaKeywords.optional,
             },
           ],
         },
       },
       {
-        'keyword': 'type',
-        'args': 'object',
+        keyword: 'type',
+        args: 'object',
       },
       {
-        'keyword': 'optional',
+        keyword: 'optional',
       },
     ],
   },

@@ -24,13 +24,6 @@
       "../../packages/config/ts-config/reset.d.ts"
     ]
   },
-  "include": [
-    "./src/**/*",
-    "configs/kubb.config.ts"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/types/**",
-    "**/mocks/**"
-  ]
+  "include": ["./src/**/*", "configs/kubb.config.ts"],
+  "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }

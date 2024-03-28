@@ -40,17 +40,20 @@ describe('FileManager', () => {
     expect(file).toBeDefined()
     expect((file as any).length).toBeUndefined()
 
-    const file2 = await fileManager.add({
-      path: path.resolve('./src/file1.ts'),
-      baseName: 'file1.ts',
-      source: "const file1 ='file1';",
-      imports: [{ name: 'path', path: 'node:path' }],
-    }, {
-      path: path.resolve('./src/file1.ts'),
-      baseName: 'file1.ts',
-      source: "const file1 ='file1';",
-      imports: [{ name: 'path', path: 'node:path' }],
-    })
+    const file2 = await fileManager.add(
+      {
+        path: path.resolve('./src/file1.ts'),
+        baseName: 'file1.ts',
+        source: "const file1 ='file1';",
+        imports: [{ name: 'path', path: 'node:path' }],
+      },
+      {
+        path: path.resolve('./src/file1.ts'),
+        baseName: 'file1.ts',
+        source: "const file1 ='file1';",
+        imports: [{ name: 'path', path: 'node:path' }],
+      },
+    )
 
     expect(file2).toBeDefined()
     expect((file2 as any).length).toBeDefined()
@@ -293,8 +296,8 @@ export const test2 = 3;`,
         baseName: 'file1.ts',
         imports: [],
         exports: [],
-        source: `export const test2 = 3;`,
-        'override': true,
+        source: 'export const test2 = 3;',
+        override: true,
       },
     ])
   })

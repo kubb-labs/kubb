@@ -13,7 +13,7 @@ export default defineConfig({
     clean: true,
   },
   hooks: {
-    done: ['dprint fmt'],
+    done: [],
   },
   plugins: [
     createSwagger({ output: false }),

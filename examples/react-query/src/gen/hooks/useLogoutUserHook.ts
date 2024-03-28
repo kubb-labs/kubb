@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
@@ -36,7 +36,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -78,7 +78,7 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
     queryFn: async ({ pageParam }) => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -93,10 +93,12 @@ export function useLogoutUserHookInfinite<
   TData = InfiniteData<LogoutUser['response']>,
   TQueryData = LogoutUser['response'],
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
->(options: {
-  query?: Partial<UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
-  client?: LogoutUser['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, LogoutUser['error']> & {
+>(
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
+    client?: LogoutUser['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

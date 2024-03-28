@@ -1,6 +1,6 @@
-import client from '@kubb/swagger-client/client'
-import axios from 'axios'
+import type client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 /**
@@ -8,5 +8,5 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
  * @link /user/logout
  */
 export async function logoutUser(options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<LogoutUserQueryResponse>['data']> {
-  return axios.get(`/user/logout`, options)
+  return axios.get('/user/logout', options)
 }

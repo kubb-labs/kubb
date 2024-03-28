@@ -8,7 +8,11 @@ export type ContentType = 'application/json' | (string & {})
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
-export type ResolvePathOptions = { pluginKey?: Plugin['key']; tag?: string; type?: ResolveNameParams['type'] }
+export type ResolvePathOptions = {
+  pluginKey?: Plugin['key']
+  tag?: string
+  type?: ResolveNameParams['type']
+}
 
 export type API = {
   getOas: () => Promise<Oas>
@@ -23,14 +27,16 @@ export type Options = {
    * @default true
    */
   validate?: boolean
-  output?: {
-    /**
-     * Relative path to save the JSON models.
-     * False will not generate the schema JSON's.
-     * @default 'schemas'
-     */
-    path: string
-  } | false
+  output?:
+    | {
+        /**
+         * Relative path to save the JSON models.
+         * False will not generate the schema JSON's.
+         * @default 'schemas'
+         */
+        path: string
+      }
+    | false
 
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
@@ -57,7 +63,12 @@ export type Options = {
  * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; path: KubbFile.OptionalPath; pluginKey?: Plugin['key'] }
+export type Ref = {
+  propertyName: string
+  originalName: string
+  path: KubbFile.OptionalPath
+  pluginKey?: Plugin['key']
+}
 export type Refs = Record<string, Ref>
 
 export type Resolver = {
@@ -121,7 +132,9 @@ type ByMethod = {
 export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
 export type Include = ByTag | ByOperationId | ByPath | ByMethod
 
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & {
+  options: Partial<TOptions>
+}
 
 export type ImportMeta = {
   ref: Ref

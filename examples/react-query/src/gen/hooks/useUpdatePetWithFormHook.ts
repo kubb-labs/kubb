@@ -1,12 +1,12 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 type UpdatePetWithForm = {
@@ -26,10 +26,14 @@ type UpdatePetWithForm = {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function useUpdatePetWithFormHook(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
-  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
-  client?: UpdatePetWithForm['client']['parameters']
-} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
+export function useUpdatePetWithFormHook(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithForm['queryParams'],
+  options: {
+    mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
+    client?: UpdatePetWithForm['client']['parameters']
+  } = {},
+): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], never>({
     mutationFn: async () => {

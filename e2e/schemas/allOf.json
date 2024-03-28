@@ -66,9 +66,7 @@
 
       "CreateTestRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "content": {
             "allOf": [
@@ -96,9 +94,7 @@
       },
       "CreateTestResponse": {
         "type": "object",
-        "required": [
-          "test_id"
-        ],
+        "required": ["test_id"],
         "properties": {
           "test_id": {
             "$ref": "#/components/schemas/TestId"

@@ -11,9 +11,7 @@ type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Array<
 /**
  * Chains promises
  */
-export function hookSeq<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TOutput = SeqOutput<TInput, TValue>>(
-  promises: TInput,
-): TOutput {
+export function hookSeq<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TOutput = SeqOutput<TInput, TValue>>(promises: TInput): TOutput {
   return promises.filter(Boolean).reduce(
     (promise, func) => {
       if (typeof func !== 'function') {
@@ -66,16 +64,18 @@ type HookParallelOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue>
 export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookParallelOutput<TInput, TValue>>(
   promises: TInput,
 ): TOutput {
-  return Promise.allSettled(promises.filter(Boolean).map(promise => promise())) as TOutput
+  return Promise.allSettled(promises.filter(Boolean).map((promise) => promise())) as TOutput
 }
 
 export type Strategy = 'seq' | 'first' | 'parallel'
 
 export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = TStrategy extends 'first'
   ? HookFirstOutput<TInput, TValue>
-  : TStrategy extends 'seq' ? SeqOutput<TInput, TValue>
-  : TStrategy extends 'parallel' ? HookParallelOutput<TInput, TValue>
-  : never
+  : TStrategy extends 'seq'
+    ? SeqOutput<TInput, TValue>
+    : TStrategy extends 'parallel'
+      ? HookParallelOutput<TInput, TValue>
+      : never
 
 // tests
 

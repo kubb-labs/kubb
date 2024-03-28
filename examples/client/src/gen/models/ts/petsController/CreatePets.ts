@@ -1,4 +1,4 @@
-import { PetNotFound } from '../PetNotFound'
+import type { PetNotFound } from '../PetNotFound'
 
 export type CreatePetsPathParams = {
   /**
@@ -17,9 +17,9 @@ export type CreatePetsQueryParams = {
 }
 
 export const CreatePetsHeaderParamsXExample = {
-  'ONE': 'ONE',
-  'TWO': 'TWO',
-  'THREE': 'THREE',
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
 } as const
 export type CreatePetsHeaderParamsXExample = (typeof CreatePetsHeaderParamsXExample)[keyof typeof CreatePetsHeaderParamsXExample]
 export type CreatePetsHeaderParams = {

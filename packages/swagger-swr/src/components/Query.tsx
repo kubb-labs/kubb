@@ -44,15 +44,7 @@ type TemplateProps = {
   }
 }
 
-function Template({
-  name,
-  generics,
-  returnType,
-  params,
-  JSDoc,
-  hook,
-  client,
-}: TemplateProps): ReactNode {
+function Template({ name, generics, returnType, params, JSDoc, hook, client }: TemplateProps): ReactNode {
   if (client.withQueryParams) {
     return (
       <>
@@ -116,17 +108,19 @@ type Props = {
   QueryOptionsTemplate?: React.ComponentType<React.ComponentProps<typeof QueryOptions.templates.default>>
 }
 
-export function Query({
-  factory,
-  Template = defaultTemplates.default,
-  QueryOptionsTemplate = QueryOptions.templates.default,
-}: Props): ReactNode {
-  const { key: pluginKey, options: { dataReturnType } } = usePlugin<PluginOptions>()
+export function Query({ factory, Template = defaultTemplates.default, QueryOptionsTemplate = QueryOptions.templates.default }: Props): ReactNode {
+  const {
+    key: pluginKey,
+    options: { dataReturnType },
+  } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const schemas = useOperationSchemas()
   const name = useOperationName({ type: 'function' })
 
-  const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const queryOptionsName = useResolveName({
+    name: `${factory.name}QueryOptions`,
+    pluginKey,
+  })
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
@@ -139,14 +133,9 @@ export function Query({
     withHeaders: !!schemas.headerParams?.name,
   }
 
-  const resultGenerics = [
-    'TData',
-    `${factory.name}["error"]`,
-  ]
+  const resultGenerics = ['TData', `${factory.name}["error"]`]
 
-  generics.add([
-    { type: `TData`, default: `${factory.name}["response"]` },
-  ])
+  generics.add([{ type: 'TData', default: `${factory.name}["response"]` }])
 
   const queryOptionsGenerics = ['TData']
 
@@ -196,7 +185,7 @@ export function Query({
 
   const hook = {
     name: 'useSWR',
-    generics: [...resultGenerics, client.withQueryParams ? `[typeof url, typeof params] | null` : 'typeof url | null'].join(', '),
+    generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
     queryOptions: `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
   }
 
@@ -227,8 +216,12 @@ type FileProps = {
   }
 }
 
-Query.File = function({ templates }: FileProps): ReactNode {
-  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
+Query.File = function ({ templates }: FileProps): ReactNode {
+  const {
+    options: {
+      client: { importPath },
+    },
+  } = usePlugin<PluginOptions>()
   const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -242,11 +235,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
         <File.Import name={'client'} path={importPath} />
@@ -258,10 +247,8 @@ Query.File = function({ templates }: FileProps): ReactNode {
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.statusCodes?.map((item) => item.name) || [],
-          ].filter(
-            Boolean,
-          )}
+            ...(schemas.statusCodes?.map((item) => item.name) || []),
+          ].filter(Boolean)}
           root={file.path}
           path={fileType.path}
           isTypeOnly
@@ -269,11 +256,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
 
         <File.Source>
           <SchemaType factory={factory} />
-          <Query
-            factory={factory}
-            Template={Template}
-            QueryOptionsTemplate={QueryOptionsTemplate}
-          />
+          <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
         </File.Source>
       </File>
     </Editor>

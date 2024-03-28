@@ -1,15 +1,5 @@
-import type {
-  KubbFile,
-  Plugin,
-  PluginFactoryOptions,
-  ResolveNameParams,
-} from '@kubb/core'
-import type {
-  Exclude,
-  Include,
-  Override,
-  ResolvePathOptions,
-} from '@kubb/swagger'
+import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { Mutation } from './components/Mutation.tsx'
 import type { Operations } from './components/Operations.tsx'
@@ -198,10 +188,7 @@ export type Options = {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
-    name?: (
-      name: ResolveNameParams['name'],
-      type?: ResolveNameParams['type'],
-    ) => string
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
    * Make it possible to override one of the templates
@@ -233,13 +220,7 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<
-  'swagger-tanstack-query',
-  Options,
-  ResolvedOptions,
-  never,
-  ResolvePathOptions
->
+export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

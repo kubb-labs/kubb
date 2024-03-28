@@ -58,23 +58,24 @@ export class FunctionParams {
     return this
   }
   static #orderItems(items: Array<FunctionParamsAST | FunctionParamsAST[]>) {
-    return orderBy(items.filter(Boolean), [
-      (v) => {
-        if (Array.isArray(v)) {
-          return undefined
-        }
-        return !v.default
-      },
-      (v) => {
-        if (Array.isArray(v)) {
-          return undefined
-        }
-        return v.required ?? true
-      },
-    ], [
-      'desc',
-      'desc',
-    ])
+    return orderBy(
+      items.filter(Boolean),
+      [
+        (v) => {
+          if (Array.isArray(v)) {
+            return undefined
+          }
+          return !v.default
+        },
+        (v) => {
+          if (Array.isArray(v)) {
+            return undefined
+          }
+          return v.required ?? true
+        },
+      ],
+      ['desc', 'desc'],
+    )
   }
 
   static #addParams(acc: string[], item: FunctionParamsAST) {
@@ -110,12 +111,12 @@ export class FunctionParams {
     let type: string[] = []
     let name: string[] = []
 
-    const enabled = items.every(item => item.enabled) ? items.at(0)?.enabled : true
-    const required = items.every(item => item.required) ?? true
+    const enabled = items.every((item) => item.enabled) ? items.at(0)?.enabled : true
+    const required = items.every((item) => item.required) ?? true
 
-    items.forEach(item => {
+    items.forEach((item) => {
       name = FunctionParams.#addParams(name, { ...item, type: undefined })
-      if (items.some(item => item.type)) {
+      if (items.some((item) => item.type)) {
         type = FunctionParams.#addParams(type, item)
       }
     })
@@ -129,12 +130,12 @@ export class FunctionParams {
   }
 
   static toString(items: (FunctionParamsAST | FunctionParamsAST[])[]): string {
-    const sortedData = this.#orderItems(items)
+    const sortedData = FunctionParams.#orderItems(items)
 
     return sortedData
       .reduce((acc, item) => {
         if (Array.isArray(item)) {
-          const subItems = this.#orderItems(item) as FunctionParamsAST[]
+          const subItems = FunctionParams.#orderItems(item) as FunctionParamsAST[]
           const objectItem = FunctionParams.toObject(subItems)
 
           return FunctionParams.#addParams(acc, objectItem)

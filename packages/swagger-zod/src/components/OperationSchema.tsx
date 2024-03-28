@@ -15,17 +15,14 @@ import type { FileMeta, PluginOptions } from '../types.ts'
 type Props = {}
 
 export function OperationSchema({}: Props): ReactNode {
-  return (
-    <>
-    </>
-  )
+  return <></>
 }
 
 type FileProps = {
   mode: KubbFile.Mode | undefined
 }
 
-OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
+OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
   const plugin = usePlugin<PluginOptions>()
 
   const pluginManager = usePluginManager()
@@ -33,16 +30,13 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const schemas = useOperationSchemas()
   const file = useGetOperationFile()
 
-  const generator = new SchemaGenerator(plugin.options, { oas, plugin, pluginManager })
+  const generator = new SchemaGenerator(plugin.options, {
+    oas,
+    plugin,
+    pluginManager,
+  })
 
-  const items = [
-    schemas.pathParams,
-    schemas.queryParams,
-    schemas.headerParams,
-    schemas.statusCodes,
-    schemas.request,
-    schemas.response,
-  ].flat().filter(Boolean)
+  const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
   const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
     // hack so Params can be optional when needed
@@ -51,8 +45,7 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {mode === 'directory'
-          && <Schema.Imports />}
+        {mode === 'directory' && <Schema.Imports />}
         <File.Source>
           <Schema.Source extraSchemas={optional ? [{ keyword: schemaKeywords.optional }] : undefined} options={options} />
         </File.Source>
@@ -62,11 +55,7 @@ OperationSchema.File = function({ mode = 'directory' }: FileProps): ReactNode {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['z']} path="zod" />
         {items.map(mapItem)}
       </File>

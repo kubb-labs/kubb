@@ -19,9 +19,9 @@ export type FindPetsByTagsQueryParams = {
 }
 
 export const FindPetsByTagsHeaderParamsXExampleEnum = {
-  'ONE': 'ONE',
-  'TWO': 'TWO',
-  'THREE': 'THREE',
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
 } as const
 export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
 export type FindPetsByTagsHeaderParams = {

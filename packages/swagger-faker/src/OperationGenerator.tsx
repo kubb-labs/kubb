@@ -15,13 +15,12 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return null
   }
 
-  async operation(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
+  async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
     root.render(
       <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>

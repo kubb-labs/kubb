@@ -3,7 +3,7 @@ import { toRegExp } from './toRegExp.ts'
 
 describe('toRegExp', () => {
   test('String.raw', () => {
-    expect(String.raw`\n`).toBe(`\\n`)
+    expect(String.raw`\n`).toBe('\\n')
     expect(String.raw`\n`).toBe('\\n')
 
     expect(String.raw({ raw: ['\\n'] })).toBe('\\n')
@@ -23,8 +23,8 @@ describe('toRegExp', () => {
 
     expect(new RegExp(/node_modules/).source).toBe(source)
     expect(toRegExp(/node_modules/).source).toBe(source)
-    expect(toRegExp('\/node_modules\/').source).toBe(source)
-    expect(toRegExp('"\/node_modules\/"').source).toBe(source)
+    expect(toRegExp('/node_modules/').source).toBe(source)
+    expect(toRegExp('"/node_modules/"').source).toBe(source)
 
     expect(toRegExp('/node_modules/').test('/node_modules/test')).toBeTruthy()
     expect(toRegExp(/node_modules/).test('/node_modules/test')).toBeTruthy()

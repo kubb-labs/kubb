@@ -16,24 +16,17 @@ type TemplateProps = {
   operations: Operation[]
 }
 
-function Template({
-  name,
-  operations,
-}: TemplateProps): KubbNode {
+function Template({ name, operations }: TemplateProps): KubbNode {
   const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
 
-  operations.forEach(operation => {
+  operations.forEach((operation) => {
     operationsObject[operation.getOperationId()] = {
       path: new URLPath(operation.path).URL,
       method: operation.method,
     }
   })
 
-  return (
-    <>
-      {`export const ${name} = ${JSON.stringify(operationsObject)} as const;`}
-    </>
-  )
+  return <>{`export const ${name} = ${JSON.stringify(operationsObject)} as const;`}</>
 }
 
 type RootTemplateProps = {
@@ -46,14 +39,8 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Source>
-          {children}
-        </File.Source>
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+        <File.Source>{children}</File.Source>
       </File>
     </Editor>
   )
@@ -70,17 +57,10 @@ type Props = {
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Operations({
-  Template = defaultTemplates.default,
-}: Props): KubbNode {
+export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
   const operations = useOperations()
 
-  return (
-    <Template
-      name="operations"
-      operations={operations}
-    />
-  )
+  return <Template name="operations" operations={operations} />
 }
 
 type FileProps = {
@@ -90,7 +70,7 @@ type FileProps = {
   templates?: Templates
 }
 
-Operations.File = function(props: FileProps): KubbNode {
+Operations.File = function (props: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default

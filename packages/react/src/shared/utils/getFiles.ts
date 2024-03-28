@@ -21,7 +21,7 @@ export function getFiles(node: DOMElement, language?: string): KubbFile.File[] {
 
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
       if (childNode.nodeName === 'kubb-editor') {
-        const attributes = childNode.attributes as React.ComponentProps<(typeof Editor)>
+        const attributes = childNode.attributes as React.ComponentProps<typeof Editor>
         files = [...files, ...getFiles(childNode, attributes.language)]
       } else {
         files = [...files, ...getFiles(childNode)]

@@ -84,7 +84,11 @@ const parameters = {
 
 export function getDefinitionsImports(
   operationsByMethod: OperationsByMethod,
-  { resolveName, resolvePath, pluginKey }: {
+  {
+    resolveName,
+    resolvePath,
+    pluginKey,
+  }: {
     resolveName: (params: ResolveNameParams) => string
     resolvePath: (params: ResolvePathParams) => KubbFile.OptionalPath
     pluginKey: ResolveNameParams['pluginKey']
@@ -97,51 +101,77 @@ export function getDefinitionsImports(
     const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
 
     filteredOperations.forEach(({ operation, schemas }) => {
-      const responseName = resolveName({ name: schemas.response.name, pluginKey, type: 'function' })
+      const responseName = resolveName({
+        name: schemas.response.name,
+        pluginKey,
+        type: 'function',
+      })
 
       definitions.push({ name: responseName, operation })
 
       if (schemas.pathParams?.name) {
-        const name = resolveName({ name: schemas.pathParams.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.pathParams.name,
+          pluginKey,
+          type: 'function',
+        })
 
         definitions.push({ name, operation })
       }
 
       if (schemas.queryParams?.name) {
-        const name = resolveName({ name: schemas.queryParams.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.queryParams.name,
+          pluginKey,
+          type: 'function',
+        })
 
         definitions.push({ name, operation })
       }
 
       if (schemas.headerParams?.name) {
-        const name = resolveName({ name: schemas.headerParams.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.headerParams.name,
+          pluginKey,
+          type: 'function',
+        })
 
         definitions.push({ name, operation })
       }
 
       if (schemas.request?.name) {
-        const name = resolveName({ name: schemas.request.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.request.name,
+          pluginKey,
+          type: 'function',
+        })
 
         definitions.push({ name, operation })
       }
       if (schemas.errors) {
-        schemas.errors.forEach(
-          (errorOperationSchema) => {
-            if (!errorOperationSchema.statusCode) {
-              return
-            }
+        schemas.errors.forEach((errorOperationSchema) => {
+          if (!errorOperationSchema.statusCode) {
+            return
+          }
 
-            const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
+          const name = resolveName({
+            name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`,
+            pluginKey,
+            type: 'function',
+          })
 
-            definitions.push({ name, operation })
-          },
-        )
+          definitions.push({ name, operation })
+        })
       }
     })
   })
 
   return definitions.map(({ name, operation }) => {
-    const baseName = resolveName({ name: `${operation.getOperationId()}`, pluginKey, type: 'file' })
+    const baseName = resolveName({
+      name: `${operation.getOperationId()}`,
+      pluginKey,
+      type: 'file',
+    })
 
     const path = resolvePath({
       pluginKey,
@@ -156,9 +186,25 @@ export function getDefinitionsImports(
 
 export function getDefinitions(
   operationsByMethod: OperationsByMethod,
-  { resolveName, pluginKey }: { resolveName: (params: ResolveNameParams) => string; pluginKey: ResolveNameParams['pluginKey'] },
-): Array<{ operation: Operation; response: string | undefined; parameters: string[]; errors: string[] }> {
-  const definitions: Array<{ response: string; operation: Operation; parameters: string[]; errors: string[] }> = []
+  {
+    resolveName,
+    pluginKey,
+  }: {
+    resolveName: (params: ResolveNameParams) => string
+    pluginKey: ResolveNameParams['pluginKey']
+  },
+): Array<{
+  operation: Operation
+  response: string | undefined
+  parameters: string[]
+  errors: string[]
+}> {
+  const definitions: Array<{
+    response: string
+    operation: Operation
+    parameters: string[]
+    errors: string[]
+  }> = []
 
   Object.keys(operationsByMethod).forEach((path) => {
     const operations = operationsByMethod[path]
@@ -167,49 +213,76 @@ export function getDefinitions(
     filteredOperations.forEach(({ operation, schemas }) => {
       let params: string[] = []
       const errors: string[] = []
-      const responseName = resolveName({ name: schemas.response.name, pluginKey, type: 'function' })
+      const responseName = resolveName({
+        name: schemas.response.name,
+        pluginKey,
+        type: 'function',
+      })
 
       if (schemas.pathParams?.name) {
-        const name = resolveName({ name: schemas.pathParams.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.pathParams.name,
+          pluginKey,
+          type: 'function',
+        })
         params = [...params, ...parameters.getPathParams(name, schemas.pathParams)]
       }
 
       if (schemas.queryParams?.name) {
-        const name = resolveName({ name: schemas.queryParams.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.queryParams.name,
+          pluginKey,
+          type: 'function',
+        })
         params = [...params, ...parameters.getQueryParams(name, schemas.queryParams)]
       }
 
       if (schemas.headerParams?.name) {
-        const name = resolveName({ name: schemas.headerParams.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.headerParams.name,
+          pluginKey,
+          type: 'function',
+        })
         params = [...params, ...parameters.getHeaderParams(name, schemas.headerParams)]
       }
 
       if (schemas.request?.name) {
-        const name = resolveName({ name: schemas.request.name, pluginKey, type: 'function' })
+        const name = resolveName({
+          name: schemas.request.name,
+          pluginKey,
+          type: 'function',
+        })
         params = [...params, ...parameters.getRequest(name, schemas.request)]
       }
       if (schemas.errors) {
-        schemas.errors.forEach(
-          (errorOperationSchema) => {
-            if (!errorOperationSchema.statusCode) {
-              return
-            }
+        schemas.errors.forEach((errorOperationSchema) => {
+          if (!errorOperationSchema.statusCode) {
+            return
+          }
 
-            const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
+          const name = resolveName({
+            name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`,
+            pluginKey,
+            type: 'function',
+          })
 
-            if (errorOperationSchema.statusCode) {
-              errors.push(`
+          if (errorOperationSchema.statusCode) {
+            errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
                 description: \`${transformers.escape(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)
-            }
-          },
-        )
+          }
+        })
       }
-      definitions.push({ operation, parameters: params, errors, response: responseName })
+      definitions.push({
+        operation,
+        parameters: params,
+        errors,
+        response: responseName,
+      })
     })
   })
 

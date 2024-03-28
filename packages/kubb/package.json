@@ -2,13 +2,7 @@
   "name": "kubb",
   "version": "2.0.0-beta.2",
   "description": "OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios.",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
-    "cli"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen", "cli"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -24,13 +18,7 @@
   "bin": {
     "kubb": "bin/kubb.js"
   },
-  "files": [
-    "src",
-    "dist",
-    "bin",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "bin", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",

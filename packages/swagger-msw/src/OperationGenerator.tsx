@@ -14,7 +14,9 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     const templates = {
       operations: Operations.templates,
@@ -35,7 +37,9 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     const templates = {
       handlers: Operations.templates,

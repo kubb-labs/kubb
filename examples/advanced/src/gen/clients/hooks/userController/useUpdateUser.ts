@@ -1,7 +1,7 @@
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
 type UpdateUser = {
@@ -22,10 +22,13 @@ type UpdateUser = {
  * @summary Update user
  * @link /user/:username
  */
-export function useUpdateUser(username: UpdateUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
-  client?: UpdateUser['client']['parameters']
-} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
+export function useUpdateUser(
+  username: UpdateUserPathParams['username'],
+  options: {
+    mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
+    client?: UpdateUser['client']['parameters']
+  } = {},
+): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
     mutationFn: async (data) => {

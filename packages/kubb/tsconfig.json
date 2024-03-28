@@ -7,10 +7,5 @@
     "moduleResolution": "node",
     "paths": {}
   },
-  "include": [
-    "src/**/*",
-    "./package.json",
-    "./tsup.config.ts",
-    "./vitest.config.ts"
-  ]
+  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

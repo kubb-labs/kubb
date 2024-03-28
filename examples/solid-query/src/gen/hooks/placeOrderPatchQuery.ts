@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/solid-query'
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models/PlaceOrderPatch'
 
 type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
 type PlaceOrderPatch = {
@@ -33,7 +33,7 @@ export function placeOrderPatchQuery(
     mutationFn: async (data) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })

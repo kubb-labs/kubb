@@ -13,7 +13,7 @@ export async function addPet(
 ): Promise<ResponseConfig<AddPetMutationResponse>['data']> {
   const res = await client<AddPetMutationResponse, AddPetMutationRequest>({
     method: 'post',
-    url: `/pet`,
+    url: '/pet',
     data,
     ...options,
   })
