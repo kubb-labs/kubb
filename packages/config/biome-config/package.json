@@ -6,5 +6,7 @@
   "exports": {
     "./biome": "./biome.json"
   },
-  "files": ["biome.json"]
+  "files": [
+    "biome.json"
+  ]
 }

@@ -57,6 +57,7 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "prettier": "^3.2.5",
     "@types/react": "^18.2.73",
     "eslint": "^8.57.0",
     "react": "^18.2.0",

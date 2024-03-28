@@ -1,12 +1,12 @@
 import { safeBuild } from '@kubb/core'
-import { createLogger, LogLevel, randomCliColour } from '@kubb/core/logger'
+import { LogLevel, createLogger, randomCliColour } from '@kubb/core/logger'
 
 import { execa } from 'execa'
 import { parseArgsStringToArgv } from 'string-argv'
 import c from 'tinyrainbow'
 
-import { getSummary } from './utils/getSummary.ts'
 import { OraWritable } from './utils/OraWritable.ts'
+import { getSummary } from './utils/getSummary.ts'
 import { spinner } from './utils/spinner.ts'
 
 import type { Writable } from 'node:stream'
@@ -40,7 +40,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     spinner.start('Executing hooks')
   }
 
-  const executers: Promise<Executer | null>[] = commands
+  const executers = commands
     .map(async (command) => {
       const oraWritable = new OraWritable(spinner, command)
       const abortController = new AbortController()
@@ -61,7 +61,9 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
       if (logLevel === LogLevel.silent) {
         spinner.succeed(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
 
-        console.log(subProcess.stdout)
+        if (subProcess) {
+          console.log(subProcess.stdout)
+        }
       }
 
       oraWritable.destroy()

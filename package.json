@@ -29,7 +29,7 @@
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
-    "format": "bun biome format --write ./",
+    "format": "bun biome format --write ./ && bun format:pack",
     "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
     "generate": "turbo run generate --filter=./examples/* --continue && bun run generate:lint",
     "generate:lint": "bun biome check --apply-unsafe ./examples && bun run lint:case",
@@ -75,10 +75,10 @@
     "node": ">=18",
     "pnpm": ">=8.3.0"
   },
-  "namespace": "@kubb",
   "pnpm": {
     "patchedDependencies": {
       "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
     }
-  }
+  },
+  "namespace": "@kubb"
 }

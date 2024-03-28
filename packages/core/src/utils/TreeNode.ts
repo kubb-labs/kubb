@@ -42,7 +42,7 @@ export class TreeNode<T = BarrelData> {
 
     if (this.children?.length) {
       for (let i = 0, { length } = this.children, target: TreeNode<T> | null = null; i < length; i++) {
-        target = this.children[i]?.find(data)
+        target = this.children[i]!.find(data)
         if (target) {
           return target
         }
@@ -63,7 +63,7 @@ export class TreeNode<T = BarrelData> {
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
         // eslint-disable-next-line prefer-spread
-        leaves.push.apply(leaves, this.children[i]?.leaves)
+        leaves.push.apply(leaves, this.children[i]!.leaves)
       }
     }
     return leaves

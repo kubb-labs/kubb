@@ -55,8 +55,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
       ...options.templates,
     }
 
-    const isQuery = options.query?.methods.some((method) => operation.method === method)
-
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
     const isMutate = !isQuery && options.mutate && options.mutate.methods.some((method) => operation.method === method)
 
     root.render(

@@ -98,6 +98,7 @@
     "@types/lodash.tonumber": "^4.0.9",
     "@types/react": "^18.2.73",
     "@types/seedrandom": "^3.0.8",
+    "prettier": "^3.2.5",
     "@types/semver": "^7.5.8",
     "eslint": "^8.57.0",
     "lodash.isequal": "^4.5.0",
