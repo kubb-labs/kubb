@@ -1,10 +1,10 @@
-import { defineConfig } from '@kubb/core'
+const { defineConfig } = require('@kubb/core')
 
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+const { definePlugin: createSwagger } = require('@kubb/swagger')
+const { definePlugin: createSwaggerFaker } = require('@kubb/swagger-faker')
+const { definePlugin: createSwaggerTS } = require('@kubb/swagger-ts')
 
-export default defineConfig(async () => {
+module.exports = defineConfig(async () => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
     return Promise.resolve(true)

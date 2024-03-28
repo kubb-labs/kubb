@@ -17,7 +17,7 @@ export const fakerKeywordMapper = {
   enum: 'faker.helpers.arrayElement<any>',
   union: 'faker.helpers.arrayElement',
   date: 'faker.date.anytime',
-  datetime: 'faker.string.alpha',
+  datetime: 'faker.date.anytime().toISOString',
   uuid: 'faker.string.uuid',
   url: 'faker.internet.url',
   and: 'Object.assign',

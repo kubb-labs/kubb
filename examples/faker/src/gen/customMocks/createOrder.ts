@@ -7,7 +7,7 @@ export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNull
       'id': faker.number.int(),
       'petId': faker.number.int(),
       'quantity': faker.number.int(),
-      'shipDate': faker.string.alpha(),
+      'shipDate': faker.date.anytime().toISOString(),
       'status': faker.helpers.arrayElement<any>(['placed', 'approved', 'delivered']),
       'complete': faker.datatype.boolean(),
     },
