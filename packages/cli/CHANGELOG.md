@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 2.11.1
+
+### Patch Changes
+
+- [#889](https://github.com/kubb-project/kubb/pull/889) [`83fdc44`](https://github.com/kubb-project/kubb/commit/83fdc4421110eb07c94665d78c7b23642af854d5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Running kubb doesn't work with yarn or npx
+
+- Updated dependencies []:
+  - @kubb/core@2.11.1
+
 ## 2.11.0
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.11.1
+
+### Patch Changes
+
+- [#889](https://github.com/kubb-project/kubb/pull/889) [`83fdc44`](https://github.com/kubb-project/kubb/commit/83fdc4421110eb07c94665d78c7b23642af854d5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - faker gives wrong string format for date, causes zodios mock failed to parse type properly
+
+- Updated dependencies []:
+  - @kubb/core@2.11.1
+  - @kubb/parser@2.11.1
+  - @kubb/react@2.11.1
+  - @kubb/swagger@2.11.1
+  - @kubb/swagger-ts@2.11.1
+
 ## 2.11.0
 
 ### Minor Changes
