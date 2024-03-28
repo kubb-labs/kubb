@@ -6,5 +6,7 @@ try {
   })
 } catch (err) {}
 
-process.title = 'Kubb'
-require('../dist/index.cjs').run(process.argv)
+import('../dist/index.js').then(({ run }) => {
+  process.title = 'Kubb'
+  run(process.argv)
+})
