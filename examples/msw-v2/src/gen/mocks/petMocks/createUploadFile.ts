@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
+import type { UploadFile200, UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile'
 import { createApiResponse } from '../createApiResponse'
-import type { UploadFilePathParams, UploadFileQueryParams, UploadFile200, UploadFileMutationRequest, UploadFileMutationResponse } from '../../models/UploadFile'
 
 export function createUploadFilePathParams(override: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
   faker.seed([220])

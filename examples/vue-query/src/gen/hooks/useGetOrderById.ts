@@ -1,10 +1,10 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
+import type { QueryKey, UseQueryReturnType, WithRequired } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
 type GetOrderById = {

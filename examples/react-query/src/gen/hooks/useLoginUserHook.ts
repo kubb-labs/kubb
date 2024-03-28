@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -37,7 +37,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })
@@ -82,7 +82,7 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
     queryFn: async ({ pageParam }) => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         ...options,
         params: {
           ...params,

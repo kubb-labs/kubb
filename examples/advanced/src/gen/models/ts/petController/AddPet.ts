@@ -1,4 +1,4 @@
-import { AddPetRequest } from '../AddPetRequest'
+import type { AddPetRequest } from '../AddPetRequest'
 import type { Pet } from '../Pet'
 
 /**

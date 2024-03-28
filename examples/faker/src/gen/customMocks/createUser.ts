@@ -12,7 +12,7 @@ export function createUser(override: NonNullable<Partial<User>> = {}): NonNullab
       password: faker.string.alpha(),
       phone: faker.string.alpha(),
       userStatus: faker.number.int(),
-      nationalityCode: faker.helpers.arrayElement([faker.string.alpha(), faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))]),
+      nationalityCode: faker.helpers.arrayElement([faker.string.alpha(), faker.helpers.fromRegExp(/^[A-Z]{2}$/)]),
     },
     ...override,
   }

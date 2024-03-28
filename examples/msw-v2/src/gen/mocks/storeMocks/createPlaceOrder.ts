@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { createOrder } from '../createOrder'
 import type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/PlaceOrder'
+import { createOrder } from '../createOrder'
 
 /**
  * @description successful operation

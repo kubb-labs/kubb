@@ -13,7 +13,7 @@ export async function createUser(
 ): Promise<ResponseConfig<CreateUserMutationResponse>> {
   const res = await client<CreateUserMutationResponse, CreateUserMutationRequest>({
     method: 'post',
-    url: `/user`,
+    url: '/user',
     data,
     ...options,
   })

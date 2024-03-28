@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
-import { createUser } from '../createUser'
 import type {
-  GetUserByNamePathParams,
   GetUserByName200,
   GetUserByName400,
   GetUserByName404,
+  GetUserByNamePathParams,
   GetUserByNameQueryResponse,
 } from '../../models/ts/userController/GetUserByName'
+import { createUser } from '../createUser'
 
 export function createGetUserByNamePathParams(override: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
   return {

@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -26,7 +26,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -67,7 +67,7 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data

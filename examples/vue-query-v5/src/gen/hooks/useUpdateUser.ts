@@ -1,9 +1,9 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 import type { UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
 type UpdateUser = {

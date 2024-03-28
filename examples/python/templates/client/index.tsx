@@ -1,7 +1,7 @@
-import { File, Editor } from '@kubb/react'
-import { Client } from '@kubb/swagger-client/components'
-import React from 'react'
+import { Editor, File } from '@kubb/react'
+import type { Client } from '@kubb/swagger-client/components'
 import { useGetOperationFile } from '@kubb/swagger/hooks'
+import type React from 'react'
 
 export const templates = {
   default: function ({ client }: React.ComponentProps<typeof Client.templates.default>) {

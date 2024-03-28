@@ -1,10 +1,10 @@
-import { Editor, Type, File, usePlugin } from '@kubb/react'
-import { useOperationHelpers, useOperations } from '@kubb/swagger/hooks'
-import { Operations } from '@kubb/swagger-tanstack-query/components'
-import React from 'react'
-import { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
 import path from 'node:path'
+import { Editor, File, Type, usePlugin } from '@kubb/react'
 import { usePluginManager } from '@kubb/react'
+import type { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
+import { Operations } from '@kubb/swagger-tanstack-query/components'
+import { useOperationHelpers, useOperations } from '@kubb/swagger/hooks'
+import type React from 'react'
 
 export const templates = {
   ...Operations.templates,
@@ -17,12 +17,11 @@ export const templates = {
     const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
 
     const imports = operations
-      .map((operation) => {
+      .flatMap((operation) => {
         const schemas = getSchemas(operation)
 
         return [schemas.response?.name, schemas.request?.name]
       })
-      .flat()
       .filter(Boolean)
 
     const invalidations = operations.reduce(

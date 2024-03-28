@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder'
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
 type DeleteOrder = {

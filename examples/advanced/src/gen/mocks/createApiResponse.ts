@@ -3,11 +3,7 @@ import type { ApiResponse } from '../models/ts/ApiResponse'
 
 export function createApiResponse(override: NonNullable<Partial<ApiResponse>> = {}): NonNullable<ApiResponse> {
   return {
-    ...{
-      code: faker.number.int(),
-      type: faker.string.alpha(),
-      message: faker.string.alpha(),
-    },
+    ...{ code: faker.number.int(), type: faker.string.alpha(), message: faker.string.alpha() },
     ...override,
   }
 }

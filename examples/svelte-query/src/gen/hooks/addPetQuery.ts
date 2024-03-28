@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/svelte-query'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {
@@ -33,7 +33,7 @@ export function addPetQuery(
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })

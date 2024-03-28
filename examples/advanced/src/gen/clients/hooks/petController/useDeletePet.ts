@@ -1,7 +1,7 @@
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
 type DeletePet = {

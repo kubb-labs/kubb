@@ -1,4 +1,4 @@
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import type { Invalidations } from './gen/invalidations.ts'
 
 const getInvalidationForMutation = <T extends keyof Invalidations = keyof Invalidations>({

@@ -1,4 +1,4 @@
-import { PetNotFound } from '../PetNotFound'
+import type { PetNotFound } from '../PetNotFound'
 
 export type CreatePetsPathParams = {
   /**

@@ -1,21 +1,21 @@
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTags400,
-} from '../../../models/ts/petController/FindPetsByTags'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type {
+  FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+} from '../../../models/ts/petController/FindPetsByTags'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -44,15 +44,12 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         headers: { ...headers, ...options.headers },
         ...options,
       })
-      return {
-        ...res,
-        data: findPetsByTagsQueryResponseSchema.parse(res.data),
-      }
+      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
     },
   }
 }
@@ -100,7 +97,7 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         headers: { ...headers, ...options.headers },
         ...options,
         params: {
@@ -109,10 +106,7 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
           ...(options.params || {}),
         },
       })
-      return {
-        ...res,
-        data: findPetsByTagsQueryResponseSchema.parse(res.data),
-      }
+      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
     },
   }
 }

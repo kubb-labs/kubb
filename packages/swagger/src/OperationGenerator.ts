@@ -357,7 +357,7 @@ export abstract class OperationGenerator<
       const methods = this.operationsByMethod[path] ? (Object.keys(this.operationsByMethod[path]!) as HttpMethod[]) : []
 
       methods.forEach((method) => {
-        const { operation } = this.operationsByMethod[path]?.[method]
+        const { operation } = this.operationsByMethod[path]?.[method]!
         const options = this.#getOptions(operation, method)
         const promiseMethod = this.#methods[method]?.call(this, operation, {
           ...this.options,

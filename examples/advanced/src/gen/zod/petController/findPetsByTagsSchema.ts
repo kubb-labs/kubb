@@ -9,9 +9,7 @@ export const findPetsByTagsQueryParamsSchema = z
   })
   .optional()
 
-export const findPetsByTagsHeaderParamsSchema = z.object({
-  'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
-})
+export const findPetsByTagsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters') })
 
 /**
  * @description successful operation

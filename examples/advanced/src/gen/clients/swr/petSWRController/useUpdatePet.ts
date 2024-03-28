@@ -1,7 +1,7 @@
 import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
+import client from '../../../../swr-client.ts'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
 type UpdatePet = {
@@ -28,7 +28,7 @@ export function useUpdatePet(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<UpdatePet['response'], UpdatePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet`
+  const url = '/pet' as const
   return useSWRMutation<UpdatePet['response'], UpdatePet['error'], typeof url | null>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {

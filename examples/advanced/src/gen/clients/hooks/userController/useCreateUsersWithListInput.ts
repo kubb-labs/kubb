@@ -1,10 +1,10 @@
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
@@ -36,7 +36,7 @@ export function useCreateUsersWithListInput(
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
-        url: `/user/createWithList`,
+        url: '/user/createWithList',
         data,
         ...clientOptions,
       })

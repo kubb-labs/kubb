@@ -1,7 +1,7 @@
-import useSWR from 'swr'
 import client from '@kubb/swagger-client/client'
+import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -25,7 +25,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
     fetcher: async () => {
       const res = await client<TData, FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })
@@ -47,7 +47,7 @@ export function useFindPetsByTags<TData = FindPetsByTags['response']>(
   },
 ): SWRResponse<TData, FindPetsByTags['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/findByTags`
+  const url = '/pet/findByTags'
   const query = useSWR<TData, FindPetsByTags['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...findPetsByTagsQueryOptions<TData>(params, clientOptions),
     ...queryOptions,

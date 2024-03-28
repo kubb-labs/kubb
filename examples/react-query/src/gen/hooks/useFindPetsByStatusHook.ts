@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {
@@ -37,7 +37,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -88,7 +88,7 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         ...options,
         params: {
           ...params,

@@ -1,7 +1,7 @@
-import { categorySchema } from './categorySchema'
-import { tagTagSchema } from './tag/tagSchema'
 import { z } from 'zod'
 import type { Pet } from '../models/ts/Pet'
+import { categorySchema } from './categorySchema'
+import { tagTagSchema } from './tag/tagSchema'
 
 export const petSchema = z.object({
   id: z.number().optional(),

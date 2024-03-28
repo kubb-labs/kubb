@@ -1,11 +1,11 @@
 import useSWR from 'swr'
-import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '../../../../swr-client.ts'
 import type {
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
   FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
 } from '../../../models/ts/petController/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
@@ -31,7 +31,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
     fetcher: async () => {
       const res = await client<TData, FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         headers: { ...headers, ...options.headers },
         ...options,
@@ -55,7 +55,7 @@ export function useFindPetsByTags<TData = FindPetsByTags['response']>(
   },
 ): SWRResponse<TData, FindPetsByTags['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/findByTags`
+  const url = '/pet/findByTags'
   const query = useSWR<TData, FindPetsByTags['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...findPetsByTagsQueryOptions<TData>(params, headers, clientOptions),
     ...queryOptions,

@@ -1,6 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import client from '../../../../swr-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -31,7 +31,7 @@ export function useCreateUsersWithListInput(options?: {
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/createWithList`
+  const url = '/user/createWithList' as const
   return useSWRMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], typeof url | null>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {

@@ -1,7 +1,7 @@
 import useSWR from 'swr'
-import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
+import client from '../../../../swr-client.ts'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -25,7 +25,7 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
     fetcher: async () => {
       const res = await client<TData, LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })
@@ -46,7 +46,7 @@ export function useLoginUser<TData = LoginUser['response']>(
   },
 ): SWRResponse<TData, LoginUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/login`
+  const url = '/user/login'
   const query = useSWR<TData, LoginUser['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...loginUserQueryOptions<TData>(params, clientOptions),
     ...queryOptions,

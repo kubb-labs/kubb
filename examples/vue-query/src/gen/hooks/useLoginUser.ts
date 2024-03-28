@@ -1,10 +1,10 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
+import type { QueryKey, UseQueryReturnType, WithRequired } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -33,7 +33,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
       const params = unref(refParams)
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })

@@ -1,8 +1,8 @@
-import { Editor, Type, Function } from '@kubb/react'
-import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
+import { type URLObject, URLPath } from '@kubb/core/utils'
+import { Editor, Function, Type } from '@kubb/react'
 import { QueryKey } from '@kubb/swagger-tanstack-query/components'
-import React from 'react'
-import { URLObject, URLPath } from '@kubb/core/utils'
+import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
+import type React from 'react'
 
 export const templates = {
   ...QueryKey.templates,
@@ -16,7 +16,7 @@ export const templates = {
       type: 'path',
     }) as URLObject
 
-    const keys = [JSON.stringify(pathObject.url), withQueryParams ? `...(params ? [params] : [])` : undefined].filter(Boolean)
+    const keys = [JSON.stringify(pathObject.url), withQueryParams ? '...(params ? [params] : [])' : undefined].filter(Boolean)
 
     return (
       <>

@@ -5,25 +5,10 @@
     "petId": { "type": "integer", "format": "int64", "example": 198772 },
     "quantity": { "type": "integer", "format": "int32", "example": 7 },
     "orderType": { "type": "string", "enum": ["foo", "bar"] },
-    "type": {
-      "type": "string",
-      "description": "Order Status",
-      "example": "approved"
-    },
+    "type": { "type": "string", "description": "Order Status", "example": "approved" },
     "shipDate": { "type": "string", "format": "date-time" },
-    "status": {
-      "type": "string",
-      "description": "Order Status",
-      "example": "approved",
-      "enum": ["placed", "approved", "delivered"]
-    },
-    "http_status": {
-      "type": "number",
-      "description": "HTTP Status",
-      "example": 200,
-      "enum": [200, 400, 500],
-      "x-enumNames": ["ok", "not_found"]
-    },
+    "status": { "type": "string", "description": "Order Status", "example": "approved", "enum": ["placed", "approved", "delivered"] },
+    "http_status": { "type": "number", "description": "HTTP Status", "example": 200, "enum": [200, 400, 500], "x-enumNames": ["ok", "not_found"] },
     "complete": { "type": "boolean" }
   },
   "xml": { "name": "order" },

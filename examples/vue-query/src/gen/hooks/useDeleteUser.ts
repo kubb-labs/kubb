@@ -1,10 +1,10 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
 type DeleteUser = {

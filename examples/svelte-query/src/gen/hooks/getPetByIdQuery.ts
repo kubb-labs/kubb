@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import { createInfiniteQuery, createQuery } from '@tanstack/svelte-query'
 import type {
   CreateBaseQueryOptions,
-  CreateQueryResult,
-  QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  CreateQueryResult,
   InfiniteData,
+  QueryKey,
+  WithRequired,
 } from '@tanstack/svelte-query'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {

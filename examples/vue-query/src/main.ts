@@ -1,8 +1,8 @@
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { createApp } from 'vue'
 
-import { worker } from './mocks/index.ts'
 import App from './App.vue'
+import { worker } from './mocks/index.ts'
 
 const render = () => {
   const app = createApp(App)

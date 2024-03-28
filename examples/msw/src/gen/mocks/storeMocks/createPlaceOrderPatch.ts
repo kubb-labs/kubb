@@ -1,5 +1,5 @@
-import { createOrder } from '../createOrder'
 import type { PlaceOrderPatch200, PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models/PlaceOrderPatch'
+import { createOrder } from '../createOrder'
 
 /**
  * @description successful operation

@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider, useQueries } from '@tanstack/react-qu
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 
-import { findPetsByStatusQueryOptions, useUpdatePetWithFormHook, useFindPetsByStatusHook, useFindPetsByTagsHookInfinite } from './gen'
+import { findPetsByStatusQueryOptions, useFindPetsByStatusHook, useFindPetsByTagsHookInfinite, useUpdatePetWithFormHook } from './gen'
 
 import type { FindPetsByStatusQueryParamsStatus } from './gen'
 
@@ -98,8 +98,12 @@ function Pets(): JSX.Element {
           <li key={pet.id}>{pet.name}</li>
         ))}
       </ul>
-      <button onClick={() => setStatus('available')}>Available</button>
-      <button onClick={() => setStatus('pending')}>Pending</button>
+      <button type="button" onClick={() => setStatus('available')}>
+        Available
+      </button>
+      <button type="button" onClick={() => setStatus('pending')}>
+        Pending
+      </button>
     </>
   )
 }

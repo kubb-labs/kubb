@@ -1,8 +1,8 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
-import { useInvalidationForMutation } from '../../useInvalidationForMutation'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
 type DeletePet = {
@@ -44,12 +44,8 @@ export function useDeletePetHook(
       return res.data
     },
     onSuccess: (...args) => {
-      if (invalidationOnSuccess) {
-        invalidationOnSuccess(...args)
-      }
-      if (mutationOptions?.onSuccess) {
-        mutationOptions.onSuccess(...args)
-      }
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

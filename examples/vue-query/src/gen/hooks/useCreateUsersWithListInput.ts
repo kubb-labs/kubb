@@ -1,8 +1,8 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
@@ -34,7 +34,7 @@ export function useCreateUsersWithListInput(
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
-        url: `/user/createWithList`,
+        url: '/user/createWithList',
         data,
         ...clientOptions,
       })

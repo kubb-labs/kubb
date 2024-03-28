@@ -1,72 +1,72 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseBaseQueryOptions, UseMutationOptions, UseMutationResult, UseQueryResult, WithRequired } from '@tanstack/react-query'
 import type {
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
+  AddPet405,
   AddPetMutationRequest,
   AddPetMutationResponse,
-  AddPet405,
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatusQueryParams,
-  FindPetsByStatus400,
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTags400,
-  GetPetByIdQueryResponse,
-  GetPetByIdPathParams,
-  GetPetById400,
-  GetPetById404,
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
-  DeletePetMutationResponse,
-  DeletePetPathParams,
-  DeletePetHeaderParams,
-  DeletePet400,
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-  GetInventoryQueryResponse,
-  PlaceOrderMutationRequest,
-  PlaceOrderMutationResponse,
-  PlaceOrder405,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
-  PlaceOrderPatch405,
-  GetOrderByIdQueryResponse,
-  GetOrderByIdPathParams,
-  GetOrderById400,
-  GetOrderById404,
-  DeleteOrderMutationResponse,
-  DeleteOrderPathParams,
-  DeleteOrder400,
-  DeleteOrder404,
   CreateUserMutationRequest,
   CreateUserMutationResponse,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-  LoginUserQueryResponse,
-  LoginUserQueryParams,
-  LoginUser400,
-  LogoutUserQueryResponse,
-  GetUserByNameQueryResponse,
-  GetUserByNamePathParams,
+  DeleteOrder400,
+  DeleteOrder404,
+  DeleteOrderMutationResponse,
+  DeleteOrderPathParams,
+  DeletePet400,
+  DeletePetHeaderParams,
+  DeletePetMutationResponse,
+  DeletePetPathParams,
+  DeleteUser400,
+  DeleteUser404,
+  DeleteUserMutationResponse,
+  DeleteUserPathParams,
+  FindPetsByStatus400,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryResponse,
+  FindPetsByTags400,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+  GetInventoryQueryResponse,
+  GetOrderById400,
+  GetOrderById404,
+  GetOrderByIdPathParams,
+  GetOrderByIdQueryResponse,
+  GetPetById400,
+  GetPetById404,
+  GetPetByIdPathParams,
+  GetPetByIdQueryResponse,
   GetUserByName400,
   GetUserByName404,
+  GetUserByNamePathParams,
+  GetUserByNameQueryResponse,
+  LoginUser400,
+  LoginUserQueryParams,
+  LoginUserQueryResponse,
+  LogoutUserQueryResponse,
+  PlaceOrder405,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
   UpdateUserMutationRequest,
   UpdateUserMutationResponse,
   UpdateUserPathParams,
-  DeleteUserMutationResponse,
-  DeleteUserPathParams,
-  DeleteUser400,
-  DeleteUser404,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
 } from './models'
-import type { UseMutationOptions, UseMutationResult, UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from '@tanstack/react-query'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
 type UpdatePet = {
@@ -98,7 +98,7 @@ export function useUpdatePet(
     mutationFn: async (data) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })
@@ -138,7 +138,7 @@ export function useAddPet(
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })
@@ -174,7 +174,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -239,7 +239,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })
@@ -488,7 +488,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -551,7 +551,7 @@ export function usePlaceOrder(
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })
@@ -591,7 +591,7 @@ export function usePlaceOrderPatch(
     mutationFn: async (data) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })
@@ -731,7 +731,7 @@ export function useCreateUser(
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
-        url: `/user`,
+        url: '/user',
         data,
         ...clientOptions,
       })
@@ -771,7 +771,7 @@ export function useCreateUsersWithListInput(
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
-        url: `/user/createWithList`,
+        url: '/user/createWithList',
         data,
         ...clientOptions,
       })
@@ -807,7 +807,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })
@@ -866,7 +866,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data

@@ -1,16 +1,13 @@
 import { z } from 'zod'
-import { petSchema } from './petSchema'
 import { addPetRequestSchema } from './addPetRequestSchema'
+import { petSchema } from './petSchema'
 
 /**
  * @description Successful operation
  */
 export const addPet200Schema = z.lazy(() => petSchema)
 
-export const addPet405Schema = z.object({
-  code: z.number().optional(),
-  message: z.string().optional(),
-})
+export const addPet405Schema = z.object({ code: z.number().optional(), message: z.string().optional() })
 
 /**
  * @description Create a new pet in the store

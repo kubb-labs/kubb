@@ -1,6 +1,6 @@
 import useSWR from 'swr'
-import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
@@ -24,7 +24,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response']>(
     fetcher: async () => {
       const res = await client<TData, LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res
@@ -41,7 +41,7 @@ export function useLogoutUser<TData = LogoutUser['response']>(options?: {
   shouldFetch?: boolean
 }): SWRResponse<TData, LogoutUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/logout`
+  const url = '/user/logout'
   const query = useSWR<TData, LogoutUser['error'], typeof url | null>(shouldFetch ? url : null, {
     ...logoutUserQueryOptions<TData>(clientOptions),
     ...queryOptions,

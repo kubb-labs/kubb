@@ -66,8 +66,12 @@ function Pets(): JSX.Element {
           <li key={pet.id}>{pet.name}</li>
         ))}
       </ul>
-      <button onClick={() => setStatus('available')}>Available</button>
-      <button onClick={() => setStatus('pending')}>Pending</button>
+      <button type="button" onClick={() => setStatus('available')}>
+        Available
+      </button>
+      <button type="button" onClick={() => setStatus('pending')}>
+        Pending
+      </button>
     </>
   )
 }

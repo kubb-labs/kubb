@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { FindPetsByStatusQueryParamsStatus } from './index.ts'
 import Pets from './Pets.vue'
+import type { FindPetsByStatusQueryParamsStatus } from './index.ts'
 
 export default defineComponent({
   name: 'App',

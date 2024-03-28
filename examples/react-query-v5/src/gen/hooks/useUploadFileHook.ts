@@ -1,8 +1,8 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { UseMutationOptions } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 type UploadFile = {
@@ -44,12 +44,8 @@ export function useUploadFileHook(
       return res.data
     },
     onSuccess: (...args) => {
-      if (invalidationOnSuccess) {
-        invalidationOnSuccess(...args)
-      }
-      if (mutationOptions?.onSuccess) {
-        mutationOptions.onSuccess(...args)
-      }
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

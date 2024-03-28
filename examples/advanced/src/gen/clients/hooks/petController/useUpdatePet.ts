@@ -1,7 +1,7 @@
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
 type UpdatePet = {
@@ -51,7 +51,7 @@ export function useUpdatePet(
     mutationFn: async ({ data }) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })

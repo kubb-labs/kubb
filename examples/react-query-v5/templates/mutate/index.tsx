@@ -1,9 +1,9 @@
+import path from 'node:path'
+import transformers from '@kubb/core/transformers'
 import { File, Function, usePluginManager } from '@kubb/react'
 import { Mutation } from '@kubb/swagger-tanstack-query/components'
-import React from 'react'
-import path from 'node:path'
 import { useGetOperationFile } from '@kubb/swagger/hooks'
-import transformers from '@kubb/core/transformers'
+import type React from 'react'
 
 export const templates = {
   ...Mutation.templates,

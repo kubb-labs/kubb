@@ -1,16 +1,16 @@
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
+  InfiniteData,
   QueryKey,
-  WithRequired,
+  UseBaseQueryOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryResult,
+  WithRequired,
 } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
@@ -37,7 +37,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
@@ -79,7 +79,7 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
     queryFn: async ({ pageParam }) => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
