@@ -69,7 +69,7 @@ exports[`parseFakerMeta > 'catchall' 1`] = `"{}"`;
 
 exports[`parseFakerMeta > 'date' 1`] = `"faker.date.anytime()"`;
 
-exports[`parseFakerMeta > 'datetime' 1`] = `"faker.string.alpha()"`;
+exports[`parseFakerMeta > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
 
 exports[`parseFakerMeta > 'default' 1`] = `undefined`;
 
