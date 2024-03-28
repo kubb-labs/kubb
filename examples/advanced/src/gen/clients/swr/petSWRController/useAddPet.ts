@@ -29,13 +29,17 @@ export function useAddPet(options?: {
 }): SWRMutationResponse<AddPet['response'], AddPet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet`
-  return useSWRMutation<AddPet['response'], AddPet['error'], typeof url | null>(shouldFetch ? url : null, async (_url, { arg: data }) => {
-    const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
-      method: 'post',
-      url,
-      data,
-      ...clientOptions,
-    })
-    return res
-  }, mutationOptions)
+  return useSWRMutation<AddPet['response'], AddPet['error'], typeof url | null>(
+    shouldFetch ? url : null,
+    async (_url, { arg: data }) => {
+      const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
+        method: 'post',
+        url,
+        data,
+        ...clientOptions,
+      })
+      return res
+    },
+    mutationOptions,
+  )
 }

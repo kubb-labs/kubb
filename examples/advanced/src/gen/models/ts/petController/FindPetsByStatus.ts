@@ -1,9 +1,9 @@
 import type { Pet } from '../Pet'
 
 export enum FindPetsByStatusQueryParamsStatusEnum {
-  'available' = 'available',
-  'pending' = 'pending',
-  'sold' = 'sold',
+  available = 'available',
+  pending = 'pending',
+  sold = 'sold',
 }
 export type FindPetsByStatusQueryParams = {
   /**

@@ -15,7 +15,9 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     root.render(
       <Oas oas={oas}>
@@ -29,14 +31,19 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     return root.files
   }
   // TODO convert to a react component called `Schema.Parser` with props parser as part of the SchemaContext
-  getSource(name: string, schemas: SchemaType[], {
-    keysToOmit,
-    description,
-  }: SchemaGeneratorBuildOptions = {}): string[] {
+  getSource(name: string, schemas: SchemaType[], { keysToOmit, description }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
 
-    const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })
-    const resvoledTypeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+    const resolvedName = this.context.pluginManager.resolveName({
+      name,
+      pluginKey,
+      type: 'function',
+    })
+    const resvoledTypeName = this.context.pluginManager.resolveName({
+      name,
+      pluginKey: swaggerTypeScriptPluginKey,
+      type: 'type',
+    })
 
     const typeOutput = typeParser(schemas, {
       name: resolvedName,

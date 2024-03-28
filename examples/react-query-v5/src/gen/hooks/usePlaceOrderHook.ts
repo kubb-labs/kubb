@@ -23,10 +23,12 @@ type PlaceOrder = {
  * @summary Place an order for a pet
  * @link /store/order
  */
-export function usePlaceOrderHook(options: {
-  mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
-  client?: PlaceOrder['client']['parameters']
-} = {}) {
+export function usePlaceOrderHook(
+  options: {
+    mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
+    client?: PlaceOrder['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('usePlaceOrderHook')
   return useMutation({

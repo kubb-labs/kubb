@@ -77,7 +77,12 @@ export const optionsFlat: Options = {
   skipNodeModulesBundle: true,
   shims: true,
   ignoreWatch: options.ignoreWatch,
-  esbuildPlugins: [esbuildPluginFilePathExtensions({ esmExtension: 'js', cjsExtension: 'cjs' })] as Options['esbuildPlugins'],
+  esbuildPlugins: [
+    esbuildPluginFilePathExtensions({
+      esmExtension: 'js',
+      cjsExtension: 'cjs',
+    }),
+  ] as Options['esbuildPlugins'],
 }
 
 export default {

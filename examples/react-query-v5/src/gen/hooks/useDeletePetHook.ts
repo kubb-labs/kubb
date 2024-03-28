@@ -23,10 +23,14 @@ type DeletePet = {
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function useDeletePetHook(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
-  client?: DeletePet['client']['parameters']
-} = {}) {
+export function useDeletePetHook(
+  petId: DeletePetPathParams['petId'],
+  headers?: DeletePet['headerParams'],
+  options: {
+    mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
+    client?: DeletePet['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useDeletePetHook')
   return useMutation({

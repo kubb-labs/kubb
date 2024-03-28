@@ -4,7 +4,7 @@ import type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryRe
 export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUserQueryParams>> = {}): NonNullable<LoginUserQueryParams> {
   faker.seed([220])
   return {
-    ...{ 'username': faker.string.alpha(), 'password': faker.string.alpha() },
+    ...{ username: faker.string.alpha(), password: faker.string.alpha() },
     ...override,
   }
 }

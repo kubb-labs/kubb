@@ -2,17 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": [
-      "vitest/globals",
-      "bun-types",
-      "./globals",
-      "../config/ts-config/reset.d.ts"
-    ]
+    "types": ["vitest/globals", "bun-types", "./globals", "../config/ts-config/reset.d.ts"]
   },
-  "include": [
-    "src/**/*",
-    "./package.json",
-    "./tsup.config.ts",
-    "./vitest.config.ts"
-  ]
+  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

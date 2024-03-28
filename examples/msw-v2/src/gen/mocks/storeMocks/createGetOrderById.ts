@@ -5,7 +5,7 @@ import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrder
 export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOrderByIdPathParams>> = {}): NonNullable<GetOrderByIdPathParams> {
   faker.seed([220])
   return {
-    ...{ 'orderId': faker.number.int() },
+    ...{ orderId: faker.number.int() },
     ...override,
   }
 }

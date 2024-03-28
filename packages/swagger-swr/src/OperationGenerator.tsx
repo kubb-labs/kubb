@@ -23,7 +23,9 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async get(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     if (!options.templates?.query || !options.templates?.queryOptions) {
       return []
@@ -32,7 +34,12 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     root.render(
       <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
-          <Query.File templates={{ query: options.templates.query, queryOptions: options.templates.queryOptions }} />
+          <Query.File
+            templates={{
+              query: options.templates.query,
+              queryOptions: options.templates.queryOptions,
+            }}
+          />
         </Oas.Operation>
       </Oas>,
       { meta: { pluginManager, plugin: { ...plugin, options } } },
@@ -44,7 +51,9 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async post(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     if (!options.templates?.mutation) {
       return []

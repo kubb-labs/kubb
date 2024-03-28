@@ -48,9 +48,9 @@ export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = L
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...logoutUserQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(logoutUserQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
@@ -77,18 +77,20 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(options: {
-  query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
-  client?: LogoutUser['client']['parameters']
-} = {}): UseSuspenseQueryResult<TData, LogoutUser['error']> & {
+export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
+    client?: LogoutUser['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...logoutUserSuspenseQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(logoutUserSuspenseQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }

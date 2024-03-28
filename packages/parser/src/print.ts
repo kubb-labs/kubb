@@ -28,7 +28,12 @@ export function print(
   { source = '', baseName = 'print.ts', removeComments, noEmitHelpers, newLine = ts.NewLineKind.LineFeed }: Options = {},
 ): string {
   const sourceFile = ts.createSourceFile(baseName, escapeNewLines(source), ts.ScriptTarget.ES2022, false, ts.ScriptKind.TS)
-  const printer = ts.createPrinter({ omitTrailingSemicolon: true, newLine, removeComments, noEmitHelpers })
+  const printer = ts.createPrinter({
+    omitTrailingSemicolon: true,
+    newLine,
+    removeComments,
+    noEmitHelpers,
+  })
 
   let nodes: Array<ts.Node> = []
 

@@ -1,6 +1,6 @@
 import { pascalCase } from '../src/transformers/casing.ts'
 
-import { PluginManager } from '../src/PluginManager.ts'
+import type { PluginManager } from '../src/PluginManager.ts'
 import { readSync } from '../src/fs/read.ts'
 
 export const mockedPluginManager = {

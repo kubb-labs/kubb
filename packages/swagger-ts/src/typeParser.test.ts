@@ -5,7 +5,11 @@ import { parseTypeMeta, typeParser } from './typeParser.ts'
 
 describe('parseTypeMeta', () => {
   test.each(schemas.basic)('$name', ({ schema, name }) => {
-    const parsed = parseTypeMeta(schema, { name, optionalType: 'questionToken', enumType: 'asConst' })
+    const parsed = parseTypeMeta(schema, {
+      name,
+      optionalType: 'questionToken',
+      enumType: 'asConst',
+    })
     const text = parsed ? print(parsed) : undefined
 
     expect(text).toMatchSnapshot()
@@ -14,7 +18,11 @@ describe('parseTypeMeta', () => {
 
 describe('typeParser', () => {
   test.each(schemas.full)('$name', ({ schema, name }) => {
-    const text = typeParser(schema, { name, optionalType: 'questionToken', enumType: 'asConst' })
+    const text = typeParser(schema, {
+      name,
+      optionalType: 'questionToken',
+      enumType: 'asConst',
+    })
     expect(text).toMatchSnapshot()
   })
 })

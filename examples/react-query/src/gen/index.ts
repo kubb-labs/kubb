@@ -118,4 +118,10 @@ export type {
   User,
   UserArray,
 } from './models/index'
-export { addPetRequestStatus, findPetsByStatusQueryParamsStatus, orderHttpStatus, orderStatus, petStatus } from './models/index'
+export {
+  addPetRequestStatus,
+  findPetsByStatusQueryParamsStatus,
+  orderHttpStatus,
+  orderStatus,
+  petStatus,
+} from './models/index'

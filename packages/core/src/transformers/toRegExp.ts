@@ -25,11 +25,7 @@ export function toRegExpString(text: string): string {
   const isStartWithSlash = text.startsWith('/')
   const isEndWithSlash = text.endsWith('/')
 
-  const regexp = `new RegExp('${
-    jsStringEscape(
-      text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined),
-    )
-  }')`
+  const regexp = `new RegExp('${jsStringEscape(text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
 
   return regexp
 }

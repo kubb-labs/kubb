@@ -12,12 +12,7 @@ type TemplateProps = {
   hookName: string
 }
 
-function Template({
-  path,
-  hookName,
-  optionsType,
-  resultType,
-}: TemplateProps): ReactNode {
+function Template({ path, hookName, optionsType, resultType }: TemplateProps): ReactNode {
   return (
     <>
       <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
@@ -30,64 +25,35 @@ type FrameworkProps = Partial<TemplateProps>
 
 const defaultTemplates = {
   get react() {
-    return function(
-      { ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
 
-      return (
-        <Template
-          {...importNames.mutation.react}
-          {...rest}
-        />
-      )
+      return <Template {...importNames.mutation.react} {...rest} />
     }
   },
   get solid() {
-    return function(
-      { ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
 
-      return (
-        <Template
-          {...importNames.mutation.solid}
-          {...rest}
-        />
-      )
+      return <Template {...importNames.mutation.solid} {...rest} />
     }
   },
   get svelte() {
-    return function(
-      { ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
 
-      return (
-        <Template
-          {...importNames.mutation.svelte}
-          {...rest}
-        />
-      )
+      return <Template {...importNames.mutation.svelte} {...rest} />
     }
   },
   get vue() {
-    return function(
-      { ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const path = '@tanstack/vue-query'
 
       return (
         <>
-          {isV5
-            && (
-              <Template
-                {...importNames.mutation.vue}
-                {...rest}
-              />
-            )}
+          {isV5 && <Template {...importNames.mutation.vue} {...rest} />}
 
           {!isV5 && (
             <>

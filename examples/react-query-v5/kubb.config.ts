@@ -44,30 +44,33 @@ export const config = {
         queryKey: (keys) => ['"v5"', ...keys],
       },
       suspense: {},
-      override: [{
-        type: 'operationId',
-        pattern: 'findPetsByTags',
-        options: {
-          dataReturnType: 'full',
-          infinite: {
-            queryParam: 'pageSize',
-            initialPageParam: 0,
-            cursorParam: undefined,
-          },
-          templates: {
-            queryKey: queryKey.templates,
-          },
-        },
-      }, {
-        type: 'operationId',
-        pattern: 'updatePetWithForm',
-        options: {
-          query: {
-            queryKey: (key: unknown[]) => key,
-            methods: ['post'],
+      override: [
+        {
+          type: 'operationId',
+          pattern: 'findPetsByTags',
+          options: {
+            dataReturnType: 'full',
+            infinite: {
+              queryParam: 'pageSize',
+              initialPageParam: 0,
+              cursorParam: undefined,
+            },
+            templates: {
+              queryKey: queryKey.templates,
+            },
           },
         },
-      }],
+        {
+          type: 'operationId',
+          pattern: 'updatePetWithForm',
+          options: {
+            query: {
+              queryKey: (key: unknown[]) => key,
+              methods: ['post'],
+            },
+          },
+        },
+      ],
       templates: {
         operations: operations.templates,
         mutation: mutation.templates,

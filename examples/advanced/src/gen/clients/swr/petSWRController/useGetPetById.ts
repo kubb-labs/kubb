@@ -37,11 +37,14 @@ export function getPetByIdQueryOptions<TData = GetPetById['response']>(
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function useGetPetById<TData = GetPetById['response']>(petId: GetPetByIdPathParams['petId'], options?: {
-  query?: SWRConfiguration<TData, GetPetById['error']>
-  client?: GetPetById['client']['parameters']
-  shouldFetch?: boolean
-}): SWRResponse<TData, GetPetById['error']> {
+export function useGetPetById<TData = GetPetById['response']>(
+  petId: GetPetByIdPathParams['petId'],
+  options?: {
+    query?: SWRConfiguration<TData, GetPetById['error']>
+    client?: GetPetById['client']['parameters']
+    shouldFetch?: boolean
+  },
+): SWRResponse<TData, GetPetById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/${petId}`
   const query = useSWR<TData, GetPetById['error'], typeof url | null>(shouldFetch ? url : null, {

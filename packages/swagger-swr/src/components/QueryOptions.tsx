@@ -43,15 +43,7 @@ type TemplateProps = {
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
-function Template({
-  name,
-  params,
-  generics,
-  returnType,
-  JSDoc,
-  client,
-  dataReturnType,
-}: TemplateProps): ReactNode {
+function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType }: TemplateProps): ReactNode {
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
@@ -101,7 +93,10 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const schemas = useOperationSchemas()
   const operation = useOperation()
 
-  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const name = useResolveName({
+    name: `${factory.name}QueryOptions`,
+    pluginKey,
+  })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -109,9 +104,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const clientGenerics = ['TData', `${factory.name}['error']`]
   const resultGenerics = ['TData', `${factory.name}['error']`]
 
-  generics.add([
-    { type: `TData`, default: `${factory.name}['response']` },
-  ])
+  generics.add([{ type: 'TData', default: `${factory.name}['response']` }])
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),

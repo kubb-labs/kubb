@@ -53,7 +53,7 @@ module.exports = defineConfig(async () => {
           },
         },
         mapper: {
-          'productName': 'faker.commerce.productName',
+          productName: 'faker.commerce.productName',
         },
         include: [
           {

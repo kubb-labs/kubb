@@ -6,7 +6,7 @@ export function isNumber(value: unknown): value is number {
       return false
     }
 
-    return !isNaN(toNumber(value))
+    return !Number.isNaN(toNumber(value))
   }
   return typeof value === 'number'
 }

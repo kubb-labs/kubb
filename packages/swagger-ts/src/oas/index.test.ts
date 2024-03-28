@@ -17,8 +17,14 @@ describe('swagger Infer', () => {
   test('types', () => {
     expectTypeOf<Paths>().not.toBeUndefined()
     expectTypeOf<Methods>().toMatchTypeOf<'post' | 'put'>()
-    expectTypeOf<UserModel>().toMatchTypeOf<{ username?: string | undefined }>()
-    expectTypeOf<UserRequestParams['json']>().toMatchTypeOf<{ status?: 'available' | 'pending' | 'sold' | undefined }>()
-    expectTypeOf<UserResponse>().toMatchTypeOf<{ status?: 'available' | 'pending' | 'sold' | undefined }>()
+    expectTypeOf<UserModel>().toMatchTypeOf<{
+      username?: string | undefined
+    }>()
+    expectTypeOf<UserRequestParams['json']>().toMatchTypeOf<{
+      status?: 'available' | 'pending' | 'sold' | undefined
+    }>()
+    expectTypeOf<UserResponse>().toMatchTypeOf<{
+      status?: 'available' | 'pending' | 'sold' | undefined
+    }>()
   })
 })

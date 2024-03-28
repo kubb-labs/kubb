@@ -21,9 +21,20 @@ function SchemaImports() {
   const withTypeAnnotation = plugin.options.typed
 
   // used for this.options.typed
-  const typeName = pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
-  const typeFileName = pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
-  const typePath = pluginManager.resolvePath({ baseName: typeFileName, pluginKey: swaggerTypeScriptPluginKey })
+  const typeName = pluginManager.resolveName({
+    name,
+    pluginKey: swaggerTypeScriptPluginKey,
+    type: 'type',
+  })
+  const typeFileName = pluginManager.resolveName({
+    name: name,
+    pluginKey: swaggerTypeScriptPluginKey,
+    type: 'file',
+  })
+  const typePath = pluginManager.resolvePath({
+    baseName: typeFileName,
+    pluginKey: swaggerTypeScriptPluginKey,
+  })
 
   return (
     <>
@@ -37,7 +48,9 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     root.render(
       <Oas oas={oas}>
@@ -53,26 +66,28 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     return root.files
   }
 
-  getSource(name: string, schemas: SchemaType[], {
-    keysToOmit,
-    operation,
-    description,
-  }: SchemaGeneratorBuildOptions & { required?: boolean } = {}): string[] {
+  getSource(name: string, schemas: SchemaType[], { keysToOmit, operation, description }: SchemaGeneratorBuildOptions & { required?: boolean } = {}): string[] {
     const texts: string[] = []
 
     // all checks are also inside this.schema(React)
     const withTypeAnnotation = this.options.typed && !operation
 
     // used for this.options.typed
-    const typeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+    const typeName = this.context.pluginManager.resolveName({
+      name,
+      pluginKey: swaggerTypeScriptPluginKey,
+      type: 'type',
+    })
 
     const output = zodParser(schemas, {
       keysToOmit,
-      name: this.context.pluginManager.resolveName({ name: name, pluginKey, type: 'function' }),
+      name: this.context.pluginManager.resolveName({
+        name: name,
+        pluginKey,
+        type: 'function',
+      }),
       description,
-      typeName: withTypeAnnotation
-        ? typeName
-        : undefined,
+      typeName: withTypeAnnotation ? typeName : undefined,
     })
 
     texts.push(output)

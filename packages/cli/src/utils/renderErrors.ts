@@ -10,7 +10,7 @@ export const prettyError = new PrettyError()
   .skipPackage('commander')
   .skip(function callback(traceLine: any) {
     // exclude renderErrors.ts
-    const pattern = new RegExp('renderErrors')
+    const pattern = /renderErrors/
 
     const hasMatch = traceLine?.file?.match(pattern)
 
@@ -56,5 +56,8 @@ export function renderErrors(error: Error | undefined, { logLevel = LogLevel.sil
     console.log(errors)
   }
 
-  return errors.filter(Boolean).map(error => prettyError.render(error)).join('\n')
+  return errors
+    .filter(Boolean)
+    .map((error) => prettyError.render(error))
+    .join('\n')
 }

@@ -4,7 +4,7 @@ import React from 'react'
 import { useGetOperationFile } from '@kubb/swagger/hooks'
 
 export const templates = {
-  default: function({ client }: React.ComponentProps<typeof Client.templates.default>) {
+  default: function ({ client }: React.ComponentProps<typeof Client.templates.default>) {
     return (
       <>
         import requests
@@ -21,14 +21,8 @@ export const templates = {
 
     return (
       <Editor language="python">
-        <File
-          baseName={filePython.baseName}
-          path={filePython.path}
-          meta={filePython.meta}
-        >
-          <File.Source>
-            {children}
-          </File.Source>
+        <File baseName={filePython.baseName} path={filePython.path} meta={filePython.meta}>
+          <File.Source>{children}</File.Source>
         </File>
       </Editor>
     )

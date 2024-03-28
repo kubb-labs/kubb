@@ -8,6 +8,8 @@ export function getComments(operation: Operation): string[] {
     operation.getDescription() && `@description ${operation.getDescription()}`,
     operation.getSummary() && `@summary ${operation.getSummary()}`,
     operation.path && `@link ${new URLPath(operation.path).URL}`,
-    operation.isDeprecated() && `@deprecated`,
-  ].filter(Boolean).map(text => transformers.trim(text))
+    operation.isDeprecated() && '@deprecated',
+  ]
+    .filter(Boolean)
+    .map((text) => transformers.trim(text))
 }

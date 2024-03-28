@@ -5,7 +5,7 @@ import type { UploadFilePathParams, UploadFileQueryParams, UploadFile200, Upload
 export function createUploadFilePathParams(override: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }
@@ -13,7 +13,7 @@ export function createUploadFilePathParams(override: NonNullable<Partial<UploadF
 export function createUploadFileQueryParams(override: NonNullable<Partial<UploadFileQueryParams>> = {}): NonNullable<UploadFileQueryParams> {
   faker.seed([220])
   return {
-    ...{ 'additionalMetadata': faker.string.alpha() },
+    ...{ additionalMetadata: faker.string.alpha() },
     ...override,
   }
 }

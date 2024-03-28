@@ -18,8 +18,16 @@ function SchemaImports() {
   const { name } = useSchema()
 
   // used for this.options.typed
-  const typeName = pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
-  const typeFileName = pluginManager.resolveName({ name: name, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
+  const typeName = pluginManager.resolveName({
+    name,
+    pluginKey: swaggerTypeScriptPluginKey,
+    type: 'type',
+  })
+  const typeFileName = pluginManager.resolveName({
+    name: name,
+    pluginKey: swaggerTypeScriptPluginKey,
+    type: 'file',
+  })
   const typePath = pluginManager.resolvePath({
     baseName: typeFileName,
     pluginKey: swaggerTypeScriptPluginKey,
@@ -37,7 +45,9 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     root.render(
       <Oas oas={oas}>
@@ -53,14 +63,20 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     return root.files
   }
 
-  getSource(name: string, schemas: SchemaType[], {
-    description,
-  }: SchemaGeneratorBuildOptions = {}): string[] {
+  getSource(name: string, schemas: SchemaType[], { description }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
 
     // all checks are also inside this.schema(React)
-    const resolvedName = this.context.pluginManager.resolveName({ name, pluginKey, type: 'function' })
-    const typeName = this.context.pluginManager.resolveName({ name, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+    const resolvedName = this.context.pluginManager.resolveName({
+      name,
+      pluginKey,
+      type: 'function',
+    })
+    const typeName = this.context.pluginManager.resolveName({
+      name,
+      pluginKey: swaggerTypeScriptPluginKey,
+      type: 'type',
+    })
 
     const output = fakerParser(schemas, {
       name: resolvedName,

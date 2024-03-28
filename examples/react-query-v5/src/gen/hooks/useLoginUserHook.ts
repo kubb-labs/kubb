@@ -50,9 +50,9 @@ export function useLoginUserHook<TData = LoginUser['response'], TQueryData = Log
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
   const query = useQuery({
-    ...loginUserQueryOptions(params, clientOptions) as QueryObserverOptions,
+    ...(loginUserQueryOptions(params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
@@ -92,9 +92,9 @@ export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKe
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...loginUserSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
+    ...(loginUserSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }

@@ -8,13 +8,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
-import {
-  Mutation,
-  Operations,
-  Query,
-  QueryKey,
-  QueryOptions,
-} from './components/index.ts'
+import { Mutation, Operations, Query, QueryKey, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
@@ -22,9 +16,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-tanstack-query' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [
-  pluginName,
-] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -45,9 +37,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     queryOptions = {},
     templates,
   } = options
-  const template = group?.output
-    ? group.output
-    : `${output.path}/{{tag}}Controller`
+  const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginName,
@@ -61,27 +51,27 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       pathParamsType,
       infinite: infinite
         ? {
-          queryParam: 'id',
-          initialPageParam: 0,
-          cursorParam: undefined,
-          ...infinite,
-        }
+            queryParam: 'id',
+            initialPageParam: 0,
+            cursorParam: undefined,
+            ...infinite,
+          }
         : false,
       suspense,
       query: query
         ? {
-          queryKey: (key: unknown[]) => key,
-          methods: ['get'],
-          ...query,
-        }
+            queryKey: (key: unknown[]) => key,
+            methods: ['get'],
+            ...query,
+          }
         : false,
       queryOptions,
       mutate: mutate
         ? {
-          variablesType: 'hook',
-          methods: ['post', 'put', 'patch', 'delete'],
-          ...mutate,
-        }
+            variablesType: 'hook',
+            methods: ['post', 'put', 'patch', 'delete'],
+            ...mutate,
+          }
         : false,
       templates: {
         mutation: Mutation.templates,
@@ -93,11 +83,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       },
       parser,
     },
-    pre: [
-      swaggerPluginName,
-      swaggerTsPluginName,
-      parser === 'zod' ? swaggerZodPluginName : undefined,
-    ].filter(Boolean),
+    pre: [swaggerPluginName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -147,9 +133,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return resolvedName
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [
-        swaggerPluginName,
-      ])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 

@@ -22,17 +22,32 @@ describe('URLPath', () => {
     expect(simplePath.getParams()).toStrictEqual({ userId: 'userId' })
   })
   test('if object is getting returned', () => {
-    expect(simplePath.object).toStrictEqual({ url: '/user/:userID', params: { userId: 'userId' } })
-    expect(simplePath.toObject()).toStrictEqual({ url: '/user/:userID', params: { userId: 'userId' } })
-    expect(simplePath.toObject({ type: 'template' })).toStrictEqual({ url: '`/user/${userId}`', params: { userId: 'userId' } })
+    expect(simplePath.object).toStrictEqual({
+      url: '/user/:userID',
+      params: { userId: 'userId' },
+    })
+    expect(simplePath.toObject()).toStrictEqual({
+      url: '/user/:userID',
+      params: { userId: 'userId' },
+    })
+    expect(simplePath.toObject({ type: 'template' })).toStrictEqual({
+      url: '`/user/${userId}`',
+      params: { userId: 'userId' },
+    })
     // const userId = 2
     expect(simplePath.toObject({ type: 'template', stringify: true })).toStrictEqual('{url:`/user/${userId}`,params:{userId:userId}}')
 
-    expect(simplePath.toObject()).toStrictEqual({ url: '/user/:userID', params: { userId: 'userId' } })
+    expect(simplePath.toObject()).toStrictEqual({
+      url: '/user/:userID',
+      params: { userId: 'userId' },
+    })
 
     const testPath = new URLPath('/test')
 
-    expect(testPath.toObject()).toStrictEqual({ url: '/test', params: undefined })
+    expect(testPath.toObject()).toStrictEqual({
+      url: '/test',
+      params: undefined,
+    })
     expect(testPath.toObject({ type: 'template', stringify: true })).toStrictEqual('{url:`/test`}')
   })
 })

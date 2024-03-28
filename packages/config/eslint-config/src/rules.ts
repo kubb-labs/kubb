@@ -5,7 +5,15 @@ export const rules = {
    * Should be set before `unused-imports` rules are getting used
    * @link https://github.com/sweepline/eslint-plugin-unused-imports
    */
-  '@typescript-eslint/no-unused-vars': ['warn', { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' }],
+  '@typescript-eslint/no-unused-vars': [
+    'warn',
+    {
+      vars: 'all',
+      varsIgnorePattern: '^_',
+      args: 'after-used',
+      argsIgnorePattern: '^_',
+    },
+  ],
   '@typescript-eslint/no-var-requires': 'off',
   '@typescript-eslint/explicit-module-boundary-types': 'warn',
   // type imports should be imported as types
@@ -82,7 +90,15 @@ export const rules = {
   'simple-import-sort/exports': 'error',
   'turbo/no-undeclared-env-vars': 'off',
   'unused-imports/no-unused-imports': 'error',
-  'unused-imports/no-unused-vars': ['warn', { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' }],
+  'unused-imports/no-unused-vars': [
+    'warn',
+    {
+      vars: 'all',
+      varsIgnorePattern: '^_',
+      args: 'after-used',
+      argsIgnorePattern: '^_',
+    },
+  ],
   'react/jsx-uses-vars': 'error',
   'react/display-name': 'off',
   /**

@@ -49,9 +49,9 @@ export function useGetInventoryHook<TData = GetInventory['response'], TQueryData
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
   const query = useQuery({
-    ...getInventoryQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(getInventoryQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
@@ -79,18 +79,20 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(options: {
-  query?: Partial<UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
-  client?: GetInventory['client']['parameters']
-} = {}): UseSuspenseQueryResult<TData, GetInventory['error']> & {
+export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
+    client?: GetInventory['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...getInventorySuspenseQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(getInventorySuspenseQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }

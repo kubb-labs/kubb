@@ -22,19 +22,26 @@ type DeleteUser = {
  * @summary Delete user
  * @link /user/:username
  */
-export function useDeleteUser(username: DeleteUserPathParams['username'], options?: {
-  mutation?: SWRMutationConfiguration<DeleteUser['response'], DeleteUser['error']>
-  client?: DeleteUser['client']['parameters']
-  shouldFetch?: boolean
-}): SWRMutationResponse<DeleteUser['response'], DeleteUser['error']> {
+export function useDeleteUser(
+  username: DeleteUserPathParams['username'],
+  options?: {
+    mutation?: SWRMutationConfiguration<DeleteUser['response'], DeleteUser['error']>
+    client?: DeleteUser['client']['parameters']
+    shouldFetch?: boolean
+  },
+): SWRMutationResponse<DeleteUser['response'], DeleteUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
-  return useSWRMutation<DeleteUser['response'], DeleteUser['error'], typeof url | null>(shouldFetch ? url : null, async (_url) => {
-    const res = await client<DeleteUser['data'], DeleteUser['error']>({
-      method: 'delete',
-      url,
-      ...clientOptions,
-    })
-    return res
-  }, mutationOptions)
+  return useSWRMutation<DeleteUser['response'], DeleteUser['error'], typeof url | null>(
+    shouldFetch ? url : null,
+    async (_url) => {
+      const res = await client<DeleteUser['data'], DeleteUser['error']>({
+        method: 'delete',
+        url,
+        ...clientOptions,
+      })
+      return res
+    },
+    mutationOptions,
+  )
 }

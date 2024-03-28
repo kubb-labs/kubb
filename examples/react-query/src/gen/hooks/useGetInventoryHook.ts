@@ -95,10 +95,12 @@ export function useGetInventoryHookInfinite<
   TData = InfiniteData<GetInventory['response']>,
   TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
->(options: {
-  query?: Partial<UseInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
-  client?: GetInventory['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetInventory['error']> & {
+>(
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
+    client?: GetInventory['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

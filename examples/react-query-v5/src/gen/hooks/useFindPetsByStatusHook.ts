@@ -43,18 +43,21 @@ export function useFindPetsByStatusHook<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
->(params?: FindPetsByStatus['queryParams'], options: {
-  query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
-  client?: FindPetsByStatus['client']['parameters']
-} = {}): UseQueryResult<TData, FindPetsByStatus['error']> & {
+>(
+  params?: FindPetsByStatus['queryParams'],
+  options: {
+    query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
+    client?: FindPetsByStatus['client']['parameters']
+  } = {},
+): UseQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery({
-    ...findPetsByStatusQueryOptions(params, clientOptions) as QueryObserverOptions,
+    ...(findPetsByStatusQueryOptions(params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
@@ -96,9 +99,9 @@ export function useFindPetsByStatusHookSuspense<TData = FindPetsByStatus['respon
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...findPetsByStatusSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
+    ...(findPetsByStatusSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }

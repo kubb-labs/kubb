@@ -50,7 +50,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   } catch (e) {
     if (isInputPath(config)) {
       throw new Error(
-        'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + c.dim(config.input.path),
+        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${c.dim(config.input.path)}`,
         {
           cause: e,
         },
@@ -128,7 +128,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     }
 
     if (count === 0) {
-      logger.emit('start', `💾 Writing`)
+      logger.emit('start', '💾 Writing')
     }
   })
 
@@ -142,7 +142,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 
       logger.spinner.suffixText = c.dim(text)
     }
-    ;++count
+    ++count
   })
 
   pluginManager.queue.on('completed', () => {
@@ -163,7 +163,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     if (logger.logLevel === LogLevel.debug) {
       const logs = [
         `${randomCliColour(plugin.name)} Executing ${hookName}`,
-        parameters && `${c.bgWhite(`Parameters`)} ${randomCliColour(plugin.name)} ${hookName}`,
+        parameters && `${c.bgWhite('Parameters')} ${randomCliColour(plugin.name)} ${hookName}`,
         JSON.stringify(parameters, undefined, 2),
         output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
         output,
@@ -189,10 +189,16 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
   if (logger.logLevel === LogLevel.info) {
-    logger.emit('end', `💾 Writing completed`)
+    logger.emit('end', '💾 Writing completed')
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+  return {
+    files: fileManager.files.map((file) => ({
+      ...file,
+      source: FileManager.getSource(file),
+    })),
+    pluginManager,
+  }
 }
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
@@ -209,11 +215,24 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
     if (logger.logLevel === LogLevel.info) {
-      logger.emit('end', `💾 Writing completed`)
+      logger.emit('end', '💾 Writing completed')
     }
   } catch (e) {
-    return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager, error: e as Error }
+    return {
+      files: fileManager.files.map((file) => ({
+        ...file,
+        source: FileManager.getSource(file),
+      })),
+      pluginManager,
+      error: e as Error,
+    }
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+  return {
+    files: fileManager.files.map((file) => ({
+      ...file,
+      source: FileManager.getSource(file),
+    })),
+    pluginManager,
+  }
 }

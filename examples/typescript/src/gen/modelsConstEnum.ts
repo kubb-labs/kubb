@@ -1,12 +1,12 @@
 export const enum OrderStatus {
-  'placed' = 'placed',
-  'approved' = 'approved',
-  'delivered' = 'delivered',
+  placed = 'placed',
+  approved = 'approved',
+  delivered = 'delivered',
 }
 export const enum OrderHttpStatus {
-  'OrderHttpStatus_200' = 200,
-  'OrderHttpStatus_400' = 400,
-  'OrderHttpStatus_500' = 500,
+  OrderHttpStatus_200 = 200,
+  OrderHttpStatus_400 = 400,
+  OrderHttpStatus_500 = 500,
 }
 export type Order = {
   /**
@@ -134,9 +134,9 @@ export type Tag = {
 }
 
 export const enum PetStatus {
-  'available' = 'available',
-  'pending' = 'pending',
-  'sold' = 'sold',
+  available = 'available',
+  pending = 'pending',
+  sold = 'sold',
 }
 export type Pet = {
   /**
@@ -164,9 +164,9 @@ export type Pet = {
 }
 
 export const enum AddPetRequestStatus {
-  'available' = 'available',
-  'pending' = 'pending',
-  'sold' = 'sold',
+  available = 'available',
+  pending = 'pending',
+  sold = 'sold',
 }
 export type AddPetRequest = {
   /**
@@ -290,9 +290,9 @@ export type AddPetMutation = {
 }
 
 export const enum FindPetsByStatusQueryParamsStatus {
-  'available' = 'available',
-  'pending' = 'pending',
-  'sold' = 'sold',
+  available = 'available',
+  pending = 'pending',
+  sold = 'sold',
 }
 export type FindPetsByStatusQueryParams = {
   /**

@@ -49,9 +49,7 @@
   "paths": {
     "/labs/2/users": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Return details for the specified users",
         "description": "This endpoint returns information about users. Specify users by their ID.",
         "operationId": "findUsersById",
@@ -110,9 +108,7 @@
     },
     "/labs/2/users/{id}": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Return details for the specified users",
         "description": "This endpoint returns information about a user. Specify user by ID.",
         "operationId": "findUserById",
@@ -164,9 +160,7 @@
     },
     "/labs/2/users/by": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Return details for the specified users",
         "description": "This endpoint returns information about users. Specify users by their username.",
         "operationId": "findUsersByUsername",
@@ -225,9 +219,7 @@
     },
     "/labs/2/users/by/username/{username}": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Return details for the specified users",
         "description": "This endpoint returns information about a user. Specify user by username.",
         "operationId": "findUserByUsername",
@@ -279,9 +271,7 @@
     },
     "/labs/2/tweets": {
       "get": {
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Returns hydrated Tweet objects",
         "description": "Returns a variety of information about the Tweet specified by the requested ID",
         "operationId": "findTweetsById",
@@ -340,9 +330,7 @@
     },
     "/labs/2/tweets/{id}": {
       "get": {
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Returns hydrated Tweet objects",
         "description": "Returns a variety of information about the Tweet specified by the requested ID",
         "operationId": "findTweetById",
@@ -394,9 +382,7 @@
     },
     "/labs/2/openapi.json": {
       "get": {
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "summary": "Returns the open api spec document.",
         "description": "Full open api spec in JSON format. (See https://github.com/OAI/OpenAPI-Specification/blob/master/README.md)",
         "operationId": "getOpenApiSpec",
@@ -437,10 +423,7 @@
       "ContextAnnotation": {
         "type": "object",
         "description": "Annotation inferred from the tweet text.",
-        "required": [
-          "domain",
-          "entity"
-        ],
+        "required": ["domain", "entity"],
         "properties": {
           "domain": {
             "$ref": "#/components/schemas/ContextAnnotationDomainFields"
@@ -453,9 +436,7 @@
       "ContextAnnotationDomainFields": {
         "type": "object",
         "description": "Represents the data for the context annotation domain.",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "string",
@@ -475,9 +456,7 @@
       "ContextAnnotationEntityFields": {
         "type": "object",
         "description": "Represents the data for the context annotation entity.",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "string",
@@ -503,10 +482,7 @@
       "EntityIndices": {
         "type": "object",
         "description": "Represent a boundary range (start and end index) for a recognized entity (for example a hashtag or a mention). `start` must be smaller than `end`.",
-        "required": [
-          "start",
-          "end"
-        ],
+        "required": ["start", "end"],
         "properties": {
           "start": {
             "type": "integer",
@@ -523,9 +499,7 @@
       "URLFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a URL.",
-        "required": [
-          "url"
-        ],
+        "required": ["url"],
         "properties": {
           "url": {
             "$ref": "#/components/schemas/URL"
@@ -591,9 +565,7 @@
       "HashtagFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a Hashtag, and its start and end position within the text.",
-        "required": [
-          "tag"
-        ],
+        "required": ["tag"],
         "properties": {
           "tag": {
             "type": "string",
@@ -614,9 +586,7 @@
       "CashtagFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a Cashtag, and its start and end position within the text.",
-        "required": [
-          "tag"
-        ],
+        "required": ["tag"],
         "properties": {
           "tag": {
             "type": "string"
@@ -636,10 +606,7 @@
       "MentionFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a User mention, and its start and end position within the text.",
-        "required": [
-          "username",
-          "id"
-        ],
+        "required": ["username", "id"],
         "properties": {
           "username": {
             "$ref": "#/components/schemas/UserName"
@@ -705,10 +672,7 @@
         "example": "712089797812"
       },
       "Error": {
-        "required": [
-          "code",
-          "message"
-        ],
+        "required": ["code", "message"],
         "properties": {
           "code": {
             "type": "integer",
@@ -760,10 +724,7 @@
         }
       },
       "Tweet": {
-        "required": [
-          "id",
-          "text"
-        ],
+        "required": ["id", "text"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/TweetID"
@@ -788,18 +749,11 @@
             "description": "A list of Tweets this Tweet refers to. For example, if the parent Tweet is a Retweet, a Quoted Tweet or a Reply, it will include the related Tweet referenced to by its parent.",
             "items": {
               "type": "object",
-              "required": [
-                "type",
-                "id"
-              ],
+              "required": ["type", "id"],
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": [
-                    "retweeted",
-                    "quoted",
-                    "replied_to"
-                  ]
+                  "enum": ["retweeted", "quoted", "replied_to"]
                 },
                 "id": {
                   "$ref": "#/components/schemas/TweetID"
@@ -858,11 +812,7 @@
           "public_metrics": {
             "type": "object",
             "description": "Engagement metrics for the Tweet at the time of the request.",
-            "required": [
-              "retweet_count",
-              "reply_count",
-              "like_count"
-            ],
+            "required": ["retweet_count", "reply_count", "like_count"],
             "properties": {
               "retweet_count": {
                 "type": "integer",
@@ -950,13 +900,7 @@
           "organic_metrics": {
             "type": "object",
             "description": "Organic nonpublic engagement metrics for the Tweet at the time of the request.",
-            "required": [
-              "impression_count",
-              "retweet_count",
-              "reply_count",
-              "like_count",
-              "user_profile_clicks"
-            ],
+            "required": ["impression_count", "retweet_count", "reply_count", "like_count", "user_profile_clicks"],
             "properties": {
               "impression_count": {
                 "type": "integer",
@@ -994,11 +938,7 @@
       },
       "User": {
         "description": "The Twitter User object",
-        "required": [
-          "id",
-          "name",
-          "username"
-        ],
+        "required": ["id", "name", "username"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UserID"
@@ -1071,12 +1011,7 @@
           "public_metrics": {
             "type": "object",
             "description": "A list of metrics for this user",
-            "required": [
-              "followers_count",
-              "following_count",
-              "tweet_count",
-              "listed_count"
-            ],
+            "required": ["followers_count", "following_count", "tweet_count", "listed_count"],
             "properties": {
               "followers_count": {
                 "type": "integer",
@@ -1193,16 +1128,11 @@
       "Point": {
         "type": "object",
         "description": "A [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) geometry object.",
-        "required": [
-          "type",
-          "coordinates"
-        ],
+        "required": ["type", "coordinates"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "Point"
-            ]
+            "enum": ["Point"]
           },
           "coordinates": {
             "$ref": "#/components/schemas/Position"
@@ -1220,17 +1150,11 @@
       },
       "Geo": {
         "type": "object",
-        "required": [
-          "type",
-          "bbox",
-          "properties"
-        ],
+        "required": ["type", "bbox", "properties"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "Feature"
-            ]
+            "enum": ["Feature"]
           },
           "bbox": {
             "type": "array",
@@ -1256,10 +1180,7 @@
         "description": "The identifier for this place"
       },
       "Place": {
-        "required": [
-          "id",
-          "full_name"
-        ],
+        "required": ["id", "full_name"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/PlaceId"
@@ -1294,22 +1215,12 @@
       },
       "PlaceType": {
         "type": "string",
-        "enum": [
-          "poi",
-          "neighborhood",
-          "city",
-          "admin",
-          "country",
-          "unknown"
-        ]
+        "enum": ["poi", "neighborhood", "city", "admin", "country", "unknown"]
       },
       "Poll": {
         "type": "object",
         "description": "Represent a Poll attached to a Tweet",
-        "required": [
-          "id",
-          "options"
-        ],
+        "required": ["id", "options"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/PollId"
@@ -1324,10 +1235,7 @@
           },
           "voting_status": {
             "type": "string",
-            "enum": [
-              "open",
-              "closed"
-            ]
+            "enum": ["open", "closed"]
           },
           "end_datetime": {
             "type": "string",
@@ -1346,11 +1254,7 @@
       "PollOption": {
         "type": "object",
         "description": "Describes a choice in a Poll object.",
-        "required": [
-          "position",
-          "label",
-          "votes"
-        ],
+        "required": ["position", "label", "votes"],
         "properties": {
           "position": {
             "type": "integer",
@@ -1378,9 +1282,7 @@
             "$ref": "#/components/schemas/AnimatedGif"
           }
         ],
-        "required": [
-          "type"
-        ],
+        "required": ["type"],
         "discriminator": {
           "propertyName": "type",
           "mapping": {
@@ -1415,9 +1317,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "photo"
-            ]
+            "enum": ["photo"]
           },
           "url": {
             "type": "string",
@@ -1435,9 +1335,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "video"
-            ]
+            "enum": ["video"]
           },
           "preview_image_url": {
             "type": "string",
@@ -1572,9 +1470,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "animated_gif"
-            ]
+            "enum": ["animated_gif"]
           },
           "preview_image_url": {
             "type": "string",
@@ -1590,10 +1486,7 @@
       "TweetWithheld": {
         "type": "object",
         "description": "Indicates withholding details for [withheld content](https://help.twitter.com/en/rules-and-policies/tweet-withheld-by-country).",
-        "required": [
-          "copyright",
-          "country_codes"
-        ],
+        "required": ["copyright", "country_codes"],
         "properties": {
           "copyright": {
             "type": "boolean",
@@ -1611,19 +1504,14 @@
           "scope": {
             "type": "string",
             "description": "Indicates whether the content being withheld is the `tweet` or a `user`.",
-            "enum": [
-              "tweet",
-              "user"
-            ]
+            "enum": ["tweet", "user"]
           }
         }
       },
       "UserWithheld": {
         "type": "object",
         "description": "Indicates withholding details for [withheld content](https://help.twitter.com/en/rules-and-policies/tweet-withheld-by-country).",
-        "required": [
-          "country_codes"
-        ],
+        "required": ["country_codes"],
         "properties": {
           "country_codes": {
             "type": "array",
@@ -1637,9 +1525,7 @@
           "scope": {
             "type": "string",
             "description": "Indicates that the content being withheld is a `user`.",
-            "enum": [
-              "user"
-            ]
+            "enum": ["user"]
           }
         }
       },
@@ -1649,11 +1535,7 @@
       },
       "ProblemFields": {
         "type": "object",
-        "required": [
-          "type",
-          "title",
-          "detail"
-        ],
+        "required": ["type", "title", "detail"],
         "properties": {
           "type": {
             "type": "string",
@@ -1674,15 +1556,11 @@
             "$ref": "#/components/schemas/ProblemFields"
           }
         ],
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "about:blank"
-            ]
+            "enum": ["about:blank"]
           },
           "status": {
             "type": "integer"
@@ -1700,9 +1578,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/invalid-request"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/invalid-request"]
           },
           "errors": {
             "type": "array",
@@ -1734,18 +1610,11 @@
             "$ref": "#/components/schemas/ProblemFields"
           }
         ],
-        "required": [
-          "parameter",
-          "value",
-          "resource_id",
-          "resource_type"
-        ],
+        "required": ["parameter", "value", "resource_id", "resource_type"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/resource-not-found"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/resource-not-found"]
           },
           "parameter": {
             "type": "string",
@@ -1759,11 +1628,7 @@
           },
           "resource_type": {
             "type": "string",
-            "enum": [
-              "user",
-              "tweet",
-              "media"
-            ]
+            "enum": ["user", "tweet", "media"]
           }
         }
       },
@@ -1775,35 +1640,22 @@
             "$ref": "#/components/schemas/ProblemFields"
           }
         ],
-        "required": [
-          "resource_id",
-          "resource_type",
-          "section"
-        ],
+        "required": ["resource_id", "resource_type", "section"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/not-authorized-for-resource"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/not-authorized-for-resource"]
           },
           "resource_id": {
             "type": "string"
           },
           "resource_type": {
             "type": "string",
-            "enum": [
-              "tweet",
-              "user",
-              "media"
-            ]
+            "enum": ["tweet", "user", "media"]
           },
           "section": {
             "type": "string",
-            "enum": [
-              "data",
-              "includes"
-            ]
+            "enum": ["data", "includes"]
           }
         }
       },
@@ -1818,16 +1670,11 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/client-forbidden"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/client-forbidden"]
           },
           "reason": {
             "type": "string",
-            "enum": [
-              "official-client-forbidden",
-              "client-not-enrolled"
-            ]
+            "enum": ["official-client-forbidden", "client-not-enrolled"]
           },
           "registration_url": {
             "type": "string",
@@ -1843,34 +1690,22 @@
             "$ref": "#/components/schemas/ProblemFields"
           }
         ],
-        "required": [
-          "resource_id",
-          "resource_type",
-          "section"
-        ],
+        "required": ["resource_id", "resource_type", "section"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/disallowed-resource"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/disallowed-resource"]
           },
           "resource_id": {
             "type": "string"
           },
           "resource_type": {
             "type": "string",
-            "enum": [
-              "tweet",
-              "media"
-            ]
+            "enum": ["tweet", "media"]
           },
           "section": {
             "type": "string",
-            "enum": [
-              "data",
-              "includes"
-            ]
+            "enum": ["data", "includes"]
           }
         }
       },
@@ -1885,9 +1720,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/unsupported-authentication"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/unsupported-authentication"]
           }
         }
       },
@@ -1902,23 +1735,15 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "https://api.twitter.com/labs/2/problems/usage-capped"
-            ]
+            "enum": ["https://api.twitter.com/labs/2/problems/usage-capped"]
           },
           "period": {
             "type": "string",
-            "enum": [
-              "Daily",
-              "Monthly"
-            ]
+            "enum": ["Daily", "Monthly"]
           },
           "scope": {
             "type": "string",
-            "enum": [
-              "Account",
-              "Product"
-            ]
+            "enum": ["Account", "Product"]
           }
         }
       },
@@ -2021,9 +1846,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "pinned_tweet_id"
-            ]
+            "enum": ["pinned_tweet_id"]
           },
           "minItems": 1,
           "uniqueItems": true,
@@ -2145,16 +1968,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "id",
-              "name",
-              "country_code",
-              "place_type",
-              "full_name",
-              "country",
-              "contained_within",
-              "geo"
-            ]
+            "enum": ["id", "name", "country_code", "place_type", "full_name", "country", "contained_within", "geo"]
           },
           "minItems": 1,
           "uniqueItems": true,
@@ -2173,13 +1987,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "id",
-              "options",
-              "voting_status",
-              "end_datetime",
-              "duration_minutes"
-            ]
+            "enum": ["id", "options", "voting_status", "end_datetime", "duration_minutes"]
           },
           "minItems": 1,
           "uniqueItems": true,

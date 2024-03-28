@@ -4,7 +4,7 @@ import type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePe
 export function createDeletePetPathParams(override: NonNullable<Partial<DeletePetPathParams>> = {}): NonNullable<DeletePetPathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }
@@ -12,7 +12,7 @@ export function createDeletePetPathParams(override: NonNullable<Partial<DeletePe
 export function createDeletePetHeaderParams(override: NonNullable<Partial<DeletePetHeaderParams>> = {}): NonNullable<DeletePetHeaderParams> {
   faker.seed([220])
   return {
-    ...{ 'api_key': faker.string.alpha() },
+    ...{ api_key: faker.string.alpha() },
     ...override,
   }
 }

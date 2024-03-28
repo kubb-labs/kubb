@@ -11,9 +11,7 @@
   "paths": {
     "/test/{test_id}": {
       "post": {
-        "tags": [
-          "test"
-        ],
+        "tags": ["test"],
         "summary": "Creates a test",
         "description": "Creates a test",
         "operationId": "create_test",
@@ -86,9 +84,7 @@
       },
       "CreateTestRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "content": {
             "anyOf": [
@@ -108,9 +104,7 @@
       },
       "CreateTestResponse": {
         "type": "object",
-        "required": [
-          "test_id"
-        ],
+        "required": ["test_id"],
         "properties": {
           "test_id": {
             "$ref": "#/components/schemas/TestId"

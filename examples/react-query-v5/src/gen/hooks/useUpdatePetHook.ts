@@ -23,10 +23,12 @@ type UpdatePet = {
  * @summary Update an existing pet
  * @link /pet
  */
-export function useUpdatePetHook(options: {
-  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
-  client?: UpdatePet['client']['parameters']
-} = {}) {
+export function useUpdatePetHook(
+  options: {
+    mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
+    client?: UpdatePet['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useUpdatePetHook')
   return useMutation({

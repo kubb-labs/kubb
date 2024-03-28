@@ -17,16 +17,7 @@ export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const {
-    output = { path: 'hooks' },
-    group,
-    exclude = [],
-    include,
-    override = [],
-    transformers = {},
-    templates,
-    dataReturnType = 'data',
-  } = options
+  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], transformers = {}, templates, dataReturnType = 'data' } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
@@ -69,7 +60,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       let resolvedName = camelCase(name)
 
       if (type === 'file' || type === 'function') {
-        resolvedName = camelCase(name, { prefix: 'use', isFile: type === 'file' })
+        resolvedName = camelCase(name, {
+          prefix: 'use',
+          isFile: type === 'file',
+        })
       }
 
       if (type === 'type') {
@@ -87,18 +81,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await swaggerPlugin.api.getOas()
 
-      const operationGenerator = new OperationGenerator(
-        this.plugin.options,
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.api.contentType,
-          exclude,
-          include,
-          override,
-        },
-      )
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.api.contentType,
+        exclude,
+        include,
+        override,
+      })
 
       const files = await operationGenerator.build()
       await this.addFile(...files)
@@ -131,7 +122,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      await this.fileManager.addIndexes({ root, output, meta: { pluginKey: this.plugin.key } })
+      await this.fileManager.addIndexes({
+        root,
+        output,
+        meta: { pluginKey: this.plugin.key },
+      })
     },
   }
 })

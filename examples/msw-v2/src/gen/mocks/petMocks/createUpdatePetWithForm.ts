@@ -9,7 +9,7 @@ import type {
 export function createUpdatePetWithFormPathParams(override: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }
@@ -19,7 +19,7 @@ export function createUpdatePetWithFormQueryParams(
 ): NonNullable<UpdatePetWithFormQueryParams> {
   faker.seed([220])
   return {
-    ...{ 'name': faker.string.alpha(), 'status': faker.string.alpha() },
+    ...{ name: faker.string.alpha(), status: faker.string.alpha() },
     ...override,
   }
 }

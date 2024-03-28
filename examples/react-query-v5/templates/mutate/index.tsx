@@ -7,7 +7,7 @@ import transformers from '@kubb/core/transformers'
 
 export const templates = {
   ...Mutation.templates,
-  react: function({ name, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
+  react: function ({ name, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
     const pluginManager = usePluginManager()
     const file = useGetOperationFile()
     const clientOptions = [
@@ -25,11 +25,7 @@ export const templates = {
 
     return (
       <>
-        <File.Import
-          name={['useInvalidationForMutation']}
-          path={path.join(root, '../useInvalidationForMutation.ts')}
-          root={file.path}
-        />
+        <File.Import name={['useInvalidationForMutation']} path={path.join(root, '../useInvalidationForMutation.ts')} root={file.path} />
         <Function export name={name} params={params} JSDoc={JSDoc}>
           {`
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

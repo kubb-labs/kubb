@@ -9,7 +9,9 @@ const writer = switcher(
   {
     node: async (path: string, data: string, { sanity }: Options) => {
       try {
-        const oldContent = await fs.readFile(resolve(path), { encoding: 'utf-8' })
+        const oldContent = await fs.readFile(resolve(path), {
+          encoding: 'utf-8',
+        })
         if (oldContent?.toString() === data?.toString()) {
           return
         }
@@ -20,7 +22,9 @@ const writer = switcher(
       await fs.outputFile(resolve(path), data, { encoding: 'utf-8' })
 
       if (sanity) {
-        const savedData = await fs.readFile(resolve(path), { encoding: 'utf-8' })
+        const savedData = await fs.readFile(resolve(path), {
+          encoding: 'utf-8',
+        })
 
         if (savedData?.toString() !== data?.toString()) {
           throw new Error(`Sanity check failed for ${path}\n\nData[${data.length}]:\n${data}\n\nSaved[${savedData.length}]:\n${savedData}\n`)

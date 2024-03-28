@@ -52,18 +52,22 @@ export function useUpdatePetWithFormHook<
   TData = UpdatePetWithForm['response'],
   TQueryData = UpdatePetWithForm['response'],
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
->(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
-  query?: Partial<QueryObserverOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], TData, TQueryData, TQueryKey>>
-  client?: UpdatePetWithForm['client']['parameters']
-} = {}): UseQueryResult<TData, UpdatePetWithForm['error']> & {
+>(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithForm['queryParams'],
+  options: {
+    query?: Partial<QueryObserverOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], TData, TQueryData, TQueryKey>>
+    client?: UpdatePetWithForm['client']['parameters']
+  } = {},
+): UseQueryResult<TData, UpdatePetWithForm['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
   const query = useQuery({
-    ...updatePetWithFormQueryOptions(petId, params, clientOptions) as QueryObserverOptions,
+    ...(updatePetWithFormQueryOptions(petId, params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, UpdatePetWithForm['error']> & {
     queryKey: TQueryKey
   }
@@ -109,9 +113,9 @@ export function useUpdatePetWithFormHookSuspense<TData = UpdatePetWithForm['resp
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormSuspenseQueryKey(petId, params)
   const query = useSuspenseQuery({
-    ...updatePetWithFormSuspenseQueryOptions(petId, params, clientOptions) as QueryObserverOptions,
+    ...(updatePetWithFormSuspenseQueryOptions(petId, params, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, UpdatePetWithForm['error']> & {
     queryKey: TQueryKey
   }

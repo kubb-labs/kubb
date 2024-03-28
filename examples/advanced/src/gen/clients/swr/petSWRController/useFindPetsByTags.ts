@@ -56,14 +56,7 @@ export function useFindPetsByTags<TData = FindPetsByTags['response']>(
 ): SWRResponse<TData, FindPetsByTags['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/findByTags`
-  const query = useSWR<
-    TData,
-    FindPetsByTags['error'],
-    [
-      typeof url,
-      typeof params,
-    ] | null
-  >(shouldFetch ? [url, params] : null, {
+  const query = useSWR<TData, FindPetsByTags['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...findPetsByTagsQueryOptions<TData>(params, headers, clientOptions),
     ...queryOptions,
   })

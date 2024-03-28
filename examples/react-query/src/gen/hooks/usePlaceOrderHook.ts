@@ -22,10 +22,12 @@ type PlaceOrder = {
  * @summary Place an order for a pet
  * @link /store/order
  */
-export function usePlaceOrderHook(options: {
-  mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
-  client?: PlaceOrder['client']['parameters']
-} = {}): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
+export function usePlaceOrderHook(
+  options: {
+    mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
+    client?: PlaceOrder['client']['parameters']
+  } = {},
+): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>({
     mutationFn: async (data) => {

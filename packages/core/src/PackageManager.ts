@@ -60,7 +60,7 @@ export class PackageManager {
     try {
       let location = this.getLocation(path)
 
-      if (os.platform() == 'win32') {
+      if (os.platform() === 'win32') {
         location = pathToFileURL(location).href
       }
 
@@ -107,15 +107,15 @@ export class PackageManager {
 
   #match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): string | undefined {
     const dependencies = {
-      ...packageJSON['dependencies'] || {},
-      ...packageJSON['devDependencies'] || {},
+      ...(packageJSON['dependencies'] || {}),
+      ...(packageJSON['devDependencies'] || {}),
     }
 
     if (typeof dependency === 'string' && dependencies[dependency]) {
       return dependencies[dependency]
     }
 
-    const matchedDependency = Object.keys(dependencies).find(dep => dep.match(dependency))
+    const matchedDependency = Object.keys(dependencies).find((dep) => dep.match(dependency))
 
     return matchedDependency ? dependencies[matchedDependency] : undefined
   }

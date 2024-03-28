@@ -76,7 +76,6 @@ export type TextNode = {
   nodeValue: string
 } & Node
 
-// dprint-ignore
 export type DOMNode<T = { nodeName: NodeNames }> = T extends {
   nodeName: infer U
 }

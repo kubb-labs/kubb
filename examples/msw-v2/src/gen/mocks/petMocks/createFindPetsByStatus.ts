@@ -5,7 +5,9 @@ import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatus
 export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}): NonNullable<FindPetsByStatusQueryParams> {
   faker.seed([220])
   return {
-    ...{ 'status': faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) },
+    ...{
+      status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']),
+    },
     ...override,
   }
 }
@@ -15,10 +17,7 @@ export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<
  */
 export function createFindPetsByStatus200(override: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
   faker.seed([220])
-  return [
-    ...faker.helpers.arrayElements([createPet()]) as any,
-    ...override,
-  ]
+  return [...(faker.helpers.arrayElements([createPet()]) as any), ...override]
 }
 
 /**
@@ -36,8 +35,5 @@ export function createFindPetsByStatusQueryResponse(
   override: NonNullable<Partial<FindPetsByStatusQueryResponse>> = [],
 ): NonNullable<FindPetsByStatusQueryResponse> {
   faker.seed([220])
-  return [
-    ...faker.helpers.arrayElements([createPet()]) as any,
-    ...override,
-  ]
+  return [...(faker.helpers.arrayElements([createPet()]) as any), ...override]
 }

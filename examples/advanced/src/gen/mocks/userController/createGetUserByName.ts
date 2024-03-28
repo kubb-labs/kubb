@@ -10,7 +10,7 @@ import type {
 
 export function createGetUserByNamePathParams(override: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
   return {
-    ...{ 'username': faker.string.alpha() },
+    ...{ username: faker.string.alpha() },
     ...override,
   }
 }

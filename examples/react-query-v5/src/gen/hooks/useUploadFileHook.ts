@@ -22,10 +22,14 @@ type UploadFile = {
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-export function useUploadFileHook(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
-  mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
-  client?: UploadFile['client']['parameters']
-} = {}) {
+export function useUploadFileHook(
+  petId: UploadFilePathParams['petId'],
+  params?: UploadFile['queryParams'],
+  options: {
+    mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
+    client?: UploadFile['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useUploadFileHook')
   return useMutation({

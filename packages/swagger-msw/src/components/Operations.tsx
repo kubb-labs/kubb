@@ -14,15 +14,8 @@ type TemplateProps = {
   handlers: string[]
 }
 
-function Template({
-  name,
-  handlers,
-}: TemplateProps): ReactNode {
-  return (
-    <>
-      {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}
-    </>
-  )
+function Template({ name, handlers }: TemplateProps): ReactNode {
+  return <>{`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}</>
 }
 
 type EditorTemplateProps = {
@@ -37,24 +30,20 @@ function RootTemplate({ children }: EditorTemplateProps) {
 
   const { getName, getFile } = useOperationHelpers()
 
-  const imports = operations.map(operation => {
-    const operationFile = getFile(operation, { pluginKey })
-    const operationName = getName(operation, { pluginKey, type: 'function' })
+  const imports = operations
+    .map((operation) => {
+      const operationFile = getFile(operation, { pluginKey })
+      const operationName = getName(operation, { pluginKey, type: 'function' })
 
-    return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
-  }).filter(Boolean)
+      return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
+    })
+    .filter(Boolean)
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {imports}
-        <File.Source>
-          {children}
-        </File.Source>
+        <File.Source>{children}</File.Source>
       </File>
     </Editor>
   )
@@ -71,20 +60,13 @@ type Props = {
   Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
-export function Operations({
-  Template = defaultTemplates.default,
-}: Props): ReactNode {
+export function Operations({ Template = defaultTemplates.default }: Props): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
 
   const operations = useOperations()
   const { getName } = useOperationHelpers()
 
-  return (
-    <Template
-      name="handlers"
-      handlers={operations.map(operation => getName(operation, { type: 'function', pluginKey }))}
-    />
-  )
+  return <Template name="handlers" handlers={operations.map((operation) => getName(operation, { type: 'function', pluginKey }))} />
 }
 
 type FileProps = {
@@ -94,7 +76,7 @@ type FileProps = {
   templates?: Templates
 }
 
-Operations.File = function(props: FileProps): KubbNode {
+Operations.File = function (props: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default

@@ -26,10 +26,7 @@ export function createCreateUsersWithListInputError(
 export function createCreateUsersWithListInputMutationRequest(
   override: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = [],
 ): NonNullable<CreateUsersWithListInputMutationRequest> {
-  return [
-    ...faker.helpers.arrayElements([createUser()]) as any,
-    ...override,
-  ]
+  return [...(faker.helpers.arrayElements([createUser()]) as any), ...override]
 }
 
 /**

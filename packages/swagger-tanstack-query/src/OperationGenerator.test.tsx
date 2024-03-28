@@ -209,9 +209,7 @@ describe('OperationGenerator', async () => {
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
     files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchFileSnapshot(
-        `./__snapshots__/${name}/${file.path}`,
-      )
+      expect(FileManager.getSource(file)).toMatchFileSnapshot(`./__snapshots__/${name}/${file.path}`)
     })
   })
 })

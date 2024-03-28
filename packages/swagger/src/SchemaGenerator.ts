@@ -82,7 +82,7 @@ export abstract class SchemaGenerator<
   static deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
     const foundItems: SchemaKeywordMapper[T][] = []
 
-    schemas?.forEach(schema => {
+    schemas?.forEach((schema) => {
       if (schema.keyword === keyword) {
         foundItems.push(schema as SchemaKeywordMapper[T])
       }
@@ -90,11 +90,11 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.object) {
         const subItem = schema as SchemaKeywordMapper['object']
 
-        Object.values(subItem.args?.properties || {}).forEach(entrySchema => {
+        Object.values(subItem.args?.properties || {}).forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
         })
 
-        Object.values(subItem.args?.additionalProperties || {}).forEach(entrySchema => {
+        Object.values(subItem.args?.additionalProperties || {}).forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -102,7 +102,7 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.array) {
         const subItem = schema as SchemaKeywordMapper['array']
 
-        subItem.args.items.forEach(entrySchema => {
+        subItem.args.items.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -110,7 +110,7 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.and) {
         const subItem = schema as SchemaKeywordMapper['and']
 
-        subItem.args.forEach(entrySchema => {
+        subItem.args.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -118,7 +118,7 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.tuple) {
         const subItem = schema as SchemaKeywordMapper['tuple']
 
-        subItem.args.forEach(entrySchema => {
+        subItem.args.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -126,7 +126,7 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.union) {
         const subItem = schema as SchemaKeywordMapper['union']
 
-        subItem.args.forEach(entrySchema => {
+        subItem.args.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -155,10 +155,14 @@ export abstract class SchemaGenerator<
       .map((name) => {
         const validationFunctions: Schema[] = []
         const schema = properties[name] as SchemaObject
-        const resolvedName = this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey: this.context.plugin.key, type: 'type' })
+        const resolvedName = this.context.pluginManager.resolveName({
+          name: `${baseName || ''} ${name}`,
+          pluginKey: this.context.plugin.key,
+          type: 'type',
+        })
 
-        const isRequired = Array.isArray(required) ? required && required.includes(name) : !!required
-        const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
+        const isRequired = Array.isArray(required) ? required?.includes(name) : !!required
+        const nullable = schema.nullable ?? schema['x-nullable'] ?? false
 
         validationFunctions.push(...this.buildSchemas(schema, resolvedName))
 
@@ -177,12 +181,16 @@ export abstract class SchemaGenerator<
     const members: Schema[] = []
 
     if (additionalProperties) {
-      additionalPropertieschemas = additionalProperties === true
-        ? [{ keyword: this.#unknownReturn }]
-        : this.buildSchemas(additionalProperties as SchemaObject)
+      additionalPropertieschemas = additionalProperties === true ? [{ keyword: this.#unknownReturn }] : this.buildSchemas(additionalProperties as SchemaObject)
     }
 
-    members.push({ keyword: schemaKeywords.object, args: { properties: propertiesSchemas, additionalProperties: additionalPropertieschemas } })
+    members.push({
+      keyword: schemaKeywords.object,
+      args: {
+        properties: propertiesSchemas,
+        additionalProperties: additionalPropertieschemas,
+      },
+    })
 
     return members
   }
@@ -195,14 +203,30 @@ export abstract class SchemaGenerator<
     let ref = this.refs[$ref]
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey: this.context.plugin.key, 'type': 'function' })
+    const propertyName = this.context.pluginManager.resolveName({
+      name: originalName,
+      pluginKey: this.context.plugin.key,
+      type: 'function',
+    })
 
     if (ref) {
-      return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref.path } }]
+      return [
+        {
+          keyword: schemaKeywords.ref,
+          args: { name: ref.propertyName, path: ref.path },
+        },
+      ]
     }
 
-    const fileName = this.context.pluginManager.resolveName({ name: originalName, pluginKey: this.context.plugin.key, type: 'file' })
-    const path = this.context.pluginManager.resolvePath({ baseName: fileName, pluginKey: this.context.plugin.key })
+    const fileName = this.context.pluginManager.resolveName({
+      name: originalName,
+      pluginKey: this.context.plugin.key,
+      type: 'file',
+    })
+    const path = this.context.pluginManager.resolvePath({
+      baseName: fileName,
+      pluginKey: this.context.plugin.key,
+    })
 
     ref = this.refs[$ref] = {
       propertyName,
@@ -210,7 +234,12 @@ export abstract class SchemaGenerator<
       path,
     }
 
-    return [{ keyword: schemaKeywords.ref, args: { name: ref.propertyName, path: ref?.path, isTypeOnly: false } }]
+    return [
+      {
+        keyword: schemaKeywords.ref,
+        args: { name: ref.propertyName, path: ref?.path, isTypeOnly: false },
+      },
+    ]
   }
 
   #getParsedSchemaObject(schema?: SchemaObject) {
@@ -233,26 +262,38 @@ export abstract class SchemaGenerator<
 
     if (schema.default !== undefined && !Array.isArray(schema.default)) {
       if (typeof schema.default === 'string') {
-        baseItems.push({ keyword: schemaKeywords.default, args: transformers.stringify(schema.default) })
+        baseItems.push({
+          keyword: schemaKeywords.default,
+          args: transformers.stringify(schema.default),
+        })
       }
       if (typeof schema.default === 'boolean') {
-        baseItems.push({ keyword: schemaKeywords.default, args: schema.default ?? false })
+        baseItems.push({
+          keyword: schemaKeywords.default,
+          args: schema.default ?? false,
+        })
       }
     }
 
     if (schema.description) {
-      baseItems.push({ keyword: schemaKeywords.describe, args: schema.description })
+      baseItems.push({
+        keyword: schemaKeywords.describe,
+        args: schema.description,
+      })
     }
 
     if (schema.type) {
-      baseItems.push({ keyword: schemaKeywords.type, args: schema.type as string })
+      baseItems.push({
+        keyword: schemaKeywords.type,
+        args: schema.type as string,
+      })
     }
 
     if (schema.format) {
       baseItems.push({ keyword: schemaKeywords.format, args: schema.format })
     }
 
-    const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
+    const nullable = schema.nullable ?? schema['x-nullable'] ?? false
 
     if (nullable) {
       baseItems.push({ keyword: schemaKeywords.nullable })
@@ -301,7 +342,8 @@ export abstract class SchemaGenerator<
           .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== this.#unknownReturn
-          }).map(item => {
+          })
+          .map((item) => {
             if (isKeyword(item, schemaKeywords.object)) {
               return {
                 ...item,
@@ -351,30 +393,37 @@ export abstract class SchemaGenerator<
 
     if (schema.enum) {
       const name = getUniqueName(pascalCase([baseName, this.options.enumSuffix].join(' ')), this.#usedEnumNames)
-      const typeName = this.context.pluginManager.resolveName({ name, pluginKey: this.context.plugin.key, type: 'type' })
+      const typeName = this.context.pluginManager.resolveName({
+        name,
+        pluginKey: this.context.plugin.key,
+        type: 'type',
+      })
 
       // x-enumNames has priority
       const extensionEnums = ['x-enumNames', 'x-enum-varnames']
-        .filter(extensionKey => extensionKey in schema)
+        .filter((extensionKey) => extensionKey in schema)
         .map((extensionKey) => {
-          return [{
-            keyword: schemaKeywords.enum,
-            args: {
-              name,
-              typeName,
-              asConst: false,
-              items: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
-                name: transformers.stringify(name),
-                value: schema.enum![index] as string | number,
-                format: transformers.isNumber(schema.enum![index]) ? 'number' : 'string',
-              })),
+          return [
+            {
+              keyword: schemaKeywords.enum,
+              args: {
+                name,
+                typeName,
+                asConst: false,
+                items: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
+                  name: transformers.stringify(name),
+                  value: schema.enum?.[index] as string | number,
+                  format: transformers.isNumber(schema.enum?.[index]) ? 'number' : 'string',
+                })),
+              },
             },
-          }, ...baseItems]
+            ...baseItems,
+          ]
         })
 
       if (schema.type === 'number' || schema.type === 'integer') {
         // we cannot use z.enum when enum type is number/integer
-        const enumNames = extensionEnums[0]?.find(item => isKeyword(item, schemaKeywords.enum)) as SchemaKeywordMapper['enum']
+        const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as SchemaKeywordMapper['enum']
         return [
           {
             keyword: schemaKeywords.enum,
@@ -384,17 +433,17 @@ export abstract class SchemaGenerator<
               asConst: true,
               items: enumNames?.args?.items
                 ? [...new Set(enumNames.args.items)].map(({ name, value }) => ({
-                  name,
-                  value,
-                  format: 'number',
-                }))
-                : [...new Set(schema.enum)].map((value: string) => {
-                  return {
-                    name: value,
+                    name,
                     value,
                     format: 'number',
-                  }
-                }),
+                  }))
+                : [...new Set(schema.enum)].map((value: string) => {
+                    return {
+                      name: value,
+                      value,
+                      format: 'number',
+                    }
+                  }),
             },
           },
           ...baseItems,
@@ -443,14 +492,17 @@ export abstract class SchemaGenerator<
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
       const items = this.buildSchemas(schema.items as SchemaObject, baseName)
 
-      return [{
-        keyword: schemaKeywords.array,
-        args: {
-          items,
-          min,
-          max,
+      return [
+        {
+          keyword: schemaKeywords.array,
+          args: {
+            items,
+            min,
+            max,
+          },
         },
-      }, ...baseItems]
+        ...baseItems,
+      ]
     }
 
     if (schema.properties || schema.additionalProperties) {
@@ -460,13 +512,18 @@ export abstract class SchemaGenerator<
     if (version === '3.1' && 'const' in schema) {
       // const keyword takes precendence over the actual type.
       if (schema['const']) {
-        return [{
-          keyword: schemaKeywords.const,
-          args: { name: schema['const'], format: typeof schema['const'] === 'number' ? 'number' : 'string', value: schema['const'] },
-        }]
-      } else {
-        return [{ keyword: schemaKeywords.null }]
+        return [
+          {
+            keyword: schemaKeywords.const,
+            args: {
+              name: schema['const'],
+              format: typeof schema['const'] === 'number' ? 'number' : 'string',
+              value: schema['const'],
+            },
+          },
+        ]
       }
+      return [{ keyword: schemaKeywords.null }]
     }
 
     if (schema.type) {
@@ -500,7 +557,10 @@ export abstract class SchemaGenerator<
       }
 
       if (schema.pattern) {
-        baseItems.unshift({ keyword: schemaKeywords.matches, args: schema.pattern })
+        baseItems.unshift({
+          keyword: schemaKeywords.matches,
+          args: schema.pattern,
+        })
       }
 
       if (['date', 'date-time'].some((item) => item === schema.format)) {
@@ -508,11 +568,10 @@ export abstract class SchemaGenerator<
           baseItems.unshift({ keyword: schemaKeywords.date })
 
           return baseItems
-        } else {
-          baseItems.unshift({ keyword: schemaKeywords.datetime })
-
-          return baseItems
         }
+        baseItems.unshift({ keyword: schemaKeywords.datetime })
+
+        return baseItems
       }
 
       if (schema.format === 'email') {
@@ -547,18 +606,15 @@ export abstract class SchemaGenerator<
 
     const object = getSchemas({ oas, contentType, includes: include })
 
-    const promises = Object.entries(object).reduce(
-      (acc, [name, schema]) => {
-        const promiseOperation = this.schema.call(this, name, schema)
+    const promises = Object.entries(object).reduce((acc, [name, schema]) => {
+      const promiseOperation = this.schema.call(this, name, schema)
 
-        if (promiseOperation) {
-          acc.push(promiseOperation)
-        }
+      if (promiseOperation) {
+        acc.push(promiseOperation)
+      }
 
-        return acc
-      },
-      [] as SchemaMethodResult<TFileMeta>[],
-    )
+      return acc
+    }, [] as SchemaMethodResult<TFileMeta>[])
 
     const files = await Promise.all(promises)
 
@@ -578,9 +634,5 @@ export abstract class SchemaGenerator<
   /**
    * @deprecated only used for testing
    */
-  abstract buildSource(
-    name: string,
-    object: SchemaObject | undefined,
-    options?: SchemaGeneratorBuildOptions,
-  ): string[]
+  abstract buildSource(name: string, object: SchemaObject | undefined, options?: SchemaGeneratorBuildOptions): string[]
 }

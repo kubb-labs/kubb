@@ -2,20 +2,10 @@ import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
-import {
-  useGetOperationFile,
-  useOperation,
-  useOperationName,
-  useOperationSchemas,
-} from '@kubb/swagger/hooks'
-import {
-  getASTParams,
-  getComments,
-  getParams,
-  isRequired,
-} from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
+import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -24,10 +14,7 @@ import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
-import type {
-  Query as QueryPluginOptions,
-  QueryOptions as QueryOptionsPluginOptions,
-} from '../types.ts'
+import type { QueryOptions as QueryOptionsPluginOptions, Query as QueryPluginOptions } from '../types.ts'
 import type { FileMeta, Infinite, PluginOptions, Suspense } from '../types.ts'
 
 type TemplateProps = {
@@ -62,29 +49,14 @@ type TemplateProps = {
   infinite: Infinite | false
 }
 
-function Template({
-  name,
-  generics,
-  returnType,
-  params,
-  JSDoc,
-  hook,
-  infinite,
-}: TemplateProps): ReactNode {
+function Template({ name, generics, returnType, params, JSDoc, hook, infinite }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   if (isV5) {
     return (
       <>
-        <Function
-          name={name}
-          export
-          generics={generics}
-          returnType={resolvedReturnType}
-          params={params}
-          JSDoc={JSDoc}
-        >
+        <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
@@ -107,14 +79,7 @@ function Template({
 
   return (
     <>
-      <Function
-        name={name}
-        export
-        generics={generics}
-        returnType={resolvedReturnType}
-        params={params}
-        JSDoc={JSDoc}
-      >
+      <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {} } = options ?? {}
        const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
@@ -146,22 +111,22 @@ type FrameworkProps = TemplateProps & {
 
 const defaultTemplates = {
   get react() {
-    return function(props: FrameworkProps): ReactNode {
+    return function (props: FrameworkProps): ReactNode {
       return <Template {...props} />
     }
   },
   get solid() {
-    return function(props: FrameworkProps): ReactNode {
+    return function (props: FrameworkProps): ReactNode {
       return <Template {...props} />
     }
   },
   get svelte() {
-    return function(props: FrameworkProps): ReactNode {
+    return function (props: FrameworkProps): ReactNode {
       return <Template {...props} />
     }
   },
   get vue() {
-    return function({ context, hook, ...rest }: FrameworkProps): ReactNode {
+    return function ({ context, hook, ...rest }: FrameworkProps): ReactNode {
       const { factory, queryKey } = context
       const importNames = getImportNames()
       const {
@@ -173,15 +138,9 @@ const defaultTemplates = {
         pluginKey,
       })
 
-      const hookName = rest.infinite
-        ? importNames.queryInfinite.vue.hookName
-        : importNames.query.vue.hookName
-      const resultType = rest.infinite
-        ? importNames.queryInfinite.vue.resultType
-        : importNames.query.vue.resultType
-      const optionsType = rest.infinite
-        ? importNames.queryInfinite.vue.optionsType
-        : importNames.query.vue.optionsType
+      const hookName = rest.infinite ? importNames.queryInfinite.vue.hookName : importNames.query.vue.hookName
+      const resultType = rest.infinite ? importNames.queryInfinite.vue.resultType : importNames.query.vue.resultType
+      const optionsType = rest.infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
       const schemas = useOperationSchemas()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
@@ -197,21 +156,14 @@ const defaultTemplates = {
       const pathParams = getParams(schemas.pathParams, {
         override: (item) => ({
           ...item,
-          name: item.name
-            ? `ref${transformers.pascalCase(item.name)}`
-            : undefined,
+          name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
         }),
       }).toString()
 
       const resultGenerics = ['TData', `${factory.name}['error']`]
 
       // only needed for the options to override the useQuery options/params
-      const queryOptionsOverrideGenerics = [
-        `${factory.name}['response']`,
-        `${factory.name}['error']`,
-        'TData',
-        'TQueryKey',
-      ]
+      const queryOptionsOverrideGenerics = [`${factory.name}['response']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
       const queryOptionsGenerics = ['TData', 'TQueryData']
 
       params.add([
@@ -220,9 +172,7 @@ const defaultTemplates = {
           asObject: pathParamsType === 'object',
           override: (item) => ({
             ...item,
-            name: item.name
-              ? `ref${transformers.pascalCase(item.name)}`
-              : undefined,
+            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
           }),
         }),
         {
@@ -258,9 +208,7 @@ const defaultTemplates = {
           typed: false,
           override: (item) => ({
             ...item,
-            name: item.name
-              ? `ref${transformers.pascalCase(item.name)}`
-              : undefined,
+            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
           }),
         }),
         {
@@ -316,15 +264,11 @@ type Props = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  QueryKeyTemplate?: React.ComponentType<
-    React.ComponentProps<typeof QueryKey.templates.react>
-  >
+  QueryKeyTemplate?: React.ComponentType<React.ComponentProps<typeof QueryKey.templates.react>>
   /**
    * This will make it possible to override the default behaviour.
    */
-  QueryOptionsTemplate?: React.ComponentType<
-    React.ComponentProps<typeof QueryOptions.templates.react>
-  >
+  QueryOptionsTemplate?: React.ComponentType<React.ComponentProps<typeof QueryOptions.templates.react>>
 }
 
 export function Query({
@@ -347,37 +291,16 @@ export function Query({
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
   const queryKey = useResolveName({
-    name: [
-      factory.name,
-      props.infinite ? 'Infinite' : undefined,
-      props.suspense ? 'Suspense' : undefined,
-      'QueryKey',
-    ]
-      .filter(Boolean)
-      .join(''),
+    name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
   })
   const queryKeyType = useResolveName({
-    name: [
-      factory.name,
-      props.infinite ? 'Infinite' : undefined,
-      props.suspense ? 'Suspense' : undefined,
-      'QueryKey',
-    ]
-      .filter(Boolean)
-      .join(''),
+    name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     type: 'type',
     pluginKey,
   })
   const queryOptions = useResolveName({
-    name: [
-      factory.name,
-      props.infinite ? 'Infinite' : undefined,
-      props.suspense ? 'Suspense' : undefined,
-      'QueryOptions',
-    ]
-      .filter(Boolean)
-      .join(''),
+    name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
   })
 
@@ -396,14 +319,10 @@ export function Query({
   generics.add([
     {
       type: 'TData',
-      default: props.infinite
-        ? `InfiniteData<${factory.name}["response"]>`
-        : `${factory.name}["response"]`,
+      default: props.infinite ? `InfiniteData<${factory.name}["response"]>` : `${factory.name}["response"]`,
     },
-    props.suspense
-      ? undefined
-      : { type: 'TQueryData', default: `${factory.name}["response"]` },
-    { type: `TQueryKey extends QueryKey`, default: queryKeyType },
+    props.suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
+    { type: 'TQueryKey extends QueryKey', default: queryKeyType },
   ])
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
@@ -411,23 +330,10 @@ export function Query({
   // only needed for the options to override the useQuery options/params
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const queryOptionsOverrideGenerics = props.suspense
-    ? [
-      `${factory.name}['response']`,
-      `${factory.name}['error']`,
-      'TData',
-      'TQueryKey',
-    ]
-    : [
-      `${factory.name}['response']`,
-      `${factory.name}['error']`,
-      'TData',
-      'TQueryData',
-      'TQueryKey',
-    ]
+    ? [`${factory.name}['response']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
+    : [`${factory.name}['response']`, `${factory.name}['error']`, 'TData', 'TQueryData', 'TQueryKey']
 
-  const queryOptionsGenerics = props.suspense
-    ? ['TData']
-    : ['TData', 'TQueryData']
+  const queryOptionsGenerics = props.suspense ? ['TData'] : ['TData', 'TQueryData']
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -490,15 +396,8 @@ export function Query({
 
   const hook = {
     name: hookName,
-    generics: [
-      isV5 ? 'any' : `${factory.name}['data']`,
-      `${factory.name}['error']`,
-      'TData',
-      'any',
-    ].join(', '),
-    queryOptions: isV5
-      ? `${queryOptions}(${queryParams.toString()})`
-      : `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
+    generics: [isV5 ? 'any' : `${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'any'].join(', '),
+    queryOptions: isV5 ? `${queryOptions}(${queryParams.toString()})` : `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
     queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? 'params' : ''})`,
   }
 
@@ -525,13 +424,7 @@ export function Query({
 
       {props.query && (
         <Template
-          name={[
-            name,
-            props.infinite ? 'Infinite' : undefined,
-            props.suspense ? 'Suspense' : undefined,
-          ]
-            .filter(Boolean)
-            .join('')}
+          name={[name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined].filter(Boolean).join('')}
           generics={generics.toString()}
           JSDoc={{ comments: getComments(operation) }}
           params={params.toString()}
@@ -560,10 +453,7 @@ type FileProps = {
   imports?: typeof QueryImports.templates
 }
 
-Query.File = function({
-  templates,
-  imports = QueryImports.templates,
-}: FileProps): ReactNode {
+Query.File = function ({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
   const {
     options: {
       client: { importPath },
@@ -579,7 +469,9 @@ Query.File = function({
   const schemas = useOperationSchemas()
   const file = useGetOperationFile()
   const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
-  const fileZodSchemas = useGetOperationFile({ pluginKey: swaggerZodPluginKey })
+  const fileZodSchemas = useGetOperationFile({
+    pluginKey: swaggerZodPluginKey,
+  })
   const zodResponseName = useResolveName({
     name: schemas.response.name,
     pluginKey: swaggerZodPluginKey,
@@ -601,18 +493,8 @@ Query.File = function({
 
   return (
     <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        {parser === 'zod' && (
-          <File.Import
-            name={[zodResponseName]}
-            root={file.path}
-            path={fileZodSchemas.path}
-          />
-        )}
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+        {parser === 'zod' && <File.Import name={[zodResponseName]} root={file.path} path={fileZodSchemas.path} />}
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
@@ -630,20 +512,8 @@ Query.File = function({
         />
 
         <QueryImports Template={Import} isInfinite={false} isSuspense={false} />
-        {!!infinite && (
-          <QueryImports
-            Template={Import}
-            isInfinite={true}
-            isSuspense={false}
-          />
-        )}
-        {!!suspense && isV5 && framework === 'react' && (
-          <QueryImports
-            Template={Import}
-            isInfinite={false}
-            isSuspense={true}
-          />
-        )}
+        {!!infinite && <QueryImports Template={Import} isInfinite={true} isSuspense={false} />}
+        {!!suspense && isV5 && framework === 'react' && <QueryImports Template={Import} isInfinite={false} isSuspense={true} />}
         <File.Source>
           <SchemaType factory={factory} />
           <Query

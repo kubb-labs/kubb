@@ -13,11 +13,7 @@ import type { OperationMethodResult } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
-export class OperationGenerator extends Generator<
-  PluginOptions['resolvedOptions'],
-  PluginOptions,
-  FileMeta
-> {
+export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin } = this.context
 
@@ -35,11 +31,7 @@ export class OperationGenerator extends Generator<
     }
 
     root.render(
-      <Oas
-        oas={oas}
-        operations={operations}
-        getOperationSchemas={(...props) => this.getSchemas(...props)}
-      >
+      <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         {templates.operations && <Operations.File templates={templates.operations} />}
       </Oas>,
       { meta: { pluginManager, plugin } },
@@ -48,10 +40,7 @@ export class OperationGenerator extends Generator<
     return root.files
   }
 
-  async operation(
-    operation: Operation,
-    options: PluginOptions['resolvedOptions'],
-  ): OperationMethodResult<FileMeta> {
+  async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
@@ -66,17 +55,12 @@ export class OperationGenerator extends Generator<
       ...options.templates,
     }
 
-    const isQuery = options.query
-      && options.query.methods.some((method) => operation.method === method)
+    const isQuery = options.query?.methods.some((method) => operation.method === method)
 
     const isMutate = !isQuery && options.mutate && options.mutate.methods.some((method) => operation.method === method)
 
     root.render(
-      <Oas
-        oas={oas}
-        operations={[operation]}
-        getOperationSchemas={(...props) => this.getSchemas(...props)}
-      >
+      <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
         <Oas.Operation operation={operation}>
           {isMutate && templates?.mutation && <Mutation.File templates={templates.mutation} />}
           {isQuery && templates?.query && templates.queryKey && templates.queryOptions && (

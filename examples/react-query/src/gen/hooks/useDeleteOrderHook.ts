@@ -22,10 +22,13 @@ type DeleteOrder = {
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export function useDeleteOrderHook(orderId: DeleteOrderPathParams['orderId'], options: {
-  mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
-  client?: DeleteOrder['client']['parameters']
-} = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
+export function useDeleteOrderHook(
+  orderId: DeleteOrderPathParams['orderId'],
+  options: {
+    mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
+    client?: DeleteOrder['client']['parameters']
+  } = {},
+): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
     mutationFn: async () => {

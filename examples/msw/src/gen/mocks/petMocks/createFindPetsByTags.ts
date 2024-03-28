@@ -4,7 +4,11 @@ import type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, F
 
 export function createFindPetsByTagsQueryParams(override: NonNullable<Partial<FindPetsByTagsQueryParams>> = {}): NonNullable<FindPetsByTagsQueryParams> {
   return {
-    ...{ 'tags': faker.helpers.arrayElements([faker.string.alpha()]) as any, 'page': faker.string.alpha(), 'pageSize': faker.string.alpha() },
+    ...{
+      tags: faker.helpers.arrayElements([faker.string.alpha()]) as any,
+      page: faker.string.alpha(),
+      pageSize: faker.string.alpha(),
+    },
     ...override,
   }
 }
@@ -13,10 +17,7 @@ export function createFindPetsByTagsQueryParams(override: NonNullable<Partial<Fi
  * @description successful operation
  */
 export function createFindPetsByTags200(override: NonNullable<Partial<FindPetsByTags200>> = []): NonNullable<FindPetsByTags200> {
-  return [
-    ...faker.helpers.arrayElements([createPet()]) as any,
-    ...override,
-  ]
+  return [...(faker.helpers.arrayElements([createPet()]) as any), ...override]
 }
 
 /**
@@ -30,8 +31,5 @@ export function createFindPetsByTags400(override?: NonNullable<Partial<FindPetsB
  * @description successful operation
  */
 export function createFindPetsByTagsQueryResponse(override: NonNullable<Partial<FindPetsByTagsQueryResponse>> = []): NonNullable<FindPetsByTagsQueryResponse> {
-  return [
-    ...faker.helpers.arrayElements([createPet()]) as any,
-    ...override,
-  ]
+  return [...(faker.helpers.arrayElements([createPet()]) as any), ...override]
 }

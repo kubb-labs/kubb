@@ -5,7 +5,7 @@ import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404,
 export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }

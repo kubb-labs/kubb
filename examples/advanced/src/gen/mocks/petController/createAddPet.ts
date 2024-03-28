@@ -12,7 +12,7 @@ export function createAddPet200(override?: NonNullable<Partial<AddPet200>>): Non
 
 export function createAddPet405(override: NonNullable<Partial<AddPet405>> = {}): NonNullable<AddPet405> {
   return {
-    ...{ 'code': faker.number.int(), 'message': faker.string.alpha() },
+    ...{ code: faker.number.int(), message: faker.string.alpha() },
     ...override,
   }
 }

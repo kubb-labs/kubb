@@ -11,15 +11,15 @@
 const INTEGRITY_CHECKSUM = '3d6b9f06410d179a7f7404d4bf4c3c70'
 const activeClientIds = new Set()
 
-self.addEventListener('install', function() {
+self.addEventListener('install', function () {
   self.skipWaiting()
 })
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function (event) {
   event.waitUntil(self.clients.claim())
 })
 
-self.addEventListener('message', async function(event) {
+self.addEventListener('message', async function (event) {
   const clientId = event.source.id
 
   if (!clientId || !self.clients) {
@@ -84,7 +84,7 @@ self.addEventListener('message', async function(event) {
   }
 })
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', function (event) {
   const { request } = event
   const accept = request.headers.get('accept') || ''
 
@@ -117,11 +117,7 @@ self.addEventListener('fetch', function(event) {
   event.respondWith(
     handleRequest(event, requestId).catch((error) => {
       if (error.name === 'NetworkError') {
-        console.warn(
-          '[MSW] Successfully emulated a network error for the "%s %s" request.',
-          request.method,
-          request.url,
-        )
+        console.warn('[MSW] Successfully emulated a network error for the "%s %s" request.', request.method, request.url)
         return
       }
 
@@ -145,7 +141,7 @@ async function handleRequest(event, requestId) {
   // Ensure MSW is active and ready to handle the message, otherwise
   // this message will pend indefinitely.
   if (client && activeClientIds.has(client.id)) {
-    ;(async function() {
+    ;(async function () {
       const clonedResponse = response.clone()
       sendToClient(client, {
         type: 'RESPONSE',

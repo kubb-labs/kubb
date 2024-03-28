@@ -62,7 +62,7 @@ const recommended = {
   },
   plugins: {
     '': eslintPluginRecommended,
-    'react': reactPlugin,
+    react: reactPlugin,
     '@typescript-eslint': tsPlugin,
     vitest: vitestPlugin,
     'vitest-globals': vitestGlobalsPlugin,

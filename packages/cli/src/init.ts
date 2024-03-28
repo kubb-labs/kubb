@@ -75,7 +75,9 @@ export async function init({ preset = 'simple', logLevel = LogLevel.silent, pack
     $`npm init es6 -y`,
     ...presetMeta.packages.map(async (pack) => {
       spinner.start(`📀 Installing ${c.dim(pack)}`)
-      const { stdout } = await $({ preferLocal: false })`${packageManager} ${installCommand} ${pack}`
+      const { stdout } = await $({
+        preferLocal: false,
+      })`${packageManager} ${installCommand} ${pack}`
       spinner.succeed(`📀 Installed ${c.dim(pack)}`)
 
       return stdout
@@ -89,7 +91,7 @@ export async function init({ preset = 'simple', logLevel = LogLevel.silent, pack
       }
     })
   }
-  spinner.succeed(`📦 initialized Kubb`)
+  spinner.succeed('📦 initialized Kubb')
 
   return
 }

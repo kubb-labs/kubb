@@ -4,7 +4,7 @@ import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, 
 
 export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateUserPathParams>> = {}): NonNullable<UpdateUserPathParams> {
   return {
-    ...{ 'username': faker.string.alpha() },
+    ...{ username: faker.string.alpha() },
     ...override,
   }
 }

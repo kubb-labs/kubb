@@ -10,7 +10,11 @@ type Props<Meta extends Record<string, unknown> = Record<string, unknown>> = {
   children?: KubbNode
 }
 
-class ErrorBoundary extends Component<{ onError: Props['onError']; logger?: Logger; children: KubbNode }> {
+class ErrorBoundary extends Component<{
+  onError: Props['onError']
+  logger?: Logger
+  children: KubbNode
+}> {
   state = { hasError: false }
 
   static getDerivedStateFromError(_error: Error) {

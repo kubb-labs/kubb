@@ -1,8 +1,10 @@
 {
-  "prettier.configPath": "configs/prettier.config.cjs",
-  "editor.defaultFormatter": "dprint.dprint",
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit"
+  },
   "[json]": {
-    "editor.defaultFormatter": "dprint.dprint"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "files.exclude": {
     "**/.git": true,

@@ -26,10 +26,14 @@ type UpdatePetWithForm = {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function useUpdatePetWithFormHook(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
-  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
-  client?: UpdatePetWithForm['client']['parameters']
-} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
+export function useUpdatePetWithFormHook(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithForm['queryParams'],
+  options: {
+    mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
+    client?: UpdatePetWithForm['client']['parameters']
+  } = {},
+): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], never>({
     mutationFn: async () => {

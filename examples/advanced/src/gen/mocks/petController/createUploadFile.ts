@@ -10,14 +10,14 @@ import type {
 
 export function createUploadFilePathParams(override: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
   return {
-    ...{ 'petId': faker.number.int() },
+    ...{ petId: faker.number.int() },
     ...override,
   }
 }
 
 export function createUploadFileQueryParams(override: NonNullable<Partial<UploadFileQueryParams>> = {}): NonNullable<UploadFileQueryParams> {
   return {
-    ...{ 'additionalMetadata': faker.string.alpha() },
+    ...{ additionalMetadata: faker.string.alpha() },
     ...override,
   }
 }

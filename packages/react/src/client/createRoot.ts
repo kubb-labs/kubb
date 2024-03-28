@@ -36,7 +36,7 @@ export function createRoot<Context extends AppContextProps = AppContextProps>({ 
       return instance.files
     },
     getFile(id: string) {
-      return instance.files.find(file => file.id === id)
+      return instance.files.find((file) => file.id === id)
     },
   }
 }

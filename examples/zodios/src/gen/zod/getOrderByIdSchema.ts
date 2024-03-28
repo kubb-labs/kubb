@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { orderSchema } from './orderSchema'
 
-export const getOrderByIdPathParamsSchema = z.object({ orderId: z.number().describe('ID of order that needs to be fetched') })
+export const getOrderByIdPathParamsSchema = z.object({
+  orderId: z.number().describe('ID of order that needs to be fetched'),
+})
 
 /**
  * @description successful operation

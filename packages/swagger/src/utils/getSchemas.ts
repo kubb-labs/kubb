@@ -9,11 +9,7 @@ export type GetSchemasProps = {
   includes?: Mode[]
 }
 
-export function getSchemas({
-  oas,
-  contentType,
-  includes = ['schemas', 'requestBodies', 'responses'],
-}: GetSchemasProps): Record<string, OasTypes.SchemaObject> {
+export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBodies', 'responses'] }: GetSchemasProps): Record<string, OasTypes.SchemaObject> {
   const components = oas.getDefinition().components
 
   let schemas: Record<string, OasTypes.SchemaObject> = {}

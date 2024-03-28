@@ -26,29 +26,26 @@ describe('OperationGenerator', async () => {
       unknownType: 'any',
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pets', 'get')
     const operationShowById = oas.operation('/pets/{petId}', 'get')
 
-    const files = await og.operation(operation, options) as KubbFile.File[]
-    const getShowByIdFiles = await og.operation(operationShowById, options) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
+    const getShowByIdFiles = (await og.operation(operationShowById, options)) as KubbFile.File[]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
 
-    getShowByIdFiles.forEach(file => {
+    getShowByIdFiles.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
   })
@@ -64,22 +61,19 @@ describe('OperationGenerator', async () => {
       unknownType: 'any',
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pets', 'post')
-    const files = await og.operation(operation, options) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
   })
@@ -95,22 +89,19 @@ describe('OperationGenerator', async () => {
       unknownType: 'any',
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.operation(operation, options) as KubbFile.File[]
+    const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(FileManager.getSource(file)).toMatchSnapshot()
     })
   })
@@ -126,18 +117,15 @@ describe('OperationGenerator', async () => {
       unknownType: 'unknown',
     }
 
-    const og = await new OperationGenerator(
-      options,
-      {
-        oas,
-        exclude: [],
-        include: undefined,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
-        contentType: undefined,
-        override: undefined,
-      },
-    )
+    const og = await new OperationGenerator(options, {
+      oas,
+      exclude: [],
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      override: undefined,
+    })
     const operation = oas.operation('/pet/{petId}', 'delete')
     const files = await og.operation(operation, options)
 

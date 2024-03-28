@@ -4,7 +4,7 @@ import type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMuta
 export function createDeleteUserPathParams(override: NonNullable<Partial<DeleteUserPathParams>> = {}): NonNullable<DeleteUserPathParams> {
   faker.seed([220])
   return {
-    ...{ 'username': faker.string.alpha() },
+    ...{ username: faker.string.alpha() },
     ...override,
   }
 }

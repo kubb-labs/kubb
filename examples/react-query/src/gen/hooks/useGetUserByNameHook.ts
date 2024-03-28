@@ -52,10 +52,13 @@ export function useGetUserByNameHook<
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: Partial<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseQueryResult<TData, GetUserByName['error']> & {
+>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -98,10 +101,13 @@ export function useGetUserByNameHookInfinite<
   TData = InfiniteData<GetUserByName['response']>,
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
+>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

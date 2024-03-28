@@ -13,7 +13,9 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
 
     root.render(
       <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>

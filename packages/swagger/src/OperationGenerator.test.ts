@@ -363,10 +363,12 @@ describe('OperationGenerator include and exclude', async () => {
             pattern: /\pets$/,
           },
         ],
-        exclude: [{
-          type: 'method',
-          pattern: 'post',
-        }],
+        exclude: [
+          {
+            type: 'method',
+            pattern: 'post',
+          },
+        ],
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as Plugin,
         contentType: undefined,

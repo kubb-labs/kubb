@@ -3,7 +3,7 @@ import { Client } from '@kubb/swagger-client/components'
 import React from 'react'
 
 export const templates = {
-  default: function({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
+  default: function ({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
     const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
 
     return (

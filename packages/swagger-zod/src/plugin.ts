@@ -18,8 +18,17 @@ export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'zod' }, group, exclude = [], include, override = [], transformers = {}, dateType = 'string', unknownType = 'any', typed = false } =
-    options
+  const {
+    output = { path: 'zod' },
+    group,
+    exclude = [],
+    include,
+    override = [],
+    transformers = {},
+    dateType = 'string',
+    unknownType = 'any',
+    typed = false,
+  } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -55,7 +64,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = camelCase(name, { suffix: type ? 'schema' : undefined, isFile: type === 'file' })
+      const resolvedName = camelCase(name, {
+        suffix: type ? 'schema' : undefined,
+        isFile: type === 'file',
+      })
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
@@ -77,35 +89,29 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
 
-      const schemaGenerator = new SchemaGenerator(
-        this.plugin.options,
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.api.contentType,
-          include: undefined,
-          mode,
-          output: output.path,
-        },
-      )
+      const schemaGenerator = new SchemaGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.api.contentType,
+        include: undefined,
+        mode,
+        output: output.path,
+      })
 
       const schemaFiles = await schemaGenerator.build()
       await this.addFile(...schemaFiles)
 
-      const operationGenerator = new OperationGenerator(
-        this.plugin.options,
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.api.contentType,
-          exclude,
-          include,
-          override,
-          mode,
-        },
-      )
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.api.contentType,
+        exclude,
+        include,
+        override,
+        mode,
+      })
 
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)
@@ -131,7 +137,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      await this.fileManager.addIndexes({ root, output, meta: { pluginKey: this.plugin.key } })
+      await this.fileManager.addIndexes({
+        root,
+        output,
+        meta: { pluginKey: this.plugin.key },
+      })
     },
   }
 })

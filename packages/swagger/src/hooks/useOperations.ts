@@ -29,11 +29,11 @@ export function useOperations({ method, path }: UseOperationsProps = {}): Operat
   let items = operations
 
   if (path) {
-    items = items.filter(item => item.path === path)
+    items = items.filter((item) => item.path === path)
   }
 
   if (method) {
-    items = items.filter(item => item.method === method)
+    items = items.filter((item) => item.method === method)
   }
 
   return items

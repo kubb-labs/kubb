@@ -15,22 +15,20 @@ import type { Cache } from './utils/cache.ts'
  * ...
  * })
  */
-export type UserConfig =
-  & Omit<Config, 'root' | 'plugins'>
-  & {
-    /**
-     * Project root directory. Can be an absolute path, or a path relative from
-     * the location of the config file itself.
-     * @default process.cwd()
-     */
-    root?: string
-    /**
-     * Plugin type can be KubbJSONPlugin or Plugin
-     * Example: ['@kubb/swagger', { output: false }]
-     * Or: createSwagger({ output: false })
-     */
-    plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
-  }
+export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
+  /**
+   * Project root directory. Can be an absolute path, or a path relative from
+   * the location of the config file itself.
+   * @default process.cwd()
+   */
+  root?: string
+  /**
+   * Plugin type can be KubbJSONPlugin or Plugin
+   * Example: ['@kubb/swagger', { output: false }]
+   * Or: createSwagger({ output: false })
+   */
+  plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
+}
 
 export type InputPath = {
   /**
@@ -166,32 +164,31 @@ export type PluginFactoryOptions<
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 
-export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
-  & {
-    /**
-     * Unique name used for the plugin
-     * The name of the plugin follows the format scope:foo-bar or foo-bar, adding scope: can avoid naming conflicts with other plugins.
-     * @example @kubb/typescript
-     */
-    name: TOptions['name']
-    /**
-     * Options set for a specific plugin(see kubb.config.js), passthrough of options.
-     */
-    options: TOptions['resolvedOptions']
-    /**
-     * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-     * Can be used to validate depended plugins.
-     */
-    pre?: Array<string>
-    /**
-     * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
-     */
-    post?: Array<string>
-  }
-  & (TOptions['api'] extends never ? {
+export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * Unique name used for the plugin
+   * The name of the plugin follows the format scope:foo-bar or foo-bar, adding scope: can avoid naming conflicts with other plugins.
+   * @example @kubb/typescript
+   */
+  name: TOptions['name']
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options: TOptions['resolvedOptions']
+  /**
+   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
+   * Can be used to validate depended plugins.
+   */
+  pre?: Array<string>
+  /**
+   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+   */
+  post?: Array<string>
+} & (TOptions['api'] extends never
+  ? {
       api?: never
     }
-    : {
+  : {
       api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['api']
     })
 
@@ -199,39 +196,38 @@ export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = Plug
 
 type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
 
-export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
-  & {
-    /**
-     * Unique name used for the plugin
-     * @example @kubb/typescript
-     */
-    name: TOptions['name']
-    /**
-     * Internal key used when a developer uses more than one of the same plugin
-     * @private
-     */
-    key: TOptions['key']
-    /**
-     * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-     * Can be used to validate depended plugins.
-     */
-    pre?: Array<string>
-    /**
-     * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
-     */
-    post?: Array<string>
-    /**
-     * Options set for a specific plugin(see kubb.config.js), passthrough of options.
-     */
-    options: TOptions['resolvedOptions']
-    /**
-     * Define an api that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
-     */
-  }
-  & (TOptions['api'] extends never ? {
+export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * Unique name used for the plugin
+   * @example @kubb/typescript
+   */
+  name: TOptions['name']
+  /**
+   * Internal key used when a developer uses more than one of the same plugin
+   * @private
+   */
+  key: TOptions['key']
+  /**
+   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
+   * Can be used to validate depended plugins.
+   */
+  pre?: Array<string>
+  /**
+   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+   */
+  post?: Array<string>
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options: TOptions['resolvedOptions']
+  /**
+   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
+   */
+} & (TOptions['api'] extends never
+  ? {
       api?: never
     }
-    : {
+  : {
       api: TOptions['api']
     })
 

@@ -49,7 +49,10 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
         headers: { ...headers, ...options.headers },
         ...options,
       })
-      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
+      return {
+        ...res,
+        data: findPetsByTagsQueryResponseSchema.parse(res.data),
+      }
     },
   }
 }
@@ -62,10 +65,14 @@ export function useFindPetsByTags<
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
->(headers: FindPetsByTags['headerParams'], params?: FindPetsByTags['queryParams'], options: {
-  query?: Partial<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
-  client?: FindPetsByTags['client']['parameters']
-} = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
+>(
+  headers: FindPetsByTags['headerParams'],
+  params?: FindPetsByTags['queryParams'],
+  options: {
+    query?: Partial<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
+    client?: FindPetsByTags['client']['parameters']
+  } = {},
+): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -102,7 +109,10 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
           ...(options.params || {}),
         },
       })
-      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
+      return {
+        ...res,
+        data: findPetsByTagsQueryResponseSchema.parse(res.data),
+      }
     },
   }
 }
@@ -115,10 +125,14 @@ export function useFindPetsByTagsInfinite<
   TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
->(headers: FindPetsByTags['headerParams'], params?: FindPetsByTags['queryParams'], options: {
-  query?: Partial<UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
-  client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+>(
+  headers: FindPetsByTags['headerParams'],
+  params?: FindPetsByTags['queryParams'],
+  options: {
+    query?: Partial<UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
+    client?: FindPetsByTags['client']['parameters']
+  } = {},
+): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}

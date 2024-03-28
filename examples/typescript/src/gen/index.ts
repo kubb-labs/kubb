@@ -123,4 +123,11 @@ export type {
   User,
   UserArray,
 } from './ts/models/index'
-export { addPetRequestStatus, findPetsByStatusQueryParamsStatus, oas, orderHttpStatus, orderStatus, petStatus } from './ts/models/index'
+export {
+  addPetRequestStatus,
+  findPetsByStatusQueryParamsStatus,
+  oas,
+  orderHttpStatus,
+  orderStatus,
+  petStatus,
+} from './ts/models/index'

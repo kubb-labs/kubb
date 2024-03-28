@@ -42,18 +42,21 @@ export function useGetUserByNameHook<
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: Partial<QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseQueryResult<TData, GetUserByName['error']> & {
+>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
   const query = useQuery({
-    ...getUserByNameQueryOptions(username, clientOptions) as QueryObserverOptions,
+    ...(getUserByNameQueryOptions(username, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
@@ -93,9 +96,9 @@ export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], 
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
   const query = useSuspenseQuery({
-    ...getUserByNameSuspenseQueryOptions(username, clientOptions) as QueryObserverOptions,
+    ...(getUserByNameSuspenseQueryOptions(username, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }

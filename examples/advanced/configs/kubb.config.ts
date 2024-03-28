@@ -166,21 +166,19 @@ export default defineConfig(async () => {
         group: { type: 'tag' },
         dateType: 'date',
       }),
-      swaggerMsw(
-        {
-          output: {
-            path: 'msw',
-            exportAs: 'msw',
-          },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag' },
+      swaggerMsw({
+        output: {
+          path: 'msw',
+          exportAs: 'msw',
         },
-      ),
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        group: { type: 'tag' },
+      }),
     ],
   }
 })

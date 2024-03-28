@@ -2,6 +2,6 @@ export const test = 'hallo'
 
 export type Test = number
 
-export interface TestInterface {}
+export type TestInterface = {}
 
 const notExported = 2

@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { userSchema } from './userSchema'
 
-export const updateUserPathParamsSchema = z.object({ username: z.string().describe('name that need to be deleted') })
+export const updateUserPathParamsSchema = z.object({
+  username: z.string().describe('name that need to be deleted'),
+})
 
 /**
  * @description successful operation

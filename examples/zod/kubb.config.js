@@ -18,19 +18,28 @@ export default defineConfig(async () => {
       done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
     },
     plugins: [
-      ['@kubb/swagger', {
-        output: false,
-      }],
-      ['@kubb/swagger-zod', {
-        output: {
-          path: './zod',
+      [
+        '@kubb/swagger',
+        {
+          output: false,
         },
-      }],
-      ['@kubb/swagger-ts', {
-        output: {
-          path: './ts',
+      ],
+      [
+        '@kubb/swagger-zod',
+        {
+          output: {
+            path: './zod',
+          },
         },
-      }],
+      ],
+      [
+        '@kubb/swagger-ts',
+        {
+          output: {
+            path: './ts',
+          },
+        },
+      ],
     ],
   }
 })
