@@ -18,9 +18,6 @@ module.exports = defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
-    },
     plugins: [
       createSwagger({ output: false }),
       createSwaggerTS({

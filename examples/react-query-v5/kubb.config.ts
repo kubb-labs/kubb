@@ -3,9 +3,9 @@ import createSwagger from '@kubb/swagger'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 import createSwaggerTS from '@kubb/swagger-ts'
 
-import * as queryKey from './templates/queryKey/index'
-import * as operations from './templates/operations/index'
 import * as mutation from './templates/mutate/index'
+import * as operations from './templates/operations/index'
+import * as queryKey from './templates/queryKey/index'
 
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
@@ -16,9 +16,6 @@ export const config = {
   output: {
     path: './src/gen',
     clean: true,
-  },
-  hooks: {
-    // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   plugins: [
     createSwagger({ output: false }),

@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
 import { definePlugin as swagger } from '@kubb/swagger'
-import { definePlugin as swaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as swaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as swaggerSwr } from '@kubb/swagger-swr'
 import { definePlugin as swaggerClient } from '@kubb/swagger-client'
-import { definePlugin as swaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as swaggerZodios } from '@kubb/swagger-zodios'
 import { definePlugin as swaggerFaker } from '@kubb/swagger-faker'
 import { definePlugin as swaggerMsw } from '@kubb/swagger-msw'
+import { definePlugin as swaggerSwr } from '@kubb/swagger-swr'
+import { definePlugin as swaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as swaggerTS } from '@kubb/swagger-ts'
+import { definePlugin as swaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as swaggerZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -23,9 +23,6 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
       clean: true,
-    },
-    hooks: {
-      // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     plugins: [
       swagger({
