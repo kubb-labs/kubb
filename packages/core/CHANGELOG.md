@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 2.12.0
+
+### Patch Changes
+
+- [#898](https://github.com/kubb-project/kubb/pull/898) [`d9191db`](https://github.com/kubb-project/kubb/commit/d9191db9267b13acf4af40fb0bbe9c9d2cd39ca3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `exportable` to exclude files in the barrel files
+
+- Updated dependencies []:
+  - @kubb/parser@2.12.0
+  - @kubb/types@2.12.0
+
 ## 2.11.1
 
 ### Patch Changes
