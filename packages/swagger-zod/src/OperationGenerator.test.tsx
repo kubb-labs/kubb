@@ -9,6 +9,7 @@ import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { KubbFile } from 'packages/core/dist/index'
 import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
+import { zodKeywordMapper } from './zodParser.tsx'
 
 describe('OperationGenerator', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -28,6 +29,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: zodKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {
@@ -66,6 +68,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: zodKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {
@@ -97,6 +100,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: zodKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {
@@ -128,6 +132,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: zodKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {

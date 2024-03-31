@@ -1,11 +1,12 @@
 import path from 'node:path'
+import { fakerKeywordMapper } from './fakerParser'
 
-import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
-import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
+import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { SchemaGenerator } from './SchemaGenerator.tsx'
@@ -18,7 +19,18 @@ export const pluginName = 'swagger-faker' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'mocks' }, seed, group, exclude = [], include, override = [], transformers = {}, dateType = 'string', unknownType = 'any' } = options
+  const {
+    output = { path: 'mocks' },
+    seed,
+    group,
+    exclude = [],
+    include,
+    override = [],
+    transformers = {},
+    mapper = {},
+    dateType = 'string',
+    unknownType = 'any',
+  } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -28,6 +40,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dateType,
       seed,
       unknownType,
+      mapper: {
+        ...fakerKeywordMapper,
+        ...mapper,
+      },
     },
     pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, pathMode, options) {

@@ -2,14 +2,14 @@ import { Generator } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
+import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 import { isReference } from './utils/isReference.ts'
-import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
+import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { ContentType, OperationSchema, Refs } from './types.ts'
 
 export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
@@ -543,19 +543,6 @@ export abstract class SchemaGenerator<
         ].filter(Boolean)
       }
 
-      if ([schemaKeywords.number as string, schemaKeywords.integer as string, schemaKeywords.string as string].includes(schema.type)) {
-        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-
-        if (max !== undefined) {
-          baseItems.unshift({ keyword: schemaKeywords.max, args: max })
-        }
-
-        if (min !== undefined) {
-          baseItems.unshift({ keyword: schemaKeywords.min, args: min })
-        }
-      }
-
       if (schema.pattern) {
         baseItems.unshift({
           keyword: schemaKeywords.matches,
@@ -584,6 +571,13 @@ export abstract class SchemaGenerator<
 
       if (schema.format === 'uuid') {
         baseItems.unshift({ keyword: schemaKeywords.uuid })
+      }
+
+      if ([schemaKeywords.number as string, schemaKeywords.integer as string, schemaKeywords.string as string].includes(schema.type)) {
+        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+
+        return [{ keyword: schema.type, args: { min, max } } as SchemaKeywordMapper['string'], ...baseItems]
       }
 
       // string, boolean, null, number

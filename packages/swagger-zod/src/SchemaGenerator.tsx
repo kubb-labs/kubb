@@ -1,14 +1,14 @@
-import { createRoot, File, useFile, usePlugin, usePluginManager } from '@kubb/react'
+import { File, createRoot, useFile, usePlugin, usePluginManager } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
+import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
-import { zodParser } from './zodParser.tsx'
+import { type zodKeywordMapper, zodParser } from './zodParser.tsx'
 
 import type { AppContextProps } from '@kubb/react'
-import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaMethodResult } from '@kubb/swagger'
+import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -87,6 +87,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
         type: 'function',
       }),
       description,
+      mapper: this.options.mapper as typeof zodKeywordMapper,
       typeName: withTypeAnnotation ? typeName : undefined,
     })
 

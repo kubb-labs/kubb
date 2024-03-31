@@ -1,4 +1,4 @@
-import { schemaKeywords, type Schema } from '../src/SchemaMapper'
+import { type Schema, schemaKeywords } from '../src/SchemaMapper'
 
 const basic: Array<{ name: string; schema: Schema }> = [
   {
@@ -166,7 +166,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.min, args: 1 }, { keyword: schemaKeywords.number }],
+        items: [{ keyword: schemaKeywords.number, args: { min: 1 } }],
         min: 3,
         max: 10,
       },

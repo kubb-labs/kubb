@@ -10,6 +10,7 @@ import { OperationSchema } from './OperationSchema.tsx'
 import type { Plugin, ResolveNameParams } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
+import { fakerKeywordMapper } from '../fakerParser.tsx'
 import type { PluginOptions } from '../types.ts'
 
 describe('<Schema/>', async () => {
@@ -34,6 +35,7 @@ describe('<Schema/>', async () => {
     seed: undefined,
     transformers: {},
     unknownType: 'any',
+    mapper: fakerKeywordMapper,
   }
 
   const plugin = { options } as Plugin<PluginOptions>

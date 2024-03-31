@@ -7,6 +7,7 @@ import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/swagger/oas'
+import { fakerKeywordMapper } from './fakerParser.tsx'
 import type { PluginOptions } from './types'
 
 describe('Faker SchemaGenerator enums', async () => {
@@ -18,6 +19,7 @@ describe('Faker SchemaGenerator enums', async () => {
       seed: 1,
       transformers: {},
       unknownType: 'any',
+      mapper: fakerKeywordMapper,
     },
     {
       oas,

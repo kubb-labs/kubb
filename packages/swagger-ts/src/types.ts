@@ -51,7 +51,7 @@ export type Options = {
   /**
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
-  override?: Array<Override<Options>>
+  override?: Array<Override<ResolvedOptions>>
   /**
    * Choose to use `enum` or `as const` for enums
    * @default 'asConst'

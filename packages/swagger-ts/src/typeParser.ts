@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
-import { isKeyword, SchemaGenerator, schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { ts } from '@kubb/parser'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
@@ -18,7 +18,6 @@ export const typeKeywordMapper = {
 
     return factory.createTypeLiteralNode(nodes)
   },
-  lazy: undefined,
   string: () => factory.keywordTypeNodes.string,
   boolean: () => factory.keywordTypeNodes.boolean,
   undefined: () => factory.keywordTypeNodes.undefined,
@@ -107,7 +106,7 @@ export const typeKeywordMapper = {
   type: undefined,
   format: undefined,
   catchall: undefined,
-} satisfies SchemaMapper<(ctx?: any) => ts.Node | null | undefined>
+} satisfies SchemaMapper<ts.Node | null | undefined>
 
 type ParserOptions = {
   name: string
@@ -126,7 +125,7 @@ type ParserOptions = {
 }
 
 export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | null | undefined {
-  const mapper = options.mapper || typeKeywordMapper
+  const mapper = { ...typeKeywordMapper, ...options.mapper }
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
@@ -134,28 +133,23 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['union']
-    return value(item.args.map((orItem) => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
+    return mapper.union(item.args.map((orItem) => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['and']
-    return value(item.args.map((orItem) => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
+    return mapper.and(item.args.map((orItem) => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['array']
-    return value(item.args.items.map((orItem) => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
+    return mapper.array(item.args.items.map((orItem) => parseTypeMeta(orItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['enum']
-    return value(item.args.typeName)
+    return mapper.enum(item.args.typeName)
   }
 
   if (isKeyword(item, schemaKeywords.ref)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['ref']
-    return value(item.args.name)
+    return mapper.ref(item.args.name)
   }
 
   if (isKeyword(item, schemaKeywords.blob)) {
@@ -163,19 +157,14 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
   }
 
   if (isKeyword(item, schemaKeywords.tuple)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['tuple']
-    return value(item.args.map((tupleItem) => parseTypeMeta(tupleItem, options)).filter(Boolean) as ts.TypeNode[])
+    return mapper.tuple(item.args.map((tupleItem) => parseTypeMeta(tupleItem, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(item, schemaKeywords.const)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['const']
-
-    return value(item.args.name, item.args.format)
+    return mapper.const(item.args.name, item.args.format)
   }
 
   if (isKeyword(item, schemaKeywords.object)) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof typeKeywordMapper)['object']
-
     const properties = Object.entries(item.args?.properties || {})
       .filter((item) => {
         const schemas = item[1]
@@ -244,7 +233,7 @@ export function parseTypeMeta(item: Schema, options: ParserOptions): ts.Node | n
         )
       : undefined
 
-    return value([...properties, additionalProperties].filter(Boolean))
+    return mapper.object([...properties, additionalProperties].filter(Boolean))
   }
 
   if (item.keyword in mapper) {

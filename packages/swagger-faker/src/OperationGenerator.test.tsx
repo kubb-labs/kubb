@@ -7,6 +7,7 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
+import { fakerKeywordMapper } from './fakerParser.tsx'
 import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', async () => {
@@ -21,6 +22,7 @@ describe('OperationGenerator', async () => {
       seed: undefined,
       transformers: {},
       unknownType: 'any',
+      mapper: fakerKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {
@@ -53,6 +55,7 @@ describe('OperationGenerator', async () => {
       seed: [222],
       transformers: {},
       unknownType: 'any',
+      mapper: fakerKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {
@@ -85,6 +88,7 @@ describe('OperationGenerator', async () => {
       seed: undefined,
       transformers: {},
       unknownType: 'any',
+      mapper: fakerKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {
@@ -110,6 +114,7 @@ describe('OperationGenerator', async () => {
       seed: undefined,
       transformers: {},
       unknownType: 'any',
+      mapper: fakerKeywordMapper,
     }
 
     const og = await new OperationGenerator(options, {

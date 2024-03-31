@@ -14,6 +14,7 @@ import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
+import { zodKeywordMapper } from './zodParser.tsx'
 
 export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -29,6 +30,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     dateType = 'string',
     unknownType = 'any',
     typed = false,
+    mapper = {},
     templates,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -43,6 +45,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       typed,
       dateType,
       unknownType,
+      mapper: {
+        ...zodKeywordMapper,
+        ...mapper,
+      },
       templates: {
         operations: Operations.templates,
         ...templates,

@@ -10,6 +10,7 @@ import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
+import { zodKeywordMapper } from '../zodParser.tsx'
 import { Operations } from './Operations.tsx'
 
 describe('<OperationSchema/>', async () => {
@@ -30,6 +31,7 @@ describe('<OperationSchema/>', async () => {
     templates: {
       operations: Operations.templates,
     },
+    mapper: zodKeywordMapper,
   }
 
   const plugin = { options } as Plugin<PluginOptions>

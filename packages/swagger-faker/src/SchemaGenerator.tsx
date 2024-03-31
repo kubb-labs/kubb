@@ -1,14 +1,14 @@
-import { createRoot, File, useFile, usePluginManager } from '@kubb/react'
+import { File, createRoot, useFile, usePluginManager } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
+import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
-import { fakerParser } from './fakerParser.tsx'
+import { type fakerKeywordMapper, fakerParser } from './fakerParser.tsx'
 import { pluginKey } from './plugin.ts'
 
 import type { AppContextProps } from '@kubb/react'
-import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaGeneratorOptions, SchemaMethodResult } from '@kubb/swagger'
+import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -82,6 +82,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       name: resolvedName,
       typeName,
       description,
+      mapper: this.options.mapper as typeof fakerKeywordMapper,
       seed: this.options.seed,
     })
 

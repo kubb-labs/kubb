@@ -4,36 +4,77 @@ import { isKeyword, schemaKeywords } from '@kubb/swagger'
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
 
 export const fakerKeywordMapper = {
-  any: 'undefined',
-  unknown: 'unknown',
-  number: 'faker.number.float',
-  integer: 'faker.number.int',
-  string: 'faker.string.alpha',
-  boolean: 'faker.datatype.boolean',
-  undefined: 'undefined',
-  null: 'null',
-  array: 'faker.helpers.arrayElements',
-  tuple: 'faker.helpers.arrayElements',
-  enum: 'faker.helpers.arrayElement<any>',
-  union: 'faker.helpers.arrayElement',
-  date: 'faker.date.anytime',
-  datetime: 'faker.date.anytime().toISOString',
-  uuid: 'faker.string.uuid',
-  url: 'faker.internet.url',
-  and: 'Object.assign',
-  object: 'object',
-  ref: 'ref',
-  matches: 'faker.helpers.fromRegExp',
-  email: 'faker.internet.email',
-  firstName: 'faker.person.firstName',
-  lastName: 'faker.person.lastName',
-  password: 'faker.internet.password',
-  phone: 'faker.phone.number',
+  any: () => 'undefined',
+  unknown: () => 'unknown',
+  number: (min?: number, max?: number) => {
+    if (max !== undefined && min !== undefined) {
+      return `faker.number.float({ min: ${min}, max: ${max} })`
+    }
+
+    if (min !== undefined) {
+      return `faker.number.float({ min: ${min} })`
+    }
+
+    if (max !== undefined) {
+      return `faker.number.float({ max: ${max} })`
+    }
+
+    return 'faker.number.float()'
+  },
+  integer: (min?: number, max?: number) => {
+    if (max !== undefined && min !== undefined) {
+      return `faker.number.int({ min: ${min}, max: ${max} })`
+    }
+
+    if (min !== undefined) {
+      return `faker.number.int({ min: ${min} })`
+    }
+
+    if (max !== undefined) {
+      return `faker.number.int({ max: ${max} })`
+    }
+
+    return 'faker.number.int()'
+  },
+  string: (min?: number, max?: number) => {
+    if (max !== undefined && min !== undefined) {
+      return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
+    }
+
+    if (min !== undefined) {
+      return `faker.string.alpha({ length: { min: ${min} } })`
+    }
+
+    if (max !== undefined) {
+      return `faker.string.alpha({ length: { max: ${max} } })`
+    }
+
+    return 'faker.string.alpha()'
+  },
+  boolean: () => 'faker.datatype.boolean()',
+  undefined: () => 'undefined',
+  null: () => 'null',
+  array: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
+  tuple: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
+  enum: (items: Array<string | number> = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
+  union: (items: string[] = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
+  date: () => 'faker.date.anytime()',
+  datetime: () => 'faker.date.anytime().toISOString()',
+  uuid: () => 'faker.string.uuid()',
+  url: () => 'faker.internet.url()',
+  and: (items: string[] = []) => `Object.assign({}, ${items.join(', ')})`,
+  object: () => 'object',
+  ref: () => 'ref',
+  matches: (value = '') => `faker.helpers.fromRegExp(${value})`,
+  email: () => 'faker.internet.email()',
+  firstName: () => 'faker.person.firstName()',
+  lastName: () => 'faker.person.lastName()',
+  password: () => 'faker.internet.password()',
+  phone: () => 'faker.phone.number()',
   blob: undefined,
   default: undefined,
   describe: undefined,
-  lazy: undefined,
-  const: undefined,
+  const: (value?: string | number) => (value as string) ?? '',
   max: undefined,
   min: undefined,
   nullable: undefined,
@@ -46,7 +87,7 @@ export const fakerKeywordMapper = {
   type: undefined,
   format: undefined,
   catchall: undefined,
-} satisfies SchemaMapper
+} satisfies SchemaMapper<string | null | undefined>
 
 /**
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
@@ -60,14 +101,14 @@ function schemaKeywordsorter(a: Schema, b: Schema) {
   return 0
 }
 
-function joinItems(items: string[]): string {
+function joinItems(items: string[], mapper: typeof fakerKeywordMapper): string {
   switch (items.length) {
     case 0:
       return 'undefined'
     case 1:
       return items[0]!
     default:
-      return `${fakerKeywordMapper.union}([${items.join(',')}])`
+      return mapper.union(items)
   }
 }
 
@@ -81,8 +122,8 @@ type ParserOptions = {
   mapper?: typeof fakerKeywordMapper
 }
 
-export function parseFakerMeta(item: Schema, options: ParserOptions): string | undefined {
-  const mapper = options.mapper || fakerKeywordMapper
+export function parseFakerMeta(item: Schema, options: ParserOptions): string | null | undefined {
+  const mapper = { ...fakerKeywordMapper, ...options.mapper }
   const value = mapper[item.keyword as keyof typeof mapper]
 
   if (!value) {
@@ -90,35 +131,26 @@ export function parseFakerMeta(item: Schema, options: ParserOptions): string | u
   }
 
   if (isKeyword(item, schemaKeywords.union)) {
-    return `${value}([${item.args
-      .map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false }))
-      .filter(Boolean)
-      .join(',')}]) as any`
+    return mapper.union(item.args.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean))
   }
 
   if (isKeyword(item, schemaKeywords.and)) {
-    return `${value}({},${item.args
-      .map((andItem) => parseFakerMeta(andItem, { ...options, withOverride: false }))
-      .filter(Boolean)
-      .join(',')})`
+    return mapper.and(item.args.map((andItem) => parseFakerMeta(andItem, { ...options, withOverride: false })).filter(Boolean))
   }
 
   if (isKeyword(item, schemaKeywords.array)) {
-    return `${value}([${item.args.items
-      .map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false }))
-      .filter(Boolean)
-      .join(',')}]) as any`
+    return mapper.array(item.args.items.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean))
   }
 
   if (isKeyword(item, schemaKeywords.enum)) {
-    return `${value}([${item.args.items
-      .map((item) => {
+    return mapper.enum(
+      item.args.items.map((item) => {
         if (item.format === 'number') {
           return item.name
         }
         return transformers.stringify(item.name)
-      })
-      .join(', ')}])`
+      }),
+    )
   }
 
   if (isKeyword(item, schemaKeywords.ref)) {
@@ -148,6 +180,7 @@ export function parseFakerMeta(item: Schema, options: ParserOptions): string | u
             .sort(schemaKeywordsorter)
             .map((item) => parseFakerMeta(item, { ...options, withOverride: false }))
             .filter(Boolean),
+          mapper,
         )}`
       })
       .join(',')
@@ -156,43 +189,60 @@ export function parseFakerMeta(item: Schema, options: ParserOptions): string | u
   }
 
   if (isKeyword(item, schemaKeywords.tuple)) {
-    return `${value}(${
-      Array.isArray(item.args)
-        ? `[${item.args
-            .map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false }))
-            .filter(Boolean)
-            .join(',')}]`
-        : parseFakerMeta(item.args, { ...options, withOverride: false })
-    }) as any`
+    if (Array.isArray(item.args)) {
+      return mapper.tuple(item.args.map((orItem) => parseFakerMeta(orItem, { ...options, withOverride: false })).filter(Boolean))
+    }
+
+    return parseFakerMeta(item.args, { ...options, withOverride: false })
   }
 
   if (isKeyword(item, schemaKeywords.const)) {
-    if (item.args.format === 'number') {
-      return item.args.name?.toString()
+    if (item.args.format === 'number' && item.args.name !== undefined) {
+      return mapper.const(item.args.name?.toString())
     }
-    return transformers.stringify(item.args.value)
+    return mapper.const(transformers.stringify(item.args.value))
   }
 
   if (isKeyword(item, schemaKeywords.matches)) {
     if (item.args) {
-      return `${value}(${transformers.toRegExpString(item.args)})`
+      return mapper.matches(transformers.toRegExpString(item.args))
     }
   }
 
   if (isKeyword(item, schemaKeywords.null) || isKeyword(item, schemaKeywords.undefined) || isKeyword(item, schemaKeywords.any)) {
-    return value || ''
+    return value() || ''
+  }
+
+  if (isKeyword(item, schemaKeywords.string)) {
+    return mapper.string(item.args?.min, item.args?.max)
+  }
+
+  if (isKeyword(item, schemaKeywords.number)) {
+    return mapper.number(item.args?.min, item.args?.max)
+  }
+
+  if (isKeyword(item, schemaKeywords.integer)) {
+    return mapper.integer(item.args?.min, item.args?.max)
+  }
+
+  if (item.keyword in mapper && 'args' in item) {
+    const value = mapper[item.keyword as keyof typeof mapper] as (typeof fakerKeywordMapper)['const']
+
+    const options = JSON.stringify((item as SchemaKeywordBase<unknown>).args)
+
+    return value(options)
   }
 
   if (item.keyword in mapper) {
-    const options = JSON.stringify((item as SchemaKeywordBase<unknown>).args)
-    return `${value}(${options ?? ''})`
+    return value()
   }
 
   return undefined
 }
 
 export function fakerParser(schemas: Schema[], options: ParserOptions): string {
-  const fakerText = joinItems(schemas.map((item) => parseFakerMeta(item, { ...options, withOverride: true })).filter(Boolean))
+  const mapper = { ...fakerKeywordMapper, ...options.mapper }
+  const fakerText = joinItems(schemas.map((item) => parseFakerMeta(item, { ...options, withOverride: true })).filter(Boolean), mapper)
 
   let fakerDefaultOverride: '' | '[]' | '{}' = ''
   let fakerTextWithOverride = fakerText
@@ -205,7 +255,7 @@ export function fakerParser(schemas: Schema[], options: ParserOptions): string {
 }`
   }
 
-  if (fakerText.startsWith(fakerKeywordMapper.array)) {
+  if (fakerText.startsWith('faker.helpers.arrayElements')) {
     fakerDefaultOverride = '[]'
     fakerTextWithOverride = `[
       ...${fakerText},

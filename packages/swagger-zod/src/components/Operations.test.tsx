@@ -10,6 +10,7 @@ import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
+import { zodKeywordMapper } from '../zodParser.tsx'
 
 describe('<Operations/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -29,6 +30,7 @@ describe('<Operations/>', async () => {
     templates: {
       operations: Operations.templates,
     },
+    mapper: zodKeywordMapper,
   }
   const plugin = { options } as Plugin<PluginOptions>
   const og = await new OperationGenerator(options, {
