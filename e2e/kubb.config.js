@@ -43,9 +43,7 @@ const baseConfig = {
   },
   plugins: [
     createSwagger({
-      output: {
-        path: 'schemas',
-      },
+      output: false,
       validate: true,
     }),
     createSwagger({
@@ -57,140 +55,56 @@ const baseConfig = {
     createSwaggerTS({
       output: {
         path: 'models/ts',
-        extName: '.js',
+        exportType: false,
       },
       group: {
         type: 'tag',
       },
       enumType: 'asPascalConst',
-      enumSuffix: 'enum',
-      dateType: 'date',
-      override: [
-        {
-          type: 'operationId',
-          pattern: 'findPetsByStatus',
-          options: {
-            enumType: 'enum',
-          },
-        },
-      ],
     }),
     createSwaggerTanstackQuery({
       output: {
         path: './clients/hooks',
-        exportAs: 'hooks',
       },
-      exclude: [
-        {
-          type: 'tag',
-          pattern: 'store',
-        },
-      ],
-      override: [
-        {
-          type: 'tag',
-          pattern: 'pet',
-          options: {
-            infinite: {
-              queryParam: 'test',
-              initialPageParam: '0',
-            },
-            mutate: {
-              methods: ['post', 'put', 'delete'],
-              variablesType: 'mutate',
-            },
-          },
-        },
-      ],
       group: { type: 'tag' },
-      client: {
-        importPath: '../../../../tanstack-query-client.ts',
+      mutate: {
+        variablesType: 'mutate',
+        methods: ['post', 'put', 'delete'],
       },
-      infinite: {},
-      dataReturnType: 'full',
-      parser: 'zod',
     }),
     createSwaggerSwr({
       output: {
         path: './clients/swr',
-        exportAs: 'swrHooks',
       },
-      exclude: [
-        {
-          type: 'tag',
-          pattern: 'store',
-        },
-      ],
       group: { type: 'tag' },
-      client: {
-        importPath: '../../../../swr-client.ts',
-      },
-      dataReturnType: 'full',
     }),
     createSwaggerClient({
       output: {
         path: './clients/axios',
-        exportAs: 'clients',
       },
-      exclude: [
-        {
-          type: 'tag',
-          pattern: 'store',
-        },
-      ],
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-      client: {
-        importPath: '../../../../axios-client.ts',
-      },
-      dataReturnType: 'full',
-      pathParamsType: 'object',
     }),
     createSwaggerZod({
       output: {
         path: './zod',
-        exportAs: 'zod',
       },
-      exclude: [
-        {
-          type: 'tag',
-          pattern: 'store',
-        },
-      ],
       group: { type: 'tag' },
-      dateType: 'date',
-      typed: true,
     }),
     createSwaggerZodios({
       output: {
         path: 'zodios.ts',
-        exportAs: 'zodios',
       },
     }),
     createSwaggerFaker({
       output: {
         path: 'mocks',
-        exportAs: 'faker',
       },
-      exclude: [
-        {
-          type: 'tag',
-          pattern: 'store',
-        },
-      ],
       group: { type: 'tag' },
-      dateType: 'date',
     }),
     createSwaggerMsw({
       output: {
         path: 'msw',
-        exportAs: 'msw',
       },
-      exclude: [
-        {
-          type: 'tag',
-          pattern: 'store',
-        },
-      ],
       group: { type: 'tag' },
     }),
   ],

@@ -10,7 +10,7 @@ export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNull
       orderType: faker.helpers.arrayElement<any>(['foo', 'bar']),
       type: faker.string.alpha(),
       shipDate: faker.date.anytime(),
-      status: faker.helpers.arrayElement<any>(['placed', 'approved', 'delivered']),
+      status: faker.helpers.arrayElement(['working', 'idle']) as any,
       http_status: faker.helpers.arrayElement<any>(['ok', 'not_found']),
       complete: faker.datatype.boolean(),
     },

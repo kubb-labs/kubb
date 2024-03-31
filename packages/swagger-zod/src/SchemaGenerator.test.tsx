@@ -9,6 +9,7 @@ import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
+import { zodKeywordMapper } from './zodParser.tsx'
 
 describe('Zod SchemaGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -27,6 +28,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -56,6 +58,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -85,6 +88,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -114,6 +118,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -143,6 +148,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -175,6 +181,7 @@ describe('ZodGenerator constCases', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: {},
     },
     {
       oas,
@@ -261,6 +268,7 @@ describe('Zod SchemaGenerator lazy', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -293,6 +301,7 @@ describe('Zod SchemaGenerator enums', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: {},
     },
     {
       oas,
@@ -335,6 +344,7 @@ describe('Zod SchemaGenerator recursive', async () => {
         templates: {
           operations: Operations.templates,
         },
+        mapper: {},
       },
       {
         oas,
@@ -367,6 +377,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       templates: {
         operations: Operations.templates,
       },
+      mapper: {},
     },
     {
       oas,

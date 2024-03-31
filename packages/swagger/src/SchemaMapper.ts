@@ -52,13 +52,12 @@ export type SchemaKeywordMapper = {
     keyword: 'ref'
     args: { name: string; path: KubbFile.OptionalPath; isTypeOnly?: boolean }
   }
-  lazy: { keyword: 'lazy' }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
   default: { keyword: 'default'; args: string | number | boolean }
-  string: { keyword: 'string'; args?: { min?: number; max?: number } }
-  integer: { keyword: 'integer'; args?: { min?: number; max?: number } }
-  number: { keyword: 'number'; args?: { min?: number; max?: number } }
+  string: { keyword: 'string' }
+  integer: { keyword: 'integer' }
+  number: { keyword: 'number' }
   max: { keyword: 'max'; args: number }
   min: { keyword: 'min'; args: number }
   describe: { keyword: 'describe'; args: string }
@@ -88,7 +87,6 @@ export const schemaKeywords = {
   integer: 'integer',
   string: 'string',
   boolean: 'boolean',
-  lazy: 'lazy',
   undefined: 'undefined',
   nullable: 'nullable',
   null: 'null',
@@ -132,8 +130,8 @@ export const schemaKeywords = {
 
 export type SchemaKeyword = keyof SchemaKeywordMapper
 
-export type SchemaMapper<T = string> = {
-  [K in keyof SchemaKeywordMapper]: T | undefined
+export type SchemaMapper<T = string | null | undefined> = {
+  [K in keyof SchemaKeywordMapper]: (() => T | undefined) | undefined
 }
 
 export type SchemaKeywordBase<T> = {

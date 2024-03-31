@@ -1,6 +1,7 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions, SchemaMapper } from '@kubb/swagger'
 import type { Operations } from './components/Operations'
+import type { zodKeywordMapper } from './zodParser'
 
 type Templates = {
   operations?: typeof Operations.templates | false
@@ -61,13 +62,14 @@ export type Options = {
   /**
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
-  override?: Array<Override<Options>>
+  override?: Array<Override<ResolvedOptions>>
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  mapper?: Record<string, string>
   /**
    * Make it possible to override one of the templates
    */
@@ -97,6 +99,7 @@ type ResolvedOptions = {
   unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
   templates: NonNullable<Templates>
+  mapper: Record<string, string>
 }
 
 export type FileMeta = {

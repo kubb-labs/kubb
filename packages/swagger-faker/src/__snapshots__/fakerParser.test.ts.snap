@@ -6,7 +6,7 @@ exports[`fakerParser > 'Object' 1`] = `
 export function Object(override: NonNullable<Partial<undefined>> = {}) {
   
   return {
-  ...{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({},faker.string.alpha(),faker.number.float())},
+  ...{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())},
   ...override
 }
 }
@@ -49,17 +49,19 @@ export function Upload(override?: NonNullable<Partial<undefined>>) {
 "
 `;
 
-exports[`parseFakerMeta > 'and' 1`] = `"Object.assign({},faker.string.alpha(),faker.number.float())"`;
+exports[`parseFakerMeta > 'and' 1`] = `"Object.assign({}, faker.string.alpha(), faker.number.float())"`;
 
 exports[`parseFakerMeta > 'any' 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement([faker.number.float(),faker.string.alpha()]) as any]) as any"`;
+exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])]) as any"`;
 
-exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float({ min: 1, max: 10 })]) as any"`;
 
 exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
 exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
+
+exports[`parseFakerMeta > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
 
 exports[`parseFakerMeta > 'blob' 1`] = `undefined`;
 
@@ -91,7 +93,9 @@ exports[`parseFakerMeta > 'number' 1`] = `"faker.number.float()"`;
 
 exports[`parseFakerMeta > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
-exports[`parseFakerMeta > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({},faker.string.alpha(),faker.number.float())}"`;
+exports[`parseFakerMeta > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
+
+exports[`parseFakerMeta > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any}"`;
 
 exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
 
@@ -103,12 +107,12 @@ exports[`parseFakerMeta > 'string' 1`] = `"faker.string.alpha()"`;
 
 exports[`parseFakerMeta > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-exports[`parseFakerMeta > 'tupleMulti' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'tupleMulti' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(), faker.number.float()]) as any"`;
 
 exports[`parseFakerMeta > 'undefined' 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > 'union' 1`] = `"faker.helpers.arrayElement([faker.string.alpha(),faker.number.float()]) as any"`;
+exports[`parseFakerMeta > 'union' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha(), faker.number.float()])"`;
 
-exports[`parseFakerMeta > 'unionOne' 1`] = `"faker.helpers.arrayElement([faker.string.alpha()]) as any"`;
+exports[`parseFakerMeta > 'unionOne' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha()])"`;
 
-exports[`parseFakerMeta > 'unknown' 1`] = `"unknown()"`;
+exports[`parseFakerMeta > 'unknown' 1`] = `"unknown"`;

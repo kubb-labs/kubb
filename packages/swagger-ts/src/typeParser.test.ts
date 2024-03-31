@@ -5,7 +5,7 @@ import { parseTypeMeta, typeParser } from './typeParser.ts'
 
 describe('parseTypeMeta', () => {
   test.each(schemas.basic)('$name', ({ schema, name }) => {
-    const parsed = parseTypeMeta(schema, {
+    const parsed = parseTypeMeta(undefined, schema, {
       name,
       optionalType: 'questionToken',
       enumType: 'asConst',

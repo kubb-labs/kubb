@@ -49,9 +49,9 @@ module.exports = defineConfig(async () => {
             return undefined
           },
         },
-        // mapper: {
-        //   productName: 'faker.commerce.productName',
-        // },
+        mapper: {
+          message: 'faker.commerce.productName()',
+        },
         include: [
           {
             type: 'operationId',

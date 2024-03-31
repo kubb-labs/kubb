@@ -2,14 +2,14 @@ import { Generator } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
+import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 import { isReference } from './utils/isReference.ts'
-import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
+import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
 import type { ContentType, OperationSchema, Refs } from './types.ts'
 
 export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
@@ -33,7 +33,7 @@ export type SchemaGeneratorOptions = {
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
-  mapper?: SchemaMapper
+  mapper?: Record<string, string>
   typed?: boolean
   transformers: {
     /**
@@ -77,6 +77,10 @@ export abstract class SchemaGenerator<
 
   deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
     return SchemaGenerator.deepSearch<T>(schemas, keyword)
+  }
+
+  find<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
+    return SchemaGenerator.find<T>(schemas, keyword)
   }
 
   static deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
@@ -133,6 +137,58 @@ export abstract class SchemaGenerator<
     })
 
     return foundItems
+  }
+
+  static find<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
+    let foundItem: SchemaKeywordMapper[T] | undefined = undefined
+
+    schemas?.forEach((schema) => {
+      if (!foundItem && schema.keyword === keyword) {
+        foundItem = schema as SchemaKeywordMapper[T]
+      }
+
+      if (schema.keyword === schemaKeywords.array) {
+        const subItem = schema as SchemaKeywordMapper['array']
+
+        subItem.args.items.forEach((entrySchema) => {
+          if (!foundItem) {
+            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+          }
+        })
+      }
+
+      if (schema.keyword === schemaKeywords.and) {
+        const subItem = schema as SchemaKeywordMapper['and']
+
+        subItem.args.forEach((entrySchema) => {
+          if (!foundItem) {
+            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+          }
+        })
+      }
+
+      if (schema.keyword === schemaKeywords.tuple) {
+        const subItem = schema as SchemaKeywordMapper['tuple']
+
+        subItem.args.forEach((entrySchema) => {
+          if (!foundItem) {
+            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+          }
+        })
+      }
+
+      if (schema.keyword === schemaKeywords.union) {
+        const subItem = schema as SchemaKeywordMapper['union']
+
+        subItem.args.forEach((entrySchema) => {
+          if (!foundItem) {
+            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+          }
+        })
+      }
+    })
+
+    return foundItem
   }
 
   get #unknownReturn() {
@@ -259,6 +315,9 @@ export abstract class SchemaGenerator<
     }
 
     const baseItems: Schema[] = []
+    const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+    const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+    const nullable = schema.nullable ?? schema['x-nullable'] ?? false
 
     if (schema.default !== undefined && !Array.isArray(schema.default)) {
       if (typeof schema.default === 'string') {
@@ -289,11 +348,17 @@ export abstract class SchemaGenerator<
       })
     }
 
+    if (max !== undefined) {
+      baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+    }
+
+    if (min !== undefined) {
+      baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+    }
+
     if (schema.format) {
       baseItems.push({ keyword: schemaKeywords.format, args: schema.format })
     }
-
-    const nullable = schema.nullable ?? schema['x-nullable'] ?? false
 
     if (nullable) {
       baseItems.push({ keyword: schemaKeywords.nullable })
@@ -541,19 +606,6 @@ export abstract class SchemaGenerator<
           ),
           nullable ? { keyword: schemaKeywords.nullable } : undefined,
         ].filter(Boolean)
-      }
-
-      if ([schemaKeywords.number as string, schemaKeywords.integer as string, schemaKeywords.string as string].includes(schema.type)) {
-        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-
-        if (max !== undefined) {
-          baseItems.unshift({ keyword: schemaKeywords.max, args: max })
-        }
-
-        if (min !== undefined) {
-          baseItems.unshift({ keyword: schemaKeywords.min, args: min })
-        }
       }
 
       if (schema.pattern) {

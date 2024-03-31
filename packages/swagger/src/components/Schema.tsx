@@ -1,14 +1,14 @@
-import { createContext, Editor, File, useFile, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, createContext, useFile, usePlugin, usePluginManager } from '@kubb/react'
 
-import { useSchema } from '../hooks/useSchema.ts'
 import { schemaKeywords } from '../SchemaMapper.ts'
+import { useSchema } from '../hooks/useSchema.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
-import type { SchemaObject } from '../oas/index.ts'
 import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '../SchemaGenerator.ts'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
+import type { SchemaObject } from '../oas/index.ts'
 import type { PluginOptions } from '../types.ts'
 
 export type SchemaContextProps = {
@@ -21,7 +21,7 @@ export type SchemaContextProps = {
 type Props = {
   name: string
   object?: SchemaObject
-  generator: SchemaGenerator
+  generator: SchemaGenerator<any, any, any>
   children?: KubbNode
 }
 

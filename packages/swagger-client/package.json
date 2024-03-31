@@ -2,15 +2,7 @@
   "name": "@kubb/swagger-client",
   "version": "2.12.0",
   "description": "Generator swagger-client",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
-    "swagger",
-    "openapi",
-    "axios"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen", "swagger", "openapi", "axios"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -49,20 +41,10 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ]
+      "components": ["./dist/components.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "client.ts",
-    "*.d.ts",
-    "*.d.cts",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "client.ts", "*.d.ts", "*.d.cts", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",

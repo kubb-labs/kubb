@@ -1,6 +1,7 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions, Schema, SchemaMapper } from '@kubb/swagger'
 import type { OasTypes } from '@kubb/swagger/oas'
+import type { fakerKeywordMapper } from './fakerParser'
 
 export type Options = {
   output?: {
@@ -58,7 +59,7 @@ export type Options = {
   /**
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
-  override?: Array<Override<Options>>
+  override?: Array<Override<ResolvedOptions>>
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
@@ -81,6 +82,7 @@ export type Options = {
      */
     schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => Schema[] | undefined
   }
+  mapper?: Record<string, string>
   /**
    * The use of Seed is intended to allow for consistent values in a test.
    */
@@ -92,6 +94,7 @@ type ResolvedOptions = {
   unknownType: NonNullable<Options['unknownType']>
   transformers: NonNullable<Options['transformers']>
   seed: NonNullable<Options['seed']> | undefined
+  mapper: Record<string, string>
 }
 
 export type FileMeta = {

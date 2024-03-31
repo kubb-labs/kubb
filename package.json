@@ -38,7 +38,7 @@
     "lint": "bun biome lint ./packages",
     "lint:case": "npx case-police --fix",
     "lint:ci": "bun biome lint ./packages",
-    "lint:fix": "bun biome lint --apply ./packages && bun run lint:case",
+    "lint:fix": "bun biome lint --apply-unsafe ./packages && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
