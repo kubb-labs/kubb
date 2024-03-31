@@ -1,5 +1,5 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
-import { isKeyword, schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
 
@@ -22,7 +22,7 @@ export const zodKeywordMapper = {
   null: () => 'z.null()',
   nullish: () => '.nullish()',
   array: (items: string[] = [], min?: number, max?: number) => {
-    return [`z.array(${items?.join(', ')})`, min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+    return [`z.array(${items?.join('')})`, min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
       .filter(Boolean)
       .join('')
   },
@@ -99,64 +99,61 @@ type ParserOptions = {
   mapper?: typeof zodKeywordMapper
 }
 
-export function parseZodMeta(item: Schema, options: ParserOptions): string | undefined {
+export function parseZodMeta(parent: Schema | undefined, current: Schema, options: ParserOptions): string | undefined {
   const mapper = { ...zodKeywordMapper, ...options.mapper }
-  const value = mapper[item.keyword as keyof typeof mapper]
+  const value = mapper[current.keyword as keyof typeof mapper]
 
   if (!value) {
     return undefined
   }
 
-  if (isKeyword(item, schemaKeywords.union)) {
+  if (isKeyword(current, schemaKeywords.union)) {
     // zod union type needs at least 2 items
-    if (Array.isArray(item.args) && item.args.length === 1) {
-      return parseZodMeta(item.args[0] as Schema, options)
+    if (Array.isArray(current.args) && current.args.length === 1) {
+      return parseZodMeta(parent, current.args[0] as Schema, options)
     }
-    if (Array.isArray(item.args) && !item.args.length) {
+    if (Array.isArray(current.args) && !current.args.length) {
       return ''
     }
 
     return mapper.union(
-      sort(item.args)
-        .map((unionItem) => parseZodMeta(unionItem, options))
+      sort(current.args)
+        .map((schema) => parseZodMeta(current, schema, options))
         .filter(Boolean),
     )
   }
 
-  if (isKeyword(item, schemaKeywords.and)) {
-    const items = sort(item.args)
-      .filter((item: Schema) => {
-        return ![schemaKeywords.optional, schemaKeywords.describe].includes(item.keyword as typeof schemaKeywords.describe)
+  if (isKeyword(current, schemaKeywords.and)) {
+    const items = sort(current.args)
+      .filter((schema: Schema) => {
+        return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
       })
-      .map((item: Schema) => parseZodMeta(item, options))
+      .map((schema: Schema) => parseZodMeta(current, schema, options))
       .filter(Boolean)
 
     return `${items.slice(0, 1)}${mapper.and(items.slice(1))}`
   }
 
-  if (isKeyword(item, schemaKeywords.array)) {
-    return [
-      mapper.array(
-        sort(item.args.items)
-          .map((arrayItem) => parseZodMeta(arrayItem, options))
-          .filter(Boolean),
-        item.args.min,
-        item.args.max,
-      ),
-    ]
-      .filter(Boolean)
-      .join('')
+  if (isKeyword(current, schemaKeywords.array)) {
+    return mapper.array(
+      sort(current.args.items)
+        .map((schemas) => parseZodMeta(current, schemas, options))
+        .filter(Boolean),
+      current.args.min,
+      current.args.max,
+    )
   }
 
-  if (isKeyword(item, schemaKeywords.enum)) {
-    if (item.args.asConst) {
+  if (isKeyword(current, schemaKeywords.enum)) {
+    if (current.args.asConst) {
       return mapper.union(
-        item.args.items
-          .map((item) => {
+        current.args.items
+          .map((schema) => {
             return parseZodMeta(
+              current,
               {
                 keyword: schemaKeywords.const,
-                args: item,
+                args: schema,
               },
               options,
             )
@@ -166,100 +163,117 @@ export function parseZodMeta(item: Schema, options: ParserOptions): string | und
     }
 
     return mapper.enum(
-      item.args.items.map((item) => {
-        if (item.format === 'number') {
-          return transformers.stringify(item.value)
+      current.args.items.map((schema) => {
+        if (schema.format === 'number') {
+          return transformers.stringify(schema.value)
         }
-        return transformers.stringify(item.value)
+        return transformers.stringify(schema.value)
       }),
     )
   }
 
-  if (isKeyword(item, schemaKeywords.ref)) {
-    return mapper.ref(item.args?.name)
+  if (isKeyword(current, schemaKeywords.ref)) {
+    return mapper.ref(current.args?.name)
   }
 
-  if (isKeyword(item, schemaKeywords.object)) {
-    const properties = Object.entries(item.args?.properties || {})
+  if (isKeyword(current, schemaKeywords.object)) {
+    const properties = Object.entries(current.args?.properties || {})
       .filter((item) => {
         const schema = item[1]
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
         const name = item[0]
-        const schema = item[1]
+        const schemas = item[1]
 
-        return `"${name}": ${sort(schema)
-          .map((item) => parseZodMeta(item, options))
+        return `"${name}": ${sort(schemas)
+          .map((schema) => parseZodMeta(current, schema, options))
           .filter(Boolean)
           .join('')}`
       })
       .join(',')
 
-    const additionalProperties = item.args?.additionalProperties?.length
-      ? item.args.additionalProperties
-          .map((schema) => parseZodMeta(schema, options))
+    const additionalProperties = current.args?.additionalProperties?.length
+      ? current.args.additionalProperties
+          .map((schema) => parseZodMeta(current, schema, options))
           .filter(Boolean)
           .at(0)
       : undefined
 
     const text = [
       mapper.object(properties),
-      item.args?.strict ? mapper.strict() : undefined,
+      current.args?.strict ? mapper.strict() : undefined,
       additionalProperties ? mapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 
     return text.join('')
   }
 
-  if (isKeyword(item, schemaKeywords.tuple)) {
+  if (isKeyword(current, schemaKeywords.tuple)) {
     return mapper.tuple(
-      sort(item.args)
-        .map((arrayItem) => parseZodMeta(arrayItem, options))
+      sort(current.args)
+        .map((schema) => parseZodMeta(current, schema, options))
         .filter(Boolean),
     )
   }
 
-  if (isKeyword(item, schemaKeywords.const)) {
-    if (item.args.format === 'number') {
-      return mapper.const(transformers.toNumber(item.args.value))
+  if (isKeyword(current, schemaKeywords.const)) {
+    if (current.args.format === 'number') {
+      return mapper.const(transformers.toNumber(current.args.value))
     }
-    return mapper.const(transformers.stringify(item.args.value))
+    return mapper.const(transformers.stringify(current.args.value))
   }
 
-  if (isKeyword(item, schemaKeywords.matches)) {
-    if (item.args) {
-      return mapper.matches(transformers.toRegExpString(item.args))
-    }
-  }
-
-  if (isKeyword(item, schemaKeywords.default)) {
-    if (item.args) {
-      return mapper.default(item.args)
+  if (isKeyword(current, schemaKeywords.matches)) {
+    if (current.args) {
+      return mapper.matches(transformers.toRegExpString(current.args))
     }
   }
 
-  if (isKeyword(item, schemaKeywords.describe)) {
-    if (item.args) {
-      return mapper.describe(transformers.stringify(item.args.toString()))
+  if (isKeyword(current, schemaKeywords.default)) {
+    if (current.args) {
+      return mapper.default(current.args)
     }
   }
 
-  if (isKeyword(item, schemaKeywords.string)) {
-    return mapper.string(item.args?.min, item.args?.max)
+  if (isKeyword(current, schemaKeywords.describe)) {
+    if (current.args) {
+      return mapper.describe(transformers.stringify(current.args.toString()))
+    }
   }
 
-  if (isKeyword(item, schemaKeywords.number) || isKeyword(item, schemaKeywords.integer)) {
-    return mapper.number(item.args?.min, item.args?.max)
+  if (isKeyword(current, schemaKeywords.string)) {
+    if (parent) {
+      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
+      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
+
+      return mapper.string(minSchema?.args, maxSchema?.args)
+    }
+
+    return mapper.string()
   }
 
-  if (item.keyword in mapper && 'args' in item) {
-    const value = mapper[item.keyword as keyof typeof mapper] as (typeof zodKeywordMapper)['const']
+  if (isKeyword(current, schemaKeywords.number) || isKeyword(current, schemaKeywords.integer)) {
+    if (parent) {
+      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
+      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
 
-    return value((item as SchemaKeywordBase<unknown>).args as any)
+      return mapper.number(minSchema?.args, maxSchema?.args)
+    }
+    return mapper.number()
   }
 
-  if (item.keyword in mapper) {
+  if (isKeyword(current, schemaKeywords.min) || isKeyword(current, schemaKeywords.max)) {
+    return undefined
+  }
+
+  if (current.keyword in mapper && 'args' in current) {
+    const value = mapper[current.keyword as keyof typeof mapper] as (typeof zodKeywordMapper)['const']
+
+    return value((current as SchemaKeywordBase<unknown>).args as any)
+  }
+
+  if (current.keyword in mapper) {
     return value()
   }
 
@@ -279,7 +293,7 @@ export function zodParser(schemas: Schema[], options: ParserOptions): string {
   const constName = `${JSDoc}\nexport const ${options.name}`
   const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
   const output = sortedSchemas
-    .map((item) => parseZodMeta(item, options))
+    .map((item) => parseZodMeta(undefined, item, options))
     .filter(Boolean)
     .join('')
 

@@ -166,7 +166,18 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.number, args: { min: 1 } }],
+        items: [{ keyword: schemaKeywords.min, args: 1 }, { keyword: schemaKeywords.max, args: 10 }, { keyword: schemaKeywords.number }],
+        min: 3,
+        max: 10,
+      },
+    },
+  },
+  {
+    name: 'arrayRegex',
+    schema: {
+      keyword: schemaKeywords.array,
+      args: {
+        items: [{ keyword: schemaKeywords.matches, args: '^[a-zA-Z0-9]{1,13}$' }, { keyword: schemaKeywords.string }],
         min: 3,
         max: 10,
       },
@@ -235,6 +246,27 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'objectArray',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {
+          ids: [
+            {
+              keyword: schemaKeywords.array,
+              args: {
+                items: [{ keyword: schemaKeywords.matches, args: '^[a-zA-Z0-9]{1,13}$' }, { keyword: schemaKeywords.string }],
+                min: 3,
+                max: 10,
+              },
+            },
+          ],
+        },
+        additionalProperties: [],
+      },
+    },
+  },
+  {
     name: 'objectAnd',
     schema: {
       keyword: schemaKeywords.object,
@@ -256,7 +288,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
             { keyword: schemaKeywords.default, args: 2 },
             {
               keyword: schemaKeywords.min,
-              args: 2,
+              args: 3,
             },
             {
               keyword: schemaKeywords.number,

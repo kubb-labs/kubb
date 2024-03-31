@@ -4,7 +4,7 @@ import { fakerParser, parseFakerMeta } from './fakerParser.tsx'
 
 describe('parseFakerMeta', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {
-    const text = parseFakerMeta(schema, { name })
+    const text = parseFakerMeta(undefined, schema, { name })
     expect(text).toMatchSnapshot()
   })
 })

@@ -55,11 +55,13 @@ exports[`parseFakerMeta > 'any' 1`] = `"undefined"`;
 
 exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])]) as any"`;
 
-exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float({ min: 1 })]) as any"`;
+exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float({ min: 1, max: 10 })]) as any"`;
 
 exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
 exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
+
+exports[`parseFakerMeta > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
 
 exports[`parseFakerMeta > 'blob' 1`] = `undefined`;
 
@@ -92,6 +94,8 @@ exports[`parseFakerMeta > 'number' 1`] = `"faker.number.float()"`;
 exports[`parseFakerMeta > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
 exports[`parseFakerMeta > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
+
+exports[`parseFakerMeta > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any}"`;
 
 exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
 

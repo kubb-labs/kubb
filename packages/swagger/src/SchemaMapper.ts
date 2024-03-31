@@ -55,9 +55,9 @@ export type SchemaKeywordMapper = {
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
   default: { keyword: 'default'; args: string | number | boolean }
-  string: { keyword: 'string'; args?: { min?: number; max?: number } }
-  integer: { keyword: 'integer'; args?: { min?: number; max?: number } }
-  number: { keyword: 'number'; args?: { min?: number; max?: number } }
+  string: { keyword: 'string' }
+  integer: { keyword: 'integer' }
+  number: { keyword: 'number' }
   max: { keyword: 'max'; args: number }
   min: { keyword: 'min'; args: number }
   describe: { keyword: 'describe'; args: string }

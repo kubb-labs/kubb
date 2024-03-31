@@ -3,7 +3,7 @@ import { parseZodMeta, zodParser } from './zodParser.tsx'
 
 describe('parseZodMeta', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {
-    const text = parseZodMeta(schema, { name })
+    const text = parseZodMeta(undefined, schema, { name })
     expect(text).toMatchSnapshot()
   })
 })
