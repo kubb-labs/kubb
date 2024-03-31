@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 import { getConfig } from './getConfig.ts'
 

@@ -92,8 +92,6 @@ import { definePlugin } from './plugin.ts'
 
 export { definePlugin, pluginKey, pluginName } from './plugin.ts'
 export * from './types.ts'
-
-export default definePlugin
 ```
 
 :::
@@ -102,12 +100,12 @@ Registering the plugin:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createPlugin from './index.ts'
+import { definePlugin } from './index.ts'
 
 export default defineConfig(() => {
   return {
     plugins: [
-      createPlugin({ name: 'custom-name' }),
+      definePlugin({ name: 'custom-name' }),
     ],
   }
 })

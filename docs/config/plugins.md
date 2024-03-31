@@ -18,7 +18,7 @@ How to use and set up plugins, see [plugins](/plugins/overview).
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {

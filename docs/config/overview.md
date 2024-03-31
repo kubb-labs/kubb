@@ -36,7 +36,7 @@ By setting the following options you can override the default behavior of Kubb a
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {

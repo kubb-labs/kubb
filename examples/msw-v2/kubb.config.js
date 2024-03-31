@@ -1,4 +1,8 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -15,45 +19,31 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      [
-        '@kubb/swagger',
-        {
-          output: false,
+      createSwagger({ output: false }),
+      createSwaggerTS({
+        output: {
+          path: 'models',
         },
-      ],
-      [
-        '@kubb/swagger-ts',
-        {
-          output: {
-            path: 'models',
-          },
+      }),
+      createSwaggerFaker({
+        output: {
+          path: './mocks',
         },
-      ],
-      [
-        '@kubb/swagger-faker',
-        {
-          output: {
-            path: './mocks',
-          },
-          group: {
-            type: 'tag',
-            output: './mocks/{{tag}}Mocks',
-          },
-          seed: [220],
+        group: {
+          type: 'tag',
+          output: './mocks/{{tag}}Mocks',
         },
-      ],
-      [
-        '@kubb/swagger-msw',
-        {
-          output: {
-            path: './msw',
-          },
-          group: {
-            type: 'tag',
-            output: './msw/{{tag}}Handlers',
-          },
+        seed: [220],
+      }),
+      createSwaggerMsw({
+        output: {
+          path: './msw',
         },
-      ],
+        group: {
+          type: 'tag',
+          output: './msw/{{tag}}Handlers',
+        },
+      }),
     ],
   }
 })

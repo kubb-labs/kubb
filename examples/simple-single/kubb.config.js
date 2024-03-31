@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
-import createSwaggerTS from '@kubb/swagger-ts'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   root: '.',

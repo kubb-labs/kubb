@@ -48,8 +48,8 @@ Default: `'types'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -82,8 +82,8 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -116,8 +116,8 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -178,8 +178,8 @@ Default: `'${output}/{{tag}}Controller'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -255,8 +255,8 @@ Default: `'asConst'`
 
 ```typescript ['enum']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -276,8 +276,8 @@ export default defineConfig({
 
 ```typescript ['asConst']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -297,8 +297,8 @@ export default defineConfig({
 
 ```typescript ['asPascalConst']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -318,8 +318,8 @@ export default defineConfig({
 
 ```typescript ['constEnum']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -339,8 +339,8 @@ export default defineConfig({
 
 ```typescript ['literal']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -375,8 +375,8 @@ Default: `''`
 
 ```typescript
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -425,8 +425,8 @@ Default: `'string'`
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -446,8 +446,8 @@ export default defineConfig({
 
 ```typescript ['date']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -495,8 +495,8 @@ Default: `'any'`
 
 ```typescript ['any']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -516,8 +516,8 @@ export default defineConfig({
 
 ```typescript ['unknown']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -568,8 +568,8 @@ Default: `'questionToken'`
 
 ```typescript ['questionToken']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -589,8 +589,8 @@ export default defineConfig({
 
 ```typescript ['undefined']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -610,8 +610,8 @@ export default defineConfig({
 
 ```typescript ['questionTokenAndUndefined']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -654,8 +654,8 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -705,8 +705,8 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -757,8 +757,8 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -804,8 +804,8 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -843,8 +843,8 @@ Type: `'infer' | false` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {

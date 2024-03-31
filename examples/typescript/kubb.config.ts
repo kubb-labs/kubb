@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',

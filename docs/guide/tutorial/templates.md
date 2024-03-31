@@ -122,8 +122,8 @@ Update your `kubb.config.ts` file to include the `templates` options.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
 import { templates } from './templates/CustomClientTemplate.tsx'
 

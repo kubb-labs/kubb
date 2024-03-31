@@ -48,9 +48,9 @@ Default: `'mocks'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -86,9 +86,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -124,9 +124,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -199,9 +199,9 @@ Default: `'{{tag}}Mocks'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -253,9 +253,9 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -306,9 +306,9 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -360,9 +360,9 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -407,9 +407,9 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -467,9 +467,9 @@ Default: `'string'`
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -492,9 +492,9 @@ export default defineConfig({
 
 ```typescript ['date']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -545,9 +545,9 @@ Default: `'any'`
 
 ```typescript ['any']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -570,9 +570,9 @@ export default defineConfig({
 
 ```typescript ['unknown']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -608,9 +608,9 @@ Type: `'number' | 'number[]'` <br/>
 
 ```typescript
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {

@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
 import * as client from './templates/client/index'

@@ -1,4 +1,7 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -15,28 +18,17 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      [
-        '@kubb/swagger',
-        {
-          output: false,
+      createSwagger({ output: false }),
+      createSwaggerZod({
+        output: {
+          path: './zod',
         },
-      ],
-      [
-        '@kubb/swagger-zod',
-        {
-          output: {
-            path: './zod',
-          },
+      }),
+      createSwaggerZodios({
+        output: {
+          path: './zodios.ts',
         },
-      ],
-      [
-        '@kubb/swagger-zodios',
-        {
-          output: {
-            path: './zodios.ts',
-          },
-        },
-      ],
+      }),
     ],
   }
 })

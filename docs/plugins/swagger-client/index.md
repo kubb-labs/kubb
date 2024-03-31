@@ -46,9 +46,9 @@ Default: `'clients'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -84,9 +84,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -122,9 +122,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -199,9 +199,9 @@ Default: `'{{tag}}Service'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -244,9 +244,9 @@ Default: `'@kubb/swagger-client/client'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -309,9 +309,9 @@ Default: `'data'`
 
 ```typescript ['data']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -334,9 +334,9 @@ export default defineConfig({
 
 ```typescript ['full']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -397,9 +397,9 @@ Default: `'data'`
 
 ```typescript ['object']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -422,9 +422,9 @@ export default defineConfig({
 
 ```typescript ['inline']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -470,9 +470,9 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -523,9 +523,9 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -577,9 +577,9 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -626,9 +626,9 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -685,9 +685,9 @@ Type: `Templates` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 import { templates } from './CustomClientTemplate'
 

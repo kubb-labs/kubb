@@ -1,18 +1,18 @@
 import path from 'node:path'
 
-import { isInputPath, PromiseManager, Warning } from '@kubb/core'
+import { PromiseManager, Warning, isInputPath } from '@kubb/core'
 
 import { cac } from 'cac'
 import c from 'tinyrainbow'
 
 import { version } from '../package.json'
+import { generate } from './generate.ts'
+import { init } from './init.ts'
 import { getConfig } from './utils/getConfig.ts'
 import { getCosmiConfig } from './utils/getCosmiConfig.ts'
 import { renderErrors } from './utils/renderErrors.ts'
 import { spinner } from './utils/spinner.ts'
 import { startWatcher } from './utils/watcher.ts'
-import { generate } from './generate.ts'
-import { init } from './init.ts'
 
 import type { CLIOptions } from '@kubb/core'
 
@@ -66,7 +66,12 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
 export async function run(argv?: string[]): Promise<void> {
   const program = cac(moduleName)
 
-  program.command('[input]', 'Path of the input file(overrides the one in `kubb.config.js`)').action(generateAction)
+  program
+    .command('[input]', 'Path of the input file(overrides the one in `kubb.config.js`)')
+    .option('-c, --config <path>', 'Path to the Kubb config')
+    .option('-l, --log-level <type>', 'Info, silent or debug')
+    .option('-w, --watch', 'Watch mode based on the input file')
+    .action(generateAction)
 
   program
     .command('generate [input]', 'Path of the input file(overrides the one in `kubb.config.js`)')

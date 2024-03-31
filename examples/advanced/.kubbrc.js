@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerMsw from '@kubb/swagger-msw'
-import createSwaggerSWR from '@kubb/swagger-swr'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
-import createSwaggerTS from '@kubb/swagger-ts'
-import createSwaggerZod from '@kubb/swagger-zod'
-import createSwaggerZodios from '@kubb/swagger-zodios'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
+import { definePlugin as createSwaggerSwr } from '@kubb/swagger-swr'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig({
   root: '.',
@@ -44,7 +44,7 @@ export default defineConfig({
       group: { type: 'tag' },
       infinite: {},
     }),
-    createSwaggerSWR({
+    createSwaggerSwr({
       output: {
         path: './clients/swr',
       },
@@ -81,7 +81,9 @@ export default defineConfig({
       group: { type: 'tag' },
     }),
     createSwaggerZodios({
-      output: 'zodios.ts',
+      output: {
+        path: 'zodios.ts',
+      },
     }),
     createSwaggerFaker({
       output: {

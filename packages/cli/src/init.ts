@@ -37,9 +37,9 @@ const presets: Record<Preset, PresetMeta> = {
   simple: {
     'kubb.config': `
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
 
 export default defineConfig({
   root: '.',

@@ -46,8 +46,8 @@ Default: `'zod'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -112,8 +112,8 @@ Default: `'{{tag}}Schemas'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -161,8 +161,8 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -212,8 +212,8 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -264,8 +264,8 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -310,9 +310,9 @@ Type: `boolean` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
-import createSwaggerTs from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -364,8 +364,8 @@ Default: `'string'`
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -385,8 +385,8 @@ export default defineConfig({
 
 ```typescript ['date']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -434,8 +434,8 @@ Default: `'any'`
 
 ```typescript ['any']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -455,8 +455,8 @@ export default defineConfig({
 
 ```typescript ['unknown']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -490,8 +490,8 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {

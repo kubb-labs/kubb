@@ -20,8 +20,8 @@ By default, `@kubb/swagger-client/client` is getting used as the [`client`](/plu
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
@@ -111,8 +111,8 @@ You can start by using a copy-paste of `@kubb/swagger-client/client`.
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {

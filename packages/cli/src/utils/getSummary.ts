@@ -52,7 +52,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: c.yellow(`${elapsedSeconds}s`),
-    output: path.resolve(config.root, config.output.path),
+    output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
   if (logLevel === LogLevel.debug) {

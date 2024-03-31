@@ -111,27 +111,28 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
 
   spinner.start(`🚀 Building ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
-  const { pluginManager, error } = await safeBuild({
-    config: {
-      root: process.cwd(),
-      ...userConfig,
-      input: inputPath
-        ? {
-            ...userConfig.input,
-            path: inputPath,
-          }
-        : userConfig.input,
-      output: {
-        write: true,
-        ...userConfig.output,
-      },
+  const definedConfig: Config = {
+    root: process.cwd(),
+    ...userConfig,
+    input: inputPath
+      ? {
+          ...userConfig.input,
+          path: inputPath,
+        }
+      : userConfig.input,
+    output: {
+      write: true,
+      ...userConfig.output,
     },
+  }
+  const { pluginManager, error } = await safeBuild({
+    config: definedConfig,
     logger,
   })
 
   const summary = getSummary({
     pluginManager,
-    config,
+    config: definedConfig,
     status: error ? 'failed' : 'success',
     hrstart,
     logger,
