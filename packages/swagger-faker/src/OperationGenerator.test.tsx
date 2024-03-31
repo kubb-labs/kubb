@@ -22,7 +22,7 @@ describe('OperationGenerator', async () => {
       seed: undefined,
       transformers: {},
       unknownType: 'any',
-      mapper: fakerKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {
@@ -55,7 +55,7 @@ describe('OperationGenerator', async () => {
       seed: [222],
       transformers: {},
       unknownType: 'any',
-      mapper: fakerKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {
@@ -88,7 +88,7 @@ describe('OperationGenerator', async () => {
       seed: undefined,
       transformers: {},
       unknownType: 'any',
-      mapper: fakerKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {
@@ -114,7 +114,7 @@ describe('OperationGenerator', async () => {
       seed: undefined,
       transformers: {},
       unknownType: 'any',
-      mapper: fakerKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {

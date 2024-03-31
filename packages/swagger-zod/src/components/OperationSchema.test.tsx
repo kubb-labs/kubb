@@ -31,7 +31,7 @@ describe('<OperationSchema/>', async () => {
     templates: {
       operations: Operations.templates,
     },
-    mapper: zodKeywordMapper,
+    mapper: {},
   }
 
   const plugin = { options } as Plugin<PluginOptions>

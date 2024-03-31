@@ -29,7 +29,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {
@@ -68,7 +68,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {
@@ -100,7 +100,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {
@@ -132,7 +132,7 @@ describe('OperationGenerator', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     }
 
     const og = await new OperationGenerator(options, {

@@ -35,7 +35,7 @@ describe('<OperationSchema/>', async () => {
     seed: undefined,
     transformers: {},
     unknownType: 'any',
-    mapper: fakerKeywordMapper,
+    mapper: {},
   }
 
   const plugin = { options } as Plugin<PluginOptions>

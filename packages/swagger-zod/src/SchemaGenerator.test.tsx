@@ -28,7 +28,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -58,7 +58,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -88,7 +88,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -118,7 +118,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -148,7 +148,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -181,7 +181,7 @@ describe('ZodGenerator constCases', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     },
     {
       oas,
@@ -268,7 +268,7 @@ describe('Zod SchemaGenerator lazy', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -301,7 +301,7 @@ describe('Zod SchemaGenerator enums', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     },
     {
       oas,
@@ -344,7 +344,7 @@ describe('Zod SchemaGenerator recursive', async () => {
         templates: {
           operations: Operations.templates,
         },
-        mapper: zodKeywordMapper,
+        mapper: {},
       },
       {
         oas,
@@ -377,7 +377,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       templates: {
         operations: Operations.templates,
       },
-      mapper: zodKeywordMapper,
+      mapper: {},
     },
     {
       oas,

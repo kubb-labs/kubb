@@ -19,7 +19,7 @@ describe('Faker SchemaGenerator enums', async () => {
       seed: 1,
       transformers: {},
       unknownType: 'any',
-      mapper: fakerKeywordMapper,
+      mapper: {},
     },
     {
       oas,
