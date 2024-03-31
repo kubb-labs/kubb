@@ -9,7 +9,7 @@ import { escape, jsStringEscape } from './escape.ts'
 import { createIndent } from './indent.ts'
 import { nameSorter } from './nameSorter.ts'
 import { searchAndReplace } from './searchAndReplace.ts'
-import { stringify } from './stringify.ts'
+import { stringify, stringifyObject } from './stringify.ts'
 import { isNumber } from './toNumber.ts'
 import { toRegExp, toRegExpString } from './toRegExp.ts'
 import { transformReservedWord } from './transformReservedWord.ts'
@@ -22,7 +22,7 @@ export { escape, jsStringEscape } from './escape.ts'
 export { createIndent } from './indent.ts'
 export { nameSorter } from './nameSorter.ts'
 export { searchAndReplace } from './searchAndReplace.ts'
-export { stringify } from './stringify.ts'
+export { stringify, stringifyObject } from './stringify.ts'
 export { isNumber } from './toNumber.ts'
 export { toRegExp, toRegExpString } from './toRegExp.ts'
 export { transformReservedWord } from './transformReservedWord.ts'
@@ -42,6 +42,7 @@ export default {
   toNumber,
   isNumber,
   stringify,
+  stringifyObject,
   toRegExp,
   toRegExpString,
   trim,

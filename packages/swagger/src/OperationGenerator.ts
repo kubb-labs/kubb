@@ -240,7 +240,7 @@ export abstract class OperationGenerator<
         schema,
         operation,
         operationName: transformers.pascalCase(`${operation.getOperationId()}`),
-        statusCode: name === 'error' ? undefined : Number(statusCode),
+        statusCode: name === 'error' ? 500 : Number(statusCode),
         keys: schema?.properties ? Object.keys(schema.properties) : undefined,
       }
     })

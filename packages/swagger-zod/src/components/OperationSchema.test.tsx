@@ -10,6 +10,7 @@ import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
+import { Operations } from './Operations.tsx'
 
 describe('<OperationSchema/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -26,6 +27,9 @@ describe('<OperationSchema/>', async () => {
     typed: false,
     dateType: 'string',
     unknownType: 'any',
+    templates: {
+      operations: Operations.templates,
+    },
   }
 
   const plugin = { options } as Plugin<PluginOptions>

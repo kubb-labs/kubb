@@ -12,9 +12,20 @@ type FileMeta = KubbFile.FileMetaBase & {
   tag?: string
 }
 
+type SchemaNames = {
+  request: string | undefined
+  parameters: {
+    path: string | undefined
+    query: string | undefined
+    header: string | undefined
+  }
+  responses: Record<number, string>
+}
+
 type UseOperationManagerResult = {
   getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
   getFile: (operation: OperationType, params?: { pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
+  groupSchemasByByName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => SchemaNames
   getSchemas: GetOperationSchemas
 }
 
@@ -26,6 +37,10 @@ export function useOperationManager(): UseOperationManagerResult {
   const plugin = usePlugin()
   const { getOperationSchemas } = useContext(Oas.Context)
 
+  if (!getOperationSchemas) {
+    throw new Error(`'getOperationSchemas' is not defined`)
+  }
+
   const getName: UseOperationManagerResult['getName'] = (operation, { pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({
       name: operation.getOperationId(),
@@ -36,7 +51,7 @@ export function useOperationManager(): UseOperationManagerResult {
 
   const getFile: UseOperationManagerResult['getFile'] = (operation, { pluginKey = plugin.key, extName = '.ts' } = {}) => {
     // needed for the `output.group`
-    const tag = operation?.getTags().at(0)?.name
+    const tag = operation.getTags().at(0)?.name
     const name = getName(operation, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({
@@ -57,13 +72,68 @@ export function useOperationManager(): UseOperationManagerResult {
     }
   }
 
-  if (!getOperationSchemas) {
-    throw new Error(`'getOperationSchemas' is not defined`)
+  const groupSchemasByByName: UseOperationManagerResult['groupSchemasByByName'] = (operation, { pluginKey = plugin.key, type }) => {
+    const schemas = getOperationSchemas(operation)
+
+    const errors = (schemas.errors || []).reduce(
+      (prev, acc) => {
+        prev[acc.statusCode] = pluginManager.resolveName({
+          name: acc.name,
+          pluginKey: plugin.key,
+          type,
+        })
+
+        return prev
+      },
+      {} as Record<number, string>,
+    )
+
+    return {
+      request: schemas.request?.name
+        ? pluginManager.resolveName({
+            name: schemas.request.name,
+            pluginKey,
+            type,
+          })
+        : undefined,
+      parameters: {
+        path: schemas.pathParams?.name
+          ? pluginManager.resolveName({
+              name: schemas.pathParams.name,
+              pluginKey,
+              type,
+            })
+          : undefined,
+        query: schemas.queryParams?.name
+          ? pluginManager.resolveName({
+              name: schemas.queryParams.name,
+              pluginKey,
+              type,
+            })
+          : undefined,
+        header: schemas.headerParams?.name
+          ? pluginManager.resolveName({
+              name: schemas.headerParams.name,
+              pluginKey,
+              type,
+            })
+          : undefined,
+      },
+      responses: {
+        [schemas.response.statusCode]: pluginManager.resolveName({
+          name: schemas.response.name,
+          pluginKey,
+          type,
+        }),
+        ...errors,
+      },
+    }
   }
 
   return {
     getName,
     getFile,
     getSchemas: getOperationSchemas,
+    groupSchemasByByName,
   }
 }

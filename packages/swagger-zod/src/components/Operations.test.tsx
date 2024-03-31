@@ -19,13 +19,15 @@ describe('<Operations/>', async () => {
   })
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
-    dataReturnType: 'data',
-    pathParamsType: 'object',
+    exclude: [],
+    include: undefined,
+    override: undefined,
+    transformers: {},
+    typed: false,
+    dateType: 'string',
+    unknownType: 'any',
     templates: {
       operations: Operations.templates,
-    },
-    client: {
-      importPath: '@kubb/swagger-client/client',
     },
   }
   const plugin = { options } as Plugin<PluginOptions>

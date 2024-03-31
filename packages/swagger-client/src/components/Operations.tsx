@@ -25,7 +25,7 @@ function Template({ name, operations }: TemplateProps): KubbNode {
     }
   })
 
-  return <>{`export const ${name} = ${JSON.stringify(operationsObject)} as const;`}</>
+  return <>{`export const ${name} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
 }
 
 type RootTemplateProps = {
