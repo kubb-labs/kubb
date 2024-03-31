@@ -11,11 +11,11 @@ type TemplateProps = {
   /**
    * Name of the function
    */
-  name: string
+  operationsName: string
   operations: Operation[]
 }
 
-function Template({ name, operations }: TemplateProps): KubbNode {
+function Template({ operationsName, operations }: TemplateProps): KubbNode {
   const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
 
   operations.forEach((operation) => {
@@ -25,7 +25,7 @@ function Template({ name, operations }: TemplateProps): KubbNode {
     }
   })
 
-  return <>{`export const ${name} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
+  return <>{`export const ${operationsName} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
 }
 
 type RootTemplateProps = {
@@ -39,7 +39,7 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
         <File.Source>{children}</File.Source>
       </File>
     </Editor>
@@ -60,7 +60,7 @@ type Props = {
 export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
   const operations = useOperations()
 
-  return <Template name="operations" operations={operations} />
+  return <Template operationsName="operations" operations={operations} />
 }
 
 type FileProps = {

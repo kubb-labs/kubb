@@ -8,16 +8,24 @@ import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
+  /**
+   * Name of the function
+   */
+  operationsName: string
+  /**
+   * Name of the function
+   */
+  pathsName: string
   operations: Operation[]
 }
 
-function Template({ operations }: TemplateProps): KubbNode {
+function Template({ operationsName, pathsName, operations }: TemplateProps): KubbNode {
   const { groupSchemasByByName } = useOperationManager()
   const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByByName(operation, { type: 'function' }) }))
 
   const operationsJSON = transformedOperations.reduce(
     (prev, acc) => {
-      prev[acc.operation.getOperationId()] = acc.data
+      prev[`"${acc.operation.getOperationId()}"`] = acc.data
 
       return prev
     },
@@ -38,11 +46,11 @@ function Template({ operations }: TemplateProps): KubbNode {
 
   return (
     <>
-      {`export const operations = {
+      {`export const ${operationsName} = {
           ${transformers.stringifyObject(operationsJSON)}
        } as const;`}
       <br />
-      {`export const paths = {
+      {`export const ${pathsName} = {
          ${transformers.stringifyObject(pathsJSON)}
        } as const;`}
     </>
@@ -72,7 +80,7 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   return (
     <Editor language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
         {imports}
         <File.Source>{children}</File.Source>
       </File>
@@ -94,7 +102,7 @@ type Props = {
 export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
   const operations = useOperations()
 
-  return <Template operations={operations} />
+  return <Template operationsName="operations" pathsName="paths" operations={operations} />
 }
 
 type FileProps = {

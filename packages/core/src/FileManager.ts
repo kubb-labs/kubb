@@ -9,11 +9,11 @@ import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
 import PQueue from 'p-queue'
 
+import { BarrelManager } from './BarrelManager.ts'
 import { getRelativePath, read } from './fs/read.ts'
 import { write } from './fs/write.ts'
 import { searchAndReplace } from './transformers/searchAndReplace.ts'
 import { trimExtName } from './transformers/trim.ts'
-import { BarrelManager } from './BarrelManager.ts'
 
 import type { GreaterThan } from '@kubb/types'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
@@ -49,6 +49,7 @@ export namespace KubbFile {
     /**
      * Add `* as` prefix to the import, this will result in: `import * as path from './path'`.
      */
+
     isNameSpace?: boolean
     /**
      * When root is set it will get the path with relative getRelativePath(root, path).
@@ -139,6 +140,11 @@ export namespace KubbFile {
      * Use extra meta, this is getting used to generate the barrel/index files.
      */
     meta?: TMeta
+    /**
+     * Override if a file can be exported by the BarrelManager
+     * @default true
+     */
+    exportable?: boolean
     /**
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
@@ -245,6 +251,20 @@ export class FileManager {
       ...file,
     }
 
+    if (resolvedFile.exports?.length) {
+      const folder = resolvedFile.path.replace(resolvedFile.baseName, '')
+
+      resolvedFile.exports = resolvedFile.exports.filter((exportItem) => {
+        const exportedFile = this.files.find((file) => file.path.includes(resolve(folder, exportItem.path)))
+
+        if (exportedFile) {
+          return exportedFile.exportable
+        }
+
+        return true
+      })
+    }
+
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
     return this.#queue.add(
@@ -332,6 +352,7 @@ export class FileManager {
               isTypeOnly: options.isTypeOnly,
             },
       ],
+      exportable: true,
     }
 
     if (exportType === 'barrelNamed' && !output.exportAs && rootFile.exports?.[0]) {

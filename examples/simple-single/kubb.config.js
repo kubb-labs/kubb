@@ -29,6 +29,9 @@ export default defineConfig({
       output: {
         path: './zod.ts',
       },
+      templates: {
+        operations: false,
+      },
     }),
   ],
 })

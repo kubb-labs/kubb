@@ -27,6 +27,7 @@ declare global {
         path: string
         env?: NodeJS.ProcessEnv
         override?: boolean
+        exportable?: boolean
         meta?: KubbFile.File['meta']
       }
 

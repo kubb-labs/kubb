@@ -517,6 +517,61 @@ export default defineConfig({
 
 :::
 
+### templates
+
+Make it possible to override one of the templates. <br/>
+
+::: tip
+See [templates](/reference/templates) for more information about creating templates.<br/>
+Set `false` to disable a template.
+:::
+
+::: info type
+
+```typescript [Templates]
+import type { Operations } from '@kubb/swagger-zod/components'
+
+export type Templates = {
+  operations: typeof Operations.templates | false
+}
+```
+
+:::
+
+::: info
+
+Type: `Templates` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+
+import { templates } from './CustomTemplate'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        templates,
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+
 ## Depended
 
 - [`@kubb/swagger`](/plugins/swagger/)

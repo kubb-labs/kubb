@@ -1,14 +1,16 @@
 import { type URLObject, URLPath } from '@kubb/core/utils'
 import { Editor, Function, Type } from '@kubb/react'
 import { QueryKey } from '@kubb/swagger-tanstack-query/components'
-import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import type React from 'react'
 
 export const templates = {
   ...QueryKey.templates,
   react: function ({ name, typeName, params, generics, returnType, JSDoc }: React.ComponentProps<typeof QueryKey.templates.react>) {
-    const schemas = useOperationSchemas()
     const operation = useOperation()
+    const { getSchemas } = useOperationManager()
+
+    const schemas = getSchemas(operation)
     const path = new URLPath(operation.path)
     const withQueryParams = !!schemas.queryParams?.name
 

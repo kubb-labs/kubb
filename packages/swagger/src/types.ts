@@ -102,9 +102,9 @@ export type OperationSchemas = {
   queryParams?: OperationSchema & { keysToOmit?: never }
   headerParams?: OperationSchema & { keysToOmit?: never }
   request?: OperationSchema
-  response: Omit<OperationSchema, 'statusCode'> & { statusCode: number }
+  response: OperationSchema
   statusCodes?: Array<OperationSchema>
-  errors?: Array<Omit<OperationSchema, 'statusCode'> & { statusCode: number }>
+  errors?: Array<OperationSchema>
 }
 
 export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>

@@ -76,6 +76,7 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
           meta: {
             pluginKey: plugin.key,
           },
+          exportable: true,
         }
       }
     })

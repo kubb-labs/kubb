@@ -77,6 +77,10 @@ export function useOperationManager(): UseOperationManagerResult {
 
     const errors = (schemas.errors || []).reduce(
       (prev, acc) => {
+        if (!acc.statusCode) {
+          return prev
+        }
+
         prev[acc.statusCode] = pluginManager.resolveName({
           name: acc.name,
           pluginKey: plugin.key,
@@ -120,7 +124,7 @@ export function useOperationManager(): UseOperationManagerResult {
           : undefined,
       },
       responses: {
-        [schemas.response.statusCode]: pluginManager.resolveName({
+        [schemas.response.statusCode || 'default']: pluginManager.resolveName({
           name: schemas.response.name,
           pluginKey,
           type,
