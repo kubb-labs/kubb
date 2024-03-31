@@ -1,5 +1,16 @@
 # @kubb/cli
 
+## 2.11.2
+
+### Patch Changes
+
+- [`0b8b68d`](https://github.com/kubb-project/kubb/commit/0b8b68df70fba78cdfa01564a41618c4bccd0aa6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Unknown option --config
+
+- [`0b8b68d`](https://github.com/kubb-project/kubb/commit/0b8b68df70fba78cdfa01564a41618c4bccd0aa6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The "paths[0]" argument must be of type string
+
+- Updated dependencies []:
+  - @kubb/core@2.11.2
+
 ## 2.11.1
 
 ### Patch Changes
