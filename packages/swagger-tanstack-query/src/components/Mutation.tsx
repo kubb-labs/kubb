@@ -1,10 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
+import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 
 import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
@@ -137,12 +137,15 @@ const defaultTemplates = {
     return function ({ client, context, ...rest }: FrameworkProps): ReactNode {
       const { factory } = context
 
+      const operation = useOperation()
+      const { getSchemas } = useOperationManager()
+
       const importNames = getImportNames()
 
       const hookName = importNames.mutation.vue.hookName
       const resultType = importNames.mutation.vue.resultType
       const optionsType = importNames.mutation.vue.optionsType
-      const schemas = useOperationSchemas()
+      const schemas = getSchemas(operation)
       const params = new FunctionParams()
 
       const resultGenerics = [`${factory.name}["response"]`, `${factory.name}["error"]`, client.withData ? `${factory.name}["request"]` : 'void', 'unknown']
@@ -227,19 +230,17 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
     options: { dataReturnType, mutate },
   } = usePlugin<PluginOptions>()
 
-  if (!mutate) {
-    return null
-  }
-
   const operation = useOperation()
-  const name = useOperationName({ type: 'function' })
-  const schemas = useOperationSchemas()
+  const { getSchemas, getName } = useOperationManager()
+
+  const name = getName(operation, { type: 'function' })
+  const schemas = getSchemas(operation)
 
   const params = new FunctionParams()
   const mutateParams = new FunctionParams()
 
   const requestType =
-    mutate.variablesType === 'mutate'
+    mutate && mutate.variablesType === 'mutate'
       ? FunctionParams.toObject([
           ...getASTParams(schemas.pathParams, { typed: true }),
           {
@@ -282,10 +283,10 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
   const resultGenerics = [
     `${factory.name}["response"]`,
     `${factory.name}["error"]`,
-    mutate?.variablesType === 'mutate' ? requestType : `${factory.name}["request"]`,
+    mutate && mutate?.variablesType === 'mutate' ? requestType : `${factory.name}["request"]`,
   ]
 
-  if (mutate?.variablesType === 'mutate') {
+  if (mutate && mutate?.variablesType === 'mutate') {
     params.add([
       {
         name: 'options',
@@ -351,6 +352,10 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
     ])
   }
 
+  if (!mutate) {
+    return null
+  }
+
   return (
     <>
       <Template
@@ -386,10 +391,14 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
       framework,
     },
   } = usePlugin<PluginOptions>()
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
-  const factoryName = useOperationName({ type: 'type' })
+  const pluginManager = usePluginManager()
+  const { getSchemas, getFile, getName } = useOperationManager()
+  const operation = useOperation()
+
+  const schemas = getSchemas(operation)
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const factoryName = getName(operation, { type: 'type' })
 
   const importNames = getImportNames()
   const Template = templates[framework]

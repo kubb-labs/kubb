@@ -5,7 +5,7 @@ import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { Oas, Schema } from '@kubb/swagger/components'
-import { useGetOperationFile, useOas, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
+import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -84,11 +84,12 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
 
   const pluginManager = usePluginManager()
   const oas = useOas()
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const factoryName = useOperationName({ type: 'type' })
+  const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
+  const file = getFile(operation)
+  const schemas = getSchemas(operation)
+  const factoryName = getName(operation, { type: 'type' })
   const generator = new SchemaGenerator(plugin.options, {
     oas,
     plugin,

@@ -1,8 +1,8 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, useResolveName } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
+import { Editor, File, usePluginManager } from '@kubb/react'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
@@ -73,14 +73,17 @@ type Props = {
 }
 
 export function Mock({ Template = defaultTemplates.default }: Props): ReactNode {
-  const schemas = useOperationSchemas()
-  const name = useOperationName({ type: 'function' })
-  const responseName = useResolveName({
+  const pluginManager = usePluginManager()
+  const { getSchemas, getName } = useOperationManager()
+  const operation = useOperation()
+
+  const schemas = getSchemas(operation)
+  const name = getName(operation, { type: 'function' })
+  const responseName = pluginManager.resolveName({
     pluginKey: fakerPluginKey,
     name: schemas.response.name,
     type: 'type',
   })
-  const operation = useOperation()
 
   const isV2 = new PackageManager().isValidSync('msw', '>=2')
 
@@ -95,10 +98,14 @@ type FileProps = {
 }
 
 Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const fileFaker = useGetOperationFile({ pluginKey: fakerPluginKey })
-  const responseName = useResolveName({
+  const pluginManager = usePluginManager()
+  const { getSchemas, getFile } = useOperationManager()
+  const operation = useOperation()
+
+  const schemas = getSchemas(operation)
+  const file = getFile(operation)
+  const fileFaker = getFile(operation, { pluginKey: fakerPluginKey })
+  const responseName = pluginManager.resolveName({
     pluginKey: fakerPluginKey,
     name: schemas.response.name,
     type: 'function',

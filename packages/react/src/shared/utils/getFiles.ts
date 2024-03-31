@@ -42,6 +42,7 @@ export function getFiles(node: DOMElement, language?: string): KubbFile.File[] {
           imports: squashImportNodes(childNode),
           override: attributes.override,
           meta: attributes.meta,
+          exportable: attributes.exportable,
           language,
         }
 

@@ -1,5 +1,10 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Operations } from './components/Operations'
+
+type Templates = {
+  operations?: typeof Operations.templates | false
+}
 
 export type Options = {
   output?: {
@@ -64,6 +69,10 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
+   * Make it possible to override one of the templates
+   */
+  templates?: Partial<Templates>
+  /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
    */
@@ -87,6 +96,7 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
+  templates: NonNullable<Templates>
 }
 
 export type FileMeta = {

@@ -7,15 +7,12 @@ export {
   useApp,
   useFile,
   useFileManager,
-  useGetFile,
   useIndent,
   useLanguage,
   useMeta,
   usePackageVersion,
   usePlugin,
   usePluginManager,
-  useResolveName,
-  useResolvePath,
 } from './hooks/index.ts'
 export { createNode } from './shared/dom.ts'
 export type * from './types.ts'

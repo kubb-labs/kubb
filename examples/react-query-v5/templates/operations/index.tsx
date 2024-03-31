@@ -3,7 +3,7 @@ import { Editor, File, Type, usePlugin } from '@kubb/react'
 import { usePluginManager } from '@kubb/react'
 import type { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
-import { useOperationHelpers, useOperations } from '@kubb/swagger/hooks'
+import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 import type React from 'react'
 
 export const templates = {
@@ -12,7 +12,7 @@ export const templates = {
     const pluginManager = usePluginManager()
     const { key: pluginKey } = usePlugin<PluginOptions>()
     const operations = useOperations()
-    const { getName, getSchemas } = useOperationHelpers()
+    const { getName, getSchemas } = useOperationManager()
 
     const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
 

@@ -7,6 +7,7 @@ import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/swagger/oas'
+import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
 
 describe('Zod SchemaGenerator PetStore', async () => {
@@ -23,6 +24,9 @@ describe('Zod SchemaGenerator PetStore', async () => {
         exclude: undefined,
         override: undefined,
         typed: false,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -49,6 +53,9 @@ describe('Zod SchemaGenerator PetStore', async () => {
         override: undefined,
         typed: false,
         include: undefined,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -75,6 +82,9 @@ describe('Zod SchemaGenerator PetStore', async () => {
         override: undefined,
         typed: false,
         include: undefined,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -101,6 +111,9 @@ describe('Zod SchemaGenerator PetStore', async () => {
         exclude: undefined,
         override: undefined,
         include: undefined,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -127,6 +140,9 @@ describe('Zod SchemaGenerator PetStore', async () => {
         override: undefined,
         typed: false,
         include: undefined,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -156,6 +172,9 @@ describe('ZodGenerator constCases', async () => {
       override: undefined,
       typed: false,
       include: undefined,
+      templates: {
+        operations: Operations.templates,
+      },
     },
     {
       oas,
@@ -239,6 +258,9 @@ describe('Zod SchemaGenerator lazy', async () => {
         override: undefined,
         typed: false,
         include: undefined,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -268,6 +290,9 @@ describe('Zod SchemaGenerator enums', async () => {
       override: undefined,
       typed: false,
       include: undefined,
+      templates: {
+        operations: Operations.templates,
+      },
     },
     {
       oas,
@@ -307,6 +332,9 @@ describe('Zod SchemaGenerator recursive', async () => {
         override: undefined,
         typed: false,
         include: undefined,
+        templates: {
+          operations: Operations.templates,
+        },
       },
       {
         oas,
@@ -336,6 +364,9 @@ describe('Zod SchemaGenerator anyof', async () => {
       override: undefined,
       typed: false,
       include: undefined,
+      templates: {
+        operations: Operations.templates,
+      },
     },
     {
       oas,

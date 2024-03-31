@@ -15,6 +15,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
   {
     "baseName": "delete_pet-petid.ts",
     "env": undefined,
+    "exportable": true,
     "exports": [],
     "id": undefined,
     "imports": [

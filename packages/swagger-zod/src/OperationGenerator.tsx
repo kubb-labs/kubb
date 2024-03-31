@@ -6,13 +6,32 @@ import { OperationSchema } from './components/OperationSchema.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
-import type { OperationMethodResult } from '@kubb/swagger'
+import type { OperationMethodResult, OperationsByMethod } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
+import { Operations } from './components/Operations.tsx'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
-  async all(): Promise<KubbFile.File | null> {
-    return null
+  async all(operations: Operation[], _operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
+    const { pluginManager, oas, plugin } = this.context
+
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+      logger: pluginManager.logger,
+    })
+
+    const templates = {
+      operations: Operations.templates,
+      ...this.options.templates,
+    }
+
+    root.render(
+      <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+        {templates.operations && <Operations.File templates={templates.operations} />}
+      </Oas>,
+      { meta: { pluginManager, plugin } },
+    )
+
+    return root.files
   }
 
   async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {

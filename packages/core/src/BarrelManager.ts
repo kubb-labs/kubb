@@ -105,6 +105,7 @@ export class BarrelManager {
           baseName: 'index.ts',
           source: '',
           exports,
+          exportable: true,
         })
       } else if (treeNode.children.length === 1) {
         const [treeNodeChild] = treeNode.children as [TreeNode]
@@ -124,6 +125,7 @@ export class BarrelManager {
           baseName: 'index.ts',
           source: '',
           exports,
+          exportable: true,
         })
       }
 

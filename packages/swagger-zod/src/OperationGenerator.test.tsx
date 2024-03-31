@@ -7,6 +7,7 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { KubbFile } from 'packages/core/dist/index'
+import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', async () => {
@@ -24,6 +25,9 @@ describe('OperationGenerator', async () => {
       include: undefined,
       override: undefined,
       unknownType: 'any',
+      templates: {
+        operations: Operations.templates,
+      },
     }
 
     const og = await new OperationGenerator(options, {
@@ -59,6 +63,9 @@ describe('OperationGenerator', async () => {
       include: undefined,
       override: undefined,
       unknownType: 'any',
+      templates: {
+        operations: Operations.templates,
+      },
     }
 
     const og = await new OperationGenerator(options, {
@@ -87,6 +94,9 @@ describe('OperationGenerator', async () => {
       include: undefined,
       override: undefined,
       unknownType: 'any',
+      templates: {
+        operations: Operations.templates,
+      },
     }
 
     const og = await new OperationGenerator(options, {
@@ -115,6 +125,9 @@ describe('OperationGenerator', async () => {
       include: undefined,
       override: undefined,
       unknownType: 'unknown',
+      templates: {
+        operations: Operations.templates,
+      },
     }
 
     const og = await new OperationGenerator(options, {

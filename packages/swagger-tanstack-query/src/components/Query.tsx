@@ -1,10 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
+import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
-import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
 
 import { getImportNames } from '../utils.ts'
@@ -128,12 +128,17 @@ const defaultTemplates = {
   get vue() {
     return function ({ context, hook, ...rest }: FrameworkProps): ReactNode {
       const { factory, queryKey } = context
+
+      const pluginManager = usePluginManager()
+      const operation = useOperation()
+      const { getSchemas } = useOperationManager()
+
       const importNames = getImportNames()
       const {
         key: pluginKey,
         options: { pathParamsType },
       } = usePlugin<PluginOptions>()
-      const queryOptions = useResolveName({
+      const queryOptions = pluginManager.resolveName({
         name: `${factory.name}QueryOptions`,
         pluginKey,
       })
@@ -142,7 +147,7 @@ const defaultTemplates = {
       const resultType = rest.infinite ? importNames.queryInfinite.vue.resultType : importNames.query.vue.resultType
       const optionsType = rest.infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
-      const schemas = useOperationSchemas()
+      const schemas = getSchemas(operation)
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
@@ -285,21 +290,24 @@ export function Query({
     key: pluginKey,
     options: { dataReturnType, pathParamsType },
   } = usePlugin<PluginOptions>()
+  const pluginManager = usePluginManager()
   const operation = useOperation()
-  const schemas = useOperationSchemas()
-  const name = useOperationName({ type: 'function' })
+  const { getSchemas, getName } = useOperationManager()
+
+  const schemas = getSchemas(operation)
+  const name = getName(operation, { type: 'function' })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
-  const queryKey = useResolveName({
+  const queryKey = pluginManager.resolveName({
     name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
   })
-  const queryKeyType = useResolveName({
+  const queryKeyType = pluginManager.resolveName({
     name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     type: 'type',
     pluginKey,
   })
-  const queryOptions = useResolveName({
+  const queryOptions = pluginManager.resolveName({
     name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
   })
@@ -465,20 +473,23 @@ Query.File = function ({ templates, imports = QueryImports.templates }: FileProp
       parser,
     },
   } = usePlugin<PluginOptions>()
+  const pluginManager = usePluginManager()
+  const { getSchemas, getFile, getName } = useOperationManager()
+  const operation = useOperation()
 
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
-  const fileZodSchemas = useGetOperationFile({
+  const schemas = getSchemas(operation)
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const fileZodSchemas = getFile(operation, {
     pluginKey: swaggerZodPluginKey,
   })
-  const zodResponseName = useResolveName({
+  const zodResponseName = pluginManager.resolveName({
     name: schemas.response.name,
     pluginKey: swaggerZodPluginKey,
     type: 'function',
   })
 
-  const factoryName = useOperationName({ type: 'type' })
+  const factoryName = getName(operation, { type: 'type' })
 
   const importNames = getImportNames()
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')

@@ -1,6 +1,6 @@
 import { Editor, File } from '@kubb/react'
 import type { Client } from '@kubb/swagger-client/components'
-import { useGetOperationFile } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import type React from 'react'
 
 export const templates = {
@@ -17,7 +17,9 @@ export const templates = {
     )
   },
   root({ children }: React.ComponentProps<typeof Client.templates.root>) {
-    const filePython = useGetOperationFile({ extName: '.py' })
+    const { getFile } = useOperationManager()
+    const operation = useOperation()
+    const filePython = getFile(operation, { extName: '.py' })
 
     return (
       <Editor language="python">

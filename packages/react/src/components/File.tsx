@@ -60,17 +60,22 @@ type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BasePr
    * @default `false`
    */
   override?: KubbFile.File['override']
+  /**
+   * Override if a file can be exported by the BarrelManager
+   * @default true
+   */
+  exportable?: boolean
   meta?: TMeta
   children?: KubbNode
 }
 
-export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>({ children, ...rest }: Props<TMeta>): KubbNode {
+export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>({ children, exportable = true, ...rest }: Props<TMeta>): KubbNode {
   if (!rest.baseName || !rest.path) {
     return children
   }
 
   return (
-    <kubb-file {...rest}>
+    <kubb-file exportable={exportable} {...rest}>
       <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>{children}</FileContext.Provider>
     </kubb-file>
   )

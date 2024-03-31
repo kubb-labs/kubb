@@ -2,14 +2,17 @@ import path from 'node:path'
 import transformers from '@kubb/core/transformers'
 import { File, Function, usePluginManager } from '@kubb/react'
 import { Mutation } from '@kubb/swagger-tanstack-query/components'
-import { useGetOperationFile } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import type React from 'react'
 
 export const templates = {
   ...Mutation.templates,
   react: function ({ name, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
     const pluginManager = usePluginManager()
-    const file = useGetOperationFile()
+    const operation = useOperation()
+    const { getFile } = useOperationManager()
+
+    const file = getFile(operation)
     const clientOptions = [
       `method: "${client.method}"`,
       `url: ${client.path.template}`,
