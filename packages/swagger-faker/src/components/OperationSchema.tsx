@@ -1,9 +1,9 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable @typescript-eslint/ban-types */
 import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
-import { Oas, Schema } from '@kubb/swagger/components'
-import { useGetOperationFile, useOas, useOperationSchemas } from '@kubb/swagger/hooks'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
+import { Oas, Schema } from '@kubb/swagger/components'
+import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -27,9 +27,11 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
 
   const pluginManager = usePluginManager()
   const oas = useOas()
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
+  const { getSchemas, getFile } = useOperationManager()
+  const operation = useOperation()
 
+  const file = getFile(operation)
+  const schemas = getSchemas(operation)
   const generator = new SchemaGenerator(plugin.options, {
     oas,
     plugin,

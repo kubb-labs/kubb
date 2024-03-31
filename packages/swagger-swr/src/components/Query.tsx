@@ -1,8 +1,8 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
@@ -114,10 +114,13 @@ export function Query({ factory, Template = defaultTemplates.default, QueryOptio
     options: { dataReturnType },
   } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const schemas = useOperationSchemas()
-  const name = useOperationName({ type: 'function' })
+  const pluginManager = usePluginManager()
+  const { getSchemas, getName } = useOperationManager()
 
-  const queryOptionsName = useResolveName({
+  const schemas = getSchemas(operation)
+  const name = getName(operation, { type: 'function' })
+
+  const queryOptionsName = pluginManager.resolveName({
     name: `${factory.name}QueryOptions`,
     pluginKey,
   })
@@ -222,10 +225,13 @@ Query.File = function ({ templates }: FileProps): ReactNode {
       client: { importPath },
     },
   } = usePlugin<PluginOptions>()
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
-  const factoryName = useOperationName({ type: 'type' })
+  const { getSchemas, getFile, getName } = useOperationManager()
+  const operation = useOperation()
+
+  const file = getFile(operation)
+  const schemas = getSchemas(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const factoryName = getName(operation, { type: 'type' })
 
   const Template = templates?.query.default || defaultTemplates.default
   const QueryOptionsTemplate = templates?.queryOptions.default || QueryOptions.templates.default

@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
+import { Function, usePlugin, usePluginManager } from '@kubb/react'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
@@ -90,10 +90,12 @@ type Props = {
 
 export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
   const { key: pluginKey } = usePlugin()
-  const schemas = useOperationSchemas()
+  const pluginManager = usePluginManager()
+  const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
-  const name = useResolveName({
+  const schemas = getSchemas(operation)
+  const name = pluginManager.resolveName({
     name: `${factory.name}QueryOptions`,
     pluginKey,
   })

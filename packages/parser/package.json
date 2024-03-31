@@ -55,8 +55,8 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/lodash.tonumber": "^4.0.9",
     "eslint": "^8.57.0",
-    "prettier": "^3.2.5",
     "lodash.tonumber": "^4.0.3",
+    "prettier": "^3.2.5",
     "tsup": "^8.0.2"
   },
   "packageManager": "pnpm@8.3.0",

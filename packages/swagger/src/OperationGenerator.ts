@@ -218,12 +218,13 @@ export abstract class OperationGenerator<
     return schema
   }
 
-  getSchemas(operation: Operation, statusCode?: string | number): OperationSchemas {
+  getSchemas(operation: Operation, forStatusCode?: string | number): OperationSchemas {
     const pathParamsSchema = this.#getParametersSchema(operation, 'path')
     const queryParamsSchema = this.#getParametersSchema(operation, 'query')
     const headerParamsSchema = this.#getParametersSchema(operation, 'header')
     const requestSchema = this.#getRequestSchema(operation)
-    const responseStatusCode = statusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
+    const responseStatusCode =
+      forStatusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
     const responseSchema = this.#getResponseSchema(operation, responseStatusCode)
     const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
       let name = statusCode

@@ -1,17 +1,18 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
-import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
+import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
@@ -28,6 +29,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     dateType = 'string',
     unknownType = 'any',
     typed = false,
+    templates,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -41,6 +43,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       typed,
       dateType,
       unknownType,
+      templates: {
+        operations: Operations.templates,
+        ...templates,
+      },
     },
     pre: [swaggerPluginName, typed ? swaggerTypeScriptPluginName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

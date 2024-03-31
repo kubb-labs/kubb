@@ -1,4 +1,4 @@
-import { useContext, usePluginManager } from '@kubb/react'
+import { useContext, usePlugin, usePluginManager } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
@@ -12,20 +12,21 @@ type FileMeta = KubbFile.FileMetaBase & {
   tag?: string
 }
 
-type UseOperationHelpersResult = {
+type UseOperationManagerResult = {
   getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getFile: (operation: OperationType, params: { pluginKey: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
+  getFile: (operation: OperationType, params?: { pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
   getSchemas: GetOperationSchemas
 }
 
 /**
- * `useOperationHelpers` will return some helper functions that can be used to get the operation file, get the operation name.
+ * `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.
  */
-export function useOperationHelpers(): UseOperationHelpersResult {
+export function useOperationManager(): UseOperationManagerResult {
   const pluginManager = usePluginManager()
-  const { getOperationSchemas: getSchemas } = useContext(Oas.Context)
+  const plugin = usePlugin()
+  const { getOperationSchemas } = useContext(Oas.Context)
 
-  const getName: UseOperationHelpersResult['getName'] = (operation, { pluginKey, type }) => {
+  const getName: UseOperationManagerResult['getName'] = (operation, { pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({
       name: operation.getOperationId(),
       pluginKey,
@@ -33,7 +34,7 @@ export function useOperationHelpers(): UseOperationHelpersResult {
     })
   }
 
-  const getFile: UseOperationHelpersResult['getFile'] = (operation, { pluginKey, extName = '.ts' }) => {
+  const getFile: UseOperationManagerResult['getFile'] = (operation, { pluginKey = plugin.key, extName = '.ts' } = {}) => {
     // needed for the `output.group`
     const tag = operation?.getTags().at(0)?.name
     const name = getName(operation, { type: 'file', pluginKey })
@@ -56,13 +57,13 @@ export function useOperationHelpers(): UseOperationHelpersResult {
     }
   }
 
-  if (!getSchemas) {
-    throw new Error(`'getSchemas' is not defined`)
+  if (!getOperationSchemas) {
+    throw new Error(`'getOperationSchemas' is not defined`)
   }
 
   return {
     getName,
     getFile,
-    getSchemas,
+    getSchemas: getOperationSchemas,
   }
 }

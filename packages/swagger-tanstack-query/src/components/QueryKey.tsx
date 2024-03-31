@@ -1,6 +1,6 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, Type, usePlugin } from '@kubb/react'
-import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, isRequired } from '@kubb/swagger/utils'
 
 import type { ReactNode } from 'react'
@@ -81,8 +81,10 @@ const defaultTemplates = {
       const {
         options: { pathParamsType },
       } = usePlugin<PluginOptions>()
-      const schemas = useOperationSchemas()
+      const { getSchemas } = useOperationManager()
       const operation = useOperation()
+
+      const schemas = getSchemas(operation)
       const path = new URLPath(operation.path)
       const params = new FunctionParams()
       const withQueryParams = !!schemas.queryParams?.name
@@ -132,8 +134,10 @@ export function QueryKey({ name, typeName, factory, keysFn, Template = defaultTe
   const {
     options: { pathParamsType },
   } = usePlugin<PluginOptions>()
-  const schemas = useOperationSchemas()
+  const { getSchemas } = useOperationManager()
   const operation = useOperation()
+
+  const schemas = getSchemas(operation)
   const path = new URLPath(operation.path)
   const params = new FunctionParams()
   const withQueryParams = !!schemas.queryParams?.name

@@ -1,10 +1,10 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
+import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 
 import type { KubbNode } from '@kubb/react'
 import type { HttpMethod } from '@kubb/swagger/oas'
@@ -80,9 +80,12 @@ function RootTemplate({ children }: RootTemplateProps) {
     },
   } = usePlugin<PluginOptions>()
 
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
+  const { getSchemas, getFile } = useOperationManager()
+  const operation = useOperation()
+
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const schemas = getSchemas(operation)
 
   return (
     <Editor language="typescript">
@@ -116,9 +119,12 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
   const {
     options: { dataReturnType, pathParamsType },
   } = usePlugin<PluginOptions>()
-  const schemas = useOperationSchemas()
+
+  const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
-  const name = useOperationName({ type: 'function' })
+
+  const name = getName(operation, { type: 'function' })
+  const schemas = getSchemas(operation)
 
   const params = new FunctionParams()
   const clientGenerics = new FunctionParams()

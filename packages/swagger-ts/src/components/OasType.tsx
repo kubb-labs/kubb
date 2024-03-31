@@ -1,5 +1,4 @@
-import { Editor, File, Type, usePlugin } from '@kubb/react'
-import { useGetFile } from '@kubb/react'
+import { Editor, File, Type, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
 import type { OasTypes } from '@kubb/swagger/oas'
@@ -55,7 +54,8 @@ type FileProps = {
 
 OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useGetFile({ name, extName: '.ts', pluginKey })
+  const pluginManager = usePluginManager()
+  const file = pluginManager.getFile({ name, extName: '.ts', pluginKey })
 
   const Template = templates.default
 

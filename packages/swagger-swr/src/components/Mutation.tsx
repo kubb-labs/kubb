@@ -1,9 +1,9 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, usePlugin } from '@kubb/react'
-import { useGetOperationFile, useOperation, useOperationName, useOperationSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
 
 import { SchemaType } from './SchemaType.tsx'
 
@@ -123,9 +123,11 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
   const {
     options: { dataReturnType },
   } = usePlugin<PluginOptions>()
+  const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
-  const name = useOperationName({ type: 'function' })
-  const schemas = useOperationSchemas()
+
+  const name = getName(operation, { type: 'function' })
+  const schemas = getSchemas(operation)
 
   const params = new FunctionParams()
   const client = {
@@ -197,10 +199,14 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
       client: { importPath },
     },
   } = usePlugin<PluginOptions>()
-  const schemas = useOperationSchemas()
-  const file = useGetOperationFile()
-  const fileType = useGetOperationFile({ pluginKey: swaggerTsPluginKey })
-  const factoryName = useOperationName({ type: 'type' })
+
+  const { getSchemas, getFile, getName } = useOperationManager()
+  const operation = useOperation()
+
+  const schemas = getSchemas(operation)
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const factoryName = getName(operation, { type: 'type' })
 
   const Template = templates.default
   const factory = {

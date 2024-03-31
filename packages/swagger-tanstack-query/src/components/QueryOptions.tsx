@@ -1,10 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useOperationSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
+import { Function, usePlugin, usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
@@ -220,8 +220,10 @@ const defaultTemplates = {
       const {
         options: { pathParamsType },
       } = usePlugin<PluginOptions>()
+      const { getSchemas } = useOperationManager()
+      const operation = useOperation()
 
-      const schemas = useOperationSchemas()
+      const schemas = getSchemas(operation)
       const params = new FunctionParams()
 
       const pathParams = getParams(schemas.pathParams, {
@@ -304,23 +306,22 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     options: { parser, pathParamsType, queryOptions },
   } = usePlugin<PluginOptions>()
 
-  if (!queryOptions) {
-    return null
-  }
-
-  const schemas = useOperationSchemas()
+  const pluginManager = usePluginManager()
+  const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
-  const queryKey = useResolveName({
+  const schemas = getSchemas(operation)
+
+  const queryKey = pluginManager.resolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
   })
-  const queryOptionsName = useResolveName({
+  const queryOptionsName = pluginManager.resolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
   })
 
-  const zodResponseName = useResolveName({
+  const zodResponseName = pluginManager.resolveName({
     name: schemas.response.name,
     pluginKey: swaggerZodPluginKey,
     type: 'function',
@@ -384,6 +385,10 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
 
   const hook = {
     queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? 'params' : ''})`,
+  }
+
+  if (!queryOptions) {
+    return null
   }
 
   return (
