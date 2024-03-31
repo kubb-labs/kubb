@@ -96,12 +96,11 @@ type ParserOptions = {
   description?: string
 
   keysToOmit?: string[]
-  mapper?: typeof zodKeywordMapper
+  mapper?: Record<string, string>
 }
 
 export function parseZodMeta(parent: Schema | undefined, current: Schema, options: ParserOptions): string | undefined {
-  const mapper = { ...zodKeywordMapper, ...options.mapper }
-  const value = mapper[current.keyword as keyof typeof mapper]
+  const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
   if (!value) {
     return undefined
@@ -116,7 +115,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       return ''
     }
 
-    return mapper.union(
+    return zodKeywordMapper.union(
       sort(current.args)
         .map((schema) => parseZodMeta(current, schema, options))
         .filter(Boolean),
@@ -131,11 +130,11 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       .map((schema: Schema) => parseZodMeta(current, schema, options))
       .filter(Boolean)
 
-    return `${items.slice(0, 1)}${mapper.and(items.slice(1))}`
+    return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1))}`
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return mapper.array(
+    return zodKeywordMapper.array(
       sort(current.args.items)
         .map((schemas) => parseZodMeta(current, schemas, options))
         .filter(Boolean),
@@ -146,7 +145,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
 
   if (isKeyword(current, schemaKeywords.enum)) {
     if (current.args.asConst) {
-      return mapper.union(
+      return zodKeywordMapper.union(
         current.args.items
           .map((schema) => {
             return parseZodMeta(
@@ -162,7 +161,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       )
     }
 
-    return mapper.enum(
+    return zodKeywordMapper.enum(
       current.args.items.map((schema) => {
         if (schema.format === 'number') {
           return transformers.stringify(schema.value)
@@ -173,7 +172,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
-    return mapper.ref(current.args?.name)
+    return zodKeywordMapper.ref(current.args?.name)
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
@@ -185,6 +184,11 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       .map((item) => {
         const name = item[0]
         const schemas = item[1]
+
+        // custom mapper(pluginOptions)
+        if (options.mapper?.[name]) {
+          return `"${name}": ${options.mapper?.[name]}`
+        }
 
         return `"${name}": ${sort(schemas)
           .map((schema) => parseZodMeta(current, schema, options))
@@ -201,16 +205,16 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       : undefined
 
     const text = [
-      mapper.object(properties),
-      current.args?.strict ? mapper.strict() : undefined,
-      additionalProperties ? mapper.catchall(additionalProperties) : undefined,
+      zodKeywordMapper.object(properties),
+      current.args?.strict ? zodKeywordMapper.strict() : undefined,
+      additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 
     return text.join('')
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    return mapper.tuple(
+    return zodKeywordMapper.tuple(
       sort(current.args)
         .map((schema) => parseZodMeta(current, schema, options))
         .filter(Boolean),
@@ -219,26 +223,26 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
 
   if (isKeyword(current, schemaKeywords.const)) {
     if (current.args.format === 'number') {
-      return mapper.const(transformers.toNumber(current.args.value))
+      return zodKeywordMapper.const(transformers.toNumber(current.args.value))
     }
-    return mapper.const(transformers.stringify(current.args.value))
+    return zodKeywordMapper.const(transformers.stringify(current.args.value))
   }
 
   if (isKeyword(current, schemaKeywords.matches)) {
     if (current.args) {
-      return mapper.matches(transformers.toRegExpString(current.args))
+      return zodKeywordMapper.matches(transformers.toRegExpString(current.args))
     }
   }
 
   if (isKeyword(current, schemaKeywords.default)) {
     if (current.args) {
-      return mapper.default(current.args)
+      return zodKeywordMapper.default(current.args)
     }
   }
 
   if (isKeyword(current, schemaKeywords.describe)) {
     if (current.args) {
-      return mapper.describe(transformers.stringify(current.args.toString()))
+      return zodKeywordMapper.describe(transformers.stringify(current.args.toString()))
     }
   }
 
@@ -247,10 +251,10 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
       const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
 
-      return mapper.string(minSchema?.args, maxSchema?.args)
+      return zodKeywordMapper.string(minSchema?.args, maxSchema?.args)
     }
 
-    return mapper.string()
+    return zodKeywordMapper.string()
   }
 
   if (isKeyword(current, schemaKeywords.number) || isKeyword(current, schemaKeywords.integer)) {
@@ -258,22 +262,22 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
       const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
 
-      return mapper.number(minSchema?.args, maxSchema?.args)
+      return zodKeywordMapper.number(minSchema?.args, maxSchema?.args)
     }
-    return mapper.number()
+    return zodKeywordMapper.number()
   }
 
   if (isKeyword(current, schemaKeywords.min) || isKeyword(current, schemaKeywords.max)) {
     return undefined
   }
 
-  if (current.keyword in mapper && 'args' in current) {
-    const value = mapper[current.keyword as keyof typeof mapper] as (typeof zodKeywordMapper)['const']
+  if (current.keyword in zodKeywordMapper && 'args' in current) {
+    const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper] as (typeof zodKeywordMapper)['const']
 
     return value((current as SchemaKeywordBase<unknown>).args as any)
   }
 
-  if (current.keyword in mapper) {
+  if (current.keyword in zodKeywordMapper) {
     return value()
   }
 

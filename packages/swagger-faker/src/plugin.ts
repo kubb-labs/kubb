@@ -40,10 +40,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dateType,
       seed,
       unknownType,
-      mapper: {
-        ...fakerKeywordMapper,
-        ...mapper,
-      },
+      mapper,
     },
     pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, pathMode, options) {

@@ -17,7 +17,7 @@ export function createUpdatePetWithFormQueryParams(
   override: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {},
 ): NonNullable<UpdatePetWithFormQueryParams> {
   return {
-    ...{ name: faker.string.alpha(), status: faker.string.alpha() },
+    ...{ name: faker.string.alpha(), status: faker.helpers.arrayElement(['working', 'idle']) as any },
     ...override,
   }
 }

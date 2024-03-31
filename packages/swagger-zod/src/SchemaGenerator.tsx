@@ -87,7 +87,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
         type: 'function',
       }),
       description,
-      mapper: this.options.mapper as typeof zodKeywordMapper,
+      mapper: this.options.mapper,
       typeName: withTypeAnnotation ? typeName : undefined,
     })
 

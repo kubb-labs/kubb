@@ -82,7 +82,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       name: resolvedName,
       typeName,
       description,
-      mapper: this.options.mapper as typeof fakerKeywordMapper,
+      mapper: this.options.mapper,
       seed: this.options.seed,
     })
 

@@ -33,7 +33,7 @@ export type SchemaGeneratorOptions = {
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
-  mapper?: SchemaMapper
+  mapper?: Record<string, string>
   typed?: boolean
   transformers: {
     /**

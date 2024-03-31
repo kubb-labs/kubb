@@ -132,7 +132,7 @@ export type SchemaKeyword = keyof SchemaKeywordMapper
 
 export type SchemaMapper<T = string | null | undefined> = {
   [K in keyof SchemaKeywordMapper]: (() => T | undefined) | undefined
-} & Record<string, (() => T | undefined) | undefined>
+}
 
 export type SchemaKeywordBase<T> = {
   keyword: SchemaKeyword

@@ -11,7 +11,7 @@ export function createAddPetRequest(override: NonNullable<Partial<AddPetRequest>
       category: createCategory(),
       photoUrls: faker.helpers.arrayElements([faker.string.alpha()]) as any,
       tags: faker.helpers.arrayElements([createTagTag()]) as any,
-      status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']),
+      status: faker.helpers.arrayElement(['working', 'idle']) as any,
     },
     ...override,
   }

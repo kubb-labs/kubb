@@ -82,7 +82,7 @@ export type Options = {
      */
     schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => Schema[] | undefined
   }
-  mapper?: Partial<SchemaMapper>
+  mapper?: Record<string, string>
   /**
    * The use of Seed is intended to allow for consistent values in a test.
    */
@@ -94,7 +94,7 @@ type ResolvedOptions = {
   unknownType: NonNullable<Options['unknownType']>
   transformers: NonNullable<Options['transformers']>
   seed: NonNullable<Options['seed']> | undefined
-  mapper: NonNullable<SchemaMapper<string | null | undefined>>
+  mapper: Record<string, string>
 }
 
 export type FileMeta = {

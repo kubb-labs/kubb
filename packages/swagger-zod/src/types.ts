@@ -69,7 +69,7 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
-  mapper?: Partial<SchemaMapper>
+  mapper?: Record<string, string>
   /**
    * Make it possible to override one of the templates
    */
@@ -99,7 +99,7 @@ type ResolvedOptions = {
   unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
   templates: NonNullable<Templates>
-  mapper: NonNullable<SchemaMapper>
+  mapper: Record<string, string>
 }
 
 export type FileMeta = {

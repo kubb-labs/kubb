@@ -50,7 +50,7 @@ module.exports = defineConfig(async () => {
           },
         },
         mapper: {
-          message: () => 'faker.commerce.productName()',
+          message: 'faker.commerce.productName()',
         },
         include: [
           {

@@ -9,7 +9,7 @@ import { createPet } from '../createPet'
 
 export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}): NonNullable<FindPetsByStatusQueryParams> {
   return {
-    ...{ status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) },
+    ...{ status: faker.helpers.arrayElement(['working', 'idle']) as any },
     ...override,
   }
 }

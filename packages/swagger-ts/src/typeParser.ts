@@ -121,35 +121,34 @@ type ParserOptions = {
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   keysToOmit?: string[]
-  mapper?: typeof typeKeywordMapper
+  mapper?: SchemaMapper
 }
 
 export function parseTypeMeta(parent: Schema | undefined, current: Schema, options: ParserOptions): ts.Node | null | undefined {
-  const mapper = { ...typeKeywordMapper, ...options.mapper }
-  const value = mapper[current.keyword as keyof typeof mapper]
+  const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {
     return undefined
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return mapper.union(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.union(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return mapper.and(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.and(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return mapper.array(current.args.items.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.array(current.args.items.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
-    return mapper.enum(current.args.typeName)
+    return typeKeywordMapper.enum(current.args.typeName)
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
-    return mapper.ref(current.args.name)
+    return typeKeywordMapper.ref(current.args.name)
   }
 
   if (isKeyword(current, schemaKeywords.blob)) {
@@ -157,11 +156,11 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    return mapper.tuple(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.tuple(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.const)) {
-    return mapper.const(current.args.name, current.args.format)
+    return typeKeywordMapper.const(current.args.name, current.args.format)
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
@@ -233,10 +232,10 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
         )
       : undefined
 
-    return mapper.object([...properties, additionalProperties].filter(Boolean))
+    return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
   }
 
-  if (current.keyword in mapper) {
+  if (current.keyword in typeKeywordMapper) {
     return value()
   }
 

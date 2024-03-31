@@ -45,10 +45,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       typed,
       dateType,
       unknownType,
-      mapper: {
-        ...zodKeywordMapper,
-        ...mapper,
-      },
+      mapper,
       templates: {
         operations: Operations.templates,
         ...templates,
