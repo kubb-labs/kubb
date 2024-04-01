@@ -1,5 +1,22 @@
 # @kubb/swagger-tanstack-query
 
+## 2.12.1
+
+### Patch Changes
+
+- [`5989187`](https://github.com/kubb-project/kubb/commit/59891877d75d30c0ede79bfb4d1994a52666c7d6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - useSuspenseQuery with unknown casting
+
+- [#904](https://github.com/kubb-project/kubb/pull/904) [`35e7789`](https://github.com/kubb-project/kubb/commit/35e7789e5e10e605f09b507e51287cb87da2a890) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - queryKey should include POST request body
+
+- Updated dependencies []:
+  - @kubb/core@2.12.1
+  - @kubb/parser@2.12.1
+  - @kubb/react@2.12.1
+  - @kubb/swagger@2.12.1
+  - @kubb/swagger-client@2.12.1
+  - @kubb/swagger-ts@2.12.1
+  - @kubb/swagger-zod@2.12.1
+
 ## 2.12.0
 
 ### Patch Changes
