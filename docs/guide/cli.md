@@ -31,9 +31,16 @@ yarn add @kubb/cli
 
 ## Usage
 
-```sh
+::: code-group
+
+```shell [bun <img src="/feature/bun.svg"/>]
+kubb --bun --config kubb.config.js
+bkubb --config kubb.config.js
+```
+```sh [node]
 kubb --config kubb.config.js
 ```
+:::
 
 ```mdx
 kubb/2.0.0
@@ -73,6 +80,7 @@ Options:
   -l, --log-level <type>  Info, silent or debug
   -w, --watch             Watch mode based on the input file
   -h, --help              Display this message
+  -b, --bun               Run Kubb with Bun
 ```
 
 Path of the input file(overrides the one in `kubb.config.js`)
