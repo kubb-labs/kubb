@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 2.12.2
+
+### Patch Changes
+
+- [#911](https://github.com/kubb-project/kubb/pull/911) [`2f3f3ea`](https://github.com/kubb-project/kubb/commit/2f3f3ea66cc12ec185893892d7408c4458631531) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - warning when barrel name(index) is same as output path
+
+- Updated dependencies []:
+  - @kubb/parser@2.12.2
+  - @kubb/types@2.12.2
+
 ## 2.12.1
 
 ### Patch Changes
