@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 2.12.3
+
+### Patch Changes
+
+- [#913](https://github.com/kubb-project/kubb/pull/913) [`5003315`](https://github.com/kubb-project/kubb/commit/500331545421acb2a8b4ba1b9fc2f21b8cba83ae) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - full support for Bun v1.1.0
+
+- Updated dependencies []:
+  - @kubb/parser@2.12.3
+  - @kubb/types@2.12.3
+
 ## 2.12.2
 
 ### Patch Changes
