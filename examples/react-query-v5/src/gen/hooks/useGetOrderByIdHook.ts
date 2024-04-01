@@ -51,7 +51,7 @@ export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
   const query = useQuery({
-    ...(getOrderByIdQueryOptions(orderId, clientOptions) as QueryObserverOptions),
+    ...(getOrderByIdQueryOptions(orderId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetOrderById['error']> & {
@@ -94,7 +94,7 @@ export function useGetOrderByIdHookSuspense<TData = GetOrderById['response'], TQ
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey(orderId)
   const query = useSuspenseQuery({
-    ...(getOrderByIdSuspenseQueryOptions(orderId, clientOptions) as QueryObserverOptions),
+    ...(getOrderByIdSuspenseQueryOptions(orderId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetOrderById['error']> & {

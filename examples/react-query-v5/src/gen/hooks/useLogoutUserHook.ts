@@ -48,7 +48,7 @@ export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = L
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...(logoutUserQueryOptions(clientOptions) as QueryObserverOptions),
+    ...(logoutUserQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LogoutUser['error']> & {
@@ -88,7 +88,7 @@ export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQuery
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...(logoutUserSuspenseQueryOptions(clientOptions) as QueryObserverOptions),
+    ...(logoutUserSuspenseQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, LogoutUser['error']> & {

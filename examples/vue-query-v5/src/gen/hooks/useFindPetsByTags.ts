@@ -58,7 +58,7 @@ export function useFindPetsByTags<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(refParams)
   const query = useQuery({
-    ...(findPetsByTagsQueryOptions(refParams, clientOptions) as QueryObserverOptions),
+    ...(findPetsByTagsQueryOptions(refParams, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByTags['error']> & {

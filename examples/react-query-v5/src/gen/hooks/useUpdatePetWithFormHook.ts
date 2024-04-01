@@ -65,7 +65,7 @@ export function useUpdatePetWithFormHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
   const query = useQuery({
-    ...(updatePetWithFormQueryOptions(petId, params, clientOptions) as QueryObserverOptions),
+    ...(updatePetWithFormQueryOptions(petId, params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, UpdatePetWithForm['error']> & {
@@ -113,7 +113,7 @@ export function useUpdatePetWithFormHookSuspense<TData = UpdatePetWithForm['resp
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormSuspenseQueryKey(petId, params)
   const query = useSuspenseQuery({
-    ...(updatePetWithFormSuspenseQueryOptions(petId, params, clientOptions) as QueryObserverOptions),
+    ...(updatePetWithFormSuspenseQueryOptions(petId, params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, UpdatePetWithForm['error']> & {

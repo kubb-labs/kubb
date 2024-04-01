@@ -64,7 +64,7 @@ export function useFindPetsByTagsHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
   const query = useQuery({
-    ...(findPetsByTagsQueryOptions(params, clientOptions) as QueryObserverOptions),
+    ...(findPetsByTagsQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByTags['error']> & {
@@ -118,7 +118,7 @@ export function useFindPetsByTagsHookInfinite<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
   const query = useInfiniteQuery({
-    ...(findPetsByTagsInfiniteQueryOptions(params, clientOptions) as InfiniteQueryObserverOptions),
+    ...(findPetsByTagsInfiniteQueryOptions(params, clientOptions) as unknown as InfiniteQueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
   }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
@@ -161,7 +161,7 @@ export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response']
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...(findPetsByTagsSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions),
+    ...(findPetsByTagsSuspenseQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {

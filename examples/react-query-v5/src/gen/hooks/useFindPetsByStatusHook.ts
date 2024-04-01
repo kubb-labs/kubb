@@ -55,7 +55,7 @@ export function useFindPetsByStatusHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery({
-    ...(findPetsByStatusQueryOptions(params, clientOptions) as QueryObserverOptions),
+    ...(findPetsByStatusQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
@@ -99,7 +99,7 @@ export function useFindPetsByStatusHookSuspense<TData = FindPetsByStatus['respon
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...(findPetsByStatusSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions),
+    ...(findPetsByStatusSuspenseQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {

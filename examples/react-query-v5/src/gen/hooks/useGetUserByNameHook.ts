@@ -54,7 +54,7 @@ export function useGetUserByNameHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
   const query = useQuery({
-    ...(getUserByNameQueryOptions(username, clientOptions) as QueryObserverOptions),
+    ...(getUserByNameQueryOptions(username, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetUserByName['error']> & {
@@ -96,7 +96,7 @@ export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], 
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
   const query = useSuspenseQuery({
-    ...(getUserByNameSuspenseQueryOptions(username, clientOptions) as QueryObserverOptions),
+    ...(getUserByNameSuspenseQueryOptions(username, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
