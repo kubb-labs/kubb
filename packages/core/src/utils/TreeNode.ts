@@ -109,14 +109,14 @@ export class TreeNode<T = BarrelData> {
       const treeNode = new TreeNode({
         name: filteredTree.name,
         path: filteredTree.path,
-        type: filteredTree.type === 'directory' ? 'split' : ('single' as KubbFile.Mode) || FileManager.getMode(filteredTree.path),
+        type: FileManager.getMode(filteredTree.path),
       })
 
       const recurse = (node: typeof treeNode, item: DirectoryTree) => {
         const subNode = node.addChild({
           name: item.name,
           path: item.path,
-          type: item.type === 'directory' ? 'split' : ('single' as KubbFile.Mode) || FileManager.getMode(item.path),
+          type: FileManager.getMode(item.path),
         })
 
         if (item.children?.length) {
