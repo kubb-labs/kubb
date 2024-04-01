@@ -9,7 +9,7 @@ import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from "./";
  * @summary Info for a specific pet
  * @link /pets/:pet_id
  */
-export async function showPetById(petId: ShowPetByIdPathParams["petId"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+export async function showPetById(petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
     const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
         url: \`/pets/\${petId}\`,
@@ -30,7 +30,7 @@ import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from "./";
  * @link /pets/:pet_id
  */
 export async function showPetById({ petId, testId }: {
-    petId: ShowPetByIdPathParams["petId"];
+    petId: ShowPetByIdPathParams["pet_id"];
     testId: ShowPetByIdPathParams["testId"];
 }, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
     const res = await client<ShowPetByIdQueryResponse>({
@@ -54,7 +54,7 @@ import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from "./";
  * @link /pets/:pet_id
  */
 export async function showPetById({ petId, testId }: {
-    petId: ShowPetByIdPathParams["petId"];
+    petId: ShowPetByIdPathParams["pet_id"];
     testId: ShowPetByIdPathParams["testId"];
 }, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
     return axios.get(\`/pets/\${petId}\`, options);

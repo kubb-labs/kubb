@@ -347,6 +347,7 @@ export function Query({
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
   const queryKeyParams = new FunctionParams()
+  //TODO operationManager.getCleitn
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
