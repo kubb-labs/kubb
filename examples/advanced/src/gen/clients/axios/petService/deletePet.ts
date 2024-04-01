@@ -8,7 +8,11 @@ import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathPar
  * @link /pet/:petId
  */
 export async function deletePet(
-  { petId }: DeletePetPathParams,
+  {
+    petId,
+  }: {
+    petId: DeletePetPathParams['petId']
+  },
   headers?: DeletePetHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<DeletePetMutationResponse>> {

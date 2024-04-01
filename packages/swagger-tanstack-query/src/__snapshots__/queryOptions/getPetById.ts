@@ -16,10 +16,14 @@ type GetPetById = {
         return: Awaited<ReturnType<GetPetByIdClient>>;
     };
 };
-export const GetPetByIdQueryKey = ({ petId }: GetPetByIdPathParams) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
+export const GetPetByIdQueryKey = ({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
-export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: GetPetByIdPathParams, options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = GetPetByIdQueryKey(petId);
+export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}, options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
+    const queryKey = GetPetByIdQueryKey({ petId });
     return {
         queryKey,
         queryFn: async () => {

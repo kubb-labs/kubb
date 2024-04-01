@@ -16,5 +16,7 @@ type DeletePet = {
         return: Awaited<ReturnType<DeletePetClient>>;
     };
 };
-export const DeletePetQueryKey = ({ petId }: DeletePetPathParams) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
+export const DeletePetQueryKey = ({ petId }: {
+    petId: DeletePetPathParams["petId"];
+}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 export type DeletePetQueryKey = ReturnType<typeof DeletePetQueryKey>;

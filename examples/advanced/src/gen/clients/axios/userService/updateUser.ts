@@ -8,7 +8,11 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @link /user/:username
  */
 export async function updateUser(
-  { username }: UpdateUserPathParams,
+  {
+    username,
+  }: {
+    username: UpdateUserPathParams['username']
+  },
   data?: UpdateUserMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdateUserMutationResponse>> {

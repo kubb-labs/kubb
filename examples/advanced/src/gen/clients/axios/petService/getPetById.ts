@@ -8,7 +8,11 @@ import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../mod
  * @link /pet/:petId
  */
 export async function getPetById(
-  { petId }: GetPetByIdPathParams,
+  {
+    petId,
+  }: {
+    petId: GetPetByIdPathParams['petId']
+  },
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<GetPetByIdQueryResponse>> {
   const res = await client<GetPetByIdQueryResponse>({

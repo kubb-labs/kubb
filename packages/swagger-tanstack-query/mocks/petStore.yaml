@@ -313,6 +313,14 @@ paths:
           description: Status of pet that needs to be updated
           schema:
             type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  offset:
+                    type: number
       responses:
         "405":
           description: Invalid input

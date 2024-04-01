@@ -132,10 +132,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
   clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
 
   params.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: true,
-      asObject: pathParamsType === 'object',
-    }),
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
     {
       name: 'data',
       type: schemas.request?.name,
