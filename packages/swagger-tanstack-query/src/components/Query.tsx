@@ -62,7 +62,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
          const query = ${hook.name}({
-          ...${hook.queryOptions} as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
+          ...${hook.queryOptions} as unknown as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
           queryKey,
           ...queryOptions as unknown as ${infinite ? 'Omit<InfiniteQueryObserverOptions, "queryKey">' : 'Omit<QueryObserverOptions, "queryKey">'}
         }) as ${resolvedReturnType}
