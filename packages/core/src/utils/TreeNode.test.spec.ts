@@ -12,7 +12,7 @@ describe('TreeNode', () => {
     expect(tree?.root.data).toEqual({
       name: 'treeNode',
       path: rootPath,
-      type: 'single',
+      type: 'split',
     })
   })
 
