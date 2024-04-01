@@ -1,17 +1,16 @@
-import { safeBuild } from '@kubb/core'
 import { LogLevel, createLogger, randomCliColour } from '@kubb/core/logger'
 
 import { execa } from 'execa'
+import { get } from 'js-runtime'
 import { parseArgsStringToArgv } from 'string-argv'
 import c from 'tinyrainbow'
 
 import { OraWritable } from './utils/OraWritable.ts'
-import { getSummary } from './utils/getSummary.ts'
 import { spinner } from './utils/spinner.ts'
 
 import type { Writable } from 'node:stream'
-import type { CLIOptions, Config } from '@kubb/core'
-import type { ExecaReturnValue } from 'execa'
+import { type CLIOptions, type Config, safeBuild } from '@kubb/core'
+import { getSummary } from './utils/getSummary.ts'
 
 type GenerateProps = {
   input?: string
@@ -22,11 +21,6 @@ type GenerateProps = {
 type ExecutingHooksProps = {
   hooks: Config['hooks']
   logLevel: LogLevel
-}
-
-type Executer = {
-  subProcess: ExecaReturnValue<string>
-  abort: AbortController['abort']
 }
 
 async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
@@ -109,7 +103,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
   const logLevel = logger.logLevel
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  spinner.start(`🚀 Building ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  spinner.start(`🚀 Building with ${get()} ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   const definedConfig: Config = {
     root: process.cwd(),
@@ -150,7 +144,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
   await executeHooks({ hooks: config.hooks, logLevel })
 
   spinner.suffixText = ''
-  spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  spinner.succeed(`🚀 Build completed with ${get()} ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   console.log(summary.join(''))
 }

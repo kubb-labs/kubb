@@ -15,7 +15,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
-    "generate:bun": "bun ./node_modules/@kubb/cli/bin/kubb.js generate --config .kubbrc.js",
+    "generate:bun": "kubb generate --bun",
     "generate:js": "kubb generate --config .kubbrc.js",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config configs/kubb.config.ts",

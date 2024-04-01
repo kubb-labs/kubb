@@ -15,6 +15,8 @@ import { spinner } from './utils/spinner.ts'
 import { startWatcher } from './utils/watcher.ts'
 
 import type { CLIOptions } from '@kubb/core'
+import { execa } from 'execa'
+import { OraWritable } from './utils/OraWritable.ts'
 
 const moduleName = 'kubb'
 
@@ -31,6 +33,13 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
 }
 
 async function generateAction(input: string, CLIOptions: CLIOptions) {
+  if (CLIOptions.bun) {
+    const command = process.argv.splice(2).filter((item) => item !== '--bun')
+
+    await execa('bkubb', command, { stdout: process.stdout, stderr: process.stderr })
+    return
+  }
+
   spinner.start('🔍 Loading config')
   const result = await getCosmiConfig(moduleName, CLIOptions.config)
   spinner.succeed(`🔍 Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
@@ -71,6 +80,7 @@ export async function run(argv?: string[]): Promise<void> {
     .option('-c, --config <path>', 'Path to the Kubb config')
     .option('-l, --log-level <type>', 'Info, silent or debug')
     .option('-w, --watch', 'Watch mode based on the input file')
+    .option('-b, --bun', 'Run Kubb with Bun')
     .action(generateAction)
 
   program
@@ -78,6 +88,7 @@ export async function run(argv?: string[]): Promise<void> {
     .option('-c, --config <path>', 'Path to the Kubb config')
     .option('-l, --log-level <type>', 'Info, silent or debug')
     .option('-w, --watch', 'Watch mode based on the input file')
+    .option('-b, --bun', 'Run Kubb with Bun')
     .action(generateAction)
 
   program.command('init', 'Init Kubb').action(async () => {

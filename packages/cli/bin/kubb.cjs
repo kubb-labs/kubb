@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 try {
+  const cachedSourceMaps = new Map()
+
   require('source-map-support').install({
-    environment: 'node',
-    handleUncaughtExceptions: false,
+    retrieveSourceMap(source) {
+      if (cachedSourceMaps.has(source)) {
+        return cachedSourceMaps.get(source)
+      }
+      return null
+    },
   })
 } catch (err) {}
 

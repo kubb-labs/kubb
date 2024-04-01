@@ -996,6 +996,9 @@ importers:
       execa:
         specifier: ^8.0.1
         version: 8.0.1
+      js-runtime:
+        specifier: ^0.0.7
+        version: 0.0.7
       ora:
         specifier: ^8.0.1
         version: 8.0.1
