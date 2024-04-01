@@ -152,6 +152,16 @@ kubb --help
 
 :::
 
+#### --bun (-b)
+
+Run with Bun
+::: info
+
+```sh
+kubb --bun
+```
+:::
+
 ## Init
 
 Create a starting `package.json` with dependencies needed to get started with generating files.

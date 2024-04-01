@@ -149,5 +149,15 @@ Display the help.
 ```sh
 kubb --help
 ```
+:::
+
+#### --bun (-b)
+
+Run with Bun
+::: info
+
+```sh
+kubb --bun
+```
 
 :::
