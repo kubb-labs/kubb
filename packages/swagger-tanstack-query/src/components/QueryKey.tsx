@@ -3,6 +3,7 @@ import { Function, Type, usePlugin } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, isRequired } from '@kubb/swagger/utils'
 
+import transformers from '@kubb/core/transformers'
 import type { ReactNode } from 'react'
 import type { PluginOptions } from '../types'
 
@@ -79,7 +80,7 @@ const defaultTemplates = {
       const { factory } = context
 
       const {
-        options: { pathParamsType },
+        options: { pathParamsType, query },
       } = usePlugin<PluginOptions>()
       const { getSchemas } = useOperationManager()
       const operation = useOperation()
@@ -88,18 +89,37 @@ const defaultTemplates = {
       const path = new URLPath(operation.path)
       const params = new FunctionParams()
       const withQueryParams = !!schemas.queryParams?.name
+      const withRequest = !!schemas.request?.name
 
       params.add([
-        ...getASTParams(schemas.pathParams, {
-          typed: true,
-          asObject: pathParamsType === 'object',
-          override: (item) => ({ ...item, type: `MaybeRef<${item.type}>` }),
-        }),
+        ...(pathParamsType === 'object'
+          ? [
+              getASTParams(schemas.pathParams, {
+                typed: true,
+                override: (item) => ({
+                  ...item,
+                  type: `MaybeRef<${item.type}>`,
+                }),
+              }),
+            ]
+          : getASTParams(schemas.pathParams, {
+              typed: true,
+              override: (item) => ({
+                ...item,
+                type: `MaybeRef<${item.type}>`,
+              }),
+            })),
         {
           name: 'params',
-          type: schemas.queryParams?.name ? `MaybeRef<${`${factory.name}["queryParams"]`}>` : undefined,
-          enabled: !!schemas.queryParams?.name,
+          type: `MaybeRef<${`${factory.name}["queryParams"]`}>`,
+          enabled: withQueryParams,
           required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'request',
+          type: `MaybeRef<${`${factory.name}["request"]`}>`,
+          enabled: withRequest,
+          required: isRequired(schemas.request?.schema),
         },
       ])
 
@@ -110,6 +130,7 @@ const defaultTemplates = {
           replacer: (pathParam) => `unref(${pathParam})`,
         }),
         withQueryParams ? '...(params ? [params] : [])' : undefined,
+        withRequest ? '...(request ? [request] : [])' : undefined,
       ].filter(Boolean)
 
       return <Template {...rest} params={params.toString()} keys={keys.join(', ')} />
@@ -141,17 +162,21 @@ export function QueryKey({ name, typeName, factory, keysFn, Template = defaultTe
   const path = new URLPath(operation.path)
   const params = new FunctionParams()
   const withQueryParams = !!schemas.queryParams?.name
+  const withRequest = !!schemas.request?.name
 
   params.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: true,
-      asObject: pathParamsType === 'object',
-    }),
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
     {
       name: 'params',
       type: `${factory.name}["queryParams"]`,
-      enabled: !!schemas.queryParams?.name,
+      enabled: withQueryParams,
       required: isRequired(schemas.queryParams?.schema),
+    },
+    {
+      name: 'data',
+      type: `${factory.name}["request"]`,
+      enabled: withRequest,
+      required: isRequired(schemas.request?.schema),
     },
   ])
 
@@ -161,6 +186,7 @@ export function QueryKey({ name, typeName, factory, keysFn, Template = defaultTe
       stringify: true,
     }),
     withQueryParams ? '...(params ? [params] : [])' : undefined,
+    withRequest ? '...(data ? [data] : [])' : undefined,
   ].filter(Boolean)
 
   return <Template typeName={typeName} name={name} params={params.toString()} keys={keysFn(keys).join(', ')} context={{ factory }} />

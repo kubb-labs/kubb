@@ -1,7 +1,7 @@
 export { convertSwagger2ToOpenApi } from './convertSwagger2ToOpenApi.ts'
 export { getComments } from './getComments.ts'
 export { getGroupedByTagFiles } from './getGroupedByTagFiles.ts'
-export { getASTParams, getParams } from './getParams.ts'
+export { getASTParams } from './getParams.ts'
 export { getSchemaFactory } from './getSchemaFactory.ts'
 export type { GetSchemasProps } from './getSchemas.ts'
 export { getSchemas } from './getSchemas.ts'

@@ -17,10 +17,14 @@ type GetPetById = {
         return: Awaited<ReturnType<GetPetByIdClient>>;
     };
 };
-export const GetPetByIdQueryKey = ({ petId }: GetPetByIdPathParams) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
+export const GetPetByIdQueryKey = ({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
-export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: GetPetByIdPathParams, options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = GetPetByIdQueryKey(petId);
+export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}, options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
+    const queryKey = GetPetByIdQueryKey({ petId });
     return {
         queryKey,
         queryFn: async () => {
@@ -38,16 +42,18 @@ export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryDat
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function getPetById<TData = GetPetById["response"], TQueryData = GetPetById["response"], TQueryKey extends QueryKey = GetPetByIdQueryKey>({ petId }: GetPetByIdPathParams, options: {
+export function getPetById<TData = GetPetById["response"], TQueryData = GetPetById["response"], TQueryKey extends QueryKey = GetPetByIdQueryKey>({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}, options: {
     query?: Partial<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData, TQueryKey>>;
     client?: GetPetById["client"]["parameters"];
 } = {}): UseQueryResult<TData, GetPetById["error"]> & {
     queryKey: TQueryKey;
 } {
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? GetPetByIdQueryKey(petId);
+    const queryKey = queryOptions?.queryKey ?? GetPetByIdQueryKey({ petId });
     const query = useQuery<GetPetById["data"], GetPetById["error"], TData, any>({
-        ...GetPetByIdQueryOptions<TData, TQueryData>({ petId }, GetPetByIdPathParams, clientOptions),
+        ...GetPetByIdQueryOptions<TData, TQueryData>({ petId }, clientOptions),
         queryKey,
         ...queryOptions
     }) as UseQueryResult<TData, GetPetById["error"]> & {

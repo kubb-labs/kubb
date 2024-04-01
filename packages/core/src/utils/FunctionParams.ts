@@ -123,7 +123,7 @@ export class FunctionParams {
 
     return {
       name: `{ ${name.join(', ')} }`,
-      type: type.length ? `{ ${type.join(', ')} }` : undefined,
+      type: type.length ? `{ ${type.join('; ')} }` : undefined,
       enabled,
       required,
     }
@@ -135,6 +135,9 @@ export class FunctionParams {
     return sortedData
       .reduce((acc, item) => {
         if (Array.isArray(item)) {
+          if (item.length <= 0) {
+            return acc
+          }
           const subItems = FunctionParams.#orderItems(item) as FunctionParamsAST[]
           const objectItem = FunctionParams.toObject(subItems)
 

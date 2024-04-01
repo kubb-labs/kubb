@@ -3,7 +3,7 @@
  * @link /pets/:pet_id
  */
 export async function showPetById(
-  { petId, testId }: ShowPetByIdPathParams,
+  { petId, testId }: { petId: ShowPetByIdPathParams['pet_id']; testId: ShowPetByIdPathParams['testId'] },
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<ShowPetByIdQueryResponse>['data']> {
   const res = await client<ShowPetByIdQueryResponse>({
