@@ -30,7 +30,7 @@ export function getASTParams(
       name,
       enabled: !!name,
       required: isParam ? schema.required : true,
-      type: typed ? `${operationSchema.name}["${camelCase(name)}"]` : undefined,
+      type: typed ? `${operationSchema.name}["${name}"]` : undefined,
     }
 
     return override ? override(data) : data
