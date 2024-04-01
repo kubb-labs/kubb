@@ -105,11 +105,11 @@ export default defineConfig({
 
 ```ts
 // vite.config.ts
-import Plugin from 'unplugin-kubb/vite'
+import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
-    Plugin({/* options */}),
+    kubb({/* options */}),
   ],
 })
 ```
@@ -118,11 +118,11 @@ export default defineConfig({
 
 ```ts
 // rollup.config.js
-import Plugin from 'unplugin-kubb/rollup'
+import kubb from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
-    Plugin({/* options */}),
+    kubb({/* options */}),
   ],
 }
 ```
@@ -170,10 +170,10 @@ module.exports = {
 ```ts
 // esbuild.config.js
 import { build } from 'esbuild'
-import Plugin from 'unplugin-kubb/esbuild'
+import kubb from 'unplugin-kubb/esbuild'
 
 build({
-  plugins: [Plugin()],
+  plugins: [kubb()],
 })
 ```
 

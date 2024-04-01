@@ -16,7 +16,7 @@
     "build": "vite build",
     "clean": "npx rimraf ./dist",
     "dev": "vite",
-    "generate": "kubb generate",
+    "generate": "vite build",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -31,6 +31,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/vue-query": "^5.28.9",
     "axios": "^1.6.8",
+    "unplugin-kubb": "workspace:*",
     "vue": "^3.4.21"
   },
   "devDependencies": {

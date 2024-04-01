@@ -855,6 +855,9 @@ importers:
       axios:
         specifier: ^1.6.8
         version: 1.6.8
+      unplugin-kubb:
+        specifier: workspace:*
+        version: link:../../packages/unplugin
       vue:
         specifier: ^3.4.21
         version: 3.4.21(typescript@5.2.2)

@@ -9,7 +9,7 @@ try {
     const oldVersion = 'workspace:*'
     const newVersion = ['latest', 'canary', 'alpha'].includes(tag) ? tag : pkg.version
 
-    const content = JSON.stringify(pkg, null, '\t') + '\n'
+    const content = `${JSON.stringify(pkg, null, '\t')}\n`
     const newContent = content
       // @ts-ignore
       .replaceAll(`"${oldVersion}"`, `"${newVersion}"`)
