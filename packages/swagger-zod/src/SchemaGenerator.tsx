@@ -1,20 +1,18 @@
-import { File, createRoot, useFile, usePlugin, usePluginManager } from '@kubb/react'
+import { App, File, createRoot, useApp, useFile } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
 
 import { pluginKey } from './plugin.ts'
-import { type zodKeywordMapper, zodParser } from './zodParser.tsx'
+import { zodParser } from './zodParser.tsx'
 
-import type { AppContextProps } from '@kubb/react'
 import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 function SchemaImports() {
-  const plugin = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
+  const { plugin, pluginManager } = useApp<PluginOptions>()
   const { path: root } = useFile()
   const { name } = useSchema()
 
@@ -48,19 +46,20 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+    const root = createRoot({
       logger: pluginManager.logger,
     })
 
     root.render(
-      <Oas oas={oas}>
-        <Oas.Schema generator={this} name={name} object={object}>
-          <Schema.File output={output} mode={mode}>
-            <SchemaImports />
-          </Schema.File>
-        </Oas.Schema>
-      </Oas>,
-      { meta: { pluginManager, plugin } },
+      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
+        <Oas oas={oas}>
+          <Oas.Schema generator={this} name={name} object={object}>
+            <Schema.File output={output}>
+              <SchemaImports />
+            </Schema.File>
+          </Oas.Schema>
+        </Oas>
+      </App>,
     )
 
     return root.files

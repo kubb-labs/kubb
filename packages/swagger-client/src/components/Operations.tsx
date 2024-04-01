@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
@@ -33,8 +33,10 @@ type RootTemplateProps = {
 }
 
 function RootTemplate({ children }: RootTemplateProps) {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
+  const {
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
   const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
 
   return (

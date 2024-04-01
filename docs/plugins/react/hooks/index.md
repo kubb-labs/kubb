@@ -9,28 +9,6 @@ outline: deep
 
 Some hooks that can be used with `@kubb/react`.
 
-## useMeta
-
-`useMeta` will return an object containing the meta that has been provided with the `root.render` functionality.
-
-::: code-group
-
-```typescript
-import { useMeta } from '@kubb/react'
-import type { KubbPlugin } from '@kubb/core'
-
-type Meta = {
-  plugin: KubbPlugin
-}
-
-function Component() {
-  const meta = useMeta<Meta>()
-
-  return null
-}
-```
-
-:::
 
 ## useLanguage
 
@@ -50,53 +28,17 @@ function Component() {
 
 :::
 
-## usePluginManager
+## useApp
 
-`usePluginManager` will return the PluginManager instance.
-
-::: code-group
-
-```typescript
-import { usePluginManager } from '@kubb/react'
-
-function Component() {
-  const pluginManager = usePluginManager()
-
-  return null
-}
-```
-
-:::
-
-## usePlugin
-
-`usePlugin` will return the current plugin.
+`useApp` will return the current App with plugin, pluginManager, fileManager and mode.
 
 ::: code-group
 
 ```typescript
-import { usePlugin } from '@kubb/react'
+import { useApp } from '@kubb/react'
 
 function Component() {
-  const plugin = usePlugin()
-
-  return null
-}
-```
-
-:::
-
-## useFileManager
-
-`useFileManager` will return the current FileManager instance.
-
-::: code-group
-
-```typescript
-import { useFileManager } from '@kubb/react'
-
-function Component() {
-  const fileManager = useFileManager()
+  const { pluginManager, plugin, mode, fileManager} = useApp()
 
   return null
 }

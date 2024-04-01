@@ -1,9 +1,9 @@
-import { createNode } from '../shared/dom.ts'
 import { ReactTemplate } from '../shared/ReactTemplate.tsx'
+import { createNode } from '../shared/dom.ts'
 import { format } from './format.ts'
 
 import type { Logger } from '@kubb/core/logger'
-import type { AppContextProps } from '../components/App.tsx'
+import type { RootContextProps } from '../components/Root.tsx'
 import type { DOMElement } from '../types.ts'
 import type { RootType } from './types.ts'
 
@@ -14,7 +14,7 @@ type Props = {
   logger?: Logger
 }
 
-export function createRootServer<Context extends AppContextProps = AppContextProps>({ container, logger }: Props): RootType<Context> {
+export function createRootServer<Context extends RootContextProps = RootContextProps>({ container, logger }: Props): RootType<Context> {
   if (!container) {
     container = createNode('kubb-root')
   }

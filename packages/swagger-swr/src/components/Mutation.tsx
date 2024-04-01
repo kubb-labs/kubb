@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin } from '@kubb/react'
+import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
@@ -121,8 +121,10 @@ type Props = {
 
 export function Mutation({ factory, Template = defaultTemplates.default }: Props): ReactNode {
   const {
-    options: { dataReturnType },
-  } = usePlugin<PluginOptions>()
+    plugin: {
+      options: { dataReturnType },
+    },
+  } = useApp<PluginOptions>()
   const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
 
@@ -195,10 +197,12 @@ type FileProps = {
 
 Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
   const {
-    options: {
-      client: { importPath },
+    plugin: {
+      options: {
+        client: { importPath },
+      },
     },
-  } = usePlugin<PluginOptions>()
+  } = useApp<PluginOptions>()
 
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()

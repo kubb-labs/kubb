@@ -10,7 +10,7 @@ import type { KubbFile, Plugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 
 type Options = {
-  logger?: Logger
+  logger: Logger
   files: KubbFile.File[]
   plugin: Plugin
   template: string
@@ -39,7 +39,7 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
   const { path, exportType = 'barrel' } = output
   const mode = FileManager.getMode(resolve(root, path))
 
-  if (mode === 'file' || exportType === false) {
+  if (mode === 'single' || exportType === false) {
     return []
   }
 
@@ -50,9 +50,7 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
     })
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
-        if (logger?.logLevel === LogLevel.debug) {
-          logger?.emit('debug', [`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`])
-        }
+        logger?.emit('debug', [`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`])
 
         return
       }

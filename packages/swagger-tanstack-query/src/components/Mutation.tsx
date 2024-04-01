@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
@@ -226,9 +226,12 @@ type Props = {
 
 export function Mutation({ factory, resultType, hookName, optionsType, Template = defaultTemplates.react }: Props): ReactNode {
   // TODO do checks on pathParamsType
+
   const {
-    options: { dataReturnType, mutate },
-  } = usePlugin<PluginOptions>()
+    plugin: {
+      options: { dataReturnType, mutate },
+    },
+  } = useApp<PluginOptions>()
 
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
@@ -386,12 +389,15 @@ type FileProps = {
 
 Mutation.File = function ({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
   const {
-    options: {
-      client: { importPath },
-      framework,
+    pluginManager,
+    plugin: {
+      options: {
+        client: { importPath },
+        framework,
+      },
     },
-  } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
+  } = useApp<PluginOptions>()
+
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 

@@ -7,7 +7,6 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
-import { fakerKeywordMapper } from './fakerParser.tsx'
 import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', async () => {
@@ -33,6 +32,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets', 'get')
     const operationShowById = oas.operation('/pets/{petId}', 'get')
@@ -66,6 +66,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets', 'get')
     const operationShowById = oas.operation('/pets/{petId}', 'get')
@@ -99,6 +100,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets', 'post')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
@@ -125,6 +127,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pet/{petId}', 'delete')
     const files = (await og.operation(operation, options)) as KubbFile.File[]

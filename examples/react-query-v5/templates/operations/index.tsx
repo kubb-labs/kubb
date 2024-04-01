@@ -1,6 +1,5 @@
 import path from 'node:path'
-import { Editor, File, Type, usePlugin } from '@kubb/react'
-import { usePluginManager } from '@kubb/react'
+import { Editor, File, Type, useApp } from '@kubb/react'
 import type { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
@@ -9,8 +8,10 @@ import type React from 'react'
 export const templates = {
   ...Operations.templates,
   root: function ({}: React.ComponentProps<typeof Operations.templates.root>) {
-    const pluginManager = usePluginManager()
-    const { key: pluginKey } = usePlugin<PluginOptions>()
+    const {
+      plugin: { key: pluginKey },
+      pluginManager,
+    } = useApp<PluginOptions>()
     const operations = useOperations()
     const { getName, getSchemas } = useOperationManager()
 

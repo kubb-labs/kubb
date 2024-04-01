@@ -1,13 +1,13 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
-import { Client, Operations } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
+import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
@@ -51,7 +51,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
-      if (mode === 'file') {
+      if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
@@ -87,6 +87,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = FileManager.getMode(path.resolve(root, output.path))
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         oas,
@@ -96,6 +98,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         exclude,
         include,
         override,
+        mode,
       })
 
       const files = await operationGenerator.build()
@@ -127,6 +130,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         root,
         output,
         meta: { pluginKey: this.plugin.key },
+        logger: this.logger,
       })
     },
   }

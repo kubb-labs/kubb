@@ -2,16 +2,16 @@
 
 import PQueue from 'p-queue'
 
+import { FileManager } from './FileManager.ts'
+import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
+import { PromiseManager } from './PromiseManager.ts'
+import { ValidationPluginError } from './errors.ts'
 import { readSync } from './fs/read.ts'
+import { LogLevel } from './logger.ts'
+import { definePlugin as defineCorePlugin } from './plugin.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
-import { ValidationPluginError } from './errors.ts'
-import { FileManager } from './FileManager.ts'
-import { LogLevel } from './logger.ts'
-import { definePlugin as defineCorePlugin } from './plugin.ts'
-import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
-import { PromiseManager } from './PromiseManager.ts'
 
 import type { PossiblePromise } from '@kubb/types'
 import type { KubbFile } from './FileManager.ts'
@@ -165,7 +165,7 @@ export class PluginManager {
         parameters: [params.baseName, params.mode, params.options as object],
       })
 
-      if (paths && paths?.length > 1 && this.logger.logLevel === LogLevel.debug) {
+      if (paths && paths?.length > 1) {
         this.logger.emit('debug', [
           `Cannot return a path where the 'pluginKey' ${
             params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
@@ -188,7 +188,7 @@ export class PluginManager {
         parameters: [params.name, params.type],
       })
 
-      if (names && names?.length > 1 && this.logger.logLevel === LogLevel.debug) {
+      if (names && names?.length > 1) {
         this.logger.emit('debug', [
           `Cannot return a name where the 'pluginKey' ${
             params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
@@ -483,14 +483,11 @@ export class PluginManager {
 
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && plugin[hookName])
 
-      if (this.logger.logLevel === LogLevel.debug) {
-        if (corePlugin) {
-          this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`])
-        } else {
-          this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`])
-        }
+      if (corePlugin) {
+        this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`])
+      } else {
+        this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`])
       }
-
       return corePlugin ? [corePlugin] : []
     }
 

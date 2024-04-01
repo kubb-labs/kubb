@@ -69,6 +69,86 @@ export default defineConfig({
 })
 ```
 
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        output: {
+          exortAs: 'schemas',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.extName
+
+Add an extension to the generated imports and exports, default it will not use an extension
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        output: {
+          extName: '.js',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.exportType
+
+Define what needs to exported, here you can also disable the export of barrel files
+
+::: info
+Type: `'barrel' | 'barrelNamed' | false` <br/>
+
+
 :::
 
 ### group

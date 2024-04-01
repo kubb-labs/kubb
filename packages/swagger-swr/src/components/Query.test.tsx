@@ -9,7 +9,7 @@ import { Query } from './Query.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
 
 import type { Plugin, ResolveNameParams } from '@kubb/core'
-import type { AppContextProps } from '@kubb/react'
+import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
 
@@ -50,25 +50,25 @@ describe('<Query/>', async () => {
     plugin,
     contentType: undefined,
     override: undefined,
+    mode: 'split',
   })
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
-    const context: AppContextProps<PluginOptions['appMeta']> = {
-      meta: { pluginManager: mockedPluginManager, plugin },
-    }
 
     const Component = () => {
       return (
-        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
-          <Oas.Operation operation={operation}>
-            <Query.File />
-          </Oas.Operation>
-        </Oas>
+        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
+          <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
+            <Oas.Operation operation={operation}>
+              <Query.File />
+            </Oas.Operation>
+          </Oas>
+        </App>
       )
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />, context)
+    const output = await root.renderToString(<Component />)
 
     expect(output).toMatchFileSnapshot('./__snapshots__/Query/showPetById.ts')
   })

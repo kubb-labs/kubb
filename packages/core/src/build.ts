@@ -1,13 +1,13 @@
 import c from 'tinyrainbow'
 
-import { clean } from './fs/clean.ts'
-import { read } from './fs/read.ts'
-import { URLPath } from './utils/URLPath.ts'
-import { isInputPath } from './config.ts'
 import { FileManager } from './FileManager.ts'
-import { createLogger, LogLevel, randomCliColour } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isPromise } from './PromiseManager.ts'
+import { isInputPath } from './config.ts'
+import { clean } from './fs/clean.ts'
+import { read } from './fs/read.ts'
+import { LogLevel, createLogger, randomCliColour } from './logger.ts'
+import { URLPath } from './utils/URLPath.ts'
 
 import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
@@ -116,9 +116,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     if (hookName === 'writeFile') {
       const [code] = parameters as PluginParameter<'writeFile'>
 
-      if (logger.logLevel === LogLevel.debug) {
-        logger.emit('debug', [`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`])
-      }
+      logger.emit('debug', [`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`])
     }
   })
 
@@ -160,17 +158,15 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   pluginManager.on('executed', (executer) => {
     const { hookName, plugin, output, parameters } = executer
 
-    if (logger.logLevel === LogLevel.debug) {
-      const logs = [
-        `${randomCliColour(plugin.name)} Executing ${hookName}`,
-        parameters && `${c.bgWhite('Parameters')} ${randomCliColour(plugin.name)} ${hookName}`,
-        JSON.stringify(parameters, undefined, 2),
-        output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
-        output,
-      ].filter(Boolean)
+    const logs = [
+      `${randomCliColour(plugin.name)} Executing ${hookName}`,
+      parameters && `${c.bgWhite('Parameters')} ${randomCliColour(plugin.name)} ${hookName}`,
+      JSON.stringify(parameters, undefined, 2),
+      output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
+      output,
+    ].filter(Boolean)
 
-      logger.emit('debug', logs as string[])
-    }
+    logger.emit('debug', logs as string[])
   })
 
   return pluginManager

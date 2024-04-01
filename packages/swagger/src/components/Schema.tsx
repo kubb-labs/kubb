@@ -1,4 +1,4 @@
-import { Editor, File, createContext, useFile, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, createContext, useApp, useFile } from '@kubb/react'
 
 import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
@@ -37,19 +37,16 @@ export function Schema({ name, object, generator, children }: Props): KubbNode {
 }
 
 type FileProps = {
-  mode: KubbFile.Mode | undefined
   isTypeOnly?: boolean
   output: string | undefined
   children?: KubbNode
 }
 
-Schema.File = function ({ output, isTypeOnly, children, mode = 'directory' }: FileProps): ReactNode {
-  const plugin = usePlugin<PluginOptions>()
-
-  const pluginManager = usePluginManager()
+Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode {
+  const { plugin, pluginManager, mode } = useApp<PluginOptions>()
   const { name } = useSchema()
 
-  if (mode === 'file') {
+  if (mode === 'single') {
     const baseName = output as KubbFile.BaseName
     const resolvedPath = pluginManager.resolvePath({
       baseName: '',

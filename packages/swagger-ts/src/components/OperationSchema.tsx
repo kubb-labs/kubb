@@ -3,7 +3,7 @@
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
@@ -75,14 +75,10 @@ export function OperationSchema({}: Props): ReactNode {
   return <></>
 }
 
-type FileProps = {
-  mode: KubbFile.Mode | undefined
-}
+type FileProps = {}
 
-OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
-  const plugin = usePlugin<PluginOptions>()
-
-  const pluginManager = usePluginManager()
+OperationSchema.File = function ({}: FileProps): ReactNode {
+  const { pluginManager, plugin, mode } = useApp<PluginOptions>()
   const oas = useOas()
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
@@ -94,6 +90,7 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
     oas,
     plugin,
     pluginManager,
+    mode,
   })
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
@@ -101,7 +98,7 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
   const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {mode === 'directory' && <Schema.Imports isTypeOnly />}
+        {mode === 'split' && <Schema.Imports isTypeOnly />}
         <File.Source>
           <Schema.Source options={options} />
         </File.Source>

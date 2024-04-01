@@ -1,13 +1,12 @@
-import { createRoot } from '@kubb/react'
+import { App, createRoot } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
-import { Oas, Schema } from '@kubb/swagger/components'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
+import { Oas, Schema } from '@kubb/swagger/components'
 
 import { pluginKey } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
 
-import type { AppContextProps } from '@kubb/react'
-import type { Schema as SchemaType, SchemaGeneratorBuildOptions, SchemaMethodResult } from '@kubb/swagger'
+import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -15,17 +14,18 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+    const root = createRoot({
       logger: pluginManager.logger,
     })
 
     root.render(
-      <Oas oas={oas}>
-        <Oas.Schema generator={this} name={name} object={object}>
-          <Schema.File isTypeOnly output={output} mode={mode} />
-        </Oas.Schema>
-      </Oas>,
-      { meta: { pluginManager, plugin } },
+      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
+        <Oas oas={oas}>
+          <Oas.Schema generator={this} name={name} object={object}>
+            <Schema.File isTypeOnly output={output} />
+          </Oas.Schema>
+        </Oas>
+      </App>,
     )
 
     return root.files

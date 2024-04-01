@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin, usePluginManager } from '@kubb/react'
+import { Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, isRequired } from '@kubb/swagger/utils'
@@ -217,9 +217,13 @@ const defaultTemplates = {
   get vue() {
     return function ({ client, context, ...rest }: FrameworkProps): ReactNode {
       const { factory, queryKey } = context
+
       const {
-        options: { pathParamsType },
-      } = usePlugin<PluginOptions>()
+        plugin: {
+          options: { pathParamsType },
+        },
+      } = useApp<PluginOptions>()
+
       const { getSchemas } = useOperationManager()
       const operation = useOperation()
 
@@ -333,11 +337,13 @@ type Props = {
 
 export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
   const {
-    key: pluginKey,
-    options: { parser, pathParamsType, queryOptions },
-  } = usePlugin<PluginOptions>()
+    pluginManager,
+    plugin: {
+      key: pluginKey,
+      options: { parser, pathParamsType, queryOptions },
+    },
+  } = useApp<PluginOptions>()
 
-  const pluginManager = usePluginManager()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 

@@ -1,5 +1,5 @@
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
-import { useOperation, useOperationManager, useOperations } from '@kubb/swagger/hooks'
+import { Editor, File, useApp } from '@kubb/react'
+import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
@@ -22,10 +22,12 @@ type EditorTemplateProps = {
 }
 
 function RootTemplate({ children }: EditorTemplateProps) {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const {
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
 
   const { getName, getFile } = useOperationManager()
-  const pluginManager = usePluginManager()
 
   const file = pluginManager.getFile({ name: 'handlers', extName: '.ts', pluginKey })
   const operations = useOperations()
@@ -61,7 +63,9 @@ type Props = {
 }
 
 export function Operations({ Template = defaultTemplates.default }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const {
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
 
   const operations = useOperations()
   const { getName } = useOperationManager()

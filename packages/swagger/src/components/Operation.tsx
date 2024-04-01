@@ -2,7 +2,6 @@ import { createContext } from '@kubb/react'
 
 import type { KubbNode } from '@kubb/react'
 import type { Operation as OperationType } from '../oas/index.ts'
-import type { OperationSchemas } from '../types.ts'
 
 type Props = {
   operation: OperationType

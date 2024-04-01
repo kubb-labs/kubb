@@ -27,7 +27,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
-  mode?: KubbFile.Mode
+  mode: KubbFile.Mode
 }
 
 export abstract class OperationGenerator<
