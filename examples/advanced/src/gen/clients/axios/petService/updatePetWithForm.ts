@@ -11,7 +11,11 @@ import type {
  * @link /pet/:petId
  */
 export async function updatePetWithForm(
-  { petId }: UpdatePetWithFormPathParams,
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+  },
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>> {

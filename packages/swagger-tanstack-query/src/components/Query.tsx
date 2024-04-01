@@ -5,7 +5,7 @@ import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
-import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
+import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -151,19 +151,13 @@ const defaultTemplates = {
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
+      const queryKeyParams = new FunctionParams()
       const client = {
         withQueryParams: !!schemas.queryParams?.name,
         withData: !!schemas.request?.name,
         withPathParams: !!schemas.pathParams?.name,
         withHeaders: !!schemas.headerParams?.name,
       }
-
-      const pathParams = getParams(schemas.pathParams, {
-        override: (item) => ({
-          ...item,
-          name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
-        }),
-      }).toString()
 
       const resultGenerics = ['TData', `${factory.name}['error']`]
 
@@ -172,14 +166,23 @@ const defaultTemplates = {
       const queryOptionsGenerics = ['TData', 'TQueryData']
 
       params.add([
-        ...getASTParams(schemas.pathParams, {
-          typed: true,
-          asObject: pathParamsType === 'object',
-          override: (item) => ({
-            ...item,
-            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
-          }),
-        }),
+        ...(pathParamsType === 'object'
+          ? [
+              getASTParams(schemas.pathParams, {
+                typed: true,
+                override: (item) => ({
+                  ...item,
+                  name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+                }),
+              }),
+            ]
+          : getASTParams(schemas.pathParams, {
+              typed: true,
+              override: (item) => ({
+                ...item,
+                name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+              }),
+            })),
         {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
@@ -232,6 +235,34 @@ const defaultTemplates = {
         },
       ])
 
+      queryKeyParams.add([
+        ...(pathParamsType === 'object'
+          ? [
+              getASTParams(schemas.pathParams, {
+                override: (item) => ({
+                  ...item,
+                  name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+                }),
+              }),
+            ]
+          : getASTParams(schemas.pathParams, {
+              override: (item) => ({
+                ...item,
+                name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+              }),
+            })),
+        {
+          name: 'refParams',
+          enabled: client.withQueryParams,
+          required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'refData',
+          enabled: client.withData,
+          required: isRequired(schemas.request?.schema),
+        },
+      ])
+
       return (
         <Template
           {...rest}
@@ -243,7 +274,7 @@ const defaultTemplates = {
             queryOptions: isV5
               ? `${queryOptions}(${queryParams.toString()})`
               : `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
-            queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? 'refParams' : ''})`,
+            queryKey: `${queryKey}(${queryKeyParams.toString()})`,
           }}
         />
       )
@@ -315,6 +346,8 @@ export function Query({
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
+  const queryKeyParams = new FunctionParams()
+  //TODO operationManager.getCleitn
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
@@ -333,7 +366,6 @@ export function Query({
     { type: 'TQueryKey extends QueryKey', default: queryKeyType },
   ])
 
-  const pathParams = getParams(schemas.pathParams, {}).toString()
   const resultGenerics = ['TData', `${factory.name}['error']`]
   // only needed for the options to override the useQuery options/params
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
@@ -344,10 +376,7 @@ export function Query({
   const queryOptionsGenerics = props.suspense ? ['TData'] : ['TData', 'TQueryData']
 
   params.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: true,
-      asObject: pathParamsType === 'object',
-    }),
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
     {
       name: 'params',
       type: `${factory.name}['queryParams']`,
@@ -377,10 +406,7 @@ export function Query({
   ])
 
   queryParams.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: false,
-      asObject: pathParamsType === 'object',
-    }),
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams)] : getASTParams(schemas.pathParams)),
     {
       name: 'params',
       enabled: client.withQueryParams,
@@ -402,11 +428,25 @@ export function Query({
     },
   ])
 
+  queryKeyParams.add([
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams)] : getASTParams(schemas.pathParams)),
+    {
+      name: 'params',
+      enabled: client.withQueryParams,
+      required: isRequired(schemas.queryParams?.schema),
+    },
+    {
+      name: 'data',
+      enabled: client.withData,
+      required: isRequired(schemas.request?.schema),
+    },
+  ])
+
   const hook = {
     name: hookName,
     generics: [isV5 ? 'any' : `${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'any'].join(', '),
     queryOptions: isV5 ? `${queryOptions}(${queryParams.toString()})` : `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
-    queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? 'params' : ''})`,
+    queryKey: `${queryKey}(${queryKeyParams.toString()})`,
   }
 
   return (

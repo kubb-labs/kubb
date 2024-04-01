@@ -1,13 +1,13 @@
 import client from "@kubb/swagger-client/client";
 import { useQuery } from "@tanstack/react-query";
-import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithForm405 } from "./";
+import type { UpdatePetWithFormMutationRequest, UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithForm405 } from "./";
 import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from "@tanstack/react-query";
 
- type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>;
+ type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>;
 type UpdatePetWithForm = {
     data: UpdatePetWithFormMutationResponse;
     error: UpdatePetWithForm405;
-    request: never;
+    request: UpdatePetWithFormMutationRequest;
     pathParams: UpdatePetWithFormPathParams;
     queryParams: UpdatePetWithFormQueryParams;
     headerParams: never;
@@ -17,10 +17,14 @@ type UpdatePetWithForm = {
         return: Awaited<ReturnType<UpdatePetWithFormClient>>;
     };
 };
-export const UpdatePetWithFormQueryKey = ({ petId }: UpdatePetWithFormPathParams, params?: UpdatePetWithForm["queryParams"]) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : [])] as const;
+export const UpdatePetWithFormQueryKey = ({ petId }: {
+    petId: UpdatePetWithFormPathParams["petId"];
+}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"]) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
 export type UpdatePetWithFormQueryKey = ReturnType<typeof UpdatePetWithFormQueryKey>;
-export function UpdatePetWithFormQueryOptions<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"]>({ petId }: UpdatePetWithFormPathParams, params?: UpdatePetWithForm["queryParams"], options: UpdatePetWithForm["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UpdatePetWithForm["response"], UpdatePetWithForm["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = UpdatePetWithFormQueryKey(petId, params);
+export function UpdatePetWithFormQueryOptions<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"]>({ petId }: {
+    petId: UpdatePetWithFormPathParams["petId"];
+}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"], options: UpdatePetWithForm["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UpdatePetWithForm["response"], UpdatePetWithForm["error"], TData, TQueryData>, "queryKey"> {
+    const queryKey = UpdatePetWithFormQueryKey({ petId }, params, data);
     return {
         queryKey,
         queryFn: async () => {
@@ -28,6 +32,7 @@ export function UpdatePetWithFormQueryOptions<TData = UpdatePetWithForm["respons
                 method: "post",
                 url: `/pet/${petId}`,
                 params,
+                data,
                 ...options
             });
             return res.data;
@@ -38,16 +43,18 @@ export function UpdatePetWithFormQueryOptions<TData = UpdatePetWithForm["respons
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithForm<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"], TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>({ petId }: UpdatePetWithFormPathParams, params?: UpdatePetWithForm["queryParams"], options: {
+export function updatePetWithForm<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"], TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>({ petId }: {
+    petId: UpdatePetWithFormPathParams["petId"];
+}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"], options: {
     query?: Partial<UseBaseQueryOptions<UpdatePetWithForm["response"], UpdatePetWithForm["error"], TData, TQueryData, TQueryKey>>;
     client?: UpdatePetWithForm["client"]["parameters"];
 } = {}): UseQueryResult<TData, UpdatePetWithForm["error"]> & {
     queryKey: TQueryKey;
 } {
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? UpdatePetWithFormQueryKey(petId, params);
+    const queryKey = queryOptions?.queryKey ?? UpdatePetWithFormQueryKey({ petId }, params, data);
     const query = useQuery<UpdatePetWithForm["data"], UpdatePetWithForm["error"], TData, any>({
-        ...UpdatePetWithFormQueryOptions<TData, TQueryData>({ petId }, UpdatePetWithFormPathParams, params, clientOptions),
+        ...UpdatePetWithFormQueryOptions<TData, TQueryData>({ petId }, params, data, clientOptions),
         queryKey,
         ...queryOptions
     }) as UseQueryResult<TData, UpdatePetWithForm["error"]> & {
