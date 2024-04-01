@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { LogLevel, randomCliColour } from '@kubb/core/logger'
+import { randomCliColour } from '@kubb/core/logger'
 
 import c from 'tinyrainbow'
 

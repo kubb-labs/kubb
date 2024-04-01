@@ -23,7 +23,8 @@
     }
   },
   "bin": {
-    "kubb": "bin/kubb.cjs"
+    "kubb": "bin/kubb.cjs",
+    "bkubb": "bin/bkubb.cjs"
   },
   "files": ["src", "dist", "bin", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
@@ -40,6 +41,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "bundle-require": "^4.0.2",
+    "js-runtime": "^0.0.7",
     "cac": "^6.7.14",
     "chokidar": "^3.6.0",
     "cosmiconfig": "^9.0.0",

@@ -117,6 +117,10 @@ export type CLIOptions = {
    * @default `silent`
    */
   logLevel?: LogLevel
+  /**
+   * Run Kubb with Bun
+   */
+  bun?: boolean
 }
 
 // plugin
