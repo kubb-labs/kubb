@@ -35,6 +35,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets', 'get')
     const operationShowById = oas.operation('/pets/{petId}', 'get')
@@ -71,6 +72,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets', 'post')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
@@ -100,6 +102,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pet/{petId}', 'delete')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
@@ -128,6 +131,7 @@ describe('OperationGenerator', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pet/{petId}', 'delete')
     const files = (await og.operation(operation, options)) as KubbFile.File[]

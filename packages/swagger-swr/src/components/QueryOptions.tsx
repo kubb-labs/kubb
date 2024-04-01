@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin, usePluginManager } from '@kubb/react'
+import { Function, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
@@ -89,8 +89,10 @@ type Props = {
 }
 
 export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin()
-  const pluginManager = usePluginManager()
+  const {
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 

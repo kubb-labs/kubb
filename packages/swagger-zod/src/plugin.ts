@@ -14,7 +14,6 @@ import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
-import { zodKeywordMapper } from './zodParser.tsx'
 
 export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -56,7 +55,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
-      if (mode === 'file') {
+      if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
@@ -150,6 +149,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         root,
         output,
         meta: { pluginKey: this.plugin.key },
+        logger: this.logger,
       })
     },
   }

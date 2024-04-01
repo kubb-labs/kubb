@@ -1,4 +1,4 @@
-import { Type, usePlugin } from '@kubb/react'
+import { Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import type { ReactNode } from 'react'
@@ -12,8 +12,10 @@ type Props = {
 
 export function SchemaType({ factory }: Props): ReactNode {
   const {
-    options: { dataReturnType },
-  } = usePlugin<PluginOptions>()
+    plugin: {
+      options: { dataReturnType },
+    },
+  } = useApp<PluginOptions>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 

@@ -3,9 +3,9 @@ import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
+import { OperationGenerator } from './OperationGenerator.tsx'
 import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
-import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
@@ -40,6 +40,7 @@ describe('OperationGenerator', async () => {
       plugin: { options } as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
@@ -70,6 +71,7 @@ describe('OperationGenerator', async () => {
       plugin: { options } as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
@@ -103,6 +105,7 @@ describe('OperationGenerator', async () => {
       plugin: { options } as Plugin<PluginOptions>,
       contentType: undefined,
       override: undefined,
+      mode: 'split',
     })
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]

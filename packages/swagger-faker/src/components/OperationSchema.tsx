@@ -1,13 +1,12 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable @typescript-eslint/ban-types */
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
-import type { KubbFile } from '@kubb/core'
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -18,14 +17,11 @@ export function OperationSchema({}: Props): ReactNode {
   return <></>
 }
 
-type FileProps = {
-  mode: KubbFile.Mode | undefined
-}
+type FileProps = {}
 
-OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
-  const plugin = usePlugin<PluginOptions>()
+OperationSchema.File = function ({}: FileProps): ReactNode {
+  const { plugin, pluginManager, mode } = useApp<PluginOptions>()
 
-  const pluginManager = usePluginManager()
   const oas = useOas()
   const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
@@ -36,6 +32,7 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
     oas,
     plugin,
     pluginManager,
+    mode,
   })
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
@@ -62,7 +59,7 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
         {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
 
-        {mode === 'directory' && <Schema.Imports />}
+        {mode === 'split' && <Schema.Imports />}
         <File.Source>
           <Schema.Source options={options} />
         </File.Source>

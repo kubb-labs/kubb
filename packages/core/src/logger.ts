@@ -7,6 +7,7 @@ import { EventEmitter } from './utils/EventEmitter.ts'
 import type { Ora } from 'ora'
 import type { Formatter } from 'tinyrainbow'
 
+//TODO replace with verbose flag and debug flag
 export const LogLevel = {
   silent: 'silent',
   info: 'info',
@@ -70,7 +71,9 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
   })
 
   events.on('debug', async (messages) => {
-    await writeLog(messages.join('\n'))
+    if (logLevel === LogLevel.debug) {
+      await writeLog(messages.join('\n'))
+    }
   })
 
   const logger: Logger = {

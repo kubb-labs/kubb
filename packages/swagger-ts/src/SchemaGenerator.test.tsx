@@ -31,6 +31,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -58,6 +59,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -85,6 +87,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -115,6 +118,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -151,6 +155,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -183,6 +188,7 @@ describe('SchemaGenerator petStoreRef', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -215,6 +221,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -242,6 +249,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -269,6 +277,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -296,6 +305,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
     const schemas = oas.getDefinition().components?.schemas
@@ -322,6 +332,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -349,6 +360,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -376,6 +388,7 @@ describe('SchemaGenerator discriminator', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -406,6 +419,7 @@ describe('SchemaGenerator enums', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       include: undefined,
+      mode: 'split',
     },
   )
 
@@ -471,6 +485,7 @@ describe('SchemaGenerator enums', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -497,6 +512,7 @@ describe('SchemaGenerator enums', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -523,6 +539,7 @@ describe('SchemaGenerator enums', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -549,6 +566,7 @@ describe('SchemaGenerator enums', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 

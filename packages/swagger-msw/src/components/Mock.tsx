@@ -1,12 +1,12 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta } from '../types.ts'
+import type { FileMeta, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -73,7 +73,7 @@ type Props = {
 }
 
 export function Mock({ Template = defaultTemplates.default }: Props): ReactNode {
-  const pluginManager = usePluginManager()
+  const { pluginManager } = useApp<PluginOptions>()
   const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
 
@@ -98,7 +98,7 @@ type FileProps = {
 }
 
 Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
-  const pluginManager = usePluginManager()
+  const { pluginManager } = useApp<PluginOptions>()
   const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
 

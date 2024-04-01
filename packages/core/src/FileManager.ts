@@ -17,6 +17,8 @@ import { trimExtName } from './transformers/trim.ts'
 
 import type { GreaterThan } from '@kubb/types'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
+import type { Logger } from './logger.ts'
+import transformers from './transformers/index.ts'
 import type { Plugin } from './types.ts'
 
 type BasePath<T extends string = string> = `${T}/`
@@ -89,7 +91,7 @@ export namespace KubbFile {
 
   export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
-  export type Mode = 'file' | 'directory'
+  export type Mode = 'single' | 'split'
 
   /**
    * Name to be used to dynamicly create the baseName(based on input.path)
@@ -191,6 +193,7 @@ type AddIndexesProps = {
     extName?: KubbFile.Extname
     exportType?: 'barrel' | 'barrelNamed' | false
   }
+  logger: Logger
   options?: BarrelManagerOptions
   meta?: KubbFile.File['meta']
 }
@@ -293,7 +296,7 @@ export class FileManager {
     return this.#add(file)
   }
 
-  async addIndexes({ root, output, meta, options = {} }: AddIndexesProps): Promise<void> {
+  async addIndexes({ root, output, meta, logger, options = {} }: AddIndexesProps): Promise<void> {
     const { exportType = 'barrel' } = output
 
     if (exportType === false) {
@@ -301,6 +304,12 @@ export class FileManager {
     }
 
     const pathToBuildFrom = resolve(root, output.path)
+
+    if (transformers.trimExtName(pathToBuildFrom).endsWith('index')) {
+      logger.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
+      return
+    }
+
     const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
     const mode = FileManager.getMode(output.path)
     const barrelManager = new BarrelManager({
@@ -334,7 +343,7 @@ export class FileManager {
       }),
     )
 
-    const rootPath = mode === 'directory' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
+    const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
     const rootFile: KubbFile.File = {
       path: resolve(root, 'index.ts'),
       baseName: 'index.ts',
@@ -406,9 +415,9 @@ export class FileManager {
   }
   static getMode(path: string | undefined | null): KubbFile.Mode {
     if (!path) {
-      return 'directory'
+      return 'split'
     }
-    return extname(path) ? 'file' : 'directory'
+    return extname(path) ? 'single' : 'split'
   }
 
   static get extensions(): Array<KubbFile.Extname> {

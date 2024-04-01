@@ -87,9 +87,9 @@ export class BarrelManager {
         const exports: Array<KubbFile.Export> = treeNode.children
           .filter(Boolean)
           .map((file) => {
-            const importPath: string = file.data.type === 'directory' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
+            const importPath: string = file.data.type === 'split' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
 
-            if (importPath.endsWith('index') && file.data.type === 'file') {
+            if (importPath.endsWith('index') && file.data.type === 'single') {
               return undefined
             }
 
@@ -111,7 +111,7 @@ export class BarrelManager {
         const [treeNodeChild] = treeNode.children as [TreeNode]
 
         const indexPath = path.resolve(treeNode.data.path, 'index.ts')
-        const importPath = treeNodeChild.data.type === 'directory' ? `./${treeNodeChild.data.name}/index` : `./${trimExtName(treeNodeChild.data.name)}`
+        const importPath = treeNodeChild.data.type === 'split' ? `./${treeNodeChild.data.name}/index` : `./${trimExtName(treeNodeChild.data.name)}`
 
         const exports = [
           {

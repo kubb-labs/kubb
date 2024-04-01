@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { format } from '../mocks/format.ts'
-import { combineExports, combineImports, FileManager } from './FileManager.ts'
+import { FileManager, combineExports, combineImports } from './FileManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
 
@@ -161,11 +161,11 @@ describe('FileManager', () => {
     expect(taskMock).toHaveBeenCalled()
   })
 
-  test('if getMode returns correct PathMode(file or directory)', () => {
-    expect(FileManager.getMode(filePath)).toBe('file')
-    expect(FileManager.getMode(folderPath)).toBe('directory')
-    expect(FileManager.getMode(undefined)).toBe('directory')
-    expect(FileManager.getMode(null)).toBe('directory')
+  test('if getMode returns correct mode (single or split)', () => {
+    expect(FileManager.getMode(filePath)).toBe('single')
+    expect(FileManager.getMode(folderPath)).toBe('split')
+    expect(FileManager.getMode(undefined)).toBe('split')
+    expect(FileManager.getMode(null)).toBe('split')
   })
   test.todo('fileManager.addIndexes')
 })

@@ -21,9 +21,9 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
+  mode: KubbFile.Mode
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
   contentType?: ContentType
-  mode?: KubbFile.Mode
   output?: string
 }
 

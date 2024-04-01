@@ -55,13 +55,11 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
-  if (logLevel === LogLevel.debug) {
-    logger.emit('debug', ['\nGenerated files:\n'])
-    logger.emit(
-      'debug',
-      files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`),
-    )
-  }
+  logger.emit('debug', ['\nGenerated files:\n'])
+  logger.emit(
+    'debug',
+    files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`),
+  )
 
   logs.push(
     [

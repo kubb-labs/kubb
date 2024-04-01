@@ -27,6 +27,7 @@ describe('Faker SchemaGenerator enums', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       include: undefined,
+      mode: 'split',
     },
   )
 

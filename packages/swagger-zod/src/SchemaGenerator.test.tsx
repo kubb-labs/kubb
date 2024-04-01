@@ -9,7 +9,6 @@ import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/swagger/oas'
 import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
-import { zodKeywordMapper } from './zodParser.tsx'
 
 describe('Zod SchemaGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -36,6 +35,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -66,6 +66,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -96,6 +97,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -126,6 +128,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -156,6 +159,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -189,6 +193,7 @@ describe('ZodGenerator constCases', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       include: undefined,
+      mode: 'split',
     },
   )
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
@@ -276,6 +281,7 @@ describe('Zod SchemaGenerator lazy', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -309,6 +315,7 @@ describe('Zod SchemaGenerator enums', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       include: undefined,
+      mode: 'split',
     },
   )
 
@@ -352,6 +359,7 @@ describe('Zod SchemaGenerator recursive', async () => {
         plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         include: undefined,
+        mode: 'split',
       },
     )
 
@@ -385,6 +393,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       plugin: {} as Plugin<PluginOptions>,
       contentType: undefined,
       include: undefined,
+      mode: 'split',
     },
   )
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain

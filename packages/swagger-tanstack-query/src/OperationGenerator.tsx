@@ -1,4 +1,4 @@
-import { createRoot } from '@kubb/react'
+import { App, createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
@@ -8,16 +8,15 @@ import { Query } from './components/Query.tsx'
 import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
 
-import type { AppContextProps } from '@kubb/react'
 import type { OperationMethodResult } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
-    const { pluginManager, oas, plugin } = this.context
+    const { pluginManager, oas, plugin, mode } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+    const root = createRoot({
       logger: pluginManager.logger,
     })
 
@@ -31,19 +30,20 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
-        {templates.operations && <Operations.File templates={templates.operations} />}
-      </Oas>,
-      { meta: { pluginManager, plugin } },
+      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
+        <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+          {templates.operations && <Operations.File templates={templates.operations} />}
+        </Oas>
+      </App>,
     )
 
     return root.files
   }
 
   async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin } = this.context
+    const { oas, pluginManager, plugin, mode } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({
+    const root = createRoot({
       logger: pluginManager.logger,
     })
 
@@ -59,21 +59,22 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     const isMutate = !isQuery && options.mutate && options.mutate.methods.some((method) => operation.method === method)
 
     root.render(
-      <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
-        <Oas.Operation operation={operation}>
-          {isMutate && templates?.mutation && <Mutation.File templates={templates.mutation} />}
-          {isQuery && templates?.query && templates.queryKey && templates.queryOptions && (
-            <Query.File
-              templates={{
-                query: templates.query,
-                queryKey: templates.queryKey,
-                queryOptions: templates.queryOptions,
-              }}
-            />
-          )}
-        </Oas.Operation>
-      </Oas>,
-      { meta: { pluginManager, plugin: { ...plugin, options } } },
+      <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            {isMutate && templates?.mutation && <Mutation.File templates={templates.mutation} />}
+            {isQuery && templates?.query && templates.queryKey && templates.queryOptions && (
+              <Query.File
+                templates={{
+                  query: templates.query,
+                  queryKey: templates.queryKey,
+                  queryOptions: templates.queryOptions,
+                }}
+              />
+            )}
+          </Oas.Operation>
+        </Oas>
+      </App>,
     )
 
     return root.files

@@ -1,13 +1,12 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable @typescript-eslint/ban-types */
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
-import type { KubbFile } from '@kubb/core'
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -18,14 +17,10 @@ export function OperationSchema({}: Props): ReactNode {
   return <></>
 }
 
-type FileProps = {
-  mode: KubbFile.Mode | undefined
-}
+type FileProps = {}
 
-OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
-  const plugin = usePlugin<PluginOptions>()
-
-  const pluginManager = usePluginManager()
+OperationSchema.File = function ({}: FileProps): ReactNode {
+  const { pluginManager, plugin, mode } = useApp<PluginOptions>()
   const { getSchemas, getFile } = useOperationManager()
   const oas = useOas()
   const operation = useOperation()
@@ -36,6 +31,7 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
     oas,
     plugin,
     pluginManager,
+    mode,
   })
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
@@ -47,7 +43,7 @@ OperationSchema.File = function ({ mode = 'directory' }: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {mode === 'directory' && <Schema.Imports />}
+        {mode === 'split' && <Schema.Imports />}
         <File.Source>
           <Schema.Source extraSchemas={optional ? [{ keyword: schemaKeywords.optional }] : undefined} options={options} />
         </File.Source>

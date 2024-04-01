@@ -1,4 +1,4 @@
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 
 import transformers from '@kubb/core/transformers'
@@ -62,8 +62,11 @@ type RootTemplateProps = {
 }
 
 function RootTemplate({ children }: RootTemplateProps) {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
+  const {
+    mode,
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
   const { getFile } = useOperationManager()
   const operations = useOperations()
   const { groupSchemasByByName } = useOperationManager()
@@ -81,7 +84,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   return (
     <Editor language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
-        {imports}
+        {mode === 'split' && imports}
         <File.Source>{children}</File.Source>
       </File>
     </Editor>

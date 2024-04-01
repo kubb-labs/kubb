@@ -1,7 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, usePlugin } from '@kubb/react'
-import { usePluginManager } from '@kubb/react'
+import { Editor, File, useApp } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import { getDefinitions, getDefinitionsImports } from './utils.ts'
@@ -48,7 +47,7 @@ type Props = {
 }
 
 export function Definitions({ baseURL, operationsByMethod, Template = defaultTemplates.default }: Props): ReactNode {
-  const pluginManager = usePluginManager()
+  const { pluginManager } = useApp<PluginOptions>()
   const definitions = getDefinitions(operationsByMethod, {
     resolveName: pluginManager.resolveName,
     pluginKey: swaggerZodPluginKey,
@@ -93,8 +92,11 @@ type FileProps = {
 }
 
 Definitions.File = function ({ name, baseURL, operationsByMethod, templates = defaultTemplates }: FileProps): ReactNode {
-  const pluginManager = usePluginManager()
-  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const {
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
+
   const file = pluginManager.getFile({ name, extName: '.ts', pluginKey })
 
   const definitionsImports = getDefinitionsImports(operationsByMethod, {

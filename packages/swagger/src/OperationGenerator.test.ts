@@ -4,8 +4,8 @@ import { OperationGenerator } from './OperationGenerator.ts'
 import type { KubbFile, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { FileMeta } from '@kubb/swagger-ts'
-import type { Operation } from './oas/index.ts'
 import type { OperationMethodResult } from './OperationGenerator.ts'
+import type { Operation } from './oas/index.ts'
 import type { Resolver } from './types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
@@ -74,6 +74,7 @@ describe('OperationGenerator core', async () => {
         exclude: [],
         include: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -104,6 +105,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -128,6 +130,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -152,6 +155,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -176,6 +180,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -204,6 +209,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -236,6 +242,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -260,6 +267,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -284,6 +292,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -308,6 +317,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -336,6 +346,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -373,6 +384,7 @@ describe('OperationGenerator include and exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 

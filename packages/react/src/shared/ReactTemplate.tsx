@@ -2,15 +2,15 @@
 import crypto from 'node:crypto'
 import process from 'node:process'
 
-import { App } from '../components/App.tsx'
+import { Root } from '../components/Root.tsx'
 import { reconciler } from '../reconciler.ts'
-import { throttle } from './utils/throttle.ts'
 import { renderer } from './renderer.ts'
+import { throttle } from './utils/throttle.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
-import type { AppContextProps } from '../components/App.tsx'
+import type { RootContextProps } from '../components/Root.tsx'
 import type { FiberRoot } from '../reconciler.ts'
 import type { DOMElement } from '../types.ts'
 
@@ -22,7 +22,7 @@ export type ReactTemplateOptions = {
   debug?: boolean
 }
 
-export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
+export class ReactTemplate<Context extends RootContextProps = RootContextProps> {
   readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
@@ -116,13 +116,13 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
-      const tree = (
-        <App logger={this.logger} meta={context.meta} onError={this.onError}>
+      const element = (
+        <Root logger={this.logger} meta={context.meta} onError={this.onError}>
           {node}
-        </App>
+        </Root>
       )
 
-      reconciler.updateContainer(tree, this.#container, null, noop)
+      reconciler.updateContainer(element, this.#container, null, noop)
       return
     }
 

@@ -1,8 +1,8 @@
 import type { PossiblePromise } from '@kubb/types'
 import type { FileManager, KubbFile } from './FileManager.ts'
-import type { OptionsPlugins, PluginUnion } from './kubb.ts'
-import type { Logger, LogLevel } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
+import type { OptionsPlugins, PluginUnion } from './kubb.ts'
+import type { LogLevel, Logger } from './logger.ts'
 import type { Cache } from './utils/cache.ts'
 
 // config
@@ -156,10 +156,6 @@ export type PluginFactoryOptions<
   resolvedOptions: TResolvedOptions
   api: TAPI
   resolvePathOptions: TResolvePathOptions
-  appMeta: {
-    pluginManager: PluginManager
-    plugin: Plugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions>>
-  }
 }
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never

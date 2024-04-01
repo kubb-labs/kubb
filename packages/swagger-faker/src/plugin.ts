@@ -47,7 +47,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
-      if (mode === 'file') {
+      if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
@@ -141,6 +141,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         root,
         output,
         meta: { pluginKey: this.plugin.key },
+        logger: this.logger,
       })
     },
   }

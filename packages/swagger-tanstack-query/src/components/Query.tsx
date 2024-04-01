@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
@@ -129,15 +129,18 @@ const defaultTemplates = {
     return function ({ context, hook, ...rest }: FrameworkProps): ReactNode {
       const { factory, queryKey } = context
 
-      const pluginManager = usePluginManager()
+      const {
+        pluginManager,
+        plugin: {
+          key: pluginKey,
+          options: { pathParamsType },
+        },
+      } = useApp<PluginOptions>()
       const operation = useOperation()
       const { getSchemas } = useOperationManager()
 
       const importNames = getImportNames()
-      const {
-        key: pluginKey,
-        options: { pathParamsType },
-      } = usePlugin<PluginOptions>()
+
       const queryOptions = pluginManager.resolveName({
         name: `${factory.name}QueryOptions`,
         pluginKey,
@@ -318,10 +321,13 @@ export function Query({
   ...props
 }: Props): ReactNode {
   const {
-    key: pluginKey,
-    options: { dataReturnType, pathParamsType },
-  } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
+    pluginManager,
+    plugin: {
+      key: pluginKey,
+      options: { dataReturnType, pathParamsType },
+    },
+  } = useApp<PluginOptions>()
+
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
 
@@ -503,17 +509,20 @@ type FileProps = {
 
 Query.File = function ({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
   const {
-    options: {
-      client: { importPath },
-      framework,
-      infinite,
-      suspense,
-      query,
-      queryOptions,
-      parser,
+    pluginManager,
+    plugin: {
+      options: {
+        client: { importPath },
+        framework,
+        infinite,
+        suspense,
+        query,
+        queryOptions,
+        parser,
+      },
     },
-  } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
+  } = useApp<PluginOptions>()
+
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
