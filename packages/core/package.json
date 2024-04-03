@@ -119,7 +119,7 @@
     "@types/lodash.isequal": "^4.5.8",
     "@types/lodash.merge": "^4.6.9",
     "@types/lodash.tonumber": "^4.0.9",
-    "@types/react": "^18.2.73",
+    "@types/react": "^18.2.74",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "eslint": "^8.57.0",
