@@ -5,7 +5,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
 
 
 
- export function DeletePetPetidMutationResponse(override?: NonNullable<Partial<DeletePetPetidMutationResponse>>): NonNullable<DeletePetPetidMutationResponse> {
+ export function DeletePetPetidMutationResponse(): NonNullable<DeletePetPetidMutationResponse> {
     return undefined;
 }
 
@@ -202,7 +202,7 @@ import type { CreatePets201, CreatePetsError, CreatePetsMutationRequest, CreateP
 /**
  * @description Null response
  */
-export function CreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
+export function CreatePets201(): NonNullable<CreatePets201> {
     return undefined;
 }
 
@@ -225,7 +225,7 @@ export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>
 
 
 
- export function CreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
+ export function CreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
     return undefined;
 }
 

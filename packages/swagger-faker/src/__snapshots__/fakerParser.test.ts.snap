@@ -42,7 +42,7 @@ export function Record(override: NonNullable<Partial<undefined>> = {}) {
 exports[`fakerParser > 'Upload' 1`] = `
 "
 
-export function Upload(override?: NonNullable<Partial<undefined>>) {
+export function Upload() {
   
   return undefined
 }
