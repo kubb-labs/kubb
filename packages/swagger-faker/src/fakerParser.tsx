@@ -267,7 +267,7 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
 export function fakerParser(schemas: Schema[], options: ParserOptions): string {
   const fakerText = joinItems(schemas.map((schema) => parseFakerMeta(undefined, schema, { ...options, withOverride: true })).filter(Boolean))
 
-  let fakerDefaultOverride: '' | '[]' | '{}' = ''
+  let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
   let fakerTextWithOverride = fakerText
 
   if (fakerText.startsWith('{')) {
@@ -290,13 +290,13 @@ export function fakerParser(schemas: Schema[], options: ParserOptions): string {
     comments: [options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined].filter(Boolean),
   })
 
+  const params = fakerDefaultOverride
+    ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
+    : `override?: NonNullable<Partial<${options.typeName}>>`
+
   return `
 ${JSDoc}
-export function ${options.name}(${
-    fakerDefaultOverride
-      ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
-      : `override?: NonNullable<Partial<${options.typeName}>>`
-  })${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
+export function ${options.name}(${fakerTextWithOverride !== 'undefined' ? params : ''})${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
   ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
   return ${fakerTextWithOverride}
 }\n`

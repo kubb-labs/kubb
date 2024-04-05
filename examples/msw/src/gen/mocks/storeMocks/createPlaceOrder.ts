@@ -11,7 +11,7 @@ export function createPlaceOrder200(override?: NonNullable<Partial<PlaceOrder200
 /**
  * @description Invalid input
  */
-export function createPlaceOrder405(override?: NonNullable<Partial<PlaceOrder405>>): NonNullable<PlaceOrder405> {
+export function createPlaceOrder405(): NonNullable<PlaceOrder405> {
   return undefined
 }
 

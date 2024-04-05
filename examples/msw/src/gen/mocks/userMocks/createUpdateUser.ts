@@ -12,7 +12,7 @@ export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateU
 /**
  * @description successful operation
  */
-export function createUpdateUserError(override?: NonNullable<Partial<UpdateUserError>>): NonNullable<UpdateUserError> {
+export function createUpdateUserError(): NonNullable<UpdateUserError> {
   return undefined
 }
 
@@ -23,6 +23,6 @@ export function createUpdateUserMutationRequest(override?: NonNullable<Partial<U
   return createUser(override)
 }
 
-export function createUpdateUserMutationResponse(override?: NonNullable<Partial<UpdateUserMutationResponse>>): NonNullable<UpdateUserMutationResponse> {
+export function createUpdateUserMutationResponse(): NonNullable<UpdateUserMutationResponse> {
   return undefined
 }

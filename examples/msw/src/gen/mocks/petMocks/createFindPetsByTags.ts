@@ -19,7 +19,7 @@ export function createFindPetsByTags200(override: NonNullable<Partial<FindPetsBy
 /**
  * @description Invalid tag value
  */
-export function createFindPetsByTags400(override?: NonNullable<Partial<FindPetsByTags400>>): NonNullable<FindPetsByTags400> {
+export function createFindPetsByTags400(): NonNullable<FindPetsByTags400> {
   return undefined
 }
 

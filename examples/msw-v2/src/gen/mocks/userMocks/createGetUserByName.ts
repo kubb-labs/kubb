@@ -21,7 +21,7 @@ export function createGetUserByName200(override?: NonNullable<Partial<GetUserByN
 /**
  * @description Invalid username supplied
  */
-export function createGetUserByName400(override?: NonNullable<Partial<GetUserByName400>>): NonNullable<GetUserByName400> {
+export function createGetUserByName400(): NonNullable<GetUserByName400> {
   faker.seed([220])
   return undefined
 }
@@ -29,7 +29,7 @@ export function createGetUserByName400(override?: NonNullable<Partial<GetUserByN
 /**
  * @description User not found
  */
-export function createGetUserByName404(override?: NonNullable<Partial<GetUserByName404>>): NonNullable<GetUserByName404> {
+export function createGetUserByName404(): NonNullable<GetUserByName404> {
   faker.seed([220])
   return undefined
 }

@@ -21,7 +21,7 @@ export function createFindPetsByStatus200(override: NonNullable<Partial<FindPets
 /**
  * @description Invalid status value
  */
-export function createFindPetsByStatus400(override?: NonNullable<Partial<FindPetsByStatus400>>): NonNullable<FindPetsByStatus400> {
+export function createFindPetsByStatus400(): NonNullable<FindPetsByStatus400> {
   faker.seed([220])
   return undefined
 }

@@ -2,20 +2,7 @@
   "name": "unplugin-kubb",
   "version": "0.1.27",
   "description": "Unplugin for Kubb",
-  "keywords": [
-    "unplugin",
-    "vite",
-    "webpack",
-    "rollup",
-    "transform",
-    "astro",
-    "kubb",
-    "swagger",
-    "OpenAPI",
-    "rspack",
-    "nuxt",
-    "esbuild"
-  ],
+  "keywords": ["unplugin", "vite", "webpack", "rollup", "transform", "astro", "kubb", "swagger", "OpenAPI", "rspack", "nuxt", "esbuild"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -77,18 +64,10 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
   "typesVersions": {
     "*": {
-      "*": [
-        "./dist/*",
-        "./*"
-      ]
+      "*": ["./dist/*", "./*"]
     }
   },
   "scripts": {
@@ -139,14 +118,14 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@nuxt/kit": "^3.11.1",
-    "@nuxt/schema": "^3.11.1",
-    "@types/node": "^20.12.3",
+    "@nuxt/kit": "^3.11.2",
+    "@nuxt/schema": "^3.11.2",
+    "@types/node": "^20.12.5",
     "eslint": "^8.57.0",
     "rimraf": "^5.0.5",
     "rollup": "^4.14.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.4",
     "vite": "^5.2.8",
     "vitest": "^1.4.0",
     "webpack": "^5.91.0"

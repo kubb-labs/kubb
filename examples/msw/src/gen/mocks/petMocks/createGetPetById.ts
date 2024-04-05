@@ -19,14 +19,14 @@ export function createGetPetById200(override?: NonNullable<Partial<GetPetById200
 /**
  * @description Invalid ID supplied
  */
-export function createGetPetById400(override?: NonNullable<Partial<GetPetById400>>): NonNullable<GetPetById400> {
+export function createGetPetById400(): NonNullable<GetPetById400> {
   return undefined
 }
 
 /**
  * @description Pet not found
  */
-export function createGetPetById404(override?: NonNullable<Partial<GetPetById404>>): NonNullable<GetPetById404> {
+export function createGetPetById404(): NonNullable<GetPetById404> {
   return undefined
 }
 

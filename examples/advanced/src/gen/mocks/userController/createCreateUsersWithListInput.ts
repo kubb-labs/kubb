@@ -17,9 +17,7 @@ export function createCreateUsersWithListInput200(override?: NonNullable<Partial
 /**
  * @description successful operation
  */
-export function createCreateUsersWithListInputError(
-  override?: NonNullable<Partial<CreateUsersWithListInputError>>,
-): NonNullable<CreateUsersWithListInputError> {
+export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWithListInputError> {
   return undefined
 }
 

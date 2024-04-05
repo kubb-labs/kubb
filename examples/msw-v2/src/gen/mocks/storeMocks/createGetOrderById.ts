@@ -21,7 +21,7 @@ export function createGetOrderById200(override?: NonNullable<Partial<GetOrderByI
 /**
  * @description Invalid ID supplied
  */
-export function createGetOrderById400(override?: NonNullable<Partial<GetOrderById400>>): NonNullable<GetOrderById400> {
+export function createGetOrderById400(): NonNullable<GetOrderById400> {
   faker.seed([220])
   return undefined
 }
@@ -29,7 +29,7 @@ export function createGetOrderById400(override?: NonNullable<Partial<GetOrderByI
 /**
  * @description Order not found
  */
-export function createGetOrderById404(override?: NonNullable<Partial<GetOrderById404>>): NonNullable<GetOrderById404> {
+export function createGetOrderById404(): NonNullable<GetOrderById404> {
   faker.seed([220])
   return undefined
 }

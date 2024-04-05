@@ -13,7 +13,7 @@ export function createPlaceOrderPatch200(override?: NonNullable<Partial<PlaceOrd
 /**
  * @description Invalid input
  */
-export function createPlaceOrderPatch405(override?: NonNullable<Partial<PlaceOrderPatch405>>): NonNullable<PlaceOrderPatch405> {
+export function createPlaceOrderPatch405(): NonNullable<PlaceOrderPatch405> {
   faker.seed([220])
   return undefined
 }

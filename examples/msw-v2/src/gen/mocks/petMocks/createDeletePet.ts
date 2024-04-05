@@ -20,12 +20,12 @@ export function createDeletePetHeaderParams(override: NonNullable<Partial<Delete
 /**
  * @description Invalid pet value
  */
-export function createDeletePet400(override?: NonNullable<Partial<DeletePet400>>): NonNullable<DeletePet400> {
+export function createDeletePet400(): NonNullable<DeletePet400> {
   faker.seed([220])
   return undefined
 }
 
-export function createDeletePetMutationResponse(override?: NonNullable<Partial<DeletePetMutationResponse>>): NonNullable<DeletePetMutationResponse> {
+export function createDeletePetMutationResponse(): NonNullable<DeletePetMutationResponse> {
   faker.seed([220])
   return undefined
 }

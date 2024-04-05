@@ -15,6 +15,6 @@ export function createCreateUserMutationRequest(override?: NonNullable<Partial<C
   return createUser(override)
 }
 
-export function createCreateUserMutationResponse(override?: NonNullable<Partial<CreateUserMutationResponse>>): NonNullable<CreateUserMutationResponse> {
+export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
   return undefined
 }

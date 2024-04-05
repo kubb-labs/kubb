@@ -18,7 +18,7 @@ export function createLoginUser200(override?: NonNullable<Partial<LoginUser200>>
 /**
  * @description Invalid username/password supplied
  */
-export function createLoginUser400(override?: NonNullable<Partial<LoginUser400>>): NonNullable<LoginUser400> {
+export function createLoginUser400(): NonNullable<LoginUser400> {
   return undefined
 }
 

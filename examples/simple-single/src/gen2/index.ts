@@ -21,7 +21,7 @@ export const createAppRequestSchema = z.object({
   org_slug: z.string().optional(),
 })
 
-export const createLeaseRequestSchema = z.object({ description: z.string().optional(), ttl: z.number().optional() })
+export const createLeaseRequestSchema = z.object({ description: z.string().optional(), ttl: z.number().describe('seconds lease will be valid').optional() })
 
 export const createMachineRequestSchema = z.object({
   config: z
@@ -619,6 +619,10 @@ export const machinesShowLeaseQueryResponseSchema = z.lazy(() => leaseSchema)
 
 export const machinesCreateLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
+export const machinesCreateLeaseHeaderParamsSchema = z
+  .object({ 'fly-machine-lease-nonce': z.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease').optional() })
+  .optional()
+
 /**
  * @description OK
  */
@@ -635,6 +639,8 @@ export const machinesCreateLeaseMutationRequestSchema = z.lazy(() => createLease
 export const machinesCreateLeaseMutationResponseSchema = z.lazy(() => leaseSchema)
 
 export const machinesReleaseLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
+export const machinesReleaseLeaseHeaderParamsSchema = z.object({ 'fly-machine-lease-nonce': z.string().describe('Existing lease nonce') })
 
 /**
  * @description OK
@@ -1095,7 +1101,7 @@ export const operations = {
     parameters: {
       path: machinesCreateLeasePathParamsSchema,
       query: undefined,
-      header: undefined,
+      header: machinesCreateLeaseHeaderParamsSchema,
     },
     responses: {
       200: machinesCreateLeaseMutationResponseSchema,
@@ -1106,7 +1112,7 @@ export const operations = {
     parameters: {
       path: machinesReleaseLeasePathParamsSchema,
       query: undefined,
-      header: undefined,
+      header: machinesReleaseLeaseHeaderParamsSchema,
     },
     responses: {
       200: machinesReleaseLeaseMutationResponseSchema,

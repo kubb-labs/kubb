@@ -34,7 +34,7 @@ export function createCreatePetsHeaderParams(override: NonNullable<Partial<Creat
 /**
  * @description Null response
  */
-export function createCreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
+export function createCreatePets201(): NonNullable<CreatePets201> {
   return undefined
 }
 
@@ -52,6 +52,6 @@ export function createCreatePetsMutationRequest(override: NonNullable<Partial<Cr
   }
 }
 
-export function createCreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
+export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
   return undefined
 }
