@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.12.4
+
+### Patch Changes
+
+- [`e12072c`](https://github.com/kubb-project/kubb/commit/e12072cec19d35ce3ea35fb3560bc13439d9cf5e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ESLint no-unused-vars for mocks of 204 (No content) responses
+
+- Updated dependencies []:
+  - @kubb/core@2.12.4
+  - @kubb/parser@2.12.4
+  - @kubb/react@2.12.4
+  - @kubb/swagger@2.12.4
+  - @kubb/swagger-ts@2.12.4
+
 ## 2.12.3
 
 ### Patch Changes
