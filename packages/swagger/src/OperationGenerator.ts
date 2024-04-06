@@ -2,14 +2,14 @@
 import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
-import { findSchemaDefinition } from 'oas/utils'
+import { findSchemaDefinition, matchesMimeType } from 'oas/utils'
 
 import { isReference } from './utils/isReference.ts'
 
 import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
-import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
+import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Operation } from './oas/index.ts'
 import type { ContentType, Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
@@ -120,16 +120,11 @@ export abstract class OperationGenerator<
   }
 
   #getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OasTypes.SchemaObject | null {
-    const contentType = this.context.contentType || operation.getContentType()
+    const mediaType = this.context.contentType || operation.getContentType()
     const params = operation
       .getParameters()
-      .map((item) => {
-        const param = item as unknown as OpenAPIV3.ReferenceObject & OasTypes.ParameterObject
-        if (isReference(param)) {
-          return findSchemaDefinition(param.$ref, operation.api) as OasTypes.ParameterObject
-        }
-
-        return param
+      .map((schema) => {
+        return this.#dereference(schema, { withRef: true })
       })
       .filter((v) => v.in === inKey)
 
@@ -139,7 +134,7 @@ export abstract class OperationGenerator<
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OasTypes.SchemaObject)
+        const property = pathParameters.content?.[mediaType]?.schema ?? (pathParameters.schema as OasTypes.SchemaObject)
         const required = [...(schema.required || ([] as any)), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
         return {
@@ -161,61 +156,128 @@ export abstract class OperationGenerator<
     )
   }
 
-  #getResponseSchema(operation: Operation, statusCode: string | number): OasTypes.SchemaObject {
-    const contentType = this.context.contentType || operation.getContentType()
+  /**
+   * Oas does not have a getResponseBody(mediaType/contentType)
+   * TODO open PR in Oas
+   */
+  #getResponseBodyFactory(
+    responseBody: boolean | OasTypes.ResponseObject,
+  ): (mediaType?: string) => OasTypes.MediaTypeObject | false | [string, OasTypes.MediaTypeObject, ...string[]] {
+    function hasResponseBody(res = responseBody): res is OasTypes.ResponseObject {
+      return !!res
+    }
 
-    const schema = operation.schema.responses?.[statusCode] as OpenAPIV3.ReferenceObject | OpenAPIV3.ResponseObject | undefined
-    if (isReference(schema)) {
-      const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OasTypes.ResponseObject
-      const contentTypeSchema = responseSchema.content?.[contentType]?.schema as OasTypes.SchemaObject
-
-      if (isReference(contentTypeSchema)) {
-        return {
-          ...findSchemaDefinition(contentTypeSchema?.$ref, operation.api),
-          $ref: contentTypeSchema.$ref,
-        } as OasTypes.SchemaObject
+    return (mediaType) => {
+      if (!hasResponseBody(responseBody)) {
+        return false
       }
 
-      return contentTypeSchema
+      if (isReference(responseBody)) {
+        // If the request body is still a `$ref` pointer we should return false because this library
+        // assumes that you've run dereferencing beforehand.
+        return false
+      }
+
+      if (!responseBody.content) {
+        return false
+      }
+
+      if (mediaType) {
+        if (!(mediaType in responseBody.content)) {
+          return false
+        }
+
+        return responseBody.content[mediaType]!
+      }
+
+      // Since no media type was supplied we need to find either the first JSON-like media type that
+      // we've got, or the first available of anything else if no JSON-like media types are present.
+      let availableMediaType: string | undefined = undefined
+      const mediaTypes = Object.keys(responseBody.content)
+      mediaTypes.forEach((mt: string) => {
+        if (!availableMediaType && matchesMimeType.json(mt)) {
+          availableMediaType = mt
+        }
+      })
+
+      if (!availableMediaType) {
+        mediaTypes.forEach((mt: string) => {
+          if (!availableMediaType) {
+            availableMediaType = mt
+          }
+        })
+      }
+
+      if (availableMediaType) {
+        return [availableMediaType, responseBody.content[availableMediaType]!, ...(responseBody.description ? [responseBody.description] : [])]
+      }
+
+      return false
     }
-
-    // check if contentType of content x exists, sometimes requestBody can have contentType x and responses 200 y.
-    const responseJSONSchema = schema?.content?.[contentType]
-      ? (schema?.content?.[contentType]?.schema as OasTypes.SchemaObject)
-      : (operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OasTypes.SchemaObject)
-
-    if (isReference(responseJSONSchema)) {
-      return {
-        ...findSchemaDefinition(responseJSONSchema?.$ref, operation.api),
-        $ref: responseJSONSchema.$ref,
-      } as OasTypes.SchemaObject
-    }
-
-    return responseJSONSchema
   }
 
-  #getRequestSchema(operation: Operation): OasTypes.SchemaObject | null {
-    if (!operation.hasRequestBody()) {
-      return null
-    }
-
-    const contentType = this.context.contentType || operation.getContentType()
-    const requestBody = operation.getRequestBody() as MediaTypeObject
-    const requestBodyContentType = operation.getRequestBody(contentType) as MediaTypeObject
-    const schema = (requestBody?.schema || requestBodyContentType?.schema) as OasTypes.SchemaObject
-
-    if (!schema) {
-      return null
-    }
-
+  #dereference(schema?: unknown, { withRef = false }: { withRef?: boolean } = {}) {
     if (isReference(schema)) {
-      return {
-        ...findSchemaDefinition(schema?.$ref, operation.api),
-        $ref: schema.$ref,
-      } as OasTypes.SchemaObject
+      if (withRef) {
+        return {
+          ...findSchemaDefinition(schema?.$ref, this.context.oas.api),
+          $ref: schema.$ref,
+        }
+      }
+      return findSchemaDefinition(schema?.$ref, this.context.oas.api)
     }
 
     return schema
+  }
+
+  #getResponseSchema(operation: Operation, statusCode: string | number): OasTypes.SchemaObject {
+    if (operation.schema.responses) {
+      Object.keys(operation.schema.responses).forEach((key) => {
+        operation.schema.responses![key] = this.#dereference(operation.schema.responses![key])
+      })
+    }
+
+    const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode))
+
+    const mediaType = this.context.contentType
+    const responseBody = getResponseBody(mediaType)
+
+    if (responseBody === false) {
+      // return empty object because response will always be defined(request does not need a body)
+      return {}
+    }
+
+    const schema = Array.isArray(responseBody) ? responseBody[1].schema : responseBody.schema
+
+    if (!schema) {
+      // return empty object because response will always be defined(request does not need a body)
+
+      return {}
+    }
+
+    return this.#dereference(schema, { withRef: true })
+  }
+
+  #getRequestSchema(operation: Operation): OasTypes.SchemaObject | undefined {
+    const mediaType = this.context.contentType
+
+    if (operation.schema.requestBody) {
+      operation.schema.requestBody = this.#dereference(operation.schema.requestBody)
+    }
+
+    const requestBody = operation.getRequestBody(mediaType)
+
+    if (requestBody === false) {
+      return undefined
+    }
+
+    const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
+
+    if (!schema) {
+      return undefined
+    }
+
+    return this.#dereference(schema, { withRef: true })
   }
 
   getSchemas(operation: Operation, forStatusCode?: string | number): OperationSchemas {

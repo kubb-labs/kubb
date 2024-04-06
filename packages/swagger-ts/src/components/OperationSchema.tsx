@@ -20,8 +20,10 @@ import type { FileMeta, PluginOptions } from '../types.ts'
 type Props = {}
 
 function printCombinedSchema(name: string, operation: Operation, schemas: OperationSchemas): string {
-  const properties: Record<string, ts.TypeNode> = {
-    response: factory.createTypeReferenceNode(factory.createIdentifier(schemas.response.name), undefined),
+  const properties: Record<string, ts.TypeNode> = {}
+
+  if (schemas.response) {
+    properties['response'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.response.name), undefined)
   }
 
   if (schemas.request) {
