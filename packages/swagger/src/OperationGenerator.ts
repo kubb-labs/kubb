@@ -231,8 +231,13 @@ export abstract class OperationGenerator<
   }
 
   #getResponseSchema(operation: Operation, statusCode: string | number): OasTypes.SchemaObject {
-    const dereferencedSchema = operation.getResponseByStatusCode(statusCode) || this.#dereference(operation.schema.responses?.[statusCode])
-    const getResponseBody = this.#getResponseBodyFactory(dereferencedSchema)
+    if (operation.schema.responses) {
+      Object.keys(operation.schema.responses).forEach((key) => {
+        operation.schema.responses![key] = this.#dereference(operation.schema.responses![key])
+      })
+    }
+
+    const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode))
 
     const mediaType = this.context.contentType
     const responseBody = getResponseBody(mediaType)
@@ -256,7 +261,10 @@ export abstract class OperationGenerator<
   #getRequestSchema(operation: Operation): OasTypes.SchemaObject | undefined {
     const mediaType = this.context.contentType
 
-    operation.schema.requestBody = this.#dereference(operation.schema.requestBody)
+    if (operation.schema.requestBody) {
+      operation.schema.requestBody = this.#dereference(operation.schema.requestBody)
+    }
+
     const requestBody = operation.getRequestBody(mediaType)
 
     if (requestBody === false) {
