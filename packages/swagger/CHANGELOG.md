@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 2.12.5
+
+### Patch Changes
+
+- [#921](https://github.com/kubb-project/kubb/pull/921) [`95c37c6`](https://github.com/kubb-project/kubb/commit/95c37c6793344022bbb8129bc570fb200c700800) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Incorrect content type for response(refactor)
+
+- Updated dependencies []:
+  - @kubb/core@2.12.5
+  - @kubb/react@2.12.5
+
 ## 2.12.4
 
 ### Patch Changes
