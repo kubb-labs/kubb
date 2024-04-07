@@ -61,9 +61,6 @@ importers:
 
   docs:
     dependencies:
-      '@kubb/core':
-        specifier: latest
-        version: link:../packages/core
       '@vercel/analytics':
         specifier: ^1.2.2
         version: 1.2.2

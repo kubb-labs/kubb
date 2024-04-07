@@ -21,7 +21,6 @@
   "dependencies": {
     "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.0.10",
-    "@kubb/core": "latest",
     "sitemap": "^7.1.1",
     "vitepress": "^1.0.2",
     "vue": "^3.4.21"

@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 
-import packageJSON from '@kubb/core/package.json' assert { type: 'json' }
+import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
@@ -544,7 +544,7 @@ export default defineConfig({
         ],
       },
       {
-        text: `v${packageJSON.version}`,
+        text: `v${version}`,
         items: [
           {
             text: 'v1',
