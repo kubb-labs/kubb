@@ -62,6 +62,10 @@ jobs:
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+        - name: Deploy to Coolify
+          run: |
+            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+
         - name: Send a discord notification
           if: steps.changesets.outputs.published == 'true'
           uses: actions/github-script@v6
