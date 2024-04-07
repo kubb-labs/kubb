@@ -63,7 +63,7 @@
     "@types/node": "^20.12.5",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
-    "bun-types": "^1.1.1",
+    "bun-types": "^1.1.2",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
     "turbo": "^1.13.2",
@@ -71,10 +71,10 @@
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.4.0"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@8.15.0",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   },
   "pnpm": {
     "patchedDependencies": {
