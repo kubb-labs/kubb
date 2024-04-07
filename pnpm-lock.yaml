@@ -62,7 +62,7 @@ importers:
   docs:
     dependencies:
       '@kubb/core':
-        specifier: workspace:*
+        specifier: latest
         version: link:../packages/core
       '@vercel/analytics':
         specifier: ^1.2.2
