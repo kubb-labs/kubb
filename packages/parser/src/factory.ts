@@ -1,4 +1,4 @@
-import toNumber from 'lodash.tonumber'
+import { isNumber } from 'remeda'
 import ts from 'typescript'
 
 const { factory } = ts
@@ -26,13 +26,6 @@ function propertyName(name: string | ts.PropertyName): ts.PropertyName {
     return isValidIdentifier(name) ? factory.createIdentifier(name) : factory.createStringLiteral(name)
   }
   return name
-}
-
-function isNumber(value: unknown): value is number {
-  if (typeof value === 'string') {
-    return !Number.isNaN(toNumber(value))
-  }
-  return typeof value === 'number'
 }
 
 const questionToken = factory.createToken(ts.SyntaxKind.QuestionToken)
@@ -424,14 +417,14 @@ export function createEnumDeclaration({
           .map(([key, value]) => {
             let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
-            if (isNumber(value)) {
-              initializer = factory.createNumericLiteral(toNumber(value))
+            if (isNumber(Number.parseInt(value.toString()))) {
+              initializer = factory.createNumericLiteral(value as number)
             }
             if (typeof value === 'boolean') {
               initializer = value ? factory.createTrue() : factory.createFalse()
             }
 
-            if (isNumber(key)) {
+            if (isNumber(Number.parseInt(key.toString()))) {
               return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
             }
 

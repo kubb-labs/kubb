@@ -150,8 +150,22 @@ export const oas = {
             },
           },
           '405': {
-            description: 'Invalid input',
-            $ref: '#/components/responses/PetNotFound',
+            content: {
+              'application/json': {
+                schema: {
+                  properties: {
+                    code: {
+                      format: 'int32',
+                      type: 'integer',
+                    },
+                    message: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+            description: 'Pet not found',
           },
         },
         security: [

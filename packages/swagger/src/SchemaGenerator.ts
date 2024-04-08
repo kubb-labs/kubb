@@ -2,6 +2,7 @@ import { Generator } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
+import { isNumber } from 'remeda'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
@@ -478,7 +479,7 @@ export abstract class SchemaGenerator<
                 items: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
                   name: transformers.stringify(name),
                   value: schema.enum?.[index] as string | number,
-                  format: transformers.isNumber(schema.enum?.[index]) ? 'number' : 'string',
+                  format: isNumber(schema.enum?.[index]) ? 'number' : 'string',
                 })),
               },
             },
@@ -529,7 +530,7 @@ export abstract class SchemaGenerator<
             items: [...new Set(schema.enum)].map((value: string) => ({
               name: transformers.stringify(value),
               value,
-              format: transformers.isNumber(value) ? 'number' : 'string',
+              format: isNumber(value) ? 'number' : 'string',
             })),
           },
         },

@@ -65,6 +65,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "remeda": "^1.57.2",
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
     "@kubb/react": "workspace:*",

@@ -222,8 +222,8 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   }
 
   if (isKeyword(current, schemaKeywords.const)) {
-    if (current.args.format === 'number') {
-      return zodKeywordMapper.const(transformers.toNumber(current.args.value))
+    if (current.args.format === 'number' && current.args.value !== undefined) {
+      return zodKeywordMapper.const(Number.parseInt(current.args.value?.toString()))
     }
     return zodKeywordMapper.const(transformers.stringify(current.args.value))
   }
