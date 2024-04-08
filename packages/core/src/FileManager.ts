@@ -4,9 +4,9 @@ import { extname, resolve } from 'node:path'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 
-import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
 import PQueue from 'p-queue'
+import { isDeepEqual } from 'remeda'
 
 import { BarrelManager } from './BarrelManager.ts'
 import { getRelativePath, read } from './fs/read.ts'
@@ -508,7 +508,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
     (prev, curr) => {
       const name = curr.name
       const prevByPath = prev.findLast((imp) => imp.path === curr.path)
-      const prevByPathAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+      const prevByPathAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isDeepEqual(imp.name, name) && imp.isTypeOnly)
 
       if (prevByPathAndIsTypeOnly) {
         // we already have an export that has the same path but uses `isTypeOnly` (export type ...)
@@ -516,7 +516,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
       }
 
       const uniquePrev = prev.findLast(
-        (imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
+        (imp) => imp.path === curr.path && isDeepEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
       )
 
       if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
@@ -566,8 +566,8 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
       }
 
       const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
-      const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
-      const prevByPathNameAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+      const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isDeepEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
+      const prevByPathNameAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isDeepEqual(imp.name, name) && imp.isTypeOnly)
 
       if (prevByPathNameAndIsTypeOnly) {
         // we already have an export that has the same path but uses `isTypeOnly` (import type ...)

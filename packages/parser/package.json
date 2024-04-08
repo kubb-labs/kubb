@@ -47,14 +47,13 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "remeda": "^1.57.2",
     "typescript": "^5.4.4"
   },
   "devDependencies": {
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/lodash.tonumber": "^4.0.9",
-    "lodash.tonumber": "^4.0.3",
     "prettier": "^3.2.5",
     "tsup": "^8.0.2"
   },

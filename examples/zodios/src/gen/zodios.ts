@@ -54,7 +54,7 @@ export const endpoints = makeApi([
     errors: [
       {
         status: 405,
-        description: '',
+        description: 'Pet not found',
         schema: addPet405Schema,
       },
     ],

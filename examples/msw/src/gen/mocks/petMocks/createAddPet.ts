@@ -10,6 +10,9 @@ export function createAddPet200(override?: NonNullable<Partial<AddPet200>>): Non
   return createPet(override)
 }
 
+/**
+ * @description Pet not found
+ */
 export function createAddPet405(override: NonNullable<Partial<AddPet405>> = {}): NonNullable<AddPet405> {
   return {
     ...{ code: faker.number.int(), message: faker.string.alpha() },

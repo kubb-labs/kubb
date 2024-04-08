@@ -7,6 +7,9 @@ import { petSchema } from './petSchema'
  */
 export const addPet200Schema = z.lazy(() => petSchema)
 
+/**
+ * @description Pet not found
+ */
 export const addPet405Schema = z.object({ code: z.number().optional(), message: z.string().optional() })
 
 /**

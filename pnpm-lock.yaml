@@ -1090,15 +1090,15 @@ importers:
       js-runtime:
         specifier: ^0.0.7
         version: 0.0.7
-      lodash.merge:
-        specifier: ^4.6.2
-        version: 4.6.2
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2
       p-queue:
         specifier: ^8.0.1
         version: 8.0.1
+      remeda:
+        specifier: ^1.57.2
+        version: 1.57.2
       seedrandom:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1121,15 +1121,6 @@ importers:
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
-      '@types/lodash.isequal':
-        specifier: ^4.5.8
-        version: 4.5.8
-      '@types/lodash.merge':
-        specifier: ^4.6.9
-        version: 4.6.9
-      '@types/lodash.tonumber':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/react':
         specifier: ^18.2.74
         version: 18.2.74
@@ -1139,12 +1130,6 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
-      lodash.isequal:
-        specifier: ^4.5.0
-        version: 4.5.0
-      lodash.tonumber:
-        specifier: ^4.0.3
-        version: 4.0.3
       ora:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1188,6 +1173,9 @@ importers:
 
   packages/parser:
     dependencies:
+      remeda:
+        specifier: ^1.57.2
+        version: 1.57.2
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
@@ -1201,12 +1189,6 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup-config
-      '@types/lodash.tonumber':
-        specifier: ^4.0.9
-        version: 4.0.9
-      lodash.tonumber:
-        specifier: ^4.0.3
-        version: 4.0.3
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -1277,6 +1259,9 @@ importers:
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
+      remeda:
+        specifier: ^1.57.2
+        version: 1.57.2
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8
@@ -4034,28 +4019,6 @@ packages:
   /@types/linkify-it@3.0.5:
     resolution: {integrity: sha512-yg6E+u0/+Zjva+buc3EIb+29XEg4wltq7cSmd4Uc2EE/1nUVmxyzpX6gUXD0V8jIrG0r7YeOGVIbYRkxeooCtw==}
     dev: false
-
-  /@types/lodash.isequal@4.5.8:
-    resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
-    dependencies:
-      '@types/lodash': 4.17.0
-    dev: true
-
-  /@types/lodash.merge@4.6.9:
-    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
-    dependencies:
-      '@types/lodash': 4.17.0
-    dev: true
-
-  /@types/lodash.tonumber@4.0.9:
-    resolution: {integrity: sha512-53rIpKcaX3lrKLbdMLsQlyhRfNBjHivG3Fy3foCjmL+oG4f4oZgmow6UxSoDjxtxmzwMS4mDnEIr390ffN9t9Q==}
-    dependencies:
-      '@types/lodash': 4.17.0
-    dev: true
-
-  /@types/lodash@4.17.0:
-    resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
-    dev: true
 
   /@types/markdown-it@13.0.7:
     resolution: {integrity: sha512-U/CBi2YUUcTHBt5tjO2r5QV/x0Po6nsYwQU4Y04fBS6vfoImaiZ6f8bi3CjTCxBPQSO1LMyUqkByzi8AidyxfA==}
@@ -7091,19 +7054,11 @@ packages:
   /lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
 
-  /lodash.merge@4.6.2:
-    resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
-    dev: false
-
   /lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
 
   /lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
-    dev: true
-
-  /lodash.tonumber@4.0.3:
-    resolution: {integrity: sha512-SY0SwuPOHRwKcCNTdsntPYb+Zddz5mDUIVFABzRMqmAiL41pMeyoQFGxYAw5zdc9NnH4pbJqiqqp5ckfxa+zSA==}
     dev: true
 
   /lodash@4.17.21:
@@ -8180,6 +8135,10 @@ packages:
       es-errors: 1.3.0
       set-function-name: 2.0.2
     dev: true
+
+  /remeda@1.57.2:
+    resolution: {integrity: sha512-48srClA3Em1E+n+/L9iILVP4G80yG+CKDtrWFgsBbbWYC9/OmvI19Ag9I5baDMdgTTaWSOh8yXbUD3SzGunSnQ==}
+    dev: false
 
   /remove-accents@0.5.0:
     resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}

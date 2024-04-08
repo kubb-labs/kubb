@@ -266,6 +266,9 @@ export type UpdatePetMutation = {
  */
 export type AddPet200 = Pet
 
+/**
+ * @description Pet not found
+ */
 export type AddPet405 = {
   /**
    * @type integer | undefined int32
