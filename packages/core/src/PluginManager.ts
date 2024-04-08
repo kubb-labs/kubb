@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
-
 import PQueue from 'p-queue'
 
 import { FileManager } from './FileManager.ts'
@@ -679,7 +677,6 @@ export class PluginManager {
     }) as TOutput
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   static get hooks() {
     return ['buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'] as const
   }

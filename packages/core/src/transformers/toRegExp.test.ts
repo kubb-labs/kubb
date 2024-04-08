@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-escape */
 import { toRegExp } from './toRegExp.ts'
 
 describe('toRegExp', () => {

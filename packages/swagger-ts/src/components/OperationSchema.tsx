@@ -1,5 +1,3 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable @typescript-eslint/ban-types */
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'

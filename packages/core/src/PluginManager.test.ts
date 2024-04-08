@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+import { PluginManager } from './PluginManager.ts'
 import { createLogger } from './logger.ts'
 import { createPlugin } from './plugin.ts'
-import { PluginManager } from './PluginManager.ts'
 
 import type { Config, Plugin, TransformResult } from './types.ts'
 

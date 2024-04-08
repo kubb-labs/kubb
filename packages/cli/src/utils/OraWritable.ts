@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import { Writable } from 'node:stream'
 
 import c from 'tinyrainbow'

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import toNumber from 'lodash.tonumber'
 import ts from 'typescript'
 

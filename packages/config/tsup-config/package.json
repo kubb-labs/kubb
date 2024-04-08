@@ -25,8 +25,8 @@
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
-    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
-    "lint-fix": "bun run lint --quiet --fix",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --apply-unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../../.github/canary.sh && node ../../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 

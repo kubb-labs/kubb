@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import crypto from 'node:crypto'
 import process from 'node:process'
 
@@ -52,7 +51,6 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     // Store last output to only rerender when needed
     this.#lastOutput = ''
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.#container = reconciler.createContainer(
       this.#rootNode,
       // Legacy mode

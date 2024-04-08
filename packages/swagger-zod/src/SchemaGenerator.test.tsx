@@ -196,7 +196,7 @@ describe('ZodGenerator constCases', async () => {
       mode: 'split',
     },
   )
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+
   const schemas = oas.getDefinition().components?.schemas!
 
   test('UuidSchema generates a string with uuid format constraint', async () => {
@@ -396,7 +396,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       mode: 'split',
     },
   )
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+
   const schemas = oas.getDefinition().components?.schemas!
 
   test('anyof with 2 objects', async () => {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import type { OasTypes } from '@kubb/swagger/oas'
 import type { Fn, Pipe, Tuples } from 'hotscript'
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts'

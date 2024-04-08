@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import crypto from 'node:crypto'
 import { extname, resolve } from 'node:path'
 

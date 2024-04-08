@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 import ReactJSXRuntime from 'react/jsx-runtime'
 
 import type { KubbFile } from '@kubb/core'

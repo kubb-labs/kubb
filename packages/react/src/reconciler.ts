@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import createReconciler from 'react-reconciler'
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 

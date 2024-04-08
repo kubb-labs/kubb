@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 /**

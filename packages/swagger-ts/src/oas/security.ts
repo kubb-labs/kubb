@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable @typescript-eslint/ban-types */
-
 import type { Call, Objects, Tuples } from 'hotscript'
 
 type Checks = {

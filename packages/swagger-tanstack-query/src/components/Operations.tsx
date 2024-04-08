@@ -4,10 +4,8 @@ import type { KubbNode } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 type TemplateProps = {}
 
-// eslint-disable-next-line no-empty-pattern
 function Template({}: TemplateProps): KubbNode {
   return null
 }

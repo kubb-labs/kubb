@@ -1,5 +1,3 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable @typescript-eslint/ban-types */
 import { Editor, File, useApp } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'

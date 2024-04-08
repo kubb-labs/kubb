@@ -64,10 +64,8 @@ export class PackageManager {
         location = pathToFileURL(location).href
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const module = await import(location)
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
       return module?.default ?? module
     } catch (e) {
       console.log(e)

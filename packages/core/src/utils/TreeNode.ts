@@ -62,7 +62,6 @@ export class TreeNode<T = BarrelData> {
     const leaves: TreeNode<T>[] = []
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
-        // eslint-disable-next-line prefer-spread
         leaves.push.apply(leaves, this.children[i]!.leaves)
       }
     }

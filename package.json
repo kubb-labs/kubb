@@ -13,7 +13,6 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "packages/config/eslint-config/*",
       "packages/config/biome-config/*",
       "packages/config/tsup-config/*",
       "packages/config/ts-config/*",

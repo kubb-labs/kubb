@@ -3,7 +3,6 @@ import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/co
 import type { HttpMethod, Oas, Operation, SchemaObject } from './oas/index.ts'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type ContentType = 'application/json' | (string & {})
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined

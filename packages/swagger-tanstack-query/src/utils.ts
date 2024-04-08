@@ -1,6 +1,5 @@
 import { PackageManager } from '@kubb/core'
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function getImportNames() {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 

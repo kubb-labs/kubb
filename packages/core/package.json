@@ -2,12 +2,7 @@
   "name": "@kubb/core",
   "version": "2.12.5",
   "description": "Generator core",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -59,37 +54,19 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "transformers": [
-        "./dist/transformers.d.ts"
-      ],
-      "logger": [
-        "./dist/logger.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
-      ],
-      "mocks": [
-        "./dist/mocks.d.ts"
-      ]
+      "utils": ["./dist/utils.d.ts"],
+      "transformers": ["./dist/transformers.d.ts"],
+      "logger": ["./dist/logger.d.ts"],
+      "fs": ["./dist/fs.d.ts"],
+      "mocks": ["./dist/mocks.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "*.d.ts",
-    "*.d.cts",
-    "schema.json",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "*.d.ts", "*.d.cts", "schema.json", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
-    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
-    "lint-fix": "bun run lint --quiet --fix",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --apply-unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
@@ -112,7 +89,7 @@
     "unraw": "^3.0.0"
   },
   "devDependencies": {
-    "@kubb/eslint-config": "workspace:*",
+    "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
@@ -122,7 +99,6 @@
     "@types/react": "^18.2.74",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
-    "eslint": "^8.57.0",
     "lodash.isequal": "^4.5.0",
     "lodash.tonumber": "^4.0.3",
     "ora": "^8.0.1",

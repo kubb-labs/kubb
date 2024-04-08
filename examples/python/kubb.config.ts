@@ -15,9 +15,6 @@ export default defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
-    },
     plugins: [
       createSwagger({ output: false, validate: true }),
       createSwaggerClient({
