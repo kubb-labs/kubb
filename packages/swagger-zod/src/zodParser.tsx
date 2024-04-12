@@ -1,7 +1,7 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
 import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
 
 export const zodKeywordMapper = {
   any: () => 'z.any()',
@@ -54,6 +54,7 @@ export const zodKeywordMapper = {
   example: undefined,
   type: undefined,
   format: undefined,
+  name: undefined,
   catchall: (value?: string) => (value ? `.catchall(${value})` : undefined),
 } satisfies SchemaMapper<string | null | undefined>
 
@@ -181,9 +182,13 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
         const schema = item[1]
         return schema && typeof schema.map === 'function'
       })
-      .map((item) => {
-        const name = item[0]
-        const schemas = item[1]
+      .map(([_name, schemas]) => {
+        let name = _name
+        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+
+        if (nameSchema) {
+          name = nameSchema.args
+        }
 
         // custom mapper(pluginOptions)
         if (options.mapper?.[name]) {

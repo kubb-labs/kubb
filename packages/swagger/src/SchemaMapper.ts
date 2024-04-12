@@ -76,6 +76,7 @@ export type SchemaKeywordMapper = {
     args: string
   }
   format: { keyword: 'format'; args: string }
+  name: { keyword: 'name'; args: string }
   catchall: { keyword: 'catchall' }
 }
 
@@ -124,6 +125,7 @@ export const schemaKeywords = {
   type: 'type',
   format: 'format',
   catchall: 'catchall',
+  name: 'name',
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }

@@ -225,8 +225,19 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.object,
       args: {
         properties: {
-          firstName: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.min, args: 2 }],
-          address: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.nullable }, { keyword: schemaKeywords.describe, args: '"Your address"' }],
+          firstName: [
+            { keyword: schemaKeywords.name, args: 'firstName' },
+            { keyword: schemaKeywords.type, args: 'string' },
+            { keyword: schemaKeywords.string },
+            { keyword: schemaKeywords.min, args: 2 },
+          ],
+          address: [
+            { keyword: schemaKeywords.name, args: 'address' },
+            { keyword: schemaKeywords.type, args: 'string' },
+            { keyword: schemaKeywords.string },
+            { keyword: schemaKeywords.nullable },
+            { keyword: schemaKeywords.describe, args: '"Your address"' },
+          ],
         },
         additionalProperties: [],
       },
@@ -238,8 +249,20 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.object,
       args: {
         properties: {
-          firstName: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.optional }, { keyword: schemaKeywords.min, args: 2 }],
-          address: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.nullable }, { keyword: schemaKeywords.describe, args: '"Your address"' }],
+          firstName: [
+            { keyword: schemaKeywords.name, args: 'firstName' },
+            { keyword: schemaKeywords.type, args: 'string' },
+            { keyword: schemaKeywords.string },
+            { keyword: schemaKeywords.optional },
+            { keyword: schemaKeywords.min, args: 2 },
+          ],
+          address: [
+            { keyword: schemaKeywords.name, args: 'address' },
+            { keyword: schemaKeywords.type, args: 'string' },
+            { keyword: schemaKeywords.string },
+            { keyword: schemaKeywords.nullable },
+            { keyword: schemaKeywords.describe, args: '"Your address"' },
+          ],
         },
         additionalProperties: [],
       },
@@ -357,6 +380,8 @@ const full: Array<{ name: string; schema: Schema[] }> = [
         args: {
           properties: {
             firstName: [
+              { keyword: schemaKeywords.name, args: 'firstName' },
+              { keyword: schemaKeywords.type, args: 'string' },
               { keyword: schemaKeywords.deprecated },
               { keyword: schemaKeywords.default, args: 'test' },
               {
@@ -368,6 +393,8 @@ const full: Array<{ name: string; schema: Schema[] }> = [
               },
             ],
             age: [
+              { keyword: schemaKeywords.name, args: 'age' },
+              { keyword: schemaKeywords.type, args: 'number' },
               { keyword: schemaKeywords.example, args: '2' },
               { keyword: schemaKeywords.default, args: 2 },
               {
@@ -379,6 +406,8 @@ const full: Array<{ name: string; schema: Schema[] }> = [
               },
             ],
             address: [
+              { keyword: schemaKeywords.name, args: 'address' },
+              { keyword: schemaKeywords.type, args: 'string' },
               {
                 keyword: schemaKeywords.and,
                 args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
