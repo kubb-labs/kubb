@@ -567,7 +567,7 @@ export abstract class SchemaGenerator<
             max,
           },
         },
-        ...baseItems,
+        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
       ]
     }
 

@@ -67,11 +67,11 @@
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.74",
+    "@types/react": "^18.2.77",
     "axios": "^1.6.8",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.4"
+    "typescript": "^5.4.5"
   },
   "peerDependencies": {
     "axios": "^1.6.8",

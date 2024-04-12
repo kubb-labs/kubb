@@ -57,11 +57,11 @@
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.74",
+    "@types/react": "^18.2.77",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.4"
+    "typescript": "^5.4.5"
   },
   "packageManager": "pnpm@8.15.0",
   "engines": {

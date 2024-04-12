@@ -191,7 +191,10 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
         }
 
         return `"${name}": ${sort(schemas)
-          .map((schema) => parseZodMeta(current, schema, options))
+          .map((schema) => {
+            console.log(JSON.stringify(schema, undefined, 2))
+            return parseZodMeta(current, schema, options)
+          })
           .filter(Boolean)
           .join('')}`
       })
@@ -247,28 +250,31 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   }
 
   if (isKeyword(current, schemaKeywords.string)) {
-    if (parent) {
-      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
+    // if (parent) {
+    //   const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
+    //   const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
 
-      return zodKeywordMapper.string(minSchema?.args, maxSchema?.args)
-    }
+    //   return zodKeywordMapper.string(minSchema?.args, maxSchema?.args)
+    // }
 
     return zodKeywordMapper.string()
   }
 
   if (isKeyword(current, schemaKeywords.number) || isKeyword(current, schemaKeywords.integer)) {
-    if (parent) {
-      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
+    // if (parent) {
+    //   const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
+    //   const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
 
-      return zodKeywordMapper.number(minSchema?.args, maxSchema?.args)
-    }
+    //   return zodKeywordMapper.number(minSchema?.args, maxSchema?.args)
+    // }
     return zodKeywordMapper.number()
   }
 
-  if (isKeyword(current, schemaKeywords.min) || isKeyword(current, schemaKeywords.max)) {
-    return undefined
+  if (isKeyword(current, schemaKeywords.min)) {
+    return zodKeywordMapper.min(current.args)
+  }
+  if (isKeyword(current, schemaKeywords.max)) {
+    return zodKeywordMapper.max(current.args)
   }
 
   if (current.keyword in zodKeywordMapper && 'args' in current) {

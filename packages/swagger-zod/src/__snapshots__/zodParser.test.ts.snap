@@ -34,23 +34,23 @@ exports[`parseZodMeta > 'matches' 1`] = `".regex(new RegExp('^[A-Z]{2}$'))"`;
 
 exports[`parseZodMeta > 'matchesReg' 1`] = `".regex(new RegExp('node_modules'))"`;
 
-exports[`parseZodMeta > 'max' 1`] = `undefined`;
+exports[`parseZodMeta > 'max' 1`] = `".max(2)"`;
 
-exports[`parseZodMeta > 'min' 1`] = `undefined`;
+exports[`parseZodMeta > 'min' 1`] = `".min(2)"`;
 
 exports[`parseZodMeta > 'nullable' 1`] = `".nullable()"`;
 
 exports[`parseZodMeta > 'number' 1`] = `"z.number()"`;
 
-exports[`parseZodMeta > 'object' 1`] = `"z.object({"firstName": z.string(),"address": z.string().describe("Your address").nullable()})"`;
+exports[`parseZodMeta > 'object' 1`] = `"z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})"`;
 
-exports[`parseZodMeta > 'objectAnd' 1`] = `"z.object({"firstName": z.string().default(test),"age": z.number().default(2),"address": z.string().and(z.number()).describe("Your address").nullable()})"`;
+exports[`parseZodMeta > 'objectAnd' 1`] = `"z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(3).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()})"`;
 
 exports[`parseZodMeta > 'objectArray' 1`] = `"z.object({"ids": z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)})"`;
 
 exports[`parseZodMeta > 'objectEmpty' 1`] = `"z.object({})"`;
 
-exports[`parseZodMeta > 'objectOptional' 1`] = `"z.object({"firstName": z.string().optional(),"address": z.string().describe("Your address").nullable()})"`;
+exports[`parseZodMeta > 'objectOptional' 1`] = `"z.object({"firstName": z.string().min(2).optional(),"address": z.string().describe("Your address").nullable()})"`;
 
 exports[`parseZodMeta > 'ref' 1`] = `"z.lazy(() => Pet)"`;
 
@@ -70,7 +70,7 @@ exports[`parseZodMeta > 'unknown' 1`] = `"z.unknown()"`;
 
 exports[`zodParser > 'Object' 1`] = `
 "
-export const Object = z.object({"firstName": z.string().default(test),"age": z.number().default(2),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
+export const Object = z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(2).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
 "
 `;
 

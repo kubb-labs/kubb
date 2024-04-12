@@ -19,7 +19,7 @@ export const OptionalPet = z.object({"id": z.number().optional(),"name": z.strin
 exports[`Zod SchemaGenerator PetStore > generate schema for Pet 1`] = `
 [
   "
-export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()})
+export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().min(5).max(100).optional()})
 ",
 ]
 `;
