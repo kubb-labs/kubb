@@ -48,6 +48,14 @@ export const test = z.union([z.object({"propertyA": z.string()}).strict(), z.obj
 ]
 `;
 
+exports[`Zod SchemaGenerator enums > generate nullable 3.1 enums  1`] = `
+[
+  "
+export const enumNullable = z.enum(["Pending", "Received"]).nullable()
+",
+]
+`;
+
 exports[`Zod SchemaGenerator enums > generate x-enum-varnames types 1`] = `
 [
   "

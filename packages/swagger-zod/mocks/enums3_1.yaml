@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info:
+  title: test
+  version: "1.0.0"
+
+components:
+  schemas:
+    enumNullable:
+      type:
+       - "string"
+       - "null"
+      enum:
+      - Pending
+      - Received
+
+paths:
+  /var-names:
+    get:
+      consumes:
+      - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/enumNullable'

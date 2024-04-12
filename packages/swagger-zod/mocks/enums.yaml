@@ -1,19 +1,4 @@
-definitions:
-  enumVarNames.Type:
-    enum:
-    - 0
-    - 1
-    type: integer
-    x-enum-varnames:
-    - Pending
-    - Received
-  enumNames.Type:
-    enum:
-    - 0
-    - 1
-    x-enumNames:
-      - Pending
-      - Received
+
 swagger: "2.0"
 info:
   title: test
@@ -37,3 +22,19 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/enumNames.Type'
+definitions:
+  enumVarNames.Type:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - Pending
+    - Received
+  enumNames.Type:
+    enum:
+    - 0
+    - 1
+    x-enumNames:
+      - Pending
+      - Received

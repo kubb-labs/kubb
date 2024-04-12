@@ -347,6 +347,14 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.type,
         args: schema.type as string,
       })
+
+      if (Array.isArray(schema.type)) {
+        const [_schema, nullable] = schema.type
+
+        if (nullable === 'null') {
+          baseItems.push({ keyword: schemaKeywords.nullable })
+        }
+      }
     }
 
     if (max !== undefined) {
@@ -595,7 +603,7 @@ export abstract class SchemaGenerator<
     if (schema.type) {
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
+        const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
           ...this.buildSchemas(
@@ -605,7 +613,7 @@ export abstract class SchemaGenerator<
             },
             baseName,
           ),
-          nullable ? { keyword: schemaKeywords.nullable } : undefined,
+          ...baseItems,
         ].filter(Boolean)
       }
 
