@@ -73,6 +73,7 @@ export type SchemaKeywordMapper = {
   unknown: { keyword: 'unknown' }
   blob: { keyword: 'blob' }
   schema: { keyword: 'schema'; args: { type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object'; format?: string } }
+  name: { keyword: 'name'; args: string }
   catchall: { keyword: 'catchall' }
 }
 
@@ -121,6 +122,7 @@ export const schemaKeywords = {
   schema: 'schema',
   catchall: 'catchall',
   time: 'time',
+  name: 'name'
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }

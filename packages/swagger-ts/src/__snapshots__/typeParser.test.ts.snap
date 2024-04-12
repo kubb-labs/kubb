@@ -89,9 +89,13 @@ exports[`parseTypeMeta > 'number' 1`] = `
 
 exports[`parseTypeMeta > 'object' 1`] = `
 "{
+    /**
+     * @type string
+    */
     firstName: string;
     /**
      * @description \\"Your address\\"
+     * @type string
     */
     address: string | null;
 }
@@ -153,9 +157,13 @@ exports[`parseTypeMeta > 'objectEnum' 1`] = `
 
 exports[`parseTypeMeta > 'objectOptional' 1`] = `
 "{
+    /**
+     * @type string | undefined
+    */
     firstName?: string;
     /**
      * @description \\"Your address\\"
+     * @type string
     */
     address: string | null;
 }
@@ -231,15 +239,18 @@ exports[`typeParser > 'Object' 1`] = `
     /**
      * @deprecated
      * @default test
+     * @type string
     */
     firstName: string;
     /**
      * @default 2
      * @example 2
+     * @type number
     */
     age: number;
     /**
      * @description Your address
+     * @type string
     */
     address: (string & number) | null;
 } | null;
