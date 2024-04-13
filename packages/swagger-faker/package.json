@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/swagger-faker"
   },
   "license": "MIT",

@@ -5,21 +5,13 @@
   "description": "Kubb's monorepo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-project/kubb.git"
+    "url": "https://github.com/kubb-labs/kubb.git"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "type": "module",
   "workspaces": {
-    "packages": [
-      "packages/*",
-      "packages/config/biome-config/*",
-      "packages/config/tsup-config/*",
-      "packages/config/ts-config/*",
-      "docs",
-      "examples/*",
-      "e2e"
-    ]
+    "packages": ["packages/*", "packages/config/biome-config/*", "packages/config/tsup-config/*", "packages/config/ts-config/*", "docs", "examples/*", "e2e"]
   },
   "scripts": {
     "//changeset:beta:enter": "changeset pre enter beta",

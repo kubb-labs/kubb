@@ -5,7 +5,7 @@
   "description": "SolidQuery PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/solid-query"
   },
   "license": "MIT",
