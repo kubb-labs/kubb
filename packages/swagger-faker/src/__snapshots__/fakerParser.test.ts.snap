@@ -99,6 +99,8 @@ exports[`parseFakerMeta > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayEleme
 
 exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
 
+exports[`parseFakerMeta > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<any>(["A", "B", "C", 2])}"`;
+
 exports[`parseFakerMeta > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
 exports[`parseFakerMeta > 'ref' 1`] = `"Pet()"`;

@@ -32,10 +32,10 @@
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "@types/react": "^18.2.74",
-    "@types/react-dom": "^18.2.24",
+    "@types/react": "^18.2.77",
+    "@types/react-dom": "^18.2.25",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.4"
+    "typescript": "^5.4.5"
   },
   "packageManager": "pnpm@8.15.0",
   "engines": {

@@ -6,14 +6,14 @@ export const ShowPetByIdPathParams = z.object({
 /**
  * @description Expected response to a valid request
  */
-export const ShowPetById200 = z.lazy(() => Pet)
+export const ShowPetById200 = z.lazy(() => Pet).schema
 
 /**
  * @description unexpected error
  */
-export const ShowPetByIdError = z.lazy(() => Error)
+export const ShowPetByIdError = z.lazy(() => Error).schema
 
 /**
  * @description Expected response to a valid request
  */
-export const ShowPetByIdQueryResponse = z.lazy(() => Pet)
+export const ShowPetByIdQueryResponse = z.lazy(() => Pet).schema

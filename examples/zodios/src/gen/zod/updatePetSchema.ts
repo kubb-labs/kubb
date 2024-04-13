@@ -4,7 +4,7 @@ import { petSchema } from './petSchema'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema)
+export const updatePet200Schema = z.lazy(() => petSchema).schema
 
 /**
  * @description Invalid ID supplied
@@ -24,9 +24,9 @@ export const updatePet405Schema = z.any()
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
+export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema
 
 /**
  * @description Successful operation
  */
-export const updatePetMutationResponseSchema = z.lazy(() => petSchema)
+export const updatePetMutationResponseSchema = z.lazy(() => petSchema).schema

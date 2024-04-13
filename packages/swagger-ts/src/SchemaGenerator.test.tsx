@@ -24,6 +24,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -32,6 +33,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -52,6 +54,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -60,6 +63,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -80,6 +84,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -88,6 +93,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -108,6 +114,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas: {} as Oas,
@@ -119,6 +126,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -148,6 +156,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -156,6 +165,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -181,6 +191,7 @@ describe('SchemaGenerator petStoreRef', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -189,6 +200,7 @@ describe('SchemaGenerator petStoreRef', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -214,6 +226,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -222,6 +235,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -242,6 +256,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -250,6 +265,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -270,6 +286,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -278,6 +295,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -298,6 +316,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -306,6 +325,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
     const schemas = oas.getDefinition().components?.schemas
@@ -325,6 +345,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -333,6 +354,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -353,6 +375,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -361,6 +384,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -381,6 +405,7 @@ describe('SchemaGenerator discriminator', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -389,6 +414,7 @@ describe('SchemaGenerator discriminator', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -412,6 +438,7 @@ describe('SchemaGenerator enums', async () => {
       transformers: {},
       oasType: false,
       unknownType: 'any',
+      override: [],
     },
     {
       oas,
@@ -420,6 +447,7 @@ describe('SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -478,6 +506,7 @@ describe('SchemaGenerator enums', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -486,6 +515,7 @@ describe('SchemaGenerator enums', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -505,6 +535,7 @@ describe('SchemaGenerator enums', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -513,6 +544,7 @@ describe('SchemaGenerator enums', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -532,6 +564,7 @@ describe('SchemaGenerator enums', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -540,6 +573,7 @@ describe('SchemaGenerator enums', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -559,6 +593,7 @@ describe('SchemaGenerator enums', async () => {
         transformers: {},
         oasType: false,
         unknownType: 'any',
+        override: [],
       },
       {
         oas,
@@ -567,6 +602,7 @@ describe('SchemaGenerator enums', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 

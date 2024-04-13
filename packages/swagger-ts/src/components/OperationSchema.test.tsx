@@ -27,6 +27,7 @@ describe('<OperationSchema/>', async () => {
     oasType: false,
     optionalType: 'undefined',
     usedEnumNames: {},
+    override: [],
   }
 
   const plugin = { options } as Plugin<PluginOptions>

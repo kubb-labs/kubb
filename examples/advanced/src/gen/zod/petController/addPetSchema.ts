@@ -5,7 +5,7 @@ import { petSchema } from '../petSchema'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema)
+export const addPet200Schema = z.lazy(() => petSchema).schema
 
 /**
  * @description Pet not found
@@ -15,7 +15,7 @@ export const addPet405Schema = z.object({ code: z.number().optional(), message: 
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
+export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema).schema
 
 /**
  * @description Successful operation

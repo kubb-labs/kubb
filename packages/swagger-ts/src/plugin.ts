@@ -43,6 +43,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
       unknownType,
+      override,
     },
     pre: [swaggerPluginName],
     resolvePath(baseName, pathMode, options) {
@@ -94,6 +95,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         plugin: this.plugin,
         contentType: swaggerPlugin.api.contentType,
         include: undefined,
+        override,
         mode,
         output: output.path,
       })

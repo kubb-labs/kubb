@@ -78,7 +78,7 @@ export function OperationSchema({}: Props): ReactNode {
 type FileProps = {}
 
 OperationSchema.File = function ({}: FileProps): ReactNode {
-  const { pluginManager, plugin, mode } = useApp<PluginOptions>()
+  const { pluginManager, plugin, mode, fileManager } = useApp<PluginOptions>()
   const oas = useOas()
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
@@ -91,6 +91,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     plugin,
     pluginManager,
     mode,
+    override: plugin.options.override,
   })
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)

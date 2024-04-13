@@ -11,7 +11,7 @@ describe('OasManager', () => {
   const petStoreV2 = path.resolve(__dirname, '../mocks/petStoreV2.json')
 
   const yamlPetStoreString = `
-openapi: '3.0.0'
+openapi: 3.0.0
 info:
   title: Swagger Petstore
   version: 1.0.0

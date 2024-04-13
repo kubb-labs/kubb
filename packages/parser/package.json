@@ -47,8 +47,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "^1.57.2",
-    "typescript": "^5.4.4"
+    "remeda": "^1.58.1",
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
     "@kubb/biome-config": "workspace:*",

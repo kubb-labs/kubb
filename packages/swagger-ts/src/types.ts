@@ -100,6 +100,7 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   optionalType: NonNullable<Options['optionalType']>
+  override: NonNullable<Options['override']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>

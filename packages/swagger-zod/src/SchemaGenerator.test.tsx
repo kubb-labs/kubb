@@ -36,6 +36,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -67,6 +68,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -98,6 +100,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -129,6 +132,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -160,6 +164,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -194,6 +199,7 @@ describe('ZodGenerator constCases', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -282,6 +288,7 @@ describe('Zod SchemaGenerator lazy', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -316,6 +323,7 @@ describe('Zod SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -360,6 +368,7 @@ describe('Zod SchemaGenerator recursive', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -394,6 +403,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -402,6 +412,43 @@ describe('Zod SchemaGenerator anyof', async () => {
   test('anyof with 2 objects', async () => {
     const schema = schemas['test'] as SchemaObject
     const node = generator.buildSource('test', schema)
+
+    expect(node).toMatchSnapshot()
+  })
+})
+
+describe('Zod SchemaGenerator enums', async () => {
+  const schemaPath = path.resolve(__dirname, '../mocks/enums3_1.yaml')
+  const oas = await new OasManager().parse(schemaPath)
+  const generator = new SchemaGenerator(
+    {
+      transformers: {},
+      dateType: 'string',
+      unknownType: 'any',
+      exclude: undefined,
+      override: undefined,
+      typed: false,
+      include: undefined,
+      templates: {
+        operations: Operations.templates,
+      },
+      mapper: {},
+    },
+    {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
+      mode: 'split',
+      override: [],
+    },
+  )
+
+  const schemas = oas.getDefinition().components?.schemas
+
+  test('generate nullable 3.1 enums ', async () => {
+    const node = generator.buildSource('enumNullable', schemas?.['enumNullable'] as SchemaObject)
 
     expect(node).toMatchSnapshot()
   })

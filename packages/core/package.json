@@ -81,9 +81,9 @@
     "find-up": "^7.0.0",
     "fs-extra": "^11.2.0",
     "js-runtime": "^0.0.7",
-    "remeda": "^1.57.2",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
+    "remeda": "^1.58.1",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.0",
     "unraw": "^3.0.0"
@@ -93,14 +93,14 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
-    "@types/react": "^18.2.74",
+    "@types/react": "^18.2.77",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "ora": "^8.0.1",
     "prettier": "^3.2.5",
     "tinyrainbow": "^1.1.1",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.4"
+    "typescript": "^5.4.5"
   },
   "packageManager": "pnpm@8.15.0",
   "engines": {
