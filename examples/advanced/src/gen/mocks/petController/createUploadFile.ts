@@ -29,7 +29,7 @@ export function createUploadFile200(override?: NonNullable<Partial<UploadFile200
   return createApiResponse(override)
 }
 
-export function createUploadFileMutationRequest(override?: NonNullable<Partial<UploadFileMutationRequest>>): NonNullable<UploadFileMutationRequest> {
+export function createUploadFileMutationRequest(): NonNullable<UploadFileMutationRequest> {
   return faker.string.alpha()
 }
 

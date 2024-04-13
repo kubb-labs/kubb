@@ -265,6 +265,15 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
 }
 
 export function fakerParser(schemas: Schema[], options: ParserOptions): string {
+  const canOverride = schemas.some(
+    (schema) =>
+      schema.keyword === schemaKeywords.ref ||
+      schema.keyword === schemaKeywords.array ||
+      schema.keyword === schemaKeywords.and ||
+      schema.keyword === schemaKeywords.object ||
+      schema.keyword === schemaKeywords.union ||
+      schema.keyword === schemaKeywords.tuple,
+  )
   const fakerText = joinItems(schemas.map((schema) => parseFakerMeta(undefined, schema, { ...options, withOverride: true })).filter(Boolean))
 
   let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
@@ -296,7 +305,7 @@ export function fakerParser(schemas: Schema[], options: ParserOptions): string {
 
   return `
 ${JSDoc}
-export function ${options.name}(${fakerTextWithOverride !== 'undefined' ? params : ''})${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
+export function ${options.name}(${canOverride ? params : ''})${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
   ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
   return ${fakerTextWithOverride}
 }\n`

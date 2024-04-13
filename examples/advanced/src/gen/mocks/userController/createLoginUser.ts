@@ -11,7 +11,7 @@ export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUs
 /**
  * @description successful operation
  */
-export function createLoginUser200(override?: NonNullable<Partial<LoginUser200>>): NonNullable<LoginUser200> {
+export function createLoginUser200(): NonNullable<LoginUser200> {
   return faker.string.alpha()
 }
 
@@ -25,6 +25,6 @@ export function createLoginUser400(): NonNullable<LoginUser400> {
 /**
  * @description successful operation
  */
-export function createLoginUserQueryResponse(override?: NonNullable<Partial<LoginUserQueryResponse>>): NonNullable<LoginUserQueryResponse> {
+export function createLoginUserQueryResponse(): NonNullable<LoginUserQueryResponse> {
   return faker.string.alpha()
 }
