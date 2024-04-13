@@ -10,7 +10,7 @@ exports[`parseZodMeta > 'arrayAdvanced' 1`] = `"z.array(z.number().min(1).max(10
 
 exports[`parseZodMeta > 'arrayEmpty' 1`] = `"z.array()"`;
 
-exports[`parseZodMeta > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet))"`;
+exports[`parseZodMeta > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet).schema)"`;
 
 exports[`parseZodMeta > 'arrayRegex' 1`] = `"z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)"`;
 
@@ -18,7 +18,7 @@ exports[`parseZodMeta > 'blob' 1`] = `undefined`;
 
 exports[`parseZodMeta > 'boolean' 1`] = `"z.boolean()"`;
 
-exports[`parseZodMeta > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pet))"`;
+exports[`parseZodMeta > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pet).schema)"`;
 
 exports[`parseZodMeta > 'date' 1`] = `"z.date()"`;
 
@@ -50,9 +50,11 @@ exports[`parseZodMeta > 'objectArray' 1`] = `"z.object({"ids": z.array(z.string(
 
 exports[`parseZodMeta > 'objectEmpty' 1`] = `"z.object({})"`;
 
+exports[`parseZodMeta > 'objectEnum' 1`] = `"z.object({"version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")})"`;
+
 exports[`parseZodMeta > 'objectOptional' 1`] = `"z.object({"firstName": z.string().min(2).optional(),"address": z.string().describe("Your address").nullable()})"`;
 
-exports[`parseZodMeta > 'ref' 1`] = `"z.lazy(() => Pet)"`;
+exports[`parseZodMeta > 'ref' 1`] = `"z.lazy(() => Pet).schema"`;
 
 exports[`parseZodMeta > 'string' 1`] = `"z.string()"`;
 

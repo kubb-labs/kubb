@@ -11,7 +11,7 @@ import { isReference } from './utils/isReference.ts'
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
 import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
-import type { ContentType, OperationSchema, Refs } from './types.ts'
+import type { ContentType, OperationSchema, Override, Refs } from './types.ts'
 
 export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -24,6 +24,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   plugin: Plugin<TPluginOptions>
   mode: KubbFile.Mode
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
+  override: Array<Override<TOptions>> | undefined
   contentType?: ContentType
   output?: string
 }
@@ -62,18 +63,16 @@ export abstract class SchemaGenerator<
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
-  #usedEnumNames = this.options.usedEnumNames || {}
-  /**
-   * Cached schemas
-   */
-  #schemasCache: Record<string, Schema[]> = {}
+
   /**
    * Creates a type node from a given schema.
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
   buildSchemas(schema: SchemaObject | undefined, baseName?: string): Schema[] {
-    return this.options.transformers.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
+    const options = this.#getOptions(schema, baseName)
+
+    return options.transformers?.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
   }
 
   deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
@@ -192,8 +191,30 @@ export abstract class SchemaGenerator<
     return foundItem
   }
 
-  get #unknownReturn() {
-    if (this.options.unknownType === 'any') {
+  #getUsedEnumNames(schema: SchemaObject | undefined, baseName: string | undefined) {
+    const options = this.#getOptions(schema, baseName)
+
+    return options.usedEnumNames || {}
+  }
+
+  #getOptions(_schema: SchemaObject | undefined, baseName: string | undefined): Partial<TOptions> {
+    const { override = [] } = this.context
+
+    return (
+      override.find(({ pattern, type }) => {
+        if (baseName && type === 'schemaName') {
+          return !!baseName.match(pattern)
+        }
+
+        return false
+      })?.options || this.options
+    )
+  }
+
+  #getUnknownReturn(schema: SchemaObject | undefined, baseName: string | undefined) {
+    const options = this.#getOptions(schema, baseName)
+
+    if (options.unknownType === 'any') {
       return schemaKeywords.any
     }
 
@@ -238,7 +259,8 @@ export abstract class SchemaGenerator<
     const members: Schema[] = []
 
     if (additionalProperties) {
-      additionalPropertieschemas = additionalProperties === true ? [{ keyword: this.#unknownReturn }] : this.buildSchemas(additionalProperties as SchemaObject)
+      additionalPropertieschemas =
+        additionalProperties === true ? [{ keyword: this.#getUnknownReturn(baseSchema, baseName) }] : this.buildSchemas(additionalProperties as SchemaObject)
     }
 
     members.push({
@@ -309,10 +331,12 @@ export abstract class SchemaGenerator<
    * schema and returns the appropriate type.
    */
   #parseSchemaObject(_schema: SchemaObject | undefined, baseName?: string): Schema[] {
+    const options = this.#getOptions(_schema, baseName)
+    const unknownReturn = this.#getUnknownReturn(_schema, baseName)
     const { schema, version } = this.#getParsedSchemaObject(_schema)
 
     if (!schema) {
-      return [{ keyword: this.#unknownReturn }]
+      return [{ keyword: unknownReturn }]
     }
 
     const baseItems: Schema[] = []
@@ -393,7 +417,7 @@ export abstract class SchemaGenerator<
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== this.#unknownReturn
+            return item && item.keyword !== unknownReturn
           }),
       }
       if (schemaWithoutOneOf.properties) {
@@ -415,7 +439,7 @@ export abstract class SchemaGenerator<
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== this.#unknownReturn
+            return item && item.keyword !== unknownReturn
           })
           .map((item) => {
             if (isKeyword(item, schemaKeywords.object)) {
@@ -448,7 +472,7 @@ export abstract class SchemaGenerator<
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== this.#unknownReturn
+            return item && item.keyword !== unknownReturn
           }),
       }
 
@@ -466,7 +490,7 @@ export abstract class SchemaGenerator<
     }
 
     if (schema.enum) {
-      const name = getUniqueName(pascalCase([baseName, this.options.enumSuffix].join(' ')), this.#usedEnumNames)
+      const name = getUniqueName(pascalCase([baseName, options.enumSuffix].join(' ')), this.#getUsedEnumNames(_schema, baseName))
       const typeName = this.context.pluginManager.resolveName({
         name,
         pluginKey: this.context.plugin.key,
@@ -625,7 +649,7 @@ export abstract class SchemaGenerator<
       }
 
       if (['date', 'date-time'].some((item) => item === schema.format)) {
-        if (this.options.dateType === 'date') {
+        if (options.dateType === 'date') {
           baseItems.unshift({ keyword: schemaKeywords.date })
 
           return baseItems
@@ -659,7 +683,7 @@ export abstract class SchemaGenerator<
       return [{ keyword: schemaKeywords.blob }]
     }
 
-    return [{ keyword: this.#unknownReturn }]
+    return [{ keyword: unknownReturn }]
   }
 
   async build(): Promise<Array<KubbFile.File<TFileMeta>>> {

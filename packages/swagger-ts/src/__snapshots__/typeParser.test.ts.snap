@@ -130,6 +130,16 @@ exports[`parseTypeMeta > 'objectEmpty' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'objectEnum' 1`] = `
+"{
+    /**
+     * @description Your address
+    */
+    version: Enum;
+}
+"
+`;
+
 exports[`parseTypeMeta > 'objectOptional' 1`] = `
 "{
     firstName?: string;

@@ -41,6 +41,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       seed,
       unknownType,
       mapper,
+      override,
     },
     pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, pathMode, options) {
@@ -95,6 +96,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         plugin: this.plugin,
         contentType: swaggerPlugin.api.contentType,
         include: undefined,
+        override,
         mode,
         output: output.path,
       })

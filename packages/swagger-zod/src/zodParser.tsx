@@ -48,7 +48,7 @@ export const zodKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
-  ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
+  ref: (value?: string) => (value ? `z.lazy(() => ${value}).schema` : undefined),
   blob: undefined,
   deprecated: undefined,
   example: undefined,
@@ -294,7 +294,7 @@ export function zodParser(schemas: Schema[], options: ParserOptions): string {
     .join('')
 
   if (options.keysToOmit?.length) {
-    const suffix = output.endsWith('.nullable()') ? '.unwrap().schema.and' : '.schema.and'
+    const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
     const omitText = `${suffix}(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
     return `${constName} = ${output}${omitText}${typeName}\n`
   }

@@ -128,10 +128,15 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
-export type Include = ByTag | ByOperationId | ByPath | ByMethod
+type BySchemaName = {
+  type: 'schemaName'
+  pattern: string | RegExp
+}
 
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & {
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | BySchemaName
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | BySchemaName
+
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName) & {
   options: Partial<TOptions>
 }
 

@@ -92,6 +92,7 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   transformers: NonNullable<Options['transformers']>
+  override: NonNullable<Options['override']>
   seed: NonNullable<Options['seed']> | undefined
   mapper: Record<string, string>
 }

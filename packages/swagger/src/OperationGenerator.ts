@@ -69,7 +69,7 @@ export abstract class OperationGenerator<
     )
   }
 
-  isExcluded(operation: Operation, method: HttpMethod): boolean {
+  #isExcluded(operation: Operation, method: HttpMethod): boolean {
     const { exclude = [] } = this.context
     let matched = false
 
@@ -93,7 +93,7 @@ export abstract class OperationGenerator<
 
     return matched
   }
-  isIncluded(operation: Operation, method: HttpMethod): boolean {
+  #isIncluded(operation: Operation, method: HttpMethod): boolean {
     const { include = [] } = this.context
     let matched = false
 
@@ -394,8 +394,8 @@ export abstract class OperationGenerator<
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
         if (operation && this.#methods[method]) {
-          const isExcluded = this.isExcluded(operation, method)
-          const isIncluded = this.context.include ? this.isIncluded(operation, method) : true
+          const isExcluded = this.#isExcluded(operation, method)
+          const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
 
           if (isIncluded && !isExcluded) {
             if (!acc[path]) {
