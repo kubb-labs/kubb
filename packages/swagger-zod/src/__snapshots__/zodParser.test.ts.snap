@@ -22,7 +22,7 @@ exports[`parseZodMeta > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pe
 
 exports[`parseZodMeta > 'date' 1`] = `"z.date()"`;
 
-exports[`parseZodMeta > 'datetime' 1`] = `".datetime()"`;
+exports[`parseZodMeta > 'datetime' 1`] = `"z.string().datetime()"`;
 
 exports[`parseZodMeta > 'default' 1`] = `".default()"`;
 
@@ -58,7 +58,7 @@ exports[`parseZodMeta > 'ref' 1`] = `"z.lazy(() => Pet).schema"`;
 
 exports[`parseZodMeta > 'string' 1`] = `"z.string()"`;
 
-exports[`parseZodMeta > 'stringOffset' 1`] = `".datetime({ offset: true })"`;
+exports[`parseZodMeta > 'stringOffset' 1`] = `"z.string().datetime({ offset: true })"`;
 
 exports[`parseZodMeta > 'tuple' 1`] = `"z.tuple([])"`;
 

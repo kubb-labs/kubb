@@ -217,7 +217,7 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
             defaultSchema ? `@default ${defaultSchema.args}` : undefined,
             exampleSchema ? `@example ${exampleSchema.args}` : undefined,
             schemaSchema?.args?.type || schemaSchema?.args?.format
-              ? `@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'} ${schemaSchema?.args?.format || ''}`
+              ? [`@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'}`, schemaSchema?.args?.format].filter(Boolean).join(', ')
               : undefined,
           ].filter(Boolean),
         })

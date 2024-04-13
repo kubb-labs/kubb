@@ -30,7 +30,7 @@ export const zodKeywordMapper = {
   enum: (items: string[] = []) => `z.enum([${items?.join(', ')}])`,
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
   const: (value?: string | number) => `z.literal(${value ?? ''})`,
-  datetime: (offset = false) => (offset ? `.datetime({ offset: ${offset} })` : '.datetime()'),
+  datetime: (offset = false) => (offset ? `z.string().datetime({ offset: ${offset} })` : 'z.string().datetime()'),
   date: () => 'z.date()',
   uuid: () => '.uuid()',
   url: () => '.url()',

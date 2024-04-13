@@ -16,15 +16,15 @@ export const OrderHttpStatusEnum = {
 export type OrderHttpStatusEnum = (typeof OrderHttpStatusEnum)[keyof typeof OrderHttpStatusEnum]
 export type Order = {
   /**
-   * @type integer | undefined int64
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @type integer | undefined int64
+   * @type integer | undefined, int64
    */
   petId?: number
   /**
-   * @type integer | undefined int32
+   * @type integer | undefined, int32
    */
   quantity?: number
   /**
@@ -37,7 +37,7 @@ export type Order = {
    */
   type?: string
   /**
-   * @type string | undefined date-time
+   * @type string | undefined, date-time
    */
   shipDate?: Date
   /**

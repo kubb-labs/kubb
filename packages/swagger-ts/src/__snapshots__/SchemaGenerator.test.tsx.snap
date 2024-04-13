@@ -4,7 +4,7 @@ exports[`SchemaGenerator discriminator > Cat.type defined as const 1`] = `
 [
   "export type Cat = {
     /**
-     * @type string uuid
+     * @type string, uuid
     */
     id: string;
     type: "Cat";
@@ -21,7 +21,7 @@ exports[`SchemaGenerator discriminator > Dog.type defined as const 1`] = `
 [
   "export type Dog = {
     /**
-     * @type string uuid
+     * @type string, uuid
     */
     id: string;
     /**
@@ -278,7 +278,7 @@ exports[`TypeGenerator type assertions > generates Plain_File types correctly 1`
 
 exports[`TypeGenerator type assertions > generates Time type correctly 1`] = `
 [
-  "export type Plain_time = number;
+  "export type Plain_time = string;
 ",
 ]
 `;
@@ -294,7 +294,7 @@ exports[`TypeGenerator type assertions > generates file property with \`File\` t
 [
   "export type Body_upload_file_api_assets_post = {
     /**
-     * @type string binary
+     * @type string, binary
     */
     file: string;
 };
@@ -306,7 +306,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
 [
   "export type Pet = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**
@@ -326,7 +326,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
 [
   "export type Pet = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**
@@ -346,7 +346,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
 [
   "export type Pet = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**
@@ -366,7 +366,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pets 1`] = `
 [
   "export type Pets = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**

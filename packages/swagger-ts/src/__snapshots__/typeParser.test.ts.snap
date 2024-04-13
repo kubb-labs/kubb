@@ -134,7 +134,7 @@ exports[`parseTypeMeta > 'objectEnum' 1`] = `
 "{
     /**
      * @description Your address
-     * @type string string
+     * @type string, string
     */
     version: Enum;
 }

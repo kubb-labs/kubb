@@ -22,5 +22,8 @@ export type Address = {
    * @type string | undefined
    */
   zip?: string
+  /**
+   * @type array | undefined
+   */
   identifier?: [number, string, AddressIdentifier]
 }

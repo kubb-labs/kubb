@@ -202,15 +202,16 @@ export abstract class SchemaGenerator<
   #getOptions(_schema: SchemaObject | undefined, baseName: string | undefined): Partial<TOptions> {
     const { override = [] } = this.context
 
-    return (
-      override.find(({ pattern, type }) => {
+    return {
+      ...this.options,
+      ...(override.find(({ pattern, type }) => {
         if (baseName && type === 'schemaName') {
           return !!baseName.match(pattern)
         }
 
         return false
-      })?.options || this.options
-    )
+      })?.options || {}),
+    }
   }
 
   #getUnknownReturn(schema: SchemaObject | undefined, baseName: string | undefined) {
@@ -592,28 +593,6 @@ export abstract class SchemaGenerator<
       ]
     }
 
-    if ('items' in schema) {
-      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-      const items = this.buildSchemas(schema.items as SchemaObject, baseName)
-
-      return [
-        {
-          keyword: schemaKeywords.array,
-          args: {
-            items,
-            min,
-            max,
-          },
-        },
-        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
-      ]
-    }
-
-    if (schema.properties || schema.additionalProperties) {
-      return [...this.#parseProperties(schema, baseName), ...baseItems]
-    }
-
     if (version === '3.1' && 'const' in schema) {
       // const keyword takes precendence over the actual type.
       if (schema['const']) {
@@ -652,15 +631,18 @@ export abstract class SchemaGenerator<
           if (options.dateType) {
             if (options.dateType === 'date') {
               baseItems.unshift({ keyword: schemaKeywords.date })
-              break
+
+              return baseItems
             }
 
             if (options.dateType === 'stringOffset') {
               baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: true } })
-              break
+              return baseItems
             }
 
             baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: false } })
+
+            return baseItems
           }
           break
         case 'uuid':
@@ -687,6 +669,29 @@ export abstract class SchemaGenerator<
       }
     }
 
+    // type based logic
+    if ('items' in schema) {
+      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+      const items = this.buildSchemas(schema.items as SchemaObject, baseName)
+
+      return [
+        {
+          keyword: schemaKeywords.array,
+          args: {
+            items,
+            min,
+            max,
+          },
+        },
+        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
+      ]
+    }
+
+    if (schema.properties || schema.additionalProperties) {
+      return [...this.#parseProperties(schema, baseName), ...baseItems]
+    }
+
     if (schema.type) {
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
@@ -704,10 +709,8 @@ export abstract class SchemaGenerator<
         ].filter(Boolean)
       }
 
-      // string, boolean, null, number
-      if (schema.type in schemaKeywords) {
-        return [{ keyword: schema.type }, ...baseItems]
-      }
+      // 'string' | 'number' | 'integer' | 'boolean'
+      return [{ keyword: schema.type }, ...baseItems]
     }
 
     return [{ keyword: unknownReturn }]
