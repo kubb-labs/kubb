@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.12.6
+
+### Patch Changes
+
+- [`af666ae`](https://github.com/kubb-project/kubb/commit/af666ae970eaa496efb90e60757057d13bc75086) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ESLint no-unused-vars for mocks that return base types instead of objects
+
+- Updated dependencies [[`e32b6bd`](https://github.com/kubb-project/kubb/commit/e32b6bda3d676b099dd28c6ab380cf22abb44895), [`e32b6bd`](https://github.com/kubb-project/kubb/commit/e32b6bda3d676b099dd28c6ab380cf22abb44895)]:
+  - @kubb/swagger-ts@2.12.6
+  - @kubb/swagger@2.12.6
+  - @kubb/core@2.12.6
+  - @kubb/parser@2.12.6
+  - @kubb/react@2.12.6
+
 ## 2.12.5
 
 ### Patch Changes

@@ -1,8 +1,18 @@
 {
   "name": "@kubb/swagger-faker",
-  "version": "2.12.5",
+  "version": "2.12.6",
   "description": "Generator swagger-faker",
-  "keywords": ["faker", "faker.js", "mock", "mocking", "plugins", "kubb", "codegen", "swagger", "openapi"],
+  "keywords": [
+    "faker",
+    "faker.js",
+    "mock",
+    "mocking",
+    "plugins",
+    "kubb",
+    "codegen",
+    "swagger",
+    "openapi"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -31,10 +41,17 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "components": ["./dist/components.d.ts"]
+      "components": [
+        "./dist/components.d.ts"
+      ]
     }
   },
-  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
