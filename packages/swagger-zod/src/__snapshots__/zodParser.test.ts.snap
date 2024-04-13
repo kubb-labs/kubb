@@ -50,7 +50,7 @@ exports[`parseZodMeta > 'objectArray' 1`] = `"z.object({"ids": z.array(z.string(
 
 exports[`parseZodMeta > 'objectEmpty' 1`] = `"z.object({})"`;
 
-exports[`parseZodMeta > 'objectEnum' 1`] = `"z.object({"version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")})"`;
+exports[`parseZodMeta > 'objectEnum' 1`] = `"z.object({"version": z.enum(["A", "B", "C", "2"]).describe("Your address")})"`;
 
 exports[`parseZodMeta > 'objectOptional' 1`] = `"z.object({"firstName": z.string().min(2).optional(),"address": z.string().describe("Your address").nullable()})"`;
 

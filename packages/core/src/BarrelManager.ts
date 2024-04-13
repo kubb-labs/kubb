@@ -3,9 +3,9 @@ import { getExports } from '@kubb/parser'
 import path from 'node:path'
 
 import { trimExtName } from './transformers/trim.ts'
-import { TreeNode } from './utils/TreeNode.ts'
 
 import type { DirectoryTreeOptions } from 'directory-tree'
+import { BarrelTreeNode } from './BarrelTreeNode.ts'
 import type { KubbFile } from './FileManager.ts'
 
 export type BarrelManagerOptions = {
@@ -70,13 +70,13 @@ export class BarrelManager {
 
   getIndexes(root: string): Array<KubbFile.File> | null {
     const { treeNode = {}, isTypeOnly, extName } = this.#options
-    const tree = TreeNode.build(root, treeNode)
+    const tree = BarrelTreeNode.build(root, treeNode)
 
     if (!tree) {
       return null
     }
 
-    const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode) => {
+    const fileReducer = (files: Array<KubbFile.File>, treeNode: BarrelTreeNode) => {
       if (!treeNode.children) {
         return []
       }
@@ -108,7 +108,7 @@ export class BarrelManager {
           exportable: true,
         })
       } else if (treeNode.children.length === 1) {
-        const [treeNodeChild] = treeNode.children as [TreeNode]
+        const [treeNodeChild] = treeNode.children as [BarrelTreeNode]
 
         const indexPath = path.resolve(treeNode.data.path, 'index.ts')
         const importPath = treeNodeChild.data.type === 'split' ? `./${treeNodeChild.data.name}/index` : `./${trimExtName(treeNodeChild.data.name)}`

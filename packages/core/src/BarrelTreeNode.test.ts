@@ -1,10 +1,10 @@
 import path from 'node:path'
 
-import { TreeNode } from './TreeNode.ts'
+import { BarrelTreeNode } from './BarrelTreeNode.ts'
 
-describe('TreeNode', () => {
-  const rootPath = path.resolve(__dirname, '../../mocks/treeNode')
-  const tree = TreeNode.build(rootPath, { extensions: /\.ts/ })
+describe('BarrelTreeNode', () => {
+  const rootPath = path.resolve(__dirname, '../mocks/treeNode')
+  const tree = BarrelTreeNode.build(rootPath, { extensions: /\.ts/ })
 
   test('if schemas folder contains x files and y folders', () => {
     expect(tree).toBeDefined()
@@ -44,7 +44,7 @@ describe('TreeNode', () => {
   })
 
   test('if `foreach` is executed correctly', () => {
-    const items: TreeNode['data'][] = []
+    const items: BarrelTreeNode['data'][] = []
 
     tree?.forEach((treeNode) => {
       items.push(treeNode.data)

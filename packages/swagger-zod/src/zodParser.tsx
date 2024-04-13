@@ -66,6 +66,7 @@ function sort(items?: Schema[]): Schema[] {
     schemaKeywords.string,
     schemaKeywords.number,
     schemaKeywords.object,
+    schemaKeywords.enum,
     schemaKeywords.url,
     schemaKeywords.email,
     schemaKeywords.firstName,
@@ -191,7 +192,12 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
         }
 
         return `"${name}": ${sort(schemas)
-          .map((schema) => {
+          .map((schema, i, array) => {
+            const previousSchema = array[i - 1]
+            if (previousSchema?.keyword === schemaKeywords.enum && (schema.keyword === schemaKeywords.min || schema.keyword === schemaKeywords.max)) {
+              // skip min/max for enums, HACK
+              return null
+            }
             return parseZodMeta(current, schema, options)
           })
           .filter(Boolean)

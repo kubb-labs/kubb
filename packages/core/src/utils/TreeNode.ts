@@ -1,20 +1,23 @@
-import dirTree from 'directory-tree'
+const getCircularReplacer = () => {
+  const seen = new WeakSet()
+  return (_key: string, value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return
+      }
+      seen.add(value)
+    }
+    return value
+  }
+}
 
-import { FileManager } from '../FileManager.ts'
+export class TreeNode<T = unknown> {
+  data: T
 
-import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
-import type { KubbFile } from '../FileManager.ts'
+  parent?: TreeNode<T>
+  current?: T
 
-export type TreeNodeOptions = DirectoryTreeOptions
-
-type BarrelData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
-
-export class TreeNode<T = BarrelData> {
-  public data: T
-
-  public parent?: TreeNode<T>
-
-  public children: Array<TreeNode<T>> = []
+  children: Array<TreeNode<T>> = []
 
   constructor(data: T, parent?: TreeNode<T>) {
     this.data = data
@@ -75,61 +78,46 @@ export class TreeNode<T = BarrelData> {
     return this.parent.root
   }
 
-  forEach(callback: (treeNode: TreeNode<T>) => void): this {
+  map(callback: (value: TreeNode<T>, previousValue: TreeNode<T> | undefined, nextValue: TreeNode<T> | undefined) => void): this {
     if (typeof callback !== 'function') {
       throw new TypeError('forEach() callback must be a function')
     }
 
     // run this node through function
-    callback(this)
+    callback(this, undefined, undefined)
 
     // do the same for all children
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
-        this.children[i]?.forEach(callback)
+        this.children[i]?.forEach((item) => {
+          callback(item, this.children[i - 1], this.children[i + 1])
+        })
       }
     }
 
     return this
   }
 
-  public static build(path: string, options: TreeNodeOptions = {}): TreeNode | null {
-    try {
-      const exclude = Array.isArray(options.exclude) ? options.exclude : [options.exclude].filter(Boolean)
-      const filteredTree = dirTree(path, {
-        extensions: options.extensions,
-        exclude: [/node_modules/, ...exclude],
-      })
-
-      if (!filteredTree) {
-        return null
-      }
-
-      const treeNode = new TreeNode({
-        name: filteredTree.name,
-        path: filteredTree.path,
-        type: FileManager.getMode(filteredTree.path),
-      })
-
-      const recurse = (node: typeof treeNode, item: DirectoryTree) => {
-        const subNode = node.addChild({
-          name: item.name,
-          path: item.path,
-          type: FileManager.getMode(item.path),
-        })
-
-        if (item.children?.length) {
-          item.children?.forEach((child) => {
-            recurse(subNode, child)
-          })
-        }
-      }
-
-      filteredTree.children?.forEach((child) => recurse(treeNode, child))
-
-      return treeNode
-    } catch (e) {
-      throw new Error('Something went wrong with creating index files with the TreehNode class', { cause: e })
+  forEach(callback: (value: TreeNode<T>, index: number) => void): this {
+    if (typeof callback !== 'function') {
+      throw new TypeError('forEach() callback must be a function')
     }
+
+    // run this node through function
+    callback(this, 0)
+
+    // do the same for all children
+    if (this.children) {
+      for (let i = 0, { length } = this.children; i < length; i++) {
+        this.children[i]?.forEach((item) => {
+          callback(item, i)
+        })
+      }
+    }
+
+    return this
+  }
+  toString() {
+    return JSON.stringify(this, getCircularReplacer(), 2)
   }
 }
