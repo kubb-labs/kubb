@@ -1,5 +1,5 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
-import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
+import { isKeyword, schemaKeywords } from '@kubb/swagger'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
 
@@ -30,7 +30,7 @@ export const zodKeywordMapper = {
   enum: (items: string[] = []) => `z.enum([${items?.join(', ')}])`,
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
   const: (value?: string | number) => `z.literal(${value ?? ''})`,
-  datetime: (offset = false) => (offset ? `z.string().datetime({ offset: ${offset} })` : 'z.string().datetime()'),
+  datetime: (offset = false) => (offset ? `.datetime({ offset: ${offset} })` : '.datetime()'),
   date: () => 'z.date()',
   uuid: () => '.uuid()',
   url: () => '.url()',
@@ -52,8 +52,7 @@ export const zodKeywordMapper = {
   blob: undefined,
   deprecated: undefined,
   example: undefined,
-  type: undefined,
-  format: undefined,
+  schema: undefined,
   catchall: (value?: string) => (value ? `.catchall(${value})` : undefined),
 } satisfies SchemaMapper<string | null | undefined>
 
@@ -64,6 +63,7 @@ export const zodKeywordMapper = {
 function sort(items?: Schema[]): Schema[] {
   const order: string[] = [
     schemaKeywords.string,
+    schemaKeywords.datetime,
     schemaKeywords.number,
     schemaKeywords.object,
     schemaKeywords.enum,

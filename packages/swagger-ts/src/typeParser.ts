@@ -103,8 +103,7 @@ export const typeKeywordMapper = {
   blob: () => factory.createTypeReferenceNode('Blob', []),
   deprecated: undefined,
   example: undefined,
-  type: undefined,
-  format: undefined,
+  schema: undefined,
   catchall: undefined,
 } satisfies SchemaMapper<ts.Node | null | undefined>
 
@@ -181,8 +180,7 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
         const deprecatedSchema = schemas.find((schema) => schema.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
         const defaultSchema = schemas.find((schema) => schema.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
         const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
-        const typeSchema = schemas.find((schema) => schema.keyword === schemaKeywords.type) as SchemaKeywordMapper['type'] | undefined
-        const formatSchema = schemas.find((schema) => schema.keyword === schemaKeywords.format) as SchemaKeywordMapper['format'] | undefined
+        const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
 
         let type = schemas.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean)[0] as ts.TypeNode
 
@@ -218,7 +216,9 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
             deprecatedSchema ? '@deprecated' : undefined,
             defaultSchema ? `@default ${defaultSchema.args}` : undefined,
             exampleSchema ? `@example ${exampleSchema.args}` : undefined,
-            typeSchema ? `@type ${typeSchema.args}${!isOptional ? '' : ' | undefined'} ${formatSchema?.args || ''}` : undefined,
+            schemaSchema?.args?.type || schemaSchema?.args?.format
+              ? `@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'} ${schemaSchema?.args?.format || ''}`
+              : undefined,
           ].filter(Boolean),
         })
       })

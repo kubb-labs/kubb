@@ -2,7 +2,7 @@ import { Generator } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
-import { isNumber } from 'remeda'
+import { equals, isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
@@ -72,7 +72,9 @@ export abstract class SchemaGenerator<
   buildSchemas(schema: SchemaObject | undefined, baseName?: string): Schema[] {
     const options = this.#getOptions(schema, baseName)
 
-    return options.transformers?.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
+    const schemas = options.transformers?.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
+
+    return uniqueWith<Schema>(schemas, isDeepEqual)
   }
 
   deepSearch<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
@@ -339,7 +341,15 @@ export abstract class SchemaGenerator<
       return [{ keyword: unknownReturn }]
     }
 
-    const baseItems: Schema[] = []
+    const baseItems: Schema[] = [
+      {
+        keyword: schemaKeywords.schema,
+        args: {
+          type: schema.type as any,
+          format: schema.format,
+        },
+      },
+    ]
     const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
     const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
     const nullable = schema.nullable ?? schema['x-nullable'] ?? false
@@ -366,19 +376,11 @@ export abstract class SchemaGenerator<
       })
     }
 
-    if (schema.type) {
-      baseItems.push({
-        keyword: schemaKeywords.type,
-        args: schema.type as string,
+    if (schema.pattern) {
+      baseItems.unshift({
+        keyword: schemaKeywords.matches,
+        args: schema.pattern,
       })
-
-      if (Array.isArray(schema.type)) {
-        const [_schema, nullable] = schema.type
-
-        if (nullable === 'null') {
-          baseItems.push({ keyword: schemaKeywords.nullable })
-        }
-      }
     }
 
     if (max !== undefined) {
@@ -389,12 +391,16 @@ export abstract class SchemaGenerator<
       baseItems.unshift({ keyword: schemaKeywords.min, args: min })
     }
 
-    if (schema.format) {
-      baseItems.push({ keyword: schemaKeywords.format, args: schema.format })
-    }
-
     if (nullable) {
       baseItems.push({ keyword: schemaKeywords.nullable })
+    }
+
+    if (schema.type && Array.isArray(schema.type)) {
+      const [_schema, nullable] = schema.type
+
+      if (nullable === 'null') {
+        baseItems.push({ keyword: schemaKeywords.nullable })
+      }
     }
 
     if (schema.readOnly) {
@@ -582,6 +588,7 @@ export abstract class SchemaGenerator<
             })
             .filter(Boolean),
         },
+        ...baseItems,
       ]
     }
 
@@ -619,9 +626,65 @@ export abstract class SchemaGenerator<
               value: schema['const'],
             },
           },
+          ...baseItems,
         ]
       }
       return [{ keyword: schemaKeywords.null }]
+    }
+
+    /**
+     * > Structural validation alone may be insufficient to allow an application to correctly utilize certain values. The "format"
+     * > annotation keyword is defined to allow schema authors to convey semantic information for a fixed subset of values which are
+     * > accurately described by authoritative resources, be they RFCs or other external specifications.
+     *
+     * In other words: format is more specific than type alone, hence it should override the type value, if possible.
+     *
+     * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
+     */
+    if (schema.format) {
+      switch (schema.format) {
+        case 'binary':
+          baseItems.push({ keyword: schemaKeywords.blob })
+          break
+        case 'date-time':
+        case 'date':
+        case 'time':
+          if (options.dateType) {
+            if (options.dateType === 'date') {
+              baseItems.unshift({ keyword: schemaKeywords.date })
+              break
+            }
+
+            if (options.dateType === 'stringOffset') {
+              baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: true } })
+              break
+            }
+
+            baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: false } })
+          }
+          break
+        case 'uuid':
+          baseItems.unshift({ keyword: schemaKeywords.uuid })
+          break
+        case 'email':
+        case 'idn-email':
+          baseItems.unshift({ keyword: schemaKeywords.email })
+          break
+        case 'uri':
+        case 'ipv4':
+        case 'ipv6':
+        case 'uri-reference':
+        case 'hostname':
+        case 'idn-hostname':
+          baseItems.unshift({ keyword: schemaKeywords.url })
+          break
+        // case 'duration':
+        // case 'json-pointer':
+        // case 'relative-json-pointer':
+        default:
+          // formats not yet implemented: ignore.
+          break
+      }
     }
 
     if (schema.type) {
@@ -641,53 +704,10 @@ export abstract class SchemaGenerator<
         ].filter(Boolean)
       }
 
-      if (schema.pattern) {
-        baseItems.unshift({
-          keyword: schemaKeywords.matches,
-          args: schema.pattern,
-        })
-      }
-
-      if (options.dateType && ['date', 'date-time'].some((item) => item === schema.format)) {
-        if (options.dateType === 'date') {
-          baseItems.unshift({ keyword: schemaKeywords.date })
-
-          return baseItems
-        }
-
-        if (options.dateType === 'stringOffset') {
-          baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: true } })
-
-          return baseItems
-        }
-
-        baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: false } })
-
-        return baseItems
-      }
-
-      if (schema.format === 'email') {
-        baseItems.unshift({ keyword: schemaKeywords.email })
-      }
-
-      if (schema.format === 'uri' || schema.format === 'hostname') {
-        baseItems.unshift({ keyword: schemaKeywords.url })
-      }
-
-      if (schema.format === 'uuid') {
-        baseItems.unshift({ keyword: schemaKeywords.uuid })
-      }
-
       // string, boolean, null, number
       if (schema.type in schemaKeywords) {
         return [{ keyword: schema.type }, ...baseItems]
       }
-
-      return baseItems
-    }
-
-    if (schema.format === 'binary') {
-      return [{ keyword: schemaKeywords.blob }]
     }
 
     return [{ keyword: unknownReturn }]
