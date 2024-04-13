@@ -328,8 +328,11 @@ const basic: Array<{ name: string; schema: Schema }> = [
         properties: {
           version: [
             {
-              keyword: schemaKeywords.format,
-              args: 'string',
+              keyword: schemaKeywords.schema,
+              args: {
+                format: 'string',
+                type: 'string',
+              },
             },
             {
               keyword: schemaKeywords.enum,
@@ -445,8 +448,10 @@ const full: Array<{ name: string; schema: Schema[] }> = [
     name: 'Order',
     schema: [
       {
-        keyword: schemaKeywords.type,
-        args: 'object',
+        keyword: schemaKeywords.schema,
+        args: {
+          type: 'object',
+        },
       },
       {
         keyword: schemaKeywords.object,
@@ -484,12 +489,11 @@ const full: Array<{ name: string; schema: Schema[] }> = [
               keyword: schemaKeywords.integer,
             },
             {
-              keyword: schemaKeywords.type,
-              args: 'integer',
-            },
-            {
-              keyword: schemaKeywords.format,
-              args: 'int32',
+              keyword: schemaKeywords.schema,
+              args: {
+                type: 'integer',
+                format: 'int32',
+              },
             },
             {
               keyword: schemaKeywords.optional,
@@ -498,11 +502,14 @@ const full: Array<{ name: string; schema: Schema[] }> = [
         },
       },
       {
-        keyword: 'type',
-        args: 'object',
+        keyword: schemaKeywords.schema,
+        args: {
+          type: 'integer',
+          format: 'int32',
+        },
       },
       {
-        keyword: 'optional',
+        keyword: schemaKeywords.optional,
       },
     ],
   },

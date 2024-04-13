@@ -4,7 +4,7 @@ exports[`SchemaGenerator discriminator > Cat.type defined as const 1`] = `
 [
   "export type Cat = {
     /**
-     * @type string uuid
+     * @type string, uuid
     */
     id: string;
     type: "Cat";
@@ -21,7 +21,7 @@ exports[`SchemaGenerator discriminator > Dog.type defined as const 1`] = `
 [
   "export type Dog = {
     /**
-     * @type string uuid
+     * @type string, uuid
     */
     id: string;
     /**
@@ -37,6 +37,9 @@ exports[`SchemaGenerator discriminator > Dog.type defined as const 1`] = `
 exports[`SchemaGenerator discriminator > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
 [
   "export type MixedValueTypeConst = {
+    /**
+     * @type number | undefined
+    */
     foobar?: "foobar";
 };
 ",
@@ -55,6 +58,9 @@ exports[`SchemaGenerator discriminator > NullConst correctly produces "null" 1`]
 exports[`SchemaGenerator discriminator > NumberValueConst const correctly produces \`42\` 1`] = `
 [
   "export type NumberValueConst = {
+    /**
+     * @type number | undefined
+    */
     foobar?: 42;
 };
 ",
@@ -80,6 +86,9 @@ exports[`SchemaGenerator discriminator > PetStore defined as array with type uni
 exports[`SchemaGenerator discriminator > StringValueConst const correctly produces "foobar" 1`] = `
 [
   "export type StringValueConst = {
+    /**
+     * @type string | undefined
+    */
     foobar?: "foobar";
 };
 ",
@@ -110,6 +119,9 @@ exports[`SchemaGenerator enums > generate enum Array 1`] = `
 } as const;
 export type EnumArrayIdentifier = (typeof enumArrayIdentifier)[keyof typeof enumArrayIdentifier];
 export type enumArray = {
+    /**
+     * @type array | undefined
+    */
     identifier?: [
         number,
         string,
@@ -236,11 +248,65 @@ exports[`SchemaGenerator petStoreRef > generate type for Pets 1`] = `
 ]
 `;
 
+exports[`TypeGenerator type assertions > generates Date type correctly when dateType = date 1`] = `
+[
+  "export type Plain_date = string;
+",
+]
+`;
+
+exports[`TypeGenerator type assertions > generates Date type correctly when dateType = string 1`] = `
+[
+  "export type Plain_date = string;
+",
+]
+`;
+
+exports[`TypeGenerator type assertions > generates Email type correctly 1`] = `
+[
+  "export type Plain_email = string;
+",
+]
+`;
+
+exports[`TypeGenerator type assertions > generates Plain_File types correctly 1`] = `
+[
+  "export type Plain_file = string;
+",
+]
+`;
+
+exports[`TypeGenerator type assertions > generates Time type correctly 1`] = `
+[
+  "export type Plain_time = string;
+",
+]
+`;
+
+exports[`TypeGenerator type assertions > generates UUID type correctly 1`] = `
+[
+  "export type Plain_uuid = string;
+",
+]
+`;
+
+exports[`TypeGenerator type assertions > generates file property with \`File\` type 1`] = `
+[
+  "export type Body_upload_file_api_assets_post = {
+    /**
+     * @type string, binary
+    */
+    file: string;
+};
+",
+]
+`;
+
 exports[`TypeScript SchemaGenerator petStore > generate type for Pet with optionalType \`questionToken\` 1`] = `
 [
   "export type Pet = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**
@@ -260,7 +326,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
 [
   "export type Pet = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**
@@ -280,7 +346,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
 [
   "export type Pet = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**
@@ -300,7 +366,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pets 1`] = `
 [
   "export type Pets = {
     /**
-     * @type integer int64
+     * @type integer, int64
     */
     id: number;
     /**

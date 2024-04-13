@@ -1,7 +1,7 @@
 export type UpdatePetWithFormPathParams = {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer int64
+   * @type integer, int64
    */
   petId: number
 }

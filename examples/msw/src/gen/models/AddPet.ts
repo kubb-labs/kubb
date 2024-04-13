@@ -11,7 +11,7 @@ export type AddPet200 = Pet
  */
 export type AddPet405 = {
   /**
-   * @type integer | undefined int32
+   * @type integer | undefined, int32
    */
   code?: number
   /**

@@ -3,7 +3,7 @@ import type { ApiResponse } from '../ApiResponse'
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
-   * @type integer int64
+   * @type integer, int64
    */
   petId: number
 }
