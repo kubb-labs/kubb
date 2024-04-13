@@ -449,7 +449,7 @@ Type: `false | 'string' | 'stringOffset' | 'date'` <br/>
 Default: `'string'`
 
 ::: code-group
-``typescript [false]
+```typescript [false]
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
