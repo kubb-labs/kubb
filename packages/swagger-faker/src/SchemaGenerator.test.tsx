@@ -20,6 +20,7 @@ describe('Faker SchemaGenerator enums', async () => {
       transformers: {},
       unknownType: 'any',
       mapper: {},
+      override: [],
     },
     {
       oas,
@@ -28,6 +29,7 @@ describe('Faker SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 

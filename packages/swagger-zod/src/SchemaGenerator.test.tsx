@@ -36,6 +36,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -67,6 +68,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -98,6 +100,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -129,6 +132,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -160,6 +164,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -194,6 +199,7 @@ describe('ZodGenerator constCases', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -282,6 +288,7 @@ describe('Zod SchemaGenerator lazy', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -316,6 +323,7 @@ describe('Zod SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -360,6 +368,7 @@ describe('Zod SchemaGenerator recursive', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -394,6 +403,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -431,6 +441,7 @@ describe('Zod SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
