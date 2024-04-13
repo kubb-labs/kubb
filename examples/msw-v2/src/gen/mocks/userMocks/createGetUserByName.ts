@@ -2,20 +2,17 @@ import { faker } from '@faker-js/faker'
 import type { GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName'
 import { createUser } from '../createUser'
 
-export function createGetUserByNamePathParams(override: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
+export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
   faker.seed([220])
-  return {
-    ...{ username: faker.string.alpha() },
-    ...override,
-  }
+  return { username: faker.string.alpha() }
 }
 
 /**
  * @description successful operation
  */
-export function createGetUserByName200(override?: NonNullable<Partial<GetUserByName200>>): NonNullable<GetUserByName200> {
+export function createGetUserByName200(): NonNullable<GetUserByName200> {
   faker.seed([220])
-  return createUser(override)
+  return createUser()
 }
 
 /**
@@ -37,7 +34,7 @@ export function createGetUserByName404(): NonNullable<GetUserByName404> {
 /**
  * @description successful operation
  */
-export function createGetUserByNameQueryResponse(override?: NonNullable<Partial<GetUserByNameQueryResponse>>): NonNullable<GetUserByNameQueryResponse> {
+export function createGetUserByNameQueryResponse(): NonNullable<GetUserByNameQueryResponse> {
   faker.seed([220])
-  return createUser(override)
+  return createUser()
 }

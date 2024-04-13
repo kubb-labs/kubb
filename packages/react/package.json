@@ -70,7 +70,7 @@
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.77",
+    "@types/react": "^18.2.78",
     "@types/react-reconciler": "^0.28.8",
     "prettier": "^3.2.5",
     "react": "^18.2.0",

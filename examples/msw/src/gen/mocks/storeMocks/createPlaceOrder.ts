@@ -4,8 +4,8 @@ import { createOrder } from '../createOrder'
 /**
  * @description successful operation
  */
-export function createPlaceOrder200(override?: NonNullable<Partial<PlaceOrder200>>): NonNullable<PlaceOrder200> {
-  return createOrder(override)
+export function createPlaceOrder200(): NonNullable<PlaceOrder200> {
+  return createOrder()
 }
 
 /**
@@ -15,13 +15,13 @@ export function createPlaceOrder405(): NonNullable<PlaceOrder405> {
   return undefined
 }
 
-export function createPlaceOrderMutationRequest(override?: NonNullable<Partial<PlaceOrderMutationRequest>>): NonNullable<PlaceOrderMutationRequest> {
-  return createOrder(override)
+export function createPlaceOrderMutationRequest(): NonNullable<PlaceOrderMutationRequest> {
+  return createOrder()
 }
 
 /**
  * @description successful operation
  */
-export function createPlaceOrderMutationResponse(override?: NonNullable<Partial<PlaceOrderMutationResponse>>): NonNullable<PlaceOrderMutationResponse> {
-  return createOrder(override)
+export function createPlaceOrderMutationResponse(): NonNullable<PlaceOrderMutationResponse> {
+  return createOrder()
 }

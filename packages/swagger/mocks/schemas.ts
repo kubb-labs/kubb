@@ -38,9 +38,21 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'stringOffset',
+    schema: {
+      keyword: schemaKeywords.datetime,
+      args: {
+        offset: true,
+      },
+    },
+  },
+  {
     name: 'datetime',
     schema: {
       keyword: schemaKeywords.datetime,
+      args: {
+        offset: false,
+      },
     },
   },
   {

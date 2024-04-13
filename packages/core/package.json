@@ -83,7 +83,7 @@
     "js-runtime": "^0.0.7",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^1.58.1",
+    "remeda": "^1.58.2",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.0",
     "unraw": "^3.0.0"
@@ -93,7 +93,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
-    "@types/react": "^18.2.77",
+    "@types/react": "^18.2.78",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "ora": "^8.0.1",

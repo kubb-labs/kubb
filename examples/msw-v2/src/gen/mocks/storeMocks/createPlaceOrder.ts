@@ -5,9 +5,9 @@ import { createOrder } from '../createOrder'
 /**
  * @description successful operation
  */
-export function createPlaceOrder200(override?: NonNullable<Partial<PlaceOrder200>>): NonNullable<PlaceOrder200> {
+export function createPlaceOrder200(): NonNullable<PlaceOrder200> {
   faker.seed([220])
-  return createOrder(override)
+  return createOrder()
 }
 
 /**
@@ -18,15 +18,15 @@ export function createPlaceOrder405(): NonNullable<PlaceOrder405> {
   return undefined
 }
 
-export function createPlaceOrderMutationRequest(override?: NonNullable<Partial<PlaceOrderMutationRequest>>): NonNullable<PlaceOrderMutationRequest> {
+export function createPlaceOrderMutationRequest(): NonNullable<PlaceOrderMutationRequest> {
   faker.seed([220])
-  return createOrder(override)
+  return createOrder()
 }
 
 /**
  * @description successful operation
  */
-export function createPlaceOrderMutationResponse(override?: NonNullable<Partial<PlaceOrderMutationResponse>>): NonNullable<PlaceOrderMutationResponse> {
+export function createPlaceOrderMutationResponse(): NonNullable<PlaceOrderMutationResponse> {
   faker.seed([220])
-  return createOrder(override)
+  return createOrder()
 }

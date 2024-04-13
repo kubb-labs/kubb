@@ -1,11 +1,8 @@
 import { faker } from '@faker-js/faker'
 import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser'
 
-export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUserQueryParams>> = {}): NonNullable<LoginUserQueryParams> {
-  return {
-    ...{ username: faker.string.alpha(), password: faker.string.alpha() },
-    ...override,
-  }
+export function createLoginUserQueryParams(): NonNullable<LoginUserQueryParams> {
+  return { username: faker.string.alpha(), password: faker.string.alpha() }
 }
 
 /**

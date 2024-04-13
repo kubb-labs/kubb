@@ -161,6 +161,11 @@ exports[`parseTypeMeta > 'string' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'stringOffset' 1`] = `
+"string
+"
+`;
+
 exports[`parseTypeMeta > 'tuple' 1`] = `
 "[
 ]

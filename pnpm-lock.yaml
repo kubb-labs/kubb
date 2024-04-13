@@ -123,8 +123,8 @@ importers:
         specifier: ^5.29.2
         version: 5.29.2(react@18.2.0)
       '@tanstack/solid-query':
-        specifier: ^5.29.3
-        version: 5.29.3(solid-js@1.8.16)
+        specifier: ^5.30.0
+        version: 5.30.0(solid-js@1.8.16)
       '@tanstack/svelte-query':
         specifier: ^5.29.0
         version: 5.29.0(svelte@3.59.2)
@@ -463,8 +463,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config/ts-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       '@types/react-dom':
         specifier: ^18.2.25
         version: 18.2.25
@@ -512,8 +512,8 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       '@types/react-dom':
         specifier: ^18.2.25
         version: 18.2.25
@@ -573,8 +573,8 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       '@types/react-dom':
         specifier: ^18.2.25
         version: 18.2.25
@@ -1097,8 +1097,8 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       remeda:
-        specifier: ^1.58.1
-        version: 1.58.1
+        specifier: ^1.58.2
+        version: 1.58.2
       seedrandom:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1122,8 +1122,8 @@ importers:
         specifier: ^11.0.4
         version: 11.0.4
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       '@types/seedrandom':
         specifier: ^3.0.8
         version: 3.0.8
@@ -1174,8 +1174,8 @@ importers:
   packages/parser:
     dependencies:
       remeda:
-        specifier: ^1.58.1
-        version: 1.58.1
+        specifier: ^1.58.2
+        version: 1.58.2
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1215,8 +1215,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       '@types/react-reconciler':
         specifier: ^0.28.8
         version: 0.28.8
@@ -1260,8 +1260,8 @@ importers:
         specifier: ^12.1.3
         version: 12.1.3
       remeda:
-        specifier: ^1.58.1
-        version: 1.58.1
+        specifier: ^1.58.2
+        version: 1.58.2
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8
@@ -1279,8 +1279,8 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       '@types/swagger2openapi':
         specifier: ^7.0.4
         version: 7.0.4
@@ -1322,8 +1322,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       axios:
         specifier: ^1.6.8
         version: 1.6.8
@@ -1365,8 +1365,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1408,8 +1408,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1451,8 +1451,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1497,8 +1497,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1546,8 +1546,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       expect-type:
         specifier: ^0.19.0
         version: 0.19.0
@@ -1589,8 +1589,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -1632,8 +1632,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.77
-        version: 18.2.77
+        specifier: ^18.2.78
+        version: 18.2.78
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -3816,8 +3816,8 @@ packages:
       solid-js: 1.8.16
     dev: false
 
-  /@tanstack/solid-query@5.29.3(solid-js@1.8.16):
-    resolution: {integrity: sha512-mIDdVcEnbBHG88T8wWRfnSc9slWqejt63jeeABVovZVMQCDS+OUD4xB+7oA37XhgDgo+nj/HwcTpvD/DcwWToA==}
+  /@tanstack/solid-query@5.30.0(solid-js@1.8.16):
+    resolution: {integrity: sha512-at2SIUPlGvQ9Syq7kmHLCB8BKOX8gGavbKJJ9OFCJodbXhYRTORbXErLe9mNw5tjGSFgYdG+eEM89uujkcWxhw==}
     peerDependencies:
       solid-js: ^1.6.0
     dependencies:
@@ -4086,17 +4086,17 @@ packages:
   /@types/react-dom@18.2.25:
     resolution: {integrity: sha512-o/V48vf4MQh7juIKZU2QGDfli6p1+OOi5oXx36Hffpc9adsHeXjVp8rHuPkjd8VT8sOJ2Zp05HR7CdpGTIUFUA==}
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
     dev: true
 
   /@types/react-reconciler@0.28.8:
     resolution: {integrity: sha512-SN9c4kxXZonFhbX4hJrZy37yw9e7EIxcpHCxQv5JUS18wDE5ovkQKlqQEkufdJCCMfuI9BnjUJvhYeJ9x5Ra7g==}
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
     dev: true
 
-  /@types/react@18.2.77:
-    resolution: {integrity: sha512-CUT9KUUF+HytDM7WiXKLF9qUSg4tGImwy4FXTlfEDPEkkNUzJ7rVFolYweJ9fS1ljoIaP7M7Rdjc5eUm/Yu5AA==}
+  /@types/react@18.2.78:
+    resolution: {integrity: sha512-qOwdPnnitQY4xKlKayt42q5W5UQrSHjgoXNVEtxeqdITJ99k4VXJOP3vt8Rkm9HmgJpH50UNU+rlqfkfWOqp0A==}
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
@@ -8131,8 +8131,8 @@ packages:
       set-function-name: 2.0.2
     dev: true
 
-  /remeda@1.58.1:
-    resolution: {integrity: sha512-jTLnELfFSIaQxA7A/lkQdgdOSfzrta22OhRvdp5Y7RY3VY2jSBhXsiJRJbZAULfka/IfQUg1Lt/4rW/r6qNC5Q==}
+  /remeda@1.58.2:
+    resolution: {integrity: sha512-nTIlq++W2X830DRx4tlFEVEKrD0Ir5gGRYW6aVZe3iwyLqUe5txCpaWYndyZD885/apAA+Z5thZwVWTIGiEGGg==}
     dev: false
 
   /remove-accents@0.5.0:

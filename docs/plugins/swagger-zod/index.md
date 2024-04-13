@@ -419,28 +419,57 @@ export default defineConfig({
 
 ### dateType
 
-Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
+See [datetimes](https://zod.dev/?id=datetimes).
 ::: info type
 
 ::: code-group
 
+```typescript [false]
+z.string()
+```
+
 ```typescript ['string']
-date: string
+z.string().datetime()
+```
+
+```typescript ['stringOffset']
+z.string().datetime({ offset: true })
 ```
 
 ```typescript ['date']
-date: Date
+z.date()
 ```
 
 :::
 
 ::: info
 
-Type: `'string' | 'date'` <br/>
+Type: `false | 'string' | 'stringOffset' | 'date'` <br/>
 Default: `'string'`
 
 ::: code-group
+``typescript [false]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: false,
+    }),
+  ],
+})
+```
+
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
@@ -458,6 +487,27 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerZod({
       dateType: 'string',
+    }),
+  ],
+})
+```
+
+```typescript ['stringOffset']
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: 'stringOffset',
     }),
   ],
 })
@@ -483,6 +533,8 @@ export default defineConfig({
   ],
 })
 ```
+
+
 
 :::
 
