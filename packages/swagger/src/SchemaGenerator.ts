@@ -522,7 +522,9 @@ export abstract class SchemaGenerator<
                 })),
               },
             },
-            ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
+            ...baseItems.filter(
+              (item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max && item.keyword !== schemaKeywords.matches,
+            ),
           ]
         })
 
@@ -551,7 +553,7 @@ export abstract class SchemaGenerator<
                   }),
             },
           },
-          ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
+          ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max && item.keyword !== schemaKeywords.matches),
         ]
       }
 
@@ -573,7 +575,7 @@ export abstract class SchemaGenerator<
             })),
           },
         },
-        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
+        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max && item.keyword !== schemaKeywords.matches),
       ]
     }
 
