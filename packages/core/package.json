@@ -1,8 +1,13 @@
 {
   "name": "@kubb/core",
-  "version": "2.12.5",
+  "version": "2.12.6",
   "description": "Generator core",
-  "keywords": ["typescript", "plugins", "kubb", "codegen"],
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -54,14 +59,32 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": ["./dist/utils.d.ts"],
-      "transformers": ["./dist/transformers.d.ts"],
-      "logger": ["./dist/logger.d.ts"],
-      "fs": ["./dist/fs.d.ts"],
-      "mocks": ["./dist/mocks.d.ts"]
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
+      "transformers": [
+        "./dist/transformers.d.ts"
+      ],
+      "logger": [
+        "./dist/logger.d.ts"
+      ],
+      "fs": [
+        "./dist/fs.d.ts"
+      ],
+      "mocks": [
+        "./dist/mocks.d.ts"
+      ]
     }
   },
-  "files": ["src", "dist", "*.d.ts", "*.d.cts", "schema.json", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "dist",
+    "*.d.ts",
+    "*.d.cts",
+    "schema.json",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
