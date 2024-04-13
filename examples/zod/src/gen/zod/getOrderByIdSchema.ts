@@ -6,7 +6,7 @@ export const getOrderByIdPathParamsSchema = z.object({ orderId: z.number().descr
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderById200Schema = z.lazy(() => orderSchema).schema
 
 /**
  * @description Invalid ID supplied
@@ -21,4 +21,4 @@ export const getOrderById404Schema = z.any()
 /**
  * @description successful operation
  */
-export const getOrderByIdQueryResponseSchema = z.lazy(() => orderSchema)
+export const getOrderByIdQueryResponseSchema = z.lazy(() => orderSchema).schema

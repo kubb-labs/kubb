@@ -4,8 +4,8 @@ import { createPet } from '../createPet'
 /**
  * @description Successful operation
  */
-export function createUpdatePet200(override?: NonNullable<Partial<UpdatePet200>>): NonNullable<UpdatePet200> {
-  return createPet(override)
+export function createUpdatePet200(): NonNullable<UpdatePet200> {
+  return createPet()
 }
 
 /**
@@ -32,13 +32,13 @@ export function createUpdatePet405(): NonNullable<UpdatePet405> {
 /**
  * @description Update an existent pet in the store
  */
-export function createUpdatePetMutationRequest(override?: NonNullable<Partial<UpdatePetMutationRequest>>): NonNullable<UpdatePetMutationRequest> {
-  return createPet(override)
+export function createUpdatePetMutationRequest(): NonNullable<UpdatePetMutationRequest> {
+  return createPet()
 }
 
 /**
  * @description Successful operation
  */
-export function createUpdatePetMutationResponse(override?: NonNullable<Partial<UpdatePetMutationResponse>>): NonNullable<UpdatePetMutationResponse> {
-  return createPet(override)
+export function createUpdatePetMutationResponse(): NonNullable<UpdatePetMutationResponse> {
+  return createPet()
 }

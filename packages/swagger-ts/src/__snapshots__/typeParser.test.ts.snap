@@ -134,6 +134,16 @@ exports[`parseTypeMeta > 'objectEmpty' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'objectEnum' 1`] = `
+"{
+    /**
+     * @description Your address
+    */
+    version: Enum;
+}
+"
+`;
+
 exports[`parseTypeMeta > 'objectOptional' 1`] = `
 "{
     /**
@@ -155,6 +165,11 @@ exports[`parseTypeMeta > 'ref' 1`] = `
 `;
 
 exports[`parseTypeMeta > 'string' 1`] = `
+"string
+"
+`;
+
+exports[`parseTypeMeta > 'stringOffset' 1`] = `
 "string
 "
 `;

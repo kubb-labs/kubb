@@ -9,7 +9,7 @@ export const findPetsByStatusQueryParamsSchema = z
  * @description successful operation
  */
 export const findPetsByStatus200Schema = z
-  .array(z.lazy(() => petSchema))
+  .array(z.lazy(() => petSchema).schema)
   .min(1)
   .max(3)
 
@@ -22,6 +22,6 @@ export const findPetsByStatus400Schema = z.any()
  * @description successful operation
  */
 export const findPetsByStatusQueryResponseSchema = z
-  .array(z.lazy(() => petSchema))
+  .array(z.lazy(() => petSchema).schema)
   .min(1)
   .max(3)

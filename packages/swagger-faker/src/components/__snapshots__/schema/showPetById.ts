@@ -1,27 +1,24 @@
-export function createShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
-  return {
-    ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
-    ...override,
-  }
+export function createShowPetByIdPathParams(): NonNullable<ShowPetByIdPathParams> {
+  return { petId: faker.string.alpha(), testId: faker.string.alpha() }
 }
 
 /**
  * @description Expected response to a valid request
  */
-export function createShowPetById200(override?: NonNullable<Partial<ShowPetById200>>): NonNullable<ShowPetById200> {
-  return createPet(override)
+export function createShowPetById200(): NonNullable<ShowPetById200> {
+  return createPet()
 }
 
 /**
  * @description unexpected error
  */
-export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-  return createError(override)
+export function createShowPetByIdError(): NonNullable<ShowPetByIdError> {
+  return createError()
 }
 
 /**
  * @description Expected response to a valid request
  */
-export function createShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
-  return createPet(override)
+export function createShowPetByIdQueryResponse(): NonNullable<ShowPetByIdQueryResponse> {
+  return createPet()
 }

@@ -10,9 +10,9 @@ import { createUser } from '../createUser'
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInput200(override?: NonNullable<Partial<CreateUsersWithListInput200>>): NonNullable<CreateUsersWithListInput200> {
+export function createCreateUsersWithListInput200(): NonNullable<CreateUsersWithListInput200> {
   faker.seed([220])
-  return createUser(override)
+  return createUser()
 }
 
 /**
@@ -23,19 +23,15 @@ export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWi
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(
-  override: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = [],
-): NonNullable<CreateUsersWithListInputMutationRequest> {
+export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
   faker.seed([220])
-  return [...(faker.helpers.arrayElements([createUser()]) as any), ...override]
+  return faker.helpers.arrayElements([createUser()]) as any
 }
 
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInputMutationResponse(
-  override?: NonNullable<Partial<CreateUsersWithListInputMutationResponse>>,
-): NonNullable<CreateUsersWithListInputMutationResponse> {
+export function createCreateUsersWithListInputMutationResponse(): NonNullable<CreateUsersWithListInputMutationResponse> {
   faker.seed([220])
-  return createUser(override)
+  return createUser()
 }

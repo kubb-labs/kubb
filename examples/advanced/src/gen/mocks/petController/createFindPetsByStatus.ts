@@ -7,18 +7,15 @@ import type {
 } from '../../models/ts/petController/FindPetsByStatus'
 import { createPet } from '../createPet'
 
-export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}): NonNullable<FindPetsByStatusQueryParams> {
-  return {
-    ...{ status: faker.helpers.arrayElement(['working', 'idle']) as any },
-    ...override,
-  }
+export function createFindPetsByStatusQueryParams(): NonNullable<FindPetsByStatusQueryParams> {
+  return { status: faker.helpers.arrayElement(['working', 'idle']) as any }
 }
 
 /**
  * @description successful operation
  */
-export function createFindPetsByStatus200(override: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
-  return [...(faker.helpers.arrayElements([createPet()]) as any), ...override]
+export function createFindPetsByStatus200(): NonNullable<FindPetsByStatus200> {
+  return faker.helpers.arrayElements([createPet()]) as any
 }
 
 /**
@@ -31,8 +28,6 @@ export function createFindPetsByStatus400(): NonNullable<FindPetsByStatus400> {
 /**
  * @description successful operation
  */
-export function createFindPetsByStatusQueryResponse(
-  override: NonNullable<Partial<FindPetsByStatusQueryResponse>> = [],
-): NonNullable<FindPetsByStatusQueryResponse> {
-  return [...(faker.helpers.arrayElements([createPet()]) as any), ...override]
+export function createFindPetsByStatusQueryResponse(): NonNullable<FindPetsByStatusQueryResponse> {
+  return faker.helpers.arrayElements([createPet()]) as any
 }

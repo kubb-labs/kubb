@@ -38,9 +38,21 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'stringOffset',
+    schema: {
+      keyword: schemaKeywords.datetime,
+      args: {
+        offset: true,
+      },
+    },
+  },
+  {
     name: 'datetime',
     schema: {
       keyword: schemaKeywords.datetime,
+      args: {
+        offset: false,
+      },
     },
   },
   {
@@ -110,6 +122,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
       },
     },
   },
+
   {
     name: 'tuple',
     schema: {
@@ -323,6 +336,42 @@ const basic: Array<{ name: string; schema: Schema }> = [
               args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
             },
             { keyword: schemaKeywords.nullable },
+            { keyword: schemaKeywords.describe, args: 'Your address' },
+          ],
+        },
+        additionalProperties: [],
+      },
+    },
+  },
+  {
+    name: 'objectEnum',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {
+          version: [
+            {
+              keyword: schemaKeywords.format,
+              args: 'string',
+            },
+            {
+              keyword: schemaKeywords.enum,
+              args: {
+                name: 'enum',
+                typeName: 'Enum',
+                asConst: false,
+                items: [
+                  { name: 'A', value: 'A', format: schemaKeywords.string },
+                  { name: 'B', value: 'B', format: schemaKeywords.string },
+                  { name: 'C', value: 'C', format: schemaKeywords.string },
+                  { name: 2, value: 2, format: schemaKeywords.number },
+                ],
+              },
+            },
+            {
+              keyword: schemaKeywords.min,
+              args: 4,
+            },
             { keyword: schemaKeywords.describe, args: 'Your address' },
           ],
         },

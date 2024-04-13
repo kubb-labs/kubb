@@ -76,9 +76,10 @@ export type Options = {
   templates?: Partial<Templates>
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-   * @default 'string'
+   * False will fallback on a simple z.string() format
+   * @default 'string' 'stringOffset' will become the default in Kubb v3
    */
-  dateType?: 'string' | 'date'
+  dateType?: false | 'string' | 'stringOffset' | 'date'
   /**
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'

@@ -6,34 +6,31 @@ import { createPet } from '../createPet'
 /**
  * @description Successful operation
  */
-export function createAddPet200(override?: NonNullable<Partial<AddPet200>>): NonNullable<AddPet200> {
+export function createAddPet200(): NonNullable<AddPet200> {
   faker.seed([220])
-  return createPet(override)
+  return createPet()
 }
 
 /**
  * @description Pet not found
  */
-export function createAddPet405(override: NonNullable<Partial<AddPet405>> = {}): NonNullable<AddPet405> {
+export function createAddPet405(): NonNullable<AddPet405> {
   faker.seed([220])
-  return {
-    ...{ code: faker.number.int(), message: faker.string.alpha() },
-    ...override,
-  }
+  return { code: faker.number.int(), message: faker.string.alpha() }
 }
 
 /**
  * @description Create a new pet in the store
  */
-export function createAddPetMutationRequest(override?: NonNullable<Partial<AddPetMutationRequest>>): NonNullable<AddPetMutationRequest> {
+export function createAddPetMutationRequest(): NonNullable<AddPetMutationRequest> {
   faker.seed([220])
-  return createAddPetRequest(override)
+  return createAddPetRequest()
 }
 
 /**
  * @description Successful operation
  */
-export function createAddPetMutationResponse(override?: NonNullable<Partial<AddPetMutationResponse>>): NonNullable<AddPetMutationResponse> {
+export function createAddPetMutationResponse(): NonNullable<AddPetMutationResponse> {
   faker.seed([220])
-  return createPet(override)
+  return createPet()
 }

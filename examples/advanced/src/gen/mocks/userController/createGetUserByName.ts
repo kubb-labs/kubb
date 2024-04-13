@@ -8,18 +8,15 @@ import type {
 } from '../../models/ts/userController/GetUserByName'
 import { createUser } from '../createUser'
 
-export function createGetUserByNamePathParams(override: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
-  return {
-    ...{ username: faker.string.alpha() },
-    ...override,
-  }
+export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
+  return { username: faker.string.alpha() }
 }
 
 /**
  * @description successful operation
  */
-export function createGetUserByName200(override?: NonNullable<Partial<GetUserByName200>>): NonNullable<GetUserByName200> {
-  return createUser(override)
+export function createGetUserByName200(): NonNullable<GetUserByName200> {
+  return createUser()
 }
 
 /**
@@ -39,6 +36,6 @@ export function createGetUserByName404(): NonNullable<GetUserByName404> {
 /**
  * @description successful operation
  */
-export function createGetUserByNameQueryResponse(override?: NonNullable<Partial<GetUserByNameQueryResponse>>): NonNullable<GetUserByNameQueryResponse> {
-  return createUser(override)
+export function createGetUserByNameQueryResponse(): NonNullable<GetUserByNameQueryResponse> {
+  return createUser()
 }

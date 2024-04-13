@@ -5,17 +5,17 @@ import { createUser } from '../createUser'
 /**
  * @description successful operation
  */
-export function createCreateUserError(override?: NonNullable<Partial<CreateUserError>>): NonNullable<CreateUserError> {
+export function createCreateUserError(): NonNullable<CreateUserError> {
   faker.seed([220])
-  return createUser(override)
+  return createUser()
 }
 
 /**
  * @description Created user object
  */
-export function createCreateUserMutationRequest(override?: NonNullable<Partial<CreateUserMutationRequest>>): NonNullable<CreateUserMutationRequest> {
+export function createCreateUserMutationRequest(): NonNullable<CreateUserMutationRequest> {
   faker.seed([220])
-  return createUser(override)
+  return createUser()
 }
 
 export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {

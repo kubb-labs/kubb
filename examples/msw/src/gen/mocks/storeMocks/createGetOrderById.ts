@@ -2,18 +2,15 @@ import { faker } from '@faker-js/faker'
 import type { GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 import { createOrder } from '../createOrder'
 
-export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOrderByIdPathParams>> = {}): NonNullable<GetOrderByIdPathParams> {
-  return {
-    ...{ orderId: faker.number.int() },
-    ...override,
-  }
+export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
+  return { orderId: faker.number.int() }
 }
 
 /**
  * @description successful operation
  */
-export function createGetOrderById200(override?: NonNullable<Partial<GetOrderById200>>): NonNullable<GetOrderById200> {
-  return createOrder(override)
+export function createGetOrderById200(): NonNullable<GetOrderById200> {
+  return createOrder()
 }
 
 /**
@@ -33,6 +30,6 @@ export function createGetOrderById404(): NonNullable<GetOrderById404> {
 /**
  * @description successful operation
  */
-export function createGetOrderByIdQueryResponse(override?: NonNullable<Partial<GetOrderByIdQueryResponse>>): NonNullable<GetOrderByIdQueryResponse> {
-  return createOrder(override)
+export function createGetOrderByIdQueryResponse(): NonNullable<GetOrderByIdQueryResponse> {
+  return createOrder()
 }

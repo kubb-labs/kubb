@@ -31,6 +31,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     plugin,
     pluginManager,
     mode,
+    override: plugin.options.override,
   })
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
@@ -59,7 +60,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
         {mode === 'split' && <Schema.Imports />}
         <File.Source>
-          <Schema.Source options={options} />
+          <Schema.Source options={{ ...options, withData: false }} />
         </File.Source>
       </Oas.Schema>
     )

@@ -103,6 +103,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         plugin: this.plugin,
         contentType: swaggerPlugin.api.contentType,
         include: undefined,
+        override,
         mode,
         output: output.path,
       })

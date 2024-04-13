@@ -140,7 +140,7 @@ export default defineConfig(async () => {
           },
         ],
         group: { type: 'tag' },
-        dateType: 'date',
+        dateType: 'stringOffset',
         typed: true,
       }),
       createSwaggerZodios({

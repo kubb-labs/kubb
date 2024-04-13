@@ -30,7 +30,7 @@ export const zodKeywordMapper = {
   enum: (items: string[] = []) => `z.enum([${items?.join(', ')}])`,
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
   const: (value?: string | number) => `z.literal(${value ?? ''})`,
-  datetime: () => 'z.string().datetime()',
+  datetime: (offset = false) => (offset ? `z.string().datetime({ offset: ${offset} })` : 'z.string().datetime()'),
   date: () => 'z.date()',
   uuid: () => '.uuid()',
   url: () => '.url()',
@@ -48,7 +48,7 @@ export const zodKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
-  ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
+  ref: (value?: string) => (value ? `z.lazy(() => ${value}).schema` : undefined),
   blob: undefined,
   deprecated: undefined,
   example: undefined,
@@ -67,6 +67,7 @@ function sort(items?: Schema[]): Schema[] {
     schemaKeywords.string,
     schemaKeywords.number,
     schemaKeywords.object,
+    schemaKeywords.enum,
     schemaKeywords.url,
     schemaKeywords.email,
     schemaKeywords.firstName,
@@ -268,6 +269,10 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
     return zodKeywordMapper.max(current.args)
   }
 
+  if (isKeyword(current, schemaKeywords.datetime)) {
+    return zodKeywordMapper.datetime(current.args.offset)
+  }
+
   if (current.keyword in zodKeywordMapper && 'args' in current) {
     const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper] as (typeof zodKeywordMapper)['const']
 
@@ -299,7 +304,7 @@ export function zodParser(schemas: Schema[], options: ParserOptions): string {
     .join('')
 
   if (options.keysToOmit?.length) {
-    const suffix = output.endsWith('.nullable()') ? '.unwrap().schema.and' : '.schema.and'
+    const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
     const omitText = `${suffix}(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
     return `${constName} = ${output}${omitText}${typeName}\n`
   }
