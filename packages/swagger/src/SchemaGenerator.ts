@@ -515,7 +515,7 @@ export abstract class SchemaGenerator<
                 })),
               },
             },
-            ...baseItems,
+            ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
           ]
         })
 
@@ -544,7 +544,7 @@ export abstract class SchemaGenerator<
                   }),
             },
           },
-          ...baseItems,
+          ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
         ]
       }
 
@@ -566,7 +566,7 @@ export abstract class SchemaGenerator<
             })),
           },
         },
-        ...baseItems,
+        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
       ]
     }
 

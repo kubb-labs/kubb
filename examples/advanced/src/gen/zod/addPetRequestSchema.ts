@@ -6,8 +6,8 @@ import { tagTagSchema } from './tag/tagSchema'
 export const addPetRequestSchema = z.object({
   id: z.number().optional(),
   name: z.string(),
-  category: z.lazy(() => categorySchema).optional(),
+  category: z.lazy(() => categorySchema).schema.optional(),
   photoUrls: z.array(z.string()),
-  tags: z.array(z.lazy(() => tagTagSchema)).optional(),
+  tags: z.array(z.lazy(() => tagTagSchema).schema).optional(),
   status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
 }) as z.ZodType<AddPetRequest>
