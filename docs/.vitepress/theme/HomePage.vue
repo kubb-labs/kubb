@@ -15,7 +15,7 @@ const props = defineProps(['allContributors'])
           <p text-lg max-w-200 text-center leading-7>
             <Contributors :allContributors="props.allContributors"/>
             <br>
-            <a href="https://github.com/kubb-project/kubb" rel="noopener noreferrer">Join the community</a> and get involved!
+            <a href="https://github.com/kubb-labs/kubb" rel="noopener noreferrer">Join the community</a> and get involved!
           </p>
         </div>
       </main>

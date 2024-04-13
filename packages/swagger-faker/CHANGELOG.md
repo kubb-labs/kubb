@@ -4,11 +4,11 @@
 
 ### Minor Changes
 
-- [#935](https://github.com/kubb-project/kubb/pull/935) [`316d067`](https://github.com/kubb-project/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Give format precendence over type property
+- [#935](https://github.com/kubb-labs/kubb/pull/935) [`316d067`](https://github.com/kubb-labs/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Give format precendence over type property
 
 ### Patch Changes
 
-- Updated dependencies [[`316d067`](https://github.com/kubb-project/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd)]:
+- Updated dependencies [[`316d067`](https://github.com/kubb-labs/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd)]:
   - @kubb/swagger-ts@2.13.0
   - @kubb/swagger@2.13.0
   - @kubb/core@2.13.0

@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- [#935](https://github.com/kubb-project/kubb/pull/935) [`316d067`](https://github.com/kubb-project/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Give format precendence over type property
+- [#935](https://github.com/kubb-labs/kubb/pull/935) [`316d067`](https://github.com/kubb-labs/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Give format precendence over type property
 
 ### Patch Changes
 

@@ -29,4 +29,4 @@ See [Create your plugin](/plugins/template) for more information about how to cr
 `Kubb` is created by [stijnvanhulle](https://stijnvanhulle.be).
 Follow [@stijnvanhulle](https://twitter.com/stijnvanhulle) on Twitter for future project updates.
 
-Feel free to join the [discussions on GitHub](https://github.com/kubb-project/kubb/discussions)!
+Feel free to join the [discussions on GitHub](https://github.com/kubb-labs/kubb/discussions)!

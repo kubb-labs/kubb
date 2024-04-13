@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [[`316d067`](https://github.com/kubb-project/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd)]:
+- Updated dependencies [[`316d067`](https://github.com/kubb-labs/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd)]:
   - @kubb/swagger-zod@2.13.0
   - @kubb/swagger@2.13.0
   - @kubb/core@2.13.0

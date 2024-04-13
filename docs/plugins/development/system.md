@@ -126,7 +126,7 @@ export type PluginFactoryOptions<Name, Options, ResolveOptions, API, ResolvePath
 
 ### Template Repository
 
-[`plugin-template`](https://github.com/kubb-project/plugin-template) is a minimal Kubb plugin template repository that you can use as a basis for developing your Kubb plugin.
+[`plugin-template`](https://github.com/kubb-labs/plugin-template) is a minimal Kubb plugin template repository that you can use as a basis for developing your Kubb plugin.
 
 ## Configure
 
