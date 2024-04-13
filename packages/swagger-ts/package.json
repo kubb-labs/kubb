@@ -2,7 +2,14 @@
   "name": "@kubb/swagger-ts",
   "version": "2.12.5",
   "description": "Generator swagger-ts",
-  "keywords": ["typescript", "plugins", "kubb", "codegen", "swagger", "openapi"],
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen",
+    "swagger",
+    "openapi"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
@@ -34,11 +41,20 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "components": ["./dist/components.d.ts"],
-      "oas": ["./dist/oas.d.ts"]
+      "components": [
+        "./dist/components.d.ts"
+      ],
+      "oas": [
+        "./dist/oas.d.ts"
+      ]
     }
   },
-  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -64,7 +80,7 @@
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.77",
+    "@types/react": "^18.2.78",
     "expect-type": "^0.19.0",
     "prettier": "^3.2.5",
     "react": "^18.2.0",

@@ -3,7 +3,7 @@ import type { Pet } from '../models/Pet'
 import { createCategory } from './createCategory'
 import { createTag } from './createTag'
 
-export function createPet(override: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
+export function createPet(data: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
   faker.seed([220])
   return {
     ...{
@@ -14,6 +14,6 @@ export function createPet(override: NonNullable<Partial<Pet>> = {}): NonNullable
       tags: faker.helpers.arrayElements([createTag()]) as any,
       status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']),
     },
-    ...override,
+    ...data,
   }
 }

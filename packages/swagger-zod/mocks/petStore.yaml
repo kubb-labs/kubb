@@ -111,6 +111,9 @@ components:
           format: int64
         name:
           type: string
+        date:
+          type: string
+          format: date
         tag:
           type: string
           maxLength: 100

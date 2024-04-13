@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { Order } from '../models/Order'
 
-export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
+export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   return {
     ...{
       id: faker.number.int(),
@@ -12,6 +12,6 @@ export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNull
       http_status: faker.helpers.arrayElement<any>([200, 400, 500]),
       complete: faker.datatype.boolean(),
     },
-    ...override,
+    ...data,
   }
 }

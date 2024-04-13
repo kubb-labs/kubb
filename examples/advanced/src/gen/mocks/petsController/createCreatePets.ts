@@ -10,25 +10,16 @@ import type {
 } from '../../models/ts/petsController/CreatePets'
 import { createPetNotFound } from '../createPetNotFound'
 
-export function createCreatePetsPathParams(override: NonNullable<Partial<CreatePetsPathParams>> = {}): NonNullable<CreatePetsPathParams> {
-  return {
-    ...{ uuid: faker.string.alpha() },
-    ...override,
-  }
+export function createCreatePetsPathParams(): NonNullable<CreatePetsPathParams> {
+  return { uuid: faker.string.alpha() }
 }
 
-export function createCreatePetsQueryParams(override: NonNullable<Partial<CreatePetsQueryParams>> = {}): NonNullable<CreatePetsQueryParams> {
-  return {
-    ...{ offset: faker.number.int() },
-    ...override,
-  }
+export function createCreatePetsQueryParams(): NonNullable<CreatePetsQueryParams> {
+  return { offset: faker.number.int() }
 }
 
-export function createCreatePetsHeaderParams(override: NonNullable<Partial<CreatePetsHeaderParams>> = {}): NonNullable<CreatePetsHeaderParams> {
-  return {
-    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) },
-    ...override,
-  }
+export function createCreatePetsHeaderParams(): NonNullable<CreatePetsHeaderParams> {
+  return { 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) }
 }
 
 /**
@@ -41,15 +32,12 @@ export function createCreatePets201(): NonNullable<CreatePets201> {
 /**
  * @description unexpected error
  */
-export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-  return createPetNotFound(override)
+export function createCreatePetsError(): NonNullable<CreatePetsError> {
+  return createPetNotFound()
 }
 
-export function createCreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
-  return {
-    ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
-    ...override,
-  }
+export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+  return { name: faker.string.alpha(), tag: faker.string.alpha() }
 }
 
 export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {

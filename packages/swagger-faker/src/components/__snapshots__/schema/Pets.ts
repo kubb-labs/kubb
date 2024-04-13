@@ -8,15 +8,12 @@ export function createCreatePets201(): NonNullable<CreatePets201> {
 /**
  * @description unexpected error
  */
-export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-  return createError(override)
+export function createCreatePetsError(): NonNullable<CreatePetsError> {
+  return createError()
 }
 
-export function createCreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
-  return {
-    ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
-    ...override,
-  }
+export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+  return { name: faker.string.alpha(), tag: faker.string.alpha() }
 }
 
 export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {

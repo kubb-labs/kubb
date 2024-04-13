@@ -36,6 +36,39 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
+      },
+    )
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate schema for Pet with dateType false', async () => {
+    const generator = new SchemaGenerator(
+      {
+        dateType: false,
+        include: undefined,
+        transformers: {},
+        unknownType: 'any',
+        exclude: undefined,
+        override: undefined,
+        typed: false,
+        templates: {
+          operations: Operations.templates,
+        },
+        mapper: {},
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+        mode: 'split',
+        override: [],
       },
     )
 
@@ -67,6 +100,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -98,6 +132,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -129,6 +164,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -160,6 +196,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -194,6 +231,7 @@ describe('ZodGenerator constCases', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -282,6 +320,7 @@ describe('Zod SchemaGenerator lazy', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -316,6 +355,7 @@ describe('Zod SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -360,6 +400,7 @@ describe('Zod SchemaGenerator recursive', async () => {
         contentType: undefined,
         include: undefined,
         mode: 'split',
+        override: [],
       },
     )
 
@@ -394,6 +435,7 @@ describe('Zod SchemaGenerator anyof', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 
@@ -431,6 +473,7 @@ describe('Zod SchemaGenerator enums', async () => {
       contentType: undefined,
       include: undefined,
       mode: 'split',
+      override: [],
     },
   )
 

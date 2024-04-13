@@ -1,5 +1,5 @@
 import { App, File, createRoot, useApp, useFile } from '@kubb/react'
-import { SchemaGenerator as Generator } from '@kubb/swagger'
+import { SchemaGenerator as Generator, schemaKeywords } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
@@ -64,7 +64,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     return root.files
   }
 
-  getSource(name: string, schemas: SchemaType[], { description }: SchemaGeneratorBuildOptions = {}): string[] {
+  getSource(name: string, schemas: SchemaType[], { withData = true, description }: SchemaGeneratorBuildOptions = {}): string[] {
     const texts: string[] = []
 
     // all checks are also inside this.schema(React)
@@ -85,6 +85,16 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       description,
       mapper: this.options.mapper,
       seed: this.options.seed,
+      withData:
+        withData &&
+        schemas.some(
+          (schema) =>
+            schema.keyword === schemaKeywords.array ||
+            schema.keyword === schemaKeywords.and ||
+            schema.keyword === schemaKeywords.object ||
+            schema.keyword === schemaKeywords.union ||
+            schema.keyword === schemaKeywords.tuple,
+        ),
     })
 
     texts.push(output)

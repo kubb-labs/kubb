@@ -35,6 +35,7 @@ describe('<Schema/>', async () => {
     transformers: {},
     unknownType: 'any',
     mapper: {},
+    override: [],
   }
 
   const plugin = { options } as Plugin<PluginOptions>

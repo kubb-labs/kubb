@@ -75,13 +75,13 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
     isV5 && !!infinite && !!infinite.cursorParam ? `getNextPageParam: (lastPage) => lastPage['${infinite.cursorParam}']` : undefined,
     isV5 && !!infinite && !!infinite.cursorParam ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']` : undefined,
     isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'full'
-      ? 'getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
+      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'data'
-      ? 'getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
+      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam
-      ? 'getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1'
+      ? 'getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1'
       : undefined,
   ].filter(Boolean)
 

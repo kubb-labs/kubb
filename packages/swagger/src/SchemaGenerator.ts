@@ -30,7 +30,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 }
 
 export type SchemaGeneratorOptions = {
-  dateType: 'string' | 'date'
+  dateType: false | 'string' | 'stringOffset' | 'date'
   unknownType: 'any' | 'unknown'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
@@ -515,7 +515,7 @@ export abstract class SchemaGenerator<
                 })),
               },
             },
-            ...baseItems,
+            ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
           ]
         })
 
@@ -544,7 +544,7 @@ export abstract class SchemaGenerator<
                   }),
             },
           },
-          ...baseItems,
+          ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
         ]
       }
 
@@ -566,7 +566,7 @@ export abstract class SchemaGenerator<
             })),
           },
         },
-        ...baseItems,
+        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
       ]
     }
 
@@ -648,13 +648,20 @@ export abstract class SchemaGenerator<
         })
       }
 
-      if (['date', 'date-time'].some((item) => item === schema.format)) {
+      if (options.dateType && ['date', 'date-time'].some((item) => item === schema.format)) {
         if (options.dateType === 'date') {
           baseItems.unshift({ keyword: schemaKeywords.date })
 
           return baseItems
         }
-        baseItems.unshift({ keyword: schemaKeywords.datetime })
+
+        if (options.dateType === 'stringOffset') {
+          baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: true } })
+
+          return baseItems
+        }
+
+        baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: false } })
 
         return baseItems
       }

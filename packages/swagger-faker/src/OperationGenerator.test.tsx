@@ -22,6 +22,7 @@ describe('OperationGenerator', async () => {
       transformers: {},
       unknownType: 'any',
       mapper: {},
+      override: [],
     }
 
     const og = await new OperationGenerator(options, {
@@ -56,6 +57,7 @@ describe('OperationGenerator', async () => {
       transformers: {},
       unknownType: 'any',
       mapper: {},
+      override: [],
     }
 
     const og = await new OperationGenerator(options, {
@@ -90,6 +92,7 @@ describe('OperationGenerator', async () => {
       transformers: {},
       unknownType: 'any',
       mapper: {},
+      override: [],
     }
 
     const og = await new OperationGenerator(options, {
@@ -117,6 +120,7 @@ describe('OperationGenerator', async () => {
       transformers: {},
       unknownType: 'any',
       mapper: {},
+      override: [],
     }
 
     const og = await new OperationGenerator(options, {

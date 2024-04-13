@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { Address } from '../models/Address'
 
-export function createAddress(override: NonNullable<Partial<Address>> = {}): NonNullable<Address> {
+export function createAddress(data: NonNullable<Partial<Address>> = {}): NonNullable<Address> {
   return {
     ...{
       street: faker.string.alpha(),
@@ -10,6 +10,6 @@ export function createAddress(override: NonNullable<Partial<Address>> = {}): Non
       zip: faker.string.alpha(),
       identifier: faker.helpers.arrayElements([faker.number.int(), faker.string.alpha(), faker.helpers.arrayElement<any>(['NW', 'NE', 'SW', 'SE'])]) as any,
     },
-    ...override,
+    ...data,
   }
 }

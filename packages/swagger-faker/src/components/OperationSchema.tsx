@@ -60,7 +60,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
         {mode === 'split' && <Schema.Imports />}
         <File.Source>
-          <Schema.Source options={options} />
+          <Schema.Source options={{ ...options, withData: false }} />
         </File.Source>
       </Oas.Schema>
     )

@@ -19,7 +19,7 @@ export type SchemaKeywordMapper = {
   phone: { keyword: 'phone' }
   password: { keyword: 'password' }
   date: { keyword: 'date' }
-  datetime: { keyword: 'datetime' }
+  datetime: { keyword: 'datetime'; args: { offset?: boolean } }
   tuple: { keyword: 'tuple'; args: Schema[] }
   array: {
     keyword: 'array'

@@ -1,18 +1,12 @@
 import { faker } from '@faker-js/faker'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet'
 
-export function createDeletePetPathParams(override: NonNullable<Partial<DeletePetPathParams>> = {}): NonNullable<DeletePetPathParams> {
-  return {
-    ...{ petId: faker.number.int() },
-    ...override,
-  }
+export function createDeletePetPathParams(): NonNullable<DeletePetPathParams> {
+  return { petId: faker.number.int() }
 }
 
-export function createDeletePetHeaderParams(override: NonNullable<Partial<DeletePetHeaderParams>> = {}): NonNullable<DeletePetHeaderParams> {
-  return {
-    ...{ api_key: faker.string.alpha() },
-    ...override,
-  }
+export function createDeletePetHeaderParams(): NonNullable<DeletePetHeaderParams> {
+  return { api_key: faker.string.alpha() }
 }
 
 /**

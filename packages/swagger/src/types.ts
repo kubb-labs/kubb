@@ -94,6 +94,7 @@ export type OperationSchema = {
   statusCode?: number
   keys?: string[]
   keysToOmit?: string[]
+  withData?: boolean
 }
 
 export type OperationSchemas = {
