@@ -1,10 +1,6 @@
 name: Release
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: override release tag
-        required: false
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:

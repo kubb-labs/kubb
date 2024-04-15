@@ -11,7 +11,15 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "type": "module",
   "workspaces": {
-    "packages": ["packages/*", "packages/config/biome-config/*", "packages/config/tsup-config/*", "packages/config/ts-config/*", "docs", "examples/*", "e2e"]
+    "packages": [
+      "packages/*",
+      "packages/config/biome-config/*",
+      "packages/config/tsup-config/*",
+      "packages/config/ts-config/*",
+      "docs",
+      "examples/*",
+      "e2e"
+    ]
   },
   "scripts": {
     "//changeset:beta:enter": "changeset pre enter beta",
@@ -46,7 +54,7 @@
     "version:canary": "changeset version --snapshot canary"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.6.4",
+    "@biomejs/biome": "^1.7.0",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@kubb/biome-config": "workspace:*",

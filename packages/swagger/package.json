@@ -92,7 +92,7 @@
     "oas": "^24.2.1",
     "oas-normalize": "^11.0.3",
     "openapi-types": "^12.1.3",
-    "remeda": "^1.58.2",
+    "remeda": "^1.59.0",
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {

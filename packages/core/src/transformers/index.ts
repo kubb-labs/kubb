@@ -24,7 +24,7 @@ export { stringify, stringifyObject } from './stringify.ts'
 export { toRegExp, toRegExpString } from './toRegExp.ts'
 export { transformReservedWord } from './transformReservedWord.ts'
 export { trim, trimExtName, trimQuotes } from './trim.ts'
-export { default as merge } from 'remeda'
+export { merge } from 'remeda'
 export { orderBy } from 'natural-orderby'
 
 export default {
