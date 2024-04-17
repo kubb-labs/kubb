@@ -3,7 +3,7 @@ import type { Pet } from './Pet'
 export type GetPetByIdPathParams = {
   /**
    * @description ID of pet to return
-   * @type integer int64
+   * @type integer, int64
    */
   petId: number
 }

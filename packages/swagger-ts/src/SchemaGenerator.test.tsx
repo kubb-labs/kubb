@@ -611,3 +611,97 @@ describe('SchemaGenerator enums', async () => {
     expect(node).toMatchSnapshot()
   })
 })
+
+describe('TypeGenerator type assertions', async () => {
+  const schemaPath = path.resolve(__dirname, '../mocks/typeAssertions.yaml')
+  const oas = await new OasManager().parse(schemaPath)
+
+  const defaultGenerator = new SchemaGenerator(
+    {
+      usedEnumNames: {},
+      enumType: 'asConst',
+      enumSuffix: '',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      transformers: {},
+      oasType: false,
+      unknownType: 'any',
+      override: [],
+    },
+    {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin: {} as Plugin<PluginOptions>,
+      contentType: undefined,
+      include: undefined,
+      mode: 'split',
+      override: [],
+    },
+  )
+
+  const schemas = oas.getDefinition().components?.schemas
+
+  test('generates file property with `File` type', async () => {
+    const node = defaultGenerator.buildSource('Body_upload_file_api_assets_post', schemas?.Body_upload_file_api_assets_post as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generates Plain_File types correctly', async () => {
+    const node = defaultGenerator.buildSource('Plain_file', schemas?.Plain_file as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generates Date type correctly when dateType = string', async () => {
+    const node = defaultGenerator.buildSource('Plain_date', schemas?.Plain_date as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generates Date type correctly when dateType = date', async () => {
+    const generator = new SchemaGenerator(
+      {
+        usedEnumNames: {},
+        enumType: 'asConst',
+        enumSuffix: '',
+        dateType: 'date',
+        optionalType: 'questionToken',
+        transformers: {},
+        oasType: false,
+        unknownType: 'any',
+        override: [],
+      },
+      {
+        oas,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        include: undefined,
+        mode: 'split',
+        override: [],
+      },
+    )
+    const node = defaultGenerator.buildSource('Plain_date', schemas?.Plain_date as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generates Time type correctly', async () => {
+    const node = defaultGenerator.buildSource('Plain_time', schemas?.Plain_time as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generates Email type correctly', async () => {
+    const node = defaultGenerator.buildSource('Plain_email', schemas?.Plain_email as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generates UUID type correctly', async () => {
+    const node = defaultGenerator.buildSource('Plain_uuid', schemas?.Plain_uuid as SchemaObject)
+
+    expect(node).toMatchSnapshot()
+  })
+})

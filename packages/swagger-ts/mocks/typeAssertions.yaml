@@ -1,0 +1,52 @@
+info:
+  title: Type Assertions
+openapi: 3.1.0
+paths: {}
+components:
+  schemas:
+    Body_upload_file_api_assets_post:
+      properties:
+        file:
+          format: binary
+          title: File
+          type: string
+      required:
+      - file
+      title: Body_upload_file_api_assets_post
+      type: object
+      $comment: |
+        export type BodyUploadFileApiAssetsPost = {
+            /**
+            * @type string binary
+            */
+            file: Blob;
+        };
+    Plain_file:
+      format: binary
+      title: File
+      type: string
+      $comment: export type PlainFile = Blob;
+    Plain_date:
+      format: date
+      title: Date
+      type: string
+      $comment: export type PlainDate = Date;
+    Plain_time:
+      format: time
+      title: Time
+      type: number
+      $comment: export type PlainTime = number;
+    Plain_date_time:
+      format: date-time
+      title: Datetime
+      type: string
+      $comment:
+    Plain_email:
+      format: email
+      title: Email
+      type: string
+    Plain_uuid:
+      format: uuid
+      title: UUID
+      type: string
+

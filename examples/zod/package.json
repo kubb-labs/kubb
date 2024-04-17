@@ -5,7 +5,7 @@
   "description": "Zod PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/zod"
   },
   "license": "MIT",

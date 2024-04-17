@@ -12,7 +12,7 @@ outline: deep
 - `AXIOS_BASE` for Axios's `baseURL`
 - `AXIOS_HEADERS` for Axios's `headers`
 
-See [FileManager#getEnvSource](https://github.com/kubb-project/kubb/blob/main/packages/core/src/FileManager.ts) for more information about how this works in the background.
+See [FileManager#getEnvSource](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts) for more information about how this works in the background.
 
 ::: code-group
 <<< @/../packages/swagger-client/src/types.ts{12-15}
@@ -56,4 +56,4 @@ This feature could be useful for:
 
 ## Links
 
-- [FileManager#getEnvSource](https://github.com/kubb-project/kubb/blob/main/packages/core/src/FileManager.ts)
+- [FileManager#getEnvSource](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts)

@@ -1,6 +1,6 @@
 export type PetNotFound = {
   /**
-   * @type integer | undefined int32
+   * @type integer | undefined, int32
    */
   code?: number
   /**

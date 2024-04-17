@@ -557,7 +557,7 @@ export default defineConfig({
           },
           {
             text: 'Releases',
-            link: 'https://github.com/kubb-project/kubb/releases',
+            link: 'https://github.com/kubb-labs/kubb/releases',
             target: '_blank',
           },
 
@@ -583,7 +583,7 @@ export default defineConfig({
       },
     ],
     editLink: {
-      pattern: 'https://github.com/kubb-project/kubb/edit/main/docs/:path',
+      pattern: 'https://github.com/kubb-labs/kubb/edit/main/docs/:path',
     },
     sidebar: {
       '/config': configSidebar,
@@ -594,7 +594,7 @@ export default defineConfig({
       '/blog': blogSidebar,
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/kubb-project/kubb' },
+      { icon: 'github', link: 'https://github.com/kubb-labs/kubb' },
       { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },
       { icon: 'x', link: 'https://twitter.com/kubbproject' },
     ],

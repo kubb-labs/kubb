@@ -1,6 +1,6 @@
 export type Tag = {
   /**
-   * @type integer | undefined int64
+   * @type integer | undefined, int64
    */
   id?: number
   /**

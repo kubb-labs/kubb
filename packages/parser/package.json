@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser",
-  "version": "2.12.5",
+  "version": "2.13.0",
   "description": "Generator parser",
   "keywords": [
     "typescript",
@@ -10,7 +10,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/parser"
   },
   "license": "MIT",
@@ -59,7 +59,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "^1.58.2",
+    "remeda": "^1.59.0",
     "typescript": "^5.4.5"
   },
   "devDependencies": {

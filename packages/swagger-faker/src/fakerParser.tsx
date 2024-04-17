@@ -84,8 +84,7 @@ export const fakerKeywordMapper = {
   strict: undefined,
   deprecated: undefined,
   example: undefined,
-  type: undefined,
-  format: undefined,
+  schema: undefined,
   catchall: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 

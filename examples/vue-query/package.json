@@ -5,7 +5,7 @@
   "description": "VueQuery PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/vue-query"
   },
   "license": "MIT",
@@ -31,7 +31,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/vue-query": "^4.37.1",
     "axios": "^1.6.8",
-    "vue": "^3.4.21"
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.6.2",

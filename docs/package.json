@@ -5,7 +5,7 @@
   "description": "Kubb docs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-project/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "docs"
   },
   "license": "MIT",
@@ -23,7 +23,7 @@
     "@vercel/speed-insights": "^1.0.10",
     "sitemap": "^7.1.1",
     "vitepress": "^1.1.0",
-    "vue": "^3.4.21"
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@types/node": "^20.12.7"

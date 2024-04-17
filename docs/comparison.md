@@ -30,8 +30,8 @@ For more libraries visit [https://tools.openapis.org](https://tools.openapis.org
 
 [bpl-kubb]: https://bundlephobia.com/result?p=@kubb/core
 [bp-kubb]: https://badgen.net/bundlephobia/minzip/@kubb/core?label=💾
-[gh-kubb]: https://github.com/kubb-project/kubb
-[stars-kubb]: https://img.shields.io/github/stars/kubb-project/kubb?label=%F0%9F%8C%9F
+[gh-kubb]: https://github.com/kubb-labs/kubb
+[stars-kubb]: https://img.shields.io/github/stars/kubb-labs/kubb?label=%F0%9F%8C%9F
 [swagger-codegen]: https://swagger.io/tools/swagger-codegen/
 [bp-swagger-codegen]: https://badgen.net/bundlephobia/minzip/swagger-codegen?label=💾
 [gh-swagger-codegen]: https://github.com/swagger-api/swagger-codegen

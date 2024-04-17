@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger",
-  "version": "2.12.5",
+  "version": "2.13.0",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/swagger"
   },
   "license": "MIT",
@@ -92,7 +92,7 @@
     "oas": "^24.2.1",
     "oas-normalize": "^11.0.3",
     "openapi-types": "^12.1.3",
-    "remeda": "^1.58.2",
+    "remeda": "^1.59.0",
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
