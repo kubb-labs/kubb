@@ -92,6 +92,6 @@ export const Record = z.object({}).catchall(z.number()).optional()
 
 exports[`zodParser > 'Upload' 1`] = `
 "
-export const Upload =
+export const Upload = 
 "
 `;
