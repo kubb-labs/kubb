@@ -105,6 +105,7 @@ export const typeKeywordMapper = {
   example: undefined,
   schema: undefined,
   catchall: undefined,
+  property: undefined,
 } satisfies SchemaMapper<ts.Node | null | undefined>
 
 type ParserOptions = {

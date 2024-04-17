@@ -2,8 +2,8 @@ import { useContext } from '@kubb/react'
 
 import { Schema } from '../components/Schema.tsx'
 
-import type { SchemaContextProps } from '../components/Schema.tsx'
 import type { SchemaGenerator } from '../SchemaGenerator.ts'
+import type { SchemaContextProps } from '../components/Schema.tsx'
 
 type UseSchemaResult = Omit<SchemaContextProps, 'generator'> & {
   generator: SchemaGenerator

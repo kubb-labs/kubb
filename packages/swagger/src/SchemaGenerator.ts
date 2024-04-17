@@ -242,6 +242,14 @@ export abstract class SchemaGenerator<
           type: 'type',
         })
 
+        validationFunctions.push({
+          keyword: schemaKeywords.property,
+          args: {
+            name,
+            resolvedName,
+          },
+        })
+
         const isRequired = Array.isArray(required) ? required?.includes(name) : !!required
         const nullable = schema.nullable ?? schema['x-nullable'] ?? false
 

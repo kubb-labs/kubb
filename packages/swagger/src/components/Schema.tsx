@@ -4,6 +4,7 @@ import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
 
 import type { KubbFile } from '@kubb/core'
+import { TreeNode } from '@kubb/core/utils'
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '../SchemaGenerator.ts'
@@ -15,7 +16,8 @@ export type SchemaContextProps = {
   name: string
   object?: SchemaObject
   generator?: SchemaGenerator
-  schemas: SchemaType[]
+  schemas: Array<SchemaType>
+  treeNode: TreeNode<Array<SchemaType>>
 }
 
 type Props = {
@@ -28,12 +30,14 @@ type Props = {
 const SchemaContext = createContext<SchemaContextProps>({
   name: 'unknown',
   schemas: [],
+  treeNode: new TreeNode<Array<SchemaType>>([]),
 })
 
 export function Schema({ name, object, generator, children }: Props): KubbNode {
-  const schemas = generator.buildSchemas(object, name)
+  const schemas = generator.buildSchemas(object, name, generator.treeNode)
+  const treeNode = generator.treeNode
 
-  return <SchemaContext.Provider value={{ name, schemas, object, generator }}>{children}</SchemaContext.Provider>
+  return <SchemaContext.Provider value={{ name, schemas, treeNode, object, generator }}>{children}</SchemaContext.Provider>
 }
 
 type FileProps = {

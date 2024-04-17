@@ -1,3 +1,5 @@
+import { clone } from 'remeda'
+
 const getCircularReplacer = () => {
   const seen = new WeakSet()
   return (_key: string, value: any) => {
@@ -25,8 +27,20 @@ export class TreeNode<T = unknown> {
     return this
   }
 
+  addChildren(...data: Array<T>): Array<TreeNode<T>> {
+    data.forEach((item) => {
+      const child = new TreeNode(clone(item), this)
+      if (!this.children) {
+        this.children = []
+      }
+      this.children.push(child)
+    })
+
+    return this.children
+  }
+
   addChild(data: T): TreeNode<T> {
-    const child = new TreeNode(data, this)
+    const child = new TreeNode(clone(data), this)
     if (!this.children) {
       this.children = []
     }

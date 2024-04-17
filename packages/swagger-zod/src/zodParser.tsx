@@ -54,6 +54,7 @@ export const zodKeywordMapper = {
   example: undefined,
   schema: undefined,
   catchall: (value?: string) => (value ? `.catchall(${value})` : undefined),
+  property: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 
 /**

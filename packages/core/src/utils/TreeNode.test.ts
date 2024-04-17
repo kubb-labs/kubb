@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import { TreeNode } from './TreeNode.ts'
 
 type Type = { keyword: string; args?: any }
@@ -7,9 +5,6 @@ type Type = { keyword: string; args?: any }
 describe('TreeNode', () => {
   const tree = new TreeNode<Type>({
     keyword: 'array',
-    // args: {
-    //   items: [{ keyword: 'string' }],
-    // },
   })
 
   tree.addChild({

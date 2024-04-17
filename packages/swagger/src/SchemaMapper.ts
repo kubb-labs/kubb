@@ -9,6 +9,7 @@ export type SchemaKeywordMapper = {
       strict?: boolean
     }
   }
+  property: { keyword: 'property'; args: { name: string; resolvedName?: string } }
   strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
@@ -119,6 +120,7 @@ export const schemaKeywords = {
   example: 'example',
   schema: 'schema',
   catchall: 'catchall',
+  property: 'property',
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }
