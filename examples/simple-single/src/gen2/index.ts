@@ -236,7 +236,7 @@ export const flyHttpOptionsSchema = z.object({
   response: z.lazy(() => flyHttpResponseOptionsSchema).schema.optional(),
 })
 
-export const flyHttpResponseOptionsSchema = z.object({ headers: z.object({}).catchall(z.object({})).optional() })
+export const flyHttpResponseOptionsSchema = z.object({ headers: z.object({}).catchall(z.object({})).optional(), pristine: z.boolean().optional() })
 
 export const flyMachineCheckSchema = z
   .object({

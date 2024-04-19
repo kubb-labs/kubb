@@ -2,12 +2,7 @@
   "name": "@kubb/types",
   "version": "2.13.0",
   "description": "Generator types",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -29,14 +24,7 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "src",
-    "dist",
-    "*.d.ts",
-    "*.d.cts",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "*.d.ts", "*.d.cts", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -56,7 +44,7 @@
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@9.0.4",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.15.0"
