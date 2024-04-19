@@ -246,7 +246,7 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
     return typeKeywordMapper.date(current.args.type)
   }
 
-  if (isKeyword(current, schemaKeywords.date)) {
+  if (isKeyword(current, schemaKeywords.time)) {
     return typeKeywordMapper.time(current.args.type)
   }
 
