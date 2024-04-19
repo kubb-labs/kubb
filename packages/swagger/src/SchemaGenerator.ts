@@ -259,22 +259,21 @@ export abstract class SchemaGenerator<
       })
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
     let additionalPropertieschemas: Schema[] = []
-    const members: Schema[] = []
 
     if (additionalProperties) {
       additionalPropertieschemas =
         additionalProperties === true ? [{ keyword: this.#getUnknownReturn(baseSchema, baseName) }] : this.buildSchemas(additionalProperties as SchemaObject)
     }
 
-    members.push({
-      keyword: schemaKeywords.object,
-      args: {
-        properties: propertiesSchemas,
-        additionalProperties: additionalPropertieschemas,
+    return [
+      {
+        keyword: schemaKeywords.object,
+        args: {
+          properties: propertiesSchemas,
+          additionalProperties: additionalPropertieschemas,
+        },
       },
-    })
-
-    return members
+    ]
   }
 
   /**
@@ -628,11 +627,9 @@ export abstract class SchemaGenerator<
           baseItems.push({ keyword: schemaKeywords.blob })
           break
         case 'date-time':
-        case 'date':
-        case 'time':
           if (options.dateType) {
             if (options.dateType === 'date') {
-              baseItems.unshift({ keyword: schemaKeywords.date })
+              baseItems.unshift({ keyword: schemaKeywords.date, args: { type: 'date' } })
 
               return baseItems
             }
@@ -643,6 +640,32 @@ export abstract class SchemaGenerator<
             }
 
             baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: false } })
+
+            return baseItems
+          }
+          break
+        case 'date':
+          if (options.dateType) {
+            if (options.dateType === 'date') {
+              baseItems.unshift({ keyword: schemaKeywords.date, args: { type: 'date' } })
+
+              return baseItems
+            }
+
+            baseItems.unshift({ keyword: schemaKeywords.date, args: { type: 'string' } })
+
+            return baseItems
+          }
+          break
+        case 'time':
+          if (options.dateType) {
+            if (options.dateType === 'date') {
+              baseItems.unshift({ keyword: schemaKeywords.time, args: { type: 'date' } })
+
+              return baseItems
+            }
+
+            baseItems.unshift({ keyword: schemaKeywords.time, args: { type: 'string' } })
 
             return baseItems
           }

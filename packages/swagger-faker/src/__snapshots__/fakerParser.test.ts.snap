@@ -60,7 +60,7 @@ exports[`parseFakerMeta > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
 exports[`parseFakerMeta > 'catchall' 1`] = `"{}"`;
 
-exports[`parseFakerMeta > 'date' 1`] = `"faker.date.anytime()"`;
+exports[`parseFakerMeta > 'date' 1`] = `"faker.string.alpha()"`;
 
 exports[`parseFakerMeta > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
 
@@ -88,17 +88,23 @@ exports[`parseFakerMeta > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha()
 
 exports[`parseFakerMeta > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any}"`;
 
+exports[`parseFakerMeta > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.string.alpha(),"time": faker.string.alpha(),"nativeDate": faker.date.anytime()}"`;
+
 exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
 
 exports[`parseFakerMeta > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<any>(["A", "B", "C", 2])}"`;
 
 exports[`parseFakerMeta > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
+exports[`parseFakerMeta > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
+
 exports[`parseFakerMeta > 'ref' 1`] = `"Pet()"`;
 
 exports[`parseFakerMeta > 'string' 1`] = `"faker.string.alpha()"`;
 
 exports[`parseFakerMeta > 'stringOffset' 1`] = `"faker.date.anytime().toISOString()"`;
+
+exports[`parseFakerMeta > 'time' 1`] = `"faker.string.alpha()"`;
 
 exports[`parseFakerMeta > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 

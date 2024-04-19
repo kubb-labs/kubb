@@ -54,7 +54,7 @@ exports[`parseTypeMeta > 'catchall' 1`] = `
 `;
 
 exports[`parseTypeMeta > 'date' 1`] = `
-"Date
+"string
 "
 `;
 
@@ -125,6 +125,16 @@ exports[`parseTypeMeta > 'objectArray' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'objectDates' 1`] = `
+"{
+    dateTime: string;
+    date: string;
+    time: string;
+    nativeDate: Date;
+}
+"
+`;
+
 exports[`parseTypeMeta > 'objectEmpty' 1`] = `
 "{}
 "
@@ -152,6 +162,11 @@ exports[`parseTypeMeta > 'objectOptional' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'primitiveDate' 1`] = `
+"Date
+"
+`;
+
 exports[`parseTypeMeta > 'ref' 1`] = `
 "Pet
 "
@@ -163,6 +178,11 @@ exports[`parseTypeMeta > 'string' 1`] = `
 `;
 
 exports[`parseTypeMeta > 'stringOffset' 1`] = `
+"string
+"
+`;
+
+exports[`parseTypeMeta > 'time' 1`] = `
 "string
 "
 `;

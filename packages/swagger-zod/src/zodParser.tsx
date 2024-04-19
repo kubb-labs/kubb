@@ -31,7 +31,8 @@ export const zodKeywordMapper = {
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
   const: (value?: string | number) => `z.literal(${value ?? ''})`,
   datetime: (offset = false) => (offset ? `z.string().datetime({ offset: ${offset} })` : 'z.string().datetime()'),
-  date: () => 'z.date()',
+  date: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().date()' : 'z.date()'),
+  time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().time()' : 'z.time()'),
   uuid: () => '.uuid()',
   url: () => '.url()',
   strict: () => '.strict()',
@@ -64,6 +65,8 @@ function sort(items?: Schema[]): Schema[] {
   const order: string[] = [
     schemaKeywords.string,
     schemaKeywords.datetime,
+    schemaKeywords.date,
+    schemaKeywords.time,
     schemaKeywords.number,
     schemaKeywords.object,
     schemaKeywords.enum,
@@ -266,6 +269,14 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
 
   if (isKeyword(current, schemaKeywords.datetime)) {
     return zodKeywordMapper.datetime(current.args.offset)
+  }
+
+  if (isKeyword(current, schemaKeywords.date)) {
+    return zodKeywordMapper.date(current.args.type)
+  }
+
+  if (isKeyword(current, schemaKeywords.time)) {
+    return zodKeywordMapper.time(current.args.type)
   }
 
   if (current.keyword in zodKeywordMapper && 'args' in current) {
