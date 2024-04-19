@@ -58,8 +58,9 @@ export const fakerKeywordMapper = {
   tuple: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
   enum: (items: Array<string | number> = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
   union: (items: string[] = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
-  date: () => 'faker.date.anytime()',
   datetime: () => 'faker.date.anytime().toISOString()',
+  date: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'faker.string.alpha()' : 'faker.date.anytime()'),
+  time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'faker.string.alpha()' : 'faker.date.anytime()'),
   uuid: () => 'faker.string.uuid()',
   url: () => 'faker.internet.url()',
   and: (items: string[] = []) => `Object.assign({}, ${items.join(', ')})`,
@@ -246,6 +247,18 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
     }
 
     return fakerKeywordMapper.integer()
+  }
+
+  if (isKeyword(current, schemaKeywords.datetime)) {
+    return fakerKeywordMapper.datetime()
+  }
+
+  if (isKeyword(current, schemaKeywords.date)) {
+    return fakerKeywordMapper.date(current.args.type)
+  }
+
+  if (isKeyword(current, schemaKeywords.time)) {
+    return fakerKeywordMapper.time(current.args.type)
   }
 
   if (current.keyword in fakerKeywordMapper && 'args' in current) {

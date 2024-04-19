@@ -67,7 +67,10 @@ export const typeKeywordMapper = {
     return factory.createLiteralTypeNode(factory.createStringLiteral(name.toString()))
   },
   datetime: () => factory.keywordTypeNodes.string,
-  date: () => factory.createTypeReferenceNode(factory.createIdentifier('Date')),
+  date: (type: 'date' | 'string' = 'string') =>
+    type === 'string' ? factory.keywordTypeNodes.string : factory.createTypeReferenceNode(factory.createIdentifier('Date')),
+  time: (type: 'date' | 'string' = 'string') =>
+    type === 'string' ? factory.keywordTypeNodes.string : factory.createTypeReferenceNode(factory.createIdentifier('Date')),
   uuid: undefined,
   url: undefined,
   strict: undefined,
@@ -233,6 +236,18 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
       : undefined
 
     return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
+  }
+
+  if (isKeyword(current, schemaKeywords.datetime)) {
+    return typeKeywordMapper.datetime()
+  }
+
+  if (isKeyword(current, schemaKeywords.date)) {
+    return typeKeywordMapper.date(current.args.type)
+  }
+
+  if (isKeyword(current, schemaKeywords.date)) {
+    return typeKeywordMapper.time(current.args.type)
   }
 
   if (current.keyword in typeKeywordMapper) {

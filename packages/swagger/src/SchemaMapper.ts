@@ -18,7 +18,8 @@ export type SchemaKeywordMapper = {
   lastName: { keyword: 'lastName' }
   phone: { keyword: 'phone' }
   password: { keyword: 'password' }
-  date: { keyword: 'date' }
+  date: { keyword: 'date'; args: { type?: 'date' | 'string' } }
+  time: { keyword: 'time'; args: { type?: 'date' | 'string' } }
   datetime: { keyword: 'datetime'; args: { offset?: boolean } }
   tuple: { keyword: 'tuple'; args: Schema[] }
   array: {
@@ -119,6 +120,7 @@ export const schemaKeywords = {
   example: 'example',
   schema: 'schema',
   catchall: 'catchall',
+  time: 'time',
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }

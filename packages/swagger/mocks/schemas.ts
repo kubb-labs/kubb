@@ -32,9 +32,30 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'primitiveDate',
+    schema: {
+      keyword: schemaKeywords.date,
+      args: {
+        type: 'date',
+      },
+    },
+  },
+  {
     name: 'date',
     schema: {
       keyword: schemaKeywords.date,
+      args: {
+        type: 'string',
+      },
+    },
+  },
+  {
+    name: 'time',
+    schema: {
+      keyword: schemaKeywords.time,
+      args: {
+        type: 'string',
+      },
     },
   },
   {
@@ -274,6 +295,21 @@ const basic: Array<{ name: string; schema: Schema }> = [
               },
             },
           ],
+        },
+        additionalProperties: [],
+      },
+    },
+  },
+  {
+    name: 'objectDates',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {
+          dateTime: [{ keyword: schemaKeywords.datetime, args: { offset: true } }],
+          date: [{ keyword: schemaKeywords.date, args: { type: 'string' } }],
+          time: [{ keyword: schemaKeywords.time, args: { type: 'string' } }],
+          nativeDate: [{ keyword: schemaKeywords.date, args: { type: 'date' } }],
         },
         additionalProperties: [],
       },

@@ -20,7 +20,7 @@ exports[`parseZodMeta > 'boolean' 1`] = `"z.boolean()"`;
 
 exports[`parseZodMeta > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pet).schema)"`;
 
-exports[`parseZodMeta > 'date' 1`] = `"z.date()"`;
+exports[`parseZodMeta > 'date' 1`] = `"z.string().date()"`;
 
 exports[`parseZodMeta > 'datetime' 1`] = `"z.string().datetime()"`;
 
@@ -48,17 +48,23 @@ exports[`parseZodMeta > 'objectAnd' 1`] = `"z.object({"firstName": z.string().mi
 
 exports[`parseZodMeta > 'objectArray' 1`] = `"z.object({"ids": z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)})"`;
 
+exports[`parseZodMeta > 'objectDates' 1`] = `"z.object({"dateTime": z.string().datetime({ offset: true }),"date": z.string().date(),"time": z.string().time(),"nativeDate": z.date()})"`;
+
 exports[`parseZodMeta > 'objectEmpty' 1`] = `"z.object({})"`;
 
 exports[`parseZodMeta > 'objectEnum' 1`] = `"z.object({"version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")})"`;
 
 exports[`parseZodMeta > 'objectOptional' 1`] = `"z.object({"firstName": z.string().min(2).optional(),"address": z.string().describe("Your address").nullable()})"`;
 
+exports[`parseZodMeta > 'primitiveDate' 1`] = `"z.date()"`;
+
 exports[`parseZodMeta > 'ref' 1`] = `"z.lazy(() => Pet).schema"`;
 
 exports[`parseZodMeta > 'string' 1`] = `"z.string()"`;
 
 exports[`parseZodMeta > 'stringOffset' 1`] = `"z.string().datetime({ offset: true })"`;
+
+exports[`parseZodMeta > 'time' 1`] = `"z.string().time()"`;
 
 exports[`parseZodMeta > 'tuple' 1`] = `"z.tuple([])"`;
 
