@@ -1,5 +1,18 @@
 # @kubb/swagger-zod
 
+## 2.13.1
+
+### Patch Changes
+
+- [#945](https://github.com/kubb-labs/kubb/pull/945) [`cfa8d0e`](https://github.com/kubb-labs/kubb/commit/cfa8d0ea1d2eeb434e9c3f5164774317e193a959) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of dateTime, date and time
+
+- Updated dependencies []:
+  - @kubb/core@2.13.1
+  - @kubb/parser@2.13.1
+  - @kubb/react@2.13.1
+  - @kubb/swagger@2.13.1
+  - @kubb/swagger-ts@2.13.1
+
 ## 2.13.0
 
 ### Minor Changes
