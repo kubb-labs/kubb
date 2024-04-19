@@ -54,6 +54,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) =
             write: true,
             ...userConfig.output,
           },
+
         },
         logger,
       })

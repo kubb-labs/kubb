@@ -9,6 +9,10 @@ outline: deep
 
 Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 
+::: tip
+The `hook` option will not work with Unplugin. If you need to run Prettier or Eslint after the generation, use Kubb CLI instead.
+:::
+
 ## Installation
 
 ::: code-group
