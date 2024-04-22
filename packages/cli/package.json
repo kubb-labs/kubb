@@ -1,8 +1,14 @@
 {
   "name": "@kubb/cli",
-  "version": "2.13.1",
+  "version": "2.13.2",
   "description": "Generator cli",
-  "keywords": ["typescript", "plugins", "kubb", "codegen", "cli"],
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen",
+    "cli"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -26,7 +32,13 @@
     "kubb": "bin/kubb.cjs",
     "bkubb": "bin/bkubb.cjs"
   },
-  "files": ["src", "dist", "bin", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
