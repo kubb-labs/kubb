@@ -1,9 +1,7 @@
 import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
+import type { HttpMethod, MediaType, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
-
-export type ContentType = 'application/json' | (string & {})
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
@@ -17,7 +15,7 @@ export type API = {
   getOas: () => Promise<Oas>
   getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
-  contentType?: ContentType
+  mediaType?: MediaType
 }
 
 export type Options = {
@@ -48,8 +46,13 @@ export type Options = {
   serverIndex?: number
   /**
    * Override ContentType that will be used for requests and responses.
+   * @depreated used mediaType instead
    */
-  contentType?: ContentType
+  contentType?: MediaType
+  /**
+   * Override ContentType that will be used for requests and responses.
+   */
+  mediaType?: MediaType
 }
 
 /**

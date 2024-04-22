@@ -15,7 +15,7 @@ export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'schemas' }, validate = true, serverIndex = 0, contentType } = options
+  const { output = { path: 'schemas' }, validate = true, serverIndex = 0, mediaType = options.contentType } = options
 
   const getOas = async (config: Config, logger: Logger): Promise<Oas> => {
     try {
@@ -48,14 +48,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         },
         async getSchemas({ includes } = {}) {
           const oas = await this.getOas()
-          return getSchemas({ oas, contentType, includes })
+          return getSchemas({ oas, mediaType, includes })
         },
         async getBaseURL() {
           const oasInstance = await this.getOas()
           const baseURL = oasInstance.api.servers?.at(serverIndex)?.url
           return baseURL
         },
-        contentType,
+        mediaType,
       }
     },
     resolvePath(baseName) {
@@ -84,7 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await getOas(this.config, this.logger)
       await oas.dereference()
-      const schemas = getSchemas({ oas, contentType })
+      const schemas = getSchemas({ oas, mediaType })
 
       const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
         const resolvedPath = this.resolvePath({
