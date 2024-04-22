@@ -11,15 +11,7 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "type": "module",
   "workspaces": {
-    "packages": [
-      "packages/*",
-      "packages/config/biome-config/*",
-      "packages/config/tsup-config/*",
-      "packages/config/ts-config/*",
-      "docs",
-      "examples/*",
-      "e2e"
-    ]
+    "packages": ["packages/*", "packages/config/biome-config/*", "packages/config/tsup-config/*", "packages/config/ts-config/*", "docs", "examples/*", "e2e"]
   },
   "scripts": {
     "//changeset:beta:enter": "changeset pre enter beta",
@@ -29,8 +21,7 @@
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
-    "format": "bun biome format --write ./ && bun format:pack",
-    "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
+    "format": "bun biome format --write ./",
     "generate": "turbo run generate --filter=./examples/* --continue",
     "graph": "npx nx graph ",
     "install:csb": "corepack enable && pnpm install --frozen-lockfile",
