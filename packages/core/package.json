@@ -106,7 +106,7 @@
     "js-runtime": "^0.0.7",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^1.60.1",
+    "remeda": "^1.61.0",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.0",
     "unraw": "^3.0.0"

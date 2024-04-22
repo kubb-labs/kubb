@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import yaml from 'js-yaml'
+import yaml from '@stoplight/yaml'
 
 import { OasManager } from './OasManager.ts'
 
@@ -53,7 +53,7 @@ components:
         example: 1234343434343
   `
 
-  const petStoreObject = yaml.load(yamlPetStoreString)
+  const petStoreObject = yaml.parse(yamlPetStoreString)
 
   test('check if oas and title is defined based on a Swagger(v3) file', async () => {
     const oas = await new OasManager().parse(petStoreV3)
