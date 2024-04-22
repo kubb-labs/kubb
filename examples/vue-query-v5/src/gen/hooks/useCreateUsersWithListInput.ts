@@ -33,7 +33,7 @@ export function useCreateUsersWithListInput(
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
-        url: `/user/createWithList`,
+        url: '/user/createWithList',
         data,
         ...clientOptions,
       })

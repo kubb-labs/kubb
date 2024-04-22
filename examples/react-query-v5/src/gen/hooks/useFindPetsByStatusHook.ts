@@ -26,7 +26,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryPar
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -74,7 +74,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })

@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { createInfiniteQuery, createQuery } from '@tanstack/svelte-query'
+import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type {
   CreateBaseQueryOptions,
-  CreateInfiniteQueryOptions,
-  CreateInfiniteQueryResult,
   CreateQueryResult,
-  InfiniteData,
   QueryKey,
   WithRequired,
+  CreateInfiniteQueryOptions,
+  CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
 type GetOrderById = {

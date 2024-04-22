@@ -29,7 +29,7 @@ export function findPetsByTagsQueryOptions(refParams?: MaybeRef<FindPetsByTagsQu
       const params = unref(refParams)
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })

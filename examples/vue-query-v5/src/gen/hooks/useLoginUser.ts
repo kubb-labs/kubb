@@ -29,7 +29,7 @@ export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>
       const params = unref(refParams)
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })

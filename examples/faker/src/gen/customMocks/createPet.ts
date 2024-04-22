@@ -1,7 +1,7 @@
-import { faker } from '@faker-js/faker'
-import type { Pet } from '../models/Pet'
 import { createCategory } from './createCategory'
 import { createTag } from './createTag'
+import { faker } from '@faker-js/faker'
+import type { Pet } from '../models/Pet'
 
 export function createPet(data: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
   return {

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import type { FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
 import { createPet } from '../createPet'
+import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
 
 export function createFindPetsByStatusQueryParams(): NonNullable<FindPetsByStatusQueryParams> {
   faker.seed([220])

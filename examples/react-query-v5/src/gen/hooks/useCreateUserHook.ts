@@ -35,7 +35,7 @@ export function useCreateUserHook(
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
-        url: `/user`,
+        url: '/user',
         data,
         ...clientOptions,
       })

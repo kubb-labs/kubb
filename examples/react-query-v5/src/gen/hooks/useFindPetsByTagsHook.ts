@@ -35,7 +35,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })
@@ -82,7 +82,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         ...options,
         params: {
           ...params,
@@ -136,7 +136,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: `/pet/findByTags`,
+        url: '/pet/findByTags',
         params,
         ...options,
       })

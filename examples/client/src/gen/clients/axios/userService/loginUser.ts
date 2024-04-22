@@ -1,7 +1,7 @@
 import type client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import axios from 'axios'
-import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 
 /**
  * @summary Logs user into the system

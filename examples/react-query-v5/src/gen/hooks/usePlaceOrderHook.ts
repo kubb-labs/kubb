@@ -35,7 +35,7 @@ export function usePlaceOrderHook(
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })

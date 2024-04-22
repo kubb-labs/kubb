@@ -1,21 +1,21 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type {
-  InfiniteData,
-  QueryKey,
+  FindPetsByTagsQueryResponse,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTags400,
+} from '../../../models/ts/petController/FindPetsByTags'
+import type {
   UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  UseQueryResult,
-  WithRequired,
+  InfiniteData,
 } from '@tanstack/react-query'
-import client from '../../../../tanstack-query-client.ts'
-import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
-} from '../../../models/ts/petController/FindPetsByTags'
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {

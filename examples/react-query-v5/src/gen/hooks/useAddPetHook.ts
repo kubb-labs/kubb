@@ -35,7 +35,7 @@ export function useAddPetHook(
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })

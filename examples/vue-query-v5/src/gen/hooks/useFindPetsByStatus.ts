@@ -30,7 +30,7 @@ export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStat
       const params = unref(refParams)
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })

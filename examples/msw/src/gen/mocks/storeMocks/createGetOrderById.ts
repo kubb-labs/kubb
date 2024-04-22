@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import type { GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 import { createOrder } from '../createOrder'
+import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 
 export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
   return { orderId: faker.number.int() }

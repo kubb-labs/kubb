@@ -1,6 +1,6 @@
 import useSWR from 'swr'
-import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>

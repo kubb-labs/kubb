@@ -35,7 +35,7 @@ export function usePlaceOrderPatchHook(
     mutationFn: async (data) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })

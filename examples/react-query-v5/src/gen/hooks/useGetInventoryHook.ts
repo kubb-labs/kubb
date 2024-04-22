@@ -26,7 +26,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -67,7 +67,7 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data

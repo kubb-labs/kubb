@@ -26,7 +26,7 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })
@@ -68,7 +68,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })

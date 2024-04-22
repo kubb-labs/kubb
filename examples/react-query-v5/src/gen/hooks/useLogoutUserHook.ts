@@ -26,7 +26,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -66,7 +66,7 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
