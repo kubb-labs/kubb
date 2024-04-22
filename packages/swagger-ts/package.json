@@ -56,16 +56,13 @@
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/types": "workspace:*",
-    "hotscript": "^1.0.13",
-    "json-schema-to-ts": "^3.0.1",
-    "ts-toolbelt": "^9.6.0"
+    "@kubb/oas": "workspace:*"
   },
   "devDependencies": {
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.79",
-    "expect-type": "^0.19.0",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
     "tsup": "^8.0.2"

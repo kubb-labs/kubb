@@ -1,6 +1,5 @@
 import type { Booleans, Call, Objects, Strings, Tuples } from 'hotscript'
 import type { Object } from 'ts-toolbelt'
-
 type Checks = {
   AllOFf: { allOf: any[] }
   Object: {
@@ -48,4 +47,4 @@ type ResolveRefsInObj<T, TBase = T> = {
   [K in keyof T]: ResolveRefsInObj<ResolveRefInObj<T[K], TBase>, TBase>
 }
 
-export type Infer<TOAS> = Mutable<ResolveRefsInObj<TOAS>>
+export type Infer<TOas> = Mutable<ResolveRefsInObj<TOas>>

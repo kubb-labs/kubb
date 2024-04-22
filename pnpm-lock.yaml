@@ -1173,6 +1173,12 @@ importers:
 
   packages/oas:
     dependencies:
+      hotscript:
+        specifier: ^1.0.13
+        version: 1.0.13
+      json-schema-to-ts:
+        specifier: ^3.0.1
+        version: 3.0.1
       oas:
         specifier: ^24.2.2
         version: 24.2.2
@@ -1188,6 +1194,9 @@ importers:
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8
+      ts-toolbelt:
+        specifier: ^9.6.0
+        version: 9.6.0
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1201,6 +1210,9 @@ importers:
       '@types/swagger2openapi':
         specifier: ^7.0.4
         version: 7.0.4
+      expect-type:
+        specifier: ^0.19.0
+        version: 0.19.0
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.1)(ts-node@10.9.2)(typescript@5.4.5)
@@ -1536,6 +1548,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1548,15 +1563,6 @@ importers:
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
-      hotscript:
-        specifier: ^1.0.13
-        version: 1.0.13
-      json-schema-to-ts:
-        specifier: ^3.0.1
-        version: 3.0.1
-      ts-toolbelt:
-        specifier: ^9.6.0
-        version: 9.6.0
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1570,9 +1576,6 @@ importers:
       '@types/react':
         specifier: ^18.2.79
         version: 18.2.79
-      expect-type:
-        specifier: ^0.19.0
-        version: 0.19.0
       prettier:
         specifier: ^3.2.5
         version: 3.2.5

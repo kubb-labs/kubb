@@ -1,12 +1,10 @@
 import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
-import { findSchemaDefinition, isReference, matchesMimeType } from '@kubb/oas'
-
 import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
-import type { HttpMethod, Oas, OasTypes, Operation } from '@kubb/oas'
-import type { ContentType, Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
+import type { HttpMethod, MediaType, Oas, OasTypes, Operation } from '@kubb/oas'
+import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -17,7 +15,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
   override: Array<Override<TOptions>> | undefined
-  contentType: ContentType | undefined
+  mediaType: MediaType | undefined
   pluginManager: PluginManager
   /**
    * Current plugin
@@ -115,182 +113,21 @@ export abstract class OperationGenerator<
     return matched
   }
 
-  #getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OasTypes.SchemaObject | null {
-    const mediaType = this.context.contentType || operation.getContentType()
-    const params = operation
-      .getParameters()
-      .map((schema) => {
-        return this.#dereference(schema, { withRef: true })
-      })
-      .filter((v) => v.in === inKey)
-
-    if (!params.length) {
-      return null
-    }
-
-    return params.reduce(
-      (schema, pathParameters) => {
-        const property = pathParameters.content?.[mediaType]?.schema ?? (pathParameters.schema as OasTypes.SchemaObject)
-        const required = [...(schema.required || ([] as any)), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
-
-        return {
-          ...schema,
-          description: schema.description,
-          deprecated: schema.deprecated,
-          example: schema.example,
-          required,
-          properties: {
-            ...schema.properties,
-            [pathParameters.name]: {
-              description: pathParameters.description,
-              ...property,
-            },
-          },
-        }
-      },
-      { type: 'object', required: [], properties: {} } as OasTypes.SchemaObject,
-    )
-  }
-
-  /**
-   * Oas does not have a getResponseBody(mediaType/contentType)
-   * TODO open PR in Oas
-   */
-  #getResponseBodyFactory(
-    responseBody: boolean | OasTypes.ResponseObject,
-  ): (mediaType?: string) => OasTypes.MediaTypeObject | false | [string, OasTypes.MediaTypeObject, ...string[]] {
-    function hasResponseBody(res = responseBody): res is OasTypes.ResponseObject {
-      return !!res
-    }
-
-    return (mediaType) => {
-      if (!hasResponseBody(responseBody)) {
-        return false
-      }
-
-      if (isReference(responseBody)) {
-        // If the request body is still a `$ref` pointer we should return false because this library
-        // assumes that you've run dereferencing beforehand.
-        return false
-      }
-
-      if (!responseBody.content) {
-        return false
-      }
-
-      if (mediaType) {
-        if (!(mediaType in responseBody.content)) {
-          return false
-        }
-
-        return responseBody.content[mediaType]!
-      }
-
-      // Since no media type was supplied we need to find either the first JSON-like media type that
-      // we've got, or the first available of anything else if no JSON-like media types are present.
-      let availableMediaType: string | undefined = undefined
-      const mediaTypes = Object.keys(responseBody.content)
-      mediaTypes.forEach((mt: string) => {
-        if (!availableMediaType && matchesMimeType.json(mt)) {
-          availableMediaType = mt
-        }
-      })
-
-      if (!availableMediaType) {
-        mediaTypes.forEach((mt: string) => {
-          if (!availableMediaType) {
-            availableMediaType = mt
-          }
-        })
-      }
-
-      if (availableMediaType) {
-        return [availableMediaType, responseBody.content[availableMediaType]!, ...(responseBody.description ? [responseBody.description] : [])]
-      }
-
-      return false
-    }
-  }
-
-  #dereference(schema?: unknown, { withRef = false }: { withRef?: boolean } = {}) {
-    if (isReference(schema)) {
-      if (withRef) {
-        return {
-          ...findSchemaDefinition(schema?.$ref, this.context.oas.api),
-          $ref: schema.$ref,
-        }
-      }
-      return findSchemaDefinition(schema?.$ref, this.context.oas.api)
-    }
-
-    return schema
-  }
-
-  #getResponseSchema(operation: Operation, statusCode: string | number): OasTypes.SchemaObject {
-    if (operation.schema.responses) {
-      Object.keys(operation.schema.responses).forEach((key) => {
-        operation.schema.responses![key] = this.#dereference(operation.schema.responses![key])
-      })
-    }
-
-    const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode))
-
-    const mediaType = this.context.contentType
-    const responseBody = getResponseBody(mediaType)
-
-    if (responseBody === false) {
-      // return empty object because response will always be defined(request does not need a body)
-      return {}
-    }
-
-    const schema = Array.isArray(responseBody) ? responseBody[1].schema : responseBody.schema
-
-    if (!schema) {
-      // return empty object because response will always be defined(request does not need a body)
-
-      return {}
-    }
-
-    return this.#dereference(schema, { withRef: true })
-  }
-
-  #getRequestSchema(operation: Operation): OasTypes.SchemaObject | undefined {
-    const mediaType = this.context.contentType
-
-    if (operation.schema.requestBody) {
-      operation.schema.requestBody = this.#dereference(operation.schema.requestBody)
-    }
-
-    const requestBody = operation.getRequestBody(mediaType)
-
-    if (requestBody === false) {
-      return undefined
-    }
-
-    const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
-
-    if (!schema) {
-      return undefined
-    }
-
-    return this.#dereference(schema, { withRef: true })
-  }
-
   getSchemas(operation: Operation, forStatusCode?: string | number): OperationSchemas {
-    const pathParamsSchema = this.#getParametersSchema(operation, 'path')
-    const queryParamsSchema = this.#getParametersSchema(operation, 'query')
-    const headerParamsSchema = this.#getParametersSchema(operation, 'header')
-    const requestSchema = this.#getRequestSchema(operation)
+    const pathParamsSchema = this.context.oas.getParametersSchema(operation, 'path')
+    const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
+    const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
+    const requestSchema = this.context.oas.getRequestSchema(operation)
     const responseStatusCode =
       forStatusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
-    const responseSchema = this.#getResponseSchema(operation, responseStatusCode)
+    const responseSchema = this.context.oas.getResponseSchema(operation, responseStatusCode)
     const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
       let name = statusCode
       if (name === 'default') {
         name = 'error'
       }
 
-      const schema = this.#getResponseSchema(operation, statusCode)
+      const schema = this.context.oas.getResponseSchema(operation, statusCode)
 
       return {
         name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),
