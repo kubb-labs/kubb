@@ -1,6 +1,6 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { OasTypes } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/swagger'
-import type { OasTypes } from '@kubb/swagger/oas'
 
 export type Options = {
   output?: {

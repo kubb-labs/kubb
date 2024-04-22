@@ -8,10 +8,10 @@ import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
+import type { Operation } from '@kubb/oas'
 import type { ts } from '@kubb/parser'
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { OperationSchemas } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

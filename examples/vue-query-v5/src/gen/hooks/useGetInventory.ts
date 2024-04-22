@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {

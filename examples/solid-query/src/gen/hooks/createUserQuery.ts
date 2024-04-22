@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/solid-query'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {

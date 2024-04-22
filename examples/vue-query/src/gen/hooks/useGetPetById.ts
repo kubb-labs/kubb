@@ -1,10 +1,10 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
-import type { QueryKey, UseQueryReturnType, WithRequired } from '@tanstack/vue-query'
-import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import { unref } from 'vue'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
+import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {

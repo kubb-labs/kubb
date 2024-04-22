@@ -1,9 +1,9 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
-import { getASTParams, isRequired } from '@kubb/swagger/utils'
+import { getASTParams } from '@kubb/swagger/utils'
 
-import transformers from '@kubb/core/transformers'
+import { isRequired } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { PluginOptions } from '../types'
 

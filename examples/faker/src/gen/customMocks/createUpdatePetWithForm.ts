@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
 } from '../models/UpdatePetWithForm'
 
 export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {

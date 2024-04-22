@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
 import useSWRMutation from 'swr/mutation'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 

@@ -1,51 +1,51 @@
-import { addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './petController/addPetSchema'
-import { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './petController/deletePetSchema'
-import { findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema, findPetsByStatusQueryResponseSchema } from './petController/findPetsByStatusSchema'
 import {
-  findPetsByTags400Schema,
-  findPetsByTagsHeaderParamsSchema,
-  findPetsByTagsQueryParamsSchema,
-  findPetsByTagsQueryResponseSchema,
-} from './petController/findPetsByTagsSchema'
-import { getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema, getPetByIdQueryResponseSchema } from './petController/getPetByIdSchema'
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+  createPetsHeaderParamsSchema,
+} from './petsController/createPetsSchema'
 import {
+  updatePetMutationRequestSchema,
+  updatePetMutationResponseSchema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,
-  updatePetMutationRequestSchema,
-  updatePetMutationResponseSchema,
 } from './petController/updatePetSchema'
+import { addPetMutationRequestSchema, addPetMutationResponseSchema, addPet405Schema } from './petController/addPetSchema'
+import { findPetsByStatusQueryResponseSchema, findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema } from './petController/findPetsByStatusSchema'
 import {
-  updatePetWithForm405Schema,
+  findPetsByTagsQueryResponseSchema,
+  findPetsByTags400Schema,
+  findPetsByTagsQueryParamsSchema,
+  findPetsByTagsHeaderParamsSchema,
+} from './petController/findPetsByTagsSchema'
+import { getPetByIdQueryResponseSchema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema } from './petController/getPetByIdSchema'
+import {
   updatePetWithFormMutationResponseSchema,
+  updatePetWithForm405Schema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
 } from './petController/updatePetWithFormSchema'
+import { deletePetMutationResponseSchema, deletePet400Schema, deletePetPathParamsSchema, deletePetHeaderParamsSchema } from './petController/deletePetSchema'
 import {
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
 } from './petController/uploadFileSchema'
-import {
-  createPetsHeaderParamsSchema,
-  createPetsMutationRequestSchema,
-  createPetsMutationResponseSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-} from './petsController/createPetsSchema'
 import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './userController/createUserSchema'
 import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './userController/createUsersWithListInputSchema'
-import { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './userController/deleteUserSchema'
+import { loginUserQueryResponseSchema, loginUser400Schema, loginUserQueryParamsSchema } from './userController/loginUserSchema'
+import { logoutUserQueryResponseSchema } from './userController/logoutUserSchema'
 import {
+  getUserByNameQueryResponseSchema,
   getUserByName400Schema,
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
-  getUserByNameQueryResponseSchema,
 } from './userController/getUserByNameSchema'
-import { loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './userController/loginUserSchema'
-import { logoutUserQueryResponseSchema } from './userController/logoutUserSchema'
 import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './userController/updateUserSchema'
+import { deleteUserMutationResponseSchema, deleteUser400Schema, deleteUser404Schema, deleteUserPathParamsSchema } from './userController/deleteUserSchema'
 
 export const operations = {
   createPets: {

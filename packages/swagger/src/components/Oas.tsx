@@ -3,8 +3,8 @@ import { createContext } from '@kubb/react'
 import { Operation } from './Operation.tsx'
 import { Schema } from './Schema.tsx'
 
+import type { Oas as OasType, Operation as OperationType } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { Oas as OasType, Operation as OperationType } from '../oas/index.ts'
 import type { OperationSchemas } from '../types.ts'
 
 export type GetOperationSchemas = (operation: OperationType, statusCode?: string | number) => OperationSchemas

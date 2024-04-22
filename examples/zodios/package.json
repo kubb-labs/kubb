@@ -34,7 +34,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "react": "^18.2.0",
-    "zod": "^3.22.5"
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
@@ -43,7 +43,7 @@
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.15.0"

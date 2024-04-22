@@ -1,18 +1,18 @@
 import path from 'node:path'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { OasManager } from '@kubb/swagger'
 
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { SchemaObject } from '@kubb/swagger/oas'
+import type { SchemaObject } from '@kubb/oas'
+import { parse } from '@kubb/oas/parser'
 import { Operations } from './components/Operations.tsx'
 import type { PluginOptions } from './types.ts'
 
 describe('Zod SchemaGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
-  const oas = await new OasManager().parse(petStorePath)
+  const oas = await parse(petStorePath)
 
   test('generate schema for Pet', async () => {
     const generator = new SchemaGenerator(
@@ -209,7 +209,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
 
 describe('ZodGenerator constCases', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
-  const oas = await new OasManager().parse(discriminatorPath)
+  const oas = await parse(discriminatorPath)
   const generator = new SchemaGenerator(
     {
       transformers: {},
@@ -296,7 +296,7 @@ describe('ZodGenerator constCases', async () => {
 
 describe('Zod SchemaGenerator lazy', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/lazy.yaml')
-  const oas = await new OasManager().parse(petStorePath)
+  const oas = await parse(petStorePath)
 
   test('generate schema for Example', async () => {
     const generator = new SchemaGenerator(
@@ -333,7 +333,7 @@ describe('Zod SchemaGenerator lazy', async () => {
 
 describe('Zod SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
-  const oas = await new OasManager().parse(schemaPath)
+  const oas = await parse(schemaPath)
   const generator = new SchemaGenerator(
     {
       transformers: {},
@@ -376,7 +376,7 @@ describe('Zod SchemaGenerator enums', async () => {
 
 describe('Zod SchemaGenerator recursive', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/recursive.yaml')
-  const oas = await new OasManager().parse(petStorePath)
+  const oas = await parse(petStorePath)
 
   test('generate schema for Example', async () => {
     const generator = new SchemaGenerator(
@@ -413,7 +413,7 @@ describe('Zod SchemaGenerator recursive', async () => {
 
 describe('Zod SchemaGenerator anyof', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
-  const oas = await new OasManager().parse(discriminatorPath)
+  const oas = await parse(discriminatorPath)
   const generator = new SchemaGenerator(
     {
       transformers: {},
@@ -451,7 +451,7 @@ describe('Zod SchemaGenerator anyof', async () => {
 
 describe('Zod SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums3_1.yaml')
-  const oas = await new OasManager().parse(schemaPath)
+  const oas = await parse(schemaPath)
   const generator = new SchemaGenerator(
     {
       transformers: {},

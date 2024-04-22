@@ -1,7 +1,7 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../swr-client.ts'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
 type DeleteUser = {

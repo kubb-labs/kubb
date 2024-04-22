@@ -8,8 +8,8 @@ import { Query } from './components/Query.tsx'
 import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
 
+import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {

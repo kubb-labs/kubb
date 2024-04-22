@@ -1,11 +1,11 @@
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type {
-  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets'
 
 /**

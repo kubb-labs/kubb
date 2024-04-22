@@ -4,7 +4,7 @@ import { Editor, File, useApp } from '@kubb/react'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
-import type { HttpMethod } from '@kubb/swagger/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

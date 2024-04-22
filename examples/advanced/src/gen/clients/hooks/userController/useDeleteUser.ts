@@ -1,7 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
+import { useMutation } from '@tanstack/react-query'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
 type DeleteUser = {

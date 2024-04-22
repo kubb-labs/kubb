@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
 import useSWRMutation from 'swr/mutation'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {

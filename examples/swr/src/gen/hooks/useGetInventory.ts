@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
 import useSWR from 'swr'
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 

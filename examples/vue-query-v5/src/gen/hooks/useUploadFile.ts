@@ -1,9 +1,9 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type { UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { MaybeRef } from 'vue'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
+import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 type UploadFile = {

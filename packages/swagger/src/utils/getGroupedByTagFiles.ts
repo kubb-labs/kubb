@@ -2,7 +2,6 @@ import { resolve } from 'node:path'
 
 import { FileManager } from '@kubb/core'
 import { getRelativePath } from '@kubb/core/fs'
-import { LogLevel } from '@kubb/core/logger'
 import transformers from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 

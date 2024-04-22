@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 import type {
-  InfiniteData,
-  QueryKey,
   UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  UseQueryResult,
-  WithRequired,
+  InfiniteData,
 } from '@tanstack/react-query'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {

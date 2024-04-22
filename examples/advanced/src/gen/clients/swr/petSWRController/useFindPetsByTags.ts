@@ -1,11 +1,11 @@
 import useSWR from 'swr'
-import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>

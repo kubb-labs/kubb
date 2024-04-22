@@ -1,9 +1,7 @@
-import { camelCase } from '@kubb/core/transformers'
-
-import { isParameterObject } from './isParameterObject.ts'
+import { isParameterObject } from '@kubb/oas'
 
 import type { FunctionParamsAST } from '@kubb/core/utils'
-import type { OasTypes } from '../oas/index.ts'
+import type { OasTypes } from '@kubb/oas'
 import type { OperationSchema } from '../types.ts'
 /**
  *

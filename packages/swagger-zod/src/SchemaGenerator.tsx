@@ -7,8 +7,8 @@ import { useSchema } from '@kubb/swagger/hooks'
 import { pluginKey } from './plugin.ts'
 import { zodParser } from './zodParser.tsx'
 
+import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
-import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 function SchemaImports() {

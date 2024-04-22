@@ -2,12 +2,7 @@
   "name": "@kubb/parser",
   "version": "2.13.1",
   "description": "Generator parser",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -36,17 +31,10 @@
   "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
-      "factory": [
-        "./dist/factory.d.ts"
-      ]
+      "factory": ["./dist/factory.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -59,7 +47,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "^1.60.1",
+    "remeda": "^1.61.0",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
@@ -69,7 +57,7 @@
     "prettier": "^3.2.5",
     "tsup": "^8.0.2"
   },
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.15.0"

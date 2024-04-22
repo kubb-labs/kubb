@@ -1,7 +1,7 @@
 import useSWR from 'swr'
-import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
-import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../../models/ts/userController/GetUserByName'
+import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {

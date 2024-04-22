@@ -1,5 +1,5 @@
 import type { Plugin, PluginManager } from '@kubb/core'
-import type { Oas } from './oas/index.ts'
+import type { Oas } from '@kubb/oas'
 import type { OperationSchema } from './types.ts'
 
 type Context = {

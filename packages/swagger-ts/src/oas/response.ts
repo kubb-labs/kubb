@@ -1,4 +1,4 @@
-import type { OasTypes } from '@kubb/swagger/oas'
+import type { OasTypes } from '@kubb/oas'
 import type { FromSchema } from 'json-schema-to-ts'
 import type { MethodMap, PathMap, StatusMap } from './mappers.ts'
 

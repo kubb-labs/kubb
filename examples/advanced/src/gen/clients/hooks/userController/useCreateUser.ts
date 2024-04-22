@@ -1,7 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
+import { useMutation } from '@tanstack/react-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {

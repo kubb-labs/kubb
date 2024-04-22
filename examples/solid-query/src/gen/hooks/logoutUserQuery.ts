@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {

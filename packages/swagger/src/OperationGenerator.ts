@@ -1,14 +1,11 @@
 import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
-import { findSchemaDefinition, matchesMimeType } from 'oas/utils'
-
-import { isReference } from './utils/isReference.ts'
+import { findSchemaDefinition, isReference, matchesMimeType } from '@kubb/oas'
 
 import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
-import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
-import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Operation } from './oas/index.ts'
+import type { HttpMethod, Oas, OasTypes, Operation } from '@kubb/oas'
 import type { ContentType, Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
@@ -337,7 +334,7 @@ export abstract class OperationGenerator<
       request: requestSchema
         ? {
             name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
-            description: (operation.schema.requestBody as RequestBodyObject)?.description,
+            description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName: transformers.pascalCase(`${operation.getOperationId()}`),
             schema: requestSchema,

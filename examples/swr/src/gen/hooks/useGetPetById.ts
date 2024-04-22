@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
 import useSWR from 'swr'
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {

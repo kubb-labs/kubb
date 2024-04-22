@@ -1,16 +1,16 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 import type {
-  InfiniteData,
-  QueryKey,
   UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
-  UseQueryResult,
-  WithRequired,
+  InfiniteData,
 } from '@tanstack/react-query'
-import client from '../../../../tanstack-query-client.ts'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {

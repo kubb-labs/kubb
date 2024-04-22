@@ -5,8 +5,8 @@ import { Oas } from '@kubb/swagger/components'
 import { OasType } from './components/OasType.tsx'
 import { OperationSchema } from './components/OperationSchema.tsx'
 
+import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {

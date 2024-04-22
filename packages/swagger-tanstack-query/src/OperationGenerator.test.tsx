@@ -1,6 +1,5 @@
 import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { OasManager } from '@kubb/swagger'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Query } from './components/Query.tsx'
@@ -9,12 +8,13 @@ import { QueryOptions } from './components/QueryOptions.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
+import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
+import { parseFromConfig } from '@kubb/swagger/utils'
 import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger-tanstack-query/mocks/petStore.yaml' },

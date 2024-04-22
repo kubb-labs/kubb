@@ -1,9 +1,9 @@
 import client from '@kubb/swagger-client/client'
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
