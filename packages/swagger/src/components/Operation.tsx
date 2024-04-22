@@ -1,7 +1,7 @@
 import { createContext } from '@kubb/react'
 
+import type { Operation as OperationType } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { Operation as OperationType } from '../oas/index.ts'
 
 type Props = {
   operation: OperationType

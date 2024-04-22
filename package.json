@@ -32,13 +32,13 @@
     "format": "bun biome format --write ./ && bun format:pack",
     "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
     "generate": "turbo run generate --filter=./examples/* --continue && bun run generate:lint",
-    "generate:lint": "bun biome check --apply-unsafe ./examples && bun run lint:case",
+    "generate:lint": "bun biome check ./examples && bun run lint:case",
     "graph": "npx nx graph ",
     "install:csb": "corepack enable && pnpm install --frozen-lockfile",
     "lint": "bun biome lint ./packages",
     "lint:case": "npx case-police --fix",
     "lint:ci": "bun biome lint ./packages",
-    "lint:fix": "bun biome lint --apply-unsafe ./packages && bun run lint:case",
+    "lint:fix": "bun biome lint ./packages && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
@@ -70,7 +70,7 @@
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.5.0"
   },
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.15.0"

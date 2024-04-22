@@ -28,7 +28,7 @@
   "devDependencies": {
     "@types/node": "^20.12.7"
   },
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.15.0"

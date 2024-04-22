@@ -1,7 +1,7 @@
 import { Editor, File, Type, useApp } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
-import type { OasTypes } from '@kubb/swagger/oas'
+import type { OasTypes } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

@@ -1,4 +1,4 @@
-import type { OasTypes } from '@kubb/swagger/oas'
+import type { OasTypes } from '@kubb/oas'
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts'
 
 type Checks<TName extends string | number | symbol = never> = {

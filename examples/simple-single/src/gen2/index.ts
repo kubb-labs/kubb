@@ -107,6 +107,7 @@ export const machineSchema = z.object({
   region: z.string().optional(),
   state: z.string().optional(),
   updated_at: z.string().optional(),
+  worker_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
 })
 
 export const machineEventSchema = z.object({
@@ -183,6 +184,7 @@ export const volumeSchema = z.object({
   size_gb: z.number().optional(),
   snapshot_retention: z.number().optional(),
   state: z.string().optional(),
+  worker_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
   zone: z.string().optional(),
 })
 

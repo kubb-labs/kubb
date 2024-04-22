@@ -2,7 +2,7 @@ import { useContext } from '@kubb/react'
 
 import { Operation } from '../components/Operation.tsx'
 
-import type { Operation as OperationType } from '../oas/index.ts'
+import type { Operation as OperationType } from '@kubb/oas'
 
 /**
  * `useOperation` will return the current `Operation`

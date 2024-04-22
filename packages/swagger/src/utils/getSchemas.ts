@@ -1,4 +1,4 @@
-import type { Oas, OasTypes } from '../oas/index.ts'
+import type { Oas, OasTypes } from '@kubb/oas'
 import type { ContentType } from '../types.ts'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'

@@ -2,8 +2,8 @@ import { Editor, File, useApp } from '@kubb/react'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 
 import transformers from '@kubb/core/transformers'
+import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { HttpMethod, Operation } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

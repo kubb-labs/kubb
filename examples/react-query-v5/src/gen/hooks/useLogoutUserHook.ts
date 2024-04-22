@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import type { QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
+import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
@@ -26,7 +26,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: '/user/logout',
+        url: `/user/logout`,
         ...options,
       })
       return res.data
@@ -66,7 +66,7 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: '/user/logout',
+        url: `/user/logout`,
         ...options,
       })
       return res.data

@@ -1,16 +1,16 @@
 import client from '@kubb/swagger-client/client'
-import { infiniteQueryOptions, queryOptions, useInfiniteQuery, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type {
-  InfiniteData,
-  InfiniteQueryObserverOptions,
-  QueryKey,
   QueryObserverOptions,
-  UseInfiniteQueryResult,
   UseQueryResult,
+  QueryKey,
+  InfiniteQueryObserverOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -35,7 +35,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: '/pet/findByTags',
+        url: `/pet/findByTags`,
         params,
         ...options,
       })
@@ -82,7 +82,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: '/pet/findByTags',
+        url: `/pet/findByTags`,
         ...options,
         params: {
           ...params,
@@ -136,7 +136,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
-        url: '/pet/findByTags',
+        url: `/pet/findByTags`,
         params,
         ...options,
       })

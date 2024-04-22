@@ -1,18 +1,17 @@
 import path from 'node:path'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { OasManager } from '@kubb/swagger'
 
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { SchemaObject } from '@kubb/swagger/oas'
-import { fakerKeywordMapper } from './fakerParser.tsx'
+import type { SchemaObject } from '@kubb/oas'
+import { parse } from '@kubb/oas/parser'
 import type { PluginOptions } from './types'
 
 describe('Faker SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
-  const oas = await new OasManager().parse(schemaPath)
+  const oas = await parse(schemaPath)
   const generator = new SchemaGenerator(
     {
       dateType: 'string',

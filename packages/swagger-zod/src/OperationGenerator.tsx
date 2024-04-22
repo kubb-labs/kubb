@@ -4,8 +4,8 @@ import { Oas } from '@kubb/swagger/components'
 
 import { OperationSchema } from './components/OperationSchema.tsx'
 
+import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult, OperationsByMethod } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
 import { Operations } from './components/Operations.tsx'
 import type { FileMeta, PluginOptions } from './types.ts'
 

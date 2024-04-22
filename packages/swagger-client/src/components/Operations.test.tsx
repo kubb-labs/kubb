@@ -1,6 +1,5 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
-import { OasManager } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
@@ -9,10 +8,11 @@ import { Operations } from './Operations.tsx'
 import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
+import { parseFromConfig } from '@kubb/swagger/utils'
 import type { PluginOptions } from '../types.ts'
 
 describe('<Operations/>', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger-client/mocks/petStore.yaml' },

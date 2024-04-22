@@ -4,7 +4,7 @@ import { Function, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
-import type { HttpMethod } from '@kubb/swagger/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { PluginOptions } from '../types.ts'
 

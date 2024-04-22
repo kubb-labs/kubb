@@ -1,6 +1,6 @@
 import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { HttpMethod, Oas, Operation, SchemaObject } from './oas/index.ts'
+import type { HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 export type ContentType = 'application/json' | (string & {})

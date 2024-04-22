@@ -4,11 +4,11 @@ import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
 
 import type { KubbFile } from '@kubb/core'
+import type { SchemaObject } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '../SchemaGenerator.ts'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
-import type { SchemaObject } from '../oas/index.ts'
 import type { PluginOptions } from '../types.ts'
 
 export type SchemaContextProps = {

@@ -4,10 +4,11 @@ import { URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
-import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
 
+import { isRequired } from '@kubb/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

@@ -1,6 +1,5 @@
 import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { OasManager } from '@kubb/swagger'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -10,10 +9,11 @@ import { Operations } from './components/Operations.tsx'
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
+import { parseFromConfig } from '@kubb/swagger/utils'
 import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger-client/mocks/petStore.yaml' },

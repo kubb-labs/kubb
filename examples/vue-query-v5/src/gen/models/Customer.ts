@@ -1,4 +1,4 @@
-import type { Address } from './Address'
+import { Address } from './Address'
 
 export type Customer = {
   /**

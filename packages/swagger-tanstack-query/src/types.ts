@@ -1,6 +1,6 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
-import type { HttpMethod } from '@kubb/swagger/oas'
 import type { Mutation } from './components/Mutation.tsx'
 import type { Operations } from './components/Operations.tsx'
 import type { Query as QueryTemplate } from './components/Query.tsx'

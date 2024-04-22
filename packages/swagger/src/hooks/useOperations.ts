@@ -2,7 +2,7 @@ import { useContext } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
-import type { HttpMethod, Operation } from '../oas/index.ts'
+import type { HttpMethod, Operation } from '@kubb/oas'
 
 type UseOperationsProps = {
   /**

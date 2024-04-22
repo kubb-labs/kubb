@@ -1171,6 +1171,43 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
+  packages/oas:
+    dependencies:
+      oas:
+        specifier: ^24.2.2
+        version: 24.2.2
+      oas-normalize:
+        specifier: ^11.0.4
+        version: 11.0.4
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
+      remeda:
+        specifier: ^1.61.0
+        version: 1.61.0
+      swagger2openapi:
+        specifier: ^7.0.8
+        version: 7.0.8
+    devDependencies:
+      '@kubb/biome-config':
+        specifier: workspace:*
+        version: link:../config/biome-config
+      '@kubb/ts-config':
+        specifier: workspace:*
+        version: link:../config/ts-config
+      '@kubb/tsup-config':
+        specifier: workspace:*
+        version: link:../config/tsup-config
+      '@types/swagger2openapi':
+        specifier: ^7.0.4
+        version: 7.0.4
+      tsup:
+        specifier: ^8.0.2
+        version: 8.0.2(@microsoft/api-extractor@7.43.1)(ts-node@10.9.2)(typescript@5.4.5)
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
   packages/parser:
     dependencies:
       remeda:
@@ -1238,33 +1275,21 @@ importers:
 
   packages/swagger:
     dependencies:
-      '@apidevtools/swagger-parser':
-        specifier: ^10.1.0
-        version: 10.1.0(openapi-types@12.1.3)
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
-      oas:
-        specifier: ^24.2.2
-        version: 24.2.2
-      oas-normalize:
-        specifier: ^11.0.4
-        version: 11.0.4
-      openapi-types:
-        specifier: ^12.1.3
-        version: 12.1.3
       remeda:
         specifier: ^1.61.0
         version: 1.61.0
-      swagger2openapi:
-        specifier: ^7.0.8
-        version: 7.0.8
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1278,9 +1303,6 @@ importers:
       '@types/react':
         specifier: ^18.2.79
         version: 18.2.79
-      '@types/swagger2openapi':
-        specifier: ^7.0.4
-        version: 7.0.4
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1296,6 +1318,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1874,14 +1899,6 @@ packages:
       '@jridgewell/trace-mapping': 0.3.25
     dev: true
 
-  /@apidevtools/json-schema-ref-parser@9.0.6:
-    resolution: {integrity: sha512-M3YgsLjI0lZxvrpeGVk9Ap032W6TPQkH6pRAZz81Ac3WUNF79VQooAFnp8umjvVzUmD93NkogxEwbSce7qMsUg==}
-    dependencies:
-      '@jsdevtools/ono': 7.1.3
-      call-me-maybe: 1.0.2
-      js-yaml: 3.14.1
-    dev: false
-
   /@apidevtools/openapi-schemas@2.1.0:
     resolution: {integrity: sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==}
     engines: {node: '>=10'}
@@ -1889,21 +1906,6 @@ packages:
 
   /@apidevtools/swagger-methods@3.0.2:
     resolution: {integrity: sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==}
-    dev: false
-
-  /@apidevtools/swagger-parser@10.1.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-9Kt7EuS/7WbMAUv2gSziqjvxwDbFSg3Xeyfuj5laUODX8o/k/CpsAKiQ8W7/R88eXFTMbJYg6+7uAmOWNKmwnw==}
-    peerDependencies:
-      openapi-types: '>=7'
-    dependencies:
-      '@apidevtools/json-schema-ref-parser': 9.0.6
-      '@apidevtools/openapi-schemas': 2.1.0
-      '@apidevtools/swagger-methods': 3.0.2
-      '@jsdevtools/ono': 7.1.3
-      ajv: 8.12.0
-      ajv-draft-04: 1.0.0(ajv@8.12.0)
-      call-me-maybe: 1.0.2
-      openapi-types: 12.1.3
     dev: false
 
   /@babel/code-frame@7.24.2:
@@ -5940,6 +5942,7 @@ packages:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
     engines: {node: '>=4'}
     hasBin: true
+    dev: true
 
   /esrecurse@4.3.0:
     resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
@@ -6899,6 +6902,7 @@ packages:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
+    dev: true
 
   /js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
@@ -9154,7 +9158,7 @@ packages:
       joycon: 3.1.1
       postcss-load-config: 4.0.2(ts-node@10.9.2)
       resolve-from: 5.0.0
-      rollup: 4.13.2
+      rollup: 4.16.1
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tree-kill: 1.2.2

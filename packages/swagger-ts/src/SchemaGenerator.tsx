@@ -6,8 +6,8 @@ import { Oas, Schema } from '@kubb/swagger/components'
 import { pluginKey } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
 
+import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
-import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {

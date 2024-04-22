@@ -7,7 +7,7 @@ import { getASTParams, getComments } from '@kubb/swagger/utils'
 
 import { SchemaType } from './SchemaType.tsx'
 
-import type { HttpMethod } from '@kubb/swagger/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

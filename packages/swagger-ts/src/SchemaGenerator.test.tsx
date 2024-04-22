@@ -1,17 +1,17 @@
 import path from 'node:path'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { OasManager } from '@kubb/swagger'
+import { parse } from '@kubb/oas/parser'
 
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin, PluginManager } from '@kubb/core'
-import type { Oas, OasTypes, SchemaObject } from '@kubb/swagger/oas'
+import type { Oas, OasTypes, SchemaObject } from '@kubb/oas'
 import type { PluginOptions } from './types.ts'
 
 describe('TypeScript SchemaGenerator petStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
-  const oas = await new OasManager().parse(petStorePath)
+  const oas = await parse(petStorePath)
 
   test('generate type for Pet with optionalType `questionToken`', async () => {
     const generator = new SchemaGenerator(
@@ -178,7 +178,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
 
 describe('SchemaGenerator petStoreRef', async () => {
   const petStoreRefPath = path.resolve(__dirname, '../mocks/petStoreRef.yaml')
-  const oas = await new OasManager().parse(petStoreRefPath)
+  const oas = await parse(petStoreRefPath)
 
   test('generate type for Pets', async () => {
     const generator = new SchemaGenerator(
@@ -213,7 +213,7 @@ describe('SchemaGenerator petStoreRef', async () => {
 
 describe('SchemaGenerator discriminator', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/discriminator.yaml')
-  const oas = await new OasManager().parse(discriminatorPath)
+  const oas = await parse(discriminatorPath)
 
   test('PetStore defined as array with type union', async () => {
     const generator = new SchemaGenerator(
@@ -427,7 +427,7 @@ describe('SchemaGenerator discriminator', async () => {
 
 describe('SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
-  const oas = await new OasManager().parse(schemaPath)
+  const oas = await parse(schemaPath)
   const defaultGenerator = new SchemaGenerator(
     {
       usedEnumNames: {},
@@ -614,7 +614,7 @@ describe('SchemaGenerator enums', async () => {
 
 describe('TypeGenerator type assertions', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/typeAssertions.yaml')
-  const oas = await new OasManager().parse(schemaPath)
+  const oas = await parse(schemaPath)
 
   const defaultGenerator = new SchemaGenerator(
     {

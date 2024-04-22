@@ -2,8 +2,8 @@ import { URLPath } from '@kubb/core/utils'
 import { Editor, File, useApp } from '@kubb/react'
 import { useOperations } from '@kubb/swagger/hooks'
 
+import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { HttpMethod, Operation } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

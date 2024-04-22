@@ -3,8 +3,8 @@ import { useApp, useContext } from '@kubb/react'
 import { Oas } from '../components/Oas.tsx'
 
 import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
+import type { Operation as OperationType } from '@kubb/oas'
 import type { GetOperationSchemas } from '../components/Oas.tsx'
-import type { Operation as OperationType } from '../oas/index.ts'
 
 type FileMeta = KubbFile.FileMetaBase & {
   pluginKey: Plugin['key']

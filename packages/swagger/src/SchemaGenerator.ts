@@ -2,15 +2,15 @@ import { Generator } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
-import { equals, isDeepEqual, isNumber, uniqueWith } from 'remeda'
+import { isReference } from '@kubb/oas'
+import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
-import { isReference } from './utils/isReference.ts'
 
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Schema, SchemaKeywordMapper, SchemaMapper } from './SchemaMapper.ts'
-import type { Oas, OpenAPIV3, SchemaObject } from './oas/index.ts'
+import type { Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
+import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { ContentType, OperationSchema, Override, Refs } from './types.ts'
 
 export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>

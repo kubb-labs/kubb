@@ -7,8 +7,8 @@ import { useSchema } from '@kubb/swagger/hooks'
 import { fakerParser } from './fakerParser.tsx'
 import { pluginKey } from './plugin.ts'
 
+import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
-import type { SchemaObject } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 function SchemaImports() {

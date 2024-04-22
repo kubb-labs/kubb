@@ -2,13 +2,14 @@ import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
 
-import { OasManager } from './OasManager.ts'
+import { parse } from '@kubb/oas/parser'
 
 import type { Config } from '@kubb/core'
+import { parseFromConfig } from './parseFromConfig.ts'
 
-describe('OasManager', () => {
-  const petStoreV3 = path.resolve(__dirname, '../mocks/petStore.yaml')
-  const petStoreV2 = path.resolve(__dirname, '../mocks/petStoreV2.json')
+describe('parseFromConfig', () => {
+  const petStoreV3 = path.resolve(__dirname, '../../mocks/petStore.yaml')
+  const petStoreV2 = path.resolve(__dirname, '../../mocks/petStoreV2.json')
 
   const yamlPetStoreString = `
 openapi: 3.0.0
@@ -56,14 +57,14 @@ components:
   const petStoreObject = yaml.parse(yamlPetStoreString)
 
   test('check if oas and title is defined based on a Swagger(v3) file', async () => {
-    const oas = await new OasManager().parse(petStoreV3)
+    const oas = await parse(petStoreV3)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger Petstore')
   })
 
   test('check if oas and title is defined based on a Swagger(v2) file', async () => {
-    const oas = await new OasManager().parse(petStoreV2)
+    const oas = await parse(petStoreV2)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger Petstore')
@@ -72,7 +73,7 @@ components:
   test('check if oas and title is defined based on a Swagger(v3) JSON import', async () => {
     const data = await import(petStoreV2)
 
-    const oas = await OasManager.parseFromConfig({
+    const oas = await parseFromConfig({
       input: {
         data,
       },
@@ -83,7 +84,7 @@ components:
   })
 
   test('check if oas and title is defined based on a Swagger(v3) JSON string', async () => {
-    const oas = await OasManager.parseFromConfig({
+    const oas = await parseFromConfig({
       input: {
         data: JSON.stringify(petStoreObject),
       },
@@ -94,7 +95,7 @@ components:
   })
 
   test('check if oas and title is defined based on a Swagger(v3) JSON object', async () => {
-    const oas = await OasManager.parseFromConfig({
+    const oas = await parseFromConfig({
       input: {
         data: petStoreObject,
       },
@@ -105,7 +106,7 @@ components:
   })
 
   test('check if oas and title is defined based on a Swagger(v3) YAML', async () => {
-    const oas = await OasManager.parseFromConfig({
+    const oas = await parseFromConfig({
       input: {
         data: yamlPetStoreString,
       },
