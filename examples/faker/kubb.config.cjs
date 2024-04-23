@@ -4,11 +4,7 @@ const { definePlugin: createSwagger } = require('@kubb/swagger')
 const { definePlugin: createSwaggerFaker } = require('@kubb/swagger-faker')
 const { definePlugin: createSwaggerTS } = require('@kubb/swagger-ts')
 
-module.exports = defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+module.exports = defineConfig(() => {
   return {
     root: '.',
     input: {

@@ -1,23 +1,30 @@
 import OASNormalize from 'oas-normalize'
 import swagger2openapi from 'swagger2openapi'
 
-import type { OpenAPIV2 } from 'openapi-types'
 import { Oas } from '../Oas.ts'
-import type { OasTypes } from '../types.ts'
 import { isOpenApiV2Document } from '../utils.ts'
 
-export async function parse(pathOrApi: string | OasTypes.OASDocument): Promise<Oas> {
+import type { OASDocument } from 'oas/types'
+import type { OpenAPI } from 'openapi-types'
+
+export async function parse(pathOrApi: string | OASDocument): Promise<Oas> {
   const oasNormalize = new OASNormalize(pathOrApi, {
     enablePaths: true,
     colorizeErrors: true,
   })
+  let document: OpenAPI.Document
 
-  const document = (await oasNormalize.load()) as unknown as OpenAPIV2.Document
+  try {
+    // resolve external refs
+    document = await oasNormalize.bundle()
+  } catch (e) {
+    document = (await oasNormalize.load()) as OpenAPI.Document
+  }
 
   if (isOpenApiV2Document(document)) {
     const { openapi: oas } = await swagger2openapi.convertObj(document, { anchors: true })
 
-    return new Oas({ oas: oas as OasTypes.OASDocument })
+    return new Oas({ oas: oas as OASDocument })
   }
 
   return new Oas({ oas: document })

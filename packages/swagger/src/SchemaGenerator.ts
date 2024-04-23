@@ -749,9 +749,9 @@ export abstract class SchemaGenerator<
   async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
-    const object = getSchemas({ oas, contentType, includes: include })
+    const schemas = getSchemas({ oas, contentType, includes: include })
 
-    const promises = Object.entries(object).reduce((acc, [name, schema]) => {
+    const promises = Object.entries(schemas).reduce((acc, [name, schema]) => {
       const promiseOperation = this.schema.call(this, name, schema)
 
       if (promiseOperation) {

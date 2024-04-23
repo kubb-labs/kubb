@@ -1114,7 +1114,21 @@ export const oas = {
             example: 'doggie',
           },
           category: {
-            $ref: '#/components/schemas/Category',
+            type: 'object',
+            properties: {
+              id: {
+                type: 'integer',
+                format: 'int64',
+                example: 1,
+              },
+              name: {
+                type: 'string',
+                example: 'Dogs',
+              },
+            },
+            xml: {
+              name: 'category',
+            },
           },
           photoUrls: {
             type: 'array',

@@ -9,11 +9,7 @@ import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
 
-export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+export default defineConfig(() => {
   return {
     root: '.',
     input: {

@@ -80,7 +80,7 @@ export function Mock({ Template = defaultTemplates.default }: Props): ReactNode 
   const schemas = getSchemas(operation)
   const name = getName(operation, { type: 'function' })
   const responseName = pluginManager.resolveName({
-    pluginKey: fakerPluginKey,
+    pluginKey: fakerPluginKey as any,
     name: schemas.response.name,
     type: 'type',
   })
@@ -104,9 +104,9 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
 
   const schemas = getSchemas(operation)
   const file = getFile(operation)
-  const fileFaker = getFile(operation, { pluginKey: fakerPluginKey })
+  const fileFaker = getFile(operation, { pluginKey: fakerPluginKey as any })
   const responseName = pluginManager.resolveName({
-    pluginKey: fakerPluginKey,
+    pluginKey: fakerPluginKey as any,
     name: schemas.response.name,
     type: 'function',
   })

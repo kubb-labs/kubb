@@ -150,7 +150,19 @@ export type Pet = {
    * @type string
    */
   name: string
-  category?: Category
+  /**
+   * @type object | undefined
+   */
+  category?: {
+    /**
+     * @type integer | undefined, int64
+     */
+    id?: number
+    /**
+     * @type string | undefined
+     */
+    name?: string
+  }
   /**
    * @type array
    */

@@ -4,11 +4,7 @@ import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
 import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
 import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
-export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
