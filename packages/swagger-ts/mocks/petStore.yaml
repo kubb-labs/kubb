@@ -125,6 +125,8 @@ components:
           type: string
         tag:
           type: string
+        category:
+          $ref: 'https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category'
     Pets:
       type: array
       items: {
