@@ -1,5 +1,18 @@
 # @kubb/swagger
 
+## 2.14.0
+
+### Minor Changes
+
+- [#953](https://github.com/kubb-labs/kubb/pull/953) [`f58269f`](https://github.com/kubb-labs/kubb/commit/f58269f776e459c9bae21e8122a8f60fde8702e1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for external #refs
+
+### Patch Changes
+
+- Updated dependencies [[`f58269f`](https://github.com/kubb-labs/kubb/commit/f58269f776e459c9bae21e8122a8f60fde8702e1)]:
+  - @kubb/oas@2.14.0
+  - @kubb/core@2.14.0
+  - @kubb/react@2.14.0
+
 ## 2.13.3
 
 ### Patch Changes
