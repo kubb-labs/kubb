@@ -30,7 +30,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 }
 
 export type SchemaGeneratorOptions = {
-  dateType: false | 'string' | 'stringOffset' | 'date'
+  dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   unknownType: 'any' | 'unknown'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
@@ -636,6 +636,11 @@ export abstract class SchemaGenerator<
 
             if (options.dateType === 'stringOffset') {
               baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: true } })
+              return baseItems
+            }
+
+            if (options.dateType === 'stringLocal') {
+              baseItems.unshift({ keyword: schemaKeywords.datetime, args: { local: true } })
               return baseItems
             }
 

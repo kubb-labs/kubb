@@ -20,7 +20,7 @@ export type SchemaKeywordMapper = {
   password: { keyword: 'password' }
   date: { keyword: 'date'; args: { type?: 'date' | 'string' } }
   time: { keyword: 'time'; args: { type?: 'date' | 'string' } }
-  datetime: { keyword: 'datetime'; args: { offset?: boolean } }
+  datetime: { keyword: 'datetime'; args: { offset?: boolean; local?: boolean } }
   tuple: { keyword: 'tuple'; args: Schema[] }
   array: {
     keyword: 'array'

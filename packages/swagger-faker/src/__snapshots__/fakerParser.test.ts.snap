@@ -35,7 +35,7 @@ exports[`fakerParser > 'Upload' 1`] = `
 
 export function Upload() {
   
-  return undefined
+  return faker.image.imageUrl() as unknown as Blob
 }
 "
 `;
@@ -54,7 +54,7 @@ exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]
 
 exports[`parseFakerMeta > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
 
-exports[`parseFakerMeta > 'blob' 1`] = `undefined`;
+exports[`parseFakerMeta > 'blob' 1`] = `"faker.image.imageUrl() as unknown as Blob"`;
 
 exports[`parseFakerMeta > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
@@ -101,6 +101,8 @@ exports[`parseFakerMeta > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
 exports[`parseFakerMeta > 'ref' 1`] = `"Pet()"`;
 
 exports[`parseFakerMeta > 'string' 1`] = `"faker.string.alpha()"`;
+
+exports[`parseFakerMeta > 'stringLocal' 1`] = `"faker.date.anytime().toISOString()"`;
 
 exports[`parseFakerMeta > 'stringOffset' 1`] = `"faker.date.anytime().toISOString()"`;
 
