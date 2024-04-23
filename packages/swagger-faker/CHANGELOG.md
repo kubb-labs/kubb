@@ -1,5 +1,16 @@
 # @kubb/swagger-faker
 
+## 2.13.3
+
+### Patch Changes
+
+- Updated dependencies [[`eac4bb5`](https://github.com/kubb-labs/kubb/commit/eac4bb525a6857b3a0e4c04d52e3de5d2f568d4f)]:
+  - @kubb/swagger@2.13.3
+  - @kubb/swagger-ts@2.13.3
+  - @kubb/core@2.13.3
+  - @kubb/parser@2.13.3
+  - @kubb/react@2.13.3
+
 ## 2.13.2
 
 ### Patch Changes
