@@ -490,7 +490,7 @@ export type UploadFileQueryParams = {
  */
 export type UploadFile200 = ApiResponse
 
-export type UploadFileMutationRequest = string
+export type UploadFileMutationRequest = Blob
 
 /**
  * @description successful operation

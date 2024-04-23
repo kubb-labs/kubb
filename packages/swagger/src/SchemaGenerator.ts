@@ -9,7 +9,7 @@ import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 
 import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { MediaType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
+import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 
@@ -25,12 +25,12 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   mode: KubbFile.Mode
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
   override: Array<Override<TOptions>> | undefined
-  mediaType?: MediaType
+  contentType?: contentType
   output?: string
 }
 
 export type SchemaGeneratorOptions = {
-  dateType: false | 'string' | 'stringOffset' | 'date'
+  dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   unknownType: 'any' | 'unknown'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
@@ -625,7 +625,7 @@ export abstract class SchemaGenerator<
       switch (schema.format) {
         case 'binary':
           baseItems.push({ keyword: schemaKeywords.blob })
-          break
+          return baseItems
         case 'date-time':
           if (options.dateType) {
             if (options.dateType === 'date') {
@@ -636,6 +636,11 @@ export abstract class SchemaGenerator<
 
             if (options.dateType === 'stringOffset') {
               baseItems.unshift({ keyword: schemaKeywords.datetime, args: { offset: true } })
+              return baseItems
+            }
+
+            if (options.dateType === 'stringLocal') {
+              baseItems.unshift({ keyword: schemaKeywords.datetime, args: { local: true } })
               return baseItems
             }
 
@@ -742,9 +747,9 @@ export abstract class SchemaGenerator<
   }
 
   async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
-    const { oas, mediaType, include } = this.context
+    const { oas, contentType, include } = this.context
 
-    const object = getSchemas({ oas, mediaType, includes: include })
+    const object = getSchemas({ oas, contentType, includes: include })
 
     const promises = Object.entries(object).reduce((acc, [name, schema]) => {
       const promiseOperation = this.schema.call(this, name, schema)

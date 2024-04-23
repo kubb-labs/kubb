@@ -79,7 +79,7 @@ export type Options = {
    * False will fallback on a simple z.string() format
    * @default 'string' 'stringOffset' will become the default in Kubb v3
    */
-  dateType?: false | 'string' | 'stringOffset' | 'date'
+  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'

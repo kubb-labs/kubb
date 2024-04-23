@@ -23,6 +23,7 @@
     "clean": "turbo run clean",
     "format": "bun biome format --write ./",
     "generate": "turbo run generate --filter=./examples/* --continue",
+    "postgenerate": "bun run lint:fix && bun run format",
     "graph": "npx nx graph ",
     "install:csb": "corepack enable && pnpm install --frozen-lockfile",
     "lint": "bun biome lint ./packages",

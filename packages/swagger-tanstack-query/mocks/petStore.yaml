@@ -697,6 +697,35 @@ paths:
           description: Invalid username supplied
         "404":
           description: User not found
+  /upload:
+    post:
+      description: Upload file
+      operationId: UploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: string
+
 components:
   schemas:
     Order:
@@ -830,7 +859,6 @@ components:
           type: string
       xml:
         name: tag
-
     Pet:
       required:
         - name

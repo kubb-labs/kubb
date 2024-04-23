@@ -437,6 +437,10 @@ z.string().datetime()
 z.string().datetime({ offset: true })
 ```
 
+```typescript ['stringLocal']
+z.string().datetime({ local: true })
+```
+
 ```typescript ['date']
 z.date()
 ```
@@ -445,7 +449,7 @@ z.date()
 
 ::: info
 
-Type: `false | 'string' | 'stringOffset' | 'date'` <br/>
+Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
 Default: `'string'`
 
 ::: code-group
@@ -508,6 +512,27 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerZod({
       dateType: 'stringOffset',
+    }),
+  ],
+})
+```
+
+```typescript ['stringLocal']
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: 'stringLocal',
     }),
   ],
 })

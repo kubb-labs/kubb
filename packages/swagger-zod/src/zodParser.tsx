@@ -30,7 +30,17 @@ export const zodKeywordMapper = {
   enum: (items: string[] = []) => `z.enum([${items?.join(', ')}])`,
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
   const: (value?: string | number) => `z.literal(${value ?? ''})`,
-  datetime: (offset = false) => (offset ? `z.string().datetime({ offset: ${offset} })` : 'z.string().datetime()'),
+  datetime: (offset = false, local = false) => {
+    if (offset) {
+      return `z.string().datetime({ offset: ${offset} })`
+    }
+
+    if (local) {
+      return `z.string().datetime({ local: ${local} })`
+    }
+
+    return 'z.string().datetime()'
+  },
   date: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().date()' : 'z.date()'),
   time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().time()' : 'z.time()'),
   uuid: () => '.uuid()',
@@ -50,7 +60,7 @@ export const zodKeywordMapper = {
   phone: undefined,
   readOnly: undefined,
   ref: (value?: string) => (value ? `z.lazy(() => ${value}).schema` : undefined),
-  blob: undefined,
+  blob: () => 'z.string()',
   deprecated: undefined,
   example: undefined,
   schema: undefined,
@@ -268,7 +278,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   }
 
   if (isKeyword(current, schemaKeywords.datetime)) {
-    return zodKeywordMapper.datetime(current.args.offset)
+    return zodKeywordMapper.datetime(current.args.offset, current.args.local)
   }
 
   if (isKeyword(current, schemaKeywords.date)) {

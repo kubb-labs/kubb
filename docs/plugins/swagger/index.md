@@ -190,20 +190,20 @@ export default defineConfig({
 
 :::
 
-### mediaType
+### contentType
 
-Override mediaType that will be used for requests and responses.
+Override contentType that will be used for requests and responses.
 
 ::: info type
 
 ```typescript
-export type MediaType = 'application/json' | (string & {})
+export type contentType = 'application/json' | (string & {})
 ```
 
 :::
 
 ::: info
-Type: `MediaType` <br/>
+Type: `contentType` <br/>
 
 ::: code-group
 
@@ -219,7 +219,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ mediaType: 'application/json' }),
+    createSwagger({ contentType: 'application/json' }),
   ],
 })
 ```

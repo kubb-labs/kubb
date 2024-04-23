@@ -68,6 +68,15 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'stringLocal',
+    schema: {
+      keyword: schemaKeywords.datetime,
+      args: {
+        local: true,
+      },
+    },
+  },
+  {
     name: 'datetime',
     schema: {
       keyword: schemaKeywords.datetime,

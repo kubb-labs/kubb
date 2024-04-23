@@ -25,7 +25,7 @@ describe('Faker SchemaGenerator enums', async () => {
       oas,
       pluginManager: mockedPluginManager,
       plugin: {} as Plugin<PluginOptions>,
-      mediaType: undefined,
+      contentType: undefined,
       include: undefined,
       mode: 'split',
       override: [],

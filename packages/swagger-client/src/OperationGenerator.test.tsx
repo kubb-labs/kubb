@@ -38,7 +38,7 @@ describe('OperationGenerator', async () => {
       include: undefined,
       pluginManager: mockedPluginManager,
       plugin: { options } as Plugin<PluginOptions>,
-      mediaType: undefined,
+      contentType: undefined,
       override: undefined,
       mode: 'split',
     })
@@ -69,7 +69,7 @@ describe('OperationGenerator', async () => {
       include: undefined,
       pluginManager: mockedPluginManager,
       plugin: { options } as Plugin<PluginOptions>,
-      mediaType: undefined,
+      contentType: undefined,
       override: undefined,
       mode: 'split',
     })
@@ -103,7 +103,7 @@ describe('OperationGenerator', async () => {
       include: undefined,
       pluginManager: mockedPluginManager,
       plugin: { options } as Plugin<PluginOptions>,
-      mediaType: undefined,
+      contentType: undefined,
       override: undefined,
       mode: 'split',
     })

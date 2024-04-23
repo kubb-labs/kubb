@@ -39,17 +39,25 @@ type TemplateProps = {
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
+    contentType: string
   }
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
 function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType }: TemplateProps): ReactNode {
+  const headers = [
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
+    client.withHeaders ? '...headers' : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
     client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
+    headers.length ? `headers: { ${headers}, ...options.headers }` : undefined,
     '...options',
   ].filter(Boolean)
 
@@ -101,6 +109,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
     name: `${factory.name}QueryOptions`,
     pluginKey,
   })
+  const contentType = operation.getContentType()
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -139,6 +148,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
     method: operation.method,
     path: new URLPath(operation.path),
     generics: clientGenerics.join(', '),
+    contentType,
   }
 
   return (

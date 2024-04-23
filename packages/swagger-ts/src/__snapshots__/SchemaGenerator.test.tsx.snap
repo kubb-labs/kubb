@@ -271,7 +271,7 @@ exports[`TypeGenerator type assertions > generates Email type correctly 1`] = `
 
 exports[`TypeGenerator type assertions > generates Plain_File types correctly 1`] = `
 [
-  "export type Plain_file = string;
+  "export type Plain_file = Blob;
 ",
 ]
 `;
@@ -296,7 +296,7 @@ exports[`TypeGenerator type assertions > generates file property with \`File\` t
     /**
      * @type string, binary
     */
-    file: string;
+    file: Blob;
 };
 ",
 ]

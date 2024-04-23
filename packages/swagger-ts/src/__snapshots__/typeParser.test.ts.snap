@@ -177,6 +177,11 @@ exports[`parseTypeMeta > 'string' 1`] = `
 "
 `;
 
+exports[`parseTypeMeta > 'stringLocal' 1`] = `
+"string
+"
+`;
+
 exports[`parseTypeMeta > 'stringOffset' 1`] = `
 "string
 "

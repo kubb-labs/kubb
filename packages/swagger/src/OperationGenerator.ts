@@ -3,7 +3,7 @@ import transformers from '@kubb/core/transformers'
 
 import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
-import type { HttpMethod, MediaType, Oas, OasTypes, Operation } from '@kubb/oas'
+import type { HttpMethod, Oas, OasTypes, Operation, contentType } from '@kubb/oas'
 import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
@@ -15,7 +15,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
   override: Array<Override<TOptions>> | undefined
-  mediaType: MediaType | undefined
+  contentType: contentType | undefined
   pluginManager: PluginManager
   /**
    * Current plugin
