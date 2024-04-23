@@ -46,6 +46,7 @@ type TemplateProps = {
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
+    contentType: string
   }
   infinite: Infinite | false
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
@@ -55,12 +56,19 @@ type TemplateProps = {
 function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
+  const headers = [
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
+    client.withHeaders ? '...headers' : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams && !infinite ? 'params' : undefined,
     client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
+    headers.length ? `headers: { ${headers}, ...options.headers }` : undefined,
     '...options',
     client.withQueryParams && !!infinite
       ? `params: {
@@ -348,6 +356,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
+  const contentType = operation.getContentType()
   const schemas = getSchemas(operation)
 
   const queryKey = pluginManager.resolveName({
@@ -383,6 +392,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     method: operation.method,
     path: new URLPath(operation.path),
     generics: clientGenerics.toString(),
+    contentType,
   }
 
   generics.add([

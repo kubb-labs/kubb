@@ -50,7 +50,7 @@ export const zodKeywordMapper = {
   phone: undefined,
   readOnly: undefined,
   ref: (value?: string) => (value ? `z.lazy(() => ${value}).schema` : undefined),
-  blob: undefined,
+  blob: () => 'z.string()',
   deprecated: undefined,
   example: undefined,
   schema: undefined,

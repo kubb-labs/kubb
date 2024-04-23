@@ -22,7 +22,7 @@ export function createUploadFile200(): NonNullable<UploadFile200> {
 
 export function createUploadFileMutationRequest(): NonNullable<UploadFileMutationRequest> {
   faker.seed([220])
-  return faker.string.alpha()
+  return faker.image.imageUrl() as unknown as Blob
 }
 
 /**

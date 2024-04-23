@@ -193,6 +193,33 @@ describe('OperationGenerator', async () => {
       method: 'post',
       operation: oas.operation('/pet/{petId}', 'post'),
     },
+    {
+      name: 'upload',
+      options: {
+        framework: 'react',
+        infinite: false,
+        suspense: false,
+        dataReturnType: 'data',
+        pathParamsType: 'object',
+        templates: {
+          query: Query.templates,
+          queryKey: QueryKey.templates,
+          queryOptions: QueryOptions.templates,
+        },
+        client: {
+          importPath: '@kubb/swagger-client/client',
+        },
+        parser: undefined,
+        query: {
+          methods: ['get'],
+          queryKey: (key: unknown[]) => key,
+        },
+        queryOptions: {},
+        mutate: false,
+      },
+      method: 'post',
+      operation: oas.operation('/upload', 'post'),
+    },
   ]
 
   test.each(items)('$name', async ({ name, method, options, operation }) => {
@@ -202,7 +229,7 @@ describe('OperationGenerator', async () => {
       include: undefined,
       pluginManager: mockedPluginManager,
       plugin: { options } as Plugin<PluginOptions>,
-      mediaType: undefined,
+      contentType: undefined,
       override: undefined,
       mode: 'split',
     })

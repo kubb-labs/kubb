@@ -72,7 +72,7 @@ export const fakerKeywordMapper = {
   lastName: () => 'faker.person.lastName()',
   password: () => 'faker.internet.password()',
   phone: () => 'faker.phone.number()',
-  blob: undefined,
+  blob: () => 'faker.image.imageUrl() as unknown as Blob',
   default: undefined,
   describe: undefined,
   const: (value?: string | number) => (value as string) ?? '',

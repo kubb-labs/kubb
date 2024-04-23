@@ -6,7 +6,7 @@ export type { HttpMethods as HttpMethod } from 'oas/types'
 export type * as OasTypes from 'oas/types'
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
-export type MediaType = 'application/json' | (string & {})
+export type contentType = 'application/json' | (string & {})
 
 export type SchemaObject = OasTypes.SchemaObject & {
   'x-nullable'?: boolean

@@ -3,10 +3,10 @@ import OASNormalize from 'oas-normalize'
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
 import { findSchemaDefinition, matchesMimeType } from 'oas/utils'
-import type { MediaType } from './types.ts'
+import type { contentType } from './types.ts'
 import { isReference } from './utils.ts'
 type Options = {
-  mediaType?: MediaType
+  contentType?: contentType
 }
 
 export class Oas<const TOAS = unknown> extends BaseOas {
@@ -24,29 +24,26 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     this.#options = options
   }
 
-  dereference(schema?: unknown, { withRef = false }: { withRef?: boolean } = {}) {
+  dereferenceWithRef(schema?: unknown) {
     if (isReference(schema)) {
-      if (withRef) {
-        return {
-          ...findSchemaDefinition(schema?.$ref, this.api),
-          $ref: schema.$ref,
-        }
+      return {
+        ...findSchemaDefinition(schema.$ref, this.api),
+        $ref: schema.$ref,
       }
-      return findSchemaDefinition(schema?.$ref, this.api)
     }
 
     return schema
   }
 
   /**
-   * Oas does not have a getResponseBody(mediaType)
+   * Oas does not have a getResponseBody(contentType)
    */
-  #getResponseBodyFactory(responseBody: boolean | ResponseObject): (mediaType?: string) => MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
+  #getResponseBodyFactory(responseBody: boolean | ResponseObject): (contentType?: string) => MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
     function hasResponseBody(res = responseBody): res is ResponseObject {
       return !!res
     }
 
-    return (mediaType) => {
+    return (contentType) => {
       if (!hasResponseBody(responseBody)) {
         return false
       }
@@ -61,34 +58,34 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         return false
       }
 
-      if (mediaType) {
-        if (!(mediaType in responseBody.content)) {
+      if (contentType) {
+        if (!(contentType in responseBody.content)) {
           return false
         }
 
-        return responseBody.content[mediaType]!
+        return responseBody.content[contentType]!
       }
 
       // Since no media type was supplied we need to find either the first JSON-like media type that
       // we've got, or the first available of anything else if no JSON-like media types are present.
-      let availableMediaType: string | undefined = undefined
-      const mediaTypes = Object.keys(responseBody.content)
-      mediaTypes.forEach((mt: string) => {
-        if (!availableMediaType && matchesMimeType.json(mt)) {
-          availableMediaType = mt
+      let availablecontentType: string | undefined = undefined
+      const contentTypes = Object.keys(responseBody.content)
+      contentTypes.forEach((mt: string) => {
+        if (!availablecontentType && matchesMimeType.json(mt)) {
+          availablecontentType = mt
         }
       })
 
-      if (!availableMediaType) {
-        mediaTypes.forEach((mt: string) => {
-          if (!availableMediaType) {
-            availableMediaType = mt
+      if (!availablecontentType) {
+        contentTypes.forEach((mt: string) => {
+          if (!availablecontentType) {
+            availablecontentType = mt
           }
         })
       }
 
-      if (availableMediaType) {
-        return [availableMediaType, responseBody.content[availableMediaType]!, ...(responseBody.description ? [responseBody.description] : [])]
+      if (availablecontentType) {
+        return [availablecontentType, responseBody.content[availablecontentType]!, ...(responseBody.description ? [responseBody.description] : [])]
       }
 
       return false
@@ -98,14 +95,19 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   getResponseSchema(operation: Operation, statusCode: string | number): SchemaObject {
     if (operation.schema.responses) {
       Object.keys(operation.schema.responses).forEach((key) => {
-        operation.schema.responses![key] = this.dereference(operation.schema.responses![key])
+        const schema = operation.schema.responses![key]
+        const $ref = isReference(schema) ? schema.$ref : undefined
+
+        if (schema && $ref) {
+          operation.schema.responses![key] = findSchemaDefinition($ref, this.api)
+        }
       })
     }
 
     const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode))
 
-    const { mediaType } = this.#options
-    const responseBody = getResponseBody(mediaType)
+    const { contentType } = this.#options
+    const responseBody = getResponseBody(contentType)
 
     if (responseBody === false) {
       // return empty object because response will always be defined(request does not need a body)
@@ -120,17 +122,17 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       return {}
     }
 
-    return this.dereference(schema, { withRef: true })
+    return this.dereferenceWithRef(schema)
   }
 
   getRequestSchema(operation: Operation): SchemaObject | undefined {
-    const { mediaType } = this.#options
+    const { contentType } = this.#options
 
     if (operation.schema.requestBody) {
-      operation.schema.requestBody = this.dereference(operation.schema.requestBody)
+      operation.schema.requestBody = this.dereferenceWithRef(operation.schema.requestBody)
     }
 
-    const requestBody = operation.getRequestBody(mediaType)
+    const requestBody = operation.getRequestBody(contentType)
 
     if (requestBody === false) {
       return undefined
@@ -142,15 +144,15 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       return undefined
     }
 
-    return this.dereference(schema, { withRef: true })
+    return this.dereferenceWithRef(schema)
   }
 
   getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): SchemaObject | null {
-    const { mediaType = operation.getContentType() } = this.#options
+    const { contentType = operation.getContentType() } = this.#options
     const params = operation
       .getParameters()
       .map((schema) => {
-        return this.dereference(schema, { withRef: true })
+        return this.dereferenceWithRef(schema)
       })
       .filter((v) => v.in === inKey)
 
@@ -160,7 +162,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = pathParameters.content?.[mediaType]?.schema ?? (pathParameters.schema as SchemaObject)
+        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)
         const required = [...(schema.required || ([] as any)), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
         return {

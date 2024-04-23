@@ -58,7 +58,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           oas,
           pluginManager: this.pluginManager,
           plugin: this.plugin,
-          mediaType: swaggerPlugin.api.mediaType,
+          contentType: swaggerPlugin.api.contentType,
           exclude: swaggerZodPlugin.options.exclude,
           include: swaggerZodPlugin.options.include,
           override: swaggerZodPlugin.options.override as Override<unknown>[],

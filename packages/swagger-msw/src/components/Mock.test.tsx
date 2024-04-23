@@ -31,7 +31,7 @@ describe('<Mock/>', async () => {
     include: undefined,
     pluginManager: mockedPluginManager,
     plugin,
-    mediaType: undefined,
+    contentType: undefined,
     override: undefined,
     mode: 'split',
   })
