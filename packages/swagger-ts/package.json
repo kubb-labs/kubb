@@ -2,14 +2,7 @@
   "name": "@kubb/swagger-ts",
   "version": "2.13.3",
   "description": "Generator swagger-ts",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
-    "swagger",
-    "openapi"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen", "swagger", "openapi"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -41,20 +34,11 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ],
-      "oas": [
-        "./dist/oas.d.ts"
-      ]
+      "components": ["./dist/components.d.ts"],
+      "oas": ["./dist/oas.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -68,11 +52,11 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/oas": "workspace:*",
     "@kubb/parser": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/types": "workspace:*",
-    "@kubb/oas": "workspace:*"
+    "@kubb/types": "workspace:*"
   },
   "devDependencies": {
     "@kubb/biome-config": "workspace:*",
