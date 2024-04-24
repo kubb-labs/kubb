@@ -458,7 +458,18 @@ export function createEnumDeclaration({
                     let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
 
                     if (isNumber(value)) {
-                      initializer = factory.createNumericLiteral(value)
+                      // Error: Negative numbers should be created in combination with createPrefixUnaryExpression factory.
+                      // The method createNumericLiteral only accepts positive numbers
+                      // or those combined with createPrefixUnaryExpression.
+                      // Therefore, we need to ensure that the number is not negative.
+                      if (value < 0) {
+                        initializer = factory.createPrefixUnaryExpression(
+                          ts.SyntaxKind.MinusToken,
+                          factory.createNumericLiteral(Math.abs(value))
+                        )
+                      } else {
+                        initializer = factory.createNumericLiteral(value)
+                      }
                     }
 
                     if (typeof value === 'boolean') {
