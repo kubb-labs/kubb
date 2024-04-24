@@ -36,6 +36,13 @@ When making commits, make sure to follow the [conventional commit](https://www.c
 git add <file> && git commit -m "feat/fix/chore/docs: commit message"
 ```
 
+Next to [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) we also use [changesets](https://github.com/changesets/changesets). Run the following command and follow the steps in the CLI. You will be prompted to select the changed packages, select if the changes are major/minor/patch and a message that you want to add to generated changelog.
+
+```bash
+pnpm run changeset
+npx changeset
+```
+
 ### When you're done
 
 When all that's done, it's time to file a pull request to upstream:
