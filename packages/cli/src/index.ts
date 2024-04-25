@@ -16,7 +16,6 @@ import { startWatcher } from './utils/watcher.ts'
 
 import type { CLIOptions } from '@kubb/core'
 import { execa } from 'execa'
-import { OraWritable } from './utils/OraWritable.ts'
 
 const moduleName = 'kubb'
 
