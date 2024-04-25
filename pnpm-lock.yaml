@@ -1382,6 +1382,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1422,6 +1425,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1465,6 +1471,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1508,6 +1517,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1597,6 +1609,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
@@ -1640,6 +1655,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser

@@ -16,53 +16,22 @@ export const oas = {
     },
     version: '1.0.11',
   },
-  externalDocs: {
-    description: 'Find out more about Swagger',
-    url: 'http://swagger.io',
-  },
   servers: [
     {
       url: 'https://petstore3.swagger.io/api/v3',
     },
   ],
-  tags: [
-    {
-      name: 'pet',
-      description: 'Everything about your Pets',
-      externalDocs: {
-        description: 'Find out more',
-        url: 'http://swagger.io',
-      },
-    },
-    {
-      name: 'store',
-      description: 'Access to Petstore orders',
-      externalDocs: {
-        description: 'Find out more about our store',
-        url: 'http://swagger.io',
-      },
-    },
-    {
-      name: 'user',
-      description: 'Operations about user',
-    },
-  ],
   paths: {
     '/pet': {
       put: {
-        tags: ['pet'],
+        operationId: 'updatePet',
         summary: 'Update an existing pet',
         description: 'Update an existing pet by Id',
-        operationId: 'updatePet',
         requestBody: {
           description: 'Update an existent pet in the store',
+          required: true,
           content: {
             'application/json': {
-              schema: {
-                $ref: '#/components/schemas/Pet',
-              },
-            },
-            'application/xml': {
               schema: {
                 $ref: '#/components/schemas/Pet',
               },
@@ -72,8 +41,12 @@ export const oas = {
                 $ref: '#/components/schemas/Pet',
               },
             },
+            'application/xml': {
+              schema: {
+                $ref: '#/components/schemas/Pet',
+              },
+            },
           },
-          required: true,
         },
         responses: {
           '200': {
@@ -106,23 +79,19 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
       post: {
-        tags: ['pet'],
+        operationId: 'addPet',
         summary: 'Add a new pet to the store',
         description: 'Add a new pet to the store',
-        operationId: 'addPet',
         requestBody: {
           description: 'Create a new pet in the store',
+          required: true,
           content: {
             'application/json': {
               schema: {
                 $ref: '#/components/schemas/AddPetRequest',
-              },
-            },
-            'application/xml': {
-              schema: {
-                $ref: '#/components/schemas/Pet',
               },
             },
             'application/x-www-form-urlencoded': {
@@ -130,8 +99,12 @@ export const oas = {
                 $ref: '#/components/schemas/Pet',
               },
             },
+            'application/xml': {
+              schema: {
+                $ref: '#/components/schemas/Pet',
+              },
+            },
           },
-          required: true,
         },
         responses: {
           '200': {
@@ -150,13 +123,14 @@ export const oas = {
             },
           },
           '405': {
+            description: 'Pet not found',
             content: {
               'application/json': {
                 schema: {
                   properties: {
                     code: {
-                      format: 'int32',
                       type: 'integer',
+                      format: 'int32',
                     },
                     message: {
                       type: 'string',
@@ -165,7 +139,6 @@ export const oas = {
                 },
               },
             },
-            description: 'Pet not found',
           },
         },
         security: [
@@ -173,26 +146,26 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
     },
     '/pet/findByStatus': {
       get: {
-        tags: ['pet'],
+        operationId: 'findPetsByStatus',
         summary: 'Finds Pets by status',
         description: 'Multiple status values can be provided with comma separated strings',
-        operationId: 'findPetsByStatus',
         parameters: [
           {
             name: 'status',
             in: 'query',
             description: 'Status values that need to be considered for filter',
             required: false,
-            explode: true,
             schema: {
               type: 'string',
               default: 'available',
               enum: ['available', 'pending', 'sold'],
             },
+            explode: true,
           },
         ],
         responses: {
@@ -226,27 +199,27 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
     },
     '/pet/findByTags': {
       get: {
-        tags: ['pet'],
+        operationId: 'findPetsByTags',
         summary: 'Finds Pets by tags',
         description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
-        operationId: 'findPetsByTags',
         parameters: [
           {
             name: 'tags',
             in: 'query',
             description: 'Tags to filter by',
             required: false,
-            explode: true,
             schema: {
               type: 'array',
               items: {
                 type: 'string',
               },
             },
+            explode: true,
           },
           {
             $ref: '#/components/parameters/page',
@@ -286,14 +259,14 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
     },
     '/pet/{petId}': {
       get: {
-        tags: ['pet'],
+        operationId: 'getPetById',
         summary: 'Find pet by ID',
         description: 'Returns a single pet',
-        operationId: 'getPetById',
         parameters: [
           {
             name: 'petId',
@@ -337,12 +310,12 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
       post: {
-        tags: ['pet'],
+        operationId: 'updatePetWithForm',
         summary: 'Updates a pet in the store with form data',
         description: '',
-        operationId: 'updatePetWithForm',
         parameters: [
           {
             name: 'petId',
@@ -381,12 +354,12 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
       delete: {
-        tags: ['pet'],
+        operationId: 'deletePet',
         summary: 'Deletes a pet',
         description: 'delete a pet',
-        operationId: 'deletePet',
         parameters: [
           {
             name: 'api_key',
@@ -418,14 +391,14 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
     },
     '/pet/{petId}/uploadImage': {
       post: {
-        tags: ['pet'],
+        operationId: 'uploadFile',
         summary: 'uploads an image',
         description: '',
-        operationId: 'uploadFile',
         parameters: [
           {
             name: 'petId',
@@ -474,14 +447,14 @@ export const oas = {
             petstore_auth: ['write:pets', 'read:pets'],
           },
         ],
+        tags: ['pet'],
       },
     },
     '/store/inventory': {
       get: {
-        tags: ['store'],
+        operationId: 'getInventory',
         summary: 'Returns pet inventories by status',
         description: 'Returns a map of status codes to quantities',
-        operationId: 'getInventory',
         responses: {
           '200': {
             description: 'successful operation',
@@ -503,14 +476,14 @@ export const oas = {
             api_key: [],
           },
         ],
+        tags: ['store'],
       },
     },
     '/store/order': {
       post: {
-        tags: ['store'],
+        operationId: 'placeOrder',
         summary: 'Place an order for a pet',
         description: 'Place a new order in the store',
-        operationId: 'placeOrder',
         requestBody: {
           content: {
             'application/json': {
@@ -518,12 +491,12 @@ export const oas = {
                 $ref: '#/components/schemas/Order',
               },
             },
-            'application/xml': {
+            'application/x-www-form-urlencoded': {
               schema: {
                 $ref: '#/components/schemas/Order',
               },
             },
-            'application/x-www-form-urlencoded': {
+            'application/xml': {
               schema: {
                 $ref: '#/components/schemas/Order',
               },
@@ -545,12 +518,12 @@ export const oas = {
             description: 'Invalid input',
           },
         },
+        tags: ['store'],
       },
       patch: {
-        tags: ['store'],
+        operationId: 'placeOrderPatch',
         summary: 'Place an order for a pet with patch',
         description: 'Place a new order in the store with patch',
-        operationId: 'placeOrderPatch',
         requestBody: {
           content: {
             'application/json': {
@@ -558,12 +531,12 @@ export const oas = {
                 $ref: '#/components/schemas/Order',
               },
             },
-            'application/xml': {
+            'application/x-www-form-urlencoded': {
               schema: {
                 $ref: '#/components/schemas/Order',
               },
             },
-            'application/x-www-form-urlencoded': {
+            'application/xml': {
               schema: {
                 $ref: '#/components/schemas/Order',
               },
@@ -585,14 +558,14 @@ export const oas = {
             description: 'Invalid input',
           },
         },
+        tags: ['store'],
       },
     },
     '/store/order/{orderId}': {
       get: {
-        tags: ['store'],
+        operationId: 'getOrderById',
         summary: 'Find purchase order by ID',
         description: 'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
-        operationId: 'getOrderById',
         parameters: [
           {
             name: 'orderId',
@@ -628,12 +601,12 @@ export const oas = {
             description: 'Order not found',
           },
         },
+        tags: ['store'],
       },
       delete: {
-        tags: ['store'],
+        operationId: 'deleteOrder',
         summary: 'Delete purchase order by ID',
         description: 'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
-        operationId: 'deleteOrder',
         parameters: [
           {
             name: 'orderId',
@@ -654,14 +627,14 @@ export const oas = {
             description: 'Order not found',
           },
         },
+        tags: ['store'],
       },
     },
     '/user': {
       post: {
-        tags: ['user'],
+        operationId: 'createUser',
         summary: 'Create user',
         description: 'This can only be done by the logged in user.',
-        operationId: 'createUser',
         requestBody: {
           description: 'Created user object',
           content: {
@@ -670,12 +643,12 @@ export const oas = {
                 $ref: '#/components/schemas/User',
               },
             },
-            'application/xml': {
+            'application/x-www-form-urlencoded': {
               schema: {
                 $ref: '#/components/schemas/User',
               },
             },
-            'application/x-www-form-urlencoded': {
+            'application/xml': {
               schema: {
                 $ref: '#/components/schemas/User',
               },
@@ -699,14 +672,14 @@ export const oas = {
             },
           },
         },
+        tags: ['user'],
       },
     },
     '/user/createWithList': {
       post: {
-        tags: ['user'],
+        operationId: 'createUsersWithListInput',
         summary: 'Creates list of users with given input array',
         description: 'Creates list of users with given input array',
-        operationId: 'createUsersWithListInput',
         requestBody: {
           content: {
             'application/json': {
@@ -739,14 +712,14 @@ export const oas = {
             description: 'successful operation',
           },
         },
+        tags: ['user'],
       },
     },
     '/user/login': {
       get: {
-        tags: ['user'],
+        operationId: 'loginUser',
         summary: 'Logs user into the system',
         description: '',
-        operationId: 'loginUser',
         parameters: [
           {
             name: 'username',
@@ -787,12 +760,12 @@ export const oas = {
               },
             },
             content: {
-              'application/xml': {
+              'application/json': {
                 schema: {
                   type: 'string',
                 },
               },
-              'application/json': {
+              'application/xml': {
                 schema: {
                   type: 'string',
                 },
@@ -803,28 +776,28 @@ export const oas = {
             description: 'Invalid username/password supplied',
           },
         },
+        tags: ['user'],
       },
     },
     '/user/logout': {
       get: {
-        tags: ['user'],
+        operationId: 'logoutUser',
         summary: 'Logs out current logged in user session',
         description: '',
-        operationId: 'logoutUser',
         parameters: [],
         responses: {
           default: {
             description: 'successful operation',
           },
         },
+        tags: ['user'],
       },
     },
     '/user/{username}': {
       get: {
-        tags: ['user'],
+        operationId: 'getUserByName',
         summary: 'Get user by user name',
         description: '',
-        operationId: 'getUserByName',
         parameters: [
           {
             name: 'username',
@@ -859,12 +832,12 @@ export const oas = {
             description: 'User not found',
           },
         },
+        tags: ['user'],
       },
       put: {
-        tags: ['user'],
+        operationId: 'updateUser',
         summary: 'Update user',
         description: 'This can only be done by the logged in user.',
-        operationId: 'updateUser',
         parameters: [
           {
             name: 'username',
@@ -884,12 +857,12 @@ export const oas = {
                 $ref: '#/components/schemas/User',
               },
             },
-            'application/xml': {
+            'application/x-www-form-urlencoded': {
               schema: {
                 $ref: '#/components/schemas/User',
               },
             },
-            'application/x-www-form-urlencoded': {
+            'application/xml': {
               schema: {
                 $ref: '#/components/schemas/User',
               },
@@ -901,12 +874,12 @@ export const oas = {
             description: 'successful operation',
           },
         },
+        tags: ['user'],
       },
       delete: {
-        tags: ['user'],
+        operationId: 'deleteUser',
         summary: 'Delete user',
         description: 'This can only be done by the logged in user.',
-        operationId: 'deleteUser',
         parameters: [
           {
             name: 'username',
@@ -927,10 +900,31 @@ export const oas = {
             description: 'User not found',
           },
         },
+        tags: ['user'],
       },
     },
   },
   components: {
+    parameters: {
+      page: {
+        description: 'to request with required page number or pagination',
+        in: 'query',
+        name: 'page',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+      pageSize: {
+        description: 'to request with required page size',
+        in: 'query',
+        name: 'pageSize',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    },
     schemas: {
       Order: {
         type: 'object',
@@ -955,14 +949,14 @@ export const oas = {
             format: 'date-time',
           },
           status: {
-            type: 'string',
             description: 'Order Status',
+            type: 'string',
             example: 'approved',
             enum: ['placed', 'approved', 'delivered'],
           },
           http_status: {
-            type: 'number',
             description: 'HTTP Status',
+            type: 'number',
             example: 200,
             enum: [200, 400, 500],
           },
@@ -988,12 +982,12 @@ export const oas = {
           },
           address: {
             type: 'array',
+            items: {
+              $ref: '#/components/schemas/Address',
+            },
             xml: {
               name: 'addresses',
               wrapped: true,
-            },
-            items: {
-              $ref: '#/components/schemas/Address',
             },
           },
         },
@@ -1075,8 +1069,8 @@ export const oas = {
             example: '12345',
           },
           userStatus: {
-            type: 'integer',
             description: 'User Status',
+            type: 'integer',
             format: 'int32',
             example: 1,
           },
@@ -1101,7 +1095,6 @@ export const oas = {
         },
       },
       Pet: {
-        required: ['name', 'photoUrls'],
         type: 'object',
         properties: {
           id: {
@@ -1132,37 +1125,37 @@ export const oas = {
           },
           photoUrls: {
             type: 'array',
-            xml: {
-              wrapped: true,
-            },
             items: {
               type: 'string',
               xml: {
                 name: 'photoUrl',
               },
             },
-          },
-          tags: {
-            type: 'array',
             xml: {
               wrapped: true,
             },
+          },
+          tags: {
+            type: 'array',
             items: {
               $ref: '#/components/schemas/Tag',
             },
+            xml: {
+              wrapped: true,
+            },
           },
           status: {
-            type: 'string',
             description: 'pet status in the store',
+            type: 'string',
             enum: ['available', 'pending', 'sold'],
           },
         },
+        required: ['name', 'photoUrls'],
         xml: {
           name: 'pet',
         },
       },
       AddPetRequest: {
-        required: ['name', 'photoUrls'],
         type: 'object',
         properties: {
           id: {
@@ -1179,31 +1172,32 @@ export const oas = {
           },
           photoUrls: {
             type: 'array',
-            xml: {
-              wrapped: true,
-            },
             items: {
               type: 'string',
               xml: {
                 name: 'photoUrl',
               },
             },
-          },
-          tags: {
-            type: 'array',
             xml: {
               wrapped: true,
             },
+          },
+          tags: {
+            type: 'array',
             items: {
               $ref: '#/components/schemas/Tag',
             },
+            xml: {
+              wrapped: true,
+            },
           },
           status: {
-            type: 'string',
             description: 'pet status in the store',
+            type: 'string',
             enum: ['available', 'pending', 'sold'],
           },
         },
+        required: ['name', 'photoUrls'],
         xml: {
           name: 'pet',
         },
@@ -1257,6 +1251,26 @@ export const oas = {
         },
       },
     },
+    responses: {
+      PetNotFound: {
+        description: 'Pet not found',
+        content: {
+          'application/json': {
+            schema: {
+              properties: {
+                code: {
+                  type: 'integer',
+                  format: 'int32',
+                },
+                message: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     securitySchemes: {
       petstore_auth: {
         type: 'oauth2',
@@ -1276,46 +1290,32 @@ export const oas = {
         in: 'header',
       },
     },
-    parameters: {
-      page: {
-        description: 'to request with required page number or pagination',
-        in: 'query',
-        name: 'page',
-        required: false,
-        schema: {
-          type: 'string',
-        },
-      },
-      pageSize: {
-        description: 'to request with required page size',
-        in: 'query',
-        name: 'pageSize',
-        required: false,
-        schema: {
-          type: 'string',
-        },
+  },
+  tags: [
+    {
+      name: 'pet',
+      description: 'Everything about your Pets',
+      externalDocs: {
+        description: 'Find out more',
+        url: 'http://swagger.io',
       },
     },
-    responses: {
-      PetNotFound: {
-        content: {
-          'application/json': {
-            schema: {
-              properties: {
-                code: {
-                  format: 'int32',
-                  type: 'integer',
-                },
-                message: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        description: 'Pet not found',
+    {
+      name: 'store',
+      description: 'Access to Petstore orders',
+      externalDocs: {
+        description: 'Find out more about our store',
+        url: 'http://swagger.io',
       },
     },
+    {
+      name: 'user',
+      description: 'Operations about user',
+    },
+  ],
+  externalDocs: {
+    description: 'Find out more about Swagger',
+    url: 'http://swagger.io',
   },
 } as const
 export type Oas = Infer<typeof oas>

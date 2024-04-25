@@ -1,5 +1,5 @@
-import type { OasTypes } from '@kubb/oas'
 import type { FromSchema } from 'json-schema-to-ts'
+import type { OasTypes } from '../types.ts'
 import type { MethodMap, PathMap, StatusMap } from './mappers.ts'
 
 type Checks = {

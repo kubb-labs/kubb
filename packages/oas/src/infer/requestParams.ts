@@ -1,7 +1,7 @@
-import type { OasTypes } from '@kubb/oas'
 import type { SplitByDelimiter, TupleToUnion } from '@kubb/types'
 import type { Pipe, Strings, Tuples } from 'hotscript'
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts'
+import type { OasTypes } from '../types.ts'
 import type { MethodMap, ParamMap, PathMap } from './mappers.ts'
 import type { SecurityParamsBySecurityRef } from './security.ts'
 
