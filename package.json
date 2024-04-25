@@ -11,7 +11,15 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "type": "module",
   "workspaces": {
-    "packages": ["packages/*", "packages/config/biome-config/*", "packages/config/tsup-config/*", "packages/config/ts-config/*", "docs", "examples/*", "e2e"]
+    "packages": [
+      "packages/*",
+      "packages/config/biome-config/*",
+      "packages/config/tsup-config/*",
+      "packages/config/ts-config/*",
+      "docs",
+      "examples/*",
+      "e2e"
+    ]
   },
   "scripts": {
     "//changeset:beta:enter": "changeset pre enter beta",
@@ -51,15 +59,15 @@
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@types/node": "^20.12.7",
-    "@vitest/coverage-v8": "^1.5.0",
-    "@vitest/ui": "^1.5.0",
+    "@vitest/coverage-v8": "^1.5.2",
+    "@vitest/ui": "^1.5.2",
     "bun-types": "^1.1.4",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
-    "turbo": "^1.13.2",
+    "turbo": "^1.13.3",
     "typescript": "^5.4.5",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^1.5.0"
+    "vitest": "^1.5.2"
   },
   "packageManager": "pnpm@9.0.5",
   "engines": {
