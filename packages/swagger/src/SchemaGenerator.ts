@@ -700,10 +700,10 @@ export abstract class SchemaGenerator<
     }
 
     // type based logic
-    if ('items' in schema) {
+    if ('items' in schema || schema.type === ('array' as 'string')) {
       const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-      const items = this.buildSchemas(schema.items as SchemaObject, baseName)
+      const items = this.buildSchemas('items' in schema ? (schema.items as SchemaObject) : [], baseName)
 
       return [
         {
