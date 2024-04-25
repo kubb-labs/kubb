@@ -59,9 +59,6 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
     ],
     loaders: {
       '.ts': tsLoader,
-      '.mjs': tsLoader,
-      '.js': tsLoader,
-      '.cjs': jsLoader,
     },
   })
 
