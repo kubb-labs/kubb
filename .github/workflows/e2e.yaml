@@ -26,8 +26,7 @@ jobs:
         matrix:
           os: [ubuntu-latest, windows-latest]
           node-version: [18]
-          installer: [pnpm run]
-          generate: [pnpm run generate]
+          installer: ['pnpm run']
           ## comment out for support of node 19,20
           # experimental: [false]
 
@@ -36,16 +35,13 @@ jobs:
             - os: ubuntu-latest
               node-version: 18
               installer: pnpm run
-              generate: bun run generate --bun
           include:
             - os: windows-latest
               node-version: 18
               installer: pnpm run
-              generate: bun run generate
             - os: ubuntu-latest
               node-version: 18
               installer: bun run
-              generate: bun run generate --bun
 
           ## comment out for support of node 19,20
           # include:
@@ -96,5 +92,4 @@ jobs:
           env:
             NODE_OPTIONS: "--max_old_space_size=4096"
           run: |
-            ${{ matrix.generate }}
-
+            ${{ matrix.installer }} generate
