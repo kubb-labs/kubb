@@ -35,12 +35,12 @@ jobs:
           exclude:
             - os: ubuntu-latest
               node-version: 18
-              installer: bun run
+              installer: pnpm run
               generate: bun run generate --bun
           include:
             - os: windows-latest
               node-version: 18
-              installer: bun run
+              installer: pnpm run
               generate: bun run generate
             - os: ubuntu-latest
               node-version: 18
