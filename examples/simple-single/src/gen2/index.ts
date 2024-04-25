@@ -718,7 +718,10 @@ export const machinesListProcessesQueryResponseSchema = z.array(z.lazy(() => pro
 export const machinesRestartPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
 export const machinesRestartQueryParamsSchema = z
-  .object({ timeout: z.string().describe('Restart timeout as a Go duration string or number of seconds').optional() })
+  .object({
+    timeout: z.string().describe('Restart timeout as a Go duration string or number of seconds').optional(),
+    signal: z.string().describe('UNIX signal name').optional(),
+  })
   .optional()
 
 /**
