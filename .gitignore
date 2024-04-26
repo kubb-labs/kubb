@@ -47,4 +47,3 @@ test.json
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
 !__snapshots__
-.pnpm-store/
