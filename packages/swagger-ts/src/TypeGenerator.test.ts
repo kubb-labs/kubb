@@ -461,22 +461,21 @@ describe('TypeGenerator enums', async () => {
 describe('TypeGenerator type assertions', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/type_assertions.yaml')
   const oas = await new OasManager().parse(schemaPath)
+  const generator = new TypeGenerator({
+    usedEnumNames: {},
+    enumType: 'asConst',
+    dateType: 'string',
+    optionalType: 'questionToken',
+    transformers: {},
+    oasType: false,
+  }, {
+    oas,
+    pluginManager: mockedPluginManager,
+  })
 
   const schemas = oas.getDefinition().components?.schemas
 
   test('generates file property with `File` type', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
     const node = generator.build({ schema: schemas?.Body_upload_file_api_assets_post as OasTypes.SchemaObject, baseName: 'Body_upload_file_api_assets_post' })
 
     const output = print(node, undefined)
@@ -486,18 +485,6 @@ describe('TypeGenerator type assertions', async () => {
   })
 
   test('generates Plain_File types correctly', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
     const node = generator.build({ schema: schemas?.Plain_file as OasTypes.SchemaObject, baseName: 'Plain_file' })
 
     const output = print(node, undefined)
@@ -506,42 +493,7 @@ describe('TypeGenerator type assertions', async () => {
     expect(output).toMatchSnapshot()
   })
 
-  test('generates Date type correctly when dateType = date', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'date',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
-
-    const node = generator.build({ schema: schemas?.Plain_date as OasTypes.SchemaObject, baseName: 'Plain_date' })
-
-    const output = print(node, undefined)
-
-    expect(output).toBeDefined()
-    expect(output).toMatchSnapshot()
-  })
-
-  test('generates Date type correctly when dateType = string', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
-
+  test('generates Date type correctly', async () => {
     const node = generator.build({ schema: schemas?.Plain_date as OasTypes.SchemaObject, baseName: 'Plain_date' })
 
     const output = print(node, undefined)
@@ -551,19 +503,6 @@ describe('TypeGenerator type assertions', async () => {
   })
 
   test('generates Time type correctly', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
-
     const node = generator.build({ schema: schemas?.Plain_time as OasTypes.SchemaObject, baseName: 'Plain_time' })
 
     const output = print(node, undefined)
@@ -573,19 +512,6 @@ describe('TypeGenerator type assertions', async () => {
   })
 
   test('generates Email type correctly', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
-
     const node = generator.build({ schema: schemas?.Plain_email as OasTypes.SchemaObject, baseName: 'Plain_email' })
 
     const output = print(node, undefined)
@@ -595,19 +521,6 @@ describe('TypeGenerator type assertions', async () => {
   })
 
   test('generates UUID type correctly', async () => {
-    const generator = new TypeGenerator({
-      usedEnumNames: {},
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      transformers: {},
-      oasType: false,
-      unknownType: 'unknown',
-    }, {
-      oas,
-      pluginManager: mockedPluginManager,
-    })
-
     const node = generator.build({ schema: schemas?.Plain_uuid as OasTypes.SchemaObject, baseName: 'Plain_uuid' })
 
     const output = print(node, undefined)
