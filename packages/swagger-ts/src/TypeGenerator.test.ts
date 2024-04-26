@@ -458,7 +458,7 @@ describe('TypeGenerator enums', async () => {
   })
 })
 
-describe('TypeGenerator type assertions', async () => {
+describe('TypeGenerator type assertions', async ()=> {
   const schemaPath = path.resolve(__dirname, '../mocks/type_assertions.yaml')
   const oas = await new OasManager().parse(schemaPath)
   const generator = new TypeGenerator({
@@ -472,6 +472,7 @@ describe('TypeGenerator type assertions', async () => {
     oas,
     pluginManager: mockedPluginManager,
   })
+
 
   const schemas = oas.getDefinition().components?.schemas
 
@@ -492,7 +493,7 @@ describe('TypeGenerator type assertions', async () => {
     expect(output).toBeDefined()
     expect(output).toMatchSnapshot()
   })
-
+  
   test('generates Date type correctly', async () => {
     const node = generator.build({ schema: schemas?.Plain_date as OasTypes.SchemaObject, baseName: 'Plain_date' })
 
@@ -501,7 +502,7 @@ describe('TypeGenerator type assertions', async () => {
     expect(output).toBeDefined()
     expect(output).toMatchSnapshot()
   })
-
+  
   test('generates Time type correctly', async () => {
     const node = generator.build({ schema: schemas?.Plain_time as OasTypes.SchemaObject, baseName: 'Plain_time' })
 
@@ -528,4 +529,5 @@ describe('TypeGenerator type assertions', async () => {
     expect(output).toBeDefined()
     expect(output).toMatchSnapshot()
   })
+
 })

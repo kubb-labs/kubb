@@ -1,17 +1,17 @@
-import { Generator } from '@kubb/core'
+import {Generator} from '@kubb/core'
 import transformers from '@kubb/core/transformers'
-import { getUniqueName } from '@kubb/core/utils'
+import {getUniqueName} from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
-import { keywordTypeNodes } from '@kubb/parser/factory'
-import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
+import {keywordTypeNodes} from '@kubb/parser/factory'
+import {getSchemaFactory, isReference} from '@kubb/swagger/utils'
 
-import { pluginKey } from './plugin.ts'
+import {pluginKey} from './plugin.ts'
 
-import type { PluginManager } from '@kubb/core'
-import type { ts } from '@kubb/parser'
-import type { ImportMeta, Refs } from '@kubb/swagger'
-import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1 } from '@kubb/swagger/oas'
-import type { PluginOptions } from './types.ts'
+import type {PluginManager} from '@kubb/core'
+import type {ts} from '@kubb/parser'
+import type {ImportMeta, Refs} from '@kubb/swagger'
+import type {Oas, OasTypes, OpenAPIV3, OpenAPIV3_1} from '@kubb/swagger/oas'
+import type {PluginOptions} from './types.ts'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -19,6 +19,7 @@ type Context = {
   oas: Oas
   pluginManager: PluginManager
 }
+
 
 export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], Context> {
   refs: Refs = {}
@@ -32,12 +33,12 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
   #usedAliasNames: Record<string, number> = {}
 
   build({
-    schema,
-    optional,
-    baseName,
-    description,
-    keysToOmit,
-  }: {
+          schema,
+          optional,
+          baseName,
+          description,
+          keysToOmit,
+        }: {
     schema: OasTypes.SchemaObject
     baseName: string
     description?: string
@@ -52,13 +53,13 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
 
     if (optional) {
-      type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
+      type = factory.createUnionDeclaration({nodes: [type, factory.keywordTypeNodes.undefined]}) as ts.TypeNode
     }
 
     const node = factory.createTypeAliasDeclaration({
       modifiers: [factory.modifiers.export],
-      name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'type' }),
-      type: keysToOmit?.length ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
+      name: this.context.pluginManager.resolveName({name: baseName, pluginKey, type: 'type'}),
+      type: keysToOmit?.length ? factory.createOmitDeclaration({keys: keysToOmit, type, nonNullable: true}) : type,
     })
 
     if (description) {
@@ -99,14 +100,14 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       return type
     }
 
-    return factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
+    return factory.createUnionDeclaration({nodes: [type, factory.keywordTypeNodes.null]})
   }
 
   /**
    * Recursively creates a type literal with the given props.
    */
   #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): ts.TypeNode | null {
-    const { optionalType } = this.options
+    const {optionalType} = this.options
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
@@ -115,21 +116,18 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       const schema = properties[name] as OasTypes.SchemaObject
 
       const isRequired = Array.isArray(required) ? required.includes(name) : !!required
-      let type = this.getTypeFromSchema(
-        schema,
-        this.context.pluginManager.resolveName({
-          name: `${baseName || ''} ${name}`,
-          pluginKey,
-          type: 'type',
-        }),
-      )
+      let type = this.getTypeFromSchema(schema, this.context.pluginManager.resolveName({
+        name: `${baseName || ''} ${name}`,
+        pluginKey,
+        type: 'type'
+      }))
 
       if (!type) {
         return null
       }
 
       if (!isRequired && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
-        type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
+        type = factory.createUnionDeclaration({nodes: [type, factory.keywordTypeNodes.undefined]})
       }
       const propertySignature = factory.createPropertySignature({
         questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType as string) && !isRequired,
@@ -164,7 +162,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
   #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string) {
-    const { $ref } = obj
+    const {$ref} = obj
     let ref = this.refs[$ref]
 
     if (ref) {
@@ -172,15 +170,15 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'type' })
+    const propertyName = this.context.pluginManager.resolveName({name: originalName, pluginKey, type: 'type'})
 
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
     }
 
-    const fileName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'file' })
-    const path = this.context.pluginManager.resolvePath({ baseName: fileName, pluginKey })
+    const fileName = this.context.pluginManager.resolveName({name: originalName, pluginKey, type: 'file'})
+    const path = this.context.pluginManager.resolvePath({baseName: fileName, pluginKey})
 
     this.imports.push({
       ref,
@@ -204,7 +202,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     _schema: OasTypes.SchemaObject | undefined,
     baseName?: string,
   ): ts.TypeNode | null {
-    const { schema, version } = this.#getParsedSchema(_schema)
+    const {schema, version} = this.#getParsedSchema(_schema)
 
     if (!schema) {
       return this.#unknownReturn
@@ -216,7 +214,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     if (schema.oneOf) {
       // union
-      const schemaWithoutOneOf = { ...schema, oneOf: undefined } as OasTypes.SchemaObject
+      const schemaWithoutOneOf = {...schema, oneOf: undefined} as OasTypes.SchemaObject
 
       const union = factory.createUnionDeclaration({
         withParentheses: true,
@@ -239,7 +237,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
 
     if (schema.anyOf) {
-      const schemaWithoutAnyOf = { ...schema, anyOf: undefined } as OasTypes.SchemaObject
+      const schemaWithoutAnyOf = {...schema, anyOf: undefined} as OasTypes.SchemaObject
 
       const union = factory.createUnionDeclaration({
         withParentheses: true,
@@ -262,7 +260,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
     if (schema.allOf) {
       // intersection/add
-      const schemaWithoutAllOf = { ...schema, allOf: undefined } as OasTypes.SchemaObject
+      const schemaWithoutAllOf = {...schema, allOf: undefined} as OasTypes.SchemaObject
 
       const and = factory.createIntersectionDeclaration({
         withParentheses: true,
@@ -305,19 +303,16 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       this.extraNodes.push(
         ...factory.createEnumDeclaration({
           name: transformers.camelCase(enumName),
-          typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }),
+          typeName: this.context.pluginManager.resolveName({name: enumName, pluginKey, type: 'type'}),
           enums,
           type: this.options.enumType,
         }),
       )
-      return factory.createTypeReferenceNode(
-        this.context.pluginManager.resolveName({
-          name: enumName,
-          pluginKey,
-          type: 'type',
-        }),
-        undefined,
-      )
+      return factory.createTypeReferenceNode(this.context.pluginManager.resolveName({
+        name: enumName,
+        pluginKey,
+        type: 'type'
+      }), undefined)
     }
 
     if (schema.enum) {
@@ -411,35 +406,35 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
        */
       if (schema.format) {
         switch (schema.format) {
-          case 'binary':
-            if (schema.type === 'string') {
-              return factory.createTypeReferenceNode('Blob', [])
+          case "binary":
+            if (schema.type === "string") {
+              return factory.createTypeReferenceNode('Blob', []);
             }
-            break
+            break;
           // 7.3.1. Dates, Times, and Duration
-          case 'date-time':
-          case 'date':
-          case 'time':
+          case "date-time":
+          case "date":
+          case "time":
             if (this.options.dateType === 'date') {
               return factory.createTypeReferenceNode(factory.createIdentifier('Date'))
             }
-          case 'uuid':
+          case "uuid":
             // TODO how to work with this? use https://www.npmjs.com/package/uuid for it?
-            break
-          case 'duration':
-          case 'email':
-          case 'idn-email':
-          case 'hostname':
-          case 'idn-hostname':
-          case 'ipv4':
-          case 'ipv6':
-          case 'uri':
-          case 'uri-reference':
-          case 'json-pointer':
-          case 'relative-json-pointer':
+            break;
+          case "duration":
+          case "email":
+          case "idn-email":
+          case "hostname":
+          case "idn-hostname":
+          case "ipv4":
+          case "ipv6":
+          case "uri":
+          case "uri-reference":
+          case "json-pointer":
+          case "relative-json-pointer":
           default:
             // formats not yet implemented: ignore.
-            break
+            break;
         }
       }
 
