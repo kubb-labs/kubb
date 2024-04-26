@@ -8,7 +8,7 @@ import type { Config } from '@kubb/core'
 import type { Oas, OasTypes } from '@kubb/oas'
 import yaml from '@stoplight/yaml'
 
-type FormatOptions = Parameters<typeof parse>[1]
+export type FormatOptions = Parameters<typeof parse>[1]
 
 export function parseFromConfig(config: Config, options: FormatOptions = {}): Promise<Oas> {
   if ('data' in config.input) {

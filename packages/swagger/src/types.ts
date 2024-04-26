@@ -2,6 +2,7 @@ import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
+import type { FormatOptions } from './utils/parseFromConfig.ts'
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
@@ -12,7 +13,7 @@ export type ResolvePathOptions = {
 }
 
 export type API = {
-  getOas: () => Promise<Oas>
+  getOas: (options?: FormatOptions) => Promise<Oas>
   getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
   contentType?: contentType
@@ -57,6 +58,14 @@ export type Options = {
    * Override ContentType that will be used for requests and responses.
    */
   contentType?: contentType
+  /**
+   * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
+   */
+  exclude?: Array<Exclude>
+  /**
+   * Array containing include parameters to include tags/operations/methods/paths.
+   */
+  include?: Array<Include>
 }
 
 /**

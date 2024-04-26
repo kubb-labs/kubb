@@ -10,18 +10,18 @@ import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginOptions } from './types.ts'
-import { parseFromConfig } from './utils/parseFromConfig.ts'
+import { type FormatOptions, parseFromConfig } from './utils/parseFromConfig.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'schemas' }, validate = true, serverIndex = 0, contentType, docs = { path: './docs.html' } } = options
+  const { output = { path: 'schemas' }, exclude, include, validate = true, serverIndex = 0, contentType, docs = { path: './docs.html' } } = options
 
-  const getOas = async (config: Config, logger: Logger): Promise<Oas> => {
+  const getOas = async ({ config, logger, formatOptions }: { config: Config; logger: Logger; formatOptions?: FormatOptions }): Promise<Oas> => {
     try {
       // needs to be in a different variable or the catch here will not work(return of a promise instead)
-      const oas = await parseFromConfig(config)
+      const oas = await parseFromConfig(config, formatOptions)
 
       if (validate) {
         await oas.valdiate()
@@ -44,8 +44,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const { config, logger } = this
 
       return {
-        getOas() {
-          return getOas(config, logger)
+        getOas(formatOptions) {
+          return getOas({ config, logger, formatOptions })
         },
         async getSchemas({ includes } = {}) {
           const oas = await this.getOas()
@@ -79,7 +79,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const oas = await getOas(this.config, this.logger)
+      // TODO add formatOptions that includes include/exclude
+      const oas = await getOas({ config: this.config, logger: this.logger })
       await oas.dereference()
 
       if (docs) {

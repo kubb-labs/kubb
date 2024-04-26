@@ -277,6 +277,105 @@ export default defineConfig({
 
 :::
 
+
+### include
+
+Array containing include parameters to include tags/operations/methods/paths.
+
+::: info type
+
+```typescript [Include]
+export type Include = {
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
+}
+```
+
+:::
+
+::: info
+
+Type: `Array<Include>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger(
+      {
+        include: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+### exclude
+
+Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
+
+::: info type
+
+```typescript [Exclude]
+export type Exclude = {
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
+}
+```
+
+:::
+
+::: info
+
+Type: `Array<Exclude>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger(
+      {
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      },
+    ),
+  ],
+})
+```
+
+:::
+
 ## Depended
 
 - [`@kubb/core`](/plugins/core/)
