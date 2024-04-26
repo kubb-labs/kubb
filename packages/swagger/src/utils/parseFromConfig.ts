@@ -2,13 +2,11 @@ import { resolve } from 'node:path'
 
 import { URLPath } from '@kubb/core/utils'
 
-import { parse } from '@kubb/oas/parser'
+import { type FormatOptions, parse } from '@kubb/oas/parser'
 
 import type { Config } from '@kubb/core'
 import type { Oas, OasTypes } from '@kubb/oas'
 import yaml from '@stoplight/yaml'
-
-export type FormatOptions = Parameters<typeof parse>[1]
 
 export function parseFromConfig(config: Config, options: FormatOptions = {}): Promise<Oas> {
   if ('data' in config.input) {

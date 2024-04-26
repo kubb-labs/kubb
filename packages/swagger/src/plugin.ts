@@ -8,15 +8,16 @@ import { getSchemas } from './utils/getSchemas.ts'
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
+import type { FormatOptions } from '@kubb/oas/parser'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginOptions } from './types.ts'
-import { type FormatOptions, parseFromConfig } from './utils/parseFromConfig.ts'
+import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'schemas' }, exclude, include, validate = true, serverIndex = 0, contentType, docs } = options
+  const { output = { path: 'schemas' }, experimentalFilter: filter, experimentalSort: sort, validate = true, serverIndex = 0, contentType, docs } = options
 
   const getOas = async ({ config, logger, formatOptions }: { config: Config; logger: Logger; formatOptions?: FormatOptions }): Promise<Oas> => {
     try {
@@ -80,8 +81,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       if (docs) {
-        // TODO add formatOptions that includes include/exclude
-        const oas = await getOas({ config: this.config, logger: this.logger })
+        const oas = await getOas({
+          config: this.config,
+          logger: this.logger,
+          formatOptions: {
+            filterSet: filter,
+            sortSet: sort,
+          },
+        })
         await oas.dereference()
 
         const root = path.resolve(this.config.root, this.config.output.path)
@@ -91,8 +98,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (output) {
-        // TODO add formatOptions that includes include/exclude
-        const oas = await getOas({ config: this.config, logger: this.logger })
+        const oas = await getOas({
+          config: this.config,
+          logger: this.logger,
+          formatOptions: {
+            filterSet: filter,
+            sortSet: sort,
+          },
+        })
         await oas.dereference()
         const schemas = getSchemas({ oas, contentType })
 

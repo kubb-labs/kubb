@@ -21,7 +21,12 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      createSwagger({ output: false, validate: true }),
+      createSwagger({
+        validate: false,
+        experimentalFilter: {
+          tags: ['store'],
+        },
+      }),
       createSwaggerTS({
         output: { path: 'models/ts' },
         group: {

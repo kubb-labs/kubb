@@ -5,24 +5,24 @@ declare module 'openapi-format' {
     sort?: boolean
     output?: string
     sortSet?: {
-      root?: Array<'openapi', 'info', 'servers', 'paths', 'components', 'tags', 'x-tagGroups', 'externalDocs'>
-      get?: Array<'operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'>
-      post?: Array<'operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'>
-      put?: Array<'operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'>
-      patch?: Array<'operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'>
-      delete?: Array<'operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'>
-      parameters?: Array<'name', 'in', 'description', 'required', 'schema'>
-      requestBody?: Array<'description', 'required', 'content'>
-      responses?: Array<'description', 'headers', 'content', 'links'>
+      root?: Array<'openapi' | 'info' | 'servers' | 'paths' | 'components' | 'tags' | 'x-tagGroups' | 'externalDocs'>
+      get?: Array<'operationId' | 'summary' | 'description' | 'parameters' | 'requestBody' | 'responses'>
+      post?: Array<'operationId' | 'summary' | 'description' | 'parameters' | 'requestBody' | 'responses'>
+      put?: Array<'operationId' | 'summary' | 'description' | 'parameters' | 'requestBody' | 'responses'>
+      patch?: Array<'operationId' | 'summary' | 'description' | 'parameters' | 'requestBody' | 'responses'>
+      delete?: Array<'operationId' | 'summary' | 'description' | 'parameters' | 'requestBody' | 'responses'>
+      parameters?: Array<'name' | 'in' | 'description' | 'required' | 'schema'>
+      requestBody?: Array<'description' | 'required' | 'content'>
+      responses?: Array<'description' | 'headers' | 'content' | 'links'>
       content?: Array<string>
-      components?: Array<'parameters', 'schemas'>
-      schema?: Array<'description', 'type', 'items', 'properties', 'format', 'example', 'default'>
-      schemas?: Array<'description', 'type', 'items', 'properties', 'format', 'example', 'default'>
-      properties?: Array<'description', 'type', 'items', 'format', 'example', 'default', 'enum'>
+      components?: Array<'parameters' | 'schemas'>
+      schema?: Array<'description' | 'type' | 'items' | 'properties' | 'format' | 'example' | 'default'>
+      schemas?: Array<'description' | 'type' | 'items' | 'properties' | 'format' | 'example' | 'default'>
+      properties?: Array<'description' | 'type' | 'items' | 'format' | 'example' | 'default' | 'enum'>
     }
     filterSet?: {
-      methods?: Array<'get', 'post', 'put', 'patch', 'delete'>
-      inverseMethods?: Array<'get', 'post', 'put', 'patch', 'delete'>
+      methods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete'>
+      inverseMethods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete'>
       tags?: Array<string>
       inverseTags?: Array<string>
       operationIds?: Array<string>

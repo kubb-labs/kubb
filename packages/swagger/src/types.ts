@@ -1,8 +1,8 @@
 import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
+import type { FormatOptions } from '@kubb/oas/parser'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
-import type { FormatOptions } from './utils/parseFromConfig.ts'
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
@@ -13,7 +13,7 @@ export type ResolvePathOptions = {
 }
 
 export type API = {
-  getOas: (options?: FormatOptions) => Promise<Oas>
+  getOas: (formatOptions?: FormatOptions) => Promise<Oas>
   getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
   contentType?: contentType
@@ -57,14 +57,8 @@ export type Options = {
    * Override ContentType that will be used for requests and responses.
    */
   contentType?: contentType
-  /**
-   * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-   */
-  exclude?: Array<Exclude>
-  /**
-   * Array containing include parameters to include tags/operations/methods/paths.
-   */
-  include?: Array<Include>
+  experimentalFilter?: FormatOptions['filterSet']
+  experimentalSort?: FormatOptions['sortSet']
 }
 
 /**
@@ -123,7 +117,6 @@ export type OperationSchemas = {
 }
 
 export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
-
 type ByTag = {
   type: 'tag'
   pattern: string | RegExp
@@ -149,8 +142,8 @@ type BySchemaName = {
   pattern: string | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | BySchemaName
-export type Include = ByTag | ByOperationId | ByPath | ByMethod | BySchemaName
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
+export type Include = ByTag | ByOperationId | ByPath | ByMethod
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName) & {
   options: Partial<TOptions>
