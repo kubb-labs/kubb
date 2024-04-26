@@ -2,20 +2,7 @@
   "name": "unplugin-kubb",
   "version": "0.1.36",
   "description": "Unplugin for Kubb",
-  "keywords": [
-    "unplugin",
-    "vite",
-    "webpack",
-    "rollup",
-    "transform",
-    "astro",
-    "kubb",
-    "swagger",
-    "OpenAPI",
-    "rspack",
-    "nuxt",
-    "esbuild"
-  ],
+  "keywords": ["unplugin", "vite", "webpack", "rollup", "transform", "astro", "kubb", "swagger", "OpenAPI", "rspack", "nuxt", "esbuild"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -77,18 +64,10 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
   "typesVersions": {
     "*": {
-      "*": [
-        "./dist/*",
-        "./*"
-      ]
+      "*": ["./dist/*", "./*"]
     }
   },
   "scripts": {

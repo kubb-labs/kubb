@@ -463,10 +463,7 @@ export function createEnumDeclaration({
                       // or those combined with createPrefixUnaryExpression.
                       // Therefore, we need to ensure that the number is not negative.
                       if (value < 0) {
-                        initializer = factory.createPrefixUnaryExpression(
-                          ts.SyntaxKind.MinusToken,
-                          factory.createNumericLiteral(Math.abs(value))
-                        )
+                        initializer = factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value)))
                       } else {
                         initializer = factory.createNumericLiteral(value)
                       }
