@@ -29,12 +29,12 @@ const members =  allContributors?.contributors?.map(item=>{
 <VPTeamPage>
   <VPTeamPageTitle>
     <template #title>
-      Our Team
+      Our Contributors
     </template>
-    <template #lead>
+    <!-- <template #lead>
       The development of Kubb is guided by an international
       team, some of whom have chosen to be featured below.
-    </template>
+    </template> -->
   </VPTeamPageTitle>
   <VPTeamMembers
     :members="members"
