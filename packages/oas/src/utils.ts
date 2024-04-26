@@ -1,9 +1,10 @@
 import { isRef, isSchema } from 'oas/types'
 import openapiFormat from 'openapi-format'
-import { isObject, mergeDeep } from 'remeda'
+import { isObject } from 'remeda'
 
 import type { OASDocument, ParameterObject, SchemaObject } from 'oas/types'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { FormatOptions } from './parser/index.ts'
 
 export function isOpenApiV2Document(doc: any): doc is OpenAPIV2.Document {
   return doc && isObject(doc) && !('openapi' in doc)
@@ -36,34 +37,39 @@ export function isRequired(schema?: SchemaObject): boolean {
   return Array.isArray(schema.required) ? !!schema.required?.length : !!schema.required
 }
 
-export async function filterAndSort(data: OASDocument, options: openapiFormat.Options = {}): Promise<OASDocument> {
-  const mergedOptions = mergeDeep(
-    {
-      sort: true,
-      sortSet: {
-        root: ['openapi', 'info', 'servers', 'paths', 'components', 'tags', 'x-tagGroups', 'externalDocs'],
-        get: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
-        post: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
-        put: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
-        patch: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
-        delete: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
-        parameters: ['name', 'in', 'description', 'required', 'schema'],
-        requestBody: ['description', 'required', 'content'],
-        responses: ['description', 'headers', 'content', 'links'],
-        content: [],
-        components: ['parameters', 'schemas'],
-        schema: ['description', 'type', 'items', 'properties', 'format', 'example', 'default'],
-        schemas: ['description', 'type', 'items', 'properties', 'format', 'example', 'default'],
-        properties: ['description', 'type', 'items', 'format', 'example', 'default', 'enum'],
-      },
-      sortComponentsSet: {},
-      filterSet: {
-        unusedComponents: options.filterSet ? ['requestBodies', 'schemas', 'parameters', 'responses'] : [],
-      },
-      casingSet: {},
+export async function filterAndSort(data: OASDocument, options: FormatOptions = {}): Promise<OASDocument> {
+  const mergedOptions: FormatOptions = {
+    sort: options.sort ?? true,
+    ['no-sort']: options['no-sort'] ?? false,
+    sortSet: {
+      root: ['openapi', 'info', 'servers', 'paths', 'components', 'tags', 'x-tagGroups', 'externalDocs'],
+      get: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
+      post: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
+      put: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
+      patch: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
+      delete: ['operationId', 'summary', 'description', 'parameters', 'requestBody', 'responses'],
+      parameters: ['name', 'in', 'description', 'required', 'schema'],
+      requestBody: ['description', 'required', 'content'],
+      responses: ['description', 'headers', 'content', 'links'],
+      content: [],
+      components: ['parameters', 'schemas'],
+      schema: ['description', 'type', 'items', 'properties', 'format', 'example', 'default'],
+      schemas: ['description', 'type', 'items', 'properties', 'format', 'example', 'default'],
+      properties: ['description', 'type', 'items', 'format', 'example', 'default', 'enum'],
+      ...options.sortSet,
     },
-    options as Record<string, unknown>,
-  ) as openapiFormat.Options
+    sortComponentsSet: {
+      ...options.sortComponentsSet,
+    },
+    filterSet: {
+      inverseMethods: ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'],
+      unusedComponents: options.filterSet ? ['requestBodies', 'schemas', 'parameters', 'responses'] : [],
+      ...options.filterSet,
+    },
+    casingSet: {
+      ...options.casingSet,
+    },
+  }
 
   const restFilter = await openapiFormat.openapiFilter(data, mergedOptions)
   data = restFilter.data

@@ -17,7 +17,15 @@ export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'schemas' }, experimentalFilter: filter, experimentalSort: sort, validate = true, serverIndex = 0, contentType, docs } = options
+  const {
+    output = { path: 'schemas', export: false },
+    docs = { path: './docs.html' },
+    experimentalFilter: filter,
+    experimentalSort: sort,
+    validate = true,
+    serverIndex = 0,
+    contentType,
+  } = options
 
   const getOas = async ({ config, logger, formatOptions }: { config: Config; logger: Logger; formatOptions?: FormatOptions }): Promise<Oas> => {
     try {
@@ -94,7 +102,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const root = path.resolve(this.config.root, this.config.output.path)
         const pageHTML = await getPageHTML(oas.api)
 
-        await this.fileManager.write(pageHTML, path.resolve(root, docs.path || './docs.html'))
+        if (docs.export) {
+          await this.fileManager.write(JSON.stringify(oas.api), path.resolve(root, './openapi.json'))
+        }
+
+        await this.fileManager.write(pageHTML, path.resolve(root, docs.path))
       }
 
       if (output) {

@@ -21,8 +21,8 @@ declare module 'openapi-format' {
       properties?: Array<'description' | 'type' | 'items' | 'format' | 'example' | 'default' | 'enum'>
     }
     filterSet?: {
-      methods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete'>
-      inverseMethods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete'>
+      methods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'trace' | 'head'>
+      inverseMethods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'trace' | 'head'>
       tags?: Array<string>
       inverseTags?: Array<string>
       operationIds?: Array<string>

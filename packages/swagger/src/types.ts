@@ -42,6 +42,11 @@ export type Options = {
          * @default 'docs.html'
          */
         path: string
+        /**
+         * Export the generated(with filters and sorting) OpenApi file with conversion to v3.
+         * @default false
+         */
+        export?: boolean
       }
     | false
   /**

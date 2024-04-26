@@ -127,7 +127,8 @@ export default defineConfig({
 
 :::
 
-#### output.path
+### docs
+#### docs.path
 
 Output for the generated doc, we are using [https://redocly.com/](https://redocly.com/) for the generation<br/>
 
@@ -175,6 +176,40 @@ export default defineConfig({
 })
 ```
 
+:::
+
+
+#### docs.export
+
+Export the generated(with filters and sorting) OpenApi file with conversion to v3.<br/>
+
+::: info
+Type: `boolean` <br/>
+Default: `false`
+
+::: code-group
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({
+      docs: {
+        path: './docs/index.html',
+        export: true
+      },
+    }),
+  ],
+})
+```
 :::
 
 
