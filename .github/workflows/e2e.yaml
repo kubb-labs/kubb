@@ -80,7 +80,7 @@ jobs:
           if: ${{ matrix.os == 'windows-latest' }}
           run: pnpm run build
 
-        - name: Build
+        - name: Build with Bun
           if: ${{ matrix.os == 'ubuntu-latest' }}
           run: bun run build
 
@@ -96,7 +96,7 @@ jobs:
           run: |
             bun run generate
 
-        - name: E2e
+        - name: E2e with Bun
           working-directory: ./e2e
           if: ${{ matrix.os == 'ubuntu-latest' }}
           env:
