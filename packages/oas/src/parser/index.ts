@@ -2,12 +2,13 @@ import OASNormalize from 'oas-normalize'
 import swagger2openapi from 'swagger2openapi'
 
 import { Oas } from '../Oas.ts'
-import { isOpenApiV2Document } from '../utils.ts'
+import { filterAndSort, isOpenApiV2Document } from '../utils.ts'
 
 import type { OASDocument } from 'oas/types'
+import type openapiFormat from 'openapi-format'
 import type { OpenAPI } from 'openapi-types'
 
-export async function parse(pathOrApi: string | OASDocument): Promise<Oas> {
+export async function parse(pathOrApi: string | OASDocument, options: openapiFormat.Options = {}): Promise<Oas> {
   const oasNormalize = new OASNormalize(pathOrApi, {
     enablePaths: true,
     colorizeErrors: true,
@@ -22,10 +23,14 @@ export async function parse(pathOrApi: string | OASDocument): Promise<Oas> {
   }
 
   if (isOpenApiV2Document(document)) {
-    const { openapi: oas } = await swagger2openapi.convertObj(document, { anchors: true })
+    const { openapi } = await swagger2openapi.convertObj(document, { anchors: true })
+
+    const oas = await filterAndSort(openapi as OASDocument, options)
 
     return new Oas({ oas: oas as OASDocument })
   }
 
-  return new Oas({ oas: document })
+  const oas = await filterAndSort(document as OASDocument, options)
+
+  return new Oas({ oas })
 }

@@ -17,6 +17,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "../../typings.d.ts"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }

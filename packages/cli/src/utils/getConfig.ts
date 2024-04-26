@@ -2,7 +2,7 @@ import { isPromise } from '@kubb/core/utils'
 
 import { getPlugins } from './getPlugins.ts'
 
-import type { CLIOptions, Config, UserConfig } from '@kubb/core'
+import type { CLIOptions, Config, UserConfig, defineConfig } from '@kubb/core'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
 /**

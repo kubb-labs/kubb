@@ -1,5 +1,5 @@
-import type { OasTypes } from '@kubb/oas'
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts'
+import type { OasTypes } from '../types.ts'
 
 type Checks<TName extends string | number | symbol = never> = {
   ModelWithSchemas: {

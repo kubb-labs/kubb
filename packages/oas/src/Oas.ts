@@ -1,10 +1,13 @@
 import BaseOas from 'oas'
 import OASNormalize from 'oas-normalize'
+import { findSchemaDefinition, matchesMimeType } from 'oas/utils'
+
+import { isReference } from './utils.ts'
+
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
-import { findSchemaDefinition, matchesMimeType } from 'oas/utils'
 import type { contentType } from './types.ts'
-import { isReference } from './utils.ts'
+
 type Options = {
   contentType?: contentType
 }

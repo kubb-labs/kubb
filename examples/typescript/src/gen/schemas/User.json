@@ -8,7 +8,7 @@
     "email": { "type": "string", "example": "john@email.com" },
     "password": { "type": "string", "example": "12345" },
     "phone": { "type": "string", "example": "12345" },
-    "userStatus": { "type": "integer", "description": "User Status", "format": "int32", "example": 1 }
+    "userStatus": { "description": "User Status", "type": "integer", "format": "int32", "example": 1 }
   },
   "xml": { "name": "user" },
   "x-readme-ref-name": "User"

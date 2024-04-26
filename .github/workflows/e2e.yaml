@@ -26,7 +26,6 @@ jobs:
         matrix:
           os: [ubuntu-latest, windows-latest]
           node-version: [18]
-          installer: ['pnpm run']
           ## comment out for support of node 19,20
           # experimental: [false]
 
@@ -34,14 +33,11 @@ jobs:
           exclude:
             - os: ubuntu-latest
               node-version: 18
-              installer: pnpm run
           include:
             - os: windows-latest
               node-version: 18
-              installer: pnpm run
             - os: ubuntu-latest
               node-version: 18
-              installer: bun run
 
           ## comment out for support of node 19,20
           # include:
@@ -81,7 +77,12 @@ jobs:
           uses: ./.github/setup
 
         - name: Build
-          run: ${{ matrix.installer }} build
+          if: ${{ matrix.os == 'windows-latest' }}
+          run: pnpm run build
+
+        - name: Build
+          if: ${{ matrix.os == 'ubuntu-latest' }}
+          run: bun run build
 
         - name: Install e2e dependencies
           run: pnpm install --prefer-offline
@@ -89,8 +90,16 @@ jobs:
 
         - name: E2e
           working-directory: ./e2e
+          if: ${{ matrix.os == 'windows-latest' }}
           env:
             NODE_OPTIONS: "--max_old_space_size=4096"
           run: |
-            ${{ matrix.installer }} generate
+            bun run generate
 
+        - name: E2e
+          working-directory: ./e2e
+          if: ${{ matrix.os == 'ubuntu-latest' }}
+          env:
+            NODE_OPTIONS: "--max_old_space_size=4096"
+          run: |
+            bun run generate --bun

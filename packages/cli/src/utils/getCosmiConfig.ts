@@ -18,6 +18,16 @@ const tsLoader = async (configFile: string) => {
   return mod.default
 }
 
+const jsLoader = async (configFile: string) => {
+  const { mod } = await bundleRequire({
+    filepath: configFile,
+    preserveTemporaryFile: false,
+    format: 'cjs',
+  })
+
+  return mod.default || mod
+}
+
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {
   const searchPlaces = [
     'package.json',

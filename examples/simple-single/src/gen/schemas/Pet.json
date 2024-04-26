@@ -1,5 +1,4 @@
 {
-  "required": ["name", "photoUrls"],
   "type": "object",
   "properties": {
     "id": { "type": "integer", "format": "int64", "example": 10 },
@@ -10,19 +9,20 @@
       "xml": { "name": "category" },
       "x-readme-ref-name": "Category"
     },
-    "photoUrls": { "type": "array", "xml": { "wrapped": true }, "items": { "type": "string", "xml": { "name": "photoUrl" } } },
+    "photoUrls": { "type": "array", "items": { "type": "string", "xml": { "name": "photoUrl" } }, "xml": { "wrapped": true } },
     "tags": {
       "type": "array",
-      "xml": { "wrapped": true },
       "items": {
         "type": "object",
         "properties": { "id": { "type": "integer", "format": "int64" }, "name": { "type": "string" } },
         "xml": { "name": "tag" },
         "x-readme-ref-name": "Tag"
-      }
+      },
+      "xml": { "wrapped": true }
     },
-    "status": { "type": "string", "description": "pet status in the store", "enum": ["available", "pending", "sold"] }
+    "status": { "description": "pet status in the store", "type": "string", "enum": ["available", "pending", "sold"] }
   },
+  "required": ["name", "photoUrls"],
   "xml": { "name": "pet" },
   "x-readme-ref-name": "Pet"
 }

@@ -1,8 +1,13 @@
+import path from 'node:path'
+
+import yaml from '@stoplight/yaml'
 import { expectTypeOf } from 'expect-type'
+
 import { petStore } from '../mocks/petStore.ts'
 
 import { Oas } from './Oas.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
+import { parse } from './parser/index.ts'
 
 describe('swagger Infer', () => {
   const oas = new Oas({ oas: petStore })
@@ -28,5 +33,20 @@ describe('swagger Infer', () => {
     expectTypeOf<UserResponse>().toMatchTypeOf<{
       status?: 'available' | 'pending' | 'sold' | undefined
     }>()
+  })
+})
+
+describe('Oas filter', async () => {
+  const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
+
+  test('Filtering on operationId', async () => {
+    const oas = await parse(petStorePath, {
+      filterSet: {
+        inverseMethods: ['put'],
+        operationIds: ['updateUser'],
+      },
+    })
+
+    expect(yaml.safeStringify(oas.api)).toMatchSnapshot()
   })
 })
