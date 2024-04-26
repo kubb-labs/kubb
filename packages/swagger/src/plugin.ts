@@ -16,7 +16,7 @@ export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'schemas' }, exclude, include, validate = true, serverIndex = 0, contentType, docs = { path: './docs.html' } } = options
+  const { output = { path: 'schemas' }, exclude, include, validate = true, serverIndex = 0, contentType, docs } = options
 
   const getOas = async ({ config, logger, formatOptions }: { config: Config; logger: Logger; formatOptions?: FormatOptions }): Promise<Oas> => {
     try {
@@ -79,18 +79,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      // TODO add formatOptions that includes include/exclude
-      const oas = await getOas({ config: this.config, logger: this.logger })
-      await oas.dereference()
-
       if (docs) {
+        // TODO add formatOptions that includes include/exclude
+        const oas = await getOas({ config: this.config, logger: this.logger })
+        await oas.dereference()
+
         const root = path.resolve(this.config.root, this.config.output.path)
         const pageHTML = await getPageHTML(oas.api)
 
-        await this.fileManager.write(pageHTML, path.resolve(root, docs.path))
+        await this.fileManager.write(pageHTML, path.resolve(root, docs.path || './docs.html'))
       }
 
       if (output) {
+        // TODO add formatOptions that includes include/exclude
+        const oas = await getOas({ config: this.config, logger: this.logger })
+        await oas.dereference()
         const schemas = getSchemas({ oas, contentType })
 
         const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
