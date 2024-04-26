@@ -1,8 +1,13 @@
 {
   "name": "@kubb/parser",
-  "version": "2.15.0",
+  "version": "2.16.0",
   "description": "Generator parser",
-  "keywords": ["typescript", "plugins", "kubb", "codegen"],
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -31,10 +36,17 @@
   "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
-      "factory": ["./dist/factory.d.ts"]
+      "factory": [
+        "./dist/factory.d.ts"
+      ]
     }
   },
-  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",

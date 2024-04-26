@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.16.0
+
+### Minor Changes
+
+- [#963](https://github.com/kubb-labs/kubb/pull/963) [`d620eb0`](https://github.com/kubb-labs/kubb/commit/d620eb09c92c1381f740f21d8e7afb7621d9193e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - experimentalFilter and experimentalSort with the use of openapi-format
+
 ## 2.15.0
 
 ### Minor Changes
