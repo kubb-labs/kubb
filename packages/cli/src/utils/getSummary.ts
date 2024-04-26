@@ -53,6 +53,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: c.yellow(`${elapsedSeconds}s`),
+    endTime: c.yellow(Date()),
     output: path.resolve(config.root, config.output.path),
   } as const
 
@@ -69,6 +70,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
       [`   ${c.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
       [`${c.bold('Generated:')}      ${meta.filesCreated} files`, true],
       [`     ${c.bold('Time:')}      ${meta.time}`, true],
+      [`    ${c.bold('Ended:')}      ${meta.endTime}`, true],
       [`   ${c.bold('Output:')}      ${meta.output}`, true],
       [`\n`, true],
     ]
