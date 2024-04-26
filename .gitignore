@@ -3,7 +3,6 @@
 # editors
 #.vscode
 .idea/
-*.iml
 
 # dependencies
 node_modules
