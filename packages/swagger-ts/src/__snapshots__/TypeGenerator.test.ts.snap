@@ -221,38 +221,3 @@ exports[`TypeGenerator petStoreRef > generate type for Pets 1`] = `
 "export type Pets = Pet[]
 "
 `;
-
-exports[`TypeGenerator type assertions > generates Date type correctly 1`] = `
-"export type PlainDate = Date;
-"
-`;
-
-exports[`TypeGenerator type assertions > generates Email type correctly 1`] = `
-"export type PlainEmail = string;
-"
-`;
-
-exports[`TypeGenerator type assertions > generates Plain_File types correctly 1`] = `
-"export type PlainFile = Blob;
-"
-`;
-
-exports[`TypeGenerator type assertions > generates Time type correctly 1`] = `
-"export type PlainTime = number;
-"
-`;
-
-exports[`TypeGenerator type assertions > generates UUID type correctly 1`] = `
-"export type PlainUuid = string;
-"
-`;
-
-exports[`TypeGenerator type assertions > generates file property with \`File\` type 1`] = `
-"export type BodyUploadFileApiAssetsPost = {
-    /**
-     * @type string binary
-    */
-    file: Blob;
-};
-"
-`;
