@@ -2,14 +2,7 @@
   "name": "@kubb/swagger",
   "version": "2.15.0",
   "description": "Generator swagger",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
-    "swagger",
-    "openapi"
-  ],
+  "keywords": ["typescript", "plugins", "kubb", "codegen", "swagger", "openapi"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -48,23 +41,12 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ],
-      "components": [
-        "./dist/components.d.ts"
-      ]
+      "utils": ["./dist/utils.d.ts"],
+      "hooks": ["./dist/hooks.d.ts"],
+      "components": ["./dist/components.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "static", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -81,13 +63,18 @@
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
-    "remeda": "^1.61.0"
+    "handlebars": "^4.7.8",
+    "react-dom": "^18.3.1",
+    "redoc": "^2.1.4",
+    "remeda": "^1.61.0",
+    "styled-components": "^6.1.8"
   },
   "devDependencies": {
     "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
     "react": "^18.3.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"

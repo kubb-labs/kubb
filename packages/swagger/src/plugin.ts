@@ -8,6 +8,7 @@ import { getSchemas } from './utils/getSchemas.ts'
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
+import { getPageHTML } from './redoc.tsx'
 import type { PluginOptions } from './types.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
@@ -15,7 +16,7 @@ export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'schemas' }, validate = true, serverIndex = 0, contentType } = options
+  const { output = { path: 'schemas' }, validate = true, serverIndex = 0, contentType, docs = { path: './docs.html' } } = options
 
   const getOas = async (config: Config, logger: Logger): Promise<Oas> => {
     try {
@@ -78,42 +79,48 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      if (output === false) {
-        return undefined
-      }
-
       const oas = await getOas(this.config, this.logger)
       await oas.dereference()
-      const schemas = getSchemas({ oas, contentType })
 
-      const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
-        const resolvedPath = this.resolvePath({
-          baseName: `${name}.json`,
-          pluginKey: this.plugin.key,
-        })
+      if (docs) {
+        const root = path.resolve(this.config.root, this.config.output.path)
+        const pageHTML = await getPageHTML(oas.api)
 
-        const resvoledFileName = this.resolveName({
-          name: `${name}.json`,
-          pluginKey,
-          type: 'file',
-        }) as `${string}.json`
-
-        if (!resolvedPath) {
-          return
-        }
-
-        await this.addFile({
-          path: resolvedPath,
-          baseName: resvoledFileName,
-          source: JSON.stringify(schema),
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-        })
+        await this.fileManager.write(pageHTML, path.resolve(root, docs.path))
       }
 
-      const promises = Object.entries(schemas).map(mapSchema)
-      await Promise.all(promises)
+      if (output) {
+        const schemas = getSchemas({ oas, contentType })
+
+        const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
+          const resolvedPath = this.resolvePath({
+            baseName: `${name}.json`,
+            pluginKey: this.plugin.key,
+          })
+
+          const resvoledFileName = this.resolveName({
+            name: `${name}.json`,
+            pluginKey,
+            type: 'file',
+          }) as `${string}.json`
+
+          if (!resolvedPath) {
+            return
+          }
+
+          await this.addFile({
+            path: resolvedPath,
+            baseName: resvoledFileName,
+            source: JSON.stringify(schema),
+            meta: {
+              pluginKey: this.plugin.key,
+            },
+          })
+        }
+
+        const promises = Object.entries(schemas).map(mapSchema)
+        await Promise.all(promises)
+      }
     },
   }
 })

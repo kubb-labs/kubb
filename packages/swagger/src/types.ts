@@ -35,6 +35,15 @@ export type Options = {
       }
     | false
 
+  docs?:
+    | {
+        /**
+         * Output for the generated doc, we are using [https://redocly.com/](https://redocly.com/) for the generation
+         * @default 'docs.html'
+         */
+        path: string
+      }
+    | false
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`

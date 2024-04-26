@@ -98,6 +98,7 @@ export const machineSchema = z.object({
   config: z.lazy(() => flyMachineConfigSchema).schema.optional(),
   created_at: z.string().optional(),
   events: z.array(z.lazy(() => machineEventSchema).schema).optional(),
+  host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
   id: z.string().optional(),
   image_ref: z.lazy(() => imageRefSchema).schema.optional(),
   instance_id: z.string().describe('InstanceID is unique for each version of the machine').optional(),
@@ -107,7 +108,6 @@ export const machineSchema = z.object({
   region: z.string().optional(),
   state: z.string().optional(),
   updated_at: z.string().optional(),
-  worker_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
 })
 
 export const machineEventSchema = z.object({
@@ -178,13 +178,13 @@ export const volumeSchema = z.object({
   created_at: z.string().optional(),
   encrypted: z.boolean().optional(),
   fstype: z.string().optional(),
+  host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
   id: z.string().optional(),
   name: z.string().optional(),
   region: z.string().optional(),
   size_gb: z.number().optional(),
   snapshot_retention: z.number().optional(),
   state: z.string().optional(),
-  worker_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
   zone: z.string().optional(),
 })
 
