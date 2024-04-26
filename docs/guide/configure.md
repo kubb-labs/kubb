@@ -109,12 +109,7 @@ export type CLIOptions = {
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({ config, watch, logLevel }: CLIOptions) => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
-
+export default defineConfig(({ config, watch, logLevel }: CLIOptions) => {
   return {
     root: '.',
     input: {
@@ -141,7 +136,7 @@ Since version `2.x.x` we also support using multiple of the same plugin.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig(async () => {
   return {
@@ -181,7 +176,7 @@ Since version `2.x.x` we also support using multiple configs.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig([
   {

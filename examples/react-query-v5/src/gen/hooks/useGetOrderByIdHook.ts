@@ -37,7 +37,8 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId */
+ * @link /store/order/:orderId
+ */
 export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
@@ -50,9 +51,9 @@ export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
   const query = useQuery({
-    ...getOrderByIdQueryOptions(orderId, clientOptions) as QueryObserverOptions,
+    ...(getOrderByIdQueryOptions(orderId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
@@ -79,7 +80,8 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId */
+ * @link /store/order/:orderId
+ */
 export function useGetOrderByIdHookSuspense<TData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
@@ -92,9 +94,9 @@ export function useGetOrderByIdHookSuspense<TData = GetOrderById['response'], TQ
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey(orderId)
   const query = useSuspenseQuery({
-    ...getOrderByIdSuspenseQueryOptions(orderId, clientOptions) as QueryObserverOptions,
+    ...(getOrderByIdSuspenseQueryOptions(orderId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }

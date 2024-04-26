@@ -12,7 +12,7 @@ describe('TreeNode', () => {
     expect(tree?.root.data).toEqual({
       name: 'treeNode',
       path: rootPath,
-      type: 'directory',
+      type: 'split',
     })
   })
 
@@ -21,17 +21,17 @@ describe('TreeNode', () => {
 
     tree?.leaves.forEach((leave) => {
       if (leave.data.name === 'hello.ts') {
-        expect(leave.data.type).toBe('file')
+        expect(leave.data.type).toBe('single')
         expect(leave.data.path).toBe(path.resolve(rootPath, 'sub', 'hello.ts'))
       }
 
       if (leave.data.name === 'hello.ts') {
-        expect(leave.data.type).toBe('file')
+        expect(leave.data.type).toBe('single')
         expect(leave.data.path).toBe(path.resolve(rootPath, 'sub', 'hello.ts'))
       }
 
       if (leave.data.name === 'test.ts') {
-        expect(leave.data.type).toBe('file')
+        expect(leave.data.type).toBe('single')
         expect(leave.data.path).toBe(path.resolve(rootPath, 'test.ts'))
       }
     })

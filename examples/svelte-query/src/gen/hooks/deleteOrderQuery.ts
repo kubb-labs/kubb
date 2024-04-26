@@ -20,18 +20,19 @@ type DeleteOrder = {
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId */
+ * @link /store/order/:orderId
+ */
 export function deleteOrderQuery(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: CreateMutationOptions<DeleteOrder['response'], DeleteOrder['error'], void>
+    mutation?: CreateMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
     client?: DeleteOrder['client']['parameters']
   } = {},
-): CreateMutationResult<DeleteOrder['response'], DeleteOrder['error'], void> {
+): CreateMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<DeleteOrder['response'], DeleteOrder['error'], void>({
+  return createMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
     mutationFn: async () => {
-      const res = await client<DeleteOrder['data'], DeleteOrder['error'], void>({
+      const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',
         url: `/store/order/${orderId}`,
         ...clientOptions,

@@ -1,8 +1,8 @@
 import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from '../types.ts'
 
-export const createNode = (nodeName: ElementNames): DOMElement => {
+export const createNode = (nodeName: string): DOMElement => {
   const node: DOMElement = {
-    nodeName,
+    nodeName: nodeName as DOMElement['nodeName'],
     attributes: {},
     childNodes: [],
     parentNode: undefined,
@@ -70,4 +70,4 @@ export const setTextNodeValue = (node: TextNode, text: string): void => {
   node.nodeValue = text
 }
 
-export const nodeNames: Array<ElementNames> = ['kubb-export', 'kubb-file', 'kubb-source', 'kubb-import', 'kubb-text']
+export const nodeNames: Array<ElementNames> = ['kubb-export', 'kubb-file', 'kubb-source', 'kubb-import', 'kubb-text', 'kubb-editor']

@@ -5,42 +5,31 @@
   "description": "Kubb's monorepo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-project/kubb.git"
+    "url": "https://github.com/kubb-labs/kubb.git"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "type": "module",
   "workspaces": {
-    "packages": [
-      "packages/*",
-      "packages/config/eslint-config/*",
-      "packages/config/tsup-config/*",
-      "packages/config/ts-config/*",
-      "docs",
-      "examples/*",
-      "e2e"
-    ]
+    "packages": ["packages/*", "packages/config/biome-config/*", "packages/config/tsup-config/*", "packages/config/ts-config/*", "docs", "examples/*", "e2e"]
   },
   "scripts": {
     "//changeset:beta:enter": "changeset pre enter beta",
     "//changeset:beta:exit": "changeset pre exit",
     "build": "turbo run build --filter=./packages/*",
+    "build:docs": "cd docs && pnpm run build",
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
-    "format": "bun run format:dprint",
-    "format:dprint": "dprint fmt",
-    "format:fix": "dprint fmt --incremental=false",
-    "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
-    "format:prettier": "prettier --config ./configs/prettier.config.cjs --write .",
-    "generate": "turbo run generate --filter=./examples/* --continue && bun run generate:lint",
-    "generate:lint": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./examples/* && bun run lint:case && bun run format",
+    "format": "bun biome format --write ./",
+    "generate": "turbo run generate --filter=./examples/* --continue",
+    "postgenerate": "bun run lint:fix && bun run format",
     "graph": "npx nx graph ",
     "install:csb": "corepack enable && pnpm install --frozen-lockfile",
-    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty ./packages/*",
+    "lint": "bun biome lint ./packages",
     "lint:case": "npx case-police --fix",
-    "lint:ci": "ESLINT_USE_FLAT_CONFIG=true eslint --max-warnings 10 --format pretty ./packages/*",
-    "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/* && bun run lint:case",
+    "lint:ci": "bun biome lint ./packages",
+    "lint:fix": "bun biome lint --apply-unsafe ./packages ./examples && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "changeset publish",
     "release:canary": "changeset publish --no-git-tag",
@@ -56,33 +45,31 @@
     "version:canary": "changeset version --snapshot canary"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.7.1",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
-    "@kubb/eslint-config": "workspace:*",
+    "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.11.20",
-    "@vitest/coverage-v8": "^1.3.1",
-    "@vitest/ui": "^1.3.1",
-    "bun-types": "^1.0.29",
-    "dprint": "^0.45.0",
-    "prettier": "^3.2.5",
-    "prettier-eslint": "^16.3.0",
+    "@types/node": "^20.12.7",
+    "@vitest/coverage-v8": "^1.5.0",
+    "@vitest/ui": "^1.5.0",
+    "bun-types": "^1.1.4",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
-    "turbo": "^1.12.4",
-    "typescript": "^5.3.3",
-    "vite-tsconfig-paths": "^4.3.1",
-    "vitest": "^1.3.1"
+    "turbo": "^1.13.2",
+    "typescript": "^5.4.5",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.5.0"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   },
-  "namespace": "@kubb",
   "pnpm": {
     "patchedDependencies": {
       "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
     }
-  }
+  },
+  "namespace": "@kubb"
 }

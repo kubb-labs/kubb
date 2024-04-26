@@ -1,14 +1,19 @@
-import type { PluginManager } from '@kubb/core'
-import type { Oas } from './oas/index.ts'
+import type { Plugin, PluginManager } from '@kubb/core'
+import type { Oas } from '@kubb/oas'
 import type { OperationSchema } from './types.ts'
 
 type Context = {
   oas: Oas
   pluginManager: PluginManager
+  /**
+   * Current plugin
+   */
+  plugin: Plugin
 }
 
 /**
  * Abstract class that contains the building blocks for creating a type/zod builder
+ * @deprecated
  */
 export abstract class OasBuilder<TOptions = unknown, TContext = Context> {
   #options: TOptions = {} as TOptions

@@ -164,6 +164,10 @@ const pluginsSidebar = [
                 link: '/plugins/react/components/function',
               },
               {
+                text: 'Editor <img src="/icons/experimental.svg"/> <span class="new">new</span>',
+                link: '/plugins/react/components/editor',
+              },
+              {
                 text: 'Type',
                 link: '/plugins/react/components/type',
               },
@@ -342,6 +346,10 @@ const examplesSidebar = [
     text: 'Templates <span class="new">new</span>',
     link: '/examples/client',
   },
+  {
+    text: 'Python <span class="new">new</span>',
+    link: '/examples/python',
+  },
 ]
 
 const blogSidebar = [
@@ -467,7 +475,12 @@ export default defineConfig({
     ['meta', { property: 'twitter:description', content: description }],
     ['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }],
     ['link', { rel: 'mask-icon', href: '/logo.png', color: '#ffffff' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js' }],
+    [
+      'script',
+      {
+        src: 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js',
+      },
+    ],
   ],
   transformHtml: (code, id, { pageData }) => {
     if (!/[\\/]404\.html$/.test(id)) {
@@ -512,15 +525,21 @@ export default defineConfig({
       {
         text: 'Plugins',
         activeMatch: 'plugins',
-        items: [
-          ...pluginsMenu,
-        ],
+        items: [...pluginsMenu],
       },
-      { text: 'Reference', link: '/reference/overview', activeMatch: 'reference' },
+      {
+        text: 'Reference',
+        link: '/reference/overview',
+        activeMatch: 'reference',
+      },
       {
         text: 'Try Out',
         items: [
-          { text: 'Examples', link: '/examples/typescript', activeMatch: 'examples' },
+          {
+            text: 'Examples',
+            link: '/examples/typescript',
+            activeMatch: 'examples',
+          },
           { text: 'Playground', link: '/playground' },
         ],
       },
@@ -538,7 +557,7 @@ export default defineConfig({
           },
           {
             text: 'Releases',
-            link: 'https://github.com/kubb-project/kubb/releases',
+            link: 'https://github.com/kubb-labs/kubb/releases',
             target: '_blank',
           },
 
@@ -558,14 +577,13 @@ export default defineConfig({
         ],
       },
       {
-        text:
-          `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
       `,
         link: '',
       },
     ],
     editLink: {
-      pattern: 'https://github.com/kubb-project/kubb/edit/main/docs/:path',
+      pattern: 'https://github.com/kubb-labs/kubb/edit/main/docs/:path',
     },
     sidebar: {
       '/config': configSidebar,
@@ -576,7 +594,7 @@ export default defineConfig({
       '/blog': blogSidebar,
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/kubb-project/kubb' },
+      { icon: 'github', link: 'https://github.com/kubb-labs/kubb' },
       { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },
       { icon: 'x', link: 'https://twitter.com/kubbproject' },
     ],

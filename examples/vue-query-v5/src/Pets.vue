@@ -1,6 +1,6 @@
 <script lang="ts">
-import { defineComponent, computed, unref } from 'vue';
-import { useFindPetsByStatus, FindPetsByStatusQueryParams } from './index.ts';
+import { computed, defineComponent, unref } from 'vue'
+import { type FindPetsByStatusQueryParams, useFindPetsByStatus } from './index.ts'
 
 export default defineComponent({
   name: 'PetsList',
@@ -12,15 +12,14 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const params = computed(() =>{
+    const params = computed(() => {
       return {
-        status: props.status as FindPetsByStatusQueryParams["status"]
+        status: props.status as FindPetsByStatusQueryParams['status'],
       }
     })
 
-    const petsQuery = useFindPetsByStatus(params, {query: {enabled: true}})
-    const pets = computed(() => unref(petsQuery?.data));
-
+    const petsQuery = useFindPetsByStatus(params, { query: { enabled: true } })
+    const pets = computed(() => unref(petsQuery?.data))
 
     console.log(pets)
     //           ^?
@@ -28,17 +27,18 @@ export default defineComponent({
     console.log(petsQuery.queryKey)
     //                        ^?
 
-
-    const petsOverrideQuery = useFindPetsByStatus(params, {query: {
-      queryKey: ['test'] as const,
-      enabled: false,
-      select: (data => {
-        const res = data.at(0)
-        //    ^?
-        return res
-      }),}})
-    const petsOverride = computed(() => unref(petsOverrideQuery?.data));
-
+    const petsOverrideQuery = useFindPetsByStatus(params, {
+      query: {
+        queryKey: ['test'] as const,
+        enabled: false,
+        select: (data) => {
+          const res = data.at(0)
+          //    ^?
+          return res
+        },
+      },
+    })
+    const petsOverride = computed(() => unref(petsOverrideQuery?.data))
 
     console.log(petsOverride)
     //           ^?
@@ -47,10 +47,10 @@ export default defineComponent({
     //                              ^?
 
     return {
-      pets
-    };
+      pets,
+    }
   },
-});
+})
 </script>
 
 <template>

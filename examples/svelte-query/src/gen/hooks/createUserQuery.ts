@@ -20,7 +20,8 @@ type CreateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user */
+ * @link /user
+ */
 export function createUserQuery(
   options: {
     mutation?: CreateMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
@@ -32,7 +33,7 @@ export function createUserQuery(
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
-        url: `/user`,
+        url: '/user',
         data,
         ...clientOptions,
       })

@@ -4,7 +4,7 @@ info:
   title: Issue requestBody
   license:
     name: MIT
-  description: https://github.com/kubb-project/kubb/issues/274
+  description: https://github.com/kubb-labs/kubb/issues/274
 servers:
   - url: http://petstore.swagger.io/v1
 paths:

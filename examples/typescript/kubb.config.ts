@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',
@@ -10,9 +10,6 @@ export default defineConfig({
   output: {
     path: './src/gen',
     clean: true,
-  },
-  hooks: {
-    done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   plugins: [
     createSwagger({ validate: false }),

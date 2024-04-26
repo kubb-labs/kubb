@@ -25,7 +25,10 @@ export async function getConfig(result: CosmiconfigResult, CLIOptions: CLIOption
 
   if (Array.isArray(JSONConfig)) {
     const promises = JSONConfig.map(async (item) => {
-      return { ...item, plugins: item.plugins ? await getPlugins(item.plugins) : undefined }
+      return {
+        ...item,
+        plugins: item.plugins ? await getPlugins(item.plugins) : undefined,
+      }
     }) as unknown as Array<Promise<Config>>
 
     return Promise.all(promises)

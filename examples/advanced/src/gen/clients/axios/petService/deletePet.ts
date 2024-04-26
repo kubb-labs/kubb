@@ -5,9 +5,14 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export async function deletePet(
-  { petId }: DeletePetPathParams,
+  {
+    petId,
+  }: {
+    petId: DeletePetPathParams['petId']
+  },
   headers?: DeletePetHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<DeletePetMutationResponse>> {

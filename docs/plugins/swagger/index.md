@@ -17,9 +17,9 @@ We are using [Oas](https://github.com/readmeio/oas) to convert a YAML/JSON to an
 
 The Swagger plugin also contains some classes and functions that can be used in your own plugin that needs Swagger:
 
-- For example, we have [`getReference`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
+- For example, we have [`getReference`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
 
-- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
+- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger/src/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
   <br/>Just call `this.getSchemas` and you will retrieve an object contains all the info you need to set up a TypeScript type, React-Query hook,....
 
 ## Installation
@@ -57,7 +57,7 @@ Default: `true`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -89,7 +89,7 @@ Default: `'schemas'`
 
 ```typescript [output string]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -110,7 +110,7 @@ export default defineConfig({
 
 ```typescript [output false]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -156,7 +156,7 @@ servers:
 
 ```typescript [serverIndex 0]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -173,7 +173,7 @@ export default defineConfig({
 
 ```typescript [serverIndex 1]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -192,24 +192,24 @@ export default defineConfig({
 
 ### contentType
 
-Override ContentType that will be used for requests and responses.
+Override contentType that will be used for requests and responses.
 
 ::: info type
 
 ```typescript
-export type ContentType = 'application/json' | (string & {})
+export type contentType = 'application/json' | (string & {})
 ```
 
 :::
 
 ::: info
-Type: `ContentType` <br/>
+Type: `contentType` <br/>
 
 ::: code-group
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {

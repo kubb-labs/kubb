@@ -1,8 +1,25 @@
+import { createContext } from 'react'
+
 import { Export } from './Export.tsx'
 import { Import } from './Import.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '../types.ts'
+
+export type FileContextProps<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = {
+  /**
+   * Name to be used to dynamicly create the baseName(based on input.path).
+   * Based on UNIX basename
+   * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
+   */
+  baseName: KubbFile.BaseName
+  /**
+   * Path will be full qualified path to a specified file.
+   */
+  path: KubbFile.Path
+  meta?: TMeta
+}
+const FileContext = createContext<FileContextProps>({} as FileContextProps)
 
 type BasePropsWithBaseName = {
   /**
@@ -43,33 +60,44 @@ type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BasePr
    * @default `false`
    */
   override?: KubbFile.File['override']
+  /**
+   * Override if a file can be exported by the BarrelManager
+   * @default true
+   */
+  exportable?: boolean
   meta?: TMeta
   children?: KubbNode
 }
 
-export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(props: Props<TMeta>): KubbNode {
-  if (!props.baseName || !props.path) {
-    return props.children
+export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>({ children, exportable = true, ...rest }: Props<TMeta>): KubbNode {
+  if (!rest.baseName || !rest.path) {
+    return children
   }
 
-  return <kubb-file {...props} />
+  return (
+    <kubb-file exportable={exportable} {...rest}>
+      <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>{children}</FileContext.Provider>
+    </kubb-file>
+  )
 }
 
-type FileSourceUnionProps = {
-  /**
-   * When path is set it will copy-paste that file as a string inside the component.
-   * Children will then be ignored
-   */
-  path?: string
-  children?: never
-} | {
-  /**
-   * When path is set it will copy-paste that file as a string inside the component.
-   * Children will then be ignored
-   */
-  path?: never
-  children?: KubbNode
-}
+type FileSourceUnionProps =
+  | {
+      /**
+       * When path is set it will copy-paste that file as a string inside the component.
+       * Children will then be ignored
+       */
+      path?: string
+      children?: never
+    }
+  | {
+      /**
+       * When path is set it will copy-paste that file as a string inside the component.
+       * Children will then be ignored
+       */
+      path?: never
+      children?: KubbNode
+    }
 
 type FileSourceProps = FileSourceUnionProps & {
   /**
@@ -77,19 +105,11 @@ type FileSourceProps = FileSourceUnionProps & {
    * When false, it will add the import to a KubbFile instance(see fileManager).
    */
   print?: boolean
-  /**
-   * Removes comments.
-   */
-  removeComments?: boolean
-  /**
-   * When set it can override the print of the TypeScript compiler.
-   */
-  noEmitHelpers?: boolean
 }
 
-function FileSource({ path, print, removeComments, noEmitHelpers, children }: FileSourceProps): KubbNode {
+function FileSource({ path, print, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source path={path} print={print} removeComments={removeComments} noEmitHelpers={noEmitHelpers}>
+    <kubb-source path={path} print={print}>
       {children}
     </kubb-source>
   )
@@ -98,3 +118,4 @@ function FileSource({ path, print, removeComments, noEmitHelpers, children }: Fi
 File.Export = Export
 File.Import = Import
 File.Source = FileSource
+File.Context = FileContext

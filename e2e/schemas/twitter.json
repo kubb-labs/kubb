@@ -22,9 +22,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "summary": "List Compliance Jobs",
         "description": "Returns recent Compliance Jobs for a given job type and optional job status",
         "externalDocs": {
@@ -39,10 +37,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": [
-                "tweets",
-                "users"
-              ]
+              "enum": ["tweets", "users"]
             },
             "style": "form"
           },
@@ -53,12 +48,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "created",
-                "in_progress",
-                "failed",
-                "complete"
-              ]
+              "enum": ["created", "in_progress", "failed", "complete"]
             },
             "style": "form"
           },
@@ -100,9 +90,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "summary": "Create compliance job",
         "description": "Creates a compliance for the given job type",
         "externalDocs": {
@@ -156,9 +144,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "summary": "Get Compliance Job",
         "description": "Returns a single Compliance Job by ID",
         "externalDocs": {
@@ -213,19 +199,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "dm.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["dm.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Direct Messages"
-        ],
+        "tags": ["Direct Messages"],
         "summary": "Create a new DM Conversation",
         "description": "Creates a new DM Conversation.",
         "operationId": "dmConversationIdCreate",
@@ -272,19 +252,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "dm.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["dm.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Direct Messages"
-        ],
+        "tags": ["Direct Messages"],
         "summary": "Get DM Events for a DM Conversation",
         "description": "Returns DM Events for a DM Conversation",
         "operationId": "getDmConversationsWithParticipantIdDmEvents",
@@ -334,21 +308,10 @@
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "MessageCreate",
-                  "ParticipantsJoin",
-                  "ParticipantsLeave"
-                ]
+                "enum": ["MessageCreate", "ParticipantsJoin", "ParticipantsLeave"]
               },
-              "default": [
-                "MessageCreate",
-                "ParticipantsLeave",
-                "ParticipantsJoin"
-              ],
-              "example": [
-                "MessageCreate",
-                "ParticipantsLeave"
-              ]
+              "default": ["MessageCreate", "ParticipantsLeave", "ParticipantsJoin"],
+              "example": ["MessageCreate", "ParticipantsLeave"]
             },
             "explode": false,
             "style": "form"
@@ -402,19 +365,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "dm.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["dm.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Direct Messages"
-        ],
+        "tags": ["Direct Messages"],
         "summary": "Send a new message to a user",
         "description": "Creates a new message for a DM Conversation with a participant user by ID",
         "operationId": "dmConversationWithUserEventIdCreate",
@@ -472,19 +429,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "dm.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["dm.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Direct Messages"
-        ],
+        "tags": ["Direct Messages"],
         "summary": "Send a new message to a DM Conversation",
         "description": "Creates a new message for a DM Conversation specified by DM Conversation ID",
         "operationId": "dmConversationByIdEventIdCreate",
@@ -542,19 +493,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "dm.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["dm.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Direct Messages"
-        ],
+        "tags": ["Direct Messages"],
         "summary": "Get DM Events for a DM Conversation",
         "description": "Returns DM Events for a DM Conversation",
         "operationId": "getDmConversationsIdDmEvents",
@@ -604,21 +549,10 @@
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "MessageCreate",
-                  "ParticipantsJoin",
-                  "ParticipantsLeave"
-                ]
+                "enum": ["MessageCreate", "ParticipantsJoin", "ParticipantsLeave"]
               },
-              "default": [
-                "MessageCreate",
-                "ParticipantsLeave",
-                "ParticipantsJoin"
-              ],
-              "example": [
-                "MessageCreate",
-                "ParticipantsLeave"
-              ]
+              "default": ["MessageCreate", "ParticipantsLeave", "ParticipantsJoin"],
+              "example": ["MessageCreate", "ParticipantsLeave"]
             },
             "explode": false,
             "style": "form"
@@ -672,19 +606,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "dm.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["dm.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Direct Messages"
-        ],
+        "tags": ["Direct Messages"],
         "summary": "Get recent DM Events",
         "description": "Returns recent DM Events across DM conversations",
         "operationId": "getDmEvents",
@@ -724,21 +652,10 @@
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "MessageCreate",
-                  "ParticipantsJoin",
-                  "ParticipantsLeave"
-                ]
+                "enum": ["MessageCreate", "ParticipantsJoin", "ParticipantsLeave"]
               },
-              "default": [
-                "MessageCreate",
-                "ParticipantsLeave",
-                "ParticipantsJoin"
-              ],
-              "example": [
-                "MessageCreate",
-                "ParticipantsLeave"
-              ]
+              "default": ["MessageCreate", "ParticipantsLeave", "ParticipantsJoin"],
+              "example": ["MessageCreate", "ParticipantsLeave"]
             },
             "explode": false,
             "style": "form"
@@ -792,20 +709,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Create List",
         "description": "Creates a new List.",
         "externalDocs": {
@@ -855,19 +765,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Delete List",
         "description": "Delete a List that you own.",
         "externalDocs": {
@@ -920,19 +824,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "List lookup by List ID.",
         "description": "Returns a List.",
         "externalDocs": {
@@ -991,19 +889,13 @@
       "put": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Update List.",
         "description": "Update a List that you own.",
         "externalDocs": {
@@ -1067,19 +959,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Returns User objects that follow a List by the provided List ID",
         "description": "Returns a list of Users that follow a List by the provided List ID",
         "externalDocs": {
@@ -1167,19 +1053,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Returns User objects that are members of a List by the provided List ID.",
         "description": "Returns a list of Users that are members of a List by the provided List ID.",
         "externalDocs": {
@@ -1262,19 +1142,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Add a List member",
         "description": "Causes a User to become a member of a List.",
         "externalDocs": {
@@ -1335,19 +1209,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Remove a List member",
         "description": "Causes a User to be removed from the members of a List.",
         "externalDocs": {
@@ -1412,19 +1280,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "List Tweets timeline by List ID.",
         "description": "Returns a list of Tweets associated with the provided List ID.",
         "externalDocs": {
@@ -1516,9 +1378,7 @@
     },
     "/2/openapi.json": {
       "get": {
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "summary": "Returns the OpenAPI Specification document.",
         "description": "Full OpenAPI Specification in JSON format. (See https://github.com/OAI/OpenAPI-Specification/blob/master/README.md)",
         "operationId": "getOpenApiSpec",
@@ -1544,16 +1404,10 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "space.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["space.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Spaces"
-        ],
+        "tags": ["Spaces"],
         "summary": "Space lookup up Space IDs",
         "description": "Returns a variety of information about the Spaces specified by the requested IDs",
         "externalDocs": {
@@ -1628,16 +1482,10 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "space.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["space.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Spaces"
-        ],
+        "tags": ["Spaces"],
         "summary": "Space lookup by their creators",
         "description": "Returns a variety of information about the Spaces created by the provided User IDs",
         "externalDocs": {
@@ -1709,16 +1557,10 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "space.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["space.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Spaces"
-        ],
+        "tags": ["Spaces"],
         "summary": "Search for Spaces",
         "description": "Returns Spaces that match the provided query.",
         "externalDocs": {
@@ -1747,11 +1589,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "live",
-                "scheduled",
-                "all"
-              ],
+              "enum": ["live", "scheduled", "all"],
               "default": "all"
             },
             "style": "form"
@@ -1819,16 +1657,10 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "space.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["space.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Spaces"
-        ],
+        "tags": ["Spaces"],
         "summary": "Space lookup by Space ID",
         "description": "Returns a variety of information about the Space specified by the requested ID",
         "externalDocs": {
@@ -1896,17 +1728,10 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "space.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["space.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Spaces",
-          "Tweets"
-        ],
+        "tags": ["Spaces", "Tweets"],
         "summary": "Retrieve the list of Users who purchased a ticket to the given space",
         "description": "Retrieves the list of Users who purchased a ticket to the given space",
         "externalDocs": {
@@ -1998,17 +1823,10 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "space.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["space.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Spaces",
-          "Tweets"
-        ],
+        "tags": ["Spaces", "Tweets"],
         "summary": "Retrieve Tweets from a Space.",
         "description": "Retrieves Tweets shared in the specified Space.",
         "externalDocs": {
@@ -2100,18 +1918,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Tweet lookup by Tweet IDs",
         "description": "Returns a variety of information about the Tweet specified by the requested ID.",
         "externalDocs": {
@@ -2185,19 +1998,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "tweet.write",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "tweet.write", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Creation of a Tweet",
         "description": "Causes the User to create a Tweet under the authorized account.",
         "externalDocs": {
@@ -2251,9 +2058,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "summary": "Tweets Compliance stream",
         "description": "Streams 100% of compliance data for Tweets",
         "operationId": "getTweetsComplianceStream",
@@ -2346,9 +2151,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Full archive search counts",
         "description": "Returns Tweet Counts that match a search query.",
         "externalDocs": {
@@ -2438,11 +2241,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "minute",
-                "hour",
-                "day"
-              ],
+              "enum": ["minute", "hour", "day"],
               "default": "hour"
             },
             "style": "form"
@@ -2487,9 +2286,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Recent search counts",
         "description": "Returns Tweet Counts from the last 7 days that match a search query.",
         "externalDocs": {
@@ -2579,11 +2376,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "minute",
-                "hour",
-                "day"
-              ],
+              "enum": ["minute", "hour", "day"],
               "default": "hour"
             },
             "style": "form"
@@ -2628,9 +2421,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Firehose stream",
         "description": "Streams 100% of public Tweets.",
         "operationId": "getTweetsFirehoseStream",
@@ -2741,9 +2532,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "summary": "Tweets Label stream",
         "description": "Streams 100% of labeling events applied to Tweets",
         "operationId": "getTweetsLabelStream",
@@ -2823,9 +2612,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Sample stream",
         "description": "Streams a deterministic 1% of public Tweets.",
         "externalDocs": {
@@ -2902,9 +2689,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Sample 10% stream",
         "description": "Streams a deterministic 10% of public Tweets.",
         "operationId": "getTweetsSample10Stream",
@@ -3015,9 +2800,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Full-archive search",
         "description": "Returns Tweets that match a search query.",
         "externalDocs": {
@@ -3121,10 +2904,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "recency",
-                "relevancy"
-              ]
+              "enum": ["recency", "relevancy"]
             },
             "style": "form"
           },
@@ -3183,18 +2963,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Recent search",
         "description": "Returns Tweets from the last 7 days that match a search query.",
         "externalDocs": {
@@ -3298,10 +3073,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "recency",
-                "relevancy"
-              ]
+              "enum": ["recency", "relevancy"]
             },
             "style": "form"
           },
@@ -3360,9 +3132,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Filtered stream",
         "description": "Streams Tweets matching the stream's active rule set.",
         "externalDocs": {
@@ -3463,9 +3233,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Rules lookup",
         "description": "Returns rules from a User's active rule set. Users can fetch all of their rules or a subset, specified by the provided rule ids.",
         "externalDocs": {
@@ -3547,9 +3315,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Add/Delete rules",
         "description": "Add or delete rules from a User's active rule set. Users can provide unique, optionally tagged rules to add. Users can delete their entire rule set or a subset specified by rule ids or values.",
         "externalDocs": {
@@ -3611,19 +3377,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "tweet.write",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "tweet.write", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Tweet delete by Tweet ID",
         "description": "Delete specified Tweet (in the path) by ID.",
         "externalDocs": {
@@ -3676,18 +3436,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Tweet lookup by Tweet ID",
         "description": "Returns a variety of information about the Tweet specified by the requested ID.",
         "externalDocs": {
@@ -3760,19 +3515,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "like.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["like.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Returns User objects that have liked the provided Tweet ID",
         "description": "Returns a list of Users that have liked the provided Tweet ID",
         "externalDocs": {
@@ -3860,18 +3609,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Retrieve Tweets that quote a Tweet.",
         "description": "Returns a variety of information about each Tweet that quotes the Tweet specified by the requested ID.",
         "externalDocs": {
@@ -3924,15 +3668,9 @@
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "replies",
-                  "retweets"
-                ]
+                "enum": ["replies", "retweets"]
               },
-              "example": [
-                "replies",
-                "retweets"
-              ]
+              "example": ["replies", "retweets"]
             },
             "explode": false,
             "style": "form"
@@ -3992,18 +3730,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Returns User objects that have retweeted the provided Tweet ID",
         "description": "Returns a list of Users that have retweeted the provided Tweet ID",
         "externalDocs": {
@@ -4088,19 +3821,13 @@
       "put": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.moderate.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.moderate.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Hide replies",
         "description": "Hides or unhides a reply to an owned conversation.",
         "externalDocs": {
@@ -4164,18 +3891,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "User lookup by IDs",
         "description": "This endpoint returns information about Users. Specify Users by their ID.",
         "externalDocs": {
@@ -4246,18 +3968,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "User lookup by usernames",
         "description": "This endpoint returns information about Users. Specify Users by their username.",
         "externalDocs": {
@@ -4330,18 +4047,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "User lookup by username",
         "description": "This endpoint returns information about a User. Specify User by username.",
         "externalDocs": {
@@ -4407,9 +4119,7 @@
             "BearerToken": []
           }
         ],
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "summary": "Users Compliance stream",
         "description": "Streams 100% of compliance data for Users",
         "operationId": "getUsersComplianceStream",
@@ -4499,18 +4209,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "User lookup me",
         "description": "This endpoint returns information about the requesting User.",
         "externalDocs": {
@@ -4564,18 +4269,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "User lookup by ID",
         "description": "This endpoint returns information about a User. Specify User by ID.",
         "externalDocs": {
@@ -4637,19 +4337,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "block.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["block.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Returns User objects that are blocked by provided User ID",
         "description": "Returns a list of Users that are blocked by the provided User ID",
         "externalDocs": {
@@ -4731,19 +4425,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "block.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["block.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Block User by User ID",
         "description": "Causes the User (in the path) to block the target User. The User (in the path) must match the User context authorizing the request",
         "externalDocs": {
@@ -4805,16 +4493,10 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "bookmark.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["bookmark.read", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Bookmarks"
-        ],
+        "tags": ["Bookmarks"],
         "summary": "Bookmarks by User",
         "description": "Returns Tweet objects that have been bookmarked by the requesting User",
         "externalDocs": {
@@ -4905,16 +4587,10 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "bookmark.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["bookmark.write", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Bookmarks"
-        ],
+        "tags": ["Bookmarks"],
         "summary": "Add Tweet to Bookmarks",
         "description": "Adds a Tweet (ID in the body) to the requesting User's (in the path) bookmarks",
         "externalDocs": {
@@ -4976,16 +4652,10 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "bookmark.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["bookmark.write", "tweet.read", "users.read"]
           }
         ],
-        "tags": [
-          "Bookmarks"
-        ],
+        "tags": ["Bookmarks"],
         "summary": "Remove a bookmarked Tweet",
         "description": "Removes a Tweet from the requesting User's bookmarked Tweets.",
         "externalDocs": {
@@ -5050,19 +4720,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Get User's Followed Lists",
         "description": "Returns a User's followed Lists.",
         "externalDocs": {
@@ -5146,19 +4810,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Follow a List",
         "description": "Causes a User to follow a List.",
         "externalDocs": {
@@ -5219,19 +4877,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Unfollow a List",
         "description": "Causes a User to unfollow a List.",
         "externalDocs": {
@@ -5296,19 +4948,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "follows.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["follows.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Followers by User ID",
         "description": "Returns a list of Users who are followers of the specified User ID.",
         "externalDocs": {
@@ -5396,19 +5042,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "follows.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["follows.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Following by User ID",
         "description": "Returns a list of Users that are being followed by the provided User ID",
         "externalDocs": {
@@ -5491,19 +5131,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "follows.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["follows.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Follow User",
         "description": "Causes the User(in the path) to follow, or “request to follow” for protected Users, the target User. The User(in the path) must match the User context authorizing the request",
         "externalDocs": {
@@ -5567,19 +5201,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "like.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["like.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Returns Tweet objects liked by the provided User ID",
         "description": "Returns a list of Tweets liked by the provided User ID",
         "externalDocs": {
@@ -5673,19 +5301,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "like.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["like.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Causes the User (in the path) to like the specified Tweet",
         "description": "Causes the User (in the path) to like the specified Tweet. The User in the path must match the User context authorizing the request.",
         "externalDocs": {
@@ -5746,19 +5368,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "like.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["like.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Causes the User (in the path) to unlike the specified Tweet",
         "description": "Causes the User (in the path) to unlike the specified Tweet. The User must match the User context authorizing the request",
         "externalDocs": {
@@ -5823,19 +5439,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Get a User's List Memberships",
         "description": "Get a User's List Memberships.",
         "externalDocs": {
@@ -5924,18 +5534,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "User mention timeline by User ID",
         "description": "Returns Tweet objects that mention username associated to the provided User ID",
         "externalDocs": {
@@ -6074,19 +5679,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "mute.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["mute.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Returns User objects that are muted by the provided User ID",
         "description": "Returns a list of Users that are muted by the provided User ID",
         "externalDocs": {
@@ -6169,19 +5768,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "mute.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["mute.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Mute User by User ID.",
         "description": "Causes the User (in the path) to mute the target User. The User (in the path) must match the User context authorizing the request.",
         "externalDocs": {
@@ -6245,19 +5838,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Get a User's Owned Lists.",
         "description": "Get a User's Owned Lists.",
         "externalDocs": {
@@ -6343,19 +5930,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.read",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.read", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Get a User's Pinned Lists",
         "description": "Get a User's Pinned Lists.",
         "externalDocs": {
@@ -6414,19 +5995,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Pin a List",
         "description": "Causes a User to pin a List.",
         "externalDocs": {
@@ -6488,19 +6063,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "list.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["list.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Lists"
-        ],
+        "tags": ["Lists"],
         "summary": "Unpin a List",
         "description": "Causes a User to remove a pinned List.",
         "externalDocs": {
@@ -6562,19 +6131,13 @@
       "post": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "tweet.write",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "tweet.write", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Causes the User (in the path) to retweet the specified Tweet.",
         "description": "Causes the User (in the path) to retweet the specified Tweet. The User in the path must match the User context authorizing the request.",
         "externalDocs": {
@@ -6635,19 +6198,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "tweet.write",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "tweet.write", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "Causes the User (in the path) to unretweet the specified Tweet",
         "description": "Causes the User (in the path) to unretweet the specified Tweet. The User must match the User context authorizing the request",
         "externalDocs": {
@@ -6709,18 +6266,13 @@
       "get": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "User home timeline by User ID",
         "description": "Returns Tweet objects that appears in the provided User ID's home timeline",
         "externalDocs": {
@@ -6793,15 +6345,9 @@
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "replies",
-                  "retweets"
-                ]
+                "enum": ["replies", "retweets"]
               },
-              "example": [
-                "replies",
-                "retweets"
-              ]
+              "example": ["replies", "retweets"]
             },
             "explode": false,
             "style": "form"
@@ -6885,18 +6431,13 @@
             "BearerToken": []
           },
           {
-            "OAuth2UserToken": [
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "summary": "User Tweets timeline by User ID",
         "description": "Returns a list of Tweets authored by the provided User ID",
         "externalDocs": {
@@ -6971,15 +6512,9 @@
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "replies",
-                  "retweets"
-                ]
+                "enum": ["replies", "retweets"]
               },
-              "example": [
-                "replies",
-                "retweets"
-              ]
+              "example": ["replies", "retweets"]
             },
             "explode": false,
             "style": "form"
@@ -7060,19 +6595,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "block.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["block.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Unblock User by User ID",
         "description": "Causes the source User to unblock the target User. The source User must match the User context authorizing the request",
         "externalDocs": {
@@ -7134,19 +6663,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "follows.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["follows.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Unfollow User",
         "description": "Causes the source User to unfollow the target User. The source User must match the User context authorizing the request",
         "externalDocs": {
@@ -7208,19 +6731,13 @@
       "delete": {
         "security": [
           {
-            "OAuth2UserToken": [
-              "mute.write",
-              "tweet.read",
-              "users.read"
-            ]
+            "OAuth2UserToken": ["mute.write", "tweet.read", "users.read"]
           },
           {
             "UserToken": []
           }
         ],
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Unmute User by User ID",
         "description": "Causes the source User to unmute the target User. The source User must match the User context authorizing the request",
         "externalDocs": {
@@ -7407,9 +6924,7 @@
       "AddOrDeleteRulesResponse": {
         "type": "object",
         "description": "A response from modifying user-specified stream filtering rules.",
-        "required": [
-          "meta"
-        ],
+        "required": ["meta"],
         "properties": {
           "data": {
             "type": "array",
@@ -7433,9 +6948,7 @@
       "AddRulesRequest": {
         "type": "object",
         "description": "A request to add a user-specified stream filtering rule.",
-        "required": [
-          "add"
-        ],
+        "required": ["add"],
         "properties": {
           "add": {
             "type": "array",
@@ -7491,9 +7004,7 @@
       },
       "BlockUserRequest": {
         "type": "object",
-        "required": [
-          "target_user_id"
-        ],
+        "required": ["target_user_id"],
         "properties": {
           "target_user_id": {
             "$ref": "#/components/schemas/UserId"
@@ -7502,9 +7013,7 @@
       },
       "BookmarkAddRequest": {
         "type": "object",
-        "required": [
-          "tweet_id"
-        ],
+        "required": ["tweet_id"],
         "properties": {
           "tweet_id": {
             "$ref": "#/components/schemas/TweetId"
@@ -7544,9 +7053,7 @@
       "CashtagFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a Cashtag, and its start and end position within the text.",
-        "required": [
-          "tag"
-        ],
+        "required": ["tag"],
         "properties": {
           "tag": {
             "type": "string",
@@ -7573,10 +7080,7 @@
             "properties": {
               "reason": {
                 "type": "string",
-                "enum": [
-                  "official-client-forbidden",
-                  "client-not-enrolled"
-                ]
+                "enum": ["official-client-forbidden", "client-not-enrolled"]
               },
               "registration_url": {
                 "type": "string",
@@ -7588,16 +7092,7 @@
       },
       "ComplianceJob": {
         "type": "object",
-        "required": [
-          "id",
-          "type",
-          "created_at",
-          "upload_url",
-          "download_url",
-          "upload_expires_at",
-          "download_expires_at",
-          "status"
-        ],
+        "required": ["id", "type", "created_at", "upload_url", "download_url", "upload_expires_at", "download_expires_at", "status"],
         "properties": {
           "created_at": {
             "$ref": "#/components/schemas/CreatedAt"
@@ -7637,21 +7132,12 @@
       "ComplianceJobStatus": {
         "type": "string",
         "description": "Status of a compliance job.",
-        "enum": [
-          "created",
-          "in_progress",
-          "failed",
-          "complete",
-          "expired"
-        ]
+        "enum": ["created", "in_progress", "failed", "complete", "expired"]
       },
       "ComplianceJobType": {
         "type": "string",
         "description": "Type of compliance job to list.",
-        "enum": [
-          "tweets",
-          "users"
-        ]
+        "enum": ["tweets", "users"]
       },
       "ConflictProblem": {
         "description": "You cannot create a new job if one is already in progress.",
@@ -7672,12 +7158,7 @@
             "properties": {
               "connection_issue": {
                 "type": "string",
-                "enum": [
-                  "TooManyConnections",
-                  "ProvisioningSubscription",
-                  "RuleConfigurationIssue",
-                  "RulesInvalidIssue"
-                ]
+                "enum": ["TooManyConnections", "ProvisioningSubscription", "RuleConfigurationIssue", "RulesInvalidIssue"]
               }
             }
           }
@@ -7686,10 +7167,7 @@
       "ContextAnnotation": {
         "type": "object",
         "description": "Annotation inferred from the Tweet text.",
-        "required": [
-          "domain",
-          "entity"
-        ],
+        "required": ["domain", "entity"],
         "properties": {
           "domain": {
             "$ref": "#/components/schemas/ContextAnnotationDomainFields"
@@ -7702,9 +7180,7 @@
       "ContextAnnotationDomainFields": {
         "type": "object",
         "description": "Represents the data for the context annotation domain.",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "description": {
             "type": "string",
@@ -7724,9 +7200,7 @@
       "ContextAnnotationEntityFields": {
         "type": "object",
         "description": "Represents the data for the context annotation entity.",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "description": {
             "type": "string",
@@ -7751,9 +7225,7 @@
       },
       "CreateAttachmentsMessageRequest": {
         "type": "object",
-        "required": [
-          "attachments"
-        ],
+        "required": ["attachments"],
         "properties": {
           "attachments": {
             "$ref": "#/components/schemas/DmAttachments"
@@ -7768,9 +7240,7 @@
       "CreateComplianceJobRequest": {
         "type": "object",
         "description": "A request to create a new batch compliance job.",
-        "required": [
-          "type"
-        ],
+        "required": ["type"],
         "properties": {
           "name": {
             "$ref": "#/components/schemas/ComplianceJobName"
@@ -7782,10 +7252,7 @@
           "type": {
             "type": "string",
             "description": "Type of compliance job to list.",
-            "enum": [
-              "tweets",
-              "users"
-            ]
+            "enum": ["tweets", "users"]
           }
         }
       },
@@ -7806,18 +7273,12 @@
       },
       "CreateDmConversationRequest": {
         "type": "object",
-        "required": [
-          "conversation_type",
-          "participant_ids",
-          "message"
-        ],
+        "required": ["conversation_type", "participant_ids", "message"],
         "properties": {
           "conversation_type": {
             "type": "string",
             "description": "The conversation type that is being created.",
-            "enum": [
-              "Group"
-            ]
+            "enum": ["Group"]
           },
           "message": {
             "$ref": "#/components/schemas/CreateMessageRequest"
@@ -7833,10 +7294,7 @@
         "properties": {
           "data": {
             "type": "object",
-            "required": [
-              "dm_conversation_id",
-              "dm_event_id"
-            ],
+            "required": ["dm_conversation_id", "dm_event_id"],
             "properties": {
               "dm_conversation_id": {
                 "$ref": "#/components/schemas/DmConversationId"
@@ -7867,9 +7325,7 @@
       },
       "CreateTextMessageRequest": {
         "type": "object",
-        "required": [
-          "text"
-        ],
+        "required": ["text"],
         "properties": {
           "attachments": {
             "$ref": "#/components/schemas/DmAttachments"
@@ -7890,9 +7346,7 @@
       "DeleteRulesRequest": {
         "type": "object",
         "description": "A response from deleting user-specified stream filtering rules.",
-        "required": [
-          "delete"
-        ],
+        "required": ["delete"],
         "properties": {
           "delete": {
             "type": "object",
@@ -7924,31 +7378,18 @@
           },
           {
             "type": "object",
-            "required": [
-              "resource_id",
-              "resource_type",
-              "section"
-            ],
+            "required": ["resource_id", "resource_type", "section"],
             "properties": {
               "resource_id": {
                 "type": "string"
               },
               "resource_type": {
                 "type": "string",
-                "enum": [
-                  "user",
-                  "tweet",
-                  "media",
-                  "list",
-                  "space"
-                ]
+                "enum": ["user", "tweet", "media", "list", "space"]
               },
               "section": {
                 "type": "string",
-                "enum": [
-                  "data",
-                  "includes"
-                ]
+                "enum": ["data", "includes"]
               }
             }
           }
@@ -7969,10 +7410,7 @@
       },
       "DmEvent": {
         "type": "object",
-        "required": [
-          "id",
-          "event_type"
-        ],
+        "required": ["id", "event_type"],
         "properties": {
           "attachments": {
             "type": "object",
@@ -8024,9 +7462,7 @@
             "minItems": 1,
             "items": {
               "type": "object",
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "properties": {
                 "id": {
                   "$ref": "#/components/schemas/TweetId"
@@ -8050,9 +7486,7 @@
       },
       "DmMediaAttachment": {
         "type": "object",
-        "required": [
-          "media_id"
-        ],
+        "required": ["media_id"],
         "properties": {
           "media_id": {
             "$ref": "#/components/schemas/MediaId"
@@ -8106,10 +7540,7 @@
       "EntityIndicesInclusiveExclusive": {
         "type": "object",
         "description": "Represent a boundary range (start and end index) for a recognized entity (for example a hashtag or a mention). `start` must be smaller than `end`.  The start index is inclusive, the end index is exclusive.",
-        "required": [
-          "start",
-          "end"
-        ],
+        "required": ["start", "end"],
         "properties": {
           "end": {
             "type": "integer",
@@ -8128,10 +7559,7 @@
       "EntityIndicesInclusiveInclusive": {
         "type": "object",
         "description": "Represent a boundary range (start and end index) for a recognized entity (for example a hashtag or a mention). `start` must be smaller than `end`.  The start index is inclusive, the end index is inclusive.",
-        "required": [
-          "start",
-          "end"
-        ],
+        "required": ["start", "end"],
         "properties": {
           "end": {
             "type": "integer",
@@ -8149,10 +7577,7 @@
       },
       "Error": {
         "type": "object",
-        "required": [
-          "code",
-          "message"
-        ],
+        "required": ["code", "message"],
         "properties": {
           "code": {
             "type": "integer",
@@ -8218,31 +7643,18 @@
           },
           {
             "type": "object",
-            "required": [
-              "resource_type",
-              "field",
-              "section"
-            ],
+            "required": ["resource_type", "field", "section"],
             "properties": {
               "field": {
                 "type": "string"
               },
               "resource_type": {
                 "type": "string",
-                "enum": [
-                  "user",
-                  "tweet",
-                  "media",
-                  "list",
-                  "space"
-                ]
+                "enum": ["user", "tweet", "media", "list", "space"]
               },
               "section": {
                 "type": "string",
-                "enum": [
-                  "data",
-                  "includes"
-                ]
+                "enum": ["data", "includes"]
               }
             }
           }
@@ -8270,9 +7682,7 @@
             "description": "The list of rules which matched the Tweet",
             "items": {
               "type": "object",
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "properties": {
                 "id": {
                   "$ref": "#/components/schemas/RuleId"
@@ -8363,11 +7773,7 @@
       },
       "Geo": {
         "type": "object",
-        "required": [
-          "type",
-          "bbox",
-          "properties"
-        ],
+        "required": ["type", "bbox", "properties"],
         "properties": {
           "bbox": {
             "type": "array",
@@ -8379,12 +7785,7 @@
               "maximum": 180,
               "format": "double"
             },
-            "example": [
-              -105.193475,
-              39.60973,
-              -105.053164,
-              39.761974
-            ]
+            "example": [-105.193475, 39.60973, -105.053164, 39.761974]
           },
           "geometry": {
             "$ref": "#/components/schemas/Point"
@@ -8394,9 +7795,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "Feature"
-            ]
+            "enum": ["Feature"]
           }
         }
       },
@@ -9806,9 +9205,7 @@
       "HashtagFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a Hashtag, and its start and end position within the text.",
-        "required": [
-          "tag"
-        ],
+        "required": ["tag"],
         "properties": {
           "tag": {
             "type": "string",
@@ -9874,10 +9271,7 @@
       "List": {
         "type": "object",
         "description": "A Twitter List is a curated group of accounts.",
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -9909,9 +9303,7 @@
       },
       "ListAddUserRequest": {
         "type": "object",
-        "required": [
-          "user_id"
-        ],
+        "required": ["user_id"],
         "properties": {
           "user_id": {
             "$ref": "#/components/schemas/UserId"
@@ -9920,9 +9312,7 @@
       },
       "ListCreateRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "description": {
             "type": "string",
@@ -9946,10 +9336,7 @@
           "data": {
             "type": "object",
             "description": "A Twitter List is a curated group of accounts.",
-            "required": [
-              "id",
-              "name"
-            ],
+            "required": ["id", "name"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/ListId"
@@ -9991,9 +9378,7 @@
       },
       "ListFollowedRequest": {
         "type": "object",
-        "required": [
-          "list_id"
-        ],
+        "required": ["list_id"],
         "properties": {
           "list_id": {
             "$ref": "#/components/schemas/ListId"
@@ -10048,9 +9433,7 @@
       },
       "ListPinnedRequest": {
         "type": "object",
-        "required": [
-          "list_id"
-        ],
+        "required": ["list_id"],
         "properties": {
           "list_id": {
             "$ref": "#/components/schemas/ListId"
@@ -10137,9 +9520,7 @@
       },
       "Media": {
         "type": "object",
-        "required": [
-          "type"
-        ],
+        "required": ["type"],
         "properties": {
           "height": {
             "$ref": "#/components/schemas/MediaHeight"
@@ -10197,9 +9578,7 @@
       "MentionFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a User mention, and its start and end position within the text.",
-        "required": [
-          "username"
-        ],
+        "required": ["username"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UserId"
@@ -10231,9 +9610,7 @@
       },
       "MuteUserRequest": {
         "type": "object",
-        "required": [
-          "target_user_id"
-        ],
+        "required": ["target_user_id"],
         "properties": {
           "target_user_id": {
             "$ref": "#/components/schemas/UserId"
@@ -10337,10 +9714,7 @@
       },
       "Place": {
         "type": "object",
-        "required": [
-          "id",
-          "full_name"
-        ],
+        "required": ["id", "full_name"],
         "properties": {
           "contained_within": {
             "type": "array",
@@ -10385,32 +9759,20 @@
       },
       "PlaceType": {
         "type": "string",
-        "enum": [
-          "poi",
-          "neighborhood",
-          "city",
-          "admin",
-          "country",
-          "unknown"
-        ],
+        "enum": ["poi", "neighborhood", "city", "admin", "country", "unknown"],
         "example": "city"
       },
       "Point": {
         "type": "object",
         "description": "A [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) geometry object.",
-        "required": [
-          "type",
-          "coordinates"
-        ],
+        "required": ["type", "coordinates"],
         "properties": {
           "coordinates": {
             "$ref": "#/components/schemas/Position"
           },
           "type": {
             "type": "string",
-            "enum": [
-              "Point"
-            ],
+            "enum": ["Point"],
             "example": "Point"
           }
         }
@@ -10418,10 +9780,7 @@
       "Poll": {
         "type": "object",
         "description": "Represent a Poll attached to a Tweet.",
-        "required": [
-          "id",
-          "options"
-        ],
+        "required": ["id", "options"],
         "properties": {
           "duration_minutes": {
             "type": "integer",
@@ -10446,10 +9805,7 @@
           },
           "voting_status": {
             "type": "string",
-            "enum": [
-              "open",
-              "closed"
-            ]
+            "enum": ["open", "closed"]
           }
         }
       },
@@ -10462,11 +9818,7 @@
       "PollOption": {
         "type": "object",
         "description": "Describes a choice in a Poll object.",
-        "required": [
-          "position",
-          "label",
-          "votes"
-        ],
+        "required": ["position", "label", "votes"],
         "properties": {
           "label": {
             "$ref": "#/components/schemas/PollOptionLabel"
@@ -10495,10 +9847,7 @@
         "items": {
           "type": "number"
         },
-        "example": [
-          -105.18816086351444,
-          40.247749999999996
-        ]
+        "example": [-105.18816086351444, 40.247749999999996]
       },
       "PreviousToken": {
         "type": "string",
@@ -10508,10 +9857,7 @@
       "Problem": {
         "type": "object",
         "description": "An HTTP Problem Details object, as defined in IETF RFC 7807 (https://tools.ietf.org/html/rfc7807).",
-        "required": [
-          "type",
-          "title"
-        ],
+        "required": ["type", "title"],
         "properties": {
           "detail": {
             "type": "string"
@@ -10555,12 +9901,7 @@
         "type": "string",
         "description": "Shows who can reply a Tweet. Fields returned are everyone, mentioned_users, and following.",
         "pattern": "^[A-Za-z]{1,12}$",
-        "enum": [
-          "everyone",
-          "mentionedUsers",
-          "following",
-          "other"
-        ]
+        "enum": ["everyone", "mentionedUsers", "following", "other"]
       },
       "ResourceNotFoundProblem": {
         "description": "A problem that indicates that a given Tweet, User, etc. does not exist.",
@@ -10570,12 +9911,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "parameter",
-              "value",
-              "resource_id",
-              "resource_type"
-            ],
+            "required": ["parameter", "value", "resource_id", "resource_type"],
             "properties": {
               "parameter": {
                 "type": "string",
@@ -10586,13 +9922,7 @@
               },
               "resource_type": {
                 "type": "string",
-                "enum": [
-                  "user",
-                  "tweet",
-                  "media",
-                  "list",
-                  "space"
-                ]
+                "enum": ["user", "tweet", "media", "list", "space"]
               },
               "value": {
                 "type": "string",
@@ -10610,13 +9940,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "value",
-              "resource_id",
-              "resource_type",
-              "section",
-              "parameter"
-            ],
+            "required": ["value", "resource_id", "resource_type", "section", "parameter"],
             "properties": {
               "parameter": {
                 "type": "string"
@@ -10626,20 +9950,11 @@
               },
               "resource_type": {
                 "type": "string",
-                "enum": [
-                  "user",
-                  "tweet",
-                  "media",
-                  "list",
-                  "space"
-                ]
+                "enum": ["user", "tweet", "media", "list", "space"]
               },
               "section": {
                 "type": "string",
-                "enum": [
-                  "data",
-                  "includes"
-                ]
+                "enum": ["data", "includes"]
               },
               "value": {
                 "type": "string"
@@ -10656,11 +9971,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "parameter",
-              "resource_id",
-              "resource_type"
-            ],
+            "required": ["parameter", "resource_id", "resource_type"],
             "properties": {
               "parameter": {
                 "type": "string",
@@ -10671,13 +9982,7 @@
               },
               "resource_type": {
                 "type": "string",
-                "enum": [
-                  "user",
-                  "tweet",
-                  "media",
-                  "list",
-                  "space"
-                ]
+                "enum": ["user", "tweet", "media", "list", "space"]
               }
             }
           }
@@ -10691,9 +9996,7 @@
       "Rule": {
         "type": "object",
         "description": "A user-provided stream filtering rule.",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/RuleId"
@@ -10715,9 +10018,7 @@
       "RuleNoId": {
         "type": "object",
         "description": "A user-provided stream filtering rule.",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "tag": {
             "$ref": "#/components/schemas/RuleTag"
@@ -10747,9 +10048,7 @@
       },
       "RulesLookupResponse": {
         "type": "object",
-        "required": [
-          "meta"
-        ],
+        "required": ["meta"],
         "properties": {
           "data": {
             "type": "array",
@@ -10767,12 +10066,7 @@
           {
             "type": "object",
             "description": "A summary of the results of the addition of user-specified stream filtering rules.",
-            "required": [
-              "created",
-              "not_created",
-              "valid",
-              "invalid"
-            ],
+            "required": ["created", "not_created", "valid", "invalid"],
             "properties": {
               "created": {
                 "type": "integer",
@@ -10802,10 +10096,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "deleted",
-              "not_deleted"
-            ],
+            "required": ["deleted", "not_deleted"],
             "properties": {
               "deleted": {
                 "type": "integer",
@@ -10823,9 +10114,7 @@
       },
       "RulesResponseMetadata": {
         "type": "object",
-        "required": [
-          "sent"
-        ],
+        "required": ["sent"],
         "properties": {
           "next_token": {
             "$ref": "#/components/schemas/NextToken"
@@ -10846,11 +10135,7 @@
       "SearchCount": {
         "type": "object",
         "description": "Represent a Search Count Result.",
-        "required": [
-          "end",
-          "start",
-          "tweet_count"
-        ],
+        "required": ["end", "start", "tweet_count"],
         "properties": {
           "end": {
             "$ref": "#/components/schemas/End"
@@ -10866,10 +10151,7 @@
       "Space": {
         "type": "object",
         "description": "",
-        "required": [
-          "id",
-          "state"
-        ],
+        "required": ["id", "state"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -10941,11 +10223,7 @@
           "state": {
             "type": "string",
             "description": "The current state of the Space.",
-            "enum": [
-              "live",
-              "scheduled",
-              "ended"
-            ],
+            "enum": ["live", "scheduled", "ended"],
             "example": "live"
           },
           "subscriber_count": {
@@ -10965,10 +10243,7 @@
             "items": {
               "type": "object",
               "description": "The Twitter Topic object.",
-              "required": [
-                "id",
-                "name"
-              ],
+              "required": ["id", "name"],
               "properties": {
                 "description": {
                   "type": "string",
@@ -11030,10 +10305,7 @@
       "Topic": {
         "type": "object",
         "description": "The topic of a Space, as selected by its creator.",
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "properties": {
           "description": {
             "type": "string",
@@ -11056,11 +10328,7 @@
       },
       "Tweet": {
         "type": "object",
-        "required": [
-          "id",
-          "text",
-          "edit_history_tweet_ids"
-        ],
+        "required": ["id", "text", "edit_history_tweet_ids"],
         "properties": {
           "attachments": {
             "type": "object",
@@ -11105,11 +10373,7 @@
           },
           "edit_controls": {
             "type": "object",
-            "required": [
-              "is_edit_eligible",
-              "editable_until",
-              "edits_remaining"
-            ],
+            "required": ["is_edit_eligible", "editable_until", "edits_remaining"],
             "properties": {
               "editable_until": {
                 "type": "string",
@@ -11218,12 +10482,7 @@
           "organic_metrics": {
             "type": "object",
             "description": "Organic nonpublic engagement metrics for the Tweet at the time of the request.",
-            "required": [
-              "impression_count",
-              "retweet_count",
-              "reply_count",
-              "like_count"
-            ],
+            "required": ["impression_count", "retweet_count", "reply_count", "like_count"],
             "properties": {
               "impression_count": {
                 "type": "integer",
@@ -11277,13 +10536,7 @@
           "public_metrics": {
             "type": "object",
             "description": "Engagement metrics for the Tweet at the time of the request.",
-            "required": [
-              "retweet_count",
-              "reply_count",
-              "like_count",
-              "impression_count",
-              "bookmark_count"
-            ],
+            "required": ["retweet_count", "reply_count", "like_count", "impression_count", "bookmark_count"],
             "properties": {
               "bookmark_count": {
                 "type": "integer",
@@ -11319,21 +10572,14 @@
             "minItems": 1,
             "items": {
               "type": "object",
-              "required": [
-                "type",
-                "id"
-              ],
+              "required": ["type", "id"],
               "properties": {
                 "id": {
                   "$ref": "#/components/schemas/TweetId"
                 },
                 "type": {
                   "type": "string",
-                  "enum": [
-                    "retweeted",
-                    "quoted",
-                    "replied_to"
-                  ]
+                  "enum": ["retweeted", "quoted", "replied_to"]
                 }
               }
             }
@@ -11381,10 +10627,7 @@
       },
       "TweetComplianceSchema": {
         "type": "object",
-        "required": [
-          "tweet",
-          "event_at"
-        ],
+        "required": ["tweet", "event_at"],
         "properties": {
           "event_at": {
             "type": "string",
@@ -11397,10 +10640,7 @@
           },
           "tweet": {
             "type": "object",
-            "required": [
-              "id",
-              "author_id"
-            ],
+            "required": ["id", "author_id"],
             "properties": {
               "author_id": {
                 "$ref": "#/components/schemas/UserId"
@@ -11418,9 +10658,7 @@
           {
             "type": "object",
             "description": "Compliance event.",
-            "required": [
-              "data"
-            ],
+            "required": ["data"],
             "properties": {
               "data": {
                 "$ref": "#/components/schemas/TweetComplianceData"
@@ -11429,9 +10667,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "errors"
-            ],
+            "required": ["errors"],
             "properties": {
               "errors": {
                 "type": "array",
@@ -11477,9 +10713,7 @@
           "media": {
             "type": "object",
             "description": "Media information being attached to created Tweet. This is mutually exclusive from Quote Tweet Id, Poll, and Card URI.",
-            "required": [
-              "media_ids"
-            ],
+            "required": ["media_ids"],
             "properties": {
               "media_ids": {
                 "type": "array",
@@ -11510,10 +10744,7 @@
           "poll": {
             "type": "object",
             "description": "Poll options for a Tweet with a poll. This is mutually exclusive from Media, Quote Tweet Id, and Card URI.",
-            "required": [
-              "options",
-              "duration_minutes"
-            ],
+            "required": ["options", "duration_minutes"],
             "properties": {
               "duration_minutes": {
                 "type": "integer",
@@ -11536,10 +10767,7 @@
               "reply_settings": {
                 "type": "string",
                 "description": "Settings to indicate who can reply to the Tweet.",
-                "enum": [
-                  "following",
-                  "mentionedUsers"
-                ]
+                "enum": ["following", "mentionedUsers"]
               }
             },
             "additionalProperties": false
@@ -11550,9 +10778,7 @@
           "reply": {
             "type": "object",
             "description": "Tweet information of the Tweet being replied to.",
-            "required": [
-              "in_reply_to_tweet_id"
-            ],
+            "required": ["in_reply_to_tweet_id"],
             "properties": {
               "exclude_reply_user_ids": {
                 "type": "array",
@@ -11570,10 +10796,7 @@
           "reply_settings": {
             "type": "string",
             "description": "Settings to indicate who can reply to the Tweet.",
-            "enum": [
-              "following",
-              "mentionedUsers"
-            ]
+            "enum": ["following", "mentionedUsers"]
           },
           "text": {
             "$ref": "#/components/schemas/TweetText"
@@ -11586,10 +10809,7 @@
         "properties": {
           "data": {
             "type": "object",
-            "required": [
-              "id",
-              "text"
-            ],
+            "required": ["id", "text"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/TweetId"
@@ -11610,9 +10830,7 @@
       },
       "TweetDeleteComplianceSchema": {
         "type": "object",
-        "required": [
-          "delete"
-        ],
+        "required": ["delete"],
         "properties": {
           "delete": {
             "$ref": "#/components/schemas/TweetComplianceSchema"
@@ -11624,9 +10842,7 @@
         "properties": {
           "data": {
             "type": "object",
-            "required": [
-              "deleted"
-            ],
+            "required": ["deleted"],
             "properties": {
               "deleted": {
                 "type": "boolean"
@@ -11644,9 +10860,7 @@
       },
       "TweetDropComplianceSchema": {
         "type": "object",
-        "required": [
-          "drop"
-        ],
+        "required": ["drop"],
         "properties": {
           "drop": {
             "$ref": "#/components/schemas/TweetComplianceSchema"
@@ -11655,12 +10869,7 @@
       },
       "TweetEditComplianceObjectSchema": {
         "type": "object",
-        "required": [
-          "tweet",
-          "event_at",
-          "initial_tweet_id",
-          "edit_tweet_ids"
-        ],
+        "required": ["tweet", "event_at", "initial_tweet_id", "edit_tweet_ids"],
         "properties": {
           "edit_tweet_ids": {
             "type": "array",
@@ -11680,9 +10889,7 @@
           },
           "tweet": {
             "type": "object",
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/TweetId"
@@ -11693,9 +10900,7 @@
       },
       "TweetEditComplianceSchema": {
         "type": "object",
-        "required": [
-          "tweet_edit"
-        ],
+        "required": ["tweet_edit"],
         "properties": {
           "tweet_edit": {
             "$ref": "#/components/schemas/TweetEditComplianceObjectSchema"
@@ -11704,9 +10909,7 @@
       },
       "TweetHideRequest": {
         "type": "object",
-        "required": [
-          "hidden"
-        ],
+        "required": ["hidden"],
         "properties": {
           "hidden": {
             "type": "boolean"
@@ -11749,9 +10952,7 @@
           {
             "type": "object",
             "description": "Tweet Label event.",
-            "required": [
-              "data"
-            ],
+            "required": ["data"],
             "properties": {
               "data": {
                 "$ref": "#/components/schemas/TweetLabelData"
@@ -11760,9 +10961,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "errors"
-            ],
+            "required": ["errors"],
             "properties": {
               "errors": {
                 "type": "array",
@@ -11777,12 +10976,7 @@
       },
       "TweetNotice": {
         "type": "object",
-        "required": [
-          "tweet",
-          "event_type",
-          "event_at",
-          "application"
-        ],
+        "required": ["tweet", "event_type", "event_at", "application"],
         "properties": {
           "application": {
             "type": "string",
@@ -11814,10 +11008,7 @@
           },
           "tweet": {
             "type": "object",
-            "required": [
-              "id",
-              "author_id"
-            ],
+            "required": ["id", "author_id"],
             "properties": {
               "author_id": {
                 "$ref": "#/components/schemas/UserId"
@@ -11831,9 +11022,7 @@
       },
       "TweetNoticeSchema": {
         "type": "object",
-        "required": [
-          "public_tweet_notice"
-        ],
+        "required": ["public_tweet_notice"],
         "properties": {
           "public_tweet_notice": {
             "$ref": "#/components/schemas/TweetNotice"
@@ -11842,11 +11031,7 @@
       },
       "TweetTakedownComplianceSchema": {
         "type": "object",
-        "required": [
-          "tweet",
-          "withheld_in_countries",
-          "event_at"
-        ],
+        "required": ["tweet", "withheld_in_countries", "event_at"],
         "properties": {
           "event_at": {
             "type": "string",
@@ -11859,10 +11044,7 @@
           },
           "tweet": {
             "type": "object",
-            "required": [
-              "id",
-              "author_id"
-            ],
+            "required": ["id", "author_id"],
             "properties": {
               "author_id": {
                 "$ref": "#/components/schemas/UserId"
@@ -11888,9 +11070,7 @@
       },
       "TweetUndropComplianceSchema": {
         "type": "object",
-        "required": [
-          "undrop"
-        ],
+        "required": ["undrop"],
         "properties": {
           "undrop": {
             "$ref": "#/components/schemas/TweetComplianceSchema"
@@ -11899,11 +11079,7 @@
       },
       "TweetUnviewable": {
         "type": "object",
-        "required": [
-          "tweet",
-          "event_at",
-          "application"
-        ],
+        "required": ["tweet", "event_at", "application"],
         "properties": {
           "application": {
             "type": "string",
@@ -11918,10 +11094,7 @@
           },
           "tweet": {
             "type": "object",
-            "required": [
-              "id",
-              "author_id"
-            ],
+            "required": ["id", "author_id"],
             "properties": {
               "author_id": {
                 "$ref": "#/components/schemas/UserId"
@@ -11935,9 +11108,7 @@
       },
       "TweetUnviewableSchema": {
         "type": "object",
-        "required": [
-          "public_tweet_unviewable"
-        ],
+        "required": ["public_tweet_unviewable"],
         "properties": {
           "public_tweet_unviewable": {
             "$ref": "#/components/schemas/TweetUnviewable"
@@ -11947,10 +11118,7 @@
       "TweetWithheld": {
         "type": "object",
         "description": "Indicates withholding details for [withheld content](https://help.twitter.com/en/rules-and-policies/tweet-withheld-by-country).",
-        "required": [
-          "copyright",
-          "country_codes"
-        ],
+        "required": ["copyright", "country_codes"],
         "properties": {
           "copyright": {
             "type": "boolean",
@@ -11968,18 +11136,13 @@
           "scope": {
             "type": "string",
             "description": "Indicates whether the content being withheld is the `tweet` or a `user`.",
-            "enum": [
-              "tweet",
-              "user"
-            ]
+            "enum": ["tweet", "user"]
           }
         }
       },
       "TweetWithheldComplianceSchema": {
         "type": "object",
-        "required": [
-          "withheld"
-        ],
+        "required": ["withheld"],
         "properties": {
           "withheld": {
             "$ref": "#/components/schemas/TweetTakedownComplianceSchema"
@@ -12025,9 +11188,7 @@
       "UrlFields": {
         "type": "object",
         "description": "Represent the portion of text recognized as a URL.",
-        "required": [
-          "url"
-        ],
+        "required": ["url"],
         "properties": {
           "description": {
             "type": "string",
@@ -12097,17 +11258,11 @@
             "properties": {
               "period": {
                 "type": "string",
-                "enum": [
-                  "Daily",
-                  "Monthly"
-                ]
+                "enum": ["Daily", "Monthly"]
               },
               "scope": {
                 "type": "string",
-                "enum": [
-                  "Account",
-                  "Product"
-                ]
+                "enum": ["Account", "Product"]
               }
             }
           }
@@ -12116,11 +11271,7 @@
       "User": {
         "type": "object",
         "description": "The Twitter User object.",
-        "required": [
-          "id",
-          "name",
-          "username"
-        ],
+        "required": ["id", "name", "username"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -12179,12 +11330,7 @@
           "public_metrics": {
             "type": "object",
             "description": "A list of metrics for this User.",
-            "required": [
-              "followers_count",
-              "following_count",
-              "tweet_count",
-              "listed_count"
-            ],
+            "required": ["followers_count", "following_count", "tweet_count", "listed_count"],
             "properties": {
               "followers_count": {
                 "type": "integer",
@@ -12265,10 +11411,7 @@
       },
       "UserComplianceSchema": {
         "type": "object",
-        "required": [
-          "user",
-          "event_at"
-        ],
+        "required": ["user", "event_at"],
         "properties": {
           "event_at": {
             "type": "string",
@@ -12278,9 +11421,7 @@
           },
           "user": {
             "type": "object",
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/UserId"
@@ -12295,9 +11436,7 @@
           {
             "type": "object",
             "description": "User compliance event.",
-            "required": [
-              "data"
-            ],
+            "required": ["data"],
             "properties": {
               "data": {
                 "$ref": "#/components/schemas/UserComplianceData"
@@ -12306,9 +11445,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "errors"
-            ],
+            "required": ["errors"],
             "properties": {
               "errors": {
                 "type": "array",
@@ -12323,9 +11460,7 @@
       },
       "UserDeleteComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_delete"
-        ],
+        "required": ["user_delete"],
         "properties": {
           "user_delete": {
             "$ref": "#/components/schemas/UserComplianceSchema"
@@ -12350,9 +11485,7 @@
       },
       "UserProfileModificationComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_profile_modification"
-        ],
+        "required": ["user_profile_modification"],
         "properties": {
           "user_profile_modification": {
             "$ref": "#/components/schemas/UserProfileModificationObjectSchema"
@@ -12361,12 +11494,7 @@
       },
       "UserProfileModificationObjectSchema": {
         "type": "object",
-        "required": [
-          "user",
-          "profile_field",
-          "new_value",
-          "event_at"
-        ],
+        "required": ["user", "profile_field", "new_value", "event_at"],
         "properties": {
           "event_at": {
             "type": "string",
@@ -12382,9 +11510,7 @@
           },
           "user": {
             "type": "object",
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/UserId"
@@ -12395,9 +11521,7 @@
       },
       "UserProtectComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_protect"
-        ],
+        "required": ["user_protect"],
         "properties": {
           "user_protect": {
             "$ref": "#/components/schemas/UserComplianceSchema"
@@ -12406,11 +11530,7 @@
       },
       "UserScrubGeoObjectSchema": {
         "type": "object",
-        "required": [
-          "user",
-          "up_to_tweet_id",
-          "event_at"
-        ],
+        "required": ["user", "up_to_tweet_id", "event_at"],
         "properties": {
           "event_at": {
             "type": "string",
@@ -12423,9 +11543,7 @@
           },
           "user": {
             "type": "object",
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/UserId"
@@ -12436,9 +11554,7 @@
       },
       "UserScrubGeoSchema": {
         "type": "object",
-        "required": [
-          "scrub_geo"
-        ],
+        "required": ["scrub_geo"],
         "properties": {
           "scrub_geo": {
             "$ref": "#/components/schemas/UserScrubGeoObjectSchema"
@@ -12447,9 +11563,7 @@
       },
       "UserSuspendComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_suspend"
-        ],
+        "required": ["user_suspend"],
         "properties": {
           "user_suspend": {
             "$ref": "#/components/schemas/UserComplianceSchema"
@@ -12458,11 +11572,7 @@
       },
       "UserTakedownComplianceSchema": {
         "type": "object",
-        "required": [
-          "user",
-          "withheld_in_countries",
-          "event_at"
-        ],
+        "required": ["user", "withheld_in_countries", "event_at"],
         "properties": {
           "event_at": {
             "type": "string",
@@ -12472,9 +11582,7 @@
           },
           "user": {
             "type": "object",
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "properties": {
               "id": {
                 "$ref": "#/components/schemas/UserId"
@@ -12492,9 +11600,7 @@
       },
       "UserUndeleteComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_undelete"
-        ],
+        "required": ["user_undelete"],
         "properties": {
           "user_undelete": {
             "$ref": "#/components/schemas/UserComplianceSchema"
@@ -12503,9 +11609,7 @@
       },
       "UserUnprotectComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_unprotect"
-        ],
+        "required": ["user_unprotect"],
         "properties": {
           "user_unprotect": {
             "$ref": "#/components/schemas/UserComplianceSchema"
@@ -12514,9 +11618,7 @@
       },
       "UserUnsuspendComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_unsuspend"
-        ],
+        "required": ["user_unsuspend"],
         "properties": {
           "user_unsuspend": {
             "$ref": "#/components/schemas/UserComplianceSchema"
@@ -12526,9 +11628,7 @@
       "UserWithheld": {
         "type": "object",
         "description": "Indicates withholding details for [withheld content](https://help.twitter.com/en/rules-and-policies/tweet-withheld-by-country).",
-        "required": [
-          "country_codes"
-        ],
+        "required": ["country_codes"],
         "properties": {
           "country_codes": {
             "type": "array",
@@ -12542,17 +11642,13 @@
           "scope": {
             "type": "string",
             "description": "Indicates that the content being withheld is a `user`.",
-            "enum": [
-              "user"
-            ]
+            "enum": ["user"]
           }
         }
       },
       "UserWithheldComplianceSchema": {
         "type": "object",
-        "required": [
-          "user_withheld"
-        ],
+        "required": ["user_withheld"],
         "properties": {
           "user_withheld": {
             "$ref": "#/components/schemas/UserTakedownComplianceSchema"
@@ -12561,9 +11657,7 @@
       },
       "UsersFollowingCreateRequest": {
         "type": "object",
-        "required": [
-          "target_user_id"
-        ],
+        "required": ["target_user_id"],
         "properties": {
           "target_user_id": {
             "$ref": "#/components/schemas/UserId"
@@ -12615,9 +11709,7 @@
       },
       "UsersLikesCreateRequest": {
         "type": "object",
-        "required": [
-          "tweet_id"
-        ],
+        "required": ["tweet_id"],
         "properties": {
           "tweet_id": {
             "$ref": "#/components/schemas/TweetId"
@@ -12666,9 +11758,7 @@
       },
       "UsersRetweetsCreateRequest": {
         "type": "object",
-        "required": [
-          "tweet_id"
-        ],
+        "required": ["tweet_id"],
         "properties": {
           "tweet_id": {
             "$ref": "#/components/schemas/TweetId"
@@ -12890,31 +11980,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "created_at",
-              "download_expires_at",
-              "download_url",
-              "id",
-              "name",
-              "resumable",
-              "status",
-              "type",
-              "upload_expires_at",
-              "upload_url"
-            ]
+            "enum": ["created_at", "download_expires_at", "download_url", "id", "name", "resumable", "status", "type", "upload_expires_at", "upload_url"]
           },
-          "example": [
-            "created_at",
-            "download_expires_at",
-            "download_url",
-            "id",
-            "name",
-            "resumable",
-            "status",
-            "type",
-            "upload_expires_at",
-            "upload_url"
-          ]
+          "example": ["created_at", "download_expires_at", "download_url", "id", "name", "resumable", "status", "type", "upload_expires_at", "upload_url"]
         },
         "explode": false,
         "style": "form"
@@ -12931,13 +11999,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "id"
-            ]
+            "enum": ["id"]
           },
-          "example": [
-            "id"
-          ]
+          "example": ["id"]
         },
         "explode": false,
         "style": "form"
@@ -12953,19 +12017,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "attachments.media_keys",
-              "participant_ids",
-              "referenced_tweets.id",
-              "sender_id"
-            ]
+            "enum": ["attachments.media_keys", "participant_ids", "referenced_tweets.id", "sender_id"]
           },
-          "example": [
-            "attachments.media_keys",
-            "participant_ids",
-            "referenced_tweets.id",
-            "sender_id"
-          ]
+          "example": ["attachments.media_keys", "participant_ids", "referenced_tweets.id", "sender_id"]
         },
         "explode": false,
         "style": "form"
@@ -12982,29 +12036,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "attachments",
-              "created_at",
-              "dm_conversation_id",
-              "event_type",
-              "id",
-              "participant_ids",
-              "referenced_tweets",
-              "sender_id",
-              "text"
-            ]
+            "enum": ["attachments", "created_at", "dm_conversation_id", "event_type", "id", "participant_ids", "referenced_tweets", "sender_id", "text"]
           },
-          "example": [
-            "attachments",
-            "created_at",
-            "dm_conversation_id",
-            "event_type",
-            "id",
-            "participant_ids",
-            "referenced_tweets",
-            "sender_id",
-            "text"
-          ]
+          "example": ["attachments", "created_at", "dm_conversation_id", "event_type", "id", "participant_ids", "referenced_tweets", "sender_id", "text"]
         },
         "explode": false,
         "style": "form"
@@ -13020,13 +12054,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "owner_id"
-            ]
+            "enum": ["owner_id"]
           },
-          "example": [
-            "owner_id"
-          ]
+          "example": ["owner_id"]
         },
         "explode": false,
         "style": "form"
@@ -13043,27 +12073,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "created_at",
-              "description",
-              "follower_count",
-              "id",
-              "member_count",
-              "name",
-              "owner_id",
-              "private"
-            ]
+            "enum": ["created_at", "description", "follower_count", "id", "member_count", "name", "owner_id", "private"]
           },
-          "example": [
-            "created_at",
-            "description",
-            "follower_count",
-            "id",
-            "member_count",
-            "name",
-            "owner_id",
-            "private"
-          ]
+          "example": ["created_at", "description", "follower_count", "id", "member_count", "name", "owner_id", "private"]
         },
         "explode": false,
         "style": "form"
@@ -13127,27 +12139,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "contained_within",
-              "country",
-              "country_code",
-              "full_name",
-              "geo",
-              "id",
-              "name",
-              "place_type"
-            ]
+            "enum": ["contained_within", "country", "country_code", "full_name", "geo", "id", "name", "place_type"]
           },
-          "example": [
-            "contained_within",
-            "country",
-            "country_code",
-            "full_name",
-            "geo",
-            "id",
-            "name",
-            "place_type"
-          ]
+          "example": ["contained_within", "country", "country_code", "full_name", "geo", "id", "name", "place_type"]
         },
         "explode": false,
         "style": "form"
@@ -13164,21 +12158,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "duration_minutes",
-              "end_datetime",
-              "id",
-              "options",
-              "voting_status"
-            ]
+            "enum": ["duration_minutes", "end_datetime", "id", "options", "voting_status"]
           },
-          "example": [
-            "duration_minutes",
-            "end_datetime",
-            "id",
-            "options",
-            "voting_status"
-          ]
+          "example": ["duration_minutes", "end_datetime", "id", "options", "voting_status"]
         },
         "explode": false,
         "style": "form"
@@ -13195,17 +12177,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "end",
-              "start",
-              "tweet_count"
-            ]
+            "enum": ["end", "start", "tweet_count"]
           },
-          "example": [
-            "end",
-            "start",
-            "tweet_count"
-          ]
+          "example": ["end", "start", "tweet_count"]
         },
         "explode": false,
         "style": "form"
@@ -13221,21 +12195,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "creator_id",
-              "host_ids",
-              "invited_user_ids",
-              "speaker_ids",
-              "topic_ids"
-            ]
+            "enum": ["creator_id", "host_ids", "invited_user_ids", "speaker_ids", "topic_ids"]
           },
-          "example": [
-            "creator_id",
-            "host_ids",
-            "invited_user_ids",
-            "speaker_ids",
-            "topic_ids"
-          ]
+          "example": ["creator_id", "host_ids", "invited_user_ids", "speaker_ids", "topic_ids"]
         },
         "explode": false,
         "style": "form"
@@ -13307,17 +12269,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "description",
-              "id",
-              "name"
-            ]
+            "enum": ["description", "id", "name"]
           },
-          "example": [
-            "description",
-            "id",
-            "name"
-          ]
+          "example": ["description", "id", "name"]
         },
         "explode": false,
         "style": "form"
@@ -13440,13 +12394,9 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "pinned_tweet_id"
-            ]
+            "enum": ["pinned_tweet_id"]
           },
-          "example": [
-            "pinned_tweet_id"
-          ]
+          "example": ["pinned_tweet_id"]
         },
         "explode": false,
         "style": "form"

@@ -1,9 +1,4 @@
-import type { Pet } from '../../models'
-
-/**
- * @description Invalid status value
- */
-export type FindPetsByStatus400 = any | null
+import type { Pet } from './Pet'
 
 export const findPetsByStatusQueryParamsStatus = {
   available: 'available',
@@ -11,16 +6,14 @@ export const findPetsByStatusQueryParamsStatus = {
   sold: 'sold',
 } as const
 export type FindPetsByStatusQueryParamsStatus = (typeof findPetsByStatusQueryParamsStatus)[keyof typeof findPetsByStatusQueryParamsStatus]
-export type FindPetsByStatusQueryParams =
-  | {
-    /**
-     * @description Status values that need to be considered for filter
-     * @type string | undefined
-     * @default 'available'
-     */
-    status?: FindPetsByStatusQueryParamsStatus
-  }
-  | undefined
+export type FindPetsByStatusQueryParams = {
+  /**
+   * @description Status values that need to be considered for filter
+   * @default "available"
+   * @type string | undefined
+   */
+  status?: FindPetsByStatusQueryParamsStatus
+}
 
 /**
  * @description successful operation
@@ -28,9 +21,15 @@ export type FindPetsByStatusQueryParams =
 export type FindPetsByStatus200 = Pet[]
 
 /**
+ * @description Invalid status value
+ */
+export type FindPetsByStatus400 = any
+
+/**
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
   QueryParams: FindPetsByStatusQueryParams

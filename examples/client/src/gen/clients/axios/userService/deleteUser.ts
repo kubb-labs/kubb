@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import type client from '@kubb/swagger-client/client'
 import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
@@ -6,7 +6,8 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username */
+ * @link /user/:username
+ */
 export async function deleteUser(
   username: DeleteUserPathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},

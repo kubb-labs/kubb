@@ -9,6 +9,10 @@ outline: deep
 
 Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 
+::: tip
+The `hook` option will not work with Unplugin. If you need to run Prettier or ESLint after the generation, use Kubb CLI instead.
+:::
+
 ## Installation
 
 ::: code-group
@@ -55,9 +59,9 @@ Type: `Options` <br/>
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
@@ -105,11 +109,11 @@ export default defineConfig({
 
 ```ts
 // vite.config.ts
-import Plugin from 'unplugin-kubb/vite'
+import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
-    Plugin({/* options */}),
+    kubb({/* options */}),
   ],
 })
 ```
@@ -118,11 +122,11 @@ export default defineConfig({
 
 ```ts
 // rollup.config.js
-import Plugin from 'unplugin-kubb/rollup'
+import kubb from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
-    Plugin({/* options */}),
+    kubb({/* options */}),
   ],
 }
 ```
@@ -170,10 +174,10 @@ module.exports = {
 ```ts
 // esbuild.config.js
 import { build } from 'esbuild'
-import Plugin from 'unplugin-kubb/esbuild'
+import kubb from 'unplugin-kubb/esbuild'
 
 build({
-  plugins: [Plugin()],
+  plugins: [kubb()],
 })
 ```
 

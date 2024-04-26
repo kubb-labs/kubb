@@ -4,12 +4,12 @@ import { createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 
 import { getSchemas } from './utils/getSchemas.ts'
-import { OasManager } from './OasManager.ts'
 
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
-import type { Oas, OasTypes } from './oas/index.ts'
+import type { Oas, OasTypes } from '@kubb/oas'
 import type { PluginOptions } from './types.ts'
+import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -20,14 +20,18 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const getOas = async (config: Config, logger: Logger): Promise<Oas> => {
     try {
       // needs to be in a different variable or the catch here will not work(return of a promise instead)
-      const oas = await OasManager.parseFromConfig(config, { validate })
+      const oas = await parseFromConfig(config)
+
+      if (validate) {
+        await oas.valdiate()
+      }
 
       return oas
     } catch (e) {
       const error = e as Error
 
       logger.emit('warning', error?.message)
-      return OasManager.parseFromConfig(config, { validate: false })
+      return parseFromConfig(config)
     }
   }
 

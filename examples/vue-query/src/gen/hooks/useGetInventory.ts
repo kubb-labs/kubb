@@ -29,7 +29,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
-        url: `/store/inventory`,
+        url: '/store/inventory',
         ...options,
       })
       return res.data
@@ -39,7 +39,8 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory */
+ * @link /store/inventory
+ */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
     query?: Partial<VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>

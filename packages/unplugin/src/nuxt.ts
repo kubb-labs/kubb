@@ -6,8 +6,7 @@ import webpack from './webpack.ts'
 
 import type { Options } from './types.ts'
 
-export interface ModuleOptions extends Options {
-}
+export interface ModuleOptions extends Options {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {

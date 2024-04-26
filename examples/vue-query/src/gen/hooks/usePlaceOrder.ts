@@ -21,7 +21,8 @@ type PlaceOrder = {
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order */
+ * @link /store/order
+ */
 export function usePlaceOrder(
   options: {
     mutation?: VueMutationObserverOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>
@@ -33,7 +34,7 @@ export function usePlaceOrder(
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })

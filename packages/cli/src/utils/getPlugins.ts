@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { PackageManager } from '@kubb/core'
 
 import type { UserConfig } from '@kubb/core'
@@ -19,7 +17,6 @@ async function importPlugin(name: string, options: object): Promise<UserConfig['
 
   const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await packageManager.import(name)
 
-  // eslint-disable-next-line
   return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
 }
 

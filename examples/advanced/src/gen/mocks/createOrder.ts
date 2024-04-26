@@ -1,17 +1,19 @@
 import { faker } from '@faker-js/faker'
 import type { Order } from '../models/ts/Order'
 
-export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
+export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   return {
     ...{
-      'id': faker.number.float({}),
-      'petId': faker.number.float({}),
-      'quantity': faker.number.float({}),
-      'shipDate': faker.date.anytime(),
-      'status': faker.helpers.arrayElement<any>([`placed`, `approved`, `delivered`]),
-      'http_status': faker.helpers.arrayElement<any>([`ok`, `not_found`]),
-      'complete': faker.datatype.boolean(),
+      id: faker.number.int(),
+      petId: faker.number.int(),
+      quantity: faker.number.int(),
+      orderType: faker.helpers.arrayElement<any>(['foo', 'bar']),
+      type: faker.string.alpha(),
+      shipDate: faker.date.anytime(),
+      status: faker.helpers.arrayElement(['working', 'idle']) as any,
+      http_status: faker.helpers.arrayElement<any>(['ok', 'not_found']),
+      complete: faker.datatype.boolean(),
     },
-    ...override,
+    ...data,
   }
 }

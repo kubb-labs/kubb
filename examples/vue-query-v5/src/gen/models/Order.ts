@@ -6,28 +6,24 @@ export const orderStatus = {
 export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
 export type Order = {
   /**
-   * @type integer | undefined int64
-   * @example 10
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @type integer | undefined int64
-   * @example 198772
+   * @type integer | undefined, int64
    */
   petId?: number
   /**
-   * @type integer | undefined int32
-   * @example 7
+   * @type integer | undefined, int32
    */
   quantity?: number
   /**
-   * @type string | undefined date-time
+   * @type string | undefined, date-time
    */
   shipDate?: string
   /**
    * @description Order Status
    * @type string | undefined
-   * @example approved
    */
   status?: OrderStatus
   /**

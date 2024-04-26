@@ -1,37 +1,15 @@
-import { readSync } from '@kubb/core/fs'
-import { usePluginManager } from '@kubb/react'
+import { useContext } from 'react'
 
-import type { KubbFile, Plugin } from '@kubb/core'
+import { File } from '../components/File.tsx'
 
-type Props<TOptions = object> = {
-  name: string
-  pluginKey: Plugin['key']
-  options?: TOptions
-}
+import type { KubbFile } from '@kubb/core'
+import type { FileContextProps } from '../components/File.tsx'
 
-export function useFile<TOptions = object>({ name, pluginKey, options }: Props<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
-  const pluginManager = usePluginManager()
+/**
+ * `useFile` will return the current file when <File/> is used.
+ */
+export function useFile<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(): FileContextProps<TMeta> {
+  const file = useContext(File.Context)
 
-  let source = ''
-  const baseName = `${name}.ts` as const
-  const path = pluginManager.resolvePath({ baseName, pluginKey, options })
-
-  if (!path) {
-    throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginKey [${JSON.stringify(pluginKey)}]`)
-  }
-
-  try {
-    source = readSync(path)
-  } catch (_e) {
-    //
-  }
-
-  return {
-    path,
-    baseName,
-    meta: {
-      pluginKey,
-    },
-    source,
-  }
+  return file as FileContextProps<TMeta>
 }

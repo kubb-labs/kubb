@@ -1,58 +1,100 @@
-import { createRoot } from '@kubb/react'
+import { App, createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { Mutation } from './components/Mutation.tsx'
+import { Operations } from './components/Operations.tsx'
 import { Query } from './components/Query.tsx'
+import { QueryKey } from './components/QueryKey.tsx'
+import { QueryOptions } from './components/QueryOptions.tsx'
 
-import type { KubbFile } from '@kubb/core'
-import type { AppContextProps } from '@kubb/react'
-import type { OperationMethodResult, OperationSchemas } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
+import type { Operation } from '@kubb/oas'
+import type { OperationMethodResult } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {
-  async all(): Promise<KubbFile.File | null> {
-    return null
-  }
+  async all(operations: Operation[]): OperationMethodResult<FileMeta> {
+    const { pluginManager, oas, plugin, mode } = this.context
 
-  async get(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin } = this.context
+    const root = createRoot({
+      logger: pluginManager.logger,
+    })
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
-
-    if (!options.templates?.query || !options.templates?.queryKey || !options.templates.queryOptions) {
-      return []
+    const templates = {
+      mutation: Mutation.templates,
+      query: Query.templates,
+      queryOptions: QueryOptions.templates,
+      queryKey: QueryKey.templates,
+      operations: Operations.templates,
+      ...this.options.templates,
     }
 
     root.render(
-      <Query.File templates={{ query: options.templates.query, queryKey: options.templates.queryKey, queryOptions: options.templates.queryOptions }} />,
-      { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } },
+      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
+        <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+          {templates.operations && <Operations.File templates={templates.operations} />}
+        </Oas>
+      </App>,
     )
 
     return root.files
   }
 
-  async post(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin } = this.context
+  async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+    const { oas, pluginManager, plugin, mode } = this.context
 
-    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    const root = createRoot({
+      logger: pluginManager.logger,
+    })
 
-    if (!options.templates?.mutation) {
-      return []
+    const templates = {
+      mutation: Mutation.templates,
+      query: Query.templates,
+      queryOptions: QueryOptions.templates,
+      queryKey: QueryKey.templates,
+      ...options.templates,
     }
 
-    root.render(<Mutation.File templates={options.templates.mutation} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutate = !isQuery && options.mutate && options.mutate.methods.some((method) => operation.method === method)
+
+    root.render(
+      <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
+        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            {isMutate && templates?.mutation && <Mutation.File templates={templates.mutation} />}
+            {isQuery && templates?.query && templates.queryKey && templates.queryOptions && (
+              <Query.File
+                templates={{
+                  query: templates.query,
+                  queryKey: templates.queryKey,
+                  queryOptions: templates.queryOptions,
+                }}
+              />
+            )}
+          </Oas.Operation>
+        </Oas>
+      </App>,
+    )
 
     return root.files
   }
 
-  async put(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, schemas, options)
+  async get(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async patch(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, schemas, options)
+
+  async post(): OperationMethodResult<FileMeta> {
+    return null
   }
-  async delete(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, schemas, options)
+
+  async put(): OperationMethodResult<FileMeta> {
+    return null
+  }
+  async patch(): OperationMethodResult<FileMeta> {
+    return null
+  }
+  async delete(): OperationMethodResult<FileMeta> {
+    return null
   }
 }

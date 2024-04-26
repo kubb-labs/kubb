@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import type { KubbFile } from '@kubb/core'
-import type { Key, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 /**
  * TODO add for Server Components
  * import type {} from 'react/experimental'
@@ -13,40 +12,56 @@ declare global {
     interface IntrinsicElements {
       'kubb-text': {
         children?: ReactNode
-        key?: Key
       }
 
       'kubb-file': {
         id?: string
         children?: ReactNode
-        key?: Key
         baseName: string
         path: string
         env?: NodeJS.ProcessEnv
         override?: boolean
+        exportable?: boolean
         meta?: KubbFile.File['meta']
       }
 
       'kubb-source': {
         children?: ReactNode
-        key?: Key
         path?: string
         print?: boolean
-        removeComments?: boolean
-        noEmitHelpers?: boolean
       }
 
       'kubb-import': KubbFile.Import & {
         print?: boolean
       }
+
       'kubb-export': KubbFile.Export & {
         print?: boolean
+      }
+
+      'kubb-editor': {
+        language?: string
+        children?: ReactNode
+      }
+      'kubb-editor-provider': {
+        language?: string
+        children?: ReactNode
       }
     }
   }
 }
 
-export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-file' | 'kubb-source' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
+export type ElementNames =
+  | ReactElementNames
+  | 'kubb-text'
+  | 'kubb-file'
+  | 'kubb-source'
+  | 'kubb-import'
+  | 'kubb-export'
+  | 'kubb-root'
+  | 'kubb-app'
+  | 'kubb-language'
+  | 'kubb-editor'
 
 export type Node = {
   parentNode: DOMElement | undefined
@@ -61,7 +76,6 @@ export type TextNode = {
   nodeValue: string
 } & Node
 
-// dprint-ignore
 export type DOMNode<T = { nodeName: NodeNames }> = T extends {
   nodeName: infer U
 }

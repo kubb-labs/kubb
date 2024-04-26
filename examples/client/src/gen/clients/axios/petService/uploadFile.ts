@@ -9,7 +9,8 @@ import type {
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage */
+ * @link /pet/:petId/uploadImage
+ */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data?: UploadFileMutationRequest,

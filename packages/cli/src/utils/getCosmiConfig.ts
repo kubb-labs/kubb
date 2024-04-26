@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { bundleRequire } from 'bundle-require'
 import { cosmiconfig } from 'cosmiconfig'
 
-import type { defineConfig, UserConfig } from '@kubb/core'
+import type { UserConfig, defineConfig } from '@kubb/core'
 
 export type CosmiconfigResult = {
   filepath: string
@@ -15,6 +12,7 @@ export type CosmiconfigResult = {
 const tsLoader = async (configFile: string) => {
   const { mod } = await bundleRequire({
     filepath: configFile,
+    preserveTemporaryFile: false,
   })
 
   return mod.default

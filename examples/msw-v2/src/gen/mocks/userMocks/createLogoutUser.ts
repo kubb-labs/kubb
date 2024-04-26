@@ -4,13 +4,12 @@ import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/Logo
 /**
  * @description successful operation
  */
-
-export function createLogoutUserError(override?: NonNullable<Partial<LogoutUserError>>): NonNullable<LogoutUserError> {
+export function createLogoutUserError(): NonNullable<LogoutUserError> {
   faker.seed([220])
   return undefined
 }
 
-export function createLogoutUserQueryResponse(override?: NonNullable<Partial<LogoutUserQueryResponse>>): NonNullable<LogoutUserQueryResponse> {
+export function createLogoutUserQueryResponse(): NonNullable<LogoutUserQueryResponse> {
   faker.seed([220])
   return undefined
 }

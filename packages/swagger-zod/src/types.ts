@@ -1,5 +1,11 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions, SchemaMapper } from '@kubb/swagger'
+import type { Operations } from './components/Operations'
+import type { zodKeywordMapper } from './zodParser'
+
+type Templates = {
+  operations?: typeof Operations.templates | false
+}
 
 export type Options = {
   output?: {
@@ -56,18 +62,24 @@ export type Options = {
   /**
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
-  override?: Array<Override<Options>>
+  override?: Array<Override<ResolvedOptions>>
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  mapper?: Record<string, string>
+  /**
+   * Make it possible to override one of the templates
+   */
+  templates?: Partial<Templates>
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-   * @default 'string'
+   * False will fallback on a simple z.string() format
+   * @default 'string' 'stringOffset' will become the default in Kubb v3
    */
-  dateType?: 'string' | 'date'
+  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'
@@ -87,15 +99,16 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
+  templates: NonNullable<Templates>
+  mapper: Record<string, string>
 }
 
 export type FileMeta = {
   pluginKey?: Plugin['key']
   tag?: string
 }
-type AppMeta = SwaggerAppMeta
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

@@ -47,7 +47,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options,
     pre: [],
-    resolvePath(baseName, directory, options) {
+    resolvePath(baseName, mode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
       return path.resolve(root, output.path, baseName)
@@ -92,8 +92,6 @@ import { definePlugin } from './plugin.ts'
 
 export { definePlugin, pluginKey, pluginName } from './plugin.ts'
 export * from './types.ts'
-
-export default definePlugin
 ```
 
 :::
@@ -102,12 +100,12 @@ Registering the plugin:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import createPlugin from './index.ts'
+import { definePlugin } from './index.ts'
 
 export default defineConfig(() => {
   return {
     plugins: [
-      createPlugin({ name: 'custom-name' }),
+      definePlugin({ name: 'custom-name' }),
     ],
   }
 })
@@ -128,7 +126,7 @@ export type PluginFactoryOptions<Name, Options, ResolveOptions, API, ResolvePath
 
 ### Template Repository
 
-[`plugin-template`](https://github.com/kubb-project/plugin-template) is a minimal Kubb plugin template repository that you can use as a basis for developing your Kubb plugin.
+[`plugin-template`](https://github.com/kubb-labs/plugin-template) is a minimal Kubb plugin template repository that you can use as a basis for developing your Kubb plugin.
 
 ## Configure
 
@@ -176,7 +174,7 @@ Add some extra functionality to your plugin, here you can even use functions whi
 
 This will be called when pluginManager.resolvePath is called, see [Pluginmanager and resolving a path](/reference/pluginManager/#pluginmanager-resolvepath).
 
-- **Type:** `(this: PluginContext, baseName: string, directory?: string | undefined, options?: object) => KubbFile.OptionalPath` <br/>
+- **Type:** `(this: PluginContext, baseName: string, mode?: 'file' | 'directory', options?: object) => KubbFile.OptionalPath` <br/>
 
 ### resolveName
 

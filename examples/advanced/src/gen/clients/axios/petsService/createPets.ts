@@ -10,9 +10,14 @@ import type {
 
 /**
  * @summary Create a pet
- * @link /pets/:uuid */
+ * @link /pets/:uuid
+ */
 export async function createPets(
-  { uuid }: CreatePetsPathParams,
+  {
+    uuid,
+  }: {
+    uuid: CreatePetsPathParams['uuid']
+  },
   data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,

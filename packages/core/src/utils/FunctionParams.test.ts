@@ -66,4 +66,28 @@ describe('objectToParameters', () => {
         .toString(),
     ).toEqual('lastName?: User["lastName"], firstName: User["firstName"] = {}')
   })
+
+  test('if object is resolved to a string with array typed parameters', () => {
+    expect(new FunctionParams().add([[{ name: 'id' }], { name: 'params' }]).toString()).toEqual('{ id }, params')
+    expect(new FunctionParams().add([[{ name: 'id' }, { name: 'data' }], { name: 'params' }]).toString()).toEqual('{ id, data }, params')
+    expect(
+      new FunctionParams()
+        .add([
+          [
+            { name: 'id', type: 'Id' },
+            { name: 'data', type: 'Data' },
+          ],
+          { name: 'params', type: 'Params' },
+        ])
+        .toString(),
+    ).toEqual('{ id, data }?: { id: Id; data: Data }, params: Params')
+  })
+
+  test('if object is resolved to a string with empty array', () => {
+    expect(new FunctionParams().add([[{ name: 'id' }], { name: 'params' }]).toString()).toEqual('{ id }, params')
+    expect(new FunctionParams().add([[{ name: 'id' }, { name: 'data' }], { name: 'params' }]).toString()).toEqual('{ id, data }, params')
+    expect(new FunctionParams().add([[], { name: 'params', type: 'Params' }]).toString()).toEqual('params: Params')
+  })
+
+  test.todo('if static functionality works')
 })

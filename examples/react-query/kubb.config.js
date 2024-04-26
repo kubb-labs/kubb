@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
-import createSwaggerTS from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',
@@ -13,7 +13,7 @@ export default defineConfig({
     clean: true,
   },
   hooks: {
-    done: ['dprint fmt'],
+    done: [],
   },
   plugins: [
     createSwagger({ output: false }),

@@ -20,21 +20,26 @@ type UpdatePet = {
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet */
+ * @link /pet
+ */
 export function useUpdatePet(options?: {
   mutation?: SWRMutationConfiguration<UpdatePet['response'], UpdatePet['error']>
   client?: UpdatePet['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<UpdatePet['response'], UpdatePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet` as const
-  return useSWRMutation<UpdatePet['response'], UpdatePet['error'], typeof url | null>(shouldFetch ? url : null, async (_url, { arg: data }) => {
-    const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
-      method: 'put',
-      url,
-      data,
-      ...clientOptions,
-    })
-    return res
-  }, mutationOptions)
+  const url = '/pet' as const
+  return useSWRMutation<UpdatePet['response'], UpdatePet['error'], typeof url | null>(
+    shouldFetch ? url : null,
+    async (_url, { arg: data }) => {
+      const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
+        method: 'put',
+        url,
+        data,
+        ...clientOptions,
+      })
+      return res
+    },
+    mutationOptions,
+  )
 }

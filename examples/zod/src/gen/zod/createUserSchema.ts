@@ -1,15 +1,14 @@
 import { z } from 'zod'
-import { createUserResultSchema } from './createUserResultSchema'
-
-export const createUserSchema = z.object({ email: z.string().email().optional() })
-export const createUserMutationRequestSchema = z.object({ name: z.string() })
+import { userSchema } from './userSchema'
 
 /**
- * @description OK
+ * @description successful operation
  */
-export const createUser201Schema = z.lazy(() => createUserResultSchema)
+export const createUserErrorSchema = z.lazy(() => userSchema).schema
 
 /**
- * @description OK
+ * @description Created user object
  */
-export const createUserMutationResponseSchema = z.lazy(() => createUserResultSchema)
+export const createUserMutationRequestSchema = z.lazy(() => userSchema).schema
+
+export const createUserMutationResponseSchema = z.any()

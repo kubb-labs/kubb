@@ -8,9 +8,14 @@ import type {
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export async function updatePetWithForm(
-  { petId }: UpdatePetWithFormPathParams,
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+  },
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>> {

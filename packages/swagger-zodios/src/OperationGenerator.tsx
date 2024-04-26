@@ -1,23 +1,34 @@
-import { createRoot } from '@kubb/react'
+import { App, createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { Definitions } from './components/Definitions.tsx'
 
-import type { AppContextProps } from '@kubb/react'
-import type { OperationMethodResult, Paths } from '@kubb/swagger'
+import type { Operation } from '@kubb/oas'
+import type { OperationMethodResult, OperationsByMethod } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
-  async all(paths: Paths): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin } = this.context
+  async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
+    const { oas, pluginManager, plugin, mode } = this.context
 
-    const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
-
-    root.render(<Definitions.File name={this.options.name} baseURL={this.options.baseURL} paths={paths} />, {
-      meta: { oas, pluginManager, plugin },
+    const root = createRoot({
+      logger: pluginManager.logger,
     })
 
+    root.render(
+      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
+        <Oas oas={oas} operations={operations} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+          <Definitions.File name={this.options.name} baseURL={this.options.baseURL} operationsByMethod={operationsByMethod} />
+        </Oas>
+      </App>,
+    )
+
     return root.files
+  }
+
+  async operation(): OperationMethodResult<FileMeta> {
+    return null
   }
 
   async get(): OperationMethodResult<FileMeta> {

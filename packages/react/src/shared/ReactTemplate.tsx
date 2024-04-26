@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import crypto from 'node:crypto'
 import process from 'node:process'
 
-import { App } from '../components/App.tsx'
+import { Root } from '../components/Root.tsx'
 import { reconciler } from '../reconciler.ts'
-import { throttle } from './utils/throttle.ts'
 import { renderer } from './renderer.ts'
+import { throttle } from './utils/throttle.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
-import type { AppContextProps } from '../components/AppContext.tsx'
+import type { RootContextProps } from '../components/Root.tsx'
 import type { FiberRoot } from '../reconciler.ts'
 import type { DOMElement } from '../types.ts'
 
@@ -22,17 +21,12 @@ export type ReactTemplateOptions = {
   debug?: boolean
 }
 
-export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
+export class ReactTemplate<Context extends RootContextProps = RootContextProps> {
   readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
   #lastOutput: string
-  /**
-   * @deprecated
-   * Use Files instead
-   * File will include all sources combined
-   */
-  #lastFile?: KubbFile.File
+
   #lastFiles: KubbFile.File[] = []
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
@@ -57,7 +51,6 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     // Store last output to only rerender when needed
     this.#lastOutput = ''
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.#container = reconciler.createContainer(
       this.#rootNode,
       // Legacy mode
@@ -88,10 +81,6 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     return this.#lastOutput
   }
 
-  get file(): KubbFile.File | undefined {
-    return this.#lastFile
-  }
-
   get files(): KubbFile.File[] {
     return this.#lastFiles
   }
@@ -109,13 +98,15 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
       return
     }
 
-    const { output, file, files } = renderer(this.#rootNode)
+    const { output, files } = renderer(this.#rootNode)
 
     this.#lastOutput = output
-    this.#lastFile = file
     this.#lastFiles = files
   }
   onError(error: Error): void {
+    if (process.env.NODE_ENV === 'test') {
+      console.error(error)
+    }
     if (!this.logger) {
       console.error(error)
     }
@@ -123,13 +114,13 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
-      const tree = (
-        <App logger={this.logger} meta={context.meta} onError={this.onError}>
+      const element = (
+        <Root logger={this.logger} meta={context.meta} onError={this.onError}>
           {node}
-        </App>
+        </Root>
       )
 
-      reconciler.updateContainer(tree, this.#container, null, noop)
+      reconciler.updateContainer(element, this.#container, null, noop)
       return
     }
 

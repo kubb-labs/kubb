@@ -1,6 +1,13 @@
 import { z } from 'zod'
 import { petSchema } from '../petSchema'
 
+export const getPetByIdPathParamsSchema = z.object({ petId: z.number().describe('ID of pet to return') })
+
+/**
+ * @description successful operation
+ */
+export const getPetById200Schema = z.lazy(() => petSchema).schema
+
 /**
  * @description Invalid ID supplied
  */
@@ -10,12 +17,6 @@ export const getPetById400Schema = z.any()
  * @description Pet not found
  */
 export const getPetById404Schema = z.any()
-export const getPetByIdPathParamsSchema = z.object({ 'petId': z.number().describe(`ID of pet to return`) })
-
-/**
- * @description successful operation
- */
-export const getPetById200Schema = z.lazy(() => petSchema)
 
 /**
  * @description successful operation

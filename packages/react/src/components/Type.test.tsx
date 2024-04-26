@@ -5,11 +5,7 @@ import { Type } from './Type.tsx'
 describe('<Type/>', () => {
   test('render Function', async () => {
     const Component = () => {
-      return (
-        <Type name="Data">
-          string
-        </Type>
-      )
+      return <Type name="Data">string</Type>
     }
     const root = createRoot()
     root.render(<Component />)

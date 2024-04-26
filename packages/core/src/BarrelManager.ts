@@ -1,6 +1,6 @@
 import { getExports } from '@kubb/parser'
 
-import path from 'path'
+import path from 'node:path'
 
 import { trimExtName } from './transformers/trim.ts'
 import { TreeNode } from './utils/TreeNode.ts'
@@ -33,38 +33,42 @@ export class BarrelManager {
       return [item]
     }
 
-    return exportedNames.reduce((prev, curr) => {
-      if (!prev[0]?.name || !prev[1]?.name) {
+    return exportedNames.reduce(
+      (prev, curr) => {
+        if (!prev[0]?.name || !prev[1]?.name) {
+          return prev
+        }
+
+        if (curr.isTypeOnly) {
+          prev[1] = { ...prev[1], name: [...prev[1].name, curr.name] }
+        } else {
+          prev[0] = { ...prev[0], name: [...prev[0].name, curr.name] }
+        }
+
         return prev
-      }
-
-      if (curr.isTypeOnly) {
-        prev[1] = { ...prev[1], name: [...prev[1].name, curr.name] }
-      } else {
-        prev[0] = { ...prev[0], name: [...prev[0].name, curr.name] }
-      }
-
-      return prev
-    }, [{
-      ...item,
-      name: [],
-      isTypeOnly: false,
-    }, {
-      ...item,
-      name: [],
-      isTypeOnly: true,
-    }] as KubbFile.Export[])
+      },
+      [
+        {
+          ...item,
+          name: [],
+          isTypeOnly: false,
+        },
+        {
+          ...item,
+          name: [],
+          isTypeOnly: true,
+        },
+      ] as KubbFile.Export[],
+    )
   }
 
   getNamedExports(root: string, exports: KubbFile.Export[]): KubbFile.Export[] {
-    return exports?.map(item => {
+    return exports?.flatMap((item) => {
       return this.getNamedExport(root, item)
-    }).flat()
+    })
   }
 
-  getIndexes(
-    root: string,
-  ): Array<KubbFile.File> | null {
+  getIndexes(root: string): Array<KubbFile.File> | null {
     const { treeNode = {}, isTypeOnly, extName } = this.#options
     const tree = TreeNode.build(root, treeNode)
 
@@ -83,9 +87,9 @@ export class BarrelManager {
         const exports: Array<KubbFile.Export> = treeNode.children
           .filter(Boolean)
           .map((file) => {
-            const importPath: string = file.data.type === 'directory' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
+            const importPath: string = file.data.type === 'split' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
 
-            if (importPath.endsWith('index') && file.data.type === 'file') {
+            if (importPath.endsWith('index') && file.data.type === 'single') {
               return undefined
             }
 
@@ -101,20 +105,17 @@ export class BarrelManager {
           baseName: 'index.ts',
           source: '',
           exports,
+          exportable: true,
         })
       } else if (treeNode.children.length === 1) {
         const [treeNodeChild] = treeNode.children as [TreeNode]
 
         const indexPath = path.resolve(treeNode.data.path, 'index.ts')
-        const importPath = treeNodeChild.data.type === 'directory'
-          ? `./${treeNodeChild.data.name}/index`
-          : `./${trimExtName(treeNodeChild.data.name)}`
+        const importPath = treeNodeChild.data.type === 'split' ? `./${treeNodeChild.data.name}/index` : `./${trimExtName(treeNodeChild.data.name)}`
 
         const exports = [
           {
-            path: extName
-              ? `${importPath}${extName}`
-              : importPath,
+            path: extName ? `${importPath}${extName}` : importPath,
             isTypeOnly,
           },
         ]
@@ -124,6 +125,7 @@ export class BarrelManager {
           baseName: 'index.ts',
           source: '',
           exports,
+          exportable: true,
         })
       }
 

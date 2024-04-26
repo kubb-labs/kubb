@@ -1,19 +1,14 @@
-import type { Oas, OasTypes } from '../oas/index.ts'
-import type { ContentType } from '../types.ts'
+import type { Oas, OasTypes, contentType } from '@kubb/oas'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'
 
 export type GetSchemasProps = {
   oas: Oas
-  contentType?: ContentType
+  contentType?: contentType
   includes?: Mode[]
 }
 
-export function getSchemas({
-  oas,
-  contentType,
-  includes = ['schemas', 'requestBodies', 'responses'],
-}: GetSchemasProps): Record<string, OasTypes.SchemaObject> {
+export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBodies', 'responses'] }: GetSchemasProps): Record<string, OasTypes.SchemaObject> {
   const components = oas.getDefinition().components
 
   let schemas: Record<string, OasTypes.SchemaObject> = {}

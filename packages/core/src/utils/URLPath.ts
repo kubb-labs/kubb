@@ -89,9 +89,7 @@ export class URLPath {
 
     if (found) {
       newPath = found.reduce((prev, curr) => {
-        const pathParam = replacer
-          ? replacer(camelCase(curr))
-          : camelCase(curr)
+        const pathParam = replacer ? replacer(camelCase(curr)) : camelCase(curr)
         const replacement = `\${${pathParam}}`
 
         return prev.replace(curr, replacement)
@@ -113,9 +111,7 @@ export class URLPath {
     found.forEach((item) => {
       item = item.replaceAll('{', '').replaceAll('}', '')
 
-      const pathParam = replacer
-        ? replacer(camelCase(item))
-        : camelCase(item)
+      const pathParam = replacer ? replacer(camelCase(item)) : camelCase(item)
 
       params[pathParam] = pathParam
     }, this.path)

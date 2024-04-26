@@ -10,6 +10,7 @@ import type { Options } from 'tsup'
 /**
  * This will make sure cjs with export default works perfect
  * @link https://github.com/unplugin/unplugin-starter/blob/main/scripts/postbuild.ts
+ * @deprecated
  */
 export async function forceDefaultExport(): Promise<void> {
   const files = await fg('*.cjs', {
@@ -42,7 +43,6 @@ export const bannerESM: Options['banner'] = {
 
 export const options: Options = {
   entry: ['src/index.ts'],
-  treeshake: true,
   sourcemap: true,
   minify: false,
   clean: true,
@@ -75,10 +75,14 @@ export const optionsFlat: Options = {
   minify: false,
   bundle: true,
   skipNodeModulesBundle: true,
-  treeshake: true,
   shims: true,
   ignoreWatch: options.ignoreWatch,
-  esbuildPlugins: [esbuildPluginFilePathExtensions({ esmExtension: 'js', cjsExtension: 'cjs' })] as Options['esbuildPlugins'],
+  esbuildPlugins: [
+    esbuildPluginFilePathExtensions({
+      esmExtension: 'js',
+      cjsExtension: 'cjs',
+    }),
+  ] as Options['esbuildPlugins'],
 }
 
 export default {

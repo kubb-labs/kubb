@@ -20,8 +20,8 @@ By default, `@kubb/swagger-client/client` is getting used as the [`client`](/plu
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
@@ -111,8 +111,8 @@ You can start by using a copy-paste of `@kubb/swagger-client/client`.
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger-client'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
@@ -199,7 +199,7 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 
 ### Default `client` with `process.env`
 
-Link: [`client.ts`](https://github.com/kubb-project/kubb/blob/main/packages/swagger-client/client.ts)
+Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger-client/client.ts)
 
 ```typescript
 import axios from 'axios'
@@ -237,7 +237,7 @@ export default axiosClient
 
 ### Default `client` with `declare const`
 
-Link: [`client.ts`](https://github.com/kubb-project/kubb/blob/main/packages/swagger-client/client.ts)
+Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger-client/client.ts)
 
 ```typescript
 import axios from 'axios'

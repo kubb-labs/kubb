@@ -1,12 +1,13 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
+import { Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams } from '@kubb/swagger/utils'
 
-import type { HttpMethod } from '@kubb/swagger/oas'
+import { isRequired } from '@kubb/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { Infinite, PluginOptions, Suspense } from '../types.ts'
 
@@ -45,32 +46,29 @@ type TemplateProps = {
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
+    contentType: string
   }
-  infinite?: Infinite
+  infinite: Infinite | false
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
   parser: string | undefined
 }
 
-function Template({
-  name,
-  params,
-  generics,
-  returnType,
-  JSDoc,
-  hook,
-  client,
-  infinite,
-  dataReturnType,
-  parser,
-}: TemplateProps): ReactNode {
+function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+
+  const headers = [
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
+    client.withHeaders ? '...headers' : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
 
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams && !infinite ? 'params' : undefined,
     client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
+    headers.length ? `headers: { ${headers}, ...options.headers }` : undefined,
     '...options',
     client.withQueryParams && !!infinite
       ? `params: {
@@ -83,30 +81,26 @@ function Template({
 
   const queryOptions = [
     isV5 && !!infinite ? `initialPageParam: ${infinite.initialPageParam}` : undefined,
-    isV5 && !!infinite && !!infinite.cursorParam
-      ? `getNextPageParam: (lastPage) => lastPage['${infinite.cursorParam}']`
-      : undefined,
-    isV5 && !!infinite && !!infinite.cursorParam
-      ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']`
-      : undefined,
+    isV5 && !!infinite && !!infinite.cursorParam ? `getNextPageParam: (lastPage) => lastPage['${infinite.cursorParam}']` : undefined,
+    isV5 && !!infinite && !!infinite.cursorParam ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']` : undefined,
     isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'full'
-      ? `getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1`
+      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'data'
-      ? `getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1`
+      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam
-      ? `getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1`
+      ? 'getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1'
       : undefined,
   ].filter(Boolean)
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
   const resolvedQueryOptions = `${transformers.createIndent(4)}${queryOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
-  let returnRes = parser ? `return ${parser}(res.data)` : `return res.data`
+  let returnRes = parser ? `return ${parser}(res.data)` : 'return res.data'
 
   if (dataReturnType === 'full') {
-    returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : `return res`
+    returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
   }
 
   if (infinite) {
@@ -215,56 +209,57 @@ type FrameworkProps = TemplateProps & {
 
 const defaultTemplates = {
   get react() {
-    return function(props: FrameworkProps): ReactNode {
-      return (
-        <Template
-          {...props}
-        />
-      )
+    return function (props: FrameworkProps): ReactNode {
+      return <Template {...props} />
     }
   },
   get solid() {
-    return function(props: FrameworkProps): ReactNode {
-      return (
-        <Template
-          {...props}
-        />
-      )
+    return function (props: FrameworkProps): ReactNode {
+      return <Template {...props} />
     }
   },
   get svelte() {
-    return function(props: FrameworkProps): ReactNode {
-      return (
-        <Template
-          {...props}
-        />
-      )
+    return function (props: FrameworkProps): ReactNode {
+      return <Template {...props} />
     }
   },
   get vue() {
-    return function(
-      { client, context, ...rest }: FrameworkProps,
-    ): ReactNode {
+    return function ({ client, context, ...rest }: FrameworkProps): ReactNode {
       const { factory, queryKey } = context
 
-      const schemas = useSchemas()
-      const params = new FunctionParams()
+      const {
+        plugin: {
+          options: { pathParamsType },
+        },
+      } = useApp<PluginOptions>()
 
-      const pathParams = getParams(schemas.pathParams, {
-        override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
-      })
-        .toString()
+      const { getSchemas } = useOperationManager()
+      const operation = useOperation()
+
+      const schemas = getSchemas(operation)
+      const params = new FunctionParams()
+      const queryKeyParams = new FunctionParams()
 
       params.add([
-        ...getASTParams(schemas.pathParams, {
-          typed: true,
-          override: (item) => ({
-            ...item,
-            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
-            enabled: !!item.name,
-            type: `MaybeRef<${item.type}>`,
-          }),
-        }),
+        ...(pathParamsType === 'object'
+          ? [
+              getASTParams(schemas.pathParams, {
+                typed: true,
+                override: (item) => ({
+                  ...item,
+                  name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+                  type: `MaybeRef<${item.type}>`,
+                }),
+              }),
+            ]
+          : getASTParams(schemas.pathParams, {
+              typed: true,
+              override: (item) => ({
+                ...item,
+                name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+                type: `MaybeRef<${item.type}>`,
+              }),
+            })),
         {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
@@ -278,9 +273,43 @@ const defaultTemplates = {
           required: isRequired(schemas.headerParams?.schema),
         },
         {
+          name: 'refData',
+          type: `MaybeRef<${schemas.request?.name}>`,
+          enabled: client.withData,
+          required: isRequired(schemas.request?.schema),
+        },
+        {
           name: 'options',
           type: `${factory.name}['client']['parameters']`,
           default: '{}',
+        },
+      ])
+
+      queryKeyParams.add([
+        ...(pathParamsType === 'object'
+          ? [
+              getASTParams(schemas.pathParams, {
+                override: (item) => ({
+                  ...item,
+                  name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+                }),
+              }),
+            ]
+          : getASTParams(schemas.pathParams, {
+              override: (item) => ({
+                ...item,
+                name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+              }),
+            })),
+        {
+          name: 'refParams',
+          enabled: client.withQueryParams,
+          required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'refData',
+          enabled: client.withData,
+          required: isRequired(schemas.request?.schema),
         },
       ])
 
@@ -292,25 +321,18 @@ const defaultTemplates = {
         .join('\n')
 
       const hook = {
-        queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('refParams') : ''})`,
+        queryKey: `${queryKey}(${queryKeyParams.toString()})`,
         children: unrefs,
       }
 
-      return (
-        <Template
-          {...rest}
-          params={params.toString()}
-          hook={hook}
-          client={client}
-        />
-      )
+      return <Template {...rest} params={params.toString()} hook={hook} client={client} />
     }
   },
 } as const
 
 type Props = {
-  infinite: Infinite | undefined
-  suspense: Suspense | undefined
+  infinite: Infinite | false
+  suspense: Suspense | false
   factory: {
     name: string
   }
@@ -323,59 +345,44 @@ type Props = {
 }
 
 export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
-  const { key: pluginKey, options: { parser } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+  const {
+    pluginManager,
+    plugin: {
+      key: pluginKey,
+      options: { parser, pathParamsType, queryOptions },
+    },
+  } = useApp<PluginOptions>()
+
+  const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
-  const queryKey = useResolveName({
+  const contentType = operation.getContentType()
+  const schemas = getSchemas(operation)
+
+  const queryKey = pluginManager.resolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
   })
-  const queryOptions = useResolveName({
+  const queryOptionsName = pluginManager.resolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
   })
 
-  const zodResponseName = useResolveName({ name: schemas.response.name, pluginKey: swaggerZodPluginKey, type: 'function' })
+  const zodResponseName = pluginManager.resolveName({
+    name: schemas.response.name,
+    pluginKey: swaggerZodPluginKey,
+    type: 'function',
+  })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
-
-  const pathParams = getParams(schemas.pathParams, {}).toString()
+  const queryKeyParams = new FunctionParams()
 
   const clientGenerics = [`${factory.name}['data']`, `${factory.name}['error']`]
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const resultGenerics = suspense
     ? [`${factory.name}['response']`, `${factory.name}["error"]`, 'TData']
     : [`${factory.name}['response']`, `${factory.name}["error"]`, 'TData', 'TQueryData']
-
-  generics.add([
-    { type: 'TData', default: `${factory.name}["response"]` },
-    suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
-  ])
-
-  params.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: true,
-    }),
-    {
-      name: 'params',
-      type: `${factory.name}['queryParams']`,
-      enabled: !!schemas.queryParams?.name,
-      required: isRequired(schemas.queryParams?.schema),
-    },
-    {
-      name: 'headers',
-      type: `${factory.name}['headerParams']`,
-      enabled: !!schemas.headerParams?.name,
-      required: isRequired(schemas.headerParams?.schema),
-    },
-    {
-      name: 'options',
-      type: `${factory.name}['client']['parameters']`,
-      default: '{}',
-    },
-  ])
 
   const client = {
     withQueryParams: !!schemas.queryParams?.name,
@@ -385,15 +392,66 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     method: operation.method,
     path: new URLPath(operation.path),
     generics: clientGenerics.toString(),
+    contentType,
   }
 
+  generics.add([
+    { type: 'TData', default: `${factory.name}["response"]` },
+    suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
+  ])
+
+  params.add([
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
+    {
+      name: 'params',
+      type: `${factory.name}['queryParams']`,
+      enabled: client.withQueryParams,
+      required: isRequired(schemas.queryParams?.schema),
+    },
+    {
+      name: 'headers',
+      type: `${factory.name}['headerParams']`,
+      enabled: client.withHeaders,
+      required: isRequired(schemas.headerParams?.schema),
+    },
+    {
+      name: 'data',
+      type: `${factory.name}['request']`,
+      enabled: client.withData,
+      required: isRequired(schemas.request?.schema),
+    },
+    {
+      name: 'options',
+      type: `${factory.name}['client']['parameters']`,
+      default: '{}',
+    },
+  ])
+
+  queryKeyParams.add([
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams)] : getASTParams(schemas.pathParams)),
+    {
+      name: 'params',
+      enabled: client.withQueryParams,
+      required: isRequired(schemas.queryParams?.schema),
+    },
+    {
+      name: 'data',
+      enabled: client.withData,
+      required: isRequired(schemas.request?.schema),
+    },
+  ])
+
   const hook = {
-    queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
+    queryKey: `${queryKey}(${queryKeyParams.toString()})`,
+  }
+
+  if (!queryOptions) {
+    return null
   }
 
   return (
     <Template
-      name={queryOptions}
+      name={queryOptionsName}
       params={params.toString()}
       generics={generics.toString()}
       returnType={`WithRequired<${resultType}<${resultGenerics.join(', ')}>, 'queryKey'>`}

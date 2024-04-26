@@ -1,13 +1,14 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
+import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
 
+import { isRequired } from '@kubb/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -45,14 +46,7 @@ type TemplateProps = {
   }
 }
 
-function Template({
-  name,
-  generics,
-  returnType,
-  params,
-  JSDoc,
-  client,
-}: TemplateProps): KubbNode {
+function Template({ name, generics, returnType, params, JSDoc, client }: TemplateProps): KubbNode {
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
@@ -76,7 +70,46 @@ return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
   )
 }
 
-const defaultTemplates = { default: Template } as const
+type RootTemplateProps = {
+  children?: React.ReactNode
+}
+
+function RootTemplate({ children }: RootTemplateProps) {
+  const {
+    plugin: {
+      options: {
+        client: { importPath },
+      },
+    },
+  } = useApp<PluginOptions>()
+
+  const { getSchemas, getFile } = useOperationManager()
+  const operation = useOperation()
+
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const schemas = getSchemas(operation)
+
+  return (
+    <Editor language="typescript">
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import
+          name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean)}
+          root={file.path}
+          path={fileType.path}
+          isTypeOnly
+        />
+        <File.Source>{children}</File.Source>
+      </File>
+    </Editor>
+  )
+}
+
+const defaultTemplates = { default: Template, root: RootTemplate } as const
+
+type Templates = Partial<typeof defaultTemplates>
 
 type ClientProps = {
   /**
@@ -85,13 +118,18 @@ type ClientProps = {
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Client({
-  Template = defaultTemplates.default,
-}: ClientProps): KubbNode {
-  const { options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+export function Client({ Template = defaultTemplates.default }: ClientProps): KubbNode {
+  const {
+    plugin: {
+      options: { dataReturnType, pathParamsType },
+    },
+  } = useApp<PluginOptions>()
+
+  const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
-  const name = useOperationName({ type: 'function' })
+
+  const name = getName(operation, { type: 'function' })
+  const schemas = getSchemas(operation)
 
   const params = new FunctionParams()
   const clientGenerics = new FunctionParams()
@@ -99,7 +137,7 @@ export function Client({
   clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
 
   params.add([
-    ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
+    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
     {
       name: 'data',
       type: schemas.request?.name,
@@ -120,7 +158,7 @@ export function Client({
     },
     {
       name: 'options',
-      type: `Partial<Parameters<typeof client>[0]>`,
+      type: 'Partial<Parameters<typeof client>[0]>',
       default: '{}',
     },
   ])
@@ -150,37 +188,19 @@ type FileProps = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates?: Templates
 }
 
-Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
-  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+Client.File = function (props: FileProps): KubbNode {
+  const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
+  const RootTemplate = templates.root
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-      <File.Import
-        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
-          Boolean,
-        )}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
-      <File.Source>
-        <Client Template={Template} />
-      </File.Source>
-    </File>
+    <RootTemplate>
+      <Client Template={Template} />
+    </RootTemplate>
   )
 }
 

@@ -20,18 +20,19 @@ type DeleteUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function deleteUserQuery(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: CreateMutationOptions<DeleteUser['response'], DeleteUser['error'], void>
+    mutation?: CreateMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
     client?: DeleteUser['client']['parameters']
   } = {},
-): CreateMutationResult<DeleteUser['response'], DeleteUser['error'], void> {
+): CreateMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<DeleteUser['response'], DeleteUser['error'], void>({
+  return createMutation<DeleteUser['response'], DeleteUser['error'], never>({
     mutationFn: async () => {
-      const res = await client<DeleteUser['data'], DeleteUser['error'], void>({
+      const res = await client<DeleteUser['data'], DeleteUser['error'], DeleteUser['request']>({
         method: 'delete',
         url: `/user/${username}`,
         ...clientOptions,

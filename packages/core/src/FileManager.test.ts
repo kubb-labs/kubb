@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { format } from '../mocks/format.ts'
-import { combineExports, combineImports, FileManager } from './FileManager.ts'
+import { FileManager, combineExports, combineImports } from './FileManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
 
@@ -40,17 +40,20 @@ describe('FileManager', () => {
     expect(file).toBeDefined()
     expect((file as any).length).toBeUndefined()
 
-    const file2 = await fileManager.add({
-      path: path.resolve('./src/file1.ts'),
-      baseName: 'file1.ts',
-      source: "const file1 ='file1';",
-      imports: [{ name: 'path', path: 'node:path' }],
-    }, {
-      path: path.resolve('./src/file1.ts'),
-      baseName: 'file1.ts',
-      source: "const file1 ='file1';",
-      imports: [{ name: 'path', path: 'node:path' }],
-    })
+    const file2 = await fileManager.add(
+      {
+        path: path.resolve('./src/file1.ts'),
+        baseName: 'file1.ts',
+        source: "const file1 ='file1';",
+        imports: [{ name: 'path', path: 'node:path' }],
+      },
+      {
+        path: path.resolve('./src/file1.ts'),
+        baseName: 'file1.ts',
+        source: "const file1 ='file1';",
+        imports: [{ name: 'path', path: 'node:path' }],
+      },
+    )
 
     expect(file2).toBeDefined()
     expect((file2 as any).length).toBeDefined()
@@ -158,11 +161,11 @@ describe('FileManager', () => {
     expect(taskMock).toHaveBeenCalled()
   })
 
-  test('if getMode returns correct PathMode(file or directory)', () => {
-    expect(FileManager.getMode(filePath)).toBe('file')
-    expect(FileManager.getMode(folderPath)).toBe('directory')
-    expect(FileManager.getMode(undefined)).toBe('directory')
-    expect(FileManager.getMode(null)).toBe('directory')
+  test('if getMode returns correct mode (single or split)', () => {
+    expect(FileManager.getMode(filePath)).toBe('single')
+    expect(FileManager.getMode(folderPath)).toBe('split')
+    expect(FileManager.getMode(undefined)).toBe('split')
+    expect(FileManager.getMode(null)).toBe('split')
   })
   test.todo('fileManager.addIndexes')
 })
@@ -293,8 +296,8 @@ export const test2 = 3;`,
         baseName: 'file1.ts',
         imports: [],
         exports: [],
-        source: `export const test2 = 3;`,
-        'override': true,
+        source: 'export const test2 = 3;',
+        override: true,
       },
     ])
   })

@@ -1,13 +1,13 @@
 import c from 'tinyrainbow'
 
-import { clean } from './fs/clean.ts'
-import { read } from './fs/read.ts'
-import { URLPath } from './utils/URLPath.ts'
-import { isInputPath } from './config.ts'
 import { FileManager } from './FileManager.ts'
-import { createLogger, LogLevel, randomCliColour } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isPromise } from './PromiseManager.ts'
+import { isInputPath } from './config.ts'
+import { clean } from './fs/clean.ts'
+import { read } from './fs/read.ts'
+import { LogLevel, createLogger, randomCliColour } from './logger.ts'
+import { URLPath } from './utils/URLPath.ts'
 
 import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
@@ -50,7 +50,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   } catch (e) {
     if (isInputPath(config)) {
       throw new Error(
-        'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + c.dim(config.input.path),
+        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${c.dim(config.input.path)}`,
         {
           cause: e,
         },
@@ -116,9 +116,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     if (hookName === 'writeFile') {
       const [code] = parameters as PluginParameter<'writeFile'>
 
-      if (logger.logLevel === LogLevel.debug) {
-        logger.emit('debug', [`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`])
-      }
+      logger.emit('debug', [`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`])
     }
   })
 
@@ -128,7 +126,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     }
 
     if (count === 0) {
-      logger.emit('start', `💾 Writing`)
+      logger.emit('start', '💾 Writing')
     }
   })
 
@@ -142,7 +140,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 
       logger.spinner.suffixText = c.dim(text)
     }
-    ;++count
+    ++count
   })
 
   pluginManager.queue.on('completed', () => {
@@ -160,17 +158,15 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   pluginManager.on('executed', (executer) => {
     const { hookName, plugin, output, parameters } = executer
 
-    if (logger.logLevel === LogLevel.debug) {
-      const logs = [
-        `${randomCliColour(plugin.name)} Executing ${hookName}`,
-        parameters && `${c.bgWhite(`Parameters`)} ${randomCliColour(plugin.name)} ${hookName}`,
-        JSON.stringify(parameters, undefined, 2),
-        output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
-        output,
-      ].filter(Boolean)
+    const logs = [
+      `${randomCliColour(plugin.name)} Executing ${hookName}`,
+      parameters && `${c.bgWhite('Parameters')} ${randomCliColour(plugin.name)} ${hookName}`,
+      JSON.stringify(parameters, undefined, 2),
+      output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
+      output,
+    ].filter(Boolean)
 
-      logger.emit('debug', logs as string[])
-    }
+    logger.emit('debug', logs as string[])
   })
 
   return pluginManager
@@ -189,10 +185,16 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
   if (logger.logLevel === LogLevel.info) {
-    logger.emit('end', `💾 Writing completed`)
+    logger.emit('end', '💾 Writing completed')
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+  return {
+    files: fileManager.files.map((file) => ({
+      ...file,
+      source: FileManager.getSource(file),
+    })),
+    pluginManager,
+  }
 }
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
@@ -209,11 +211,24 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
     if (logger.logLevel === LogLevel.info) {
-      logger.emit('end', `💾 Writing completed`)
+      logger.emit('end', '💾 Writing completed')
     }
   } catch (e) {
-    return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager, error: e as Error }
+    return {
+      files: fileManager.files.map((file) => ({
+        ...file,
+        source: FileManager.getSource(file),
+      })),
+      pluginManager,
+      error: e as Error,
+    }
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+  return {
+    files: fileManager.files.map((file) => ({
+      ...file,
+      source: FileManager.getSource(file),
+    })),
+    pluginManager,
+  }
 }

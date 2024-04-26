@@ -21,7 +21,8 @@ type UpdatePet = {
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet */
+ * @link /pet
+ */
 export function useUpdatePet(
   options: {
     mutation?: VueMutationObserverOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request'], unknown>
@@ -33,7 +34,7 @@ export function useUpdatePet(
     mutationFn: async (data) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })

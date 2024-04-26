@@ -20,7 +20,8 @@ type PlaceOrder = {
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order */
+ * @link /store/order
+ */
 export function placeOrderQuery(
   options: {
     mutation?: CreateMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
@@ -32,7 +33,7 @@ export function placeOrderQuery(
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
-        url: `/store/order`,
+        url: '/store/order',
         data,
         ...clientOptions,
       })

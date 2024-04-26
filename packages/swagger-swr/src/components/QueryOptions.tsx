@@ -1,10 +1,10 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useSchemas } from '@kubb/swagger/hooks'
+import { Function, useApp } from '@kubb/react'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
-import type { HttpMethod } from '@kubb/swagger/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { PluginOptions } from '../types.ts'
 
@@ -39,25 +39,25 @@ type TemplateProps = {
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
+    contentType: string
   }
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
-function Template({
-  name,
-  params,
-  generics,
-  returnType,
-  JSDoc,
-  client,
-  dataReturnType,
-}: TemplateProps): ReactNode {
+function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType }: TemplateProps): ReactNode {
+  const headers = [
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
+    client.withHeaders ? '...headers' : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
     client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
+    headers.length ? `headers: { ${headers}, ...options.headers }` : undefined,
     '...options',
   ].filter(Boolean)
 
@@ -97,11 +97,19 @@ type Props = {
 }
 
 export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin()
-  const schemas = useSchemas()
+  const {
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
+  const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
-  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const schemas = getSchemas(operation)
+  const name = pluginManager.resolveName({
+    name: `${factory.name}QueryOptions`,
+    pluginKey,
+  })
+  const contentType = operation.getContentType()
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -109,9 +117,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const clientGenerics = ['TData', `${factory.name}['error']`]
   const resultGenerics = ['TData', `${factory.name}['error']`]
 
-  generics.add([
-    { type: `TData`, default: `${factory.name}['response']` },
-  ])
+  generics.add([{ type: 'TData', default: `${factory.name}['response']` }])
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
@@ -142,6 +148,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
     method: operation.method,
     path: new URLPath(operation.path),
     generics: clientGenerics.join(', '),
+    contentType,
   }
 
   return (

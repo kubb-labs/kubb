@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: 3.1.0
 info:
   version: 1.0.0
   title: Swagger Petstore
@@ -101,7 +101,7 @@ paths:
 components:
   schemas:
     Pet:
-      type: object
+      type: [object]
       required:
         - id
         - name
@@ -111,6 +111,9 @@ components:
           format: int64
         name:
           type: string
+        date:
+          type: string
+          format: date
         tag:
           type: string
           maxLength: 100

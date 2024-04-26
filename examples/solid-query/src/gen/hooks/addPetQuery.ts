@@ -20,7 +20,8 @@ type AddPet = {
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet */
+ * @link /pet
+ */
 export function addPetQuery(
   options: {
     mutation?: CreateMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
@@ -32,7 +33,7 @@ export function addPetQuery(
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
-        url: `/pet`,
+        url: '/pet',
         data,
         ...clientOptions,
       })

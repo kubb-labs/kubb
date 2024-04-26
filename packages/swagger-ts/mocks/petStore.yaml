@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: 3.0.0
 info:
   version: 1.0.0
   title: Swagger Petstore
@@ -125,6 +125,8 @@ components:
           type: string
         tag:
           type: string
+        category:
+          $ref: 'https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category'
     Pets:
       type: array
       items: {

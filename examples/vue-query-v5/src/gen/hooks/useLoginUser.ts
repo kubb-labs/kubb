@@ -29,7 +29,7 @@ export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>
       const params = unref(refParams)
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })
@@ -39,7 +39,8 @@ export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
@@ -52,7 +53,7 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
   const query = useQuery({
-    ...(loginUserQueryOptions(refParams, clientOptions) as QueryObserverOptions),
+    ...(loginUserQueryOptions(refParams, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, LoginUser['error']> & {

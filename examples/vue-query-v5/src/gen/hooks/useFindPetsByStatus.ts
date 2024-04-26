@@ -30,7 +30,7 @@ export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStat
       const params = unref(refParams)
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -41,7 +41,8 @@ export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStat
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatus<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
@@ -58,7 +59,7 @@ export function useFindPetsByStatus<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
   const query = useQuery({
-    ...(findPetsByStatusQueryOptions(refParams, clientOptions) as QueryObserverOptions),
+    ...(findPetsByStatusQueryOptions(refParams, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByStatus['error']> & {

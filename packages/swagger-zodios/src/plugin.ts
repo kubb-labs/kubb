@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { createPlugin, PluginManager } from '@kubb/core'
+import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, trimExtName } from '@kubb/core/transformers'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
@@ -25,7 +25,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       baseURL: undefined,
     },
     pre: [swaggerPluginName, swaggerZodPluginName],
-    resolvePath(baseName, _directory) {
+    resolvePath(baseName) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
       return path.resolve(root, baseName)
@@ -46,6 +46,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         SwaggerZodPluginOptions
       >(this.plugins, [swaggerPluginName, swaggerZodPluginName])
       const oas = await swaggerPlugin.api.getOas()
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = FileManager.getMode(path.resolve(root, output.path))
 
       const operationGenerator = new OperationGenerator(
         {
@@ -60,6 +62,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exclude: swaggerZodPlugin.options.exclude,
           include: swaggerZodPlugin.options.include,
           override: swaggerZodPlugin.options.override as Override<unknown>[],
+          mode,
         },
       )
 

@@ -1,14 +1,4 @@
-import type { User } from '../../models'
-
-/**
- * @description Invalid username supplied
- */
-export type GetUserByName400 = any | null
-
-/**
- * @description User not found
- */
-export type GetUserByName404 = any | null
+import type { User } from './User'
 
 export type GetUserByNamePathParams = {
   /**
@@ -24,9 +14,20 @@ export type GetUserByNamePathParams = {
 export type GetUserByName200 = User
 
 /**
+ * @description Invalid username supplied
+ */
+export type GetUserByName400 = any
+
+/**
+ * @description User not found
+ */
+export type GetUserByName404 = any
+
+/**
  * @description successful operation
  */
 export type GetUserByNameQueryResponse = User
+
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse
   PathParams: GetUserByNamePathParams

@@ -1,12 +1,17 @@
-import { OasManager } from './OasManager.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
+import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 import type { KubbFile, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
-import type { Operation } from './oas/index.ts'
+import type { Operation } from '@kubb/oas'
+import type { FileMeta } from '@kubb/swagger-ts'
+import type { OperationMethodResult } from './OperationGenerator.ts'
 import type { Resolver } from './types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
+  operation(): OperationMethodResult<FileMeta> {
+    return Promise.resolve(null)
+  }
   resolve(_operation: Operation): Resolver {
     return {
       baseName: 'baseName.ts',
@@ -52,7 +57,7 @@ class DummyOperationGenerator extends OperationGenerator {
 }
 
 describe('OperationGenerator core', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger/mocks/petStore.yaml' },
@@ -69,6 +74,7 @@ describe('OperationGenerator core', async () => {
         exclude: [],
         include: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -78,7 +84,7 @@ describe('OperationGenerator core', async () => {
 })
 
 describe('OperationGenerator exclude', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger/mocks/petStore.yaml' },
@@ -99,6 +105,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -123,6 +130,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -147,6 +155,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -171,6 +180,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -199,6 +209,7 @@ describe('OperationGenerator exclude', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -209,7 +220,7 @@ describe('OperationGenerator exclude', async () => {
 })
 
 describe('OperationGenerator include', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger/mocks/petStore.yaml' },
@@ -231,6 +242,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -255,6 +267,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -279,6 +292,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -303,6 +317,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -331,6 +346,7 @@ describe('OperationGenerator include', async () => {
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 
@@ -341,7 +357,7 @@ describe('OperationGenerator include', async () => {
 })
 
 describe('OperationGenerator include and exclude', async () => {
-  const oas = await OasManager.parseFromConfig({
+  const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger/mocks/petStore.yaml' },
@@ -358,14 +374,17 @@ describe('OperationGenerator include and exclude', async () => {
             pattern: /\pets$/,
           },
         ],
-        exclude: [{
-          type: 'method',
-          pattern: 'post',
-        }],
+        exclude: [
+          {
+            type: 'method',
+            pattern: 'post',
+          },
+        ],
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
+        mode: 'split',
       },
     )
 

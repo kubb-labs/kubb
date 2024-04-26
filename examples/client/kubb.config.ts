@@ -1,6 +1,9 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
-import { templates } from './templates/CustomClientTemplate'
+import * as client from './templates/client/index'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -17,48 +20,39 @@ export default defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
-    },
     plugins: [
-      ['@kubb/swagger', { output: false, validate: true }],
-      [
-        '@kubb/swagger-ts',
-        {
-          output: { path: 'models/ts' },
-          group: {
-            type: 'tag',
-          },
-          enumType: 'asPascalConst',
-          dateType: 'date',
+      createSwagger({ output: false, validate: true }),
+      createSwaggerTS({
+        output: { path: 'models/ts' },
+        group: {
+          type: 'tag',
         },
-      ],
-      [
-        '@kubb/swagger-client',
-        {
-          output: {
-            path: './clients/axios',
+        enumType: 'asPascalConst',
+        dateType: 'date',
+      }),
+      createSwaggerClient({
+        output: {
+          path: './clients/axios',
+        },
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
           },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-          override: [
-            {
-              type: 'tag',
-              pattern: 'user',
-              options: {
-                templates: {
-                  client: templates,
-                },
+        ],
+        group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+        override: [
+          {
+            type: 'tag',
+            pattern: 'user',
+            options: {
+              templates: {
+                client: client.templates,
               },
             },
-          ],
-        },
-      ],
+          },
+        ],
+      }),
     ],
   }
 })

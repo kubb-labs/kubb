@@ -1,5 +1,4 @@
-import { print } from '@kubb/parser'
-import * as factory from '@kubb/parser/factory'
+import { createJSDocBlockText } from '@kubb/core/transformers'
 
 import { Text } from './Text.tsx'
 
@@ -30,7 +29,7 @@ export function Type({ name, export: canExport, JSDoc, children }: Props): KubbN
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{print(factory.createJSDoc({ comments: JSDoc?.comments }))}</Text>
+          {createJSDocBlockText({ comments: JSDoc?.comments })}
           <br />
         </>
       )}

@@ -73,8 +73,6 @@ jobs:
           continue-on-error: true
           run: bun run test:bun --coverage
 
-
-
   linting:
       name: Linting
       timeout-minutes: 15

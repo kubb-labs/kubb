@@ -1,6 +1,6 @@
 import { createPetsHandler } from './petsController/createPetsHandler'
-import { addPetHandler } from './petController/addPetHandler'
 import { updatePetHandler } from './petController/updatePetHandler'
+import { addPetHandler } from './petController/addPetHandler'
 import { findPetsByStatusHandler } from './petController/findPetsByStatusHandler'
 import { findPetsByTagsHandler } from './petController/findPetsByTagsHandler'
 import { getPetByIdHandler } from './petController/getPetByIdHandler'
@@ -17,8 +17,8 @@ import { deleteUserHandler } from './userController/deleteUserHandler'
 
 export const handlers = [
   createPetsHandler,
-  addPetHandler,
   updatePetHandler,
+  addPetHandler,
   findPetsByStatusHandler,
   findPetsByTagsHandler,
   getPetByIdHandler,

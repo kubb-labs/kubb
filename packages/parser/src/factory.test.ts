@@ -3,6 +3,7 @@ import ts from 'typescript'
 import { format as prettierFormat } from '../mocks/format.ts'
 import {
   appendJSDocToNode,
+  createArrayDeclaration,
   createEnumDeclaration,
   createExportDeclaration,
   createImportDeclaration,
@@ -36,6 +37,24 @@ describe('codegen', () => {
     expect(createQuestionToken(true)).toBeDefined()
   })
 
+  test('createArrayDeclaration', () => {
+    expect(
+      print(
+        createArrayDeclaration({
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      print(
+        createArrayDeclaration({
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)],
+        }),
+      ),
+    ).toMatchSnapshot()
+  })
+
   test('createIntersectionDeclaration', () => {
     expect(
       print(
@@ -67,11 +86,29 @@ describe('codegen', () => {
   })
 
   test('createParameter', () => {
-    expect(print(createParameterSignature('hello', { type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) }))).toMatchSnapshot()
-    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) })))
-      .toMatchSnapshot()
-    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword) })))
-      .toMatchSnapshot()
+    expect(
+      print(
+        createParameterSignature('hello', {
+          type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        }),
+      ),
+    ).toMatchSnapshot()
+    expect(
+      print(
+        createParameterSignature('hello', {
+          questionToken: true,
+          type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        }),
+      ),
+    ).toMatchSnapshot()
+    expect(
+      print(
+        createParameterSignature('hello', {
+          questionToken: true,
+          type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   test('createJSDoc', async () => {
@@ -79,7 +116,7 @@ describe('codegen', () => {
       await formatTS(
         createJSDoc({
           comments: ['@description description', '@example example'],
-        }),
+        })!,
       ),
     ).toMatchSnapshot()
   })
@@ -228,6 +265,20 @@ describe('codegen', () => {
     expect(
       await formatTS(
         createEnumDeclaration({
+          type: 'asConst',
+          name: 'hello',
+          typeName: 'Hello',
+          enums: [
+            ['FILE.UPLOADED', 'FILE.UPLOADED'],
+            ['FILE.PREVIEWE', 'FILE.PREVIEWE'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
           type: 'asPascalConst',
           name: 'hello',
           typeName: 'Hello',
@@ -265,6 +316,21 @@ describe('codegen', () => {
             ['hello', 'world'],
             ['end', 2050],
             ['survive', true],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'enum',
+          name: 'hello',
+          typeName: 'Hello',
+          enums: [
+            ['1', 'world'],
+            ['2', 2050],
+            ['3', true],
           ],
         }),
       ),

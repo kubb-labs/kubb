@@ -5,7 +5,7 @@
   "description": "Simple single PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/single-single"
   },
   "license": "MIT",
@@ -31,9 +31,9 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/react-query": "^4.36.1",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
-    "zod": "^3.22.4"
+    "zod": "^3.23.4"
   }
 }

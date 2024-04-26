@@ -1,10 +1,10 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
-export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
@@ -14,31 +14,26 @@ export default defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
-    },
     plugins: [
-      ['@kubb/swagger', {
-        output: false,
-      }],
-      ['@kubb/swagger-ts', {
+      createSwagger({ output: false }),
+      createSwaggerTS({
         output: {
           path: 'models',
         },
-      }],
-      ['@kubb/swagger-faker', {
+      }),
+      createSwaggerFaker({
         output: {
           path: './mocks',
           exportType: false,
         },
         group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
-      }],
-      ['@kubb/swagger-msw', {
+      }),
+      createSwaggerMsw({
         output: {
           path: './msw',
         },
         group: { type: 'tag', output: './msw/{{tag}}Handlers' },
-      }],
+      }),
     ],
   }
 })

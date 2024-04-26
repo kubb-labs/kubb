@@ -9,22 +9,18 @@ outline: deep
 
 Some hooks that can be used with `@kubb/react`.
 
-## useMeta
 
-`useMeta` will return an object containing the meta that has been provided with the `root.render` functionality.
+## useLanguage
+
+`useLanguage` will return the current language set by the parent `Editor` component.
 
 ::: code-group
 
 ```typescript
-import { useMeta } from '@kubb/react'
-import type { KubbPlugin } from '@kubb/core'
-
-type Meta = {
-  plugin: KubbPlugin
-}
+import { useLanguage } from '@kubb/react'
 
 function Component() {
-  const meta = useMeta<Meta>()
+  const language = useLanguage()
 
   return null
 }
@@ -32,53 +28,17 @@ function Component() {
 
 :::
 
-## usePluginManager
+## useApp
 
-`usePluginManager` will return the PluginManager instance.
-
-::: code-group
-
-```typescript
-import { usePluginManager } from '@kubb/react'
-
-function Component() {
-  const pluginManager = usePluginManager()
-
-  return null
-}
-```
-
-:::
-
-## usePlugin
-
-`usePlugin` will return the current plugin.
+`useApp` will return the current App with plugin, pluginManager, fileManager and mode.
 
 ::: code-group
 
 ```typescript
-import { usePlugin } from '@kubb/react'
+import { useApp } from '@kubb/react'
 
 function Component() {
-  const plugin = usePlugin()
-
-  return null
-}
-```
-
-:::
-
-## useFileManager
-
-`useFileManager` will return the current FileManager instance.
-
-::: code-group
-
-```typescript
-import { useFileManager } from '@kubb/react'
-
-function Component() {
-  const fileManager = useFileManager()
+  const { pluginManager, plugin, mode, fileManager} = useApp()
 
   return null
 }
@@ -109,7 +69,7 @@ function Component() {
 
 ## useFile
 
-With `useFile` you can get all props needed to create a file(path, baseName, source).
+With `useFile` you can get the context of the current file(basePath, name, ...)
 
 ::: code-group
 
@@ -118,133 +78,8 @@ import { File, useFile } from '@kubb/react'
 
 function Component() {
   const pluginName = 'custom-plugin'
-  const file = useFile({
-    name: 'fileName' // no extension needed
-    pluginKey: [pluginName],
-    options: {
-      tag: "pet"
-    }
-  })
+  const file = useFile()
 
-  return (
-   <File
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Source>
-        export const helloWorld = true;
-      </File.Source>
-    </File>
-  )
+  return file.baseName
 }
 ```
-
-## useResolvePath
-
-Resolve a path based on what has been set inside the `resolvePath` of a specific plugin. Use `pluginKey` to retreive the path of that specific plugin.
-
-```typescript [props]
-type Props = {
-  pluginKey?: [pluginName: string; identifier: number]
-  baseName: string
-  directory?: string | undefined
-  options?: {}
-}
-```
-
-::: code-group
-
-```typescript [Component.tsx]
-import { useResolvePath } from '@kubb/react'
-
-function Component() {
-  const pluginName = 'custom-plugin'
-  const path = useResolvePath({
-    pluginKey: [pluginName],
-    baseName: 'test.ts',
-    options: {
-      tag: 'pet',
-    },
-  })
-  // path will be `{{root}}/{{output.path}}/test.ts`
-
-  return null
-}
-```
-
-```typescript [plugin.ts]
-import path from 'node:path'
-import { FileManager, createPlugin } from '@kubb/core'
-import type { PluginOptions } from './types.ts'
-import { pascalCase } from 'change-case'
-
-export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output } = options
-
-  return {
-    name: 'custom-plugin',
-    resolvePath(fileName, directory, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      return path.resolve(root, output.path, fileName)
-    },
-  }
-})
-```
-
-:::
-
-## useResolveName
-
-Resolve a name based on what has been set inside the `resolveName` of a specific plugin. Use `pluginKey` to retreive the name of that specific plugin.
-
-```typescript [props]
-type Props = {
-  name: string
-  pluginKey?: KubbPlugin['key']
-  /**
-   * `file` will be used to customize the name of the created file(use of camelCase)
-   * `function` can be used used to customize the exported functions(use of camelCase)
-   * `type` is a special type for TypeScript(use of PascalCase)
-   */
-  type?: 'file' | 'function' | 'type'
-}
-```
-
-::: code-group
-
-```typescript [Component.tsx]
-import { useResolveName } from '@kubb/react'
-
-function Component() {
-  const pluginName = 'custom-plugin'
-  const name = useResolveName({
-    pluginKey: [pluginName],
-    name: 'pet',
-    type: 'file',
-  })
-  // name will be `Pet`
-
-  return null
-}
-```
-
-```typescript [plugin.ts]
-import { FileManager, createPlugin } from '@kubb/core'
-import type { PluginOptions } from './types.ts'
-import { pascalCase } from 'change-case'
-
-export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const {} = options
-
-  return {
-    name: 'custom-plugin',
-    resolveName(name) {
-      return pascalCase(name)
-    },
-  }
-})
-```
-
-:::

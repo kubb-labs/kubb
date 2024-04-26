@@ -21,7 +21,7 @@ hero:
       link: /playground
     - theme: alt
       text: View on GitHub
-      link: https://github.com/kubb-project/kubb
+      link: https://github.com/kubb-labs/kubb
 
 features:
   - icon:

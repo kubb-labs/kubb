@@ -46,8 +46,8 @@ Default: `'zod'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -68,6 +68,86 @@ export default defineConfig({
   ],
 })
 ```
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        output: {
+          exortAs: 'schemas',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.extName
+
+Add an extension to the generated imports and exports, default it will not use an extension
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        output: {
+          extName: '.js',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.exportType
+
+Define what needs to exported, here you can also disable the export of barrel files
+
+::: info
+Type: `'barrel' | 'barrelNamed' | false` <br/>
+
 
 :::
 
@@ -112,8 +192,8 @@ Default: `'{{tag}}Schemas'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -161,8 +241,8 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -212,8 +292,8 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -264,8 +344,8 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -310,9 +390,9 @@ Type: `boolean` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
-import createSwaggerTs from '@kubb/swagger-ts'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -339,33 +419,66 @@ export default defineConfig({
 
 ### dateType
 
-Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
+See [datetimes](https://zod.dev/?id=datetimes).
 ::: info type
 
 ::: code-group
 
+```typescript [false]
+z.string()
+```
+
 ```typescript ['string']
-date: string
+z.string().datetime()
+```
+
+```typescript ['stringOffset']
+z.string().datetime({ offset: true })
+```
+
+```typescript ['stringLocal']
+z.string().datetime({ local: true })
 ```
 
 ```typescript ['date']
-date: Date
+z.date()
 ```
 
 :::
 
 ::: info
 
-Type: `'string' | 'date'` <br/>
+Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
 Default: `'string'`
 
 ::: code-group
+```typescript [false]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: false,
+    }),
+  ],
+})
+```
+
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -383,10 +496,52 @@ export default defineConfig({
 })
 ```
 
+```typescript ['stringOffset']
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: 'stringOffset',
+    }),
+  ],
+})
+```
+
+```typescript ['stringLocal']
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: 'stringLocal',
+    }),
+  ],
+})
+```
+
 ```typescript ['date']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -403,6 +558,8 @@ export default defineConfig({
   ],
 })
 ```
+
+
 
 :::
 
@@ -434,8 +591,8 @@ Default: `'any'`
 
 ```typescript ['any']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -455,8 +612,8 @@ export default defineConfig({
 
 ```typescript ['unknown']
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -490,8 +647,8 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -516,6 +673,61 @@ export default defineConfig({
 ```
 
 :::
+
+### templates
+
+Make it possible to override one of the templates. <br/>
+
+::: tip
+See [templates](/reference/templates) for more information about creating templates.<br/>
+Set `false` to disable a template.
+:::
+
+::: info type
+
+```typescript [Templates]
+import type { Operations } from '@kubb/swagger-zod/components'
+
+export type Templates = {
+  operations: typeof Operations.templates | false
+}
+```
+
+:::
+
+::: info
+
+Type: `Templates` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+
+import { templates } from './CustomTemplate'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        templates,
+      },
+    ),
+  ],
+})
+```
+
+:::
+
 
 ## Depended
 

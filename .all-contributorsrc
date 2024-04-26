@@ -77,6 +77,24 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pafnuty",
+      "name": "Pavel Belousov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1635679?v=4",
+      "profile": "http://projects.pafnuty.name",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "dmitry-blackwave",
+      "name": "Dmitry Belov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5526543?v=4",
+      "profile": "https://github.com/dmitry-blackwave",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -84,6 +102,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "projectName": "kubb",
-  "projectOwner": "kubb-project",
+  "projectOwner": "kubb-labs",
   "commitType": "docs"
 }

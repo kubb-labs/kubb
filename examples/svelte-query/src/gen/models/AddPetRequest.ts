@@ -9,13 +9,11 @@ export const addPetRequestStatus = {
 export type AddPetRequestStatus = (typeof addPetRequestStatus)[keyof typeof addPetRequestStatus]
 export type AddPetRequest = {
   /**
-   * @type integer | undefined int64
-   * @example 10
+   * @type integer | undefined, int64
    */
   id?: number
   /**
    * @type string
-   * @example doggie
    */
   name: string
   category?: Category

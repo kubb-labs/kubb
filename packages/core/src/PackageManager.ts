@@ -60,14 +60,12 @@ export class PackageManager {
     try {
       let location = this.getLocation(path)
 
-      if (os.platform() == 'win32') {
+      if (os.platform() === 'win32') {
         location = pathToFileURL(location).href
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const module = await import(location)
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
       return module?.default ?? module
     } catch (e) {
       console.log(e)
@@ -107,15 +105,15 @@ export class PackageManager {
 
   #match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): string | undefined {
     const dependencies = {
-      ...packageJSON['dependencies'] || {},
-      ...packageJSON['devDependencies'] || {},
+      ...(packageJSON['dependencies'] || {}),
+      ...(packageJSON['devDependencies'] || {}),
     }
 
     if (typeof dependency === 'string' && dependencies[dependency]) {
       return dependencies[dependency]
     }
 
-    const matchedDependency = Object.keys(dependencies).find(dep => dep.match(dependency))
+    const matchedDependency = Object.keys(dependencies).find((dep) => dep.match(dependency))
 
     return matchedDependency ? dependencies[matchedDependency] : undefined
   }

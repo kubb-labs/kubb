@@ -5,7 +5,7 @@
   "description": "TypeScript PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/typescript"
   },
   "license": "MIT",
@@ -24,16 +24,16 @@
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "tsup": "^8.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   },
   "msw": {
     "workerDirectory": "public"

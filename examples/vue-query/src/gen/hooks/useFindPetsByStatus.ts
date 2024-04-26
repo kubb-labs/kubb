@@ -34,7 +34,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
       const params = unref(refParams)
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -45,7 +45,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatus<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],

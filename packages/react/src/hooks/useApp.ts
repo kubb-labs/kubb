@@ -1,9 +1,28 @@
+import type { FileManager, KubbFile, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import { useContext } from 'react'
+import { App } from '../components/App'
 
-import { AppContext } from '../components/AppContext.tsx'
+type AppResult<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  plugin: Plugin<TOptions>
+  mode: KubbFile.Mode
+  pluginManager: PluginManager
+  fileManager: FileManager
+}
 
-import type { AppContextProps } from '../components/AppContext.tsx'
+/**
+ * `useApp` will return the current App with plugin, pluginManager, fileManager and mode.
+ */
+export function useApp<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(): AppResult<TOptions> {
+  const app = useContext(App.Context)
 
-export function useApp<Meta extends Record<string, unknown> = Record<string, unknown>>(): AppContextProps<Meta> {
-  return useContext(AppContext) as AppContextProps<Meta>
+  if (!app) {
+    throw new Error('<App/> should be set')
+  }
+
+  return {
+    plugin: app.plugin as Plugin<TOptions>,
+    pluginManager: app.pluginManager,
+    fileManager: app.pluginManager.fileManager,
+    mode: app.mode,
+  }
 }

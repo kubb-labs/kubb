@@ -1,0 +1,4 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.6.3/schema.json",
+  "extends": ["@kubb/biome-config/biome"]
+}

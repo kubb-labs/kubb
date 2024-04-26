@@ -39,7 +39,8 @@ export function getUserByNameQueryOptions(refUsername: MaybeRef<GetUserByNamePat
 }
 /**
  * @summary Get user by user name
- * @link /user/:username */
+ * @link /user/:username
+ */
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   refUsername: GetUserByNamePathParams['username'],
   options: {
@@ -52,7 +53,7 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
   const query = useQuery({
-    ...(getUserByNameQueryOptions(refUsername, clientOptions) as QueryObserverOptions),
+    ...(getUserByNameQueryOptions(refUsername, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, GetUserByName['error']> & {

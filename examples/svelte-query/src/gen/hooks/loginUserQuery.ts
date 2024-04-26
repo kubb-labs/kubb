@@ -37,7 +37,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         params,
         ...options,
       })
@@ -47,7 +47,8 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function loginUserQuery<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
@@ -81,7 +82,7 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
     queryFn: async ({ pageParam }) => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
-        url: `/user/login`,
+        url: '/user/login',
         ...options,
         params: {
           ...params,
@@ -95,7 +96,8 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
 }
 /**
  * @summary Logs user into the system
- * @link /user/login */
+ * @link /user/login
+ */
 export function loginUserQueryInfinite<
   TData = InfiniteData<LoginUser['response']>,
   TQueryData = LoginUser['response'],

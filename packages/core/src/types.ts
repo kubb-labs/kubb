@@ -1,8 +1,8 @@
 import type { PossiblePromise } from '@kubb/types'
 import type { FileManager, KubbFile } from './FileManager.ts'
-import type { OptionsPlugins, PluginUnion } from './kubb.ts'
-import type { Logger, LogLevel } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
+import type { OptionsPlugins, PluginUnion } from './kubb.ts'
+import type { LogLevel, Logger } from './logger.ts'
 import type { Cache } from './utils/cache.ts'
 
 // config
@@ -15,22 +15,20 @@ import type { Cache } from './utils/cache.ts'
  * ...
  * })
  */
-export type UserConfig =
-  & Omit<Config, 'root' | 'plugins'>
-  & {
-    /**
-     * Project root directory. Can be an absolute path, or a path relative from
-     * the location of the config file itself.
-     * @default process.cwd()
-     */
-    root?: string
-    /**
-     * Plugin type can be KubbJSONPlugin or Plugin
-     * Example: ['@kubb/swagger', { output: false }]
-     * Or: createSwagger({ output: false })
-     */
-    plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
-  }
+export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
+  /**
+   * Project root directory. Can be an absolute path, or a path relative from
+   * the location of the config file itself.
+   * @default process.cwd()
+   */
+  root?: string
+  /**
+   * Plugin type can be KubbJSONPlugin or Plugin
+   * Example: ['@kubb/swagger', { output: false }]
+   * Or: createSwagger({ output: false })
+   */
+  plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
+}
 
 export type InputPath = {
   /**
@@ -119,6 +117,10 @@ export type CLIOptions = {
    * @default `silent`
    */
   logLevel?: LogLevel
+  /**
+   * Run Kubb with Bun
+   */
+  bun?: boolean
 }
 
 // plugin
@@ -148,11 +150,6 @@ export type PluginFactoryOptions<
    * When calling `resolvePath` you can specify better types.
    */
   TResolvePathOptions extends object = object,
-  /**
-   * When using @kubb/react(based on React) you can specify here which types should be used when calling render.
-   * Always extend from `AppMeta` of the core.
-   */
-  TAppMeta = unknown,
 > = {
   name: TName
   /**
@@ -163,80 +160,74 @@ export type PluginFactoryOptions<
   resolvedOptions: TResolvedOptions
   api: TAPI
   resolvePathOptions: TResolvePathOptions
-  appMeta: {
-    pluginManager: PluginManager
-    plugin: Plugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
-  } & TAppMeta
 }
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 
-export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
-  & {
-    /**
-     * Unique name used for the plugin
-     * The name of the plugin follows the format scope:foo-bar or foo-bar, adding scope: can avoid naming conflicts with other plugins.
-     * @example @kubb/typescript
-     */
-    name: TOptions['name']
-    /**
-     * Options set for a specific plugin(see kubb.config.js), passthrough of options.
-     */
-    options: TOptions['resolvedOptions']
-    /**
-     * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-     * Can be used to validate depended plugins.
-     */
-    pre?: Array<string>
-    /**
-     * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
-     */
-    post?: Array<string>
-  }
-  & (TOptions['api'] extends never ? {
+export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * Unique name used for the plugin
+   * The name of the plugin follows the format scope:foo-bar or foo-bar, adding scope: can avoid naming conflicts with other plugins.
+   * @example @kubb/typescript
+   */
+  name: TOptions['name']
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options: TOptions['resolvedOptions']
+  /**
+   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
+   * Can be used to validate depended plugins.
+   */
+  pre?: Array<string>
+  /**
+   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+   */
+  post?: Array<string>
+} & (TOptions['api'] extends never
+  ? {
       api?: never
     }
-    : {
+  : {
       api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['api']
     })
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
+type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
 
-export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
-  & {
-    /**
-     * Unique name used for the plugin
-     * @example @kubb/typescript
-     */
-    name: TOptions['name']
-    /**
-     * Internal key used when a developer uses more than one of the same plugin
-     * @private
-     */
-    key: TOptions['key']
-    /**
-     * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-     * Can be used to validate depended plugins.
-     */
-    pre?: Array<string>
-    /**
-     * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
-     */
-    post?: Array<string>
-    /**
-     * Options set for a specific plugin(see kubb.config.js), passthrough of options.
-     */
-    options: TOptions['resolvedOptions']
-    /**
-     * Define an api that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
-     */
-  }
-  & (TOptions['api'] extends never ? {
+export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * Unique name used for the plugin
+   * @example @kubb/typescript
+   */
+  name: TOptions['name']
+  /**
+   * Internal key used when a developer uses more than one of the same plugin
+   * @private
+   */
+  key: TOptions['key']
+  /**
+   * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
+   * Can be used to validate depended plugins.
+   */
+  pre?: Array<string>
+  /**
+   * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+   */
+  post?: Array<string>
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options: TOptions['resolvedOptions']
+  /**
+   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
+   */
+} & (TOptions['api'] extends never
+  ? {
       api?: never
     }
-    : {
+  : {
       api: TOptions['api']
     })
 
@@ -254,7 +245,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
+  resolvePath?: (this: PluginContext<TOptions>, baseName: string, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -293,7 +284,7 @@ export type PluginCache = Record<string, [number, unknown]>
 export type ResolvePathParams<TOptions = object> = {
   pluginKey?: Plugin['key']
   baseName: string
-  directory?: string | undefined
+  mode?: KubbFile.Mode
   /**
    * Options to be passed to 'resolvePath' 3th parameter
    */

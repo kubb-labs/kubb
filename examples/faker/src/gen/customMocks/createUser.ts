@@ -1,18 +1,19 @@
 import { faker } from '@faker-js/faker'
 import type { User } from '../models/User'
 
-export function createUser(override: NonNullable<Partial<User>> = {}): NonNullable<User> {
+export function createUser(data: NonNullable<Partial<User>> = {}): NonNullable<User> {
   return {
     ...{
-      'id': faker.number.float({}),
-      'username': faker.string.alpha(),
-      'firstName': faker.person.firstName(),
-      'lastName': faker.person.lastName(),
-      'email': faker.internet.email(),
-      'password': faker.internet.password(),
-      'phone': faker.phone.number(),
-      'userStatus': faker.number.float({}),
+      id: faker.number.int(),
+      username: faker.string.alpha(),
+      firstName: faker.string.alpha(),
+      lastName: faker.string.alpha(),
+      email: faker.string.alpha(),
+      password: faker.string.alpha(),
+      phone: faker.string.alpha(),
+      userStatus: faker.number.int(),
+      nationalityCode: faker.helpers.arrayElement<any>([faker.string.alpha(), faker.helpers.fromRegExp(/^[A-Z]{2}$/)]),
     },
-    ...override,
+    ...data,
   }
 }

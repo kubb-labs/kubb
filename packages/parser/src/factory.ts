@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { isNumber } from 'remeda'
 import ts from 'typescript'
 
 const { factory } = ts
@@ -69,7 +68,13 @@ export function createIntersectionDeclaration({
  * Minimum nodes length of 2
  * @example `string & number`
  */
-export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+export function createTupleDeclaration({
+  nodes,
+  withParentheses,
+}: {
+  nodes: Array<ts.TypeNode>
+  withParentheses?: boolean
+}): ts.TypeNode | null {
   if (!nodes.length) {
     return null
   }
@@ -86,11 +91,34 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
 
   return node
 }
+
+export function createArrayDeclaration({
+  nodes,
+}: {
+  nodes: Array<ts.TypeNode>
+}): ts.TypeNode | null {
+  if (!nodes.length) {
+    return factory.createTupleTypeNode([])
+  }
+
+  if (nodes.length === 1) {
+    return factory.createArrayTypeNode(nodes.at(0)!)
+  }
+
+  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(nodes)])
+}
+
 /**
  * Minimum nodes length of 2
  * @example `string | number`
  */
-export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+export function createUnionDeclaration({
+  nodes,
+  withParentheses,
+}: {
+  nodes: Array<ts.TypeNode>
+  withParentheses?: boolean
+}): ts.TypeNode | null {
   if (!nodes.length) {
     return null
   }
@@ -150,9 +178,12 @@ export function createParameterSignature(
 }
 
 export function createJSDoc({ comments }: { comments: string[] }) {
+  if (!comments.length) {
+    return null
+  }
   return factory.createJSDocComment(
     factory.createNodeArray(
-      comments?.map((comment, i) => {
+      comments.map((comment, i) => {
         if (i === comments.length - 1) {
           return factory.createJSDocText(comment)
         }
@@ -166,7 +197,13 @@ export function createJSDoc({ comments }: { comments: string[] }) {
 /**
  * @link https://github.com/microsoft/TypeScript/issues/44151
  */
-export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { node: TNode; comments: Array<string | undefined> }) {
+export function appendJSDocToNode<TNode extends ts.Node>({
+  node,
+  comments,
+}: {
+  node: TNode
+  comments: Array<string | undefined>
+}) {
   const filteredComments = comments.filter(Boolean)
 
   if (!filteredComments.length) {
@@ -349,17 +386,24 @@ export function createEnumDeclaration({
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         factory.createIdentifier(typeName),
         undefined,
-        factory.createUnionTypeNode(enums.map(([_key, value]) => {
-          if (typeof value === 'number') {
-            return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
-          }
+        factory.createUnionTypeNode(
+          enums
+            .map(([_key, value]) => {
+              if (isNumber(value)) {
+                return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
+              }
 
-          if (typeof value === 'boolean') {
-            return factory.createLiteralTypeNode(value ? factory.createTrue() : factory.createFalse())
-          }
+              if (typeof value === 'boolean') {
+                return factory.createLiteralTypeNode(value ? factory.createTrue() : factory.createFalse())
+              }
+              if (value) {
+                return factory.createLiteralTypeNode(factory.createStringLiteral(value.toString()))
+              }
 
-          return factory.createLiteralTypeNode(factory.createStringLiteral(value?.toString()))
-        })),
+              return undefined
+            })
+            .filter(Boolean),
+        ),
       ),
     ]
   }
@@ -369,22 +413,28 @@ export function createEnumDeclaration({
       factory.createEnumDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword), type === 'constEnum' ? factory.createToken(ts.SyntaxKind.ConstKeyword) : undefined].filter(Boolean),
         factory.createIdentifier(typeName),
-        enums.map(([key, value]) => {
-          let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
+        enums
+          .map(([key, value]) => {
+            let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
-          if (typeof value === 'number') {
-            initializer = factory.createNumericLiteral(value)
-          }
-          if (typeof value === 'boolean') {
-            initializer = value ? factory.createTrue() : factory.createFalse()
-          }
+            if (isNumber(Number.parseInt(value.toString()))) {
+              initializer = factory.createNumericLiteral(value as number)
+            }
+            if (typeof value === 'boolean') {
+              initializer = value ? factory.createTrue() : factory.createFalse()
+            }
 
-          if (typeof key === 'number') {
-            return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
-          }
+            if (isNumber(Number.parseInt(key.toString()))) {
+              return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
+            }
 
-          return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
-        }),
+            if (key) {
+              return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
+            }
+
+            return undefined
+          })
+          .filter(Boolean),
       ),
     ]
   }
@@ -403,18 +453,25 @@ export function createEnumDeclaration({
             undefined,
             factory.createAsExpression(
               factory.createObjectLiteralExpression(
-                enums.map(([key, value]) => {
-                  let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
+                enums
+                  .map(([key, value]) => {
+                    let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
 
-                  if (typeof value === 'number') {
-                    initializer = factory.createNumericLiteral(value)
-                  }
-                  if (typeof value === 'boolean') {
-                    initializer = value ? factory.createTrue() : factory.createFalse()
-                  }
+                    if (isNumber(value)) {
+                      initializer = factory.createNumericLiteral(value)
+                    }
 
-                  return factory.createPropertyAssignment(factory.createStringLiteral(`${key}`), initializer)
-                }),
+                    if (typeof value === 'boolean') {
+                      initializer = value ? factory.createTrue() : factory.createFalse()
+                    }
+
+                    if (key) {
+                      return factory.createPropertyAssignment(factory.createStringLiteral(`${key}`), initializer)
+                    }
+
+                    return undefined
+                  })
+                  .filter(Boolean),
                 true,
               ),
               factory.createTypeReferenceNode(factory.createIdentifier('const'), undefined),
@@ -436,7 +493,15 @@ export function createEnumDeclaration({
   ]
 }
 
-export function createOmitDeclaration({ keys, type, nonNullable }: { keys: Array<string> | string; type: ts.TypeNode; nonNullable?: boolean }) {
+export function createOmitDeclaration({
+  keys,
+  type,
+  nonNullable,
+}: {
+  keys: Array<string> | string
+  type: ts.TypeNode
+  nonNullable?: boolean
+}) {
   const node = nonNullable ? factory.createTypeReferenceNode(factory.createIdentifier('NonNullable'), [type]) : type
 
   if (Array.isArray(keys)) {
@@ -476,3 +541,5 @@ export const createArrayTypeNode = factory.createArrayTypeNode
 export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull
 export const createIdentifier = factory.createIdentifier
+
+export const createTupleTypeNode = factory.createTupleTypeNode

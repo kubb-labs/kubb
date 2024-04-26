@@ -10,9 +10,9 @@ export function defineConfig(
   options:
     | PossiblePromise<UserConfig | Array<UserConfig>>
     | ((
-      /** The options derived from the CLI flags */
-      cliOptions: CLIOptions,
-    ) => PossiblePromise<UserConfig | Array<UserConfig>>),
+        /** The options derived from the CLI flags */
+        cliOptions: CLIOptions,
+      ) => PossiblePromise<UserConfig | Array<UserConfig>>),
 ): typeof options {
   return options
 }

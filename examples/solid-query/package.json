@@ -5,7 +5,7 @@
   "description": "SolidQuery PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/solid-query"
   },
   "license": "MIT",
@@ -28,16 +28,16 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/solid-query": "^4.36.1",
-    "axios": "^1.6.7",
-    "solid-js": "^1.8.15",
+    "axios": "^1.6.8",
+    "solid-js": "^1.8.17",
     "tsup": "^8.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   }
 }

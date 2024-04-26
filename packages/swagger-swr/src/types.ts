@@ -1,5 +1,5 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { Mutation } from './components/Mutation.tsx'
 import type { Query } from './components/Query.tsx'
 import type { QueryOptions } from './components/QueryOptions.tsx'
@@ -107,8 +107,8 @@ export type FileMeta = {
   pluginKey?: Plugin['key']
   tag?: string
 }
-type AppMeta = SwaggerAppMeta
-export type PluginOptions = PluginFactoryOptions<'swagger-swr', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
+
+export type PluginOptions = PluginFactoryOptions<'swagger-swr', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

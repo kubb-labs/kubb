@@ -1,2 +1,2 @@
-export { Mutation } from './Mutation.tsx'
-export { Query } from './Query.tsx'
+export { OperationSchema } from './OperationSchema.tsx'
+export { Operations } from './Operations.tsx'

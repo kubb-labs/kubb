@@ -20,11 +20,15 @@ type UpdateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username */
-export function useUpdateUser(username: UpdateUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
-  client?: UpdateUser['client']['parameters']
-} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
+ * @link /user/:username
+ */
+export function useUpdateUser(
+  username: UpdateUserPathParams['username'],
+  options: {
+    mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
+    client?: UpdateUser['client']['parameters']
+  } = {},
+): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
     mutationFn: async (data) => {

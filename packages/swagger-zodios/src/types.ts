@@ -1,5 +1,4 @@
 import type { KubbFile, Plugin, PluginFactoryOptions } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta } from '@kubb/swagger'
 
 export type Options = {
   output?: {
@@ -35,9 +34,7 @@ export type FileMeta = {
   tag?: string
 }
 
-type AppMeta = SwaggerAppMeta
-
-export type PluginOptions = PluginFactoryOptions<'swagger-zodios', Options, ResolveOptions, never, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-zodios', Options, ResolveOptions, never>
 
 declare module '@kubb/core' {
   export interface _Register {

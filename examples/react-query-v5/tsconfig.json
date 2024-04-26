@@ -17,12 +17,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/types/**",
-    "**/mocks/**"
-  ]
+  "include": ["./src/**/*", "./templates/**/*"],
+  "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }

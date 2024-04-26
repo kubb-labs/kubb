@@ -66,9 +66,7 @@
 
       "CreateTestRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "content": {
             "allOf": [
@@ -80,14 +78,23 @@
           },
           "name": {
             "$ref": "#/components/schemas/TestName"
+          },
+          "place": {
+            "description": "The message body",
+            "allOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
           }
         }
       },
       "CreateTestResponse": {
         "type": "object",
-        "required": [
-          "test_id"
-        ],
+        "required": ["test_id"],
         "properties": {
           "test_id": {
             "$ref": "#/components/schemas/TestId"

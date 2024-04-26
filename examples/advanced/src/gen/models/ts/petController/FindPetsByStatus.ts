@@ -1,23 +1,18 @@
 import type { Pet } from '../Pet'
 
-/**
- * @description Invalid status value
- */
-export type FindPetsByStatus400 = any | null
-
-export enum FindPetsByStatusQueryParamsStatus {
-  'available' = 'available',
-  'pending' = 'pending',
-  'sold' = 'sold',
+export enum FindPetsByStatusQueryParamsStatusEnum {
+  available = 'available',
+  pending = 'pending',
+  sold = 'sold',
 }
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
+   * @default "available"
    * @type string | undefined
-   * @default 'available'
    */
-  status?: FindPetsByStatusQueryParamsStatus
-} | undefined
+  status?: FindPetsByStatusQueryParamsStatusEnum
+}
 
 /**
  * @description successful operation
@@ -25,9 +20,15 @@ export type FindPetsByStatusQueryParams = {
 export type FindPetsByStatus200 = Pet[]
 
 /**
+ * @description Invalid status value
+ */
+export type FindPetsByStatus400 = any
+
+/**
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
   QueryParams: FindPetsByStatusQueryParams

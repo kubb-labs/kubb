@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { LogLevel, randomCliColour } from '@kubb/core/logger'
+import { randomCliColour } from '@kubb/core/logger'
 
 import c from 'tinyrainbow'
 
@@ -26,9 +26,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
     .filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core')
     .map((item) => item.plugin.name)
 
-  const buildEndPlugins = pluginManager.executed
-    .filter((item) => item.hookName === 'buildEnd' && item.plugin.name !== 'core')
-    .map((item) => item.plugin.name)
+  const buildEndPlugins = pluginManager.executed.filter((item) => item.hookName === 'buildEnd' && item.plugin.name !== 'core').map((item) => item.plugin.name)
 
   const failedPlugins = config.plugins?.filter((plugin) => !buildEndPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
@@ -47,24 +45,26 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
 
   const meta = {
     name: config.name,
-    plugins: status === 'success'
-      ? `${c.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-      : `${c.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
+    plugins:
+      status === 'success'
+        ? `${c.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
+        : `${c.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: c.yellow(`${elapsedSeconds}s`),
     endTime: c.yellow(Date()),
-    output: path.resolve(config.root, config.output.path),
+    output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
-  if (logLevel === LogLevel.debug) {
-    logger.emit('debug', ['\nGenerated files:\n'])
-    logger.emit('debug', files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`))
-  }
+  logger.emit('debug', ['\nGenerated files:\n'])
+  logger.emit(
+    'debug',
+    files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`),
+  )
 
   logs.push(
     [
-      [`\n`, true],
+      ['\n', true],
       [`     ${c.bold('Name:')}      ${meta.name}`, !!meta.name],
       [`  ${c.bold('Plugins:')}      ${meta.plugins}`, true],
       [`   ${c.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
@@ -72,7 +72,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
       [`     ${c.bold('Time:')}      ${meta.time}`, true],
       [`    ${c.bold('Ended:')}      ${meta.endTime}`, true],
       [`   ${c.bold('Output:')}      ${meta.output}`, true],
-      [`\n`, true],
+      ['\n', true],
     ]
       .map((item) => {
         if (item.at(1)) {

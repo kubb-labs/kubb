@@ -5,7 +5,7 @@
   "description": "VueQuery PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/vue-query"
   },
   "license": "MIT",
@@ -30,19 +30,19 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/vue-query": "^4.37.1",
-    "axios": "^1.6.7",
-    "vue": "^3.4.19"
+    "axios": "^1.6.8",
+    "vue": "^3.4.24"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.6.2",
-    "msw": "^1.3.2",
+    "msw": "^1.3.3",
     "tsup": "^8.0.2",
     "typescript": "~5.2.2",
-    "vite": "^4.5.2"
+    "vite": "^4.5.3"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   }
 }

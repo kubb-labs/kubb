@@ -3,15 +3,11 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "kubb-project/kubb"
+      "repo": "kubb-labs/kubb"
     }
   ],
   "commit": false,
-  "fixed": [
-    [
-      "@kubb/*"
-    ]
-  ],
+  "fixed": [["@kubb/*"]],
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",
@@ -20,10 +16,5 @@
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
   "useCalculatedVersion": true,
-  "ignore": [
-    "kubb",
-    "kubb-docs",
-    "e2e",
-    "*-pet-store"
-  ]
+  "ignore": ["kubb", "kubb-docs", "e2e", "*-pet-store"]
 }

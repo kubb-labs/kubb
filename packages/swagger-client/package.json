@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-client",
-  "version": "2.6.5",
+  "version": "2.14.0",
   "description": "Generator swagger-client",
   "keywords": [
     "typescript",
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/swagger-client"
   },
   "license": "MIT",
@@ -66,8 +66,8 @@
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
-    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
-    "lint-fix": "bun run lint --quiet --fix",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --apply-unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
@@ -76,24 +76,24 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/oas": "workspace:*",
     "@kubb/parser": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/eslint-config": "workspace:*",
+    "@kubb/biome-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.58",
-    "axios": "^1.6.7",
-    "eslint": "^8.57.0",
+    "@types/react": "^18.2.79",
+    "axios": "^1.6.8",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
   "peerDependencies": {
-    "axios": "^1.6.2",
+    "axios": "^1.6.8",
     "@kubb/react": "workspace:*"
   },
   "peerDependenciesMeta": {
@@ -101,10 +101,10 @@
       "optional": true
     }
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   },
   "publishConfig": {
     "access": "public",

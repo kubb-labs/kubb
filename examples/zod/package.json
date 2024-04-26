@@ -5,7 +5,7 @@
   "description": "Zod PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/zod"
   },
   "license": "MIT",
@@ -14,7 +14,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
-    "generate": "kubb generate",
+    "generate": "kubb --config kubb.config.js",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -28,15 +28,15 @@
     "@kubb/swagger-zod": "workspace:*",
     "react": "^18.2.0",
     "tsup": "^8.0.2",
-    "zod": "^3.22.4"
+    "zod": "^3.23.4"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   }
 }

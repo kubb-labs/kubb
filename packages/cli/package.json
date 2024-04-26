@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "2.6.5",
+  "version": "2.14.0",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
+    "url": "git://github.com/kubb-labs/kubb.git",
     "directory": "packages/cli"
   },
   "license": "MIT",
@@ -29,7 +29,8 @@
     }
   },
   "bin": {
-    "kubb": "bin/kubb.js"
+    "kubb": "bin/kubb.cjs",
+    "bkubb": "bin/bkubb.cjs"
   },
   "files": [
     "src",
@@ -41,8 +42,8 @@
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
-    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
-    "lint-fix": "bun run lint --quiet --fix",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --apply-unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
@@ -51,12 +52,13 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "bundle-require": "^4.0.2",
+    "bundle-require": "^4.0.3",
     "cac": "^6.7.14",
     "chokidar": "^3.6.0",
     "cosmiconfig": "^9.0.0",
-    "esbuild": "^0.19.12",
+    "esbuild": "^0.20.2",
     "execa": "^8.0.1",
+    "js-runtime": "^0.0.7",
     "ora": "^8.0.1",
     "pretty-error": "^4.0.0",
     "string-argv": "^0.3.2",
@@ -66,15 +68,15 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.12.7",
     "source-map-support": "^0.5.21",
     "tsup": "^8.0.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.3.0",
+  "packageManager": "pnpm@9.0.5",
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=8.15.0"
   },
   "preferGlobal": true,
   "publishConfig": {

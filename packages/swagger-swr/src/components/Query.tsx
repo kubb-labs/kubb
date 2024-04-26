@@ -1,8 +1,8 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin, useResolveName } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
@@ -44,15 +44,7 @@ type TemplateProps = {
   }
 }
 
-function Template({
-  name,
-  generics,
-  returnType,
-  params,
-  JSDoc,
-  hook,
-  client,
-}: TemplateProps): ReactNode {
+function Template({ name, generics, returnType, params, JSDoc, hook, client }: TemplateProps): ReactNode {
   if (client.withQueryParams) {
     return (
       <>
@@ -60,7 +52,7 @@ function Template({
           {`
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-         const url = ${client.path.template} as const
+         const url = ${client.path.template}
          const query = ${hook.name}<${hook.generics}>(
           shouldFetch ? [url, params]: null,
           {
@@ -82,7 +74,7 @@ function Template({
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-       const url = ${client.path.template} as const
+       const url = ${client.path.template}
        const query = ${hook.name}<${hook.generics}>(
         shouldFetch ? url : null,
         {
@@ -116,17 +108,25 @@ type Props = {
   QueryOptionsTemplate?: React.ComponentType<React.ComponentProps<typeof QueryOptions.templates.default>>
 }
 
-export function Query({
-  factory,
-  Template = defaultTemplates.default,
-  QueryOptionsTemplate = QueryOptions.templates.default,
-}: Props): ReactNode {
-  const { key: pluginKey, options: { dataReturnType } } = usePlugin<PluginOptions>()
-  const operation = useOperation()
-  const schemas = useSchemas()
-  const name = useOperationName({ type: 'function' })
+export function Query({ factory, Template = defaultTemplates.default, QueryOptionsTemplate = QueryOptions.templates.default }: Props): ReactNode {
+  const {
+    pluginManager,
+    plugin: {
+      key: pluginKey,
+      options: { dataReturnType },
+    },
+  } = useApp<PluginOptions>()
 
-  const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const operation = useOperation()
+  const { getSchemas, getName } = useOperationManager()
+
+  const schemas = getSchemas(operation)
+  const name = getName(operation, { type: 'function' })
+
+  const queryOptionsName = pluginManager.resolveName({
+    name: `${factory.name}QueryOptions`,
+    pluginKey,
+  })
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
@@ -139,14 +139,9 @@ export function Query({
     withHeaders: !!schemas.headerParams?.name,
   }
 
-  const resultGenerics = [
-    'TData',
-    `${factory.name}["error"]`,
-  ]
+  const resultGenerics = ['TData', `${factory.name}["error"]`]
 
-  generics.add([
-    { type: `TData`, default: `${factory.name}["response"]` },
-  ])
+  generics.add([{ type: 'TData', default: `${factory.name}["response"]` }])
 
   const queryOptionsGenerics = ['TData']
 
@@ -196,7 +191,7 @@ export function Query({
 
   const hook = {
     name: 'useSWR',
-    generics: [...resultGenerics, client.withQueryParams ? `[typeof url, typeof params] | null` : 'typeof url | null'].join(', '),
+    generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
     queryOptions: `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
   }
 
@@ -227,12 +222,21 @@ type FileProps = {
   }
 }
 
-Query.File = function({ templates }: FileProps): ReactNode {
-  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
-  const factoryName = useOperationName({ type: 'type' })
+Query.File = function ({ templates }: FileProps): ReactNode {
+  const {
+    plugin: {
+      options: {
+        client: { importPath },
+      },
+    },
+  } = useApp<PluginOptions>()
+  const { getSchemas, getFile, getName } = useOperationManager()
+  const operation = useOperation()
+
+  const file = getFile(operation)
+  const schemas = getSchemas(operation)
+  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const factoryName = getName(operation, { type: 'type' })
 
   const Template = templates?.query.default || defaultTemplates.default
   const QueryOptionsTemplate = templates?.queryOptions.default || QueryOptions.templates.default
@@ -241,12 +245,8 @@ Query.File = function({ templates }: FileProps): ReactNode {
   }
 
   return (
-    <>
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
+    <Editor language="typescript">
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
         <File.Import name={'client'} path={importPath} />
@@ -258,10 +258,8 @@ Query.File = function({ templates }: FileProps): ReactNode {
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.statusCodes?.map((item) => item.name) || [],
-          ].filter(
-            Boolean,
-          )}
+            ...(schemas.statusCodes?.map((item) => item.name) || []),
+          ].filter(Boolean)}
           root={file.path}
           path={fileType.path}
           isTypeOnly
@@ -269,14 +267,10 @@ Query.File = function({ templates }: FileProps): ReactNode {
 
         <File.Source>
           <SchemaType factory={factory} />
-          <Query
-            factory={factory}
-            Template={Template}
-            QueryOptionsTemplate={QueryOptionsTemplate}
-          />
+          <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }
 

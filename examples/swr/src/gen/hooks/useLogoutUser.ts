@@ -24,7 +24,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response']>(
     fetcher: async () => {
       const res = await client<TData, LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -33,14 +33,15 @@ export function logoutUserQueryOptions<TData = LogoutUser['response']>(
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function useLogoutUser<TData = LogoutUser['response']>(options?: {
   query?: SWRConfiguration<TData, LogoutUser['error']>
   client?: LogoutUser['client']['parameters']
   shouldFetch?: boolean
 }): SWRResponse<TData, LogoutUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/logout` as const
+  const url = '/user/logout'
   const query = useSWR<TData, LogoutUser['error'], typeof url | null>(shouldFetch ? url : null, {
     ...logoutUserQueryOptions<TData>(clientOptions),
     ...queryOptions,

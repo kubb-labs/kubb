@@ -46,17 +46,17 @@ function Component() {
 
 :::
 
-## useSchemas
+## useOperations
 
-`useSchemas` will return the schemas of the current `Operation`.<br/>
+`useOperations` will return all the Operations.<br/>
 
 ::: code-group
 
 ```typescript
-import { useSchemas } from '@kubb/react'
+import { useOperations } from '@kubb/react'
 
 function Component() {
-  const schemas = useSchemas()
+  const operations = useOperations()
 
   return null
 }
@@ -64,56 +64,20 @@ function Component() {
 
 :::
 
-## useOperationName
 
-`useOperationName` will return the name based on the current operation and plugin(when `pluginKey` is not provided).<br/>
+## useOperationManager
+
+`useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.<br/>
 
 ::: code-group
 
 ```typescript
-import { useOperationName } from '@kubb/react'
+import { useOperationManager } from '@kubb/react'
 
 function Component() {
-  const name = useOperationName({
-    type: 'type',
-    pluginKey: ['custom-plugin'], // optional
-  })
+  const { getName, getFile } = useOperationManager()
 
   return null
-}
-```
-
-:::
-
-## useOperationFile
-
-`useOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when `pluginKey` is not provided)<br/>
-
-::: tip
-Internally `useFile` of `@kubb/react` is getting used.
-:::
-
-::: code-group
-
-```typescript
-import { File, useOperationFile } from '@kubb/react'
-
-function Component() {
-  const file = useOperationFile({
-    pluginKey: ['custom-plugin'], // optional
-  })
-
-  return (
-    <File
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Source>
-        export const helloWorld = true;
-      </File.Source>
-    </File>
-  )
 }
 ```
 

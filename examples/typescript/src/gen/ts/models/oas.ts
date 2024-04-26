@@ -150,8 +150,22 @@ export const oas = {
             },
           },
           '405': {
-            description: 'Invalid input',
-            $ref: '#/components/responses/PetNotFound',
+            content: {
+              'application/json': {
+                schema: {
+                  properties: {
+                    code: {
+                      format: 'int32',
+                      type: 'integer',
+                    },
+                    message: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+            description: 'Pet not found',
           },
         },
         security: [
@@ -901,6 +915,7 @@ export const oas = {
             required: true,
             schema: {
               type: 'string',
+              nullable: true,
             },
           },
         ],
@@ -1099,7 +1114,21 @@ export const oas = {
             example: 'doggie',
           },
           category: {
-            $ref: '#/components/schemas/Category',
+            type: 'object',
+            properties: {
+              id: {
+                type: 'integer',
+                format: 'int64',
+                example: 1,
+              },
+              name: {
+                type: 'string',
+                example: 'Dogs',
+              },
+            },
+            xml: {
+              name: 'category',
+            },
           },
           photoUrls: {
             type: 'array',

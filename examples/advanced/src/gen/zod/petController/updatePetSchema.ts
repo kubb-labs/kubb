@@ -2,6 +2,11 @@ import { z } from 'zod'
 import { petSchema } from '../petSchema'
 
 /**
+ * @description Successful operation
+ */
+export const updatePet200Schema = z.lazy(() => petSchema).schema
+
+/**
  * @description Invalid ID supplied
  */
 export const updatePet400Schema = z.any()
@@ -15,11 +20,6 @@ export const updatePet404Schema = z.any()
  * @description Validation exception
  */
 export const updatePet405Schema = z.any()
-
-/**
- * @description Successful operation
- */
-export const updatePet200Schema = z.lazy(() => petSchema)
 
 /**
  * @description Update an existent pet in the store

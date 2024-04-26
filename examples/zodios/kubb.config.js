@@ -1,10 +1,9 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
 
-export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
@@ -14,23 +13,18 @@ export default defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
-    },
     plugins: [
-      ['@kubb/swagger', {
-        output: false,
-      }],
-      ['@kubb/swagger-zod', {
+      createSwagger({ output: false }),
+      createSwaggerZod({
         output: {
           path: './zod',
         },
-      }],
-      ['@kubb/swagger-zodios', {
+      }),
+      createSwaggerZodios({
         output: {
           path: './zodios.ts',
         },
-      }],
+      }),
     ],
   }
 })

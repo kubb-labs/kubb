@@ -1,24 +1,5 @@
 import type { Pet } from '../Pet'
 
-/**
- * @description Invalid tag value
- */
-export type FindPetsByTags400 = any | null
-
-export const FindPetsByTagsHeaderParamsXExample = {
-  'ONE': 'ONE',
-  'TWO': 'TWO',
-  'THREE': 'THREE',
-} as const
-export type FindPetsByTagsHeaderParamsXExample = (typeof FindPetsByTagsHeaderParamsXExample)[keyof typeof FindPetsByTagsHeaderParamsXExample]
-export type FindPetsByTagsHeaderParams = {
-  /**
-   * @description Header parameters
-   * @type string
-   */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExample
-}
-
 export type FindPetsByTagsQueryParams = {
   /**
    * @description Tags to filter by
@@ -35,7 +16,21 @@ export type FindPetsByTagsQueryParams = {
    * @type string | undefined
    */
   pageSize?: string
-} | undefined
+}
+
+export const FindPetsByTagsHeaderParamsXExample = {
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
+export type FindPetsByTagsHeaderParamsXExample = (typeof FindPetsByTagsHeaderParamsXExample)[keyof typeof FindPetsByTagsHeaderParamsXExample]
+export type FindPetsByTagsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExample
+}
 
 /**
  * @description successful operation
@@ -43,9 +38,15 @@ export type FindPetsByTagsQueryParams = {
 export type FindPetsByTags200 = Pet[]
 
 /**
+ * @description Invalid tag value
+ */
+export type FindPetsByTags400 = any
+
+/**
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
+
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse
   QueryParams: FindPetsByTagsQueryParams

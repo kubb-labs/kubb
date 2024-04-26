@@ -1,11 +1,9 @@
 import { URLPath } from '@kubb/core/utils'
-import { File, usePlugin } from '@kubb/react'
-import { useFile } from '@kubb/react'
-import { useOas } from '@kubb/swagger/hooks'
+import { Editor, File, useApp } from '@kubb/react'
+import { useOperations } from '@kubb/swagger/hooks'
 
+import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { Paths } from '@kubb/swagger'
-import type { HttpMethod, Oas } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -13,90 +11,77 @@ type TemplateProps = {
   /**
    * Name of the function
    */
-  name: string
-  operations: Record<string, { path: string; method: HttpMethod }>
+  operationsName: string
+  operations: Operation[]
 }
 
-function Template({
-  name,
-  operations,
-}: TemplateProps): KubbNode {
+function Template({ operationsName, operations }: TemplateProps): KubbNode {
+  const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
+
+  operations.forEach((operation) => {
+    operationsObject[operation.getOperationId()] = {
+      path: new URLPath(operation.path).URL,
+      method: operation.method,
+    }
+  })
+
+  return <>{`export const ${operationsName} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
+}
+
+type RootTemplateProps = {
+  children?: React.ReactNode
+}
+
+function RootTemplate({ children }: RootTemplateProps) {
+  const {
+    pluginManager,
+    plugin: { key: pluginKey },
+  } = useApp<PluginOptions>()
+  const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
+
   return (
-    <>
-      {`export const ${name} = ${JSON.stringify(operations)} as const;`}
-    </>
+    <Editor language="typescript">
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
+        <File.Source>{children}</File.Source>
+      </File>
+    </Editor>
   )
 }
 
-const defaultTemplates = { default: Template } as const
+const defaultTemplates = { default: Template, root: RootTemplate } as const
 
-function getOperations(oas: Oas, paths: Paths): Record<string, { path: string; method: HttpMethod }> {
-  const operations: Record<string, { path: string; method: HttpMethod }> = {}
-
-  Object.keys(paths).forEach((path) => {
-    const methods = paths[path] || []
-    Object.keys(methods).forEach((method) => {
-      const operation = oas.operation(path, method as HttpMethod)
-      if (operation) {
-        operations[operation.getOperationId()] = {
-          path: new URLPath(path).URL,
-          method: method as HttpMethod,
-        }
-      }
-    })
-  })
-
-  return operations
-}
+type Templates = Partial<typeof defaultTemplates>
 
 type Props = {
-  paths: Paths
   /**
    * This will make it possible to override the default behaviour.
    */
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Operations({
-  paths,
-  Template = defaultTemplates.default,
-}: Props): KubbNode {
-  const oas = useOas()
+export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
+  const operations = useOperations()
 
-  const operations = getOperations(oas, paths)
-  return (
-    <Template
-      name="operations"
-      operations={operations}
-    />
-  )
+  return <Template operationsName="operations" operations={operations} />
 }
 
 type FileProps = {
-  name: string
-  paths: Paths
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates?: Templates
 }
 
-Operations.File = function({ name, paths, templates = defaultTemplates }: FileProps): KubbNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, pluginKey })
+Operations.File = function (props: FileProps): KubbNode {
+  const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
+  const RootTemplate = templates.root
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Source>
-        <Operations Template={Template} paths={paths} />
-      </File.Source>
-    </File>
+    <RootTemplate>
+      <Operations Template={Template} />
+    </RootTemplate>
   )
 }
 

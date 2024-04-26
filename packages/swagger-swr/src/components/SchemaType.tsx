@@ -1,6 +1,6 @@
-import { Type, usePlugin } from '@kubb/react'
-import { useSchemas } from '@kubb/swagger/hooks'
+import { Type, useApp } from '@kubb/react'
 
+import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import type { ReactNode } from 'react'
 import type { PluginOptions } from '../types.ts'
 
@@ -11,14 +11,19 @@ type Props = {
 }
 
 export function SchemaType({ factory }: Props): ReactNode {
-  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
+  const {
+    plugin: {
+      options: { dataReturnType },
+    },
+  } = useApp<PluginOptions>()
+  const { getSchemas } = useOperationManager()
+  const operation = useOperation()
 
-  const schemas = useSchemas()
+  const schemas = getSchemas(operation)
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,
-    schemas.errors?.map((item) => item.name)
-      .join(' | ') || 'never',
+    schemas.errors?.map((item) => item.name).join(' | ') || 'never',
     schemas.request?.name || 'never',
     schemas.pathParams?.name || 'never',
     schemas.queryParams?.name || 'never',
@@ -30,9 +35,7 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   return (
     <>
-      <Type name={clientType}>
-        {`typeof client<${TResponse}, ${TError}, ${TRequest}>`}
-      </Type>
+      <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
       <Type name={factory.name}>
         {`
         {
@@ -42,11 +45,7 @@ export function SchemaType({ factory }: Props): ReactNode {
           pathParams: ${TPathParams}
           queryParams: ${TQueryParams}
           headerParams: ${THeaderParams}
-          response: ${
-          dataReturnType === 'data'
-            ? TData
-            : `Awaited<ReturnType<${clientType}>>`
-        }
+          response: ${dataReturnType === 'data' ? TData : `Awaited<ReturnType<${clientType}>>`}
           client: {
             parameters: Partial<Parameters<${clientType}>[0]>
             return: Awaited<ReturnType<${clientType}>>

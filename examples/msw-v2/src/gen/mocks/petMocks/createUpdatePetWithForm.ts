@@ -1,41 +1,30 @@
 import { faker } from '@faker-js/faker'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
 } from '../../models/UpdatePetWithForm'
+
+export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {
+  faker.seed([220])
+  return { petId: faker.number.int() }
+}
+
+export function createUpdatePetWithFormQueryParams(): NonNullable<UpdatePetWithFormQueryParams> {
+  faker.seed([220])
+  return { name: faker.string.alpha(), status: faker.string.alpha() }
+}
 
 /**
  * @description Invalid input
  */
-
-export function createUpdatePetWithForm405(override?: NonNullable<Partial<UpdatePetWithForm405>>): NonNullable<UpdatePetWithForm405> {
+export function createUpdatePetWithForm405(): NonNullable<UpdatePetWithForm405> {
   faker.seed([220])
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(
-  override?: NonNullable<Partial<UpdatePetWithFormMutationResponse>>,
-): NonNullable<UpdatePetWithFormMutationResponse> {
+export function createUpdatePetWithFormMutationResponse(): NonNullable<UpdatePetWithFormMutationResponse> {
   faker.seed([220])
   return undefined
-}
-
-export function createUpdatePetWithFormPathParams(override: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {
-  faker.seed([220])
-  return {
-    ...{ 'petId': faker.number.float({}) },
-    ...override,
-  }
-}
-
-export function createUpdatePetWithFormQueryParams(
-  override: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {},
-): NonNullable<UpdatePetWithFormQueryParams> {
-  faker.seed([220])
-  return {
-    ...{ 'name': faker.string.alpha(), 'status': faker.string.alpha() },
-    ...override,
-  }
 }

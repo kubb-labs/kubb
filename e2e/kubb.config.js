@@ -1,7 +1,17 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
+import { definePlugin as createSwaggerSwr } from '@kubb/swagger-swr'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
 
 const schemas = [
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
+  ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'],
   ['optionalParameters', './schemas/optionalParameters.json'],
   ['allOf', './schemas/allOf.json'],
   ['anyOf', './schemas/anyOf.json'],
@@ -19,7 +29,7 @@ const schemas = [
   ['enums', './schemas/enums.yaml'],
 ]
 
-/** @type {import('@kubb/core').KubbUserConfig} */
+/** @type {import('@kubb/core').UserConfig} */
 const baseConfig = {
   root: '.',
   input: {
@@ -33,60 +43,71 @@ const baseConfig = {
     done: ['pnpm typecheck'],
   },
   plugins: [
-    ['@kubb/swagger', {
+    createSwagger({
       output: false,
       validate: true,
-    }],
-    [
-      '@kubb/swagger-ts',
-      {
-        output: {
-          path: 'models/ts',
-          exportType: false,
-        },
-        group: {
-          type: 'tag',
-        },
-        enumType: 'asPascalConst',
+    }),
+    createSwagger({
+      output: {
+        path: 'schemas2',
       },
-    ],
-    ['@kubb/swagger-tanstack-query', {
+      validate: true,
+    }),
+    createSwaggerTS({
+      output: {
+        path: 'models/ts',
+        exportType: false,
+      },
+      group: {
+        type: 'tag',
+      },
+      enumType: 'asPascalConst',
+    }),
+    createSwaggerTanstackQuery({
       output: {
         path: './clients/hooks',
       },
       group: { type: 'tag' },
-    }],
-    ['@kubb/swagger-swr', {
+      mutate: {
+        variablesType: 'mutate',
+        methods: ['post', 'put', 'delete'],
+      },
+    }),
+    createSwaggerSwr({
       output: {
         path: './clients/swr',
       },
       group: { type: 'tag' },
-    }],
-    ['@kubb/swagger-client', {
+    }),
+    createSwaggerClient({
       output: {
         path: './clients/axios',
       },
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-    }],
-    ['@kubb/swagger-zod', {
+    }),
+    createSwaggerZod({
       output: {
         path: './zod',
       },
       group: { type: 'tag' },
-    }],
-    ['@kubb/swagger-zodios', { output: { path: 'zodios.ts' } }],
-    ['@kubb/swagger-faker', {
+    }),
+    createSwaggerZodios({
+      output: {
+        path: 'zodios.ts',
+      },
+    }),
+    createSwaggerFaker({
       output: {
         path: 'mocks',
       },
       group: { type: 'tag' },
-    }],
-    ['@kubb/swagger-msw', {
+    }),
+    createSwaggerMsw({
       output: {
         path: 'msw',
       },
       group: { type: 'tag' },
-    }],
+    }),
   ],
 }
 

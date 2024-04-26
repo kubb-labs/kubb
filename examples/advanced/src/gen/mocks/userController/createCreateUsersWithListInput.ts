@@ -8,36 +8,26 @@ import type {
 } from '../../models/ts/userController/CreateUsersWithListInput'
 
 /**
+ * @description Successful operation
+ */
+export function createCreateUsersWithListInput200(): NonNullable<CreateUsersWithListInput200> {
+  return createUser()
+}
+
+/**
  * @description successful operation
  */
-
-export function createCreateUsersWithListInputError(
-  override?: NonNullable<Partial<CreateUsersWithListInputError>>,
-): NonNullable<CreateUsersWithListInputError> {
+export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWithListInputError> {
   return undefined
 }
+
+export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
+  return faker.helpers.arrayElements([createUser()]) as any
+}
+
 /**
  * @description Successful operation
  */
-
-export function createCreateUsersWithListInput200(override?: NonNullable<Partial<CreateUsersWithListInput200>>): NonNullable<CreateUsersWithListInput200> {
-  return createUser(override)
-}
-
-export function createCreateUsersWithListInputMutationRequest(
-  override: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = [],
-): NonNullable<CreateUsersWithListInputMutationRequest> {
-  return [
-    ...faker.helpers.arrayElements([createUser()]) as any,
-    ...override,
-  ]
-}
-/**
- * @description Successful operation
- */
-
-export function createCreateUsersWithListInputMutationResponse(
-  override?: NonNullable<Partial<CreateUsersWithListInputMutationResponse>>,
-): NonNullable<CreateUsersWithListInputMutationResponse> {
-  return createUser(override)
+export function createCreateUsersWithListInputMutationResponse(): NonNullable<CreateUsersWithListInputMutationResponse> {
+  return createUser()
 }

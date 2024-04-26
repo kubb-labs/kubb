@@ -9,13 +9,11 @@ export const petStatus = {
 export type PetStatus = (typeof petStatus)[keyof typeof petStatus]
 export type Pet = {
   /**
-   * @type integer | undefined int64
-   * @example 10
+   * @type integer | undefined, int64
    */
   id?: number
   /**
    * @type string
-   * @example doggie
    */
   name: string
   category?: Category

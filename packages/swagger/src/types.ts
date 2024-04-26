@@ -1,21 +1,21 @@
 import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { SchemaObject } from 'oas/types'
-import type { HttpMethod, Oas, Operation } from './oas/index.ts'
+import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type ContentType = 'application/json' | (string & {})
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
-export type ResolvePathOptions = { pluginKey?: Plugin['key']; tag?: string; type?: ResolveNameParams['type'] }
+export type ResolvePathOptions = {
+  pluginKey?: Plugin['key']
+  tag?: string
+  type?: ResolveNameParams['type']
+}
 
 export type API = {
   getOas: () => Promise<Oas>
   getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
-  contentType?: ContentType
+  contentType?: contentType
 }
 
 export type Options = {
@@ -24,14 +24,16 @@ export type Options = {
    * @default true
    */
   validate?: boolean
-  output?: {
-    /**
-     * Relative path to save the JSON models.
-     * False will not generate the schema JSON's.
-     * @default 'schemas'
-     */
-    path: string
-  } | false
+  output?:
+    | {
+        /**
+         * Relative path to save the JSON models.
+         * False will not generate the schema JSON's.
+         * @default 'schemas'
+         */
+        path: string
+      }
+    | false
 
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
@@ -45,7 +47,7 @@ export type Options = {
   /**
    * Override ContentType that will be used for requests and responses.
    */
-  contentType?: ContentType
+  contentType?: contentType
 }
 
 /**
@@ -58,7 +60,12 @@ export type Options = {
  * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; pluginKey?: Plugin['key'] }
+export type Ref = {
+  propertyName: string
+  originalName: string
+  path: KubbFile.OptionalPath
+  pluginKey?: Plugin['key']
+}
 export type Refs = Record<string, Ref>
 
 export type Resolver = {
@@ -75,7 +82,7 @@ export type OperationSchema = {
    * Converted name, contains already `PathParams`, `QueryParams`, ...
    */
   name: string
-  schema: SchemaObject & { $ref?: string }
+  schema: SchemaObject
   operation?: Operation
   /**
    * OperationName in PascalCase, only being used in OperationGenerator
@@ -85,6 +92,7 @@ export type OperationSchema = {
   statusCode?: number
   keys?: string[]
   keysToOmit?: string[]
+  withData?: boolean
 }
 
 export type OperationSchemas = {
@@ -97,7 +105,7 @@ export type OperationSchemas = {
   errors?: Array<OperationSchema>
 }
 
-export type Paths = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
+export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
 
 type ByTag = {
   type: 'tag'
@@ -119,12 +127,17 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
-export type Include = ByTag | ByOperationId | ByPath | ByMethod
+type BySchemaName = {
+  type: 'schemaName'
+  pattern: string | RegExp
+}
 
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | BySchemaName
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | BySchemaName
 
-export type AppMeta = { schemas: OperationSchemas; operation: Operation; oas: Oas }
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName) & {
+  options: Partial<TOptions>
+}
 
 export type ImportMeta = {
   ref: Ref
@@ -132,7 +145,7 @@ export type ImportMeta = {
   isTypeOnly: boolean
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never>
 
 declare module '@kubb/core' {
   export interface _Register {

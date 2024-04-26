@@ -1,5 +1,6 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -20,21 +21,31 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
-export function useDeletePetHook(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], void>
-  client?: DeletePet['client']['parameters']
-} = {}) {
+ * @link /pet/:petId
+ */
+export function useDeletePetHook(
+  petId: DeletePetPathParams['petId'],
+  headers?: DeletePet['headerParams'],
+  options: {
+    mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
+    client?: DeletePet['client']['parameters']
+  } = {},
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const invalidationOnSuccess = useInvalidationForMutation('useDeletePetHook')
   return useMutation({
     mutationFn: async () => {
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

@@ -22,7 +22,8 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function useDeletePet(
   refPetId: MaybeRef<DeletePetPathParams['petId']>,
   refHeaders?: MaybeRef<DeletePetHeaderParams>,
@@ -33,10 +34,10 @@ export function useDeletePet(
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const petId = unref(refPetId)
       const headers = unref(refHeaders)
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },

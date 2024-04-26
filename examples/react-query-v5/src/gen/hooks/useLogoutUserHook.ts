@@ -26,7 +26,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -35,7 +35,8 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
+ * @link /user/logout
+ */
 export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
     query?: Partial<QueryObserverOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
@@ -47,9 +48,9 @@ export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = L
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...logoutUserQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(logoutUserQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
@@ -65,7 +66,7 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
-        url: `/user/logout`,
+        url: '/user/logout',
         ...options,
       })
       return res.data
@@ -74,19 +75,22 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
 }
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout */
-export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(options: {
-  query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
-  client?: LogoutUser['client']['parameters']
-} = {}): UseSuspenseQueryResult<TData, LogoutUser['error']> & {
+ * @link /user/logout
+ */
+export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
+    client?: LogoutUser['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...logoutUserSuspenseQueryOptions(clientOptions) as QueryObserverOptions,
+    ...(logoutUserSuspenseQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }

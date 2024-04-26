@@ -62,7 +62,6 @@ export class TreeNode<T = BarrelData> {
     const leaves: TreeNode<T>[] = []
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
-        // eslint-disable-next-line prefer-spread
         leaves.push.apply(leaves, this.children[i]!.leaves)
       }
     }
@@ -87,7 +86,7 @@ export class TreeNode<T = BarrelData> {
     // do the same for all children
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
-        this.children[i]!.forEach(callback)
+        this.children[i]?.forEach(callback)
       }
     }
 
@@ -97,16 +96,27 @@ export class TreeNode<T = BarrelData> {
   public static build(path: string, options: TreeNodeOptions = {}): TreeNode | null {
     try {
       const exclude = Array.isArray(options.exclude) ? options.exclude : [options.exclude].filter(Boolean)
-      const filteredTree = dirTree(path, { extensions: options.extensions, exclude: [/node_modules/, ...exclude] })
+      const filteredTree = dirTree(path, {
+        extensions: options.extensions,
+        exclude: [/node_modules/, ...exclude],
+      })
 
       if (!filteredTree) {
         return null
       }
 
-      const treeNode = new TreeNode({ name: filteredTree.name, path: filteredTree.path, type: filteredTree.type || FileManager.getMode(filteredTree.path) })
+      const treeNode = new TreeNode({
+        name: filteredTree.name,
+        path: filteredTree.path,
+        type: FileManager.getMode(filteredTree.path),
+      })
 
       const recurse = (node: typeof treeNode, item: DirectoryTree) => {
-        const subNode = node.addChild({ name: item.name, path: item.path, type: item.type || FileManager.getMode(item.path) })
+        const subNode = node.addChild({
+          name: item.name,
+          path: item.path,
+          type: FileManager.getMode(item.path),
+        })
 
         if (item.children?.length) {
           item.children?.forEach((child) => {

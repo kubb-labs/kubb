@@ -1,11 +1,4 @@
-import type { User } from '../../models'
-
-/**
- * @description successful operation
- */
-export type UpdateUserError = any | null
-
-export type UpdateUserMutationResponse = any | null
+import type { User } from './User'
 
 export type UpdateUserPathParams = {
   /**
@@ -16,9 +9,17 @@ export type UpdateUserPathParams = {
 }
 
 /**
+ * @description successful operation
+ */
+export type UpdateUserError = any
+
+/**
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User
+
+export type UpdateUserMutationResponse = any
+
 export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse
   Request: UpdateUserMutationRequest

@@ -20,19 +20,20 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId */
+ * @link /pet/:petId
+ */
 export function deletePetQuery(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],
   options: {
-    mutation?: CreateMutationOptions<DeletePet['response'], DeletePet['error'], void>
+    mutation?: CreateMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
     client?: DeletePet['client']['parameters']
   } = {},
-): CreateMutationResult<DeletePet['response'], DeletePet['error'], void> {
+): CreateMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<DeletePet['response'], DeletePet['error'], void>({
+  return createMutation<DeletePet['response'], DeletePet['error'], never>({
     mutationFn: async () => {
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },

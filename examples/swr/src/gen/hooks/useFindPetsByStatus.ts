@@ -25,7 +25,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
     fetcher: async () => {
       const res = await client<TData, FindPetsByStatus['error']>({
         method: 'get',
-        url: `/pet/findByStatus`,
+        url: '/pet/findByStatus',
         params,
         ...options,
       })
@@ -36,7 +36,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus */
+ * @link /pet/findByStatus
+ */
 export function useFindPetsByStatus<TData = FindPetsByStatus['response']>(
   params?: FindPetsByStatus['queryParams'],
   options?: {
@@ -46,7 +47,7 @@ export function useFindPetsByStatus<TData = FindPetsByStatus['response']>(
   },
 ): SWRResponse<TData, FindPetsByStatus['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/findByStatus` as const
+  const url = '/pet/findByStatus'
   const query = useSWR<TData, FindPetsByStatus['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...findPetsByStatusQueryOptions<TData>(params, clientOptions),
     ...queryOptions,
