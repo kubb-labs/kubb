@@ -80,7 +80,7 @@
     "directory-tree": "^3.5.1",
     "find-up": "^7.0.0",
     "fs-extra": "^11.2.0",
-    "js-runtime": "^0.0.7",
+    "js-runtime": "^0.0.8",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
     "remeda": "^1.61.0",
