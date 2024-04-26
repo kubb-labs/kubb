@@ -79,11 +79,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      // TODO add formatOptions that includes include/exclude
-      const oas = await getOas({ config: this.config, logger: this.logger })
-      await oas.dereference()
-
       if (docs) {
+        // TODO add formatOptions that includes include/exclude
+        const oas = await getOas({ config: this.config, logger: this.logger })
+        await oas.dereference()
+
         const root = path.resolve(this.config.root, this.config.output.path)
         const pageHTML = await getPageHTML(oas.api)
 
@@ -91,6 +91,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (output) {
+        // TODO add formatOptions that includes include/exclude
+        const oas = await getOas({ config: this.config, logger: this.logger })
+        await oas.dereference()
         const schemas = getSchemas({ oas, contentType })
 
         const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
