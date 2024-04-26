@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.16.1
+
+### Patch Changes
+
+- [`319e721`](https://github.com/kubb-labs/kubb/commit/319e7218ccf7eab2cfbd5d9c202066634681f793) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - export generated swagger file
+
 ## 2.16.0
 
 ### Minor Changes

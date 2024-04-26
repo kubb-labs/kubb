@@ -1,5 +1,16 @@
 # @kubb/swagger
 
+## 2.16.1
+
+### Patch Changes
+
+- [`319e721`](https://github.com/kubb-labs/kubb/commit/319e7218ccf7eab2cfbd5d9c202066634681f793) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - export generated swagger file
+
+- Updated dependencies [[`319e721`](https://github.com/kubb-labs/kubb/commit/319e7218ccf7eab2cfbd5d9c202066634681f793)]:
+  - @kubb/oas@2.16.1
+  - @kubb/core@2.16.1
+  - @kubb/react@2.16.1
+
 ## 2.16.0
 
 ### Minor Changes
