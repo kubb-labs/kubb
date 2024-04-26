@@ -127,6 +127,57 @@ export default defineConfig({
 
 :::
 
+#### output.path
+
+Output for the generated doc, we are using [https://redocly.com/](https://redocly.com/) for the generation<br/>
+
+::: info
+Type: `string | false` <br/>
+Default: `'docs.html'`
+
+::: code-group
+
+```typescript [docs string]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({
+      docs: {
+        path: './docs/index.html',
+      },
+    }),
+  ],
+})
+```
+
+```typescript [docs false]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ docs: false }),
+  ],
+})
+```
+
+:::
+
+
 ### serverIndex
 
 Which server to use from the array of `servers.url[serverIndex]`

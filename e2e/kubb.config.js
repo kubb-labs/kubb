@@ -46,6 +46,7 @@ const baseConfig = {
     createSwagger({
       output: false,
       validate: true,
+      docs: false,
     }),
     createSwagger({
       output: {

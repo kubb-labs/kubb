@@ -18,6 +18,9 @@ export default defineConfig([
     plugins: [
       createSwagger({
         validate: true,
+        docs: {
+          path: './docs/index.html',
+        },
       }),
       createSwaggerTS({
         output: { path: 'models.ts' },

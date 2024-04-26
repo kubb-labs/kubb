@@ -63,7 +63,10 @@ export abstract class OperationGenerator<
       })?.options || {}
     )
   }
-
+  /**
+   *
+   * @deprecated
+   */
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
     const { exclude = [] } = this.context
     let matched = false
@@ -88,6 +91,10 @@ export abstract class OperationGenerator<
 
     return matched
   }
+  /**
+   *
+   * @deprecated
+   */
   #isIncluded(operation: Operation, method: HttpMethod): boolean {
     const { include = [] } = this.context
     let matched = false
