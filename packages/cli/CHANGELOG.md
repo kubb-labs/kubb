@@ -1,5 +1,16 @@
 # @kubb/cli
 
+## 2.15.0
+
+### Patch Changes
+
+- [#958](https://github.com/kubb-labs/kubb/pull/958) [`bb9f51f`](https://github.com/kubb-labs/kubb/commit/bb9f51f03f533c79b63036d787b39f044f7fccd5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for cjs imports
+
+- [#959](https://github.com/kubb-labs/kubb/pull/959) [`4668f16`](https://github.com/kubb-labs/kubb/commit/4668f164f1d769d4021b5494240d995c4b805f2f) Thanks [@helt](https://github.com/helt)! - Added finishing timestamp to summary output of cli generation
+
+- Updated dependencies []:
+  - @kubb/core@2.15.0
+
 ## 2.14.0
 
 ### Patch Changes

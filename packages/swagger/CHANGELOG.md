@@ -1,5 +1,18 @@
 # @kubb/swagger
 
+## 2.15.0
+
+### Minor Changes
+
+- [#958](https://github.com/kubb-labs/kubb/pull/958) [`bb9f51f`](https://github.com/kubb-labs/kubb/commit/bb9f51f03f533c79b63036d787b39f044f7fccd5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - open-api formating and filtering
+
+### Patch Changes
+
+- Updated dependencies [[`bb9f51f`](https://github.com/kubb-labs/kubb/commit/bb9f51f03f533c79b63036d787b39f044f7fccd5)]:
+  - @kubb/oas@2.15.0
+  - @kubb/core@2.15.0
+  - @kubb/react@2.15.0
+
 ## 2.14.0
 
 ### Minor Changes
