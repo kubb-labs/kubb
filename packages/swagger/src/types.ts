@@ -35,7 +35,6 @@ export type Options = {
         path: string
       }
     | false
-
   docs?:
     | {
         /**
