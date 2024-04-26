@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 2.15.0
+
+### Patch Changes
+
+- [#958](https://github.com/kubb-labs/kubb/pull/958) [`bb9f51f`](https://github.com/kubb-labs/kubb/commit/bb9f51f03f533c79b63036d787b39f044f7fccd5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for cjs imports
+
+- Updated dependencies []:
+  - @kubb/core@2.15.0
+
 ## 2.14.0
 
 ### Patch Changes
