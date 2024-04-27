@@ -9,7 +9,7 @@ outline: deep
 
 ## File
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, File } from '@kubb/react'
 
@@ -43,7 +43,7 @@ export function test() {
 :::
 
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { File } from '@kubb/react'
 
@@ -64,7 +64,7 @@ type Props = React.ComponentProps<typeof File>
 
 ::: code-group
 
-```tsx twoslash [simple]
+```tsx [simple]
 import React from "react"
 import { createRoot, File } from '@kubb/react'
 
@@ -79,7 +79,7 @@ root.output
 //   ^?
 ```
 
-```tsx twoslash [type]
+```tsx [type]
 import React from "react"
 import { createRoot, File } from '@kubb/react'
 
@@ -110,7 +110,7 @@ import type React from 'react'
 
 ### API
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { File } from '@kubb/react'
 
@@ -128,7 +128,7 @@ type Props = React.ComponentProps<typeof File.Import>
 ## File.Export
 
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, File } from '@kubb/react'
 
@@ -149,7 +149,7 @@ export * from 'kubb'
 
 ### API
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { File } from '@kubb/react'
 
@@ -168,7 +168,7 @@ type Props = React.ComponentProps<typeof File.Export>
 
 ::: code-group
 
-```tsx twoslash [children]
+```tsx [children]
 import React from "react"
 import { createRoot, File } from '@kubb/react'
 
@@ -187,7 +187,7 @@ root.output
 //   ^?
 ```
 
-```tsx twoslash [path]
+```tsx [path]
 import React from "react"
 import { createRoot, File } from '@kubb/react'
 
@@ -226,7 +226,7 @@ export const resultFromTestDotTs = "hello world";
 `path` or `children` can be used, you can not use them together!
 :::
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { File } from '@kubb/react'
 
