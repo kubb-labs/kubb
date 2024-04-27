@@ -511,7 +511,7 @@ export default defineConfig({
       dark: 'nord',
     },
     lineNumbers: false,
-    codeTransformers: [transformerTwoslash()],
+    codeTransformers: [transformerTwoslash({ throws: false })],
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config

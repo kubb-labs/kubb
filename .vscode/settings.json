@@ -1,11 +1,9 @@
 {
   "editor.defaultFormatter": "biomejs.biome",
-  "editor.codeActionsOnSave": {
-    "source.organizeImports.biome": "explicit"
-  },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "editor.codeActionsOnSave": ["source.fixAll.biome"],
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
