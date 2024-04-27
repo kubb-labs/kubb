@@ -42,7 +42,7 @@ export default defineConfig({
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 import petStore from './petStore.yaml'
