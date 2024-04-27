@@ -9,9 +9,8 @@ outline: deep
 
 ## File
 
-::: code-group
-
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -25,27 +24,31 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-:::
 
-::: code-group
-
-```typescript [simple]
+```typescript
 export function test() {
   return true
 }
 ```
 
-:::
 
 ### API
 
 ::: warning
 `baseName` or `path` can be used, you can not use them together!
 :::
+
+
+```tsx twoslash
+import React from "react"
+import { File } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof File>
+```
 
 | Property | Description                                                                                                         | Type                              | Default               |
 | -------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------- |
@@ -61,7 +64,8 @@ export function test() {
 
 ::: code-group
 
-```tsx [simple]
+```tsx twoslash [simple]
+import React from "react"
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -71,11 +75,12 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-```tsx [type]
+```tsx twoslash [type]
+import React from "react"
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -85,8 +90,8 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
 :::
@@ -105,6 +110,13 @@ import type React from 'react'
 
 ### API
 
+```tsx twoslash
+import React from "react"
+import { File } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof File.Import>
+```
+
 | Property   | Description                                                                                                                 | Type                      | Default |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ------- |
 | name       | Import name to be used.<br/>Examples: `["useState"]`, `"React"`                                                             | `string \| Array<string>` | -       |
@@ -115,9 +127,9 @@ import type React from 'react'
 
 ## File.Export
 
-::: code-group
 
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -127,21 +139,22 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
-
-:::
-
-::: code-group
 
 ```typescript [simple]
 export * from 'kubb'
 ```
 
-:::
-
 ### API
+
+```tsx twoslash
+import React from "react"
+import { File } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof File.Export>
+```
 
 | Property   | Description                                                                                                                 | Type                                    | Default |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------- |
@@ -155,7 +168,8 @@ export * from 'kubb'
 
 ::: code-group
 
-```tsx [children]
+```tsx twoslash [children]
+import React from "react"
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -169,11 +183,12 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-```tsx [path]
+```tsx twoslash [path]
+import React from "react"
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -187,8 +202,8 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
 :::
@@ -210,6 +225,13 @@ export const resultFromTestDotTs = "hello world";
 ::: warning
 `path` or `children` can be used, you can not use them together!
 :::
+
+```tsx twoslash
+import React from "react"
+import { File } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof File.Source>
+```
 
 | Property       | Description                                                                                                                 | Type       | Default |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------- | ------- |

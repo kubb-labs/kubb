@@ -30,10 +30,10 @@ kubb --config kubb.config.js
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript twoslash [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async () => {
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
@@ -52,7 +52,7 @@ export default defineConfig(async () => {
 ## Advanced example
 
 ::: tip
-Since version `2.x.x` we also support using multiple entry(OpenAPI/Swagger) files.
+With version `2.x.x` we also support using multiple entries(OpenAPI/Swagger).
 :::
 
 ```bash
@@ -61,13 +61,13 @@ kubb --config kubb.config.js
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript twoslash [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
-export default defineConfig(async () => {
+export default defineConfig(() => {
   return [
     {
       root: '.',

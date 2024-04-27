@@ -215,3 +215,47 @@ describe('<File/>', () => {
     expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })
 })
+
+describe('<File.Export/>', () => {
+  test('render Export with print', () => {
+    const Component = () => {
+      return <File.Export path="kubb" print />
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('export * from "kubb"')
+  })
+})
+
+describe('<File.Import/>', () => {
+  test('render Import with print', () => {
+    const Component = () => {
+      return <File.Import name="React" path="react" print />
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('import React from "react"')
+  })
+
+  test('render Import with print and type', () => {
+    const Component = () => {
+      return <File.Import name="React" path="react" isTypeOnly print />
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('import type React from "react"')
+  })
+
+  test('render Import with root', () => {
+    const Component = () => {
+      return <File.Import name="React" root="types" path="types/test" print />
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('import React from "./test"')
+  })
+})

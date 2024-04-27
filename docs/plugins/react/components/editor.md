@@ -7,9 +7,8 @@ outline: deep
 
 # Editor
 
-::: code-group
-
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, Editor } from '@kubb/react'
 
 const root = createRoot()
@@ -23,21 +22,23 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-:::
-
-::: code-group
-
-```typescript [simple]
+```typescript
 export const test = 2
 ```
 
-:::
 
 ## API
+
+```tsx twoslash
+import React from "react"
+import { Editor } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof Editor>
+```
 
 | Property | Description                | Type                               | Default |
 | -------- | -------------------------- | ---------------------------------- | ------- |

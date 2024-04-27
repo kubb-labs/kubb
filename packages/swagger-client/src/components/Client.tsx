@@ -133,6 +133,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
 
   const params = new FunctionParams()
   const clientGenerics = new FunctionParams()
+  // functionparams component that gets an array as parameter(less magic needed in the Client)
 
   clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
 

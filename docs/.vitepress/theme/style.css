@@ -18,6 +18,7 @@
   --vp-c-brand-1: var(--vp-c-brand);
   --vp-badge-tip-text: var(--vp-c-indigo-1);
 
+  --twoslash-popup-bg: #f58517;
 }
 
 .dark {
@@ -28,6 +29,8 @@
   --vp-c-bg-soft: rgba(68, 76, 91, 0.3);
   --vp-nav-screen-bg-color: rgba(35, 39, 47, 1);
   --vp-sidebar-bg-color: rgba(35, 39, 47, 1);
+
+  --twoslash-popup-bg: rgba(35, 39, 47, 0.9);
 }
 
 

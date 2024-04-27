@@ -14,7 +14,7 @@ Project root directory. Can be an absolute path, or a path relative to the locat
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript twoslash [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({

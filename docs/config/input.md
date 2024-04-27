@@ -18,7 +18,7 @@ Define your Swagger/OpenAPI file. This can be an absolute path or a path relativ
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -42,7 +42,7 @@ export default defineConfig({
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 import petStore from './petStore.yaml'

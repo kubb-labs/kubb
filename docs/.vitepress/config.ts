@@ -1,6 +1,7 @@
 import { createWriteStream } from 'node:fs'
 import { resolve } from 'node:path'
 
+import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 
@@ -509,7 +510,8 @@ export default defineConfig({
       light: 'github-light',
       dark: 'nord',
     },
-    lineNumbers: true,
+    lineNumbers: false,
+    codeTransformers: [transformerTwoslash()],
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -577,7 +579,7 @@ export default defineConfig({
         ],
       },
       {
-        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="25" width="90" style="border: 0; border-radius: 6px;"></iframe>
       `,
         link: '',
       },
@@ -602,6 +604,7 @@ export default defineConfig({
       message: 'Released under the MIT License.',
       copyright: `Copyright © 2022-${new Date().getFullYear()} Stijn Van Hulle`,
     },
+
     // algolia: {
     //   appId: "",
     //   apiKey: "",
