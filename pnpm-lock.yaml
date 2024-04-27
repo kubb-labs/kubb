@@ -122,9 +122,6 @@ importers:
       '@types/react':
         specifier: ^18.3.0
         version: 18.3.0
-      '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.2.10)
       axios:
         specifier: ^1.6.8
         version: 1.6.8
@@ -4447,22 +4444,6 @@ packages:
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
       vite: 4.5.3(@types/node@20.12.7)
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /@vitejs/plugin-react@4.2.1(vite@5.2.10):
-    resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    peerDependencies:
-      vite: ^4.2.0 || ^5.0.0
-    dependencies:
-      '@babel/core': 7.24.4
-      '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.24.4)
-      '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.4)
-      '@types/babel__core': 7.20.5
-      react-refresh: 0.14.2
-      vite: 5.2.10(@types/node@20.12.7)
     transitivePeerDependencies:
       - supports-color
     dev: true
