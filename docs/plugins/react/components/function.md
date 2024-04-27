@@ -7,9 +7,8 @@ outline: deep
 
 # Function
 
-::: code-group
-
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, Function } from '@kubb/react'
 
 const root = createRoot()
@@ -23,23 +22,25 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-:::
 
-::: code-group
-
-```typescript [simple]
+```typescript
 export async function getData() {
   return 2
 }
 ```
 
-:::
-
 ## API
+
+```tsx twoslash
+import React from "react"
+import { Function } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof Function>
+```
 
 | Property   | Description                                     | Type                               | Default |
 | ---------- | ----------------------------------------------- | ---------------------------------- | ------- |

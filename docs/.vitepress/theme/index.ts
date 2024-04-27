@@ -1,11 +1,14 @@
+import TwoslashFloatingVue from '@shikijs/vitepress-twoslash/client'
 // https://vitepress.dev/guide/custom-theme
 import { inject } from '@vercel/analytics'
-import DefaultTheme from 'vitepress/theme'
 import { injectSpeedInsights } from '@vercel/speed-insights'
+import type { EnhanceAppContext } from 'vitepress'
+import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
 
 import HomePage from './HomePage.vue'
 
+import '@shikijs/vitepress-twoslash/style.css'
 import './style.css'
 
 import allContributorsStr from '../../../.all-contributorsrc?raw'
@@ -22,8 +25,9 @@ export default {
       'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
     })
   },
-  enhanceApp(ctx: any) {
+  enhanceApp(ctx: EnhanceAppContext) {
     injectSpeedInsights()
     DefaultTheme.enhanceApp(ctx)
+    ctx.app.use(TwoslashFloatingVue)
   },
 }

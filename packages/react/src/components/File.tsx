@@ -1,8 +1,5 @@
 import { createContext } from 'react'
 
-import { Export } from './Export.tsx'
-import { Import } from './Import.tsx'
-
 import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '../types.ts'
 
@@ -115,7 +112,31 @@ function FileSource({ path, print, children }: FileSourceProps): KubbNode {
   )
 }
 
-File.Export = Export
-File.Import = Import
+type FileExportProps = KubbFile.Export & {
+  /**
+   * When true, it will return the generated import.
+   * When false, it will add the import to a KubbFile instance(see fileManager)
+   */
+  print?: boolean
+}
+
+function FileExport({ name, path, isTypeOnly, asAlias, print }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} print={print} />
+}
+
+type FileImportProps = KubbFile.Import & {
+  /**
+   * When true, it will return the generated import.
+   * When false, it will add the import to a KubbFile instance(see fileManager).
+   */
+  print?: boolean
+}
+
+export function FileImport({ name, root, path, isTypeOnly, isNameSpace, print }: FileImportProps): KubbNode {
+  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} print={print} />
+}
+
+File.Export = FileExport
+File.Import = FileImport
 File.Source = FileSource
 File.Context = FileContext

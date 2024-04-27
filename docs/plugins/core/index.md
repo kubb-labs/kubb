@@ -47,44 +47,25 @@ yarn add @kubb/core
 
 ## Usage
 
-### Simple example
-
-```typescript
+```typescript twoslash
+import { write } from '@kubb/core/fs'
 import { build } from '@kubb/core'
-import type { File } from '@kubb/core'
 
-const files: File[] = await build({ config })
-```
-
-### Advanced example
-
-```typescript
-import { build } from '@kubb/core'
-import type { BuildOptions, File } from '@kubb/core'
-
-const spinner = ora({
-  color: 'blue',
-  text: pc.blue('Generating files'),
-}).start()
-
-const logger: BuildOptions['logger'] = {
-  log(message, logLevel) {
-    if (logLevel === 'error') {
-      spinner.fail(message)
-    }
-    spinner[logLevel](message)
-  },
-  spinner,
-}
-
-const files: File[] = await build({
+const { error, files, pluginManager } = await build({
   config: {
-    ...config,
-    root: config.root || process.cwd(),
+    root: '.',
+    input: {
+      data: '',
+    },
+    output: {
+      path: './gen',
+    },
   },
-  mode: options.mode || 'development',
-  logger,
 })
+
+for (const file of files) {
+  await write(file.source, file.path)
+}
 ```
 
 Start the build process based on a defined config(see [UserConfig](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/config.ts) type).

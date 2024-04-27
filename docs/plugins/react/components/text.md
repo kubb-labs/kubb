@@ -9,9 +9,9 @@ outline: deep
 
 ## Text
 
-::: code-group
 
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, Text } from '@kubb/react'
 
 const root = createRoot()
@@ -25,25 +25,20 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-:::
 
-::: code-group
-
-```typescript [simple]
+```typescript
 export const test = 2
 ```
 
-:::
-
 ## Text with indent
 
-::: code-group
 
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, Text } from '@kubb/react'
 
 const root = createRoot()
@@ -57,21 +52,23 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
-
-:::
-
-::: code-group
 
 ```typescript [simple]
 export const test = 2
 ```
 
-:::
 
 ## API
+
+```tsx twoslash
+import React from "react"
+import { Text } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof Text>
+```
 
 | Property   | Description        | Type                     | Default |
 | ---------- | ------------------ | ------------------------ | ------- |

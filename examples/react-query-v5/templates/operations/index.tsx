@@ -23,7 +23,7 @@ export const templates = {
 
         return [schemas.response?.name, schemas.request?.name]
       })
-      .filter(Boolean)
+      .filter(Boolean) as string[]
 
     const invalidations = operations.reduce(
       (acc, operation) => {

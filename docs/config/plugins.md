@@ -16,7 +16,7 @@ How to use and set up plugins, see [plugins](/plugins/overview).
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 

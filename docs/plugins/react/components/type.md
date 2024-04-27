@@ -7,9 +7,8 @@ outline: deep
 
 # Type
 
-::: code-group
-
-```tsx [simple]
+```tsx twoslash
+import React from "react"
 import { createRoot, Type } from '@kubb/react'
 
 const root = createRoot()
@@ -23,21 +22,23 @@ const Component = () => {
 }
 
 root.render(<Component />)
-
-return root.output
+root.output
+//   ^?
 ```
 
-:::
 
-::: code-group
-
-```typescript [simple]
+```typescript
 type Data = string
 ```
 
-:::
-
 ## API
+
+```tsx twoslash
+import React from "react"
+import { Type } from '@kubb/react'
+
+type Props = React.ComponentProps<typeof Type>
+```
 
 | Property | Description                                                  | Type                     | Default |
 | -------- | ------------------------------------------------------------ | ------------------------ | ------- |

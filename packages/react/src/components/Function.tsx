@@ -11,6 +11,7 @@ type Props = {
   name: string
   /**
    * Parameters/options/props that need to be used.
+   * @deprecated
    */
   params?: string
   /**
@@ -39,6 +40,7 @@ type Props = {
 }
 
 export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): KubbNode {
+  // filter childnre for Function.Param
   return (
     <>
       {JSDoc?.comments && (

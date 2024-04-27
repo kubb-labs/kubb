@@ -81,3 +81,8 @@ features:
     details: Customize the generated files/output based on a custom-defined JSX(React) template. <div class="learn-more"><a href="/reference/templates">Learn more</a></div>
 
 ---
+<!--
+Ideas
+ https://github.com/elysiajs/documentation/blob/14601f322b42023ea8b50edd3584545915bbda0e/docs/index.md?plain=1
+ https://github.com/elysiajs/documentation/blob/14601f322b42023ea8b50edd3584545915bbda0e/components/midori/index.vue
+-->

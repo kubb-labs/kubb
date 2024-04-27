@@ -18,7 +18,7 @@ Useful for running Prettier or ESLint to format/lint your code.
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -33,21 +33,3 @@ export default defineConfig({
   },
 })
 ```
-
-```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
-export default defineConfig({
-  hooks: {
-    done: 'npx prettier --write .',
-  },
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-})
-```
-
-:::
