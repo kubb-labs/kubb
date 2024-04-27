@@ -511,7 +511,33 @@ export default defineConfig({
       dark: 'nord',
     },
     lineNumbers: false,
-    codeTransformers: [transformerTwoslash()],
+    codeTransformers: [
+      transformerTwoslash({
+        twoslashOptions: {
+          compilerOptions: {
+            paths: {
+              '@kubb/cli': ['../packages/cli/src/index.ts'],
+              '@kubb/biome-config': ['../packages/config/biome-config/src/index.ts'],
+              '@kubb/tsup-config': ['../packages/config/tsup-config/src/index.ts'],
+              '@kubb/ts-config': ['../packages/config/ts-config/src/index.ts'],
+              '@kubb/core': ['../packages/core/src/index.ts'],
+              '@kubb/core/fs': ['../packages/core/src/fs/index.ts'],
+              '@kubb/swagger': ['../packages/swagger/src/index.ts'],
+              '@kubb/swagger-client': ['../packages/swagger-client/src/index.ts'],
+              '@kubb/swagger-client/client': ['../packages/swagger-client/client.ts'],
+              '@kubb/swagger-client/ts-client': ['../packages/swagger-client/client.ts'],
+              '@kubb/swagger-faker': ['../packages/swagger-faker/src/index.ts'],
+              '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
+              '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
+              '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
+              '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
+              '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
+              '@kubb/parser': ['../packages/parser/src/index.ts'],
+            },
+          },
+        },
+      }),
+    ],
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
