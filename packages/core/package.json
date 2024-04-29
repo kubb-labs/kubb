@@ -116,7 +116,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
-    "@types/react": "^18.3.0",
+    "@types/react": "^18.3.1",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "ora": "^8.0.1",

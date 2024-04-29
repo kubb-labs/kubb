@@ -28,5 +28,6 @@
     "**/.turbo": true,
     "**/.next": true,
     "**/node_modules": true
-  }
+  },
+  "vitest.disableWorkspaceWarning": true
 }
