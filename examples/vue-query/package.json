@@ -31,7 +31,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/vue-query": "^4.37.1",
     "axios": "^1.6.8",
-    "vue": "^3.4.25"
+    "vue": "^3.4.26"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.6.2",

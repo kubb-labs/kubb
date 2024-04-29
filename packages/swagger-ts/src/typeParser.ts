@@ -205,8 +205,9 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
           }) as ts.TypeNode
         }
 
+
         const propertySignature = factory.createPropertySignature({
-          questionToken: isOptional && ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string),
+          questionToken: (isOptional|| isNullish) ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string): false,
           name,
           type,
           readOnly: isReadonly,
