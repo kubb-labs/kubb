@@ -40,16 +40,6 @@
     "release:canary": {
       "dependsOn": ["build"],
       "outputs": []
-    },
-    "generate": {
-      "dependsOn": [],
-      "outputs": [
-        // "dist/**",
-        // "gen/**",
-        // "src/gen/**"
-      ],
-      "cache": false,
-      "outputMode": "errors-only"
     }
   }
 }

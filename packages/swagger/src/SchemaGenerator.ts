@@ -141,6 +141,35 @@ export abstract class SchemaGenerator<
     return foundItems
   }
 
+
+  static findInObject<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
+    let foundItem: SchemaKeywordMapper[T] | undefined = undefined
+
+    schemas?.forEach((schema) => {
+      if (!foundItem && schema.keyword === keyword) {
+        foundItem = schema as SchemaKeywordMapper[T]
+      }
+
+    if (schema.keyword === schemaKeywords.object) {
+      const subItem = schema as SchemaKeywordMapper['object']
+
+      Object.values(subItem.args?.properties || {}).forEach((entrySchema) => {
+        if (!foundItem) {
+          foundItem = SchemaGenerator.find<T>(entrySchema, keyword)
+        }
+      })
+
+      Object.values(subItem.args?.additionalProperties || {}).forEach((entrySchema) => {
+        if (!foundItem) {
+          foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+        }
+      })
+    }
+  })
+
+  return foundItem
+  }
+
   static find<T extends keyof SchemaKeywordMapper>(schemas: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
     let foundItem: SchemaKeywordMapper[T] | undefined = undefined
 

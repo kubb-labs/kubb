@@ -427,7 +427,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for nullable fields
     /**
      * @type string
     */
-    foo: string | null;
+    foo?: string | null;
 };
 ",
 ]
