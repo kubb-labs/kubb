@@ -132,6 +132,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
 
     const schema: OasTypes.SchemaObject = {
       type: 'object',
+      required: [],
       properties: {
         foo: {
           type: 'string',
