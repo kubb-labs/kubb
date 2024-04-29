@@ -2,6 +2,7 @@ import { isParameterObject } from '@kubb/oas'
 
 import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '@kubb/oas'
+import type { Params } from '@kubb/react'
 import type { OperationSchema } from '../types.ts'
 /**
  *
@@ -33,4 +34,24 @@ export function getASTParams(
 
     return override ? override(data) : data
   })
+}
+
+export function getPathParams(
+  operationSchema: OperationSchema | undefined,
+  options: {
+    typed?: boolean
+    override?: (data: FunctionParamsAST) => FunctionParamsAST
+  } = {},
+) {
+  return getASTParams(operationSchema, options).reduce((acc, curr) => {
+    if (curr.name && curr.enabled) {
+      acc[curr.name] = {
+        default: curr.default,
+        type: curr.type,
+        optional: !curr.required,
+      }
+    }
+
+    return acc
+  }, {} as Params)
 }

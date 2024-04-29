@@ -1,7 +1,9 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
 
+import { getParams, isParamItems } from '../shared/utils/getParams.ts'
 import { Text } from './Text.tsx'
 
+import type { Params } from '../shared/utils/getParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
 
 type Props = {
@@ -12,7 +14,7 @@ type Props = {
   /**
    * Parameters/options/props that need to be used.
    */
-  params?: string
+  params?: string | Params
   /**
    * Does this function need to be exported.
    */
@@ -70,7 +72,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <Text>{'>'}</Text>
         </>
       )}
-      <Text>({params})</Text>
+      {isParamItems(params) ? <Text>({getParams(params)})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -127,7 +129,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <Text>{'>'}</Text>
         </>
       )}
-      <Text>({params})</Text>
+      {isParamItems(params) ? <Text>({getParams(params)})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -158,6 +160,55 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
   )
 }
 
+type CallFunctionProps = {
+  /**
+   * Name of the caller.
+   */
+  name: string
+  /**
+   * Name of the function.
+   */
+  fnName: string
+  /**
+   * Parameters/options/props that need to be used.
+   */
+  params?: string | Params
+  /**
+   * Does the function has async/promise behaviour.
+   */
+  async?: boolean
+  /**
+   * Generics that needs to be added for TypeScript.
+   */
+  generics?: string | string[]
+}
+
+export function CallFunction({ name, fnName, async, params, generics }: CallFunctionProps) {
+  return (
+    <>
+      const <Text>{name}</Text>
+      <Text> = </Text>
+      {async && (
+        <Text>
+          await
+          <Text.Space />
+        </Text>
+      )}
+      {fnName}
+      {generics && (
+        <>
+          <Text>{'<'}</Text>
+          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
+          <Text>{'>'}</Text>
+        </>
+      )}
+      {isParamItems(params) ? <Text>({getParams(params)})</Text> : <Text>({params})</Text>}
+      <br />
+    </>
+  )
+}
+
 Function.Arrow = ArrowFunction
+Function.Call = CallFunction
 
 export const Fun = Function

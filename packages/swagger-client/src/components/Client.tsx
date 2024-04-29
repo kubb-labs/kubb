@@ -1,14 +1,12 @@
-import transformers from '@kubb/core/transformers'
-import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { Editor, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
-import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { getComments, getPathParams } from '@kubb/swagger/utils'
 
-import { isRequired } from '@kubb/oas'
+import { isOptional } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
+import type { KubbNode, Params } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -20,7 +18,7 @@ type TemplateProps = {
   /**
    * Parameters/options/props that need to be used
    */
-  params: string
+  params: Params
   /**
    * Generics that needs to be added for TypeScript
    */
@@ -36,7 +34,7 @@ type TemplateProps = {
     comments: string[]
   }
   client: {
-    generics: string
+    generics: string | string[]
     method: HttpMethod
     path: URLPath
     dataReturnType: PluginOptions['options']['dataReturnType']
@@ -56,16 +54,10 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
     '...options',
   ].filter(Boolean)
 
-  const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
-
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      {`
-const res = await client<${client.generics}>({
-${resolvedClientOptions}
-})
-return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
-`}
+      <Function.Call name="res" async fnName="client" generics={client.generics} params={`{ ${clientOptions.join(', ')} }`} />
+      {`return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}`}
     </Function>
   )
 }
@@ -131,48 +123,43 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
   const name = getName(operation, { type: 'function' })
   const schemas = getSchemas(operation)
 
-  const params = new FunctionParams()
-  const clientGenerics = new FunctionParams()
-
-  clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
-
-  params.add([
-    ...(pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
-    {
-      name: 'data',
-      type: schemas.request?.name,
-      enabled: !!schemas.request?.name,
-      required: isRequired(schemas.request?.schema),
-    },
-    {
-      name: 'params',
-      type: schemas.queryParams?.name,
-      enabled: !!schemas.queryParams?.name,
-      required: isRequired(schemas.queryParams?.schema),
-    },
-    {
-      name: 'headers',
-      type: schemas.headerParams?.name,
-      enabled: !!schemas.headerParams?.name,
-      required: isRequired(schemas.headerParams?.schema),
-    },
-    {
-      name: 'options',
-      type: 'Partial<Parameters<typeof client>[0]>',
-      default: '{}',
-    },
-  ])
-
   return (
     <Template
       name={name}
-      params={params.toString()}
+      params={{
+        pathParams: {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(schemas.pathParams, { typed: true }),
+        },
+        data: schemas.request?.name
+          ? {
+              type: schemas.request?.name,
+              optional: isOptional(schemas.request?.schema),
+            }
+          : undefined,
+        params: schemas.queryParams?.name
+          ? {
+              type: schemas.queryParams?.name,
+              optional: isOptional(schemas.queryParams?.schema),
+            }
+          : undefined,
+        headers: schemas.headerParams?.name
+          ? {
+              type: schemas.headerParams?.name,
+              optional: isOptional(schemas.headerParams?.schema),
+            }
+          : undefined,
+        options: {
+          type: 'Partial<Parameters<typeof client>[0]>',
+          default: '{}',
+        },
+      }}
       returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
       JSDoc={{
         comments: getComments(operation),
       }}
       client={{
-        generics: clientGenerics.toString(),
+        generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
         dataReturnType,
         withQueryParams: !!schemas.queryParams?.name,
         withData: !!schemas.request?.name,

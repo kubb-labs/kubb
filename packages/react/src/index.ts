@@ -11,3 +11,4 @@ export {
 export { createNode } from './shared/dom.ts'
 export type * from './types.ts'
 export { createContext, useContext } from 'react'
+export type { Params, Param } from './shared/utils/getParams.ts'

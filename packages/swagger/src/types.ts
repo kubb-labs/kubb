@@ -43,7 +43,7 @@ export type Options = {
          */
         path: string
         /**
-         * Export the generated(with filters and sorting) OpenApi file with conversion to v3.
+         * Export the generated(with filters and sorting) OpenAPI file with conversion to v3.
          * @default false
          */
         export?: boolean
