@@ -99,6 +99,10 @@ export function getParams(items: Params): string {
       }
 
       if (item.children) {
+        if (Object.keys(item.children).length === 0) {
+          return acc
+        }
+
         if (item.mode === 'inlineSpread') {
           return [...acc, getParams(item.children!)]
         }

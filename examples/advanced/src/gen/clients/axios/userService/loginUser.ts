@@ -10,11 +10,6 @@ export async function loginUser(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<LoginUserQueryResponse>> {
-  const res = await client<LoginUserQueryResponse>({
-    method: 'get',
-    url: '/user/login',
-    params,
-    ...options,
-  })
+  const res = await client<LoginUserQueryResponse>({ method: 'get', url: '/user/login', params, ...options })
   return res
 }

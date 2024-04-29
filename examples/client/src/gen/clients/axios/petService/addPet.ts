@@ -11,11 +11,6 @@ export async function addPet(
   data: AddPetMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<AddPetMutationResponse>['data']> {
-  const res = await client<AddPetMutationResponse, AddPetMutationRequest>({
-    method: 'post',
-    url: '/pet',
-    data,
-    ...options,
-  })
+  const res = await client<AddPetMutationResponse, AddPetMutationRequest>({ method: 'post', url: '/pet', data, ...options })
   return res.data
 }
