@@ -38,25 +38,28 @@ To get TypeScript support for Kubb, add `@kubb/core/globals` to your tsconfig.js
 :::
 
 ### Usage
-
 ::: code-group
 
 ```typescript [Kubb.OptionsOfPlugin]
+import { Kubb } from '@kubb/core'
 export type SwaggerPluginOptions = Kubb.OptionsOfPlugin<'@kubb/swagger'>
 // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 ```typescript [Kubb.Plugins name]
+import { Kubb } from '@kubb/core'
 export type SwaggerName = Kubb.Plugins['@kubb/swagger']['name']
 // ^? "swagger"
 ```
 
 ```typescript [Kubb.Plugins options]
+import { Kubb } from '@kubb/core'
 export type SwaggerPluginOptions = Kubb.Plugins['@kubb/swagger']['options']
 // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 ```typescript [Kubb.OptionsPlugins]
+import { Kubb } from '@kubb/core'
 export type SwaggerPluginOptions = Kubb.OptionsPlugins['@kubb/swagger']['options']
 // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```

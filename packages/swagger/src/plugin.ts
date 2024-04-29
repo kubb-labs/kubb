@@ -19,7 +19,7 @@ export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOpti
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
     output = { path: 'schemas', export: false },
-    docs = { path: './docs.html' },
+    docs,
     experimentalFilter: filter,
     experimentalSort: sort,
     validate = true,
@@ -106,7 +106,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           await this.fileManager.write(JSON.stringify(oas.api), path.resolve(root, './openapi.json'))
         }
 
-        await this.fileManager.write(pageHTML, path.resolve(root, docs.path))
+        await this.fileManager.write(pageHTML, path.resolve(root, docs.path || './docs.html'))
       }
 
       if (output) {

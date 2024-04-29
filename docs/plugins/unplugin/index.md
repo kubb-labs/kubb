@@ -43,7 +43,9 @@ Define the options for Kubb.
 
 ::: info type
 
-```typescript [Options]
+```typescript twoslash [Options]
+import type { UserConfig } from "@kubb/core"
+
 type Options = {
   config: UserConfig
 }
@@ -55,16 +57,16 @@ type Options = {
 
 Type: `Options` <br/>
 
-::: code-group
 
-```typescript [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [vite.config.ts]
+import kubb from 'unplugin-kubb/vite'
+import { defineConfig as defineViteConfig } from 'vite'
+import { defineConfig, UserConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
-/** @type {import('@kubb/core').UserConfig} */
-export const config = {
+export const config: UserConfig = {
   root: '.',
   input: {
     path: './petStore.yaml',
@@ -82,26 +84,16 @@ export const config = {
     }),
   ],
 }
-```
-
-```typescript [vite.config.ts]
-import react from '@vitejs/plugin-react'
-import kubb from 'unplugin-kubb/vite'
-import { defineConfig } from 'vite'
-import { config } from './kubb.config'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineViteConfig({
   plugins: [
-    react(),
     kubb({
       config,
     }),
   ],
 })
 ```
-
-:::
 
 ## Examples
 

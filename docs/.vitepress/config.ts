@@ -1,6 +1,7 @@
 import { createWriteStream } from 'node:fs'
 import { resolve } from 'node:path'
 
+import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 
@@ -509,7 +510,42 @@ export default defineConfig({
       light: 'github-light',
       dark: 'nord',
     },
-    lineNumbers: true,
+    lineNumbers: false,
+    codeTransformers: [
+      transformerTwoslash({
+        twoslashOptions: {
+          compilerOptions: {
+            paths: {
+              '@kubb/cli': ['../packages/cli/src/index.ts'],
+              '@kubb/biome-config': ['../packages/config/biome-config/src/index.ts'],
+              '@kubb/tsup-config': ['../packages/config/tsup-config/src/index.ts'],
+              '@kubb/ts-config': ['../packages/config/ts-config/src/index.ts'],
+              '@kubb/core': ['../packages/core/src/index.ts'],
+              '@kubb/types': ['../packages/types/src/index.ts'],
+              '@kubb/core/utils': ['../packages/core/src/utils/index.ts'],
+              '@kubb/core/logger': ['../packages/core/src/logger.ts'],
+              '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
+              '@kubb/core/fs': ['../packages/core/src/fs/index.ts'],
+              '@kubb/swagger': ['../packages/swagger/src/index.ts'],
+              '@kubb/swagger-client': ['../packages/swagger-client/src/index.ts'],
+              '@kubb/swagger-client/client': ['../packages/swagger-client/client.ts'],
+              '@kubb/swagger-client/components': ['../packages/swagger-client/src/components/index.ts'],
+              '@kubb/swagger-client/ts-client': ['../packages/swagger-client/client.ts'],
+              '@kubb/swagger-faker': ['../packages/swagger-faker/src/index.ts'],
+              '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
+              '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
+              '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
+              '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
+              '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
+              '@kubb/parser': ['../packages/parser/src/index.ts'],
+              '@kubb/react': ['../packages/react/src/index.ts'],
+              'unplugin-kubb': ['../packages/unplugin/src/index.ts'],
+              'unplugin-kubb/vite': ['../packages/unplugin/src/vite.ts'],
+            },
+          },
+        },
+      }),
+    ],
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -577,7 +613,7 @@ export default defineConfig({
         ],
       },
       {
-        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="25" width="90" style="border: 0; border-radius: 6px;"></iframe>
       `,
         link: '',
       },
@@ -602,6 +638,7 @@ export default defineConfig({
       message: 'Released under the MIT License.',
       copyright: `Copyright © 2022-${new Date().getFullYear()} Stijn Van Hulle`,
     },
+
     // algolia: {
     //   appId: "",
     //   apiKey: "",

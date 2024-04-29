@@ -11,7 +11,7 @@ This tutorial will describe how you can set up Kubb and use the [`@kubb/swagger-
 
 The setup will contain from the beginning the following folder structure:
 
-```typescript
+```
 .
 ├── src
 ├── petStore.yaml
@@ -31,12 +31,12 @@ Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plug
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 
-export default defineConfig(async () => {
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
@@ -68,7 +68,7 @@ export default defineConfig(async () => {
 
 This will result in the following folder structure when Kubb has been executed
 
-```typescript
+```
 .
 ├── src/
 │   └── models/
@@ -87,7 +87,7 @@ Your `package.json` will look like this:
 
 ::: code-group
 
-```json [package.json]
+```json twoslash [package.json]
 {
   "name": "your project",
   "scripts": {

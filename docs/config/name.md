@@ -13,7 +13,7 @@ Optional config name to show in CLI output.
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -28,7 +28,7 @@ export default defineConfig({
 })
 ```
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig([

@@ -56,7 +56,7 @@ You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cj
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -78,38 +78,12 @@ export default defineConfig({
 If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.<br/>
 Here you can choose between returning the config options synchronously or asynchronously.
 
-```typescript
-// CLI options flags
-export type CLIOptions = {
-  /**
-   * Path to `kubb.config.ts`
-   */
-  config?: string
-  /**
-   * Watch changes on input
-   */
-  watch?: string
-
-  /**
-   * Log level to report when using the CLI
-   *
-   * `silent` will hide all information that is not relevant
-   *
-   * `info` will show all information possible(not related to the PluginManager)
-   *
-   * `debug` will show all information possible(related to the PluginManager), handy for seeing logs
-   * @default `silent`
-   */
-  logLevel?: LogLevels
-}
-```
-
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(({ config, watch, logLevel }: CLIOptions) => {
+export default defineConfig(({ config, watch, logLevel }) => {
   return {
     root: '.',
     input: {
@@ -128,17 +102,17 @@ export default defineConfig(({ config, watch, logLevel }: CLIOptions) => {
 ## Multiple plugins
 
 ::: tip
-Since version `2.x.x` we also support using multiple of the same plugin.
+With version `2.x.x` we also support using multiple versions of the same plugin.
 
 :::
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 
-export default defineConfig(async () => {
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
@@ -150,14 +124,16 @@ export default defineConfig(async () => {
     plugins: [
       createSwagger(
         {
-          'output': 'schemas',
-          'validate': true,
+          output: {
+            path: 'schemas',
+          },
         },
       ),
       createSwagger(
         {
-          'output': 'schemas2',
-          'validate': true,
+          output: {
+            path: 'schemas2',
+          },
         },
       ),
     ],
@@ -174,7 +150,7 @@ Since version `2.x.x` we also support using multiple configs.
 
 ::: code-group
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { definePlugin as createSwagger } from '@kubb/swagger'
 
@@ -191,8 +167,9 @@ export default defineConfig([
     plugins: [
       createSwagger(
         {
-          'output': 'schemas',
-          'validate': true,
+           output: {
+            path: 'schemas',
+          },
         },
       ),
     ],
@@ -209,8 +186,9 @@ export default defineConfig([
     plugins: [
       createSwagger(
         {
-          'output': 'schemas',
-          'validate': true,
+          output: {
+            path: 'schemas',
+          },
         },
       ),
     ],

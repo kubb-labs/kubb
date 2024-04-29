@@ -2,7 +2,7 @@ import { nodeNames } from '../dom.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type React from 'react'
-import type { Export as ExportComponent } from '../../components/Export.tsx'
+import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
 
 export function squashExportNodes(node: DOMElement): Array<KubbFile.Export> {
@@ -20,7 +20,7 @@ export function squashExportNodes(node: DOMElement): Array<KubbFile.Export> {
     }
 
     if (childNode.nodeName === 'kubb-export' && !childNode.attributes.print) {
-      const attributes = childNode.attributes as React.ComponentProps<typeof ExportComponent>
+      const attributes = childNode.attributes as React.ComponentProps<typeof File.Export>
       exports.push({
         name: attributes['name'],
         path: attributes['path'],
