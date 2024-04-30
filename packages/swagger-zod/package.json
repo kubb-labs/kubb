@@ -2,14 +2,7 @@
   "name": "@kubb/swagger-zod",
   "version": "2.16.1",
   "description": "Generator swagger-zod",
-  "keywords": [
-    "zod",
-    "plugins",
-    "kubb",
-    "codegen",
-    "swagger",
-    "openapi"
-  ],
+  "keywords": ["zod", "plugins", "kubb", "codegen", "swagger", "openapi"],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -38,17 +31,10 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ]
+      "components": ["./dist/components.d.ts"]
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
+  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
