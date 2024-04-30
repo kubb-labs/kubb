@@ -29,8 +29,8 @@ export type FormatOptions = {
     properties?: Array<'description' | 'type' | 'items' | 'format' | 'example' | 'default' | 'enum'>
   }
   filterSet?: {
-    methods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'trace' | 'head'>
-    inverseMethods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'trace' | 'head'>
+    methods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'trace' | 'head' | 'parameters'>
+    inverseMethods?: Array<'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'trace' | 'head' | 'parameters'>
     tags?: Array<string>
     inverseTags?: Array<string>
     operationIds?: Array<string>
@@ -64,7 +64,9 @@ export async function parse(pathOrApi: string | OASDocument, options: FormatOpti
   }
 
   if (isOpenApiV2Document(document)) {
-    const { openapi } = await swagger2openapi.convertObj(document, { anchors: true })
+    const { openapi } = await swagger2openapi.convertObj(document, {
+      anchors: true,
+    })
 
     const oas = await filterAndSort(openapi as OASDocument, options)
 
