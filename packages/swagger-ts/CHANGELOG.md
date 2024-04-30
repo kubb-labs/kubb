@@ -1,5 +1,19 @@
 # @kubb/swagger-ts
 
+## 2.16.2
+
+### Patch Changes
+
+- [#970](https://github.com/kubb-labs/kubb/pull/970) [`c8e5753`](https://github.com/kubb-labs/kubb/commit/c8e575310815307bf9282779932d51a59f3ab2a0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of optional when field is not part of required array
+
+- Updated dependencies []:
+  - @kubb/core@2.16.2
+  - @kubb/oas@2.16.2
+  - @kubb/parser@2.16.2
+  - @kubb/react@2.16.2
+  - @kubb/swagger@2.16.2
+  - @kubb/types@2.16.2
+
 ## 2.16.1
 
 ### Patch Changes

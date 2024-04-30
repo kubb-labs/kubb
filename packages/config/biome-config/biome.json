@@ -4,7 +4,20 @@
     "enabled": true
   },
   "files": {
-    "ignore": ["__snapshots__", "e2e/schemas", "coverage", "assets", "public", "dist", "artifacts", ".next", ".github", ".codesandbox", ".devcontainer"]
+    "ignore": [
+      "package.json",
+      "__snapshots__",
+      "e2e/schemas",
+      "coverage",
+      "assets",
+      "public",
+      "dist",
+      "artifacts",
+      ".next",
+      ".github",
+      ".codesandbox",
+      ".devcontainer"
+    ]
   },
   "formatter": {
     "enabled": true,

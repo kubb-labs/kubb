@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "2.16.1",
+  "version": "2.16.2",
   "description": "Generator react",
   "keywords": ["typescript", "plugins", "kubb", "codegen"],
   "repository": {
