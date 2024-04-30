@@ -62,7 +62,7 @@ export async function filterAndSort(data: OASDocument, options: FormatOptions = 
       ...options.sortComponentsSet,
     },
     filterSet: {
-      inverseMethods: ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'],
+      inverseMethods: ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace', 'parameters'],
       unusedComponents: options.filterSet ? ['requestBodies', 'schemas', 'parameters', 'responses'] : [],
       ...options.filterSet,
     },

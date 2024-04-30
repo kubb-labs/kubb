@@ -37,6 +37,10 @@
       "dependsOn": ["build"],
       "outputs": []
     },
+    "generate": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
     "release:canary": {
       "dependsOn": ["build"],
       "outputs": []
