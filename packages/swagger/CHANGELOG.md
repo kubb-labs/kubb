@@ -1,5 +1,14 @@
 # @kubb/swagger
 
+## 2.16.3
+
+### Patch Changes
+
+- Updated dependencies [[`605d121`](https://github.com/kubb-labs/kubb/commit/605d121d4d261ed9463989348a3f9668cd3302fc)]:
+  - @kubb/oas@2.16.3
+  - @kubb/core@2.16.3
+  - @kubb/react@2.16.3
+
 ## 2.16.2
 
 ### Patch Changes

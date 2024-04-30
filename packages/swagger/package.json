@@ -1,8 +1,15 @@
 {
   "name": "@kubb/swagger",
-  "version": "2.16.2",
+  "version": "2.16.3",
   "description": "Generator swagger",
-  "keywords": ["typescript", "plugins", "kubb", "codegen", "swagger", "openapi"],
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen",
+    "swagger",
+    "openapi"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -41,12 +48,24 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": ["./dist/utils.d.ts"],
-      "hooks": ["./dist/hooks.d.ts"],
-      "components": ["./dist/components.d.ts"]
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
+      "hooks": [
+        "./dist/hooks.d.ts"
+      ],
+      "components": [
+        "./dist/components.d.ts"
+      ]
     }
   },
-  "files": ["src", "static", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "static",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
