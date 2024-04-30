@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.16.3
+
+### Patch Changes
+
+- [#975](https://github.com/kubb-labs/kubb/pull/975) [`605d121`](https://github.com/kubb-labs/kubb/commit/605d121d4d261ed9463989348a3f9668cd3302fc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Common parameters without filter
+
 ## 2.16.2
 
 ## 2.16.1
