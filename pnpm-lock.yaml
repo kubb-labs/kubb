@@ -1313,6 +1313,9 @@ importers:
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
+      natural-orderby:
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*

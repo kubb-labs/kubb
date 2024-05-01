@@ -15,10 +15,6 @@ export async function deleteUser(
   },
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<DeleteUserMutationResponse>> {
-  const res = await client<DeleteUserMutationResponse>({
-    method: 'delete',
-    url: `/user/${username}`,
-    ...options,
-  })
+  const res = await client<DeleteUserMutationResponse>({ method: 'delete', url: `/user/${username}`, ...options })
   return res
 }

@@ -14,10 +14,6 @@ export async function getUserByName(
   },
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<GetUserByNameQueryResponse>> {
-  const res = await client<GetUserByNameQueryResponse>({
-    method: 'get',
-    url: `/user/${username}`,
-    ...options,
-  })
+  const res = await client<GetUserByNameQueryResponse>({ method: 'get', url: `/user/${username}`, ...options })
   return res
 }

@@ -37,6 +37,10 @@ export function isRequired(schema?: SchemaObject): boolean {
   return Array.isArray(schema.required) ? !!schema.required?.length : !!schema.required
 }
 
+export function isOptional(schema?: SchemaObject): boolean {
+  return !isRequired(schema)
+}
+
 export async function filterAndSort(data: OASDocument, options: FormatOptions = {}): Promise<OASDocument> {
   const mergedOptions: FormatOptions = {
     sort: options.sort ?? true,

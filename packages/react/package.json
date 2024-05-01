@@ -80,7 +80,8 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/parser": "workspace:*"
+    "@kubb/parser": "workspace:*",
+    "natural-orderby": "^3.0.2"
   },
   "devDependencies": {
     "@kubb/biome-config": "workspace:*",

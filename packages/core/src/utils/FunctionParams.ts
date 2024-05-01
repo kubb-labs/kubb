@@ -29,14 +29,17 @@ type FunctionParamsASTWithType = {
   enabled?: boolean
   default?: string
 }
-
+/**
+ * @deprecated
+ */
 export type FunctionParamsAST = FunctionParamsASTWithoutType | FunctionParamsASTWithType
-export class FunctionParams {
-  type?: 'generics' | 'typed'
-  #items: Array<FunctionParamsAST | FunctionParamsAST[]> = []
-  constructor(type?: 'generics' | 'typed') {
-    this.type = type
 
+/**
+ * @deprecated
+ */
+export class FunctionParams {
+  #items: Array<FunctionParamsAST | FunctionParamsAST[]> = []
+  constructor() {
     return this
   }
 

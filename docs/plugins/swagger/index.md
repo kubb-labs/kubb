@@ -181,7 +181,7 @@ export default defineConfig({
 
 #### docs.export
 
-Export the generated(with filters and sorting) OpenApi file with conversion to v3.<br/>
+Export the generated(with filters and sorting) OpenAPI file with conversion to v3.<br/>
 
 ::: info
 Type: `boolean` <br/>

@@ -3,8 +3,8 @@ import path from 'node:path'
 import type { OasTypes } from '@kubb/oas'
 import pkg from 'handlebars'
 import { renderToString } from 'react-dom/server'
-import redoc from 'redoc'
 import { ServerStyleSheet } from 'styled-components'
+import redoc from 'redoc'
 
 type BuildDocsOptions = {
   title?: string
@@ -30,7 +30,8 @@ function sanitizeJSONString(str: string): string {
 
 export async function getPageHTML(api: OasTypes.OASDocument, { title, disableGoogleFont, templateOptions, redocOptions = {} }: BuildDocsOptions = {}) {
   const apiUrl = redocOptions.specUrl
-  const store = await redoc.createStore(api, apiUrl, redocOptions)
+  const { Redoc, createStore } = redoc || require('redoc')
+  const store = await createStore(api, apiUrl, redocOptions)
   const sheet = new ServerStyleSheet()
 
   const error = console.error
@@ -39,7 +40,7 @@ export async function getPageHTML(api: OasTypes.OASDocument, { title, disableGoo
     error(...args)
   }
 
-  const html = renderToString(sheet.collectStyles(<redoc.Redoc store={store} />))
+  const html = renderToString(sheet.collectStyles(<Redoc store={store} />))
   const state = await store.toJS()
   const css = sheet.getStyleTags()
 

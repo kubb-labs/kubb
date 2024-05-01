@@ -15,11 +15,6 @@ export async function updatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>['data']> {
-  const res = await client<UpdatePetWithFormMutationResponse>({
-    method: 'post',
-    url: `/pet/${petId}`,
-    params,
-    ...options,
-  })
+  const res = await client<UpdatePetWithFormMutationResponse>({ method: 'post', url: `/pet/${petId}`, params, ...options })
   return res.data
 }

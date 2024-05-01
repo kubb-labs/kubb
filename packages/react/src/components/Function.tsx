@@ -1,8 +1,11 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
 
+import { getParams, isParamItems } from '../shared/utils/getParams.ts'
 import { Text } from './Text.tsx'
 
+import type { Params } from '../shared/utils/getParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
+import type { ReactElement } from 'react'
 
 type Props = {
   /**
@@ -11,9 +14,8 @@ type Props = {
   name: string
   /**
    * Parameters/options/props that need to be used.
-   * @deprecated
    */
-  params?: string
+  params?: string | Params
   /**
    * Does this function need to be exported.
    */
@@ -40,7 +42,6 @@ type Props = {
 }
 
 export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): KubbNode {
-  // filter childnre for Function.Param
   return (
     <>
       {JSDoc?.comments && (
@@ -72,7 +73,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <Text>{'>'}</Text>
         </>
       )}
-      <Text>({params})</Text>
+      {isParamItems(params) ? <Text>({getParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -129,7 +130,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <Text>{'>'}</Text>
         </>
       )}
-      <Text>({params})</Text>
+      {isParamItems(params) ? <Text>({getParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -160,6 +161,55 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
   )
 }
 
+type CallFunctionProps = {
+  /**
+   * Name of the caller.
+   */
+  name: string
+  to: ReactElement<Props>
+}
+
+export function CallFunction({ name, to }: CallFunctionProps) {
+  const { params, name: fnName, generics, async } = to.props
+
+  return (
+    <>
+      const <Text>{name}</Text>
+      <Text> = </Text>
+      {async && (
+        <Text>
+          await
+          <Text.Space />
+        </Text>
+      )}
+      {fnName}
+      {generics && (
+        <>
+          <Text>{'<'}</Text>
+          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
+          <Text>{'>'}</Text>
+        </>
+      )}
+      {isParamItems(params) ? <Text>({getParams(params, { type: 'call' })})</Text> : <Text>({params})</Text>}
+      <br />
+    </>
+  )
+}
+
+type ReturnFunctionProps = {
+  children: KubbNode
+}
+
+export function ReturnFunction({ children }: ReturnFunctionProps) {
+  return (
+    <>
+      return <Text>{children}</Text>
+    </>
+  )
+}
+
 Function.Arrow = ArrowFunction
+Function.Call = CallFunction
+Function.Return = ReturnFunction
 
 export const Fun = Function

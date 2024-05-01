@@ -81,7 +81,7 @@ function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: R
 
 Update your `kubb.config.ts` file to include the custom template.
 ::: tip
-If you want to use another language than Javascript/TypeScript, override the root template with your own.
+If you want to use another language than JavaScript/TypeScript, override the root template with your own.
 See [examples/python](/examples/python) for an example on how you can do that.
 :::
 

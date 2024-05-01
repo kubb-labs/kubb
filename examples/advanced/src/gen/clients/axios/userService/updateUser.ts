@@ -16,11 +16,6 @@ export async function updateUser(
   data?: UpdateUserMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdateUserMutationResponse>> {
-  const res = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
-    method: 'put',
-    url: `/user/${username}`,
-    data,
-    ...options,
-  })
+  const res = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({ method: 'put', url: `/user/${username}`, data, ...options })
   return res
 }
