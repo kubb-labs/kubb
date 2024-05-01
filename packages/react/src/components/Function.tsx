@@ -5,6 +5,7 @@ import { Text } from './Text.tsx'
 
 import type { Params } from '../shared/utils/getParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
+import type { ReactElement } from 'react'
 
 type Props = {
   /**
@@ -13,7 +14,6 @@ type Props = {
   name: string
   /**
    * Parameters/options/props that need to be used.
-   * @deprecated
    */
   params?: string | Params
   /**
@@ -42,7 +42,6 @@ type Props = {
 }
 
 export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): KubbNode {
-  // filter childnre for Function.Param
   return (
     <>
       {JSDoc?.comments && (
@@ -167,25 +166,12 @@ type CallFunctionProps = {
    * Name of the caller.
    */
   name: string
-  /**
-   * Name of the function.
-   */
-  fnName: string
-  /**
-   * Parameters/options/props that need to be used.
-   */
-  params?: string | Params
-  /**
-   * Does the function has async/promise behaviour.
-   */
-  async?: boolean
-  /**
-   * Generics that needs to be added for TypeScript.
-   */
-  generics?: string | string[]
+  to: ReactElement<Props>
 }
 
-export function CallFunction({ name, fnName, async, params, generics }: CallFunctionProps) {
+export function CallFunction({ name, to }: CallFunctionProps) {
+  const { params, name: fnName, generics, async } = to.props
+
   return (
     <>
       const <Text>{name}</Text>
@@ -210,7 +196,20 @@ export function CallFunction({ name, fnName, async, params, generics }: CallFunc
   )
 }
 
+type ReturnFunctionProps = {
+  children: KubbNode
+}
+
+export function ReturnFunction({ children }: ReturnFunctionProps) {
+  return (
+    <>
+      return <Text>{children}</Text>
+    </>
+  )
+}
+
 Function.Arrow = ArrowFunction
 Function.Call = CallFunction
+Function.Return = ReturnFunction
 
 export const Fun = Function

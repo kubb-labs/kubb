@@ -1,116 +1,116 @@
-import path from 'node:path'
+import path from "node:path";
 
-import { format } from '../../mocks/format.ts'
-import { createRoot } from '../client/createRoot.ts'
-import { File } from './File.tsx'
+import { format } from "../../mocks/format.ts";
+import { createRoot } from "../client/createRoot.ts";
+import { File } from "./File.tsx";
 
-describe('<File/>', () => {
-  const mocksPath = path.resolve(__dirname, '../../mocks')
+describe("<File/>", () => {
+  const mocksPath = path.resolve(__dirname, "../../mocks");
 
-  test('render File', () => {
+  test("render File", () => {
     const Component = () => {
-      return <File baseName="test.ts" path="path" />
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      return <File baseName="test.ts" path="path" />;
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(root.output).toStrictEqual('')
-  })
+    expect(root.output).toStrictEqual("");
+  });
 
-  test('render File with Import and Export', () => {
+  test("render File with Import and Export", () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Import name={'React'} path="react" />
+          <File.Import name={"React"} path="react" />
           <File.Export asAlias path="./index.ts" />
         </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
     expect(root.files.at(0)?.exports).toStrictEqual([
       {
         asAlias: true,
         isTypeOnly: false,
         name: undefined,
-        path: './index.ts',
+        path: "./index.ts",
       },
-    ])
+    ]);
 
     expect(root.files.at(0)?.imports).toStrictEqual([
       {
         isTypeOnly: false,
-        name: 'React',
-        path: 'react',
+        name: "React",
+        path: "react",
         root: undefined,
       },
-    ])
-  })
+    ]);
+  });
 
-  test('render File with Import and Export and print imports/exports', async () => {
+  test("render File with Import and Export and print imports/exports", async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Import name={'React'} path="react" print />
+          <File.Import name={"React"} path="react" print />
           <br />
           <File.Export asAlias path="./index.ts" print />
         </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(await format(root.output)).toMatchSnapshot()
-  })
+    expect(await format(root.output)).toMatchSnapshot();
+  });
 
-  test('render File with source', () => {
+  test("render File with source", () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
           <File.Source>test</File.Source>
         </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(root.output).toStrictEqual('test')
-  })
-  test('render File with source and path, print', async () => {
+    expect(root.output).toStrictEqual("test");
+  });
+  test("render File with source and path, print", async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
+          <File.Source path={path.resolve(mocksPath, "./test.ts")} print />
         </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(await format(root.output)).toMatchSnapshot()
-  })
+    expect(await format(root.output)).toMatchSnapshot();
+  });
 
-  test('render File with multiple sources', async () => {
+  test("render File with multiple sources", async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
+          <File.Source path={path.resolve(mocksPath, "./test.ts")} print />
           <File.Source print>
             {`
             const test = 2;
             `}
           </File.Source>
         </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(await format(root.output)).toMatchSnapshot()
-  })
+    expect(await format(root.output)).toMatchSnapshot();
+  });
 
-  test('render multiple Files', async () => {
+  test("render multiple Files", async () => {
     const Component = () => {
       return (
         <>
@@ -130,49 +130,49 @@ describe('<File/>', () => {
             </File.Source>
           </File>
         </>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(await format(root.output)).toMatchSnapshot();
 
-    expect(root.files.length).toBe(2)
+    expect(root.files.length).toBe(2);
 
-    expect(await format(root.files[0]?.source)).toMatchSnapshot()
+    expect(await format(root.files[0]?.source)).toMatchSnapshot();
 
     expect(root.files[0]?.imports).toStrictEqual([
       {
         isTypeOnly: false,
-        name: 'node',
-        path: 'node',
+        name: "node",
+        path: "node",
         root: undefined,
       },
-    ])
+    ]);
 
-    expect(await format(root.files[1]?.source)).toMatchSnapshot()
-  })
+    expect(await format(root.files[1]?.source)).toMatchSnapshot();
+  });
 
-  test('render File with multiple sources', async () => {
+  test("render File with multiple sources", async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
+          <File.Source path={path.resolve(mocksPath, "./test.ts")} print />
           <File.Source print>
             {`
             const test = 2;
             `}
           </File.Source>
         </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(await format(root.output)).toMatchSnapshot()
-  })
+    expect(await format(root.output)).toMatchSnapshot();
+  });
 
-  test('render multiple Files', async () => {
+  test("render multiple Files", async () => {
     const Component = () => {
       return (
         <>
@@ -192,70 +192,70 @@ describe('<File/>', () => {
             </File.Source>
           </File>
         </>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      );
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(await format(root.output)).toMatchSnapshot();
 
-    expect(root.files.length).toBe(2)
+    expect(root.files.length).toBe(2);
 
-    expect(await format(root.files[0]?.source)).toMatchSnapshot()
+    expect(await format(root.files[0]?.source)).toMatchSnapshot();
 
     expect(root.files[0]?.imports).toStrictEqual([
       {
         isTypeOnly: false,
-        name: 'node',
-        path: 'node',
+        name: "node",
+        path: "node",
         root: undefined,
       },
-    ])
+    ]);
 
-    expect(await format(root.files[1]?.source)).toMatchSnapshot()
-  })
-})
+    expect(await format(root.files[1]?.source)).toMatchSnapshot();
+  });
+});
 
-describe('<File.Export/>', () => {
-  test('render Export with print', () => {
+describe("<File.Export/>", () => {
+  test("render Export with print", () => {
     const Component = () => {
-      return <File.Export path="kubb" print />
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      return <File.Export path="kubb" print />;
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(root.output).toMatch('export * from "kubb"')
-  })
-})
+    expect(root.output).toMatch('export * from "kubb"');
+  });
+});
 
-describe('<File.Import/>', () => {
-  test('render Import with print', () => {
+describe("<File.Import/>", () => {
+  test("render Import with print", () => {
     const Component = () => {
-      return <File.Import name="React" path="react" print />
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      return <File.Import name="React" path="react" print />;
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(root.output).toMatch('import React from "react"')
-  })
+    expect(root.output).toMatch('import React from "react"');
+  });
 
-  test('render Import with print and type', () => {
+  test("render Import with print and type", () => {
     const Component = () => {
-      return <File.Import name="React" path="react" isTypeOnly print />
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      return <File.Import name="React" path="react" isTypeOnly print />;
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(root.output).toMatch('import type React from "react"')
-  })
+    expect(root.output).toMatch('import type React from "react"');
+  });
 
-  test('render Import with root', () => {
+  test("render Import with root", () => {
     const Component = () => {
-      return <File.Import name="React" root="types" path="types/test" print />
-    }
-    const root = createRoot()
-    root.render(<Component />)
+      return <File.Import name="React" root="types" path="types/test" print />;
+    };
+    const root = createRoot();
+    root.render(<Component />);
 
-    expect(root.output).toMatch('import React from "./test"')
-  })
-})
+    expect(root.output).toMatch('import React from "./test"');
+  });
+});

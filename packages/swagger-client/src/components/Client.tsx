@@ -45,19 +45,42 @@ type TemplateProps = {
 }
 
 function Template({ name, generics, returnType, params, JSDoc, client }: TemplateProps): KubbNode {
-  const clientOptions = [
-    `method: "${client.method}"`,
-    `url: ${client.path.template}`,
-    client.withQueryParams ? 'params' : undefined,
-    client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
-    '...options',
-  ].filter(Boolean)
-
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      <Function.Call name="res" async fnName="client" generics={client.generics} params={`{ ${clientOptions.join(', ')} }`} />
-      {`return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}`}
+      <Function.Call
+        name="res"
+        to={
+          <Function
+            name="client"
+            async
+            generics={client.generics}
+            params={{
+              data: {
+                mode: 'object',
+                children: {
+                  method: {
+                    value: JSON.stringify(client.method),
+                  },
+                  url: {
+                    value: client.path.template,
+                  },
+                  params: client.withQueryParams ? {} : undefined,
+                  data: client.withData ? {} : undefined,
+                  headers: client.withHeaders
+                    ? {
+                        value: '{ ...headers, ...options.headers }',
+                      }
+                    : undefined,
+                  options: {
+                    mode: 'inlineSpread',
+                  },
+                },
+              },
+            }}
+          />
+        }
+      />
+      <Function.Return>{client.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
     </Function>
   )
 }

@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getParams > 'default string' 1`] = `"name: string = test"`;
+
+exports[`getParams > 'empty children param' 1`] = `"{ age }"`;
+
+exports[`getParams > 'empty' 1`] = `"name"`;
+
+exports[`getParams > 'name and address' 1`] = `"name: string, address: string"`;
+
+exports[`getParams > 'name[optional] age, address[optional]…' 1`] = `"age: number, name?: string, address?: string, country: string = "Belgium""`;
+
+exports[`getParams > 'name[optional], age[optional] and add…' 1`] = `"address: string, name?: string, age?: number"`;
+
+exports[`getParams > 'optional string' 1`] = `"name?: string"`;
+
+exports[`getParams > 'params[with name] with age, address[o…' 1`] = `"{ age, country, address }: Data"`;
+
+exports[`getParams > 'params[without name and default] with…' 1`] = `"{ address, age = 90, country = 'Belgium' }: { address?: string; age?: number; country?: string } = {}"`;
+
+exports[`getParams > 'params[without name and mode inline] …' 1`] = `"data?: { address?: string; age?: number; country?: string }"`;
+
+exports[`getParams > 'params[without name and mode inline] …' 2`] = `"data: { address: string; age: number; country: string }"`;
+
+exports[`getParams > 'params[without name and mode inlineSp…' 1`] = `"address: string, age: number = 20, country: string = "Belgium""`;
+
+exports[`getParams > 'params[without name] with age, addres…' 1`] = `"{ age, country, address }: { age: number; country: string; address?: string }"`;
+
+exports[`getParams > 'params[without name] with age[optiona…' 1`] = `"{ address, age = 20, country = "Belgium" }?: { address?: string; age?: number; country?: string }"`;
+
+exports[`getParams > 'string' 1`] = `"name: string"`;
+
+exports[`getParams > 'undefined children param' 1`] = `""`;
+
+exports[`getParams > 'undefined' 1`] = `""`;

@@ -12,17 +12,25 @@ export type Param = {
   mode?: 'object' | 'inline' | 'inlineSpread'
   type?: 'string' | 'number' | (string & {})
   optional?: boolean
+  /**
+   * @example test = "default"
+   */
   default?: string
+  /**
+   * Used for no TypeScript(with mode object)
+   * @example test: "default"
+   */
+  value?: string
   children?: Params
 }
 
 type ParamItem =
-  | (Pick<Param, 'mode' | 'type'> & {
+  | (Pick<Param, 'mode' | 'type' | 'value'> & {
       optional?: true
       default?: never
       children?: Params
     })
-  | (Pick<Param, 'mode' | 'type'> & {
+  | (Pick<Param, 'mode' | 'type' | 'value'> & {
       optional?: false
       default?: string
       children?: Params
@@ -59,14 +67,18 @@ function parseChild(key: string, item: ParamItem): string[] {
 
   const optional = entries.every(([_key, item]) => item?.optional)
 
-  entries.forEach(([key, item]) => {
-    names.push(...parseItem(camelCase(key), { ...item, type: undefined }))
-    if (entries.some(([_key, item]) => item?.type)) {
-      types.push(...parseItem(camelCase(key), { ...item, default: undefined }))
+  entries.forEach(([key, entryItem]) => {
+    if (entryItem) {
+      names.push(...parseItem(camelCase(key), { ...entryItem, type: undefined }))
+      if (entries.some(([_key, item]) => item?.type)) {
+        types.push(...parseItem(camelCase(key), { ...entryItem, default: undefined }))
+      }
     }
   })
 
-  return parseItem(item.mode === 'inline' ? key : `{ ${names.join(', ')} }`, {
+  const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : ''
+
+  return parseItem(name, {
     type: item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined,
     default: item.default ? item.default : undefined,
     optional: !item.default ? optional : undefined,
@@ -82,8 +94,14 @@ function parseItem(name: string, item: ParamItem): string[] {
     } else {
       acc.push(`${name}: ${item.type}${item.default ? ` = ${item.default}` : ''}`)
     }
+  } else if (item.default) {
+    acc.push(`${name} = ${item.default}`)
+  } else if (item.value) {
+    acc.push(`${name} : ${item.value}`)
+  } else if (item.mode === 'inlineSpread') {
+    acc.push(`... ${name}`)
   } else {
-    acc.push(`${name}${item.default ? ` = ${item.default}` : ''}`)
+    acc.push(name)
   }
 
   return acc
