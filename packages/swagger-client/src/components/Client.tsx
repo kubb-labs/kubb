@@ -45,41 +45,45 @@ type TemplateProps = {
 }
 
 function Template({ name, generics, returnType, params, JSDoc, client }: TemplateProps): KubbNode {
+  const clientParams: Params = {
+    data: {
+      mode: 'object',
+      children: {
+        method: {
+          type: 'string',
+          value: JSON.stringify(client.method),
+        },
+        url: {
+          type: 'string',
+          value: client.path.template,
+        },
+        params: client.withQueryParams
+          ? {
+              type: 'any',
+            }
+          : undefined,
+        data: client.withData
+          ? {
+              type: 'any',
+            }
+          : undefined,
+        headers: client.withHeaders
+          ? {
+              type: 'any',
+              value: '{ ...headers, ...options.headers }',
+            }
+          : undefined,
+        options: {
+          type: 'any',
+          mode: 'inlineSpread',
+        },
+      },
+    },
+  }
+
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      <Function.Call
-        name="res"
-        to={
-          <Function
-            name="client"
-            async
-            generics={client.generics}
-            params={{
-              data: {
-                mode: 'object',
-                children: {
-                  method: {
-                    value: JSON.stringify(client.method),
-                  },
-                  url: {
-                    value: client.path.template,
-                  },
-                  params: client.withQueryParams ? {} : undefined,
-                  data: client.withData ? {} : undefined,
-                  headers: client.withHeaders
-                    ? {
-                        value: '{ ...headers, ...options.headers }',
-                      }
-                    : undefined,
-                  options: {
-                    mode: 'inlineSpread',
-                  },
-                },
-              },
-            }}
-          />
-        }
-      />
+      <Function.Call name="res" to={<Function name="client" async generics={client.generics} params={clientParams} />} />
       <Function.Return>{client.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
     </Function>
   )

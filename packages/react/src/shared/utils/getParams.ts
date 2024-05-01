@@ -38,6 +38,10 @@ type ParamItem =
 
 export type Params = Record<string, Param | undefined>
 
+type Options = {
+  type: 'constructor' | 'call'
+}
+
 function order(items: Array<[key: string, item?: ParamItem]>) {
   return orderBy(
     items.filter(Boolean),
@@ -59,7 +63,7 @@ function order(items: Array<[key: string, item?: ParamItem]>) {
   )
 }
 
-function parseChild(key: string, item: ParamItem): string[] {
+function parseChild(key: string, item: ParamItem, options: Options): string[] {
   const entries = order(Object.entries(item.children as ParamItem))
 
   const types: string[] = []
@@ -69,7 +73,18 @@ function parseChild(key: string, item: ParamItem): string[] {
 
   entries.forEach(([key, entryItem]) => {
     if (entryItem) {
-      names.push(...parseItem(camelCase(key), { ...entryItem, type: undefined }))
+      if (options.type === 'call') {
+        names.push(...parseItem(camelCase(key), { ...entryItem, type: undefined }))
+      } else {
+        names.push(
+          ...parseItem(camelCase(key), {
+            ...entryItem,
+            type: undefined,
+            value: undefined,
+          }),
+        )
+      }
+
       if (entries.some(([_key, item]) => item?.type)) {
         types.push(...parseItem(camelCase(key), { ...entryItem, default: undefined }))
       }
@@ -78,8 +93,10 @@ function parseChild(key: string, item: ParamItem): string[] {
 
   const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : ''
 
+  const type = item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined
+
   return parseItem(name, {
-    type: item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined,
+    type: options.type === 'constructor' ? type : undefined,
     default: item.default ? item.default : undefined,
     optional: !item.default ? optional : undefined,
   } as ParamItem)
@@ -107,7 +124,7 @@ function parseItem(name: string, item: ParamItem): string[] {
   return acc
 }
 
-export function getParams(items: Params): string {
+export function getParams(items: Params, options: Options): string {
   const entries = order(Object.entries(items as Record<string, ParamItem | undefined>))
 
   return entries
@@ -122,10 +139,10 @@ export function getParams(items: Params): string {
         }
 
         if (item.mode === 'inlineSpread') {
-          return [...acc, getParams(item.children!)]
+          return [...acc, getParams(item.children!, options)]
         }
 
-        const parsedItem = parseChild(key, item)
+        const parsedItem = parseChild(key, item, options)
 
         return [...acc, ...parsedItem]
       }
