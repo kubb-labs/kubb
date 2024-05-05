@@ -1,5 +1,16 @@
 # @kubb/swagger
 
+## 2.17.0
+
+### Patch Changes
+
+- [#978](https://github.com/kubb-labs/kubb/pull/978) [`5349115`](https://github.com/kubb-labs/kubb/commit/5349115aa59abc83c7211804f21c952b62a58415) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of parentName to filter on schema x + schemaKeywords.name to override mapping(with custom name)
+
+- Updated dependencies [[`e4d5b66`](https://github.com/kubb-labs/kubb/commit/e4d5b66ecaba34f19ae7426e945692f6ce848d81)]:
+  - @kubb/react@2.17.0
+  - @kubb/core@2.17.0
+  - @kubb/oas@2.17.0
+
 ## 2.16.3
 
 ### Patch Changes
