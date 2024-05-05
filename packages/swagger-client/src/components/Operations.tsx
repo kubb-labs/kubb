@@ -34,10 +34,10 @@ type RootTemplateProps = {
 
 function RootTemplate({ children }: RootTemplateProps) {
   const {
-    getFile,
+    pluginManager,
     plugin: { key: pluginKey },
   } = useApp<PluginOptions>()
-  const file = getFile({ name: 'operations', extName: '.ts', pluginKey })
+  const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
 
   return (
     <Parser language="typescript">
