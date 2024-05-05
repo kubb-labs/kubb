@@ -1,10 +1,10 @@
 import { createRoot } from '../client/createRoot.ts'
-import { Editor } from './Editor.tsx'
+import { Parser } from './Parser.tsx'
 
-describe('<Editor/>', () => {
-  test('render Editor with language typescript', () => {
+describe('<Parser/>', () => {
+  test('render Parser with language typescript', () => {
     const Component = () => {
-      return <Editor language="typescript">export const test = 2;</Editor>
+      return <Parser language="typescript">export const test = 2;</Parser>
     }
     const root = createRoot()
     root.render(<Component />)
@@ -12,9 +12,9 @@ describe('<Editor/>', () => {
     expect(root.output).toMatch('export const test = 2;')
   })
 
-  test('render Editor with language text', () => {
+  test('render Parser with language text', () => {
     const Component = () => {
-      return <Editor language="text">test</Editor>
+      return <Parser language="text">test</Parser>
     }
     const root = createRoot()
     root.render(<Component />)

@@ -1,9 +1,9 @@
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/parser'
-import * as factory from '@kubb/parser/factory'
+import { print } from '@kubb/ts-parser'
+import * as factory from '@kubb/ts-parser/factory'
 import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { ts } from '@kubb/parser'
+import type { ts } from '@kubb/ts-parser'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
 
 export const typeKeywordMapper = {

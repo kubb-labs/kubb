@@ -1,8 +1,8 @@
 import crypto from 'node:crypto'
 import { extname, resolve } from 'node:path'
 
-import { print } from '@kubb/parser'
-import * as factory from '@kubb/parser/factory'
+import { print } from '@kubb/ts-parser'
+import * as factory from '@kubb/ts-parser/factory'
 
 import { orderBy } from 'natural-orderby'
 import PQueue from 'p-queue'

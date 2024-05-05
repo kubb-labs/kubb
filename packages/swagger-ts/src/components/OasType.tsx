@@ -1,4 +1,4 @@
-import { Editor, File, Type, useApp } from '@kubb/react'
+import { Parser, File, Type, useApp } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
 import type { OasTypes } from '@kubb/oas'
@@ -62,14 +62,14 @@ OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileP
   const Template = templates.default
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['Infer']} path="@kubb/swagger-ts/oas" isTypeOnly />
         <File.Source>
           <OasType Template={Template} name={name} typeName={typeName} />
         </File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

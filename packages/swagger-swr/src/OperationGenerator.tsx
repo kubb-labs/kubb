@@ -32,7 +32,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     root.render(
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
             <Query.File
               templates={{
@@ -61,7 +61,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     root.render(
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-        <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
             <Mutation.File templates={options.templates.mutation} />
           </Oas.Operation>

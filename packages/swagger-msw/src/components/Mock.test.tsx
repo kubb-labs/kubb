@@ -42,7 +42,7 @@ describe('<Mock/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas oas={oas} operations={[operation]} generator={this}>
             <Oas.Operation operation={operation}>
               <Mock.File />
             </Oas.Operation>
@@ -62,7 +62,7 @@ describe('<Mock/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas oas={oas} operations={[operation]} generator={this}>
             <Oas.Operation operation={operation}>
               <Mock.File />
             </Oas.Operation>

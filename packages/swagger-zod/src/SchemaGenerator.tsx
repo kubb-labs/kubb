@@ -54,9 +54,9 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas}>
           <Oas.Schema generator={this} name={name} object={object}>
-            <Schema.File output={output}>
+            <Oas.Schema.File output={output}>
               <SchemaImports />
-            </Schema.File>
+            </Oas.Schema.File>
           </Oas.Schema>
         </Oas>
       </App>,

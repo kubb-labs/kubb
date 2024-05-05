@@ -1,4 +1,4 @@
-import { Editor, File, Function } from '@kubb/react'
+import { Parser, File, Function } from '@kubb/react'
 import { Client } from '@kubb/swagger-client/components'
 import type React from 'react'
 

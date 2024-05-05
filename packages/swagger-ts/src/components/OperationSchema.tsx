@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/parser'
-import * as factory from '@kubb/parser/factory'
-import { Editor, File, useApp } from '@kubb/react'
+import { print } from '@kubb/ts-parser'
+import * as factory from '@kubb/ts-parser/factory'
+import { Parser, File, useApp } from '@kubb/react'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
@@ -9,7 +9,7 @@ import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
-import type { ts } from '@kubb/parser'
+import type { ts } from '@kubb/ts-parser'
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { OperationSchemas } from '@kubb/swagger'
 import type { ReactNode } from 'react'
@@ -99,21 +99,21 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
   const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {mode === 'split' && <Schema.Imports isTypeOnly />}
+        {mode === 'split' && <Oas.Schema.Imports isTypeOnly />}
         <File.Source>
-          <Schema.Source options={options} />
+          <Oas.Schema.Source options={options} />
         </File.Source>
       </Oas.Schema>
     )
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {items.map(mapItem)}
 
         <File.Source>{printCombinedSchema(factoryName, operation, schemas)}</File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }

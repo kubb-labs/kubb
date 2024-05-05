@@ -69,7 +69,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/parser": "workspace:*",
+    "@kubb/ts-parser": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/types": "workspace:*"

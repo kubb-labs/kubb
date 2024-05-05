@@ -1,4 +1,4 @@
-import { Editor, File, useApp } from '@kubb/react'
+import { Parser, File, useApp } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
@@ -42,20 +42,20 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
-        {mode === 'split' && <Schema.Imports />}
+        {mode === 'split' && <Oas.Schema.Imports />}
         <File.Source>
-          <Schema.Source extraSchemas={optional ? [{ keyword: schemaKeywords.optional }] : undefined} options={options} />
+          <Oas.Schema.Source extraSchemas={optional ? [{ keyword: schemaKeywords.optional }] : undefined} options={options} />
         </File.Source>
       </Oas.Schema>
     )
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['z']} path="zod" />
         {items.map(mapItem)}
       </File>
-    </Editor>
+    </Parser>
   )
 }

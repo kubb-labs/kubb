@@ -1,10 +1,10 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/parser</h1>
+<h1>@kubb/ts-parser</h1>
 
 <p>
-   TypeScript codegen utils
+   TypeScript parser
   </p>
   <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
@@ -29,15 +29,15 @@
 </div>
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/parser?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/parser
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/parser?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/parser
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/ts-parser?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/ts-parser
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/ts-parser?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/ts-parser
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/parser
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/parser?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/parser
+[build-href]: https://www.npmjs.com/package/@kubb/ts-parser
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/ts-parser?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/ts-parser
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/parser
+[coverage-href]: https://www.npmjs.com/package/@kubb/ts-parser

@@ -23,8 +23,8 @@
       "@kubb/swagger-client/components": ["packages/swagger-client/src/components/index.ts"],
       "@kubb/react/server": ["packages/react/src/server/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
-      "@kubb/parser/factory": ["packages/parser/src/factory.ts"],
-      "@kubb/parser": ["packages/parser/src/index.ts"],
+      "@kubb/ts-parser/factory": ["packages/ts-parser/src/factory.ts"],
+      "@kubb/ts-parser": ["packages/ts-parser/src/index.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
       "@kubb/oas/parser": ["packages/oas/src/parser/index.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]

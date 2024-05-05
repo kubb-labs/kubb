@@ -1,4 +1,4 @@
-import { Editor, File, useApp } from '@kubb/react'
+import { Parser, File, useApp } from '@kubb/react'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 
 import transformers from '@kubb/core/transformers'
@@ -82,12 +82,12 @@ function RootTemplate({ children }: RootTemplateProps) {
     .filter(Boolean)
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
         {mode === 'split' && imports}
         <File.Source>{children}</File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

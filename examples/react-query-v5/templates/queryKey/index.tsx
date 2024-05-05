@@ -1,5 +1,5 @@
 import { type URLObject, URLPath } from '@kubb/core/utils'
-import { Editor, Function, Type } from '@kubb/react'
+import { Parser, Function, Type } from '@kubb/react'
 import { QueryKey } from '@kubb/swagger-tanstack-query/components'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import type React from 'react'

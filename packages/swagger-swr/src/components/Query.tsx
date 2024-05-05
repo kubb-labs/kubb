@@ -1,5 +1,5 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, useApp } from '@kubb/react'
+import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
@@ -245,7 +245,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
@@ -270,7 +270,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
           <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
         </File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

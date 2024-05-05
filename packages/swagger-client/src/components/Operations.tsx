@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, useApp } from '@kubb/react'
+import { Parser, File, useApp } from '@kubb/react'
 import { useOperations } from '@kubb/swagger/hooks'
 
 import type { HttpMethod, Operation } from '@kubb/oas'
@@ -11,11 +11,11 @@ type TemplateProps = {
   /**
    * Name of the function
    */
-  operationsName: string
+  name: string
   operations: Operation[]
 }
 
-function Template({ operationsName, operations }: TemplateProps): KubbNode {
+function Template({ name, operations }: TemplateProps): KubbNode {
   const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
 
   operations.forEach((operation) => {
@@ -25,7 +25,7 @@ function Template({ operationsName, operations }: TemplateProps): KubbNode {
     }
   })
   //TODO add Const component
-  return <>{`export const ${operationsName} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
+  return <>{`export const ${name} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
 }
 
 type RootTemplateProps = {
@@ -40,11 +40,11 @@ function RootTemplate({ children }: RootTemplateProps) {
   const file = getFile({ name: 'operations', extName: '.ts', pluginKey })
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
         <File.Source>{children}</File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 
@@ -62,7 +62,7 @@ type Props = {
 export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
   const operations = useOperations()
 
-  return <Template operationsName="operations" operations={operations} />
+  return <Template name="operations" operations={operations} />
 }
 
 type FileProps = {

@@ -1,4 +1,4 @@
-import { Editor, File, useApp } from '@kubb/react'
+import { Parser, File, useApp } from '@kubb/react'
 
 import type { KubbNode } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
@@ -28,11 +28,11 @@ function RootTemplate({ children }: RootTemplateProps) {
   })
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Source>{children}</File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 
