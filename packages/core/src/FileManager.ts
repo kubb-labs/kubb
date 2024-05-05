@@ -477,9 +477,9 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
 
   const importNodes = imports
     .filter((item) => {
-      // isImportNotNeeded
+      const path = item.root ? getRelativePath(item.root, item.path) : item.path
       // trim extName
-      return item.path !== trimExtName(file.path)
+      return path !== trimExtName(file.path)
     })
     .map((item) => {
       return factory.createImportDeclaration({
@@ -558,7 +558,13 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         }
 
         const checker = (name?: string) => name && !!source.includes(name)
+
         return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
+      }
+
+      if (curr.path === curr.root) {
+        // root and path are the same file, remove the "./" import
+        return prev
       }
 
       if (Array.isArray(name)) {

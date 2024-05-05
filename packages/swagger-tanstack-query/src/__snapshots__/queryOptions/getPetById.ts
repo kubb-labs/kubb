@@ -1,5 +1,4 @@
 import client from "@kubb/swagger-client/client";
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from "./";
 import type { UseBaseQueryOptions, QueryKey, WithRequired } from "@tanstack/react-query";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
