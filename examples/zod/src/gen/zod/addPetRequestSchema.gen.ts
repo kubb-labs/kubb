@@ -1,5 +1,5 @@
-import { categorySchema } from './categorySchema'
-import { tagSchema } from './tagSchema'
+import { categorySchema } from './categorySchema.gen'
+import { tagSchema } from './tagSchema.gen'
 import { z } from 'zod'
 
 export const addPetRequestSchema = z.object({

@@ -98,7 +98,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
    * @deprecated only used for testing
    */
   buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
-    const schemas = this.buildSchemas(schema, name)
+    const schemas = this.buildSchemas({ schema, name })
 
     // all checks are also inside this.schema(React)
     // hack so Params will be optional when needed

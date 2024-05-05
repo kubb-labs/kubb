@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "bundle-require": "^4.0.3",
+    "bundle-require": "^4.1.0",
     "cac": "^6.7.14",
     "chokidar": "^3.6.0",
     "cosmiconfig": "^9.0.0",
@@ -68,7 +68,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.8",
     "source-map-support": "^0.5.21",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"

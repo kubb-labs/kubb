@@ -63,7 +63,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
    */
 
   buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
-    const schemas = this.buildSchemas(schema, name)
+    const schemas = this.buildSchemas({ schema, name })
 
     return this.getSource(name, schemas, options)
   }

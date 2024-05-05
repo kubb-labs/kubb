@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { userSchema } from './userSchema'
+import { userSchema } from './userSchema.gen'
 
 /**
  * @description Successful operation

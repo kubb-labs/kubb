@@ -31,7 +31,7 @@ const SchemaContext = createContext<SchemaContextProps>({
 })
 
 export function Schema({ name, object, generator, children }: Props): KubbNode {
-  const schemas = generator.buildSchemas(object, name)
+  const schemas = generator.buildSchemas({ schema: object, name })
 
   return <SchemaContext.Provider value={{ name, schemas, object, generator }}>{children}</SchemaContext.Provider>
 }
@@ -125,6 +125,7 @@ Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
           if (!item.args.path) {
             return undefined
           }
+
           return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
         })
         .filter(Boolean)}

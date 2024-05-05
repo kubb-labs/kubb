@@ -108,6 +108,7 @@ export const typeKeywordMapper = {
   example: undefined,
   schema: undefined,
   catchall: undefined,
+  name: undefined,
 } satisfies SchemaMapper<ts.Node | null | undefined>
 
 type ParserOptions = {
@@ -171,9 +172,13 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
         const schemas = item[1]
         return schemas && typeof schemas.map === 'function'
       })
-      .map((item) => {
-        const name = item[0]
-        const schemas = item[1]
+      .map(([_name, schemas]) => {
+        let name = _name
+        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+
+        if (nameSchema) {
+          name = nameSchema.args
+        }
 
         const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
         const isNullable = schemas.some((schema) => schema.keyword === schemaKeywords.nullable)

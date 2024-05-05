@@ -1,6 +1,6 @@
 const { defineConfig } = require('@kubb/core')
 
-const { definePlugin: createSwagger } = require('@kubb/swagger')
+const { definePlugin: createSwagger, schemaKeywords } = require('@kubb/swagger')
 const { definePlugin: createSwaggerFaker } = require('@kubb/swagger-faker')
 const { definePlugin: createSwaggerTS } = require('@kubb/swagger-ts')
 
@@ -21,32 +21,32 @@ module.exports = defineConfig(() => {
           path: 'models',
         },
       }),
-      // createSwaggerFaker({
-      //   output: {
-      //     path: './mocks',
-      //   },
-      //   group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
-      // }),
       createSwaggerFaker({
         output: {
           path: './customMocks',
         },
         transformers: {
-          schema: (_schema, baseName) => {
+          schema: ({ schema, name, parentName }, defaultSchemas) => {
             /* override a property with name 'name'
-             name:
-                type: string
-                example: doggie
+               Pet:
+                  required:
+                    - name
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: doggie
             */
-            if (baseName === 'name') {
-              // see mapper where we map `productionName` to `faker.commerce.productName`
-              return [{ keyword: 'productName' }]
+            if (parentName === 'Pet' && name === 'name') {
+              // see mapper where we map `productionName` to `faker.commerce.productName`, the original name will be kept.
+              return [...defaultSchemas, { keyword: schemaKeywords.name, args: 'productName' }]
             }
             return undefined
           },
         },
         mapper: {
-          message: 'faker.commerce.productName()',
+          productName: 'faker.commerce.productName()',
+          message: 'faker.string.alpha({casing: "lower"})',
         },
         include: [
           {

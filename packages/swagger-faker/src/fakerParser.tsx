@@ -1,7 +1,7 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
 import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
 
-import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
 
 export const fakerKeywordMapper = {
   any: () => 'undefined',
@@ -87,6 +87,7 @@ export const fakerKeywordMapper = {
   example: undefined,
   schema: undefined,
   catchall: undefined,
+  name: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 
 /**
@@ -170,13 +171,13 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
         const schema = item[1]
         return schema && typeof schema.map === 'function'
       })
-      .map((item) => {
-        const name = item[0]
-        const schemas = item[1]
+      .map(([name, schemas]) => {
+        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+        const mappedName = nameSchema?.args || name
 
         // custom mapper(pluginOptions)
-        if (options.mapper?.[name]) {
-          return `"${name}": ${options.mapper?.[name]}`
+        if (options.mapper?.[mappedName]) {
+          return `"${name}": ${options.mapper?.[mappedName]}`
         }
 
         return `"${name}": ${joinItems(

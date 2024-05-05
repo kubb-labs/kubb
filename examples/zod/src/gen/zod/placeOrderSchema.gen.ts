@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { orderSchema } from './orderSchema'
+import { orderSchema } from './orderSchema.gen'
 
 /**
  * @description successful operation

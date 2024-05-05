@@ -7,4 +7,5 @@ export type Category = {
    * @type string | undefined
    */
   name?: string
+  parent?: Category
 }

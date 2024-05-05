@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { orderSchema } from './orderSchema'
+import { orderSchema } from './orderSchema.gen'
 
 export const getOrderByIdPathParamsSchema = z.object({ orderId: z.number().describe('ID of order that needs to be fetched') })
 

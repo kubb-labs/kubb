@@ -4,37 +4,48 @@ import {
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
   createPetsHeaderParamsSchema,
-} from './createPetsSchema'
-import { updatePetMutationRequestSchema, updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './updatePetSchema'
-import { addPetMutationRequestSchema, addPetMutationResponseSchema, addPet405Schema } from './addPetSchema'
-import { findPetsByStatusQueryResponseSchema, findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema } from './findPetsByStatusSchema'
+} from './createPetsSchema.gen'
+import {
+  updatePetMutationRequestSchema,
+  updatePetMutationResponseSchema,
+  updatePet400Schema,
+  updatePet404Schema,
+  updatePet405Schema,
+} from './updatePetSchema.gen'
+import { addPetMutationRequestSchema, addPetMutationResponseSchema, addPet405Schema } from './addPetSchema.gen'
+import { findPetsByStatusQueryResponseSchema, findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema } from './findPetsByStatusSchema.gen'
 import {
   findPetsByTagsQueryResponseSchema,
   findPetsByTags400Schema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsHeaderParamsSchema,
-} from './findPetsByTagsSchema'
-import { getPetByIdQueryResponseSchema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema } from './getPetByIdSchema'
+} from './findPetsByTagsSchema.gen'
+import { getPetByIdQueryResponseSchema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema } from './getPetByIdSchema.gen'
 import {
   updatePetWithFormMutationResponseSchema,
   updatePetWithForm405Schema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
-} from './updatePetWithFormSchema'
-import { deletePetMutationResponseSchema, deletePet400Schema, deletePetPathParamsSchema, deletePetHeaderParamsSchema } from './deletePetSchema'
-import { uploadFileMutationRequestSchema, uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './uploadFileSchema'
-import { getInventoryQueryResponseSchema } from './getInventorySchema'
-import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema, placeOrder405Schema } from './placeOrderSchema'
-import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema, placeOrderPatch405Schema } from './placeOrderPatchSchema'
-import { getOrderByIdQueryResponseSchema, getOrderById400Schema, getOrderById404Schema, getOrderByIdPathParamsSchema } from './getOrderByIdSchema'
-import { deleteOrderMutationResponseSchema, deleteOrder400Schema, deleteOrder404Schema, deleteOrderPathParamsSchema } from './deleteOrderSchema'
-import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema'
-import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './createUsersWithListInputSchema'
-import { loginUserQueryResponseSchema, loginUser400Schema, loginUserQueryParamsSchema } from './loginUserSchema'
-import { logoutUserQueryResponseSchema } from './logoutUserSchema'
-import { getUserByNameQueryResponseSchema, getUserByName400Schema, getUserByName404Schema, getUserByNamePathParamsSchema } from './getUserByNameSchema'
-import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema'
-import { deleteUserMutationResponseSchema, deleteUser400Schema, deleteUser404Schema, deleteUserPathParamsSchema } from './deleteUserSchema'
+} from './updatePetWithFormSchema.gen'
+import { deletePetMutationResponseSchema, deletePet400Schema, deletePetPathParamsSchema, deletePetHeaderParamsSchema } from './deletePetSchema.gen'
+import {
+  uploadFileMutationRequestSchema,
+  uploadFileMutationResponseSchema,
+  uploadFilePathParamsSchema,
+  uploadFileQueryParamsSchema,
+} from './uploadFileSchema.gen'
+import { getInventoryQueryResponseSchema } from './getInventorySchema.gen'
+import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema, placeOrder405Schema } from './placeOrderSchema.gen'
+import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema, placeOrderPatch405Schema } from './placeOrderPatchSchema.gen'
+import { getOrderByIdQueryResponseSchema, getOrderById400Schema, getOrderById404Schema, getOrderByIdPathParamsSchema } from './getOrderByIdSchema.gen'
+import { deleteOrderMutationResponseSchema, deleteOrder400Schema, deleteOrder404Schema, deleteOrderPathParamsSchema } from './deleteOrderSchema.gen'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.gen'
+import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './createUsersWithListInputSchema.gen'
+import { loginUserQueryResponseSchema, loginUser400Schema, loginUserQueryParamsSchema } from './loginUserSchema.gen'
+import { logoutUserQueryResponseSchema } from './logoutUserSchema.gen'
+import { getUserByNameQueryResponseSchema, getUserByName400Schema, getUserByName404Schema, getUserByNamePathParamsSchema } from './getUserByNameSchema.gen'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.gen'
+import { deleteUserMutationResponseSchema, deleteUser400Schema, deleteUser404Schema, deleteUserPathParamsSchema } from './deleteUserSchema.gen'
 
 export const operations = {
   createPets: {

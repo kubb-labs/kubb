@@ -1,5 +1,4 @@
 import client from "@kubb/swagger-client/client";
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from "./";
 import type { QueryKey } from "@tanstack/react-query";
 
  type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;

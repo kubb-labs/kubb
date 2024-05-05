@@ -24,7 +24,7 @@ function Template({ operationsName, operations }: TemplateProps): KubbNode {
       method: operation.method,
     }
   })
-
+  //TODO add Const component
   return <>{`export const ${operationsName} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
 }
 
@@ -34,10 +34,10 @@ type RootTemplateProps = {
 
 function RootTemplate({ children }: RootTemplateProps) {
   const {
-    pluginManager,
+    getFile,
     plugin: { key: pluginKey },
   } = useApp<PluginOptions>()
-  const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
+  const file = getFile({ name: 'operations', extName: '.ts', pluginKey })
 
   return (
     <Editor language="typescript">

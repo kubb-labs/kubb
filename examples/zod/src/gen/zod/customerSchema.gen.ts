@@ -1,4 +1,4 @@
-import { addressSchema } from './addressSchema'
+import { addressSchema } from './addressSchema.gen'
 import { z } from 'zod'
 
 export const customerSchema = z.object({
