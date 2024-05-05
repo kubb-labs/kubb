@@ -125,6 +125,7 @@ Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
           if (!item.args.path) {
             return undefined
           }
+
           return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
         })
         .filter(Boolean)}

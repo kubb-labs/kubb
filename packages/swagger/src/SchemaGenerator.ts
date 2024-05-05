@@ -341,15 +341,16 @@ export abstract class SchemaGenerator<
       pluginKey: this.context.plugin.key,
       type: 'file',
     })
-    const path = this.context.pluginManager.resolvePath({
-      baseName: fileName,
+    const file = this.context.pluginManager.getFile({
+      name: fileName,
       pluginKey: this.context.plugin.key,
+      extName: '.ts',
     })
 
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
-      path,
+      path: file.path,
     }
 
     return [

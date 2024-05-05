@@ -24,7 +24,7 @@ export function useApp<TOptions extends PluginFactoryOptions = PluginFactoryOpti
     plugin: app.plugin as Plugin<TOptions>,
     pluginManager: app.pluginManager,
     fileManager: app.pluginManager.fileManager,
-    getFile: app.pluginManager.getFile,
+    getFile: app.pluginManager.getFile.bind(app.pluginManager),
     mode: app.mode,
   }
 }

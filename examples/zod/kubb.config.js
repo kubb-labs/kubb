@@ -29,6 +29,7 @@ export default defineConfig(async () => {
           path: './zod',
         },
         transformers: {
+          name: (name, type) => (type === 'file' ? `${name}.gen` : name),
           schema: ({ schema, parentName, name }, defaultSchemas) => {
             /* override a property with name 'name'
                Pet:
