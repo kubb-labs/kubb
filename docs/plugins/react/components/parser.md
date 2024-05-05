@@ -9,15 +9,15 @@ outline: deep
 
 ```tsx twoslash
 import React from "react"
-import { createRoot, Editor } from '@kubb/react'
+import { createRoot, Parser } from '@kubb/react'
 
 const root = createRoot()
 
 const Component = () => {
   return (
-    <Editor language="text">
+    <Parser language="text">
       export const test = 2
-    </Editor>
+    </Parser>
   )
 }
 
@@ -35,9 +35,9 @@ export const test = 2
 
 ```tsx twoslash
 import React from "react"
-import { Editor } from '@kubb/react'
+import { Parser } from '@kubb/react'
 
-type Props = React.ComponentProps<typeof Editor>
+type Props = React.ComponentProps<typeof Parser>
 ```
 
 | Property | Description                | Type                               | Default |

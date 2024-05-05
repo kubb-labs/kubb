@@ -165,8 +165,8 @@ const pluginsSidebar = [
                 link: '/plugins/react/components/function',
               },
               {
-                text: 'Editor <img src="/icons/experimental.svg"/> <span class="new">new</span>',
-                link: '/plugins/react/components/editor',
+                text: 'Parser',
+                link: '/plugins/react/components/Parser',
               },
               {
                 text: 'Type',
