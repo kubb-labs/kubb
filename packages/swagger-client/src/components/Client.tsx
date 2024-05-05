@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, useApp } from '@kubb/react'
+import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getComments, getPathParams } from '@kubb/swagger/utils'
@@ -110,7 +110,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   const schemas = getSchemas(operation)
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
@@ -122,7 +122,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         />
         <File.Source>{children}</File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

@@ -1,4 +1,4 @@
-import { print } from '@kubb/parser'
+import { print } from '@kubb/ts-parser'
 
 import { schemas } from '../../swagger/mocks/schemas.ts'
 import { parseTypeMeta, typeParser } from './typeParser.ts'

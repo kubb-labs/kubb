@@ -1,6 +1,6 @@
 export type { RootContextProps as AppContextProps } from './Root.tsx'
-export type { EditorLanguage } from './Editor.tsx'
-export { Editor, TypeScript } from './Editor.tsx'
+export type { ParserLanguage } from './Parser.tsx'
+export { Parser, TypeScript } from './Parser.tsx'
 export { File } from './File.tsx'
 export { Function } from './Function.tsx'
 export { Text } from './Text.tsx'

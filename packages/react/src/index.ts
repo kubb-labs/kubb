@@ -1,10 +1,11 @@
 export type { RootType } from './client/index.ts'
 export { createRoot } from './client/index.ts'
-export type { EditorLanguage } from './components/index.ts'
-export { Editor, File, App, Function, Text, Type } from './components/index.ts'
+export type { ParserLanguage } from './components/index.ts'
+export { Parser, File, App, Function, Text, Type } from './components/index.ts'
 export {
   useApp,
   useFile,
+  useParser,
   useEditor,
   useIndent,
 } from './hooks/index.ts'

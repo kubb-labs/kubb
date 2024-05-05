@@ -3,8 +3,8 @@ import { useApp, useContext } from '@kubb/react'
 import { Oas } from '../components/Oas.tsx'
 
 import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
-import type { Operation as OperationType } from '@kubb/oas'
-import type { GetOperationSchemas } from '../components/Oas.tsx'
+import type { Operation, Operation as OperationType } from '@kubb/oas'
+import type { OperationSchemas } from '@kubb/swagger'
 
 type FileMeta = KubbFile.FileMetaBase & {
   pluginKey: Plugin['key']
@@ -26,7 +26,7 @@ type UseOperationManagerResult = {
   getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
   getFile: (operation: OperationType, params?: { pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
   groupSchemasByByName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => SchemaNames
-  getSchemas: GetOperationSchemas
+  getSchemas: (operation: Operation, forStatusCode?: string | number) => OperationSchemas
 }
 
 /**
@@ -34,10 +34,10 @@ type UseOperationManagerResult = {
  */
 export function useOperationManager(): UseOperationManagerResult {
   const { plugin, pluginManager } = useApp()
-  const { getOperationSchemas } = useContext(Oas.Context)
+  const { generator } = useContext(Oas.Context)
 
-  if (!getOperationSchemas) {
-    throw new Error(`'getOperationSchemas' is not defined`)
+  if (!generator) {
+    throw new Error(`'generator' is not defined`)
   }
 
   const getName: UseOperationManagerResult['getName'] = (operation, { pluginKey = plugin.key, type }) => {
@@ -72,7 +72,7 @@ export function useOperationManager(): UseOperationManagerResult {
   }
 
   const groupSchemasByByName: UseOperationManagerResult['groupSchemasByByName'] = (operation, { pluginKey = plugin.key, type }) => {
-    const schemas = getOperationSchemas(operation)
+    const schemas = generator.getSchemas(operation)
 
     const errors = (schemas.errors || []).reduce(
       (prev, acc) => {
@@ -136,7 +136,7 @@ export function useOperationManager(): UseOperationManagerResult {
   return {
     getName,
     getFile,
-    getSchemas: getOperationSchemas,
+    getSchemas: (operation, forStatusCode) => generator.getSchemas(operation, forStatusCode),
     groupSchemasByByName,
   }
 }

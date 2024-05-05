@@ -42,11 +42,11 @@ declare global {
         print?: boolean
       }
 
-      'kubb-editor': {
+      'kubb-parser': {
         language?: string
         children?: ReactNode
       }
-      'kubb-editor-provider': {
+      'kubb-parser-provider': {
         language?: string
         children?: ReactNode
       }

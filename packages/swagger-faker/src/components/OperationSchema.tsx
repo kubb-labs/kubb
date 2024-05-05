@@ -1,4 +1,4 @@
-import { Editor, File, useApp } from '@kubb/react'
+import { Parser, File, useApp } from '@kubb/react'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
@@ -58,20 +58,20 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
       <Oas.Schema key={i} generator={generator} name={name} object={object}>
         {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
 
-        {mode === 'split' && <Schema.Imports />}
+        {mode === 'split' && <Oas.Schema.Imports />}
         <File.Source>
-          <Schema.Source options={{ ...options, withData: false }} />
+          <Oas.Schema.Source options={{ ...options, withData: false }} />
         </File.Source>
       </Oas.Schema>
     )
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['faker']} path="@faker-js/faker" />
         {items.map(mapItem)}
       </File>
-    </Editor>
+    </Parser>
   )
 }

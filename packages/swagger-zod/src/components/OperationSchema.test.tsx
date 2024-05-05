@@ -52,7 +52,7 @@ describe('<OperationSchema/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
               <OperationSchema.File />
             </Oas.Operation>
@@ -73,7 +73,7 @@ describe('<OperationSchema/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} getOperationSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
               <OperationSchema.File />
             </Oas.Operation>

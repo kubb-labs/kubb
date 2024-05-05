@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, useApp } from '@kubb/react'
+import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
@@ -553,7 +553,7 @@ Query.File = function ({ templates, imports = QueryImports.templates }: FileProp
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {parser === 'zod' && <File.Import name={[zodResponseName]} root={file.path} path={fileZodSchemas.path} />}
         <File.Import name={'client'} path={importPath} />
@@ -622,7 +622,7 @@ Query.File = function ({ templates, imports = QueryImports.templates }: FileProp
           )}
         </File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

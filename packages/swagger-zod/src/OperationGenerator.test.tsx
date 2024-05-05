@@ -1,5 +1,5 @@
 import { FileManager } from '@kubb/core'
-import { mockedPluginManager } from '@kubb/core/mocks'
+import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
@@ -47,13 +47,8 @@ describe('OperationGenerator', async () => {
     const files = (await og.operation(operation, options)) as KubbFile.File[]
     const getShowByIdFiles = (await og.operation(operationShowById, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
-
-    getShowByIdFiles.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
+    await matchFiles(files)
+    await matchFiles(getShowByIdFiles)
   })
 
   test('[POST] should generate', async () => {
@@ -84,9 +79,7 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pets', 'post')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
+    await matchFiles(files)
   })
 
   test('[DELETE] should generate with unknownType `any`', async () => {
@@ -117,9 +110,7 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pet/{petId}', 'delete')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
+    await matchFiles(files)
   })
 
   test('[DELETE] should generate with unknownType `unknown`', async () => {

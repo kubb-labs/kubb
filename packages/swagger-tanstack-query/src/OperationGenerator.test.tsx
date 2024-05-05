@@ -1,5 +1,5 @@
 import { FileManager } from '@kubb/core'
-import { mockedPluginManager } from '@kubb/core/mocks'
+import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Query } from './components/Query.tsx'
@@ -236,8 +236,9 @@ describe('OperationGenerator', async () => {
 
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchFileSnapshot(`./__snapshots__/${name}/${file.path}`)
-    })
+    for (const file of files) {
+      const source = await FileManager.getSource(file)
+      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file.path}`)
+    }
   })
 })

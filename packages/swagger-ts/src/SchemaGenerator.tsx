@@ -22,7 +22,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas}>
           <Oas.Schema generator={this} name={name} object={object}>
-            <Schema.File isTypeOnly output={output} />
+            <Oas.Schema.File isTypeOnly output={output} />
           </Oas.Schema>
         </Oas>
       </App>,

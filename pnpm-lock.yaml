@@ -1123,9 +1123,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@kubb/parser':
+      '@kubb/ts-parser':
         specifier: workspace:*
-        version: link:../parser
+        version: link:../ts-parser
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
@@ -1280,39 +1280,14 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/parser:
-    dependencies:
-      remeda:
-        specifier: ^1.61.0
-        version: 1.61.0
-      typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
-    devDependencies:
-      '@kubb/biome-config':
-        specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
-        specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
-        specifier: workspace:*
-        version: link:../config/tsup-config
-      prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
-      tsup:
-        specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5)
-
   packages/react:
     dependencies:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/parser':
+      '@kubb/ts-parser':
         specifier: workspace:*
-        version: link:../parser
+        version: link:../ts-parser
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2
@@ -1414,9 +1389,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1426,6 +1398,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1460,9 +1435,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1472,6 +1444,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1503,9 +1478,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1518,6 +1490,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1549,9 +1524,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1564,6 +1536,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1595,9 +1570,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1613,6 +1585,9 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1644,15 +1619,15 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
@@ -1687,9 +1662,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1699,6 +1671,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1733,9 +1708,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser':
-        specifier: workspace:*
-        version: link:../parser
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1745,6 +1717,9 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
+      '@kubb/ts-parser':
+        specifier: workspace:*
+        version: link:../ts-parser
     devDependencies:
       '@kubb/biome-config':
         specifier: workspace:*
@@ -1770,6 +1745,31 @@ importers:
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
+
+  packages/ts-parser:
+    dependencies:
+      remeda:
+        specifier: ^1.61.0
+        version: 1.61.0
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+    devDependencies:
+      '@kubb/biome-config':
+        specifier: workspace:*
+        version: link:../config/biome-config
+      '@kubb/ts-config':
+        specifier: workspace:*
+        version: link:../config/ts-config
+      '@kubb/tsup-config':
+        specifier: workspace:*
+        version: link:../config/tsup-config
+      prettier:
+        specifier: ^3.2.5
+        version: 3.2.5
+      tsup:
+        specifier: ^8.0.2
+        version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5)
 
   packages/types:
     devDependencies:

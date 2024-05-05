@@ -1,4 +1,4 @@
-import { Editor, File } from '@kubb/react'
+import { Parser, File } from '@kubb/react'
 import type { Client } from '@kubb/swagger-client/components'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import type React from 'react'
@@ -22,11 +22,11 @@ export const templates = {
     const filePython = getFile(operation, { extName: '.py' })
 
     return (
-      <Editor language="python">
+      <Parser language="python">
         <File baseName={filePython.baseName} path={filePython.path} meta={filePython.meta}>
           <File.Source>{children}</File.Source>
         </File>
-      </Editor>
+      </Parser>
     )
   },
 } as const

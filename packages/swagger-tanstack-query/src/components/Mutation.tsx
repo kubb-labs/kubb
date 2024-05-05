@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Editor, File, Function, useApp } from '@kubb/react'
+import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
@@ -415,7 +415,7 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
@@ -444,7 +444,7 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
           />
         </File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

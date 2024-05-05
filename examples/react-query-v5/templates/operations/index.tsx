@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { Editor, File, Type, useApp } from '@kubb/react'
+import { Parser, File, Type, useApp } from '@kubb/react'
 import type { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
@@ -38,7 +38,7 @@ export const templates = {
     )
 
     return (
-      <Editor language="typescript">
+      <Parser language="typescript">
         <File<FileMeta> baseName={'invalidations.ts'} path={path.join(root, './invalidations.ts')}>
           <File.Import name={imports} path={path.join(root, './index.ts')} root={path.join(root, './invalidations.ts')} isTypeOnly />
 
@@ -51,7 +51,7 @@ export const templates = {
             </Type>
           </File.Source>
         </File>
-      </Editor>
+      </Parser>
     )
   },
 } as const

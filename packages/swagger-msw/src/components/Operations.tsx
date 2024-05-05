@@ -1,4 +1,4 @@
-import { Editor, File, useApp } from '@kubb/react'
+import { Parser, File, useApp } from '@kubb/react'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
@@ -17,11 +17,11 @@ function Template({ name, handlers }: TemplateProps): ReactNode {
   return <>{`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}</>
 }
 
-type EditorTemplateProps = {
+type ParserTemplateProps = {
   children?: React.ReactNode
 }
 
-function RootTemplate({ children }: EditorTemplateProps) {
+function RootTemplate({ children }: ParserTemplateProps) {
   const {
     pluginManager,
     plugin: { key: pluginKey },
@@ -42,12 +42,12 @@ function RootTemplate({ children }: EditorTemplateProps) {
     .filter(Boolean)
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {imports}
         <File.Source>{children}</File.Source>
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

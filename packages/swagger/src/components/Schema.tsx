@@ -1,4 +1,4 @@
-import { Editor, File, createContext, useApp, useFile } from '@kubb/react'
+import { Parser, File, createContext, useApp, useFile } from '@kubb/react'
 
 import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
@@ -58,7 +58,7 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
     }
 
     return (
-      <Editor language="typescript">
+      <Parser language="typescript">
         <File
           baseName={baseName}
           path={resolvedPath}
@@ -71,7 +71,7 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
           </File.Source>
           {children}
         </File>
-      </Editor>
+      </Parser>
     )
   }
 
@@ -90,7 +90,7 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
   }
 
   return (
-    <Editor language="typescript">
+    <Parser language="typescript">
       <File
         baseName={baseName}
         path={resolvedPath}
@@ -104,7 +104,7 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
         </File.Source>
         {children}
       </File>
-    </Editor>
+    </Parser>
   )
 }
 

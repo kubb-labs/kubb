@@ -97,7 +97,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/parser": "workspace:*",
+    "@kubb/ts-parser": "workspace:*",
     "@kubb/types": "workspace:*",
     "change-case": "^5.4.4",
     "directory-tree": "^3.5.1",

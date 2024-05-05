@@ -144,8 +144,8 @@ const pluginsSidebar = [
         link: '/plugins/cli/',
       },
       {
-        text: '@kubb/parser',
-        link: '/plugins/parser/',
+        text: '@kubb/ts-parser',
+        link: '/plugins/ts-parser/',
       },
       {
         text: '@kubb/react <span class="new">New</span>',
@@ -165,8 +165,8 @@ const pluginsSidebar = [
                 link: '/plugins/react/components/function',
               },
               {
-                text: 'Editor <img src="/icons/experimental.svg"/> <span class="new">new</span>',
-                link: '/plugins/react/components/editor',
+                text: 'Parser',
+                link: '/plugins/react/components/Parser',
               },
               {
                 text: 'Type',
@@ -381,8 +381,8 @@ const pluginsMenu = [
         link: '/plugins/cli/',
       },
       {
-        text: '@kubb/parser',
-        link: '/plugins/parser/',
+        text: '@kubb/ts-parser',
+        link: '/plugins/ts-parser/',
       },
       {
         text: '@kubb/react',
@@ -537,7 +537,7 @@ export default defineConfig({
               '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
               '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
               '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
-              '@kubb/parser': ['../packages/parser/src/index.ts'],
+              '@kubb/ts-parser': ['../packages/ts-parser/src/index.ts'],
               '@kubb/react': ['../packages/react/src/index.ts'],
               'unplugin-kubb': ['../packages/unplugin/src/index.ts'],
               'unplugin-kubb/vite': ['../packages/unplugin/src/vite.ts'],
