@@ -1,7 +1,6 @@
 import crypto from 'node:crypto'
 import { extname, resolve } from 'node:path'
 
-import { print } from '@kubb/ts-parser'
 import * as factory from '@kubb/ts-parser/factory'
 
 import { orderBy } from 'natural-orderby'
@@ -19,6 +18,7 @@ import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
 import transformers from './transformers/index.ts'
 import type { Plugin } from './types.ts'
+import { getParser } from './utils';
 
 type BasePath<T extends string = string> = `${T}/`
 
@@ -405,7 +405,7 @@ export class FileManager {
 
   // statics
 
-  static getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
+  static async getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): Promise<string> {
     return getSource<TMeta>(file)
   }
 
@@ -464,12 +464,14 @@ function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBas
   )
 }
 
-export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
+export async function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): Promise<string> {
   // only use .js, .ts or .tsx files for ESM imports
 
   if (file.language ? !['typescript', 'javascript'].includes(file.language) : !FileManager.isJavascript(file.baseName)) {
     return file.source
   }
+
+  const parser = await getParser(file.language)
 
   const exports = file.exports ? combineExports(file.exports) : []
   // imports should be defined and source should contain code or we have imports without them being used
@@ -482,14 +484,14 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
       return path !== trimExtName(file.path)
     })
     .map((item) => {
-      return factory.createImportDeclaration({
+      return parser.factory.createImportDeclaration({
         name: item.name,
         path: item.root ? getRelativePath(item.root, item.path) : item.path,
         isTypeOnly: item.isTypeOnly,
       })
     })
   const exportNodes = exports.map((item) =>
-    factory.createExportDeclaration({
+    parser.factory.createExportDeclaration({
       name: item.name,
       path: item.path,
       isTypeOnly: item.isTypeOnly,
@@ -497,10 +499,10 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
     }),
   )
 
-  const source = [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
+  const source = [parser.print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
 
   // do some basic linting with the ts compiler
-  return print([], { source, noEmitHelpers: false })
+  return parser.print([], { source, noEmitHelpers: false })
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {

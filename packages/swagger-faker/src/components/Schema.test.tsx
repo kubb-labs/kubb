@@ -56,7 +56,7 @@ describe('<Schema/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={this}>
+          <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
               <OperationSchema.File />
             </Oas.Operation>
@@ -76,7 +76,7 @@ describe('<Schema/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={this}>
+          <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
               <OperationSchema.File />
             </Oas.Operation>

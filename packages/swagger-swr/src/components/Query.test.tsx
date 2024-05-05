@@ -42,7 +42,7 @@ describe('<Query/>', async () => {
   }
 
   const plugin = { options } as Plugin<PluginOptions>
-  const og = await new OperationGenerator(options, {
+  const og =  new OperationGenerator(options, {
     oas,
     exclude: [],
     include: undefined,
@@ -59,7 +59,7 @@ describe('<Query/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={this}>
+          <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
               <Query.File />
             </Oas.Operation>

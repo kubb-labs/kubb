@@ -136,7 +136,7 @@ export function useOperationManager(): UseOperationManagerResult {
   return {
     getName,
     getFile,
-    getSchemas: generator.getSchemas,
+    getSchemas: (operation, forStatusCode)=> generator.getSchemas(operation, forStatusCode),
     groupSchemasByByName,
   }
 }

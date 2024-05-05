@@ -172,7 +172,7 @@ describe('FileManager', () => {
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', async () => {
-    const code = FileManager.getSource({
+    const code = await FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
@@ -184,7 +184,7 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    const codeWithDefaultImport = FileManager.getSource({
+    const codeWithDefaultImport = await FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat; const test = [client, React];',
@@ -204,7 +204,7 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    const codeWithDefaultImportOrder = FileManager.getSource({
+    const codeWithDefaultImportOrder = await FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
@@ -230,13 +230,13 @@ describe('FileManager utils', () => {
       ],
     })
 
-    expect(await format(code)).toMatchSnapshot()
-    expect(await format(codeWithDefaultImport)).toMatchSnapshot()
-    expect(await format(codeWithDefaultImportOrder)).toMatchSnapshot()
+    expect(await format(await code)).toMatchSnapshot()
+    expect(await format(await codeWithDefaultImport)).toMatchSnapshot()
+    expect(await format(await codeWithDefaultImportOrder)).toMatchSnapshot()
   })
 
   test('if getFileSource is returning code with imports and default import', async () => {
-    const code = FileManager.getSource({
+    const code = await FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
@@ -351,8 +351,8 @@ export const test2 = 3;`,
       ],
     }
 
-    expect(await format(FileManager.getSource(fileImport))).toMatchSnapshot()
-    expect(await format(FileManager.getSource(fileExport))).toMatchSnapshot()
+    expect(await format(await FileManager.getSource(fileImport))).toMatchSnapshot()
+    expect(await format(await FileManager.getSource(fileExport))).toMatchSnapshot()
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
@@ -515,9 +515,9 @@ export const test2 = 3;`,
       },
     }
 
-    expect(await format(FileManager.getSource(fileImport))).toMatchSnapshot()
-    expect(await format(FileManager.getSource(fileImportAdvanced))).toMatchSnapshot()
-    expect(await format(FileManager.getSource(fileImportDeclareModule))).toMatchSnapshot()
+    expect(await format(await FileManager.getSource(fileImport))).toMatchSnapshot()
+    expect(await format(await FileManager.getSource(fileImportAdvanced))).toMatchSnapshot()
+    expect(await format(await FileManager.getSource(fileImportDeclareModule))).toMatchSnapshot()
   })
 
   test('if combineExports is filtering out duplicated exports', () => {

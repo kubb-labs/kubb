@@ -65,7 +65,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   const task = async (file: KubbFile.ResolvedFile): Promise<KubbFile.ResolvedFile> => {
     const { path } = file
 
-    let source: string | null = FileManager.getSource(file)
+    let source: string | null = await FileManager.getSource(file)
 
     const { result: loadedResult } = await pluginManager.hookFirst({
       hookName: 'load',
@@ -188,11 +188,13 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     logger.emit('end', '💾 Writing completed')
   }
 
+  const files = await Promise.all(fileManager.files.map(async (file) => ({
+    ...file,
+    source: await FileManager.getSource(file),
+  })))
+
   return {
-    files: fileManager.files.map((file) => ({
-      ...file,
-      source: FileManager.getSource(file),
-    })),
+    files,
     pluginManager,
   }
 }
@@ -214,21 +216,25 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       logger.emit('end', '💾 Writing completed')
     }
   } catch (e) {
+    const files = await Promise.all(fileManager.files.map(async (file) => ({
+      ...file,
+      source: await FileManager.getSource(file),
+    })))
+
     return {
-      files: fileManager.files.map((file) => ({
-        ...file,
-        source: FileManager.getSource(file),
-      })),
+      files,
       pluginManager,
       error: e as Error,
     }
   }
 
+  const files = await Promise.all(fileManager.files.map(async (file) => ({
+    ...file,
+    source: await FileManager.getSource(file),
+  })))
+
   return {
-    files: fileManager.files.map((file) => ({
-      ...file,
-      source: FileManager.getSource(file),
-    })),
+    files,
     pluginManager,
   }
 }

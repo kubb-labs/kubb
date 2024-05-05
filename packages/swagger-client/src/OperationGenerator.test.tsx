@@ -1,5 +1,5 @@
 import { FileManager } from '@kubb/core'
-import { mockedPluginManager } from '@kubb/core/mocks'
+import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -45,9 +45,7 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
+    await matchFiles(files)
   })
 
   test('[GET] should generate with pathParamsType `object`', async () => {
@@ -76,9 +74,7 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
+    await matchFiles(files)
   })
 
   test('[GET] should generate with templates', async () => {
@@ -110,8 +106,6 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-    files.forEach((file) => {
-      expect(FileManager.getSource(file)).toMatchSnapshot()
-    })
+    await matchFiles(files)
   })
 })

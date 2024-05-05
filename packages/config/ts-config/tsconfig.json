@@ -33,7 +33,7 @@
       "path": "../../swagger-zodios"
     },
     {
-      "path": "../../parser"
+      "path": "../../ts-parser"
     },
     {
       "path": "../../react"
