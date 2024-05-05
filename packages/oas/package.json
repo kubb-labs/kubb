@@ -2,7 +2,12 @@
   "name": "@kubb/oas",
   "version": "2.16.3",
   "description": "Oas helpers",
-  "keywords": ["typescript", "plugins", "kubb", "codegen"],
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
@@ -31,10 +36,17 @@
   "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
-      "parser": ["./dist/parser.d.ts"]
+      "parser": [
+        "./dist/parser.d.ts"
+      ]
     }
   },
-  "files": ["src", "dist", "!/**/**.test.**", "!/**/__tests__/**"],
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",
@@ -48,8 +60,8 @@
   },
   "dependencies": {
     "hotscript": "^1.0.13",
-    "json-schema-to-ts": "^3.0.1",
-    "oas": "^24.3.0",
+    "json-schema-to-ts": "^3.1.0",
+    "oas": "^24.3.1",
     "oas-normalize": "^11.0.4",
     "openapi-format": "^1.17.0",
     "openapi-types": "^12.1.3",
