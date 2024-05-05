@@ -54,7 +54,7 @@ importers:
         version: 5.4.5
       vite-tsconfig-paths:
         specifier: ^4.3.2
-        version: 4.3.2(typescript@5.4.5)(vite@4.5.3(@types/node@20.12.8)(terser@5.30.4))
+        version: 4.3.2(typescript@5.4.5)(vite@5.2.11(@types/node@20.12.8)(terser@5.30.4))
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.12.8)(@vitest/ui@1.6.0)(jsdom@20.0.3)(terser@5.30.4)
@@ -1365,6 +1365,9 @@ importers:
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
+      mobx:
+        specifier: ^6.0.4
+        version: 6.12.3
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
@@ -12956,13 +12959,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-tsconfig-paths@4.3.2(typescript@5.4.5)(vite@4.5.3(@types/node@20.12.8)(terser@5.30.4)):
+  vite-tsconfig-paths@4.3.2(typescript@5.4.5)(vite@5.2.11(@types/node@20.12.8)(terser@5.30.4)):
     dependencies:
       debug: 4.3.4
       globrex: 0.1.2
       tsconfck: 3.0.3(typescript@5.4.5)
     optionalDependencies:
-      vite: 4.5.3(@types/node@20.12.8)(terser@5.30.4)
+      vite: 5.2.11(@types/node@20.12.8)(terser@5.30.4)
     transitivePeerDependencies:
       - supports-color
       - typescript
