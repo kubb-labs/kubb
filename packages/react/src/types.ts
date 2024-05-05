@@ -39,11 +39,11 @@ declare global {
         print?: boolean
       }
 
-      'kubb-editor': {
+      'kubb-parser': {
         language?: string
         children?: ReactNode
       }
-      'kubb-editor-provider': {
+      'kubb-parser-provider': {
         language?: string
         children?: ReactNode
       }
@@ -61,7 +61,7 @@ export type ElementNames =
   | 'kubb-root'
   | 'kubb-app'
   | 'kubb-language'
-  | 'kubb-editor'
+  | 'kubb-parser'
 
 export type Node = {
   parentNode: DOMElement | undefined

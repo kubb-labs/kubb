@@ -31,9 +31,9 @@ export function TypeScript({ children }: Omit<Props, 'language'>): KubbNode {
 
 export function Parser({ language = 'text', children }: Props): KubbNode {
   return (
-    <kubb-editor language={language}>
+    <kubb-parser language={language}>
       <ParserContext.Provider value={{ language }}>{children}</ParserContext.Provider>
-    </kubb-editor>
+    </kubb-parser>
   )
 }
 
