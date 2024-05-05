@@ -1,5 +1,17 @@
 # @kubb/react
 
+## 2.17.0
+
+### Minor Changes
+
+- [#968](https://github.com/kubb-labs/kubb/pull/968) [`e4d5b66`](https://github.com/kubb-labs/kubb/commit/e4d5b66ecaba34f19ae7426e945692f6ce848d81) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Function.Call and functionParams logic
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.17.0
+  - @kubb/parser@2.17.0
+
 ## 2.16.3
 
 ### Patch Changes
