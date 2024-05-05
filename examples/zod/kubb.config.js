@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwagger, schemaKeywords } from '@kubb/swagger'
 import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
 import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
 
@@ -27,6 +27,28 @@ export default defineConfig(async () => {
       createSwaggerZod({
         output: {
           path: './zod',
+        },
+        transformers: {
+          schema: ({ schema, parentName, name }, defaultSchemas) => {
+            /* override a property with name 'name'
+               Pet:
+                  required:
+                    - name
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: doggie
+            */
+            if (parentName === 'Pet' && name === 'name') {
+              // see mapper where we map `productionName` to `faker.commerce.productName`, the original name will be kept.
+              return [...defaultSchemas, { keyword: schemaKeywords.name, args: 'productName' }]
+            }
+            return undefined
+          },
+        },
+        mapper: {
+          productName: 'z.string().uuid()',
         },
       }),
     ],

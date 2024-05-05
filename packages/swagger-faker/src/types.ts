@@ -1,5 +1,5 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { OasTypes } from '@kubb/oas'
+import type { OasTypes, SchemaObject } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/swagger'
 
 export type Options = {
@@ -79,7 +79,7 @@ export type Options = {
      * TODO TODO add docs
      * @beta
      */
-    schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => Schema[] | undefined
+    schema?: (props: { schema?: SchemaObject; name?: string; parentName?: string }, defaultSchemas: Schema[]) => Schema[] | undefined
   }
   mapper?: Record<string, string>
   /**

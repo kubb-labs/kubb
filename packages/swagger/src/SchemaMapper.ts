@@ -122,7 +122,7 @@ export const schemaKeywords = {
   schema: 'schema',
   catchall: 'catchall',
   time: 'time',
-  name: 'name'
+  name: 'name',
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }

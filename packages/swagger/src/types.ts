@@ -154,12 +154,6 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
   options: Partial<TOptions>
 }
 
-export type ImportMeta = {
-  ref: Ref
-  path: string
-  isTypeOnly: boolean
-}
-
 export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never>
 
 declare module '@kubb/core' {

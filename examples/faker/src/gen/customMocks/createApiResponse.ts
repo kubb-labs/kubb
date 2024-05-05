@@ -3,7 +3,7 @@ import type { ApiResponse } from '../models/ApiResponse'
 
 export function createApiResponse(data: NonNullable<Partial<ApiResponse>> = {}): NonNullable<ApiResponse> {
   return {
-    ...{ code: faker.number.int(), type: faker.string.alpha(), message: faker.commerce.productName() },
+    ...{ code: faker.number.int(), type: faker.string.alpha(), message: faker.string.alpha({ casing: 'lower' }) },
     ...data,
   }
 }

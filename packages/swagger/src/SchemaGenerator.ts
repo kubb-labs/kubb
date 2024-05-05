@@ -43,22 +43,28 @@ export type SchemaGeneratorOptions = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
     /**
-     * Receive schema and baseName(propertName) and return FakerMeta array
+     * Receive schema and name(propertName) and return FakerMeta array
      * TODO TODO add docs
      * @beta
      */
-    schema?: (schema: SchemaObject | undefined, baseName?: string) => Schema[] | undefined
+    schema?: (schemaProps: SchemaProps, defaultSchemas: Schema[]) => Schema[] | undefined
   }
 }
 
 export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
+
+type SchemaProps = {
+  schema?: SchemaObject
+  name?: string
+  parentName?: string
+}
 
 export abstract class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
-  // Collect the types of all referenced schemas so we can export them later
+  // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}
 
   // Keep track of already used type aliases
@@ -69,10 +75,11 @@ export abstract class SchemaGenerator<
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  buildSchemas(schema: SchemaObject | undefined, baseName?: string): Schema[] {
-    const options = this.#getOptions(schema, baseName)
+  buildSchemas(props: SchemaProps): Schema[] {
+    const options = this.#getOptions(props)
 
-    const schemas = options.transformers?.schema?.(schema, baseName) || this.#parseSchemaObject(schema, baseName) || []
+    const defaultSchemas = this.#parseSchemaObject(props)
+    const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
 
     return uniqueWith<Schema>(schemas, isDeepEqual)
   }
@@ -221,20 +228,20 @@ export abstract class SchemaGenerator<
     return foundItem
   }
 
-  #getUsedEnumNames(schema: SchemaObject | undefined, baseName: string | undefined) {
-    const options = this.#getOptions(schema, baseName)
+  #getUsedEnumNames(props: SchemaProps) {
+    const options = this.#getOptions(props)
 
     return options.usedEnumNames || {}
   }
 
-  #getOptions(_schema: SchemaObject | undefined, baseName: string | undefined): Partial<TOptions> {
+  #getOptions({ name }: SchemaProps): Partial<TOptions> {
     const { override = [] } = this.context
 
     return {
       ...this.options,
       ...(override.find(({ pattern, type }) => {
-        if (baseName && type === 'schemaName') {
-          return !!baseName.match(pattern)
+        if (name && type === 'schemaName') {
+          return !!name.match(pattern)
         }
 
         return false
@@ -242,8 +249,8 @@ export abstract class SchemaGenerator<
     }
   }
 
-  #getUnknownReturn(schema: SchemaObject | undefined, baseName: string | undefined) {
-    const options = this.#getOptions(schema, baseName)
+  #getUnknownReturn(props: SchemaProps) {
+    const options = this.#getOptions(props)
 
     if (options.unknownType === 'any') {
       return schemaKeywords.any
@@ -255,30 +262,25 @@ export abstract class SchemaGenerator<
   /**
    * Recursively creates a type literal with the given props.
    */
-  #parseProperties(baseSchema?: SchemaObject, baseName?: string): Schema[] {
-    const properties = baseSchema?.properties || {}
-    const additionalProperties = baseSchema?.additionalProperties
-    const required = baseSchema?.required
+  #parseProperties({ schema, name }: SchemaProps): Schema[] {
+    const properties = schema?.properties || {}
+    const additionalProperties = schema?.additionalProperties
+    const required = schema?.required
 
     const propertiesSchemas = Object.keys(properties)
-      .map((name) => {
+      .map((propertyName) => {
         const validationFunctions: Schema[] = []
-        const schema = properties[name] as SchemaObject
-        const resolvedName = this.context.pluginManager.resolveName({
-          name: `${baseName || ''} ${name}`,
-          pluginKey: this.context.plugin.key,
-          type: 'type',
-        })
+        const propertySchema = properties[propertyName] as SchemaObject
 
-        const isRequired = Array.isArray(required) ? required?.includes(name) : !!required
-        const nullable = schema.nullable ?? schema['x-nullable'] ?? false
+        const isRequired = Array.isArray(required) ? required?.includes(propertyName) : !!required
+        const nullable = propertySchema.nullable ?? propertySchema['x-nullable'] ?? false
+
+        validationFunctions.push(...this.buildSchemas({ schema: propertySchema, name: propertyName, parentName: name }))
 
         validationFunctions.push({
           keyword: schemaKeywords.name,
-          args: name,
+          args: propertyName,
         })
-
-        validationFunctions.push(...this.buildSchemas(schema, resolvedName))
 
         if (!isRequired && nullable) {
           validationFunctions.push({ keyword: schemaKeywords.nullish })
@@ -287,15 +289,17 @@ export abstract class SchemaGenerator<
         }
 
         return {
-          [name]: validationFunctions,
+          [propertyName]: validationFunctions,
         }
       })
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
-    let additionalPropertieschemas: Schema[] = []
+    let additionalPropertiesSchemas: Schema[] = []
 
     if (additionalProperties) {
-      additionalPropertieschemas =
-        additionalProperties === true ? [{ keyword: this.#getUnknownReturn(baseSchema, baseName) }] : this.buildSchemas(additionalProperties as SchemaObject)
+      additionalPropertiesSchemas =
+        additionalProperties === true
+          ? [{ keyword: this.#getUnknownReturn({ schema, name }) }]
+          : this.buildSchemas({ schema: additionalProperties as SchemaObject, parentName: name })
     }
 
     return [
@@ -303,7 +307,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.object,
         args: {
           properties: propertiesSchemas,
-          additionalProperties: additionalPropertieschemas,
+          additionalProperties: additionalPropertiesSchemas,
         },
       },
     ]
@@ -312,7 +316,7 @@ export abstract class SchemaGenerator<
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string): Schema[] {
+  #getRefAlias(obj: OpenAPIV3.ReferenceObject): Schema[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
@@ -365,10 +369,15 @@ export abstract class SchemaGenerator<
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #parseSchemaObject(_schema: SchemaObject | undefined, baseName?: string): Schema[] {
-    const options = this.#getOptions(_schema, baseName)
-    const unknownReturn = this.#getUnknownReturn(_schema, baseName)
+  #parseSchemaObject({ schema: _schema, name, parentName }: SchemaProps): Schema[] {
+    const options = this.#getOptions({ schema: _schema, name })
+    const unknownReturn = this.#getUnknownReturn({ schema: _schema, name })
     const { schema, version } = this.#getParsedSchemaObject(_schema)
+    const resolvedName = this.context.pluginManager.resolveName({
+      name: `${parentName || ''} ${name}`,
+      pluginKey: this.context.plugin.key,
+      type: 'type',
+    })
 
     if (!schema) {
       return [{ keyword: unknownReturn }]
@@ -441,7 +450,7 @@ export abstract class SchemaGenerator<
     }
 
     if (isReference(schema)) {
-      return [...this.#getRefAlias(schema, baseName), ...baseItems]
+      return [...this.#getRefAlias(schema), ...baseItems]
     }
 
     if (schema.oneOf) {
@@ -452,7 +461,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.buildSchemas(item as SchemaObject, baseName)[0]
+            return item && this.buildSchemas({ schema: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -460,7 +469,7 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [...this.buildSchemas(schemaWithoutOneOf, baseName), union, ...baseItems]
+        return [...this.buildSchemas({ schema: schemaWithoutOneOf, name, parentName }), union, ...baseItems]
       }
 
       return [union, ...baseItems]
@@ -474,7 +483,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.buildSchemas(item as SchemaObject, baseName)[0]
+            return item && this.buildSchemas({ schema: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -494,7 +503,7 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutAnyOf.properties) {
-        return [...this.buildSchemas(schemaWithoutAnyOf, baseName), union, ...baseItems]
+        return [...this.buildSchemas({ schema: schemaWithoutAnyOf, name, parentName }), union, ...baseItems]
       }
 
       return [union, ...baseItems]
@@ -507,7 +516,7 @@ export abstract class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.buildSchemas(item as SchemaObject, baseName)[0]
+            return item && this.buildSchemas({ schema: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -519,7 +528,7 @@ export abstract class SchemaGenerator<
         return [
           {
             ...and,
-            args: [...(and.args || []), ...this.buildSchemas(schemaWithoutAllOf, baseName)],
+            args: [...(and.args || []), ...this.buildSchemas({ schema: schemaWithoutAllOf, name, parentName })],
           },
           ...baseItems,
         ]
@@ -529,9 +538,9 @@ export abstract class SchemaGenerator<
     }
 
     if (schema.enum) {
-      const name = getUniqueName(pascalCase([baseName, options.enumSuffix].join(' ')), this.#getUsedEnumNames(_schema, baseName))
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schema, name }))
       const typeName = this.context.pluginManager.resolveName({
-        name,
+        name: enumName,
         pluginKey: this.context.plugin.key,
         type: 'type',
       })
@@ -567,7 +576,7 @@ export abstract class SchemaGenerator<
           {
             keyword: schemaKeywords.enum,
             args: {
-              name,
+              name: enumName,
               typeName,
               asConst: true,
               items: enumNames?.args?.items
@@ -597,7 +606,7 @@ export abstract class SchemaGenerator<
         {
           keyword: schemaKeywords.enum,
           args: {
-            name,
+            name: enumName,
             typeName,
             asConst: false,
             items: [...new Set(schema.enum)].map((value: string) => ({
@@ -619,7 +628,7 @@ export abstract class SchemaGenerator<
           keyword: schemaKeywords.tuple,
           args: prefixItems
             .map((item) => {
-              return this.buildSchemas(item, baseName)[0]
+              return this.buildSchemas({ schema: item, name, parentName })[0]
             })
             .filter(Boolean),
         },
@@ -736,7 +745,7 @@ export abstract class SchemaGenerator<
     if ('items' in schema || schema.type === ('array' as 'string')) {
       const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-      const items = this.buildSchemas('items' in schema ? (schema.items as SchemaObject) : [], baseName)
+      const items = this.buildSchemas({ schema: 'items' in schema ? (schema.items as SchemaObject) : [], name, parentName })
 
       return [
         {
@@ -752,7 +761,7 @@ export abstract class SchemaGenerator<
     }
 
     if (schema.properties || schema.additionalProperties) {
-      return [...this.#parseProperties(schema, baseName), ...baseItems]
+      return [...this.#parseProperties({ schema, name }), ...baseItems]
     }
 
     if (schema.type) {
@@ -761,13 +770,14 @@ export abstract class SchemaGenerator<
         const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
-          ...this.buildSchemas(
-            {
+          ...this.buildSchemas({
+            schema: {
               ...schema,
               type,
             },
-            baseName,
-          ),
+            name,
+            parentName,
+          }),
           ...baseItems,
         ].filter(Boolean)
       }
@@ -805,7 +815,7 @@ export abstract class SchemaGenerator<
    */
   abstract schema(name: string, object: SchemaObject): SchemaMethodResult<TFileMeta>
   /**
-   * Returns the source, in the future it an return a react component
+   * Returns the source, in the future it will return a React component
    */
   abstract getSource<TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>(name: string, schemas: Schema[], options?: TOptions): string[]
 

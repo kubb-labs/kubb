@@ -171,17 +171,13 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
         const schema = item[1]
         return schema && typeof schema.map === 'function'
       })
-      .map(([_name, schemas]) => {
-        let name = _name
+      .map(([name, schemas]) => {
         const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-
-        if (nameSchema) {
-          name = nameSchema.args
-        }
+        const mappedName = nameSchema?.args || name
 
         // custom mapper(pluginOptions)
-        if (options.mapper?.[name]) {
-          return `"${name}": ${options.mapper?.[name]}`
+        if (options.mapper?.[mappedName]) {
+          return `"${name}": ${options.mapper?.[mappedName]}`
         }
 
         return `"${name}": ${joinItems(

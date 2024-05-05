@@ -7,6 +7,7 @@ type AppResult<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   mode: KubbFile.Mode
   pluginManager: PluginManager
   fileManager: FileManager
+  getFile: PluginManager['getFile']
 }
 
 /**
@@ -23,6 +24,7 @@ export function useApp<TOptions extends PluginFactoryOptions = PluginFactoryOpti
     plugin: app.plugin as Plugin<TOptions>,
     pluginManager: app.pluginManager,
     fileManager: app.pluginManager.fileManager,
+    getFile: app.pluginManager.getFile,
     mode: app.mode,
   }
 }

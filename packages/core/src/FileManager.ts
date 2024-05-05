@@ -297,7 +297,7 @@ export class FileManager {
 
   async addIndexes({ root, output, meta, logger, options = {} }: AddIndexesProps): Promise<void> {
     const { exportType = 'barrel' } = output
-
+    //        ^?
     if (exportType === false) {
       return undefined
     }

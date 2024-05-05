@@ -1,5 +1,6 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions, SchemaMapper } from '@kubb/swagger'
+import type { SchemaObject } from '@kubb/oas'
+import type { Exclude, Include, Override, ResolvePathOptions, Schema, SchemaMapper } from '@kubb/swagger'
 import type { Operations } from './components/Operations'
 import type { zodKeywordMapper } from './zodParser'
 
@@ -68,6 +69,19 @@ export type Options = {
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    /**
+     * Receive schema and baseName(propertName) and return FakerMeta array
+     * TODO TODO add docs
+     * @beta
+     */
+    schema?: (
+      props: {
+        schema?: SchemaObject
+        name?: string
+        parentName?: string
+      },
+      defaultSchemas: Schema[],
+    ) => Schema[] | undefined
   }
   mapper?: Record<string, string>
   /**

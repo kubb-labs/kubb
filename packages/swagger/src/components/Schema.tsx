@@ -31,7 +31,7 @@ const SchemaContext = createContext<SchemaContextProps>({
 })
 
 export function Schema({ name, object, generator, children }: Props): KubbNode {
-  const schemas = generator.buildSchemas(object, name)
+  const schemas = generator.buildSchemas({ schema: object, name })
 
   return <SchemaContext.Provider value={{ name, schemas, object, generator }}>{children}</SchemaContext.Provider>
 }

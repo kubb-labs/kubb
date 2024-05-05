@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export const petSchema = z.object({
   id: z.number().optional(),
-  name: z.string(),
+  name: z.string().uuid(),
   category: z.lazy(() => categorySchema).schema.optional(),
   photoUrls: z.array(z.string()),
   tags: z.array(z.lazy(() => tagSchema).schema).optional(),
