@@ -42,7 +42,7 @@ describe('<Query/>', async () => {
   }
 
   const plugin = { options } as Plugin<PluginOptions>
-  const og =  new OperationGenerator(options, {
+  const og = new OperationGenerator(options, {
     oas,
     exclude: [],
     include: undefined,

@@ -10,4 +10,4 @@ export { timeout } from './timeout.ts'
 export { getUniqueName, setUniqueName } from './uniqueName.ts'
 export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'
-export { getParser} from "./getParser.ts"
+export { getParser } from './getParser.ts'

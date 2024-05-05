@@ -4,7 +4,7 @@ import { Oas } from '../components/Oas.tsx'
 
 import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/swagger';
+import type { OperationSchemas } from '@kubb/swagger'
 
 type FileMeta = KubbFile.FileMetaBase & {
   pluginKey: Plugin['key']
@@ -136,7 +136,7 @@ export function useOperationManager(): UseOperationManagerResult {
   return {
     getName,
     getFile,
-    getSchemas: (operation, forStatusCode)=> generator.getSchemas(operation, forStatusCode),
+    getSchemas: (operation, forStatusCode) => generator.getSchemas(operation, forStatusCode),
     groupSchemasByByName,
   }
 }

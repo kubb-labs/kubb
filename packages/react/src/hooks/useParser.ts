@@ -12,7 +12,6 @@ export function useEditor(): ParserContextProps {
   return useContext(Parser.Context)
 }
 
-
 export function useParser(): ParserContextProps {
   return useContext(Parser.Context)
 }

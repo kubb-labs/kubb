@@ -103,7 +103,7 @@ describe('OperationGenerator', async () => {
     const operation = oas.operation('/pet/{petId}', 'delete')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
-   await matchFiles(files)
+    await matchFiles(files)
   })
   test('[DELETE] /pet/{petId} with unknownType `unknown`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {

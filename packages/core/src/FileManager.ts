@@ -1,8 +1,6 @@
 import crypto from 'node:crypto'
 import { extname, resolve } from 'node:path'
 
-import * as factory from '@kubb/ts-parser/factory'
-
 import { orderBy } from 'natural-orderby'
 import PQueue from 'p-queue'
 import { isDeepEqual } from 'remeda'
@@ -18,7 +16,7 @@ import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
 import transformers from './transformers/index.ts'
 import type { Plugin } from './types.ts'
-import { getParser } from './utils';
+import { getParser } from './utils'
 
 type BasePath<T extends string = string> = `${T}/`
 

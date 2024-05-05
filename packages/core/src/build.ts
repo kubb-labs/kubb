@@ -188,10 +188,12 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     logger.emit('end', '💾 Writing completed')
   }
 
-  const files = await Promise.all(fileManager.files.map(async (file) => ({
-    ...file,
-    source: await FileManager.getSource(file),
-  })))
+  const files = await Promise.all(
+    fileManager.files.map(async (file) => ({
+      ...file,
+      source: await FileManager.getSource(file),
+    })),
+  )
 
   return {
     files,
@@ -216,10 +218,12 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       logger.emit('end', '💾 Writing completed')
     }
   } catch (e) {
-    const files = await Promise.all(fileManager.files.map(async (file) => ({
-      ...file,
-      source: await FileManager.getSource(file),
-    })))
+    const files = await Promise.all(
+      fileManager.files.map(async (file) => ({
+        ...file,
+        source: await FileManager.getSource(file),
+      })),
+    )
 
     return {
       files,
@@ -228,10 +232,12 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const files = await Promise.all(fileManager.files.map(async (file) => ({
-    ...file,
-    source: await FileManager.getSource(file),
-  })))
+  const files = await Promise.all(
+    fileManager.files.map(async (file) => ({
+      ...file,
+      source: await FileManager.getSource(file),
+    })),
+  )
 
   return {
     files,
