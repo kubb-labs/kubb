@@ -1,3 +1,4 @@
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
@@ -36,7 +37,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
         headers: { ...headers, ...options.headers },
         ...options,
       })
-      return res
+      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
     },
   }
 }

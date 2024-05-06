@@ -3,6 +3,7 @@ import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
@@ -224,9 +225,11 @@ type FileProps = {
 
 Query.File = function ({ templates }: FileProps): ReactNode {
   const {
+    pluginManager,
     plugin: {
       options: {
         client: { importPath },
+        parser,
       },
     },
   } = useApp<PluginOptions>()
@@ -236,6 +239,14 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   const file = getFile(operation)
   const schemas = getSchemas(operation)
   const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const fileZodSchemas = getFile(operation, {
+    pluginKey: swaggerZodPluginKey,
+  })
+  const zodResponseName = pluginManager.resolveName({
+    name: schemas.response.name,
+    pluginKey: swaggerZodPluginKey,
+    type: 'function',
+  })
   const factoryName = getName(operation, { type: 'type' })
 
   const Template = templates?.query.default || defaultTemplates.default
@@ -247,6 +258,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+        {parser === 'zod' && <File.Import name={[zodResponseName]} root={file.path} path={fileZodSchemas.path} />}
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
         <File.Import name={'client'} path={importPath} />

@@ -1,3 +1,4 @@
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
@@ -28,7 +29,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response']>(
         url: `/pet/${petId}`,
         ...options,
       })
-      return res
+      return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
     },
   }
 }

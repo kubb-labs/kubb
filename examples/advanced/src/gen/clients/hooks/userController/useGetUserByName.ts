@@ -1,6 +1,6 @@
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 import type {
   UseBaseQueryOptions,

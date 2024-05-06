@@ -14,6 +14,7 @@ import { Mutation, Operations, Query, QueryKey, QueryOptions } from './component
 import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
+import { QueryImports } from './components/QueryImports.tsx'
 
 export const pluginName = 'swagger-tanstack-query' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -78,6 +79,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         query: Query.templates,
         queryOptions: QueryOptions.templates,
         queryKey: QueryKey.templates,
+        queryImports: QueryImports.templates,
         operations: Operations.templates,
         ...templates,
       },

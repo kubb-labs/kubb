@@ -1,3 +1,4 @@
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
@@ -27,7 +28,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response']>(
         url: '/user/logout',
         ...options,
       })
-      return res
+      return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
     },
   }
 }

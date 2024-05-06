@@ -1,3 +1,4 @@
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
@@ -29,7 +30,7 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
         params,
         ...options,
       })
-      return res
+      return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
     },
   }
 }

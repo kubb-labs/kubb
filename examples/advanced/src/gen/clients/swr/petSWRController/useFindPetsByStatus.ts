@@ -1,3 +1,4 @@
+import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
@@ -29,7 +30,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
         params,
         ...options,
       })
-      return res
+      return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
     },
   }
 }

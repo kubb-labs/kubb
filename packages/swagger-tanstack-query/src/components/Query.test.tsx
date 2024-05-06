@@ -14,6 +14,7 @@ import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import { parseFromConfig } from '@kubb/swagger/utils'
 import type { PluginOptions } from '../types.ts'
+import { QueryImports } from './QueryImports.tsx'
 
 describe('<Query/>', async () => {
   const oas = await parseFromConfig({
@@ -42,6 +43,7 @@ describe('<Query/>', async () => {
       query: Query.templates,
       queryKey: QueryKey.templates,
       queryOptions: QueryOptions.templates,
+      queryImports: QueryImports.templates,
     },
     client: {
       importPath: '@kubb/swagger-client/client',

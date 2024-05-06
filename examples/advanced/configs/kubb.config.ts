@@ -85,6 +85,9 @@ export default defineConfig(() => {
         client: {
           importPath: '../../../../tanstack-query-client.ts',
         },
+        query: {
+          importPath: '../../../../tanstack-query-hook.ts',
+        },
         infinite: {},
         dataReturnType: 'full',
         parser: 'zod',
@@ -105,6 +108,7 @@ export default defineConfig(() => {
           importPath: '../../../../swr-client.ts',
         },
         dataReturnType: 'full',
+        parser: 'zod',
       }),
       createSwaggerClient({
         output: {
