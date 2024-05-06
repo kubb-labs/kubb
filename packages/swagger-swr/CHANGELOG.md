@@ -1,5 +1,23 @@
 # @kubb/swagger-swr
 
+## 2.18.0
+
+### Minor Changes
+
+- [#983](https://github.com/kubb-labs/kubb/pull/983) [`5085d1b`](https://github.com/kubb-labs/kubb/commit/5085d1b045389e6dc841b8019c760508b3224c21) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for Zod parser(swr)
+
+### Patch Changes
+
+- Updated dependencies [[`bd78381`](https://github.com/kubb-labs/kubb/commit/bd78381ce4bb1bfd83017b7f8b559119de12880a)]:
+  - @kubb/swagger@2.18.0
+  - @kubb/swagger-client@2.18.0
+  - @kubb/swagger-ts@2.18.0
+  - @kubb/swagger-zod@2.18.0
+  - @kubb/core@2.18.0
+  - @kubb/oas@2.18.0
+  - @kubb/react@2.18.0
+  - @kubb/ts-parser@2.18.0
+
 ## 2.17.0
 
 ### Patch Changes
