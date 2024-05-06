@@ -105,6 +105,7 @@ export default defineConfig(() => {
           importPath: '../../../../swr-client.ts',
         },
         dataReturnType: 'full',
+        parser: 'zod',
       }),
       createSwaggerClient({
         output: {

@@ -3,6 +3,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
+import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
@@ -42,9 +43,10 @@ type TemplateProps = {
     contentType: string
   }
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  parser: string | undefined
 }
 
-function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType }: TemplateProps): ReactNode {
+function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType, parser }: TemplateProps): ReactNode {
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
@@ -63,6 +65,12 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
+  let returnRes = parser ? `return ${parser}(res.data)` : 'return res.data'
+
+  if (dataReturnType === 'full') {
+    returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
+  }
+
   return (
     <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
@@ -72,7 +80,7 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
             ${resolvedClientOptions}
           })
 
-          return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+         ${returnRes}
         },
       }
 
@@ -99,7 +107,10 @@ type Props = {
 export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
   const {
     pluginManager,
-    plugin: { key: pluginKey },
+    plugin: {
+      key: pluginKey,
+      options: { parser },
+    },
   } = useApp<PluginOptions>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
@@ -110,6 +121,11 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
     pluginKey,
   })
   const contentType = operation.getContentType()
+  const zodResponseName = pluginManager.resolveName({
+    name: schemas.response.name,
+    pluginKey: swaggerZodPluginKey,
+    type: 'function',
+  })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -159,6 +175,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
       returnType={`SWRConfiguration<${resultGenerics.join(', ')}>`}
       client={client}
       dataReturnType={dataReturnType}
+      parser={parser === 'zod' ? `${zodResponseName}.parse` : undefined}
     />
   )
 }

@@ -92,6 +92,11 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
+   * Which parser can be used before returning the data to `@tanstack/query`.
+   * `'zod'` will use `@kubb/swagger-zod` to parse the data.
+   */
+  parser?: 'zod'
+  /**
    * Make it possible to override one of the templates
    */
   templates?: Partial<Templates>
@@ -101,6 +106,7 @@ type ResolvedOptions = {
   client: Required<NonNullable<Options['client']>>
   dataReturnType: NonNullable<Options['dataReturnType']>
   templates: NonNullable<Templates>
+  parser: Options['parser']
 }
 
 export type FileMeta = {

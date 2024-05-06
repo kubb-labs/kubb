@@ -4,6 +4,8 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
+import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
+import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -17,7 +19,7 @@ export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], transformers = {}, templates, dataReturnType = 'data' } = options
+  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, templates, dataReturnType = 'data' } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
@@ -34,8 +36,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ...options.client,
       },
       dataReturnType,
+      parser,
     },
-    pre: [swaggerPluginName],
+    pre: [swaggerPluginName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

@@ -1,3 +1,4 @@
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
@@ -28,7 +29,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
         url: `/user/${username}`,
         ...options,
       })
-      return res
+      return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
     },
   }
 }
