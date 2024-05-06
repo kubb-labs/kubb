@@ -1,12 +1,11 @@
-import { definePlugin } from './plugin.ts'
+import { pluginSwagger } from './plugin.ts'
 
-export { OasBuilder } from './OasBuilder.ts'
 export type {
   GetOperationGeneratorOptions,
   OperationMethodResult,
 } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
-export { definePlugin, pluginKey, pluginName } from './plugin.ts'
+export { pluginSwagger, pluginSwaggerName } from './plugin.ts'
 export type {
   SchemaGeneratorBuildOptions,
   SchemaGeneratorOptions,
@@ -24,8 +23,12 @@ export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
 
 /**
- * @deprecated Use `import { definePlugin } from '@kubb/swagger'`
+ * @deprecated Use `import { pluginSwagger } from '@kubb/swagger'` instead
  */
-const definePluginDefault = definePlugin
+const definePluginDefault = pluginSwagger
+/**
+ * @deprecated Use `import { pluginSwagger } from '@kubb/swagger'` instead
+ */
+export const definePlugin = pluginSwagger
 
 export default definePluginDefault

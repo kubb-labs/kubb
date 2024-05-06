@@ -9,7 +9,7 @@ import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '../SchemaGenerator.ts'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
-import type { PluginOptions } from '../types.ts'
+import type { PluginSwagger } from '../types.ts'
 
 export type SchemaContextProps = {
   name: string
@@ -43,7 +43,7 @@ type FileProps = {
 }
 
 Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode {
-  const { plugin, pluginManager, mode } = useApp<PluginOptions>()
+  const { plugin, pluginManager, mode } = useApp<PluginSwagger>()
   const { name } = useSchema()
 
   if (mode === 'single') {

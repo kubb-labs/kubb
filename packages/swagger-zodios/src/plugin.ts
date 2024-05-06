@@ -2,13 +2,13 @@ import path from 'node:path'
 
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, trimExtName } from '@kubb/core/transformers'
-import { pluginName as swaggerPluginName } from '@kubb/swagger'
+import { pluginSwaggerName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { Override, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { Override, PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
 
@@ -24,7 +24,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       name: trimExtName(output.path),
       baseURL: undefined,
     },
-    pre: [swaggerPluginName, swaggerZodPluginName],
+    pre: [pluginSwaggerName, swaggerZodPluginName],
     resolvePath(baseName) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
@@ -44,7 +44,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin, swaggerZodPlugin]: [Plugin<SwaggerPluginOptions>, Plugin<SwaggerZodPluginOptions>] = PluginManager.getDependedPlugins<
         SwaggerPluginOptions,
         SwaggerZodPluginOptions
-      >(this.plugins, [swaggerPluginName, swaggerZodPluginName])
+      >(this.plugins, [pluginSwaggerName, swaggerZodPluginName])
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))

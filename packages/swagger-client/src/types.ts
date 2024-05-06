@@ -116,10 +116,10 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-client', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginClient = PluginFactoryOptions<'swagger-client', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-client']: PluginOptions
+    ['@kubb/swagger-client']: PluginClient
   }
 }

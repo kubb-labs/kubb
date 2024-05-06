@@ -6,7 +6,7 @@ import { PromiseManager } from './PromiseManager.ts'
 import { ValidationPluginError } from './errors.ts'
 import { readSync } from './fs/read.ts'
 import { LogLevel } from './logger.ts'
-import { definePlugin as defineCorePlugin } from './plugin.ts'
+import { pluginCore } from './plugin.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
@@ -14,7 +14,7 @@ import { setUniqueName } from './utils/uniqueName.ts'
 import type { PossiblePromise } from '@kubb/types'
 import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
-import type { CorePluginOptions } from './plugin.ts'
+import type { PluginCore } from './plugin.ts'
 import type {
   Config,
   GetPluginFactoryOptions,
@@ -89,7 +89,7 @@ export class PluginManager {
 
   readonly executed: Array<Executer> = []
   readonly logger: Logger
-  readonly #core: Plugin<CorePluginOptions>
+  readonly #core: Plugin<PluginCore>
 
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
@@ -110,7 +110,7 @@ export class PluginManager {
 
     const plugins = config.plugins || []
 
-    const core = defineCorePlugin({
+    const core = pluginCore({
       config,
       logger: this.logger,
       pluginManager: this,
@@ -121,7 +121,7 @@ export class PluginManager {
     })
 
     // call core.api.call with empty context so we can transform `api()` to `api: {}`
-    this.#core = this.#parse(core as unknown as UserPlugin, this as any, core.api.call(null as any)) as Plugin<CorePluginOptions>
+    this.#core = this.#parse(core as unknown as UserPlugin, this as any, core.api.call(null as any)) as Plugin<PluginCore>
 
     this.plugins = [this.#core, ...plugins].map((plugin) => {
       return this.#parse(plugin as UserPlugin, this, this.#core.api)
@@ -624,7 +624,7 @@ export class PluginManager {
   #parse<TPlugin extends UserPluginWithLifeCycle>(
     plugin: TPlugin,
     pluginManager: PluginManager,
-    context: CorePluginOptions['api'] | undefined,
+    context: PluginCore['api'] | undefined,
   ): Plugin<GetPluginFactoryOptions<TPlugin>> {
     const usedPluginNames = pluginManager.#usedPluginNames
 

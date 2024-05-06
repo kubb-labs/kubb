@@ -3,7 +3,7 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginName as swaggerPluginName } from '@kubb/swagger'
+import { pluginSwaggerName } from '@kubb/swagger'
 import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
@@ -12,7 +12,7 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import { Mutation, Query, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
@@ -38,7 +38,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dataReturnType,
       parser,
     },
-    pre: [swaggerPluginName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
+    pre: [pluginSwaggerName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -80,7 +80,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return resolvedName
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginSwaggerName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

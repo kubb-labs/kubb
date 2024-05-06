@@ -155,12 +155,14 @@ export type PluginFactoryOptions<
   /**
    * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
    */
-  key: [name: TName | string, identifier?: string | number]
+  key: PluginKey<TName | string>
   options: TOptions
   resolvedOptions: TResolvedOptions
   api: TAPI
   resolvePathOptions: TResolvePathOptions
 }
+
+export type PluginKey<TName> = [name: TName, identifier?: string | number]
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 

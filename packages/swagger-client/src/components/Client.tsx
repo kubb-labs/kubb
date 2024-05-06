@@ -8,7 +8,7 @@ import { isOptional } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { KubbNode, Params } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginClient } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -37,7 +37,7 @@ type TemplateProps = {
     generics: string | string[]
     method: HttpMethod
     path: URLPath
-    dataReturnType: PluginOptions['options']['dataReturnType']
+    dataReturnType: PluginClient['options']['dataReturnType']
     withQueryParams: boolean
     withData: boolean
     withHeaders: boolean
@@ -100,7 +100,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         client: { importPath },
       },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginClient>()
 
   const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
@@ -142,7 +142,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
     plugin: {
       options: { dataReturnType, pathParamsType },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginClient>()
 
   const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()

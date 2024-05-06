@@ -4,8 +4,6 @@ import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kub
 import type { FormatOptions } from '@kubb/oas/parser'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
-export type FileResolver = (name: string, ref: Ref) => string | null | undefined
-
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
   tag?: string
@@ -154,10 +152,10 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
   options: Partial<TOptions>
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never>
+export type PluginSwagger = PluginFactoryOptions<'swagger', Options, Options, API, never>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger']: PluginOptions
+    ['@kubb/swagger']: PluginSwagger
   }
 }

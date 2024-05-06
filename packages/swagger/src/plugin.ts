@@ -10,13 +10,12 @@ import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
 import { getPageHTML } from './redoc.tsx'
-import type { PluginOptions } from './types.ts'
+import type { PluginSwagger } from './types.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
-export const pluginName = 'swagger' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+export const pluginSwaggerName = 'swagger' satisfies PluginSwagger['name']
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginSwagger = createPlugin<PluginSwagger>((options) => {
   const {
     output = { path: 'schemas', export: false },
     docs,
@@ -46,7 +45,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   }
 
   return {
-    name: pluginName,
+    name: pluginSwaggerName,
     options,
 
     api() {
@@ -129,7 +128,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           const resvoledFileName = this.resolveName({
             name: `${name}.json`,
-            pluginKey,
+            pluginKey: [pluginSwaggerName],
             type: 'file',
           }) as `${string}.json`
 
