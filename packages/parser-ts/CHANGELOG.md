@@ -1,4 +1,4 @@
-# @kubb/ts-parser
+# @kubb/parser-ts
 
 ## 2.18.0
 

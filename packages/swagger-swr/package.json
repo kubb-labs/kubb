@@ -73,12 +73,12 @@
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@kubb/ts-parser": "workspace:*"
+    "@kubb/parser-ts": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-biome": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.1",
     "react": "^18.3.1",
     "tsup": "^8.0.2",

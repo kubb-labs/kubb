@@ -1,7 +1,6 @@
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
-import { esbuildPluginFilePathExtensions } from 'esbuild-plugin-file-path-extensions'
 import fg from 'fast-glob'
 import c from 'tinyrainbow'
 
@@ -65,29 +64,8 @@ export const optionsCJS: Options = {
   splitting: true,
 }
 
-export const optionsFlat: Options = {
-  format: ['cjs', 'esm'],
-  entry: ['./src/**/!(*.d|*.test).ts'],
-  outDir: './dist',
-  sourcemap: true,
-  clean: true,
-  dts: true,
-  minify: false,
-  bundle: true,
-  skipNodeModulesBundle: true,
-  shims: true,
-  ignoreWatch: options.ignoreWatch,
-  esbuildPlugins: [
-    esbuildPluginFilePathExtensions({
-      esmExtension: 'js',
-      cjsExtension: 'cjs',
-    }),
-  ] as Options['esbuildPlugins'],
-}
-
 export default {
   default: options,
   esm: optionsESM,
   cjs: optionsCJS,
-  flat: optionsFlat,
 } as const

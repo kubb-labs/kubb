@@ -1,4 +1,4 @@
-type ParserModuleTs = typeof import('@kubb/ts-parser')
+type ParserModuleTs = typeof import('@kubb/parser-ts')
 
 export type ParserModule = ParserModuleTs
 
@@ -7,7 +7,7 @@ export async function getParser(language: string | undefined) {
 
   switch (language) {
     default:
-      modulePromise = import('@kubb/ts-parser')
+      modulePromise = import('@kubb/parser-ts')
       break
   }
 

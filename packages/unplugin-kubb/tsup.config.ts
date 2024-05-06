@@ -1,4 +1,4 @@
-import { forceDefaultExport } from '@kubb/tsup-config'
+import { forceDefaultExport } from '@kubb/config-tsup'
 
 import { defineConfig } from 'tsup'
 

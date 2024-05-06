@@ -22,12 +22,12 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.1
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:packages/config/biome-config
-      '@kubb/ts-config':
+        version: link:packages/config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:packages/config/ts-config
+        version: link:packages/config-ts
       '@types/node':
         specifier: ^20.12.8
         version: 20.12.8
@@ -130,7 +130,7 @@ importers:
         version: 18.3.1
       unplugin-kubb:
         specifier: workspace:^
-        version: link:../packages/unplugin
+        version: link:../packages/unplugin-kubb
       vite:
         specifier: ^5.2.11
         version: 5.2.11(@types/node@20.12.8)(terser@5.30.4)
@@ -216,12 +216,12 @@ importers:
         specifier: ^3.23.6
         version: 3.23.6
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../packages/config/ts-config
-      '@kubb/tsup-config':
+        version: link:../packages/config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../packages/config/tsup-config
+        version: link:../packages/config-tsup
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -304,9 +304,9 @@ importers:
         specifier: ^3.23.6
         version: 3.23.6
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.2.2))(typescript@5.2.2)
@@ -338,9 +338,9 @@ importers:
         specifier: ^1.6.8
         version: 1.6.8
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -381,9 +381,9 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5)
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -427,9 +427,9 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.2.2))(typescript@5.2.2)
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -473,9 +473,9 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.2.2))(typescript@5.2.2)
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
@@ -513,9 +513,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -646,7 +646,7 @@ importers:
         version: 5.2.2
       unplugin-kubb:
         specifier: workspace:*
-        version: link:../../packages/unplugin
+        version: link:../../packages/unplugin-kubb
       vite:
         specifier: ^4.5.3
         version: 4.5.3(@types/node@20.12.8)(terser@5.30.4)
@@ -911,7 +911,7 @@ importers:
         version: 1.6.8
       unplugin-kubb:
         specifier: workspace:*
-        version: link:../../packages/unplugin
+        version: link:../../packages/unplugin-kubb
       vue:
         specifier: ^3.4.26
         version: 3.4.26(typescript@5.2.2)
@@ -962,9 +962,9 @@ importers:
         specifier: ^3.23.6
         version: 3.23.6
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1011,9 +1011,9 @@ importers:
         specifier: ^3.23.6
         version: 3.23.6
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config/ts-config
+        version: link:../../packages/config-ts
       '@types/cors':
         specifier: ^2.8.17
         version: 2.8.17
@@ -1066,15 +1066,15 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
     devDependencies:
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      '@kubb/ts-config':
-        specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
-        specifier: workspace:*
-        version: link:../config/tsup-config
       '@types/node':
         specifier: ^20.12.8
         version: 20.12.8
@@ -1088,22 +1088,19 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/config/biome-config: {}
+  packages/config-biome: {}
 
-  packages/config/ts-config:
+  packages/config-ts:
     devDependencies:
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/config/tsup-config:
+  packages/config-tsup:
     dependencies:
       '@microsoft/api-extractor':
         specifier: ^7.43.1
         version: 7.43.1(@types/node@20.12.8)
-      esbuild-plugin-file-path-extensions:
-        specifier: ^2.0.0
-        version: 2.0.0
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -1111,9 +1108,9 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../ts-config
+        version: link:../config-ts
       '@types/node':
         specifier: ^20.12.8
         version: 20.12.8
@@ -1123,9 +1120,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@kubb/ts-parser':
+      '@kubb/parser-ts':
         specifier: workspace:*
-        version: link:../ts-parser
+        version: link:../parser-ts
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
@@ -1163,15 +1160,15 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -1209,12 +1206,12 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@kubb/ts-config':
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/node':
         specifier: ^20.12.8
         version: 20.12.8
@@ -1255,15 +1252,15 @@ importers:
         specifier: ^9.6.0
         version: 9.6.0
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1280,27 +1277,52 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
+  packages/parser-ts:
+    dependencies:
+      remeda:
+        specifier: ^1.61.0
+        version: 1.61.0
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+    devDependencies:
+      '@kubb/config-biome':
+        specifier: workspace:*
+        version: link:../config-biome
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
+      prettier:
+        specifier: ^3.2.5
+        version: 3.2.5
+      tsup:
+        specifier: ^8.0.2
+        version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5)
+
   packages/react:
     dependencies:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/ts-parser':
+      '@kubb/parser-ts':
         specifier: workspace:*
-        version: link:../ts-parser
+        version: link:../parser-ts
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1356,15 +1378,15 @@ importers:
         specifier: ^6.1.9
         version: 6.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1389,6 +1411,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1398,19 +1423,16 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1435,6 +1457,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1444,19 +1469,16 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1478,6 +1500,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1490,19 +1515,16 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1524,6 +1546,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1539,19 +1564,16 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1573,6 +1595,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1588,19 +1613,16 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1622,28 +1644,28 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1665,6 +1687,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1674,19 +1699,16 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1711,6 +1733,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1720,19 +1745,16 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
-      '@kubb/ts-parser':
-        specifier: workspace:*
-        version: link:../ts-parser
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.1
@@ -1749,42 +1771,17 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/ts-parser:
-    dependencies:
-      remeda:
-        specifier: ^1.61.0
-        version: 1.61.0
-      typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
-    devDependencies:
-      '@kubb/biome-config':
-        specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
-        specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
-        specifier: workspace:*
-        version: link:../config/tsup-config
-      prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
-      tsup:
-        specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5)
-
   packages/types:
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
-      '@kubb/ts-config':
+        version: link:../config-biome
+      '@kubb/config-ts':
         specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
+        version: link:../config-ts
+      '@kubb/config-tsup':
         specifier: workspace:*
-        version: link:../config/tsup-config
+        version: link:../config-tsup
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5)
@@ -1792,7 +1789,7 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/unplugin:
+  packages/unplugin-kubb:
     dependencies:
       esbuild:
         specifier: '*'
@@ -1801,18 +1798,18 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
     devDependencies:
-      '@kubb/biome-config':
+      '@kubb/config-biome':
         specifier: workspace:*
-        version: link:../config/biome-config
+        version: link:../config-biome
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/ts-config':
-        specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
-        specifier: workspace:*
-        version: link:../config/tsup-config
       '@nuxt/kit':
         specifier: ^3.11.2
         version: 3.11.2(rollup@4.17.2)
@@ -4335,10 +4332,6 @@ packages:
 
   es6-weak-map@2.0.3:
     resolution: {integrity: sha512-p5um32HOTO1kP+w7PRnB+5lQ43Z6muuMuIMffvDN8ZB4GcnjLBV6zGStpbASIMk4DCAvEaamhe2zhyCb/QXXsA==}
-
-  esbuild-plugin-file-path-extensions@2.0.0:
-    resolution: {integrity: sha512-VzVJhuegxLeg8VhsHmxRXtz1Kxf3QMQb1xIuKWivGHoOmZdU6O6xJ5iHhfCDyR+Vs+JE5GrvSpCsZ3GvaqlkUA==}
-    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
 
   esbuild@0.18.20:
     resolution: {integrity: sha512-ceqxoedUrcayh7Y7ZX6NdbbDzGROiyVBgC4PriJThBKSVPWnnFHZAkfI1lJT8QFkOwH4qOS2SJkS4wvpGl8BpA==}
@@ -9356,11 +9349,6 @@ snapshots:
       esbuild: 0.19.12
       load-tsconfig: 0.2.5
 
-  bundle-require@4.1.0(esbuild@0.19.12):
-    dependencies:
-      esbuild: 0.19.12
-      load-tsconfig: 0.2.5
-
   bundle-require@4.1.0(esbuild@0.20.2):
     dependencies:
       esbuild: 0.20.2
@@ -9937,8 +9925,6 @@ snapshots:
       es5-ext: 0.10.64
       es6-iterator: 2.0.3
       es6-symbol: 3.1.4
-
-  esbuild-plugin-file-path-extensions@2.0.0: {}
 
   esbuild@0.18.20:
     optionalDependencies:
@@ -12628,7 +12614,7 @@ snapshots:
 
   tsup@8.0.2(@microsoft/api-extractor@7.43.1(@types/node@20.12.8))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))(typescript@5.4.5):
     dependencies:
-      bundle-require: 4.1.0(esbuild@0.19.12)
+      bundle-require: 4.0.3(esbuild@0.19.12)
       cac: 6.7.14
       chokidar: 3.6.0
       debug: 4.3.4
@@ -12638,7 +12624,7 @@ snapshots:
       joycon: 3.1.1
       postcss-load-config: 4.0.2(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.8)(typescript@5.4.5))
       resolve-from: 5.0.0
-      rollup: 4.17.2
+      rollup: 4.16.4
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tree-kill: 1.2.2

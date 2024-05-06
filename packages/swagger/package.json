@@ -90,9 +90,9 @@
     "styled-components": "^6.1.9"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-biome": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
     "react": "^18.3.1",

@@ -51,7 +51,7 @@
     "zod": "^3.23.6"
   },
   "devDependencies": {
-    "@kubb/ts-config": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
     "tsup": "^8.0.2",
     "typescript": "~5.2.2"
   },

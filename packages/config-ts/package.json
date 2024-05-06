@@ -1,5 +1,5 @@
 {
-  "name": "@kubb/ts-config",
+  "name": "@kubb/config-ts",
   "version": "0.1.0",
   "private": true,
   "types": "./reset.d.ts",

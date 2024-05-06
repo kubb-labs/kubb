@@ -1,23 +1,17 @@
 {
-  "name": "@kubb/swagger-tanstack-query",
+  "name": "@kubb/parser-ts",
   "version": "2.18.0",
-  "description": "Generator swagger-tanstack-query",
+  "description": "TypeScript parser",
   "keywords": [
     "typescript",
     "plugins",
     "kubb",
-    "codegen",
-    "swagger",
-    "openapi",
-    "tanstack",
-    "react-query",
-    "@tanstack",
-    "axios"
+    "codegen"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-tanstack-query"
+    "directory": "packages/parser-ts"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -29,21 +23,21 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs",
-      "default": "./dist/components.cjs"
+    "./factory": {
+      "import": "./dist/factory.js",
+      "require": "./dist/factory.cjs",
+      "default": "./dist/factory.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
-      "components": [
-        "./dist/components.d.ts"
+      "factory": [
+        "./dist/factory.d.ts"
       ]
     }
   },
@@ -65,26 +59,15 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/core": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
-    "@kubb/parser-ts": "workspace:*"
+    "remeda": "^1.61.0",
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.1",
-    "react": "^18.3.1",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.5"
-  },
-  "peerDependencies": {
-    "@kubb/react": "workspace:*"
+    "prettier": "^3.2.5",
+    "tsup": "^8.0.2"
   },
   "packageManager": "pnpm@9.0.5",
   "engines": {
