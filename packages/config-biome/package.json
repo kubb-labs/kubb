@@ -1,5 +1,5 @@
 {
-  "name": "@kubb/biome-config",
+  "name": "@kubb/config-biome",
   "version": "0.1.0",
   "private": true,
   "type": "module",

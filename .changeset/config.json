@@ -16,5 +16,5 @@
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
   "useCalculatedVersion": true,
-  "ignore": ["kubb", "kubb-docs", "e2e", "*-pet-store"]
+  "ignore": ["kubb-docs", "e2e", "*-pet-store"]
 }

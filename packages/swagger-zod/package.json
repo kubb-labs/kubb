@@ -66,12 +66,12 @@
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/ts-parser": "workspace:*"
+    "@kubb/parser-ts": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-biome": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.1",
     "prettier": "^3.2.5",
     "react": "^18.3.1",

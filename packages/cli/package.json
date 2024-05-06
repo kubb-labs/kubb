@@ -66,8 +66,8 @@
   },
   "devDependencies": {
     "@kubb/swagger": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@types/node": "^20.12.8",
     "source-map-support": "^0.5.21",
     "tsup": "^8.0.2",

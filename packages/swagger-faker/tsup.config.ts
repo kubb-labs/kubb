@@ -1,4 +1,4 @@
-import { optionsCJS, optionsESM } from '@kubb/tsup-config'
+import { optionsCJS, optionsESM } from '@kubb/config-tsup'
 
 import { defineConfig } from 'tsup'
 

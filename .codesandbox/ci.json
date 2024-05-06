@@ -11,7 +11,7 @@
     "packages/swagger-ts",
     "packages/swagger-zod",
     "packages/swagger-zodios",
-    "packages/ts-parser",
+    "packages/parser-ts",
     "packages/react"
   ],
   "sandboxes": [

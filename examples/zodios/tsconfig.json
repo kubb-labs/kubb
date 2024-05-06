@@ -21,7 +21,7 @@
       "bun-types",
       "../../packages/core/globals.d.ts",
       "../../packages/swagger-client/globals.d.ts",
-      "../../packages/config/ts-config/reset.d.ts"
+      "../../packages/config-ts/reset.d.ts"
     ]
   },
   "include": ["./src/**/*", "kubb.config.js"],

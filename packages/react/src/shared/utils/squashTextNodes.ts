@@ -1,6 +1,6 @@
 import { getRelativePath } from '@kubb/core/fs'
-import { print } from '@kubb/ts-parser'
-import * as factory from '@kubb/ts-parser/factory'
+import { print } from '@kubb/parser-ts'
+import * as factory from '@kubb/parser-ts/factory'
 
 import { read } from './read.ts'
 

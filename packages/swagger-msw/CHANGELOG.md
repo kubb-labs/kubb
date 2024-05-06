@@ -11,7 +11,7 @@
   - @kubb/core@2.18.0
   - @kubb/oas@2.18.0
   - @kubb/react@2.18.0
-  - @kubb/ts-parser@2.18.0
+  - @kubb/parser-ts@2.18.0
 
 ## 2.17.0
 

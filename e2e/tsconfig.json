@@ -17,9 +17,9 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "@kubb/cli": ["../packages/cli/src/index.ts"],
-      "@kubb/biome-config": ["../packages/config/biome-config/src/index.ts"],
-      "@kubb/tsup-config": ["../packages/config/tsup-config/src/index.ts"],
-      "@kubb/ts-config": ["../packages/config/ts-config/src/index.ts"],
+      "@kubb/config-biome": ["../packages/config/config-biome/src/index.ts"],
+      "@kubb/config-tsup": ["../packages/config/config-tsup/src/index.ts"],
+      "@kubb/config-ts": ["../packages/config/config-ts/src/index.ts"],
       "@kubb/core": ["../packages/core/src/index.ts"],
       "@kubb/swagger": ["../packages/swagger/src/index.ts"],
       "@kubb/swagger-client": ["../packages/swagger-client/src/index.ts"],
@@ -31,7 +31,7 @@
       "@kubb/swagger-ts": ["../packages/swagger-ts/src/index.ts"],
       "@kubb/swagger-zod": ["../packages/swagger-zod/src/index.ts"],
       "@kubb/swagger-zodios": ["../packages/swagger-zodios/src/index.ts"],
-      "@kubb/ts-parser": ["../packages/ts-parser/src/index.ts"]
+      "@kubb/parser-ts": ["../packages/parser-ts/src/index.ts"]
     }
   },
   "include": ["./src/gen/**/*"],

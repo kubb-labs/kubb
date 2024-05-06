@@ -135,10 +135,10 @@
     "unplugin": "^1.10.1"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
+    "@kubb/config-biome": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@nuxt/kit": "^3.11.2",
     "@nuxt/schema": "^3.11.2",
     "@types/node": "^20.12.8",

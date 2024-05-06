@@ -1,20 +1,7 @@
 {
-  "name": "@kubb/ts-parser",
-  "version": "2.18.0",
-  "description": "TypeScript parser",
-  "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/ts-parser"
-  },
-  "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "name": "@kubb/config-tsup",
+  "version": "1.1.8",
+  "private": true,
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -23,24 +10,12 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./factory": {
-      "import": "./dist/factory.js",
-      "require": "./dist/factory.cjs",
-      "default": "./dist/factory.cjs"
-    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
-  "types": "./dist/index.d.cts",
-  "typesVersions": {
-    "*": {
-      "factory": [
-        "./dist/factory.d.ts"
-      ]
-    }
-  },
+  "types": "./dist/index.d.ts",
   "files": [
     "src",
     "dist",
@@ -55,18 +30,19 @@
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
-    "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "^1.61.0",
-    "typescript": "^5.4.5"
+    "@microsoft/api-extractor": "^7.43.1",
+    "fast-glob": "^3.3.2",
+    "tinyrainbow": "^1.1.1"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
-    "prettier": "^3.2.5",
+    "@kubb/config-ts": "workspace:*",
+    "@types/node": "^20.12.8",
+    "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
     "tsup": "^8.0.2"
   },
   "packageManager": "pnpm@9.0.5",

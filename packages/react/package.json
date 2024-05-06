@@ -80,13 +80,13 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/ts-parser": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "natural-orderby": "^3.0.2"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-biome": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.1",
     "@types/react-reconciler": "^0.28.8",
     "prettier": "^3.2.5",

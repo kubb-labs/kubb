@@ -144,8 +144,8 @@ const pluginsSidebar = [
         link: '/plugins/cli/',
       },
       {
-        text: '@kubb/ts-parser',
-        link: '/plugins/ts-parser/',
+        text: '@kubb/parser-ts',
+        link: '/plugins/parser-ts/',
       },
       {
         text: '@kubb/react <span class="new">New</span>',
@@ -381,8 +381,8 @@ const pluginsMenu = [
         link: '/plugins/cli/',
       },
       {
-        text: '@kubb/ts-parser',
-        link: '/plugins/ts-parser/',
+        text: '@kubb/parser-ts',
+        link: '/plugins/parser-ts/',
       },
       {
         text: '@kubb/react',
@@ -517,9 +517,9 @@ export default defineConfig({
           compilerOptions: {
             paths: {
               '@kubb/cli': ['../packages/cli/src/index.ts'],
-              '@kubb/biome-config': ['../packages/config/biome-config/src/index.ts'],
-              '@kubb/tsup-config': ['../packages/config/tsup-config/src/index.ts'],
-              '@kubb/ts-config': ['../packages/config/ts-config/src/index.ts'],
+              '@kubb/config-biome': ['../packages/config/config-biome/src/index.ts'],
+              '@kubb/config-tsup': ['../packages/config/config-tsup/src/index.ts'],
+              '@kubb/config-ts': ['../packages/config/config-ts/src/index.ts'],
               '@kubb/core': ['../packages/core/src/index.ts'],
               '@kubb/types': ['../packages/types/src/index.ts'],
               '@kubb/core/utils': ['../packages/core/src/utils/index.ts'],
@@ -537,7 +537,7 @@ export default defineConfig({
               '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
               '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
               '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
-              '@kubb/ts-parser': ['../packages/ts-parser/src/index.ts'],
+              '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
               '@kubb/react': ['../packages/react/src/index.ts'],
               'unplugin-kubb': ['../packages/unplugin/src/index.ts'],
               'unplugin-kubb/vite': ['../packages/unplugin/src/vite.ts'],

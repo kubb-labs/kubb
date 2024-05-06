@@ -1,4 +1,4 @@
-import { getExports } from '@kubb/ts-parser'
+import { getExports } from '@kubb/parser-ts'
 
 import path from 'node:path'
 

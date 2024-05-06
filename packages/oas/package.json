@@ -70,9 +70,9 @@
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
-    "@kubb/biome-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
-    "@kubb/tsup-config": "workspace:*",
+    "@kubb/config-biome": "workspace:*",
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
     "expect-type": "^0.19.0",
