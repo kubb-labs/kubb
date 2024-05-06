@@ -801,6 +801,7 @@ type Query = {
    */
   queryKey?: (key: unknown[]) => unknown[]
   methods: Array<HttpMethod>
+  importPath?: string
 } | false
 ```
 
@@ -914,6 +915,47 @@ export default defineConfig({
 ```
 
 :::
+
+#### query.importPath
+
+Path to the useQuery that will be used to do the useQuery functionality.
+It will be used as `import { useQuery } from '${hook.importPath}'`.
+It allows both relative and absolute path.
+the path will be applied as is, so relative path should be based on the file being generated.
+
+::: info
+Type: `string` <br/>
+Default: `'@tanstack/react-query'` if 'framework' is set to 'react'
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import { definePlugin as createSwagger } from '@kubb/swagger'
+import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      query: {
+        importPath: "@kubb/react-query"
+      },
+    }),
+  ],
+})
+```
+
+:::
+
 
 ### queryOptions
 

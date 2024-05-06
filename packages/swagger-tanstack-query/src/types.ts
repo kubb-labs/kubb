@@ -6,6 +6,7 @@ import type { Operations } from './components/Operations.tsx'
 import type { Query as QueryTemplate } from './components/Query.tsx'
 import type { QueryKey } from './components/QueryKey.tsx'
 import type { QueryOptions as QueryOptionsTemplate } from './components/QueryOptions.tsx'
+import type { QueryImports } from './components/QueryImports.tsx'
 
 type Templates = {
   operations?: typeof Operations.templates | false
@@ -13,6 +14,7 @@ type Templates = {
   query?: typeof QueryTemplate.templates | false
   queryOptions?: typeof QueryOptionsTemplate.templates | false
   queryKey?: typeof QueryKey.templates | false
+  queryImports?: typeof QueryImports.templates | false
 }
 
 export type Suspense = object
@@ -27,6 +29,14 @@ export type Query = {
    * @default ['get']
    */
   methods: Array<HttpMethod>
+  /**
+   * Path to the useQuery that will be used to do the useQuery functionality.
+   * It will be used as `import { useQuery } from '${hook.importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default '@tanstack/react-query' if 'framework' is set to 'react'
+   */
+  importPath?: string
 }
 
 export type QueryOptions = object
@@ -108,10 +118,10 @@ export type Options = {
 
   client?: {
     /**
-     * Path to the client import path that will be used to do the API calls.
+     * Path to the client that will be used to do the API calls.
      * It will be used as `import client from '${client.importPath}'`.
-     * It allow both relative and absolute path.
-     * the path will be applied as is, so relative path shoule be based on the file being generated.
+     * It allows both relative and absolute path.
+     * the path will be applied as is, so relative path should be based on the file being generated.
      * @default '@kubb/swagger-client/client'
      */
     importPath?: string

@@ -11,6 +11,7 @@ import { QueryOptions } from './components/QueryOptions.tsx'
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
+import { QueryImports } from './components/QueryImports.tsx'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
@@ -25,6 +26,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
       query: Query.templates,
       queryOptions: QueryOptions.templates,
       queryKey: QueryKey.templates,
+      queryImports: QueryImports.templates,
       operations: Operations.templates,
       ...this.options.templates,
     }
@@ -52,6 +54,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
       query: Query.templates,
       queryOptions: QueryOptions.templates,
       queryKey: QueryKey.templates,
+      queryImports: QueryImports.templates,
       ...options.templates,
     }
 
@@ -63,12 +66,13 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
         <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
             {isMutate && templates?.mutation && <Mutation.File templates={templates.mutation} />}
-            {isQuery && templates?.query && templates.queryKey && templates.queryOptions && (
+            {isQuery && templates?.query && templates.queryKey && templates.queryOptions && templates.queryImports && (
               <Query.File
                 templates={{
                   query: templates.query,
                   queryKey: templates.queryKey,
                   queryOptions: templates.queryOptions,
+                  queryImports: templates.queryImports,
                 }}
               />
             )}

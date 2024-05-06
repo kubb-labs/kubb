@@ -1,6 +1,6 @@
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema'
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 import type {
   UseBaseQueryOptions,

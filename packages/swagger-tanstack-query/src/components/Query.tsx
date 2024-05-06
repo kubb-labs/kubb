@@ -504,11 +504,11 @@ type FileProps = {
     query: typeof defaultTemplates
     queryKey: typeof QueryKey.templates
     queryOptions: typeof QueryOptions.templates
+    queryImports: typeof QueryImports.templates
   }
-  imports?: typeof QueryImports.templates
 }
 
-Query.File = function ({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
+Query.File = function ({ templates }: FileProps): ReactNode {
   const {
     pluginManager,
     plugin: {
@@ -546,7 +546,7 @@ Query.File = function ({ templates, imports = QueryImports.templates }: FileProp
   const Template = templates?.query[framework] || defaultTemplates[framework]
   const QueryOptionsTemplate = templates?.queryOptions[framework] || QueryOptions.templates[framework]
   const QueryKeyTemplate = templates?.queryKey[framework] || QueryKey.templates[framework]
-  const Import = imports[framework]
+  const Import = templates?.queryImports[framework] || QueryImports.templates[framework]
 
   const factory = {
     name: factoryName,
@@ -572,9 +572,13 @@ Query.File = function ({ templates, imports = QueryImports.templates }: FileProp
           isTypeOnly
         />
 
-        <QueryImports Template={Import} isInfinite={false} isSuspense={false} />
-        {!!infinite && <QueryImports Template={Import} isInfinite={true} isSuspense={false} />}
-        {!!suspense && isV5 && framework === 'react' && <QueryImports Template={Import} isInfinite={false} isSuspense={true} />}
+        <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={false} />
+        {!!infinite && (
+          <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={true} isSuspense={false} />
+        )}
+        {!!suspense && isV5 && framework === 'react' && (
+          <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={true} />
+        )}
         <File.Source>
           <SchemaType factory={factory} />
           <Query
