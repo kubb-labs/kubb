@@ -8,7 +8,7 @@ import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { Operations } from './components/Operations.tsx'
-import type { PluginOptions } from './types.ts'
+import type { PluginZod } from './types.ts'
 
 describe('Zod SchemaGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -32,7 +32,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -64,7 +64,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -96,7 +96,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -128,7 +128,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -160,7 +160,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -192,7 +192,7 @@ describe('Zod SchemaGenerator PetStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -227,7 +227,7 @@ describe('ZodGenerator constCases', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       include: undefined,
       mode: 'split',
@@ -316,7 +316,7 @@ describe('Zod SchemaGenerator lazy', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -351,7 +351,7 @@ describe('Zod SchemaGenerator enums', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       include: undefined,
       mode: 'split',
@@ -396,7 +396,7 @@ describe('Zod SchemaGenerator recursive', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginZod>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -431,7 +431,7 @@ describe('Zod SchemaGenerator anyof', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       include: undefined,
       mode: 'split',
@@ -469,7 +469,7 @@ describe('Zod SchemaGenerator enums', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       include: undefined,
       mode: 'split',

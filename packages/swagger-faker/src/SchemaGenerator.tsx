@@ -1,15 +1,15 @@
 import { App, File, createRoot, useApp, useFile } from '@kubb/react'
 import { SchemaGenerator as Generator, schemaKeywords } from '@kubb/swagger'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { Oas, Schema } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
 
 import { fakerParser } from './fakerParser.tsx'
-import { pluginKey } from './plugin.ts'
+import { pluginFakerName } from './plugin.ts'
 
 import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginFaker } from './types.ts'
 
 function SchemaImports() {
   const { pluginManager } = useApp()
@@ -19,17 +19,17 @@ function SchemaImports() {
   // used for this.options.typed
   const typeName = pluginManager.resolveName({
     name,
-    pluginKey: swaggerTypeScriptPluginKey,
+    pluginKey: [pluginTsName],
     type: 'type',
   })
   const typeFileName = pluginManager.resolveName({
     name: name,
-    pluginKey: swaggerTypeScriptPluginKey,
+    pluginKey: [pluginTsName],
     type: 'file',
   })
   const typePath = pluginManager.resolvePath({
     baseName: typeFileName,
-    pluginKey: swaggerTypeScriptPluginKey,
+    pluginKey: [pluginTsName],
   })
 
   return (
@@ -40,7 +40,7 @@ function SchemaImports() {
   )
 }
 
-export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+export class SchemaGenerator extends Generator<PluginFaker['resolvedOptions'], PluginFaker> {
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode, output } = this.context
 
@@ -70,12 +70,12 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     // all checks are also inside this.schema(React)
     const resolvedName = this.context.pluginManager.resolveName({
       name,
-      pluginKey,
+      pluginKey: [pluginFakerName],
       type: 'function',
     })
     const typeName = this.context.pluginManager.resolveName({
       name,
-      pluginKey: swaggerTypeScriptPluginKey,
+      pluginKey: [pluginTsName],
       type: 'type',
     })
 

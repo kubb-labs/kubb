@@ -7,14 +7,14 @@ import { OperationSchema } from './components/OperationSchema.tsx'
 import type { KubbFile } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginFaker } from './types.ts'
 
-export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+export class OperationGenerator extends Generator<PluginFaker['resolvedOptions'], PluginFaker> {
   async all(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async operation(operation: Operation, options: PluginFaker['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
     const root = createRoot({

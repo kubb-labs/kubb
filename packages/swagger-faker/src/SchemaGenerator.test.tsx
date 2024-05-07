@@ -7,7 +7,7 @@ import { SchemaGenerator } from './SchemaGenerator.tsx'
 import type { Plugin } from '@kubb/core'
 import type { SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
-import type { PluginOptions } from './types'
+import type { PluginFaker } from './types'
 
 describe('Faker SchemaGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
@@ -24,7 +24,7 @@ describe('Faker SchemaGenerator enums', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginFaker>,
       contentType: undefined,
       include: undefined,
       mode: 'split',

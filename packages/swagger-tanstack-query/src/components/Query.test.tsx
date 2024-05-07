@@ -13,7 +13,7 @@ import type { ResolveNameParams } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import { parseFromConfig } from '@kubb/swagger/utils'
-import type { PluginOptions } from '../types.ts'
+import type { PluginTanstackQuery } from '../types.ts'
 import { QueryImports } from './QueryImports.tsx'
 
 describe('<Query/>', async () => {
@@ -59,7 +59,7 @@ describe('<Query/>', async () => {
     mutate: false,
   }
 
-  const plugin = { options } as Plugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginTanstackQuery>
   const og = await new OperationGenerator(options, {
     oas,
     exclude: [],

@@ -10,11 +10,11 @@ import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
-export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+import type { PluginTs } from './types.ts'
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginTsName = 'swagger-ts' satisfies PluginTs['name']
+
+export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
     output = { path: 'types' },
     group,
@@ -32,7 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
-    name: pluginName,
+    name: pluginTsName,
     options: {
       transformers,
       dateType,

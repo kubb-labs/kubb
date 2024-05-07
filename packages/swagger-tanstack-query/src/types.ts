@@ -209,11 +209,11 @@ export type Options = {
 export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
 type ResolvedOptions = {
-  framework: NonNullable<PluginOptions['options']['framework']>
-  client: Required<NonNullable<PluginOptions['options']['client']>>
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
-  pathParamsType: NonNullable<PluginOptions['options']['pathParamsType']>
-  parser: PluginOptions['options']['parser']
+  framework: NonNullable<PluginTanstackQuery['options']['framework']>
+  client: Required<NonNullable<PluginTanstackQuery['options']['client']>>
+  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
+  pathParamsType: NonNullable<PluginTanstackQuery['options']['pathParamsType']>
+  parser: PluginTanstackQuery['options']['parser']
   /**
    * Only used of infinite
    */
@@ -230,10 +230,10 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTanstackQuery = PluginFactoryOptions<'swagger-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-tanstack-query']: PluginOptions
+    ['@kubb/swagger-tanstack-query']: PluginTanstackQuery
   }
 }

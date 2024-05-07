@@ -5,7 +5,7 @@ import { getASTParams } from '@kubb/swagger/utils'
 
 import { isRequired } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { PluginOptions } from '../types'
+import type { PluginTanstackQuery } from '../types'
 
 type TemplateProps = {
   /**
@@ -83,7 +83,7 @@ const defaultTemplates = {
         plugin: {
           options: { pathParamsType, query },
         },
-      } = useApp<PluginOptions>()
+      } = useApp<PluginTanstackQuery>()
       const { getSchemas } = useOperationManager()
       const operation = useOperation()
 
@@ -158,7 +158,7 @@ export function QueryKey({ name, typeName, factory, keysFn, Template = defaultTe
     plugin: {
       options: { pathParamsType },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTanstackQuery>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 

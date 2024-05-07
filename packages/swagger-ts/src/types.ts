@@ -112,11 +112,11 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTs = PluginFactoryOptions<'swagger-ts', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-ts']: PluginOptions
+    ['@kubb/swagger-ts']: PluginTs
   }
 }
 // external packages

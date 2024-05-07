@@ -2,14 +2,14 @@ import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, useApp } from '@kubb/react'
-import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { Infinite, PluginOptions, Suspense } from '../types.ts'
+import type { Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -49,7 +49,7 @@ type TemplateProps = {
     contentType: string
   }
   infinite: Infinite | false
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
   parser: string | undefined
 }
 
@@ -231,7 +231,7 @@ const defaultTemplates = {
         plugin: {
           options: { pathParamsType },
         },
-      } = useApp<PluginOptions>()
+      } = useApp<PluginTanstackQuery>()
 
       const { getSchemas } = useOperationManager()
       const operation = useOperation()
@@ -341,7 +341,7 @@ type Props = {
    * This will make it possible to override the default behaviour.
    */
   Template?: React.ComponentType<FrameworkProps>
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
 }
 
 export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
@@ -351,7 +351,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
       key: pluginKey,
       options: { parser, pathParamsType, queryOptions },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTanstackQuery>()
 
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
@@ -370,7 +370,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
 
   const zodResponseName = pluginManager.resolveName({
     name: schemas.response.name,
-    pluginKey: swaggerZodPluginKey,
+    pluginKey: [pluginZodName],
     type: 'function',
   })
 

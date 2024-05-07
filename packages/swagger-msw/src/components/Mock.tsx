@@ -1,12 +1,12 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
 import { Parser, File, useApp } from '@kubb/react'
-import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
+import { pluginFakerName } from '@kubb/swagger-faker'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginMsw } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -73,14 +73,14 @@ type Props = {
 }
 
 export function Mock({ Template = defaultTemplates.default }: Props): ReactNode {
-  const { pluginManager } = useApp<PluginOptions>()
+  const { pluginManager } = useApp<PluginMsw>()
   const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
 
   const schemas = getSchemas(operation)
   const name = getName(operation, { type: 'function' })
   const responseName = pluginManager.resolveName({
-    pluginKey: fakerPluginKey,
+    pluginKey: [pluginFakerName],
     name: schemas.response.name,
     type: 'type',
   })
@@ -98,15 +98,15 @@ type FileProps = {
 }
 
 Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { pluginManager } = useApp<PluginOptions>()
+  const { pluginManager } = useApp<PluginMsw>()
   const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
 
   const schemas = getSchemas(operation)
   const file = getFile(operation)
-  const fileFaker = getFile(operation, { pluginKey: fakerPluginKey })
+  const fileFaker = getFile(operation, { pluginKey: [pluginFakerName] })
   const responseName = pluginManager.resolveName({
-    pluginKey: fakerPluginKey,
+    pluginKey: [pluginFakerName],
     name: schemas.response.name,
     type: 'function',
   })

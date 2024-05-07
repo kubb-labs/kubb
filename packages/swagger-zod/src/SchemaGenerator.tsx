@@ -1,18 +1,17 @@
 import { App, File, createRoot, useApp, useFile } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
-import { Oas, Schema } from '@kubb/swagger/components'
+import { Oas } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
 
-import { pluginKey } from './plugin.ts'
 import { zodParser } from './zodParser.tsx'
 
 import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginZod } from './types.ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 function SchemaImports() {
-  const { plugin, pluginManager } = useApp<PluginOptions>()
+  const { plugin, pluginManager } = useApp<PluginZod>()
   const { path: root } = useFile()
   const { name } = useSchema()
 
@@ -21,17 +20,17 @@ function SchemaImports() {
   // used for this.options.typed
   const typeName = pluginManager.resolveName({
     name,
-    pluginKey: swaggerTypeScriptPluginKey,
+    pluginKey: [pluginTsName],
     type: 'type',
   })
   const typeFileName = pluginManager.resolveName({
     name: name,
-    pluginKey: swaggerTypeScriptPluginKey,
+    pluginKey: [pluginTsName],
     type: 'file',
   })
   const typePath = pluginManager.resolvePath({
     baseName: typeFileName,
-    pluginKey: swaggerTypeScriptPluginKey,
+    pluginKey: [pluginTsName],
   })
 
   return (
@@ -42,7 +41,7 @@ function SchemaImports() {
   )
 }
 
-export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+export class SchemaGenerator extends Generator<PluginZod['resolvedOptions'], PluginZod> {
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
@@ -74,7 +73,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
     // used for this.options.typed
     const typeName = this.context.pluginManager.resolveName({
       name,
-      pluginKey: swaggerTypeScriptPluginKey,
+      pluginKey: [pluginTsName],
       type: 'type',
     })
 
@@ -82,7 +81,7 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
       keysToOmit,
       name: this.context.pluginManager.resolveName({
         name: name,
-        pluginKey,
+        pluginKey: [pluginTsName],
         type: 'function',
       }),
       description,

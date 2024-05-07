@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getComments, getPathParams } from '@kubb/swagger/utils'
 
@@ -106,7 +106,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   const operation = useOperation()
 
   const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const schemas = getSchemas(operation)
 
   return (

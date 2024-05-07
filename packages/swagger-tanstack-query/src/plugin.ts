@@ -4,8 +4,8 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginSwaggerName } from '@kubb/swagger'
-import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
-import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
+import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginZodName } from '@kubb/swagger-zod'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -13,13 +13,12 @@ import { Mutation, Operations, Query, QueryKey, QueryOptions } from './component
 
 import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
+import type { PluginTanstackQuery } from './types.ts'
 import { QueryImports } from './components/QueryImports.tsx'
 
-export const pluginName = 'swagger-tanstack-query' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+export const pluginTanstackQueryName = 'swagger-tanstack-query' satisfies PluginTanstackQuery['name']
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) => {
   const {
     output = { path: 'hooks' },
     group,
@@ -41,7 +40,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
-    name: pluginName,
+    name: pluginTanstackQueryName,
     options: {
       framework,
       client: {
@@ -85,7 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       },
       parser,
     },
-    pre: [pluginSwaggerName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
+    pre: [pluginSwaggerName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

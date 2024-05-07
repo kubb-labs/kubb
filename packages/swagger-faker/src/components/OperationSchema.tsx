@@ -1,13 +1,13 @@
 import { Parser, File, useApp } from '@kubb/react'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
-import { Oas, Schema } from '@kubb/swagger/components'
+import { pluginTsName } from '@kubb/swagger-ts'
+import { Oas } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginFaker } from '../types.ts'
 
 type Props = {}
 
@@ -18,7 +18,7 @@ export function OperationSchema({}: Props): ReactNode {
 type FileProps = {}
 
 OperationSchema.File = function ({}: FileProps): ReactNode {
-  const { plugin, pluginManager, mode } = useApp<PluginOptions>()
+  const { plugin, pluginManager, mode } = useApp<PluginFaker>()
 
   const oas = useOas()
   const { getSchemas, getFile } = useOperationManager()
@@ -40,17 +40,17 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     // used for this.options.typed
     const typeName = pluginManager.resolveName({
       name,
-      pluginKey: swaggerTypeScriptPluginKey,
+      pluginKey: [pluginTsName],
       type: 'type',
     })
     const typeFileName = pluginManager.resolveName({
       name: name,
-      pluginKey: swaggerTypeScriptPluginKey,
+      pluginKey: [pluginTsName],
       type: 'file',
     })
     const typePath = pluginManager.resolvePath({
       baseName: options.operationName || typeFileName,
-      pluginKey: swaggerTypeScriptPluginKey,
+      pluginKey: [pluginTsName],
       options: { tag: options.operation?.getTags()[0]?.name },
     })
 

@@ -7,9 +7,9 @@ import { OperationSchema } from './components/OperationSchema.tsx'
 
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginTs } from './types.ts'
 
-export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+export class OperationGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
@@ -28,7 +28,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async operation(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async operation(operation: Operation, options: PluginTs['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
     const root = createRoot({

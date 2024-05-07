@@ -83,10 +83,10 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-msw', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginMsw = PluginFactoryOptions<'swagger-msw', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-msw']: PluginOptions
+    ['@kubb/swagger-msw']: PluginMsw
   }
 }

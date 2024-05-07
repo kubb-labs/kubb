@@ -4,8 +4,8 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginSwaggerName } from '@kubb/swagger'
-import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
-import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
+import { pluginFakerName } from '@kubb/swagger-faker'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -13,17 +13,16 @@ import { Mock, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
+import type { PluginMsw } from './types.ts'
 
-export const pluginName = 'swagger-msw' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+export const pluginMswName = 'swagger-msw' satisfies PluginMsw['name']
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginMsw = createPlugin<PluginMsw>((options) => {
   const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, templates } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
-    name: pluginName,
+    name: pluginMswName,
     options: {
       templates: {
         operations: Operations.templates,
@@ -31,7 +30,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ...templates,
       },
     },
-    pre: [pluginSwaggerName, swaggerTypeScriptPluginName, swaggerFakerPluginName],
+    pre: [pluginSwaggerName, pluginTsName, pluginFakerName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

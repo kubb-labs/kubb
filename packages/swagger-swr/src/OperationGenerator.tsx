@@ -8,9 +8,9 @@ import { Query } from './components/Query.tsx'
 import type { KubbFile } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginSwr } from './types.ts'
 
-export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {
+export class OperationGenerator extends Generator<PluginSwr['resolvedOptions'], PluginSwr, FileMeta> {
   async all(): Promise<KubbFile.File | null> {
     return null
   }
@@ -19,7 +19,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return null
   }
 
-  async get(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async get(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
     const root = createRoot({
@@ -48,7 +48,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async post(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async post(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
     const root = createRoot({
@@ -72,13 +72,13 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async put(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async put(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.post(operation, options)
   }
-  async patch(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async patch(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.post(operation, options)
   }
-  async delete(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async delete(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.post(operation, options)
   }
 }

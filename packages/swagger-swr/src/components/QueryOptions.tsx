@@ -3,11 +3,11 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
-import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/swagger-zod'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { PluginOptions } from '../types.ts'
+import type { PluginSwr } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -42,7 +42,7 @@ type TemplateProps = {
     withHeaders: boolean
     contentType: string
   }
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
   parser: string | undefined
 }
 
@@ -97,7 +97,7 @@ type Props = {
   factory: {
     name: string
   }
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -111,7 +111,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
       key: pluginKey,
       options: { parser },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginSwr>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
@@ -123,7 +123,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const contentType = operation.getContentType()
   const zodResponseName = pluginManager.resolveName({
     name: schemas.response.name,
-    pluginKey: swaggerZodPluginKey,
+    pluginKey: [pluginZodName],
     type: 'function',
   })
 

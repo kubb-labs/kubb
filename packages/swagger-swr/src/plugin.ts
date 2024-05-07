@@ -4,8 +4,8 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginSwaggerName } from '@kubb/swagger'
-import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
-import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
+import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginZodName } from '@kubb/swagger-zod'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -13,17 +13,16 @@ import { Mutation, Query, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
+import type { PluginSwr } from './types.ts'
 
-export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+export const pluginSwrName = 'swagger-swr' satisfies PluginSwr['name']
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginSwr = createPlugin<PluginSwr>((options) => {
   const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, templates, dataReturnType = 'data' } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
-    name: pluginName,
+    name: pluginSwrName,
     options: {
       templates: {
         mutation: Mutation.templates,
@@ -38,7 +37,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dataReturnType,
       parser,
     },
-    pre: [pluginSwaggerName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
+    pre: [pluginSwaggerName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

@@ -5,7 +5,7 @@ import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginZod } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -66,7 +66,7 @@ function RootTemplate({ children }: RootTemplateProps) {
     mode,
     pluginManager,
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginZod>()
   const { getFile } = useOperationManager()
   const operations = useOperations()
   const { groupSchemasByByName } = useOperationManager()
