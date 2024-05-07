@@ -12,7 +12,7 @@ import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginTs } from './types.ts'
 
-export const pluginTsName = 'swagger-ts' satisfies PluginTs['name']
+export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
 export const pluginTs = createPlugin<PluginTs>((options) => {
   const {

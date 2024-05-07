@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger, schemaKeywords } from '@kubb/swagger'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger, schemaKeywords } from '@kubb/swagger'
+import { pluginTs } from '@kubb/swagger-ts'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -18,13 +18,13 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      createSwagger({ output: false }),
-      createSwaggerTS({
+      pluginSwagger({ output: false }),
+      pluginTs({
         output: {
           path: './ts',
         },
       }),
-      createSwaggerZod({
+      pluginZod({
         output: {
           path: './zod',
         },

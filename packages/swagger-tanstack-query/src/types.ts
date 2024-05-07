@@ -230,7 +230,7 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginTanstackQuery = PluginFactoryOptions<'swagger-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTanstackQuery = PluginFactoryOptions<'plugin-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

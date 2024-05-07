@@ -57,7 +57,7 @@ Default: `true`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -67,7 +67,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ validate: true }),
+    pluginSwagger({ validate: true }),
   ],
 })
 ```
@@ -89,7 +89,7 @@ Default: `'schemas'`
 
 ```typescript [output string]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -99,7 +99,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: {
         path: './json',
       },
@@ -110,7 +110,7 @@ export default defineConfig({
 
 ```typescript [output false]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -120,7 +120,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
+    pluginSwagger({ output: false }),
   ],
 })
 ```
@@ -140,7 +140,7 @@ Default: `'docs.html'`
 
 ```typescript [docs string]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -150,7 +150,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       docs: {
         path: './docs/index.html',
       },
@@ -161,7 +161,7 @@ export default defineConfig({
 
 ```typescript [docs false]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -171,7 +171,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ docs: false }),
+    pluginSwagger({ docs: false }),
   ],
 })
 ```
@@ -191,7 +191,7 @@ Default: `false`
 
 ```typescript
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -201,7 +201,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       docs: {
         path: './docs/index.html',
         export: true
@@ -242,7 +242,7 @@ servers:
 
 ```typescript [serverIndex 0]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -252,14 +252,14 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ serverIndex: 0 }), // use of `http://petstore.swagger.io/api`
+    pluginSwagger({ serverIndex: 0 }), // use of `http://petstore.swagger.io/api`
   ],
 })
 ```
 
 ```typescript [serverIndex 1]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -269,7 +269,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ serverIndex: 1 }), // use of `http://localhost:3000`
+    pluginSwagger({ serverIndex: 1 }), // use of `http://localhost:3000`
   ],
 })
 ```
@@ -295,7 +295,7 @@ Type: `contentType` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -305,7 +305,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ contentType: 'application/json' }),
+    pluginSwagger({ contentType: 'application/json' }),
   ],
 })
 ```

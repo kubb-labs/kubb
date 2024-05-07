@@ -36,7 +36,7 @@ By setting the following options you can override the default behavior of Kubb a
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig({
   input: {
@@ -46,7 +46,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: {
         path: 'schemas',
       },

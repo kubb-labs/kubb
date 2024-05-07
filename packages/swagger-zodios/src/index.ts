@@ -1,11 +1,15 @@
-import { definePlugin } from './plugin.ts'
+import { pluginZodios } from './plugin.ts'
 
-export { definePlugin, pluginKey, pluginName } from './plugin.ts'
-export type * from './types.ts'
+export { pluginZodios, pluginZodiosName } from './plugin.ts'
+export type { PluginZodios } from './types.ts'
 
 /**
- * @deprecated Use `import { definePlugin } from '@kubb/swagger-zodios'`
+ * @deprecated Use `import { pluginZodios } from '@kubb/swagger-zodios'` instead
  */
-const definePluginDefault = definePlugin
+const definePluginDefault = pluginZodios
+/**
+ * @deprecated Use `import { pluginZodios } from '@kubb/swagger-zodios'` instead
+ */
+export const definePlugin = pluginZodios
 
 export default definePluginDefault

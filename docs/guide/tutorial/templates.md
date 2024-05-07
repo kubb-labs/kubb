@@ -93,8 +93,8 @@ import React from 'react'
 import { File, Function } from '@kubb/react'
 import { Client } from '@kubb/swagger-client/components'
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
 
 function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
   const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
@@ -126,13 +126,13 @@ export default defineConfig(() => {
       path: './src',
     },
     plugins: [
-      createSwagger(
+      pluginSwagger(
         {
           output: false,
           validate: true,
         },
       ),
-      createSwaggerClient(
+      pluginClient(
         {
           output: {
             path: 'models',

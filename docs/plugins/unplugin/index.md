@@ -62,9 +62,9 @@ Type: `Options` <br/>
 import kubb from 'unplugin-kubb/vite'
 import { defineConfig as defineViteConfig } from 'vite'
 import { defineConfig, UserConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export const config: UserConfig = {
   root: '.',
@@ -76,8 +76,8 @@ export const config: UserConfig = {
     clean: true,
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({
+    pluginSwagger({ output: false }),
+    pluginTs({
       output: {
         path: 'models',
       },

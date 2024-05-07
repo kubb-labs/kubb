@@ -15,7 +15,7 @@ import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
 
-export const pluginZodName = 'swagger-zod' satisfies PluginZod['name']
+export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
 export const pluginZod = createPlugin<PluginZod>((options) => {
   const {

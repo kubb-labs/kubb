@@ -6,9 +6,9 @@ import { Definitions } from './components/Definitions.tsx'
 
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult, OperationsByMethod } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginZodios } from './types.ts'
 
-export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+export class OperationGenerator extends Generator<PluginZodios['resolvedOptions'], PluginZodios> {
   async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 

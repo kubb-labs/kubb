@@ -25,7 +25,7 @@ export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
   /**
    * Plugin type can be KubbJSONPlugin or Plugin
    * Example: ['@kubb/swagger', { output: false }]
-   * Or: createSwagger({ output: false })
+   * Or: pluginSwagger({ output: false })
    */
   plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
 }

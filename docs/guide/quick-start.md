@@ -63,9 +63,9 @@ kubb --config kubb.config.js
 
 ```typescript twoslash [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig(() => {
   return [
@@ -78,9 +78,9 @@ export default defineConfig(() => {
         path: './src/gen',
       },
       plugins: [
-        createSwagger({}),
-        createSwaggerTS({}),
-        createSwaggerTanstackQuery({}),
+        pluginSwagger({}),
+        pluginTs({}),
+        pluginTanstackQuery({}),
       ],
     },
     {
@@ -92,9 +92,9 @@ export default defineConfig(() => {
         path: './src/gen2',
       },
       plugins: [
-        createSwagger({}),
-        createSwaggerTS({}),
-        createSwaggerTanstackQuery({}),
+        pluginSwagger({}),
+        pluginTs({}),
+        pluginTanstackQuery({}),
       ],
     },
   ]

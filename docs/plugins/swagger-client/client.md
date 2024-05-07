@@ -20,8 +20,8 @@ By default, `@kubb/swagger-client/client` is getting used as the [`client`](/plu
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
@@ -34,8 +34,8 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({ output: false }),
-      createSwaggerClient({
+      pluginSwagger({ output: false }),
+      pluginClient({
         output: { // [!code ++]
           path: './clients/axios', // [!code ++]
         }, // [!code ++]
@@ -111,8 +111,8 @@ You can start by using a copy-paste of `@kubb/swagger-client/client`.
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
@@ -125,10 +125,10 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({
+      pluginSwagger({
         output: false,
       }),
-      createSwaggerClient({
+      pluginClient({
         output: { // [!code ++]
           path: './clients/axios', // [!code ++]
         }, // [!code ++]

@@ -15,7 +15,7 @@ import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginMsw } from './types.ts'
 
-export const pluginMswName = 'swagger-msw' satisfies PluginMsw['name']
+export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
 export const pluginMsw = createPlugin<PluginMsw>((options) => {
   const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, templates } = options

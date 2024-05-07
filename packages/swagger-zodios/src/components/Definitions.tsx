@@ -1,13 +1,13 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 import { Parser, File, useApp } from '@kubb/react'
-import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/swagger-zod'
 
 import { getDefinitions, getDefinitionsImports } from './utils.ts'
 
 import type { OperationsByMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginZodios } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -47,10 +47,10 @@ type Props = {
 }
 
 export function Definitions({ baseURL, operationsByMethod, Template = defaultTemplates.default }: Props): ReactNode {
-  const { pluginManager } = useApp<PluginOptions>()
+  const { pluginManager } = useApp<PluginZodios>()
   const definitions = getDefinitions(operationsByMethod, {
     resolveName: pluginManager.resolveName,
-    pluginKey: swaggerZodPluginKey,
+    pluginKey: [pluginZodName],
   })
 
   return (
@@ -95,14 +95,14 @@ Definitions.File = function ({ name, baseURL, operationsByMethod, templates = de
   const {
     pluginManager,
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginZodios>()
 
   const file = pluginManager.getFile({ name, extName: '.ts', pluginKey })
 
   const definitionsImports = getDefinitionsImports(operationsByMethod, {
     resolveName: pluginManager.resolveName,
     resolvePath: pluginManager.resolvePath,
-    pluginKey: swaggerZodPluginKey,
+    pluginKey: [pluginZodName],
   })
 
   const imports = definitionsImports

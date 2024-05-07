@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig([
   {
@@ -16,21 +16,21 @@ export default defineConfig([
       clean: true,
     },
     plugins: [
-      createSwagger({
+      pluginSwagger({
         validate: true,
         docs: {
           path: './docs/index.html',
         },
       }),
-      createSwaggerTS({
+      pluginTs({
         output: { path: 'models.ts' },
       }),
-      createSwaggerTanstackQuery({
+      pluginTanstackQuery({
         output: {
           path: './hooks.ts',
         },
       }),
-      createSwaggerZod({
+      pluginZod({
         output: {
           path: './zod.ts',
         },
@@ -51,8 +51,8 @@ export default defineConfig([
       clean: true,
     },
     plugins: [
-      createSwagger({ validate: false, output: false }),
-      createSwaggerZod({
+      pluginSwagger({ validate: false, output: false }),
+      pluginZod({
         output: {
           // exportType: false,
           path: 'index.ts',

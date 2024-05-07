@@ -15,7 +15,7 @@ import type { Plugin } from '@kubb/core'
 import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginFaker } from './types.ts'
 
-export const pluginFakerName = 'swagger-faker' satisfies PluginFaker['name']
+export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 
 export const pluginFaker = createPlugin<PluginFaker>((options) => {
   const {

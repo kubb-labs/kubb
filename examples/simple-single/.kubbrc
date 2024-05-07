@@ -12,6 +12,6 @@ module.exports = defineConfig(() => {
     output: {
       path: './src/gen',
     },
-    plugins: [createSwagger({}), createSwaggerTS({}), createSwaggerTanstackQuery({})],
+    plugins: [pluginSwagger({}), pluginTs({}), pluginTanstackQuery({})],
   }
 })

@@ -1,8 +1,8 @@
 const { defineConfig } = require('@kubb/core')
 
-const { definePlugin: createSwagger, schemaKeywords } = require('@kubb/swagger')
-const { definePlugin: createSwaggerFaker } = require('@kubb/swagger-faker')
-const { definePlugin: createSwaggerTS } = require('@kubb/swagger-ts')
+const { pluginSwagger, schemaKeywords } = require('@kubb/swagger')
+const { pluginFaker } = require('@kubb/swagger-faker')
+const { pluginTs } = require('@kubb/swagger-ts')
 
 module.exports = defineConfig(() => {
   return {
@@ -15,13 +15,13 @@ module.exports = defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({ output: false }),
-      createSwaggerTS({
+      pluginSwagger({ output: false }),
+      pluginTs({
         output: {
           path: 'models',
         },
       }),
-      createSwaggerFaker({
+      pluginFaker({
         output: {
           path: './customMocks',
         },

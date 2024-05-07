@@ -3,28 +3,27 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, trimExtName } from '@kubb/core/transformers'
 import { pluginSwaggerName } from '@kubb/swagger'
-import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/swagger-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { Override, PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
-import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
-import type { PluginOptions } from './types.ts'
+import type { Override, PluginSwagger } from '@kubb/swagger'
+import type { PluginZod } from '@kubb/swagger-zod'
+import type { PluginZodios } from './types.ts'
 
-export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+export const pluginZodiosName = 'plugin-zodios' satisfies PluginZodios['name']
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginZodios = createPlugin<PluginZodios>((options) => {
   const { output = { path: 'zodios.ts' } } = options
 
   return {
-    name: pluginName,
+    name: pluginZodiosName,
     options: {
       name: trimExtName(output.path),
       baseURL: undefined,
     },
-    pre: [pluginSwaggerName, swaggerZodPluginName],
+    pre: [pluginSwaggerName, pluginZodName],
     resolvePath(baseName) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
@@ -41,10 +40,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin, swaggerZodPlugin]: [Plugin<SwaggerPluginOptions>, Plugin<SwaggerZodPluginOptions>] = PluginManager.getDependedPlugins<
-        SwaggerPluginOptions,
-        SwaggerZodPluginOptions
-      >(this.plugins, [pluginSwaggerName, swaggerZodPluginName])
+      const [swaggerPlugin, swaggerZodPlugin]: [Plugin<PluginSwagger>, Plugin<PluginZod>] = PluginManager.getDependedPlugins<PluginSwagger, PluginZod>(
+        this.plugins,
+        [pluginSwaggerName, pluginZodName],
+      )
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))

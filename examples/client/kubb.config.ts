@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 import * as client from './templates/client/index'
 
@@ -21,13 +21,13 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      createSwagger({
+      pluginSwagger({
         validate: false,
         experimentalFilter: {
           tags: ['store'],
         },
       }),
-      createSwaggerTS({
+      pluginTs({
         output: { path: 'models/ts' },
         group: {
           type: 'tag',
@@ -35,7 +35,7 @@ export default defineConfig(async () => {
         enumType: 'asPascalConst',
         dateType: 'date',
       }),
-      createSwaggerClient({
+      pluginClient({
         output: {
           path: './clients/axios',
         },

@@ -1,6 +1,6 @@
 import { Parser, File, useApp } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
-import { Oas, Schema } from '@kubb/swagger/components'
+import { Oas } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'

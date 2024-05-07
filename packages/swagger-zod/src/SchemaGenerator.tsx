@@ -2,13 +2,15 @@ import { App, File, createRoot, useApp, useFile } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
 import { Oas } from '@kubb/swagger/components'
 import { useSchema } from '@kubb/swagger/hooks'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 import { zodParser } from './zodParser.tsx'
+
+import { pluginZodName } from './plugin.ts'
 
 import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
 import type { FileMeta, PluginZod } from './types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
 
 function SchemaImports() {
   const { plugin, pluginManager } = useApp<PluginZod>()
@@ -81,7 +83,7 @@ export class SchemaGenerator extends Generator<PluginZod['resolvedOptions'], Plu
       keysToOmit,
       name: this.context.pluginManager.resolveName({
         name: name,
-        pluginKey: [pluginTsName],
+        pluginKey: [pluginZodName],
         type: 'function',
       }),
       description,

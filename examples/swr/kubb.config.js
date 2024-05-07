@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerSwr } from '@kubb/swagger-swr'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',
@@ -13,13 +13,13 @@ export default defineConfig({
     clean: true,
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({
+    pluginSwagger({ output: false }),
+    pluginTs({
       output: {
         path: 'models',
       },
     }),
-    createSwaggerSwr({
+    pluginSwr({
       output: {
         path: './hooks',
       },

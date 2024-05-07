@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',
@@ -16,14 +16,14 @@ export default defineConfig({
     done: [],
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({
+    pluginSwagger({ output: false }),
+    pluginTs({
       output: {
         path: 'models',
         exportType: 'barrelNamed',
       },
     }),
-    createSwaggerTanstackQuery({
+    pluginTanstackQuery({
       transformers: {
         name: (name, type) => {
           if (type === 'file' || type === 'function') {

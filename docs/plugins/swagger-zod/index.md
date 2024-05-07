@@ -46,8 +46,8 @@ Default: `'zod'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -57,8 +57,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         output: {
           path: './zod',
@@ -80,8 +80,8 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -91,8 +91,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         output: {
           exortAs: 'schemas',
@@ -116,8 +116,8 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -127,8 +127,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         output: {
           extName: '.js',
@@ -192,8 +192,8 @@ Default: `'{{tag}}Schemas'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -203,8 +203,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         output: {
           path: './schemas',
@@ -241,8 +241,8 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -252,8 +252,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         include: [
           {
@@ -292,8 +292,8 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -303,8 +303,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         exclude: [
           {
@@ -344,8 +344,8 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -355,9 +355,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginZod(
       {
         override: [
           {
@@ -390,9 +390,9 @@ Type: `boolean` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -402,8 +402,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         typed: true,
       },
@@ -455,8 +455,8 @@ Default: `'string'`
 ::: code-group
 ```typescript [false]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -466,8 +466,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       dateType: false,
     }),
   ],
@@ -477,8 +477,8 @@ export default defineConfig({
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -488,8 +488,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       dateType: 'string',
     }),
   ],
@@ -498,8 +498,8 @@ export default defineConfig({
 
 ```typescript ['stringOffset']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -509,8 +509,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       dateType: 'stringOffset',
     }),
   ],
@@ -519,8 +519,8 @@ export default defineConfig({
 
 ```typescript ['stringLocal']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -530,8 +530,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       dateType: 'stringLocal',
     }),
   ],
@@ -540,8 +540,8 @@ export default defineConfig({
 
 ```typescript ['date']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -551,8 +551,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       dateType: 'date',
     }),
   ],
@@ -591,8 +591,8 @@ Default: `'any'`
 
 ```typescript ['any']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -602,8 +602,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       unknownType: 'any',
     }),
   ],
@@ -612,8 +612,8 @@ export default defineConfig({
 
 ```typescript ['unknown']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -623,8 +623,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({
+    pluginSwagger({ output: false }),
+    pluginZod({
       unknownType: 'unknown',
     }),
   ],
@@ -647,8 +647,8 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -658,8 +658,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         transformers: {
           name: (name) => {
@@ -716,8 +716,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod(
+    pluginSwagger({ output: false }),
+    pluginZod(
       {
         templates,
       },

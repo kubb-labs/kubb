@@ -16,7 +16,7 @@ import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginTanstackQuery } from './types.ts'
 import { QueryImports } from './components/QueryImports.tsx'
 
-export const pluginTanstackQueryName = 'swagger-tanstack-query' satisfies PluginTanstackQuery['name']
+export const pluginTanstackQueryName = 'plugin-tanstack-query' satisfies PluginTanstackQuery['name']
 
 export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) => {
   const {

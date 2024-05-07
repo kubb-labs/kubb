@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
-import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig(() => {
   return {
@@ -15,20 +15,20 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({ output: false }),
-      createSwaggerTS({
+      pluginSwagger({ output: false }),
+      pluginTs({
         output: {
           path: 'models',
         },
       }),
-      createSwaggerFaker({
+      pluginFaker({
         output: {
           path: './mocks',
           exportType: false,
         },
         group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       }),
-      createSwaggerMsw({
+      pluginMsw({
         output: {
           path: './msw',
         },

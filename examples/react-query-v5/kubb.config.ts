@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 import * as mutation from './templates/mutate/index'
 import * as operations from './templates/operations/index'
@@ -18,13 +18,13 @@ export const config = {
     clean: true,
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({
+    pluginSwagger({ output: false }),
+    pluginTs({
       output: {
         path: 'models',
       },
     }),
-    createSwaggerTanstackQuery({
+    pluginTanstackQuery({
       transformers: {
         name: (name, type) => {
           if (type === 'file' || type === 'function') {
