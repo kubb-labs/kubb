@@ -47,8 +47,8 @@
     "solid-js": "^1.8.17",
     "svelte": "^3.59.2",
     "swr": "^2.2.5",
-    "vue": "^3.4.26",
-    "zod": "^3.23.6"
+    "vue": "^3.4.27",
+    "zod": "^3.23.7"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

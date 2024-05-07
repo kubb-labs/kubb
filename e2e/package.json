@@ -35,7 +35,7 @@
     "@tanstack/react-query": "^5.35.1",
     "@tanstack/solid-query": "^5.35.1",
     "@tanstack/svelte-query": "^5.35.1",
-    "@tanstack/vue-query": "^5.35.1",
+    "@tanstack/vue-query": "^5.35.2",
     "@zodios/core": "^10.9.6",
     "axios": "^1.6.8",
     "msw": "^1.3.3",
@@ -44,8 +44,8 @@
     "svelte": "^3.59.2",
     "swr": "^2.2.5",
     "tsup": "^8.0.2",
-    "vue": "^3.4.26",
-    "zod": "^3.23.6"
+    "vue": "^3.4.27",
+    "zod": "^3.23.7"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

@@ -87,7 +87,7 @@
     "react-dom": "^18.3.1",
     "redoc": "^2.1.4",
     "remeda": "^1.61.0",
-    "styled-components": "^6.1.9"
+    "styled-components": "^6.1.10"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

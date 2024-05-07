@@ -108,7 +108,7 @@
     "p-queue": "^8.0.1",
     "remeda": "^1.61.0",
     "seedrandom": "^3.0.5",
-    "semver": "^7.6.0",
+    "semver": "^7.6.1",
     "unraw": "^3.0.0"
   },
   "devDependencies": {

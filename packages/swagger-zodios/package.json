@@ -64,10 +64,10 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
-    "@kubb/parser-ts": "workspace:*"
+    "@kubb/swagger-zod": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

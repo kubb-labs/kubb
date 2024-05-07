@@ -50,12 +50,12 @@
     "version:canary": "changeset version --snapshot canary"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.7.2",
+    "@biomejs/biome": "^1.7.3",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.10",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "bun-types": "^1.1.7",

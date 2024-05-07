@@ -65,10 +65,10 @@
     "tinyrainbow": "^1.1.1"
   },
   "devDependencies": {
-    "@kubb/swagger": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/node": "^20.12.8",
+    "@kubb/swagger": "workspace:*",
+    "@types/node": "^20.12.10",
     "source-map-support": "^0.5.21",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"

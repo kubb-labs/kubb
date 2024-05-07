@@ -1,7 +1,4 @@
 import TwoslashFloatingVue from '@shikijs/vitepress-twoslash/client'
-// https://vitepress.dev/guide/custom-theme
-import { inject } from '@vercel/analytics'
-import { injectSpeedInsights } from '@vercel/speed-insights'
 import type { EnhanceAppContext } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
@@ -13,9 +10,6 @@ import './style.css'
 
 import allContributorsStr from '../../../.all-contributorsrc?raw'
 
-inject({
-  mode: 'auto',
-})
 
 export default {
   ...DefaultTheme,
@@ -26,7 +20,6 @@ export default {
     })
   },
   enhanceApp(ctx: EnhanceAppContext) {
-    injectSpeedInsights()
     DefaultTheme.enhanceApp(ctx)
     ctx.app.use(TwoslashFloatingVue)
   },
