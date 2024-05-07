@@ -1,7 +1,7 @@
 ---
 layout: doc
 
-title: \@kubb/swagegr
+title: \@kubb/swagger
 outline: deep
 ---
 
