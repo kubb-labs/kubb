@@ -5,7 +5,7 @@ title: \@kubb/react
 outline: deep
 ---
 
-# Editor
+# Parser
 
 ```tsx twoslash
 import React from "react"

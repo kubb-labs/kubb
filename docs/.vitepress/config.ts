@@ -125,30 +125,36 @@ const pluginsSidebar = [
     link: '/plugins/overview',
   },
   {
-    text: 'Internal plugins',
+    text: 'Parsers',
     collapsed: false,
     items: [
       {
-        text: '@kubb/core',
-        collapsed: true,
-        link: '/plugins/core/',
-        items: [
-          {
-            text: 'globals.d.ts',
-            link: '/plugins/core/globals',
-          },
-        ],
+        text: '@kubb/parser-ts',
+        link: '/plugins/parser-ts/',
       },
+    ],
+  },
+  {
+    text: 'Helpers',
+    collapsed: false,
+    items: [
       {
         text: '@kubb/cli',
         link: '/plugins/cli/',
       },
       {
-        text: '@kubb/parser-ts',
-        link: '/plugins/parser-ts/',
+        text: '@kubb/oas',
+        link: '/plugins/oas/',
+        collapsed: true,
+        items: [
+          {
+            text: 'Infer <img src="/icons/experimental.svg"/> <span class="new">new</span>',
+            link: '/plugins/oas/infer',
+          },
+        ],
       },
       {
-        text: '@kubb/react <span class="new">New</span>',
+        text: '@kubb/react',
         link: '/plugins/react/',
         collapsed: true,
         items: [
@@ -166,7 +172,7 @@ const pluginsSidebar = [
               },
               {
                 text: 'Parser',
-                link: '/plugins/react/components/Parser',
+                link: '/plugins/react/components/parser',
               },
               {
                 text: 'Type',
@@ -188,20 +194,20 @@ const pluginsSidebar = [
     ],
   },
   {
-    text: 'Build plugins',
+    text: 'Plugins',
     collapsed: false,
     items: [
       {
-        text: 'unplugin-kubb <span class="new">new</span>',
-        collapsed: false,
-        link: '/plugins/unplugin/',
+        text: '@kubb/core',
+        collapsed: true,
+        link: '/plugins/core/',
+        items: [
+          {
+            text: 'globals.d.ts',
+            link: '/plugins/core/globals',
+          },
+        ],
       },
-    ],
-  },
-  {
-    text: 'Swagger plugins',
-    collapsed: false,
-    items: [
       {
         text: '@kubb/swagger',
         link: '/plugins/swagger/',
@@ -231,13 +237,6 @@ const pluginsSidebar = [
       {
         text: '@kubb/swagger-ts',
         link: '/plugins/swagger-ts/',
-        collapsed: true,
-        items: [
-          {
-            text: 'Infer <img src="/icons/experimental.svg"/> <span class="new">new</span>',
-            link: '/plugins/swagger-ts/infer',
-          },
-        ],
       },
       {
         text: '@kubb/swagger-zod',
@@ -248,7 +247,7 @@ const pluginsSidebar = [
         link: '/plugins/swagger-zodios/',
       },
       {
-        text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
+        text: '@kubb/swagger-tanstack-query',
         link: '/plugins/swagger-tanstack-query/',
       },
       {
@@ -260,8 +259,19 @@ const pluginsSidebar = [
         link: '/plugins/swagger-faker/',
       },
       {
-        text: '@kubb/swagger-msw <span class="new">v2 support</span>',
+        text: '@kubb/swagger-msw',
         link: '/plugins/swagger-msw/',
+      },
+    ],
+  },
+  {
+    text: 'Build tools',
+    collapsed: false,
+    items: [
+      {
+        text: 'unplugin-kubb <span class="new">new</span>',
+        collapsed: false,
+        link: '/plugins/unplugin/',
       },
     ],
   },
@@ -294,7 +304,7 @@ const examplesSidebar = [
         link: '/examples/tanstack-query/react-query',
       },
       {
-        text: 'React-Query v5 <span class="new">new</span>',
+        text: 'React-Query v5>',
         link: '/examples/tanstack-query/react-query-v5',
       },
       {
@@ -302,7 +312,7 @@ const examplesSidebar = [
         link: '/examples/tanstack-query/vue-query',
       },
       {
-        text: 'Vue-Query v5 <span class="new">new</span>',
+        text: 'Vue-Query v5',
         link: '/examples/tanstack-query/vue-query-v5',
       },
       {
@@ -370,19 +380,24 @@ const pluginsMenu = [
     link: '/plugins/overview',
   },
   {
-    text: 'Internal plugins',
+    text: 'Parsers',
     items: [
       {
-        text: '@kubb/core',
-        link: '/plugins/core/',
+        text: '@kubb/parser-ts',
+        link: '/plugins/parser-ts/',
       },
+    ],
+  },
+  {
+    text: 'Helpers',
+    items: [
       {
         text: '@kubb/cli',
         link: '/plugins/cli/',
       },
       {
-        text: '@kubb/parser-ts',
-        link: '/plugins/parser-ts/',
+        text: '@kubb/oas',
+        link: '/plugins/oas/',
       },
       {
         text: '@kubb/react',
@@ -391,19 +406,12 @@ const pluginsMenu = [
     ],
   },
   {
-    text: 'Build plugins',
-    collapsed: false,
+    text: 'Plugins',
     items: [
       {
-        text: 'unplugin-kubb',
-        collapsed: false,
-        link: '/plugins/unplugin/',
+        text: '@kubb/core',
+        link: '/plugins/core/',
       },
-    ],
-  },
-  {
-    text: 'Swagger plugins',
-    items: [
       {
         text: '@kubb/swagger',
         link: '/plugins/swagger/',
@@ -439,6 +447,15 @@ const pluginsMenu = [
       {
         text: '@kubb/swagger-msw',
         link: '/plugins/swagger-msw/',
+      },
+    ],
+  },
+  {
+    text: 'Build tools',
+    items: [
+      {
+        text: 'unplugin-kubb',
+        link: '/plugins/unplugin/',
       },
     ],
   },
@@ -538,6 +555,7 @@ export default defineConfig({
               '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
               '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
               '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
+              '@kubb/oas': ['../packages/oas/src/index.ts'],
               '@kubb/react': ['../packages/react/src/index.ts'],
               'unplugin-kubb': ['../packages/unplugin/src/index.ts'],
               'unplugin-kubb/vite': ['../packages/unplugin/src/vite.ts'],
@@ -561,7 +579,7 @@ export default defineConfig({
       {
         text: 'Plugins',
         activeMatch: 'plugins',
-        items: [...pluginsMenu],
+        items: [...(pluginsMenu as any)],
       },
       {
         text: 'Reference',

@@ -53,25 +53,13 @@ Validate your [`input`](/config/input) based on `@apidevtools/swagger-parser`
 Type: `boolean` <br/>
 Default: `true`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ validate: true }),
-  ],
+const plugin = pluginSwagger({
+  validate: true,
 })
 ```
-
 :::
 
 ### output
@@ -87,41 +75,21 @@ Default: `'schemas'`
 
 ::: code-group
 
-```typescript [output string]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [output string]
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginSwagger({
   output: {
-    path: './src/gen',
+    path: './json',
   },
-  plugins: [
-    pluginSwagger({
-      output: {
-        path: './json',
-      },
-    }),
-  ],
 })
 ```
 
-```typescript [output false]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [output false]
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-  ],
+const plugin = pluginSwagger({
+  output: false
 })
 ```
 
@@ -138,41 +106,21 @@ Default: `'docs.html'`
 
 ::: code-group
 
-```typescript [docs string]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [docs string]
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginSwagger({
+  docs: {
+    path: './docs/index.html',
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({
-      docs: {
-        path: './docs/index.html',
-      },
-    }),
-  ],
 })
 ```
 
-```typescript [docs false]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [docs false]
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ docs: false }),
-  ],
+const plugin = pluginSwagger({
+  docs: false
 })
 ```
 
@@ -181,43 +129,31 @@ export default defineConfig({
 
 #### docs.export
 
-Export the generated(with filters and sorting) OpenAPI file with conversion to v3.<br/>
+Export the generated(with filters and sorting) OpenAPI as HTML.<br/>
 
 ::: info
 Type: `boolean` <br/>
 Default: `false`
 
-::: code-group
-
-```typescript
-import { defineConfig } from '@kubb/core'
+```typescript twoslash
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginSwagger({
+  docs: {
+    path: './docs/index.html',
+    export: true
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({
-      docs: {
-        path: './docs/index.html',
-        export: true
-      },
-    }),
-  ],
 })
 ```
 :::
-
 
 ### serverIndex
 
 Which server to use from the array of `servers.url[serverIndex]`
 
-For example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
+For example:
+- `0` will return `http://petstore.swagger.io/api`
+- `1` will return `http://localhost:3000`
 
 ::: info
 
@@ -240,60 +176,75 @@ servers:
 - url: http://localhost:3000
 ```
 
-```typescript [serverIndex 0]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [serverIndex 0]
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ serverIndex: 0 }), // use of `http://petstore.swagger.io/api`
-  ],
-})
+const plugin = pluginSwagger({ serverIndex: 0 })
 ```
 
-```typescript [serverIndex 1]
-import { defineConfig } from '@kubb/core'
+```typescript twoslash [serverIndex 1]
 import { pluginSwagger } from '@kubb/swagger'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ serverIndex: 1 }), // use of `http://localhost:3000`
-  ],
-})
+const plugin = pluginSwagger({ serverIndex: 1 })
 ```
 
 :::
 
 ### contentType
 
-Override contentType that will be used for requests and responses.
+Define which contentType should be used.
+By default, this is set based on the first used contentType.
 
-::: info type
+::: info TYPE
 
 ```typescript
 export type contentType = 'application/json' | (string & {})
 ```
-
 :::
 
 ::: info
 Type: `contentType` <br/>
 
-::: code-group
+```typescript twoslash
+import { pluginSwagger } from '@kubb/swagger'
 
-```typescript [kubb.config.js]
+const plugin = pluginSwagger({ contentType: 'application/json' })
+```
+:::
+
+### experimentalFilter <img src="/icons/experimental.svg"/>
+
+::: info
+
+```typescript twoslash
+import { pluginSwagger } from '@kubb/swagger'
+
+const plugin = pluginSwagger({
+  experimentalFilter: {
+    methods: ['get'],
+  },
+})
+```
+:::
+
+### experimentalSort <img src="/icons/experimental.svg"/>
+
+::: info
+
+```typescript twoslash
+import { pluginSwagger } from '@kubb/swagger'
+
+const plugin = pluginSwagger({
+  experimentalSort: {
+    properties: ['description', 'default', 'type']
+  },
+})
+```
+:::
+
+## Example
+
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginSwagger } from '@kubb/swagger'
 
@@ -305,16 +256,25 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ contentType: 'application/json' }),
+    pluginSwagger({
+      validate: true,
+      output: {
+        path: './json',
+      },
+      docs: {
+        path: './docs/index.html',
+      },
+      serverIndex: 0,
+      contentType: 'application/json'
+    }),
   ],
 })
 ```
 
-:::
-
 ## Depended
 
 - [`@kubb/core`](/plugins/core/)
+- [`@kubb/oas`](/plugins/oas/)
 
 ## Links
 

@@ -19,7 +19,7 @@ export type API = {
 
 export type Options = {
   /**
-   * Validate your input(see kubb.config) based on @apidevtools/swagger-parser
+   * Validate your input(see kubb.config) based on '@apidevtools/swagger-parser'.
    * @default true
    */
   validate?: boolean
@@ -41,7 +41,7 @@ export type Options = {
          */
         path: string
         /**
-         * Export the generated(with filters and sorting) OpenAPI file with conversion to v3.
+         * Export the generated(with filters and sorting) as HTML.
          * @default false
          */
         export?: boolean
@@ -49,15 +49,15 @@ export type Options = {
     | false
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
-   * @example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
-   * servers:
-  - url: http://petstore.swagger.io/api
-  - url: http://localhost:3000
+   * @example
+   * - `0` will return `http://petstore.swagger.io/api`
+   * - `1` will return `http://localhost:3000`
    * @default 0
    */
   serverIndex?: number
   /**
-   * Override ContentType that will be used for requests and responses.
+   * Define which contentType should be used.
+   * By default, this is set based on the first used contentType..
    */
   contentType?: contentType
   experimentalFilter?: FormatOptions['filterSet']

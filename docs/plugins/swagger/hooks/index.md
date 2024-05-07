@@ -16,8 +16,8 @@ See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` in
 
 ::: code-group
 
-```typescript
-import { useOas } from '@kubb/react'
+```tsx twoslash
+import { useOas } from '@kubb/swagger/hooks'
 
 function Component() {
   const oas = useOas()
@@ -34,11 +34,13 @@ function Component() {
 
 ::: code-group
 
-```typescript
-import { useOperation } from '@kubb/react'
+```tsx twoslash
+import { useOperation } from '@kubb/swagger/hooks'
 
 function Component() {
   const operation = useOperation()
+
+  const { path, method, schema, contentType, getRequestBody, getOperationId } = operation;
 
   return null
 }
@@ -52,8 +54,8 @@ function Component() {
 
 ::: code-group
 
-```typescript
-import { useOperations } from '@kubb/react'
+```tsx twoslash
+import { useOperations } from '@kubb/swagger/hooks'
 
 function Component() {
   const operations = useOperations()
@@ -71,11 +73,11 @@ function Component() {
 
 ::: code-group
 
-```typescript
-import { useOperationManager } from '@kubb/react'
+```tsx twoslash
+import { useOperationManager } from '@kubb/swagger/hooks'
 
 function Component() {
-  const { getName, getFile } = useOperationManager()
+  const { getFile, getName, getSchemas, groupSchemasByByName } = useOperationManager()
 
   return null
 }

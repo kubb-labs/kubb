@@ -10,15 +10,15 @@ outline: deep
 Some hooks that can be used with `@kubb/react`.
 
 
-## useEditor
+## useParser
 
-`useEditor` will return the current language set by the parent `Editor` component.
+`useParser` will return the current language set by the parent `Parser` component.
 
 ```tsx twoslash
-import { useEditor } from '@kubb/react'
+import { useParser } from '@kubb/react'
 
 function Component() {
-  const editor = useEditor()
+  const parser = useParser()
 
   return null
 }
