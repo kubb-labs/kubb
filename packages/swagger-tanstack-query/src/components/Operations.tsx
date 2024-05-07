@@ -2,7 +2,7 @@ import { Parser, File, useApp } from '@kubb/react'
 
 import type { KubbNode } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginTanstackQuery } from '../types.ts'
 
 type TemplateProps = {}
 
@@ -18,7 +18,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   const {
     pluginManager,
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTanstackQuery>()
 
   const file = pluginManager.getFile({
     name: 'operations',

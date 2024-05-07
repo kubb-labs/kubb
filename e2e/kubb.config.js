@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
-import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
-import { definePlugin as createSwaggerSwr } from '@kubb/swagger-swr'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 const schemas = [
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
@@ -43,18 +43,18 @@ const baseConfig = {
     done: ['pnpm typecheck'],
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: false,
       validate: true,
       docs: false,
     }),
-    createSwagger({
+    pluginSwagger({
       output: {
         path: 'schemas2',
       },
       validate: true,
     }),
-    createSwaggerTS({
+    pluginTs({
       output: {
         path: 'models/ts',
         exportType: false,
@@ -64,7 +64,7 @@ const baseConfig = {
       },
       enumType: 'asPascalConst',
     }),
-    createSwaggerTanstackQuery({
+    pluginTanstackQuery({
       output: {
         path: './clients/hooks',
       },
@@ -74,36 +74,36 @@ const baseConfig = {
         methods: ['post', 'put', 'delete'],
       },
     }),
-    createSwaggerSwr({
+    pluginSwr({
       output: {
         path: './clients/swr',
       },
       group: { type: 'tag' },
     }),
-    createSwaggerClient({
+    pluginClient({
       output: {
         path: './clients/axios',
       },
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
     }),
-    createSwaggerZod({
+    pluginZod({
       output: {
         path: './zod',
       },
       group: { type: 'tag' },
     }),
-    createSwaggerZodios({
+    pluginZodios({
       output: {
         path: 'zodios.ts',
       },
     }),
-    createSwaggerFaker({
+    pluginFaker({
       output: {
         path: 'mocks',
       },
       group: { type: 'tag' },
     }),
-    createSwaggerMsw({
+    pluginMsw({
       output: {
         path: 'msw',
       },

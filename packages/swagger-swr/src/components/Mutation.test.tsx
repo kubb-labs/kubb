@@ -10,7 +10,7 @@ import type { Plugin, ResolveNameParams } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import { parseFromConfig } from '@kubb/swagger/utils'
-import type { PluginOptions } from '../types.ts'
+import type { PluginSwr } from '../types.ts'
 
 describe('<Mutation/>', async () => {
   const oas = await parseFromConfig({
@@ -40,7 +40,7 @@ describe('<Mutation/>', async () => {
     parser: undefined,
   }
 
-  const plugin = { options } as Plugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginSwr>
   const og = await new OperationGenerator(options, {
     oas,
     exclude: [],

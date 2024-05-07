@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 
@@ -9,7 +9,7 @@ import { SchemaType } from './SchemaType.tsx'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginSwr } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -47,7 +47,7 @@ type TemplateProps = {
     withHeaders: boolean
     path: URLPath
   }
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
 }
 
 function Template({ name, generics, returnType, params, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
@@ -124,7 +124,7 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
     plugin: {
       options: { dataReturnType },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginSwr>()
   const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
 
@@ -202,14 +202,14 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
         client: { importPath },
       },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginSwr>()
 
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
   const schemas = getSchemas(operation)
   const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const factoryName = getName(operation, { type: 'type' })
 
   const Template = templates.default

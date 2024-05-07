@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',
@@ -12,43 +12,43 @@ export default defineConfig({
     clean: true,
   },
   plugins: [
-    createSwagger({ validate: false }),
-    createSwaggerTS({
+    pluginSwagger({ validate: false }),
+    pluginTs({
       output: {
         path: 'models.ts',
         exportAs: 'models',
       },
       enumType: 'enum',
     }),
-    createSwaggerTS({
+    pluginTs({
       output: {
         path: 'modelsConst.ts',
         exportAs: 'modelsAsConst',
       },
       enumType: 'asConst',
     }),
-    createSwaggerTS({
+    pluginTs({
       output: {
         path: 'modelsPascalConst.ts',
         exportAs: 'modelsPascalConst',
       },
       enumType: 'asPascalConst',
     }),
-    createSwaggerTS({
+    pluginTs({
       output: {
         path: 'modelsConstEnum.ts',
         exportAs: 'modelsConstEnum',
       },
       enumType: 'constEnum',
     }),
-    createSwaggerTS({
+    pluginTs({
       output: {
         path: 'modelsLiteral.ts',
         exportAs: 'modelsLiteral',
       },
       enumType: 'literal',
     }),
-    createSwaggerTS({
+    pluginTs({
       output: {
         path: 'ts/models',
         exportType: 'barrelNamed',

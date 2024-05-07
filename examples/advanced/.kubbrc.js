@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
-import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
-import { definePlugin as createSwaggerSwr } from '@kubb/swagger-swr'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig({
   root: '.',
@@ -19,11 +19,11 @@ export default defineConfig({
     clean: true,
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: false,
       validate: true,
     }),
-    createSwaggerTS({
+    pluginTs({
       output: { path: 'models/ts' },
       group: {
         type: 'tag',
@@ -31,7 +31,7 @@ export default defineConfig({
       enumType: 'asPascalConst',
       dateType: 'date',
     }),
-    createSwaggerTanstackQuery({
+    pluginTanstackQuery({
       output: {
         path: './clients/hooks',
       },
@@ -44,7 +44,7 @@ export default defineConfig({
       group: { type: 'tag' },
       infinite: {},
     }),
-    createSwaggerSwr({
+    pluginSwr({
       output: {
         path: './clients/swr',
       },
@@ -56,7 +56,7 @@ export default defineConfig({
       ],
       group: { type: 'tag' },
     }),
-    createSwaggerClient({
+    pluginClient({
       output: {
         path: './clients/axios',
       },
@@ -68,7 +68,7 @@ export default defineConfig({
       ],
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
     }),
-    createSwaggerZod({
+    pluginZod({
       output: {
         path: './zod',
       },
@@ -80,12 +80,12 @@ export default defineConfig({
       ],
       group: { type: 'tag' },
     }),
-    createSwaggerZodios({
+    pluginZodios({
       output: {
         path: 'zodios.ts',
       },
     }),
-    createSwaggerFaker({
+    pluginFaker({
       output: {
         path: 'mocks',
       },
@@ -98,7 +98,7 @@ export default defineConfig({
       group: { type: 'tag' },
       dateType: 'date',
     }),
-    createSwaggerMsw({
+    pluginMsw({
       output: {
         path: 'msw',
       },

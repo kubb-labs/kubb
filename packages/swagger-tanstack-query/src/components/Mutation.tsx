@@ -2,7 +2,7 @@ import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 
@@ -13,7 +13,7 @@ import { SchemaType } from './SchemaType.tsx'
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginTanstackQuery } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -53,7 +53,7 @@ type TemplateProps = {
     withHeaders: boolean
     path: URLPath
   }
-  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
 }
 
 function Template({ name, generics, returnType, params, mutateParams, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
@@ -232,7 +232,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
     plugin: {
       options: { dataReturnType, mutate },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTanstackQuery>()
 
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
@@ -397,14 +397,14 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
         framework,
       },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTanstackQuery>()
 
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
   const schemas = getSchemas(operation)
   const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const factoryName = getName(operation, { type: 'type' })
 
   const importNames = getImportNames()

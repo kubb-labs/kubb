@@ -110,7 +110,7 @@ With version `2.x.x` we also support using multiple versions of the same plugin.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig(() => {
   return {
@@ -122,14 +122,14 @@ export default defineConfig(() => {
       path: './src/gen',
     },
     plugins: [
-      createSwagger(
+      pluginSwagger(
         {
           output: {
             path: 'schemas',
           },
         },
       ),
-      createSwagger(
+      pluginSwagger(
         {
           output: {
             path: 'schemas2',
@@ -152,7 +152,7 @@ Since version `2.x.x` we also support using multiple configs.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 export default defineConfig([
   {
@@ -165,7 +165,7 @@ export default defineConfig([
       path: './src/gen',
     },
     plugins: [
-      createSwagger(
+      pluginSwagger(
         {
            output: {
             path: 'schemas',
@@ -184,7 +184,7 @@ export default defineConfig([
       path: './src/gen-v2',
     },
     plugins: [
-      createSwagger(
+      pluginSwagger(
         {
           output: {
             path: 'schemas',

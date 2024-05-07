@@ -7,7 +7,7 @@ import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin, PluginManager } from '@kubb/core'
 import type { Oas, OasTypes, SchemaObject } from '@kubb/oas'
-import type { PluginOptions } from './types.ts'
+import type { PluginTs } from './types.ts'
 
 describe('TypeScript SchemaGenerator petStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -29,7 +29,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -59,7 +59,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -89,7 +89,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -122,7 +122,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
           resolveName: ({ name }) => name,
           resolvePath: ({ baseName }) => baseName,
         } as PluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -162,7 +162,7 @@ describe('TypeScript SchemaGenerator petStore', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -197,7 +197,7 @@ describe('SchemaGenerator petStoreRef', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -232,7 +232,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -262,7 +262,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -292,7 +292,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -322,7 +322,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -351,7 +351,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -381,7 +381,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -411,7 +411,7 @@ describe('SchemaGenerator discriminator', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -444,7 +444,7 @@ describe('SchemaGenerator enums', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginTs>,
       contentType: undefined,
       include: undefined,
       mode: 'split',
@@ -512,7 +512,7 @@ describe('SchemaGenerator enums', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -541,7 +541,7 @@ describe('SchemaGenerator enums', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -570,7 +570,7 @@ describe('SchemaGenerator enums', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -599,7 +599,7 @@ describe('SchemaGenerator enums', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',
@@ -632,7 +632,7 @@ describe('TypeGenerator type assertions', async () => {
     {
       oas,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginTs>,
       contentType: undefined,
       include: undefined,
       mode: 'split',
@@ -676,7 +676,7 @@ describe('TypeGenerator type assertions', async () => {
       {
         oas,
         pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginOptions>,
+        plugin: {} as Plugin<PluginTs>,
         contentType: undefined,
         include: undefined,
         mode: 'split',

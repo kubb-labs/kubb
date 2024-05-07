@@ -4,12 +4,11 @@ import { parseFromConfig } from './utils/parseFromConfig.ts'
 import type { KubbFile, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
-import type { FileMeta } from '@kubb/swagger-ts'
 import type { OperationMethodResult } from './OperationGenerator.ts'
 import type { Resolver } from './types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
-  operation(): OperationMethodResult<FileMeta> {
+  operation(): OperationMethodResult<KubbFile.FileMetaBase> {
     return Promise.resolve(null)
   }
   resolve(_operation: Operation): Resolver {

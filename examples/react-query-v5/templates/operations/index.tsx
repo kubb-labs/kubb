@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { Parser, File, Type, useApp } from '@kubb/react'
-import type { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
+import type { PluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 import type React from 'react'
@@ -11,7 +11,7 @@ export const templates = {
     const {
       plugin: { key: pluginKey },
       pluginManager,
-    } = useApp<PluginOptions>()
+    } = useApp<PluginTanstackQuery>()
     const operations = useOperations()
     const { getName, getSchemas } = useOperationManager()
 
@@ -39,7 +39,7 @@ export const templates = {
 
     return (
       <Parser language="typescript">
-        <File<FileMeta> baseName={'invalidations.ts'} path={path.join(root, './invalidations.ts')}>
+        <File baseName={'invalidations.ts'} path={path.join(root, './invalidations.ts')}>
           <File.Import name={imports} path={path.join(root, './index.ts')} root={path.join(root, './invalidations.ts')} isTypeOnly />
 
           <File.Import isTypeOnly name={['UseMutationOptions']} path="@tanstack/react-query" />

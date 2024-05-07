@@ -8,7 +8,7 @@ import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import { parseFromConfig } from '@kubb/swagger/utils'
 import type { KubbFile } from 'packages/core/dist/index'
 import { Operations } from './components/Operations.tsx'
-import type { PluginOptions } from './types.ts'
+import type { PluginZod } from './types.ts'
 
 describe('OperationGenerator', async () => {
   const oas = await parseFromConfig({
@@ -36,7 +36,7 @@ describe('OperationGenerator', async () => {
       exclude: [],
       include: undefined,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       override: undefined,
       mode: 'split',
@@ -71,7 +71,7 @@ describe('OperationGenerator', async () => {
       exclude: [],
       include: undefined,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       override: undefined,
       mode: 'split',
@@ -102,7 +102,7 @@ describe('OperationGenerator', async () => {
       exclude: [],
       include: undefined,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       override: undefined,
       mode: 'split',
@@ -133,7 +133,7 @@ describe('OperationGenerator', async () => {
       exclude: [],
       include: undefined,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginOptions>,
+      plugin: {} as Plugin<PluginZod>,
       contentType: undefined,
       override: undefined,
       mode: 'split',

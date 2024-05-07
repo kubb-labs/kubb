@@ -4,8 +4,6 @@ import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kub
 import type { FormatOptions } from '@kubb/oas/parser'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
-export type FileResolver = (name: string, ref: Ref) => string | null | undefined
-
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
   tag?: string
@@ -21,7 +19,7 @@ export type API = {
 
 export type Options = {
   /**
-   * Validate your input(see kubb.config) based on @apidevtools/swagger-parser
+   * Validate your input(see kubb.config) based on '@apidevtools/swagger-parser'.
    * @default true
    */
   validate?: boolean
@@ -43,7 +41,7 @@ export type Options = {
          */
         path: string
         /**
-         * Export the generated(with filters and sorting) OpenAPI file with conversion to v3.
+         * Export the generated(with filters and sorting) as HTML.
          * @default false
          */
         export?: boolean
@@ -51,15 +49,15 @@ export type Options = {
     | false
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
-   * @example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
-   * servers:
-  - url: http://petstore.swagger.io/api
-  - url: http://localhost:3000
+   * @example
+   * - `0` will return `http://petstore.swagger.io/api`
+   * - `1` will return `http://localhost:3000`
    * @default 0
    */
   serverIndex?: number
   /**
-   * Override ContentType that will be used for requests and responses.
+   * Define which contentType should be used.
+   * By default, this is set based on the first used contentType..
    */
   contentType?: contentType
   experimentalFilter?: FormatOptions['filterSet']
@@ -154,10 +152,10 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
   options: Partial<TOptions>
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never>
+export type PluginSwagger = PluginFactoryOptions<'swagger', Options, Options, API, never>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger']: PluginOptions
+    ['@kubb/swagger']: PluginSwagger
   }
 }

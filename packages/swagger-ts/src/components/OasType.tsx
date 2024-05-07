@@ -3,7 +3,7 @@ import { useOas } from '@kubb/swagger/hooks'
 
 import type { OasTypes } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginTs } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -56,7 +56,7 @@ OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileP
   const {
     pluginManager,
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTs>()
   const file = pluginManager.getFile({ name, extName: '.ts', pluginKey })
 
   const Template = templates.default

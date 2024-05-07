@@ -3,7 +3,7 @@ import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginMsw } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -25,7 +25,7 @@ function RootTemplate({ children }: ParserTemplateProps) {
   const {
     pluginManager,
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginMsw>()
 
   const { getName, getFile } = useOperationManager()
 
@@ -65,7 +65,7 @@ type Props = {
 export function Operations({ Template = defaultTemplates.default }: Props): ReactNode {
   const {
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginMsw>()
 
   const operations = useOperations()
   const { getName } = useOperationManager()

@@ -1,11 +1,15 @@
-import { definePlugin } from './plugin.ts'
+import { pluginTanstackQuery } from './plugin.ts'
 
-export { definePlugin, pluginKey, pluginName } from './plugin.ts'
-export type * from './types.ts'
+export { pluginTanstackQuery, pluginTanstackQueryName } from './plugin.ts'
+export type { PluginTanstackQuery } from './types.ts'
 
 /**
- * @deprecated Use `import { definePlugin } from '@kubb/swagger-tanstack-query'`
+ * @deprecated Use `import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'` instead
  */
-const definePluginDefault = definePlugin
+const definePluginDefault = pluginTanstackQuery
+/**
+ * @deprecated Use `import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'` instead
+ */
+export const definePlugin = pluginTanstackQuery
 
 export default definePluginDefault

@@ -10,7 +10,7 @@ import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import { parseFromConfig } from '@kubb/swagger/utils'
-import type { PluginOptions } from '../types.ts'
+import type { PluginTs } from '../types.ts'
 
 describe('<OperationSchema/>', async () => {
   const oas = await parseFromConfig({
@@ -31,7 +31,7 @@ describe('<OperationSchema/>', async () => {
     override: [],
   }
 
-  const plugin = { options } as Plugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginTs>
   const og = await new OperationGenerator(options, {
     oas,
     exclude: [],

@@ -1,11 +1,15 @@
-import { definePlugin } from './plugin.ts'
+import { pluginClient } from './plugin.ts'
 
-export { definePlugin, pluginKey, pluginName } from './plugin.ts'
-export type { PluginOptions } from './types.ts'
+export { pluginClient, pluginClientName } from './plugin.ts'
+export type { PluginClient } from './types.ts'
 
 /**
- * @deprecated Use `import { definePlugin } from '@kubb/swagger-client'`
+ * @deprecated Use `import { pluginClient } from '@kubb/swagger-client'` instead
  */
-const definePluginDefault = definePlugin
+const definePluginDefault = pluginClient
+/**
+ * @deprecated Use `import { pluginClient } from '@kubb/swagger-client'` instead
+ */
+export const definePlugin = pluginClient
 
 export default definePluginDefault

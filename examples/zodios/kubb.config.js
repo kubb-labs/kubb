@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig(() => {
   return {
@@ -14,13 +14,13 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({ output: false }),
-      createSwaggerZod({
+      pluginSwagger({ output: false }),
+      pluginZod({
         output: {
           path: './zod',
         },
       }),
-      createSwaggerZodios({
+      pluginZodios({
         output: {
           path: './zodios.ts',
         },

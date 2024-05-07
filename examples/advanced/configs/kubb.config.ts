@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerFaker } from '@kubb/swagger-faker'
-import { definePlugin as createSwaggerMsw } from '@kubb/swagger-msw'
-import { definePlugin as createSwaggerSwr } from '@kubb/swagger-swr'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig(() => {
   return {
@@ -21,19 +21,19 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({
+      pluginSwagger({
         output: {
           path: 'schemas',
         },
         validate: true,
       }),
-      createSwagger({
+      pluginSwagger({
         output: {
           path: 'schemas2',
         },
         validate: true,
       }),
-      createSwaggerTS({
+      pluginTs({
         output: {
           path: 'models/ts',
           extName: '.js',
@@ -54,7 +54,7 @@ export default defineConfig(() => {
           },
         ],
       }),
-      createSwaggerTanstackQuery({
+      pluginTanstackQuery({
         output: {
           path: './clients/hooks',
           exportAs: 'hooks',
@@ -92,7 +92,7 @@ export default defineConfig(() => {
         dataReturnType: 'full',
         parser: 'zod',
       }),
-      createSwaggerSwr({
+      pluginSwr({
         output: {
           path: './clients/swr',
           exportAs: 'swrHooks',
@@ -110,7 +110,7 @@ export default defineConfig(() => {
         dataReturnType: 'full',
         parser: 'zod',
       }),
-      createSwaggerClient({
+      pluginClient({
         output: {
           path: './clients/axios',
           exportAs: 'clients',
@@ -128,7 +128,7 @@ export default defineConfig(() => {
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),
-      createSwaggerZod({
+      pluginZod({
         output: {
           path: './zod',
           exportAs: 'zod',
@@ -143,13 +143,13 @@ export default defineConfig(() => {
         dateType: 'stringOffset',
         typed: true,
       }),
-      createSwaggerZodios({
+      pluginZodios({
         output: {
           path: 'zodios.ts',
           exportAs: 'zodios',
         },
       }),
-      createSwaggerFaker({
+      pluginFaker({
         output: {
           path: 'mocks',
           exportAs: 'faker',
@@ -166,7 +166,7 @@ export default defineConfig(() => {
           status: `faker.helpers.arrayElement(['working', 'idle']) as any`,
         },
       }),
-      createSwaggerMsw({
+      pluginMsw({
         output: {
           path: 'msw',
           exportAs: 'msw',

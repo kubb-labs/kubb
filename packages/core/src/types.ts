@@ -25,7 +25,7 @@ export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
   /**
    * Plugin type can be KubbJSONPlugin or Plugin
    * Example: ['@kubb/swagger', { output: false }]
-   * Or: createSwagger({ output: false })
+   * Or: pluginSwagger({ output: false })
    */
   plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
 }
@@ -155,12 +155,14 @@ export type PluginFactoryOptions<
   /**
    * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
    */
-  key: [name: TName | string, identifier?: string | number]
+  key: PluginKey<TName | string>
   options: TOptions
   resolvedOptions: TResolvedOptions
   api: TAPI
   resolvePathOptions: TResolvePathOptions
 }
+
+export type PluginKey<TName> = [name: TName, identifier?: string | number]
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 

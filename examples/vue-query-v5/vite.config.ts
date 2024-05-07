@@ -1,6 +1,6 @@
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 import vue from '@vitejs/plugin-vue'
 import kubb from 'unplugin-kubb/vite'
 import { defineConfig } from 'vite'
@@ -20,15 +20,15 @@ export default defineConfig({
           clean: true,
         },
         plugins: [
-          createSwagger({
+          pluginSwagger({
             output: false,
           }),
-          createSwaggerTS({
+          pluginTs({
             output: {
               path: 'models',
             },
           }),
-          createSwaggerTanstackQuery({
+          pluginTanstackQuery({
             output: {
               path: './hooks',
             },

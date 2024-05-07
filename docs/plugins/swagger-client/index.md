@@ -46,9 +46,9 @@ Default: `'clients'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -58,11 +58,11 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: false,
     }),
-    createSwaggerTS({}),
-    createSwaggerClient({
+    pluginTs({}),
+    pluginClient({
       output: {
         path: './axios',
       },
@@ -84,9 +84,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -96,11 +96,11 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: false,
     }),
-    createSwaggerTS({}),
-    createSwaggerClient({
+    pluginTs({}),
+    pluginClient({
       output: {
         exportAs: 'clients',
       },
@@ -122,9 +122,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -134,11 +134,11 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({
+    pluginSwagger({
       output: false,
     }),
-    createSwaggerTS({}),
-    createSwaggerClient({
+    pluginTs({}),
+    pluginClient({
       output: {
         extName: '.js',
       },
@@ -199,9 +199,9 @@ Default: `'{{tag}}Service'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -211,9 +211,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         output: {
           path: './clients/axios',
@@ -244,9 +244,9 @@ Default: `'@kubb/swagger-client/client'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -256,9 +256,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         client: {
           importPath: '../../client.ts',
@@ -309,9 +309,9 @@ Default: `'data'`
 
 ```typescript ['data']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -321,9 +321,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         dataReturnType: 'data',
       },
@@ -334,9 +334,9 @@ export default defineConfig({
 
 ```typescript ['full']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -346,9 +346,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         dataReturnType: 'full',
       },
@@ -397,9 +397,9 @@ Default: `'data'`
 
 ```typescript ['object']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -409,9 +409,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         pathParamsType: 'object',
       },
@@ -422,9 +422,9 @@ export default defineConfig({
 
 ```typescript ['inline']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -434,9 +434,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         pathParamsType: 'inline',
       },
@@ -470,9 +470,9 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -482,9 +482,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         include: [
           {
@@ -523,9 +523,9 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -535,9 +535,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         exclude: [
           {
@@ -577,9 +577,9 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -589,9 +589,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         override: [
           {
@@ -626,9 +626,9 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -638,9 +638,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         transformers: {
           name: (name) => {
@@ -685,9 +685,9 @@ Type: `Templates` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginClient } from '@kubb/swagger-client'
+import { pluginTs } from '@kubb/swagger-ts'
 
 import { templates } from './CustomClientTemplate'
 
@@ -699,9 +699,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerClient(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginClient(
       {
         templates: {
           client: templates,

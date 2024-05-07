@@ -2,7 +2,7 @@ import { Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import type { ReactNode } from 'react'
-import type { PluginOptions } from '../types.ts'
+import type { PluginTanstackQuery } from '../types.ts'
 
 type Props = {
   factory: {
@@ -15,7 +15,7 @@ export function SchemaType({ factory }: Props): ReactNode {
     plugin: {
       options: { dataReturnType },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginTanstackQuery>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 

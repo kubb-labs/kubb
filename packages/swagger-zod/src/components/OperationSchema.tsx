@@ -1,13 +1,13 @@
 import { Parser, File, useApp } from '@kubb/react'
 import { schemaKeywords } from '@kubb/swagger'
-import { Oas, Schema } from '@kubb/swagger/components'
+import { Oas } from '@kubb/swagger/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginZod } from '../types.ts'
 
 type Props = {}
 
@@ -18,7 +18,7 @@ export function OperationSchema({}: Props): ReactNode {
 type FileProps = {}
 
 OperationSchema.File = function ({}: FileProps): ReactNode {
-  const { pluginManager, plugin, mode } = useApp<PluginOptions>()
+  const { pluginManager, plugin, mode } = useApp<PluginZod>()
   const { getSchemas, getFile } = useOperationManager()
   const oas = useOas()
   const operation = useOperation()

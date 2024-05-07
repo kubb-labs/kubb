@@ -114,10 +114,10 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-swr', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginSwr = PluginFactoryOptions<'plugin-swr', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-swr']: PluginOptions
+    ['@kubb/swagger-swr']: PluginSwr
   }
 }

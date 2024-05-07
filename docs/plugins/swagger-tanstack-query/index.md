@@ -59,9 +59,9 @@ Default: `'hooks'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -71,9 +71,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       output: {
         path: './hooks',
       },
@@ -95,9 +95,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -107,9 +107,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       output: {
         exportAs: 'hooks',
       },
@@ -131,9 +131,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -143,9 +143,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       output: {
         extName: '.js',
       },
@@ -206,9 +206,9 @@ Default: `'{{tag}}Hooks'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -218,9 +218,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         output: {
           path: './hooks',
@@ -250,9 +250,9 @@ Default: `'@kubb/swagger-client/client'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -262,9 +262,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         client: {
           importPath: '../../client.ts',
@@ -315,9 +315,9 @@ Default: `'data'`
 
 ```typescript ['data']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -327,9 +327,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         dataReturnType: 'data',
       },
@@ -340,9 +340,9 @@ export default defineConfig({
 
 ```typescript ['full']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -352,9 +352,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         dataReturnType: 'full',
       },
@@ -415,9 +415,9 @@ Default: `'hook'`
 
 ```typescript ['mutate']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -427,9 +427,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         mutate: {
           variablesType: 'mutate',
@@ -442,9 +442,9 @@ export default defineConfig({
 
 ```typescript ['hook']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -454,9 +454,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         mutate: {
           variablesType: 'hook',
@@ -484,9 +484,9 @@ Default: `['post', 'put', 'delete']`
 
 ```typescript
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -496,9 +496,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         mutate: {
           methods: ['post', 'put', 'delete'],
@@ -548,9 +548,9 @@ Type: `'zod'` <br/>
 
 ```typescript ['zod']
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -560,9 +560,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         parser: 'zod',
       },
@@ -586,9 +586,9 @@ Default: `'react'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -598,9 +598,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         framework: 'solid',
       },
@@ -649,9 +649,9 @@ Type: `Infinite` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -661,9 +661,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({ infinite: {} }),
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({ infinite: {} }),
   ],
 })
 ```
@@ -683,9 +683,9 @@ Default: `'id'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -695,9 +695,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       infinite: {
         queryParam: 'next_page',
       },
@@ -721,9 +721,9 @@ Default: `'0'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -733,9 +733,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       infinite: {
         queryParam: 'id',
         initialPageParam: 0,
@@ -759,9 +759,9 @@ Type: `string | undefined` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -771,9 +771,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       infinite: {
         queryParam: 'id',
         cursorParam: 'nextCursor',
@@ -814,9 +814,9 @@ Type: `Query` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -826,9 +826,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({ query: {} }),
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({ query: {} }),
   ],
 })
 ```
@@ -850,9 +850,9 @@ Type: `(key: unknown[]) => unknown[]` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -862,9 +862,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       query: {
         queryKey: (key: string[]) => [JSON.stringify('SUFFIX'), ...key],
       },
@@ -891,9 +891,9 @@ Default: `['get']` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -903,9 +903,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       query: {
         methods: ['get'],
       },
@@ -931,9 +931,9 @@ Default: `'@tanstack/react-query'` if 'framework' is set to 'react'
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -943,9 +943,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({
       query: {
         importPath: "@kubb/react-query"
       },
@@ -978,9 +978,9 @@ Type: `QueryOptions` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -990,9 +990,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({ queryOptions: {} }),
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({ queryOptions: {} }),
   ],
 })
 ```
@@ -1020,9 +1020,9 @@ Type: `Suspense` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -1032,9 +1032,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({ suspense: {} }),
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery({ suspense: {} }),
   ],
 })
 ```
@@ -1064,9 +1064,9 @@ Type: `Array<Include>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -1076,9 +1076,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         include: [
           {
@@ -1117,9 +1117,9 @@ Type: `Array<Exclude>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -1129,9 +1129,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         exclude: [
           {
@@ -1171,9 +1171,9 @@ Type: `Array<Override>` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -1183,9 +1183,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         override: [
           {
@@ -1220,9 +1220,9 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -1232,9 +1232,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         transformers: {
           name: (name) => {
@@ -1281,9 +1281,9 @@ Type: `Templates` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTs } from '@kubb/swagger-ts'
 
 import { templates } from './CustomTemplate'
 
@@ -1295,9 +1295,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery(
+    pluginSwagger({ output: false }),
+    pluginTs({}),
+    pluginTanstackQuery(
       {
         templates,
       },

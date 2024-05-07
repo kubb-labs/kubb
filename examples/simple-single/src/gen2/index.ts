@@ -39,7 +39,7 @@ export const createMachineRequestSchema = z.object({
   skip_service_registration: z.boolean().optional(),
 })
 
-export const createOidcTokenRequestSchema = z.object({ aud: z.string().optional() })
+export const createOidcTokenRequestSchema = z.object({ aud: z.string().optional() }).describe('Optional parameters')
 
 export const createVolumeRequestSchema = z.object({
   compute: z.lazy(() => flyMachineGuestSchema).schema.optional(),
@@ -940,19 +940,24 @@ export const createVolumeSnapshot200Schema = z.any()
 export const createVolumeSnapshotMutationResponseSchema = z.any()
 
 /**
- * @description JWT token
+ * @description OIDC token
  */
-export const machinesGetOidcToken200Schema = z.string()
+export const machinesTokenOidc200Schema = z.string()
 
 /**
- * @description Request body
+ * @description Bad Request
  */
-export const machinesGetOidcTokenMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema).schema
+export const machinesTokenOidc400Schema = z.lazy(() => errorResponseSchema).schema
 
 /**
- * @description JWT token
+ * @description Optional request body
  */
-export const machinesGetOidcTokenMutationResponseSchema = z.string()
+export const machinesTokenOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema).schema.describe('Optional parameters')
+
+/**
+ * @description OIDC token
+ */
+export const machinesTokenOidcMutationResponseSchema = z.string()
 
 export const operations = {
   Apps_list: {
@@ -1339,15 +1344,16 @@ export const operations = {
       200: createVolumeSnapshotMutationResponseSchema,
     },
   },
-  Machines_get_OIDC_token: {
-    request: machinesGetOidcTokenMutationRequestSchema,
+  Machines_token_OIDC: {
+    request: machinesTokenOidcMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: machinesGetOidcTokenMutationResponseSchema,
+      200: machinesTokenOidcMutationResponseSchema,
+      400: machinesTokenOidc400Schema,
     },
   },
 } as const
@@ -1430,7 +1436,7 @@ export const paths = {
     get: operations['Volumes_list_snapshots'],
     post: operations['createVolumeSnapshot'],
   },
-  '/v1/tokens/oidc': {
-    post: operations['Machines_get_OIDC_token'],
+  '/tokens/oidc': {
+    post: operations['Machines_token_OIDC'],
   },
 } as const

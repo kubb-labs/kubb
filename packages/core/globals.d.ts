@@ -1,6 +1,3 @@
-/// <reference no-default-lib="true" />
-/// <reference lib="esnext" />
-
 /**
 * `tsconfig.json`
 * @example
@@ -31,15 +28,15 @@ declare namespace Kubb {
     type TupleToUnion<T> = T extends Array<infer ITEMS> ? ITEMS : never
   }
   type Plugins = {
-    ['@kubb/swagger']: import('@kubb/swagger').PluginOptions
-    ['@kubb/swagger-client']: import('@kubb/swagger-client').PluginOptions
-    ['@kubb/swagger-faker']: import('@kubb/swagger-faker').PluginOptions
-    ['@kubb/swagger-swr']: import('@kubb/swagger-swr').PluginOptions
-    ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginOptions
-    ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginOptions
-    ['@kubb/swagger-zod']: import('@kubb/swagger-zod').PluginOptions
-    ['@kubb/swagger-zodios']: import('@kubb/swagger-zodios').PluginOptions
-    ['@kubb/swagger-msw']: import('@kubb/swagger-msw').PluginOptions
+    ['@kubb/swagger']: import('@kubb/swagger').PluginSwagger
+    ['@kubb/swagger-client']: import('@kubb/swagger-client').PluginClient
+    ['@kubb/swagger-faker']: import('@kubb/swagger-faker').PluginFaker
+    ['@kubb/swagger-swr']: import('@kubb/swagger-swr').PluginSwr
+    ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginTanstackQuery
+    ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginTs
+    ['@kubb/swagger-zod']: import('@kubb/swagger-zod').PluginZod
+    ['@kubb/swagger-zodios']: import('@kubb/swagger-zodios').PluginZodios
+    ['@kubb/swagger-msw']: import('@kubb/swagger-msw').PluginMsw
   }
   type OptionsPlugins = { [K in keyof Plugins]: Plugins[K]['options'] }
 

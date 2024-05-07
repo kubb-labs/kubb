@@ -1,16 +1,15 @@
 import { App, createRoot } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/swagger'
-import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
-import { Oas, Schema } from '@kubb/swagger/components'
+import { Oas } from '@kubb/swagger/components'
 
-import { pluginKey } from './plugin.ts'
+import { pluginTsName } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
 
 import type { SchemaObject } from '@kubb/oas'
 import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginTs } from './types.ts'
 
-export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
+export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {
   async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
@@ -36,18 +35,18 @@ export class SchemaGenerator extends Generator<PluginOptions['resolvedOptions'],
 
     const resolvedName = this.context.pluginManager.resolveName({
       name,
-      pluginKey,
+      pluginKey: [pluginTsName],
       type: 'function',
     })
-    const resvoledTypeName = this.context.pluginManager.resolveName({
+    const resolvedTypeName = this.context.pluginManager.resolveName({
       name,
-      pluginKey: swaggerTypeScriptPluginKey,
+      pluginKey: [pluginTsName],
       type: 'type',
     })
 
     const typeOutput = typeParser(schemas, {
       name: resolvedName,
-      typeName: resvoledTypeName,
+      typeName: resolvedTypeName,
       description,
       enumType: this.options.enumType || 'asConst',
       optionalType: this.options.optionalType,

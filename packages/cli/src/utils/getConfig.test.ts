@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
+import { pluginSwagger } from '@kubb/swagger'
 
 import { getConfig } from './getConfig.ts'
 
@@ -141,7 +141,7 @@ describe('getConfig', () => {
         output: {
           path: './dist',
         },
-        plugins: [createSwagger({})],
+        plugins: [pluginSwagger({})],
       }
     })
     const kubbUserConfig = await getConfig(
@@ -153,7 +153,7 @@ describe('getConfig', () => {
       {},
     )
     if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(createSwagger({}).name)
+      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginSwagger({}).name)
     }
   })
 
@@ -179,7 +179,7 @@ describe('getConfig', () => {
     )
 
     if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(createSwagger({}).name)
+      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginSwagger({}).name)
     }
   })
 })

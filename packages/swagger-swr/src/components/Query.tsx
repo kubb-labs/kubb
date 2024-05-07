@@ -1,15 +1,15 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
-import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/swagger-zod'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginSwr } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -116,7 +116,7 @@ export function Query({ factory, Template = defaultTemplates.default, QueryOptio
       key: pluginKey,
       options: { dataReturnType },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginSwr>()
 
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
@@ -232,19 +232,19 @@ Query.File = function ({ templates }: FileProps): ReactNode {
         parser,
       },
     },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginSwr>()
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
   const file = getFile(operation)
   const schemas = getSchemas(operation)
-  const fileType = getFile(operation, { pluginKey: swaggerTsPluginKey })
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const fileZodSchemas = getFile(operation, {
-    pluginKey: swaggerZodPluginKey,
+    pluginKey: [pluginZodName],
   })
   const zodResponseName = pluginManager.resolveName({
     name: schemas.response.name,
-    pluginKey: swaggerZodPluginKey,
+    pluginKey: [pluginZodName],
     type: 'function',
   })
   const factoryName = getName(operation, { type: 'type' })

@@ -1,11 +1,15 @@
-import { definePlugin } from './plugin.ts'
+import { pluginFaker } from './plugin.ts'
 
-export { definePlugin, pluginKey, pluginName } from './plugin.ts'
-export type * from './types.ts'
+export { pluginFaker, pluginFakerName } from './plugin.ts'
+export type { PluginFaker } from './types.ts'
 
 /**
- * @deprecated Use `import { definePlugin } from '@kubb/swagger-faker'`
+ * @deprecated Use `import { pluginFaker } from '@kubb/swagger-faker'` instead
  */
-const definePluginDefault = definePlugin
+const definePluginDefault = pluginFaker
+/**
+ * @deprecated Use `import { pluginFaker } from '@kubb/swagger-faker'` instead
+ */
+export const definePlugin = pluginFaker
 
 export default definePluginDefault

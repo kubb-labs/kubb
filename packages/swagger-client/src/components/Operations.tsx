@@ -5,7 +5,7 @@ import { useOperations } from '@kubb/swagger/hooks'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
 import type { ComponentProps, ComponentType } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginClient } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -36,7 +36,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   const {
     pluginManager,
     plugin: { key: pluginKey },
-  } = useApp<PluginOptions>()
+  } = useApp<PluginClient>()
   const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
 
   return (

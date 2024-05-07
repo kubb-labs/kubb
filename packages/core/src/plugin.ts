@@ -8,8 +8,8 @@ import type { Plugin, PluginContext, PluginFactoryOptions, UserPluginWithLifeCyc
 
 type PluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => UserPluginWithLifeCycle<T>
 
-export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: PluginFactory<T>) {
-  return (options: T['options']): ReturnType<PluginFactory<T>> => {
+export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: PluginFactory<T>): PluginFactory<T> {
+  return (options) => {
     return factory(options)
   }
 }
@@ -26,19 +26,15 @@ type Options = {
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<'core', Options, Options, PluginContext, never>
+export type PluginCore = PluginFactoryOptions<'core', Options, Options, PluginContext, never>
 
-export const pluginName = 'core' satisfies CorePluginOptions['name']
-export const pluginKey: CorePluginOptions['key'] = [pluginName] satisfies CorePluginOptions['key']
-
-export const definePlugin = createPlugin<CorePluginOptions>((options) => {
+export const pluginCore = createPlugin<PluginCore>((options) => {
   const { fileManager, pluginManager, resolvePath, resolveName, logger } = options
 
   return {
-    name: pluginName,
+    name: 'core',
     options,
     key: ['core'],
-
     api() {
       return {
         get config() {

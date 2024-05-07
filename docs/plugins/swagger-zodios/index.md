@@ -49,9 +49,9 @@ Default: `'zodios.ts'`
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig({
   input: {
@@ -61,9 +61,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({}),
-    createSwaggerZodios(
+    pluginSwagger({ output: false }),
+    pluginZod({}),
+    pluginZodios(
       {
         output: {
           path: 'zodios.ts',
@@ -87,9 +87,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig({
   input: {
@@ -99,9 +99,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({}),
-    createSwaggerZodios(
+    pluginSwagger({ output: false }),
+    pluginZod({}),
+    pluginZodios(
       {
         output: {
           exportAs: 'zodios',
@@ -125,9 +125,9 @@ Type: `string` <br/>
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerZod } from '@kubb/swagger-zod'
-import { definePlugin as createSwaggerZodios } from '@kubb/swagger-zodios'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZodios } from '@kubb/swagger-zodios'
 
 export default defineConfig({
   input: {
@@ -137,9 +137,9 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerZod({}),
-    createSwaggerZodios(
+    pluginSwagger({ output: false }),
+    pluginZod({}),
+    pluginZodios(
       {
         output: {
           extName: '.js',

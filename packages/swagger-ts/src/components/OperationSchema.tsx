@@ -13,7 +13,7 @@ import type { ts } from '@kubb/parser-ts'
 import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
 import type { OperationSchemas } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginTs } from '../types.ts'
 
 type Props = {}
 
@@ -78,7 +78,7 @@ export function OperationSchema({}: Props): ReactNode {
 type FileProps = {}
 
 OperationSchema.File = function ({}: FileProps): ReactNode {
-  const { pluginManager, plugin, mode, fileManager } = useApp<PluginOptions>()
+  const { pluginManager, plugin, mode, fileManager } = useApp<PluginTs>()
   const oas = useOas()
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()

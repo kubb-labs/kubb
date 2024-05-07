@@ -37,9 +37,9 @@ const presets: Record<Preset, PresetMeta> = {
   simple: {
     'kubb.config': `
 import { defineConfig } from '@kubb/core'
-import { definePlugin as createSwagger } from '@kubb/swagger'
-import { definePlugin as createSwaggerTS } from '@kubb/swagger-ts'
-import { definePlugin as createSwaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 
 export default defineConfig({
   root: '.',
@@ -53,7 +53,7 @@ export default defineConfig({
   hooks: {
     done: ['echo "🎉 done"'],
   },
-  plugins: [createSwagger({}), createSwaggerTS({ output: { path: 'models'}, enumType: 'enum' }), createSwaggerTanstackQuery({ output: { path: './hooks' } })],
+  plugins: [pluginSwagger({}), pluginTs({ output: { path: 'models'}, enumType: 'enum' }), pluginTanstackQuery({ output: { path: './hooks' } })],
 })
   `,
     packages: ['@kubb/core', '@kubb/cli', '@kubb/swagger', '@kubb/swagger-ts', '@kubb/swagger-tanstack-query'],

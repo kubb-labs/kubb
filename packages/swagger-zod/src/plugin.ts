@@ -3,22 +3,21 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginName as swaggerPluginName } from '@kubb/swagger'
-import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
+import { pluginSwaggerName } from '@kubb/swagger'
+import { pluginTsName } from '@kubb/swagger-ts'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
 import { Operations } from './components/Operations.tsx'
-import type { PluginOptions } from './types.ts'
+import type { PluginZod } from './types.ts'
 
-export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
+export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
-export const definePlugin = createPlugin<PluginOptions>((options) => {
+export const pluginZod = createPlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod' },
     group,
@@ -35,7 +34,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
-    name: pluginName,
+    name: pluginZodName,
     options: {
       transformers,
       include,
@@ -50,7 +49,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ...templates,
       },
     },
-    pre: [swaggerPluginName, typed ? swaggerTypeScriptPluginName : undefined].filter(Boolean),
+    pre: [pluginSwaggerName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -91,7 +90,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginSwaggerName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

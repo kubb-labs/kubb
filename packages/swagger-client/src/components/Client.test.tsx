@@ -9,7 +9,7 @@ import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import { parseFromConfig } from '@kubb/swagger/utils'
-import type { PluginOptions } from '../types.ts'
+import type { PluginClient } from '../types.ts'
 
 describe('<Client/>', async () => {
   const oas = await parseFromConfig({
@@ -28,7 +28,7 @@ describe('<Client/>', async () => {
       importPath: '@kubb/swagger-client/client',
     },
   }
-  const plugin = { options } as Plugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginClient>
   const og = await new OperationGenerator(options, {
     oas,
     exclude: [],

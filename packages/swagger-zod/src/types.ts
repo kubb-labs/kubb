@@ -122,10 +122,10 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-zod']: PluginOptions
+    ['@kubb/swagger-zod']: PluginZod
   }
 }
