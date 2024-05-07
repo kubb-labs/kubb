@@ -1,10 +1,12 @@
 {
   "name": "@kubb/config-biome",
-  "version": "0.1.0",
+  "version": "2.18.1",
   "private": true,
   "type": "module",
   "exports": {
     "./biome": "./biome.json"
   },
-  "files": ["biome.json"]
+  "files": [
+    "biome.json"
+  ]
 }
