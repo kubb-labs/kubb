@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 2.18.1
+
+### Patch Changes
+
+- [#986](https://github.com/kubb-labs/kubb/pull/986) [`4b52765`](https://github.com/kubb-labs/kubb/commit/4b5276572bd0b5c59b85ec4eddebc3d7c331c0fa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Better naming for plugins
+
+- Updated dependencies []:
+  - @kubb/parser-ts@2.18.1
+  - @kubb/types@2.18.1
+
 ## 2.18.0
 
 ### Patch Changes
