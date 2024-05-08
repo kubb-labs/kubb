@@ -11,7 +11,7 @@ type PluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (opt
 type OptionalPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options?: T['options']) => UserPluginWithLifeCycle<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: PluginFactory<T>): OptionalPluginFactory<T> {
-  return (options={}) => {
+  return (options = {}) => {
     return factory(options)
   }
 }

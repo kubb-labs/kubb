@@ -244,92 +244,6 @@ const plugin = pluginTanstackQuery({
 
 :::
 
-### mutate
-
-To disable mutations pass `false`.
-
-::: info TYPE
-
-::: code-group
-
-```typescript [Mutate]
-type Mutate = {
-  variablesType: 'mutate' | 'hook'
-  methods: Array<HttpMethod>
-} | false
-```
-
-:::
-
-#### variablesType
-
-Define the way of passing through the queryParams, headerParams and data.
-
-`'mutate'` will use the `mutate` or `mutateAsync` function. <br/>
-`'hook'` will use the `useMutation` hook.
-
-::: info TYPE
-
-::: code-group
-
-```typescript ['mutate']
-const { mutate } = useDeletePet()
-
-mutate({
-  petId: 1,
-})
-```
-
-```typescript ['hook']
-const { mutate } = useDeletePet(1)
-
-mutate()
-```
-
-:::
-
-::: info
-
-Type: `'mutate' | 'hook'` <br/>
-Default: `'hook'`
-
-```typescript twoslash
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-
-const plugin = pluginTanstackQuery({
-  mutate: {
-    variablesType: 'mutate',
-    methods: [ 'post', 'put', 'delete' ],
-  },
-})
-```
-
-:::
-
-#### methods
-
-Define which HttpMethods can be used for mutations <br/>
-
-::: info TYPE
-
-::: info
-
-Type: `'Array<HttpMethod>` <br/>
-Default: `['post', 'put', 'delete']`
-
-```typescript twoslash
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-
-const plugin = pluginTanstackQuery({
-  mutate: {
-    variablesType: 'hook',
-    methods: [ 'post', 'put', 'delete' ],
-  },
-})
-```
-
-:::
-
 ### parser
 
 Which parser can be used before returning the data to `@tanstack/query`.
@@ -656,8 +570,94 @@ const plugin = pluginTanstackQuery({
   suspense: {}
 })
 ```
+:::
+
+### mutate
+
+To disable mutations pass `false`.
+
+::: info TYPE
+
+::: code-group
+
+```typescript [Mutate]
+type Mutate = {
+  variablesType: 'mutate' | 'hook'
+  methods: Array<HttpMethod>
+} | false
+```
 
 :::
+
+#### variablesType
+
+Define the way of passing through the queryParams, headerParams and data.
+
+`'mutate'` will use the `mutate` or `mutateAsync` function. <br/>
+`'hook'` will use the `useMutation` hook.
+
+::: info TYPE
+
+::: code-group
+
+```typescript ['mutate']
+const { mutate } = useDeletePet()
+
+mutate({
+  petId: 1,
+})
+```
+
+```typescript ['hook']
+const { mutate } = useDeletePet(1)
+
+mutate()
+```
+
+:::
+
+::: info
+
+Type: `'mutate' | 'hook'` <br/>
+Default: `'hook'`
+
+```typescript twoslash
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+
+const plugin = pluginTanstackQuery({
+  mutate: {
+    variablesType: 'mutate',
+    methods: [ 'post', 'put', 'delete' ],
+  },
+})
+```
+
+:::
+
+#### methods
+
+Define which HttpMethods can be used for mutations <br/>
+
+::: info TYPE
+
+::: info
+
+Type: `'Array<HttpMethod>` <br/>
+Default: `['post', 'put', 'delete']`
+
+```typescript twoslash
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+
+const plugin = pluginTanstackQuery({
+  mutate: {
+    variablesType: 'hook',
+    methods: [ 'post', 'put', 'delete' ],
+  },
+})
+```
+
+:::
+
 
 ### include
 

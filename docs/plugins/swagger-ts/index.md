@@ -338,6 +338,24 @@ const plugin = pluginTs({
 ```
 :::
 
+### oasType
+
+Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'` <br/>
+See [infer](/plugins/swagger-ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
+
+::: info
+Type: `'infer' | false` <br/>
+
+```typescript twoslash
+import { pluginTs } from '@kubb/swagger-ts'
+
+const plugin = pluginTs({
+  oasType: 'infer',
+})
+```
+:::
+
+
 ### include
 
 Array containing include parameters to include tags/operations/methods/paths.
@@ -460,23 +478,6 @@ const plugin = pluginTs({
       return `${name}Client`
     },
   },
-})
-```
-:::
-
-### oasType
-
-Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'` <br/>
-See [infer](/plugins/swagger-ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
-
-::: info
-Type: `'infer' | false` <br/>
-
-```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
-
-const plugin = pluginTs({
-  oasType: 'infer',
 })
 ```
 :::

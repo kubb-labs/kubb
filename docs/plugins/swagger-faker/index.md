@@ -159,6 +159,84 @@ const plugin = pluginFaker({
 ```
 :::
 
+### dateType
+
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+
+::: info TYPE
+
+::: code-group
+
+```typescript ['string']
+faker.string.alpha()
+```
+
+```typescript ['date']
+faker.date.anytime()
+```
+
+:::
+
+::: info
+Type: `'string' | 'date'` <br/>
+Default: `'string'`
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  dateType: 'string',
+})
+```
+:::
+
+### unknownType
+
+Which type to use when the Swagger/OpenAPI file is not providing more information.
+
+::: info TYPE
+
+::: code-group
+
+```typescript ['any']
+any
+```
+
+```typescript ['unknown']
+unknown
+```
+
+:::
+
+::: info
+Type: `'any' | 'unknown'` <br/>
+Default: `'any'`
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  unknownType: 'any',
+})
+```
+:::
+
+### seed
+
+The use of Seed is intended to allow for consistent values in a test.
+
+::: info
+Type: `'number' | 'number[]'` <br/>
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  seed: [222],
+})
+```
+:::
+
 ### include
 
 An array containing include parameters to include tags/operations/methods/paths.
@@ -286,83 +364,7 @@ const plugin = pluginFaker({
 ```
 :::
 
-### dateType
 
-Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-
-::: info TYPE
-
-::: code-group
-
-```typescript ['string']
-faker.string.alpha()
-```
-
-```typescript ['date']
-faker.date.anytime()
-```
-
-:::
-
-::: info
-Type: `'string' | 'date'` <br/>
-Default: `'string'`
-
-```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
-
-const plugin = pluginFaker({
-  dateType: 'string',
-})
-```
-:::
-
-### unknownType
-
-Which type to use when the Swagger/OpenAPI file is not providing more information.
-
-::: info TYPE
-
-::: code-group
-
-```typescript ['any']
-any
-```
-
-```typescript ['unknown']
-unknown
-```
-
-:::
-
-::: info
-Type: `'any' | 'unknown'` <br/>
-Default: `'any'`
-
-```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
-
-const plugin = pluginFaker({
-  unknownType: 'any',
-})
-```
-:::
-
-### seed
-
-The use of Seed is intended to allow for consistent values in a test.
-
-::: info
-Type: `'number' | 'number[]'` <br/>
-
-```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
-
-const plugin = pluginFaker({
-  seed: [222],
-})
-```
-:::
 ## Example
 
 ```typescript twoslash

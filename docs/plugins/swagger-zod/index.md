@@ -156,6 +156,98 @@ const plugin = pluginZod({
 ```
 :::
 
+### typed
+
+Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
+
+::: info
+
+Type: `boolean` <br/>
+
+```typescript twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+
+const plugin = pluginZod({
+  typed: true,
+})
+```
+:::
+
+### dateType
+
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
+See [datetimes](https://zod.dev/?id=datetimes).
+::: info TYPE
+
+::: code-group
+
+```typescript [false]
+z.string()
+```
+
+```typescript ['string']
+z.string().datetime()
+```
+
+```typescript ['stringOffset']
+z.string().datetime({ offset: true })
+```
+
+```typescript ['stringLocal']
+z.string().datetime({ local: true })
+```
+
+```typescript ['date']
+z.date()
+```
+
+:::
+
+::: info
+
+Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
+Default: `'string'`
+
+```typescript twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+
+const plugin = pluginZod({
+  dateType: 'string',
+})
+```
+:::
+
+### unknownType
+
+Which type to use when the Swagger/OpenAPI file is not providing more information.
+
+::: info TYPE
+
+::: code-group
+
+```typescript ['any']
+z.any()
+```
+
+```typescript ['unknown']
+z.unknown()
+```
+
+:::
+
+::: info
+Type: `'any' | 'unknown'` <br/>
+Default: `'any'`
+
+```typescript twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+
+const plugin = pluginZod({
+  unknownType: 'any',
+})
+```
+:::
+
 ### include
 
 Array containing include parameters to include tags/operations/methods/paths.
@@ -259,97 +351,6 @@ const plugin = pluginZod({
 ```
 :::
 
-### typed
-
-Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
-
-::: info
-
-Type: `boolean` <br/>
-
-```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
-
-const plugin = pluginZod({
-  typed: true,
-})
-```
-:::
-
-### dateType
-
-Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
-See [datetimes](https://zod.dev/?id=datetimes).
-::: info TYPE
-
-::: code-group
-
-```typescript [false]
-z.string()
-```
-
-```typescript ['string']
-z.string().datetime()
-```
-
-```typescript ['stringOffset']
-z.string().datetime({ offset: true })
-```
-
-```typescript ['stringLocal']
-z.string().datetime({ local: true })
-```
-
-```typescript ['date']
-z.date()
-```
-
-:::
-
-::: info
-
-Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
-Default: `'string'`
-
-```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
-
-const plugin = pluginZod({
-  dateType: 'string',
-})
-```
-:::
-
-### unknownType
-
-Which type to use when the Swagger/OpenAPI file is not providing more information.
-
-::: info TYPE
-
-::: code-group
-
-```typescript ['any']
-z.any()
-```
-
-```typescript ['unknown']
-z.unknown()
-```
-
-:::
-
-::: info
-Type: `'any' | 'unknown'` <br/>
-Default: `'any'`
-
-```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
-
-const plugin = pluginZod({
-  unknownType: 'any',
-})
-```
-:::
 
 ### transformers
 
