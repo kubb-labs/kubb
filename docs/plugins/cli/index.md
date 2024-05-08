@@ -176,8 +176,4 @@ Options:
   -h, --help  Display this message
 ```
 
-## Depended
-
-- [`@kubb/core`](/plugins/core/)
-
 See [getting-started](/guide/introduction) on how to configure Kubb.

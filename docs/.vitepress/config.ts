@@ -224,10 +224,10 @@ const pluginsSidebar = [
         link: '/plugins/swagger-client/',
         collapsed: true,
         items: [
-          {
-            text: 'globals.d.ts',
-            link: '/plugins/swagger-client/globals',
-          },
+          // {
+          //   text: 'globals.d.ts',
+          //   link: '/plugins/swagger-client/globals',
+          // },
           // {
           //   text: 'Client',
           //   link: '/plugins/swagger-client/client',
@@ -551,9 +551,14 @@ export default defineConfig({
               '@kubb/swagger-client/ts-client': ['../packages/swagger-client/client.ts'],
               '@kubb/swagger-faker': ['../packages/swagger-faker/src/index.ts'],
               '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
+              '@kubb/swagger-swr':  ['../packages/swagger-swr/src/index.ts'],
+              '@kubb/swagger-swr/components':  ['../packages/swagger-swr/src/components/index.ts'],
+              '@kubb/swagger-msw/components': ['../packages/swagger-msw/src/components/index.ts'],
               '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
+              '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
               '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
               '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
+              '@kubb/swagger-zod/components':  ['../packages/swagger-zod/src/components/index.ts'],
               '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
               '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
               '@kubb/oas': ['../packages/oas/src/index.ts'],

@@ -265,16 +265,11 @@ export default defineConfig({
         path: './docs/index.html',
       },
       serverIndex: 0,
-      contentType: 'application/json'
+      contentType: 'application/json',
     }),
   ],
 })
 ```
-
-## Depended
-
-- [`@kubb/core`](/plugins/core/)
-- [`@kubb/oas`](/plugins/oas/)
 
 ## Links
 

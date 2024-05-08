@@ -134,7 +134,7 @@ build({
 
 Define the options for Kubb.
 
-::: info type
+::: info TYPE
 
 ```typescript [Options]
 type Options = {

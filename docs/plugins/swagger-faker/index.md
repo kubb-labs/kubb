@@ -44,35 +44,15 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'mocks'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginFaker({
   output: {
-    path: './src/gen',
+    path: './mocks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        output: {
-          path: './mocks',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.exportAs
@@ -82,35 +62,16 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginFaker({
   output: {
-    path: './src/gen',
+    path: './mocks',
+    exportAs: 'mocks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        output: {
-          exportAs: 'mocks',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.extName
@@ -120,35 +81,16 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginFaker({
   output: {
-    path: './src/gen',
+    path: './mocks',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        output: {
-          extName: '.js',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.exportType
@@ -158,6 +100,16 @@ Define what needs to be exported, you can also disable the export of barrel file
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  output: {
+    path: './mocks',
+    exportType: 'barrel',
+  },
+})
+```
 :::
 
 ### group
@@ -195,260 +147,28 @@ Default: `'{{tag}}Mocks'`
 
 ::: info
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginFaker({
+  group: {
+    type: 'tag',
+    output: './mocks/{{tag}}Mocks',
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        output: {
-          path: './mocks',
-        },
-        group: {
-          type: 'tag',
-          output: './mocks/{{tag}}Mocks',
-        },
-      },
-    ),
-  ],
 })
 ```
-
-:::
-
-### include
-
-An array containing include parameters to include tags/operations/methods/paths.
-
-::: info type
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Include>` <br/>
-
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
-  ],
-})
-```
-
-:::
-
-### exclude
-
-An array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-::: info type
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Exclude>` <br/>
-
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
-  ],
-})
-```
-
-:::
-
-### override
-
-An array containing override parameters to override `options` based on tags/operations/methods/paths.
-
-::: info type
-
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Override>` <br/>
-
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: './custom',
-            },
-          },
-        ],
-      },
-    ),
-  ],
-})
-```
-
-:::
-
-### transformers
-
-#### transformers.name
-
-Override the name of the faker data that is getting generated, this will also override the name of the file.
-
-::: info
-
-Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
-
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        output: {
-          path: './mocks',
-        },
-        transformers: {
-          name: (name) => {
-            return `${name}Mock`
-          },
-        },
-      },
-    ),
-  ],
-})
-```
-
 :::
 
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
 ```typescript ['string']
-faker.string.alpha
+faker.string.alpha()
 ```
 
 ```typescript ['date']
@@ -461,67 +181,20 @@ faker.date.anytime()
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
-:::
-
-::: code-group
-
-```typescript ['string']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        dateType: 'string',
-      },
-    ),
-  ],
+const plugin = pluginFaker({
+  dateType: 'string',
 })
 ```
-
-```typescript ['date']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        dateType: 'date',
-      },
-    ),
-  ],
-})
-```
-
 :::
 
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -539,60 +212,13 @@ unknown
 Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
-:::
-
-::: code-group
-
-```typescript ['any']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        unknownType: 'any',
-      },
-    ),
-  ],
+const plugin = pluginFaker({
+  unknownType: 'any',
 })
 ```
-
-```typescript ['unknown']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        unknownType: 'unknown',
-      },
-    ),
-  ],
-})
-```
-
 :::
 
 ### seed
@@ -602,14 +228,149 @@ The use of Seed is intended to allow for consistent values in a test.
 ::: info
 Type: `'number' | 'number[]'` <br/>
 
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  seed: [222],
+})
+```
 :::
 
-::: code-group
+### include
 
-```typescript
+An array containing include parameters to include tags/operations/methods/paths.
+
+::: info TYPE
+
+```typescript [Include]
+export type Include = {
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
+}
+```
+
+:::
+
+::: info
+
+Type: `Array<Include>` <br/>
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
+  ],
+})
+```
+:::
+
+### exclude
+
+An array containing exclude parameters to exclude/skip tags/operations/methods/paths.
+
+::: info TYPE
+
+```typescript [Exclude]
+export type Exclude = {
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
+}
+```
+
+:::
+
+::: info
+
+Type: `Array<Exclude>` <br/>
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
+  ],
+})
+```
+
+:::
+
+### override
+
+An array containing override parameters to override `options` based on tags/operations/methods/paths.
+
+::: info TYPE
+
+```typescript [Override]
+export type Override = {
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
+  options: PluginOptions
+}
+```
+
+:::
+
+::: info
+
+Type: `Array<Override>` <br/>
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+        dateType: 'date',
+      },
+    },
+  ],
+})
+```
+:::
+
+### transformers
+
+#### transformers.name
+
+Override the name of the faker data that is getting generated, this will also override the name of the file.
+
+::: info
+
+Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  transformers: {
+    name: (name) => {
+      return `${name}Mock`
+    },
+  },
+})
+```
+:::
+
+
+## Example
+
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker} from '@kubb/swagger-faker'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
@@ -620,24 +381,23 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker(
-      {
-        seed: [222],
+    pluginSwagger(),
+    pluginTs(),
+    pluginFaker({
+      output: {
+        path: './mocks',
       },
-    ),
+      group: {
+        type: 'tag',
+        output: './mocks/{{tag}}Mocks',
+      },
+      dateType: 'date',
+      unknownType: 'unknown',
+      seed: [100],
+    }),
   ],
 })
 ```
-
-:::
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
-- [`@kubb/swagger-ts`](/plugins/swagger-ts/)
-
 ## Links
 
 - [Faker](https://fakerjs.dev/)

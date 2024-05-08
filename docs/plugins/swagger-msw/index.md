@@ -53,35 +53,15 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'mocks'`
 
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginMsw({
   output: {
-    path: './src/gen',
+    path: './mocks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        output: {
-          path: './mocks',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.exportAs
@@ -91,37 +71,16 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginMsw({
   output: {
-    path: './src/gen',
+    path: './mocks',
+    exportAs: 'mocks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        output: {
-          exportAs: 'mocks',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.extName
@@ -131,37 +90,16 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginMsw({
   output: {
-    path: './src/gen',
+    path: './mocks',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        output: {
-          extName: '.js',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.exportType
@@ -170,6 +108,17 @@ Define what needs to exported, here you can also disable the export of barrel fi
 
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
+
+```typescript twoslash
+import { pluginMsw } from '@kubb/swagger-msw'
+
+const plugin = pluginMsw({
+  output: {
+    path: './mocks',
+    exportType: 'barrel',
+  },
+})
+```
 
 :::
 
@@ -208,45 +157,20 @@ Default: `'{{tag}}Handlers'`
 
 ::: info
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        output: {
-          path: './mocks',
-        },
-        group: { type: 'tag', output: './mocks/{{tag}}Handlers' },
-      },
-    ),
-  ],
+const plugin = pluginMsw({
+  group: { type: 'tag', output: './mocks/{{tag}}Handlers' },
 })
 ```
-
 :::
 
 ### include
 
 Array containing include parameters to include tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Include]
 export type Include = {
@@ -261,36 +185,15 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginMsw({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
@@ -301,7 +204,7 @@ export default defineConfig({
 
 Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Exclude]
 export type Exclude = {
@@ -316,47 +219,25 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginMsw({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### override
 
 Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Override]
 export type Override = {
@@ -372,45 +253,21 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: {
-                path: './custom',
-              },
-            },
-          },
-        ],
+const plugin = pluginMsw({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+
       },
-    ),
+    },
   ],
 })
 ```
-
 :::
 
 ### transformers
@@ -423,42 +280,17 @@ Override the name of the MSW data that is getting generated, this will also over
 
 Type: `(name: string) => string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```typescript twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginMsw({
+  transformers: {
+    name: (name) => {
+      return `${name}Client`
+    },
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        output: {
-          path: './mocks',
-        },
-        transformers: {
-          name: (name) => {
-            return `${name}Client`
-          },
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 ### templates
@@ -470,7 +302,7 @@ See [templates](/reference/templates) for more information about creating templa
 Set `false` to disable a template.
 :::
 
-::: info type
+::: info TYPE
 
 ```typescript [Templates]
 import type { Handlers, Mock } from '@kubb/swagger-msw/components'
@@ -487,20 +319,30 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
-
-import { templates } from './CustomTemplate'
-
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
+```tsx twoslash
 import { pluginMsw } from '@kubb/swagger-msw'
+import { Parser, File, Function } from '@kubb/react'
+import { Mock } from '@kubb/swagger-msw/components'
+import React from 'react'
+
+export const templates = {
+  ...Mock.templates,
+} as const
+
+const plugin = pluginMsw({
+  templates: {
+    mock: templates,
+  },
+})
+```
+:::
+
+## Example
+
+```typescript twoslash
+import { defineConfig } from '@kubb/core'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginFaker} from '@kubb/swagger-faker'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
@@ -511,29 +353,23 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginFaker({}),
-    pluginMsw(
-      {
-        output: {
-          path: './mocks',
-        },
-        templates,
+    pluginSwagger(),
+    pluginTs(),
+    pluginFaker({
+      output: {
+        path: './mocks',
       },
-    ),
+      group: {
+        type: 'tag',
+        output: './mocks/{{tag}}Mocks',
+      },
+      dateType: 'date',
+      unknownType: 'unknown',
+      seed: [100],
+    }),
   ],
 })
 ```
-
-:::
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
-- [`@kubb/swagger-ts`](/plugins/swagger-ts/)
-- [`@kubb/swagger-faker`](/plugins/swagger-faker/)
-
 ## Links
 
 - [MSW](https://mswjs.io/)
