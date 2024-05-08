@@ -558,6 +558,7 @@ export default defineConfig({
               '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
               '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
               '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
+              '@kubb/swagger-zod/components':  ['../packages/swagger-zod/src/components/index.ts'],
               '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],
               '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
               '@kubb/oas': ['../packages/oas/src/index.ts'],
