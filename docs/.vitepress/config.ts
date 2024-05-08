@@ -551,6 +551,8 @@ export default defineConfig({
               '@kubb/swagger-client/ts-client': ['../packages/swagger-client/client.ts'],
               '@kubb/swagger-faker': ['../packages/swagger-faker/src/index.ts'],
               '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
+              '@kubb/swagger-swr':  ['../packages/swagger-swr/src/index.ts'],
+              '@kubb/swagger-swr/components':  ['../packages/swagger-swr/src/components/index.ts'],
               '@kubb/swagger-msw/components': ['../packages/swagger-msw/src/components/index.ts'],
               '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
               '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
