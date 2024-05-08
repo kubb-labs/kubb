@@ -224,10 +224,10 @@ const pluginsSidebar = [
         link: '/plugins/swagger-client/',
         collapsed: true,
         items: [
-          {
-            text: 'globals.d.ts',
-            link: '/plugins/swagger-client/globals',
-          },
+          // {
+          //   text: 'globals.d.ts',
+          //   link: '/plugins/swagger-client/globals',
+          // },
           // {
           //   text: 'Client',
           //   link: '/plugins/swagger-client/client',

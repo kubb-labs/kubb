@@ -21,12 +21,7 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({
-        output: {
-          path: 'schemas',
-        },
-        validate: true,
-      }),
+      pluginSwagger(),
       pluginSwagger({
         output: {
           path: 'schemas2',

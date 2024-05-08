@@ -42,35 +42,15 @@ Output to save the clients.
 Type: `string` <br/>
 Default: `'clients'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginClient({
   output: {
-    path: './src/gen',
+    path: './axios',
   },
-  plugins: [
-    pluginSwagger({
-      output: false,
-    }),
-    pluginTs({}),
-    pluginClient({
-      output: {
-        path: './axios',
-      },
-    }),
-  ],
 })
 ```
-
 :::
 
 #### output.exportAs
@@ -80,35 +60,16 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginClient({
   output: {
-    path: './src/gen',
+    path: './axios',
+    exportAs: 'clients',
   },
-  plugins: [
-    pluginSwagger({
-      output: false,
-    }),
-    pluginTs({}),
-    pluginClient({
-      output: {
-        exportAs: 'clients',
-      },
-    }),
-  ],
 })
 ```
-
 :::
 
 #### output.extName
@@ -118,35 +79,16 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginClient({
   output: {
-    path: './src/gen',
+    path: './axios',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({
-      output: false,
-    }),
-    pluginTs({}),
-    pluginClient({
-      output: {
-        extName: '.js',
-      },
-    }),
-  ],
 })
 ```
-
 :::
 
 #### output.exportType
@@ -155,6 +97,16 @@ Define what needs to exported, here you can also disable the export of barrel fi
 
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
+
+```typescript twoslash
+import { pluginClient } from '@kubb/swagger-client'
+
+const plugin = pluginClient({
+  output: {
+    path: './client',
+    exportType: 'barrel',
+  },
+})
 
 :::
 
@@ -197,34 +149,13 @@ Default: `'{{tag}}Service'`
 
 ::: code-group
 
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        output: {
-          path: './clients/axios',
-        },
-        group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-      },
-    ),
-  ],
+const plugin = pluginClient({
+  group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
 })
 ```
-
 :::
 
 ### client
@@ -240,35 +171,15 @@ so relative path shoule be based on the file being generated.
 Type: `string` <br/>
 Default: `'@kubb/swagger-client/client'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginClient({
+  client: {
+    importPath: '../../client.ts',
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        client: {
-          importPath: '../../client.ts',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 ### dataReturnType
@@ -278,7 +189,7 @@ ReturnType that needs to be used when calling client().
 `'data'` will return ResponseConfig[data]. <br/>
 `'full'` will return ResponseConfig.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -305,58 +216,13 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-::: code-group
-
-```typescript ['data']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        dataReturnType: 'data',
-      },
-    ),
-  ],
+const plugin = pluginClient({
+  dataReturnType: 'data'
 })
 ```
-
-```typescript ['full']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        dataReturnType: 'full',
-      },
-    ),
-  ],
-})
-```
-
 :::
 
 ### pathParamsType
@@ -366,7 +232,7 @@ How to pass your pathParams.
 `'object'` will return the pathParams as an object. <br/>
 `'inline'` will return the pathParams as comma separated params.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -393,65 +259,20 @@ export async function getPetById<TData>(
 Type: `'object' | 'inline'` <br/>
 Default: `'data'`
 
-::: code-group
-
-```typescript ['object']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        pathParamsType: 'object',
-      },
-    ),
-  ],
+const plugin = pluginClient({
+  pathParamsType: 'object',
 })
 ```
-
-```typescript ['inline']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        pathParamsType: 'inline',
-      },
-    ),
-  ],
-})
-```
-
 :::
 
 ### include
 
 Array containing include parameters to include tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Include]
 export type Include = {
@@ -466,45 +287,25 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginClient({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### exclude
 
 Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Exclude]
 export type Exclude = {
@@ -519,45 +320,25 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginClient({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### override
 
 Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Override]
 export type Override = {
@@ -573,43 +354,21 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: {
-                path: './custom',
-              },
-            },
-          },
-        ],
+const plugin = pluginClient({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+        dataReturnType: "full"
       },
-    ),
+    },
   ],
 })
 ```
-
 :::
 
 ### transformers
@@ -622,37 +381,17 @@ Override the name of the client that is getting generated, this will also overri
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginClient({
+  transformers: {
+    name: (name) => {
+      return `${name}Client`
+    },
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        transformers: {
-          name: (name) => {
-            return `${name}Client`
-          },
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 ### templates
@@ -664,7 +403,7 @@ See [templates](/reference/templates) for more information about creating templa
 Set `false` to disable a template.
 :::
 
-::: info type
+::: info TYPE
 
 ```typescript [Templates]
 import type { Client, Operations } from '@kubb/swagger-client/components'
@@ -681,15 +420,43 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-::: code-group
+```tsx twoslash
+import { pluginClient } from '@kubb/swagger-client'
+import { Parser, File, Function } from '@kubb/react'
+import { Client } from '@kubb/swagger-client/components'
+import React from 'react'
 
-```typescript [kubb.config.js]
+export const templates = {
+  ...Client.templates,
+  default: function ({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
+    const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
+
+    return (
+      <>
+        <File.Import name="axios" path="axios" />
+        <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+          {`return axios.${client.method}(${clientParams})`}
+        </Function>
+    </>
+  )
+  },
+} as const
+
+const plugin = pluginClient({
+  templates: {
+    client: templates,
+  },
+})
+```
+:::
+
+## Example
+
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginSwagger } from '@kubb/swagger'
-import { pluginClient } from '@kubb/swagger-client'
 import { pluginTs } from '@kubb/swagger-ts'
-
-import { templates } from './CustomClientTemplate'
+import { pluginClient } from '@kubb/swagger-client'
 
 export default defineConfig({
   input: {
@@ -699,27 +466,28 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        templates: {
-          client: templates,
-        },
+    pluginSwagger(),
+    pluginTs(),
+    pluginClient({
+      output: {
+        path: './clients/axios',
       },
-    ),
+      group: {
+        type: 'tag',
+        output: './clients/axios/{{tag}}Service',
+      },
+      exclude: [
+        {
+          type: 'tag',
+          pattern: 'store',
+        },
+      ],
+      pathParamsType: "object",
+      dataReturnType: 'full',
+    }),
   ],
 })
 ```
-
-<<< @/../examples/client/templates/client/index.tsx
-
-:::
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
-- [`@kubb/swagger-ts`](/plugins/swagger-ts/)
 
 ## Links
 

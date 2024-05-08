@@ -44,31 +44,15 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'types'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginTs({
   output: {
-    path: './src/gen',
+    path: './models',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      output: {
-        path: './models',
-      },
-    }),
-  ],
 })
 ```
-
 :::
 
 #### output.exportAs
@@ -78,31 +62,16 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginTs({
   output: {
-    path: './src/gen',
+    path: './models',
+    exportAs: 'models',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      output: {
-        exportAs: 'models',
-      },
-    }),
-  ],
 })
 ```
-
 :::
 
 #### output.extName
@@ -112,31 +81,16 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginTs({
   output: {
-    path: './src/gen',
+    path: './models',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      output: {
-        extName: '.js',
-      },
-    }),
-  ],
 })
 ```
-
 :::
 
 #### output.exportType
@@ -145,6 +99,17 @@ Define what needs to exported, here you can also disable the export of barrel fi
 
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
+
+```typescript twoslash
+import { pluginTs } from '@kubb/swagger-ts'
+
+const plugin = pluginTs({
+  output: {
+    path: './types',
+    exportType: 'barrel',
+  },
+})
+```
 
 :::
 
@@ -174,32 +139,13 @@ Default: `'${output}/{{tag}}Controller'`
 
 ::: info
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      output: {
-        path: './types',
-      },
-      group: { type: 'tag', output: './types/{{tag}}Controller' },
-    }),
-  ],
+const plugin = pluginTs({
+  group: { type: 'tag', output: './types/{{tag}}Controller' },
 })
 ```
-
 :::
 
 ### enumType
@@ -208,7 +154,7 @@ Choose to use `enum` or `as const` for enums. <br/>
 `asConst` will use camelCase for the naming. <br/>
 `asPascalConst` will use PascalCase for the naming.
 
-::: info Type
+::: info TYPE
 
 ::: code-group
 
@@ -251,165 +197,53 @@ type PetType = 'dog' | 'cat'
 Type: `'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'` <br/>
 Default: `'asConst'`
 
-::: code-group
-
-```typescript ['enum']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      enumType: 'enum',
-    }),
-  ],
+const plugin = pluginTs({
+  enumType: 'enum',
 })
 ```
-
-```typescript ['asConst']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      enumType: 'asConst',
-    }),
-  ],
-})
-```
-
-```typescript ['asPascalConst']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      enumType: 'asPascalConst',
-    }),
-  ],
-})
-```
-
-```typescript ['constEnum']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      enumType: 'constEnum',
-    }),
-  ],
-})
-```
-
-```typescript ['literal']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      enumType: 'literal',
-    }),
-  ],
-})
-```
-
 :::
 
 ### enumSuffix
 
 Set a suffix for the generated enums.
 
-::: info Type
+::: info TYPE
 
 ::: info
 
 Type: `string` <br/>
 Default: `''`
 
-::: code-group
-
-```typescript
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      enumSuffix: 'enum',
-    }),
-  ],
+const plugin = pluginTs({
+  enumSuffix: 'Enum',
 })
 ```
-
 :::
 
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
 ```typescript ['string']
-date: string
+type Pet = {
+  date: string
+}
 ```
 
 ```typescript ['date']
-date: Date
+type Pet = {
+  date: Date
+}
 ```
 
 :::
@@ -419,68 +253,33 @@ date: Date
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
-:::
-
-::: code-group
-
-```typescript ['string']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      dateType: 'string',
-    }),
-  ],
+const plugin = pluginTs({
+  dateType: 'string',
 })
 ```
-
-```typescript ['date']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      dateType: 'date',
-    }),
-  ],
-})
-```
-
 :::
 
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
 ```typescript ['any']
-any
+type Pet = {
+  name: any
+}
 ```
 
 ```typescript ['unknown']
-unknown
+type Pet = {
+  name: unknown
+}
 ```
 
 :::
@@ -489,74 +288,40 @@ unknown
 Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
-:::
-
-::: code-group
-
-```typescript ['any']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      unknownType: 'any',
-    }),
-  ],
+const plugin = pluginTs({
+  unknownType: 'any',
 })
 ```
-
-```typescript ['unknown']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      unknownType: 'unknown',
-    }),
-  ],
-})
-```
-
 :::
 
 ### optionalType
 
 Choose what to use as mode for an optional value.<br/>
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
 ```typescript ['questionToken']
-type?: string
+type Pet = {
+  type?: string
+}
 ```
 
 ```typescript ['undefined']
-type: string | undefined
+type Pet = {
+  type: string | undefined
+}
 ```
 
 ```typescript ['questionTokenAndUndefined']
-type?: string | undefined
+type Pet = {
+  type?: string | undefined
+}
 ```
-
 :::
 
 ::: info
@@ -564,78 +329,20 @@ type?: string | undefined
 Type: `'questionToken' | 'undefined' | 'questionTokenAndUndefined'` <br/>
 Default: `'questionToken'`
 
-::: code-group
-
-```typescript ['questionToken']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      optionalType: 'questionToken',
-    }),
-  ],
+const plugin = pluginTs({
+  optionalType: 'questionToken',
 })
 ```
-
-```typescript ['undefined']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      optionalType: 'undefined',
-    }),
-  ],
-})
-```
-
-```typescript ['questionTokenAndUndefined']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({
-      optionalType: 'questionTokenAndUndefined',
-    }),
-  ],
-})
-```
-
 :::
 
 ### include
 
 Array containing include parameters to include tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Include]
 export type Include = {
@@ -650,43 +357,25 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginTs({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### exclude
 
 Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Exclude]
 export type Exclude = {
@@ -701,43 +390,25 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginTs({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### override
 
 Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Override]
 export type Override = {
@@ -753,41 +424,21 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: {
-                path: './custom',
-              },
-            },
-          },
-        ],
+const plugin = pluginTs({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+        enumType: "asConst"
       },
-    ),
+    },
   ],
 })
 ```
-
 :::
 
 ### transformers
@@ -800,35 +451,17 @@ Override the name of the TypeScript type that is getting generated, this will al
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginTs({
+  transformers: {
+    name: (name) => {
+      return `${name}Client`
+    },
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs(
-      {
-        transformers: {
-          name: (name) => {
-            return `${name}Client`
-          },
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 ### oasType
@@ -839,9 +472,18 @@ See [infer](/plugins/swagger-ts/infer) in how to use the types with `@kubb/swagg
 ::: info
 Type: `'infer' | false` <br/>
 
-::: code-group
+```typescript twoslash
+import { pluginTs } from '@kubb/swagger-ts'
 
-```typescript [kubb.config.js]
+const plugin = pluginTs({
+  oasType: 'infer',
+})
+```
+:::
+
+## Example
+
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginSwagger } from '@kubb/swagger'
 import { pluginTs } from '@kubb/swagger-ts'
@@ -854,19 +496,31 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
+    pluginSwagger(),
     pluginTs({
-      oasType: 'infer',
+      output: {
+        path: './types',
+      },
+      exclude: [
+        {
+          type: 'tag',
+          pattern: 'store',
+        },
+      ],
+      group: {
+        type: 'tag',
+        output: './types/{{tag}}Controller'
+      },
+      enumType: "asConst",
+      enumSuffix: 'Enum',
+      dateType: 'date',
+      unknownType: 'unknown',
+      optionalType: 'questionTokenAndUndefined',
+      oasType: false,
     }),
   ],
 })
 ```
-
-:::
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
 
 ## Links
 

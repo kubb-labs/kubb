@@ -7,7 +7,8 @@ outline: deep
 
 # @kubb/swagger-swr <a href="https://paka.dev/npm/@kubb/swagger-swr@latest/api">🦙</a>
 
-With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger file.
+With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger
+file.
 
 ## Installation
 
@@ -44,30 +45,13 @@ Output to save the SWR hooks.
 Type: `string` <br/>
 Default: `'hooks'`
 
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginSwr({
   output: {
-    path: './src/gen',
+    path: './hooks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        output: {
-          path: './hooks',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -80,32 +64,14 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginSwr({
   output: {
-    path: './src/gen',
+    path: './hooks',
+    exportAs: 'hooks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        output: {
-          exportAs: 'hooks',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -118,32 +84,14 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginSwr({
   output: {
-    path: './src/gen',
+    path: './hooks',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        output: {
-          extName: '.js',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -155,6 +103,17 @@ Define what needs to exported, here you can also disable the export of barrel fi
 
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
+
+```typescript twoslash
+import { pluginSwr } from '@kubb/swagger-swr'
+
+const plugin = pluginSwr({
+  output: {
+    path: './hooks',
+    exportType: '.barrel',
+  },
+})
+```
 
 :::
 
@@ -195,34 +154,11 @@ Default: `'{{tag}}SWRHooks'`
 
 ::: info
 
-::: code-group
+```typescript twoslash
+import { pluginSwr } from '@kubb/swagger-swr'
 
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        output: {
-          path: './hooks',
-        },
-        group: { type: 'tag', output: './hooks/{{tag}}Controller' },
-      },
-    ),
-  ],
+const plugin = pluginSwr({
+  group: { type: 'tag', output: './hooks/{{tag}}Controller' },
 })
 ```
 
@@ -242,32 +178,13 @@ so relative path shoule be based on the file being generated.
 Type: `string` <br/>
 Default: `'@kubb/swagger-client/client'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginSwr({
+  client: {
+    importPath: '../../client.ts',
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        client: {
-          importPath: '../../client.ts',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -280,7 +197,7 @@ ReturnType that needs to be used when calling client().
 `'data'` will return ResponseConfig[data]. <br/>
 `'full'` will return ResponseConfig.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -288,7 +205,7 @@ ReturnType that needs to be used when calling client().
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>["data"]> {
-  ...
+...
 }
 ```
 
@@ -296,7 +213,7 @@ export async function getPetById<TData>(
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>> {
-  ...
+...
 }
 ```
 
@@ -305,55 +222,11 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-::: code-group
-
-```typescript ['data']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        dataReturnType: 'data',
-      },
-    ),
-  ],
-})
-```
-
-```typescript ['full']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        dataReturnType: 'full',
-      },
-    ),
-  ],
+const plugin = pluginSwr({
+  dataReturnType: 'data',
 })
 ```
 
@@ -363,7 +236,7 @@ export default defineConfig({
 
 Array containing include parameters to include tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Include]
 export type Include = {
@@ -378,34 +251,15 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginSwr({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
@@ -416,7 +270,7 @@ export default defineConfig({
 
 Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Exclude]
 export type Exclude = {
@@ -431,34 +285,15 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginSwr({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
@@ -469,7 +304,7 @@ export default defineConfig({
 
 Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Override]
 export type Override = {
@@ -485,39 +320,18 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-::: code-group
+```typescript twoslash
+import { pluginSwr } from '@kubb/swagger-swr'
 
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginClient } from '@kubb/swagger-client'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginClient(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: {
-                path: './custom',
-              },
-            },
-          },
-        ],
+const plugin = pluginSwr({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+        dataReturnType: 'full',
       },
-    ),
+    },
   ],
 })
 ```
@@ -534,37 +348,15 @@ Override the name of the hook that is getting generated, this will also override
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginSwr({
+  transformers: {
+    name: (name) => {
+      return `${ name }Hook`
+    },
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        output: {
-          path: './hooks',
-        },
-        transformers: {
-          name: (name) => {
-            return `${name}Hook`
-          },
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -579,7 +371,7 @@ See [templates](/reference/templates) for more information about creating templa
 Set `false` to disable a template.
 :::
 
-::: info type
+::: info TYPE
 
 ```typescript [Templates]
 import type { Mutation, Query, QueryOptions } from '@kubb/swagger-swr/components'
@@ -597,15 +389,31 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-::: code-group
+```tsx twoslash
+import { pluginSwr } from '@kubb/swagger-swr'
+import { Query } from '@kubb/swagger-swr/components'
+import React from 'react'
 
-```typescript [kubb.config.js]
+export const templates = {
+  ...Query.templates,
+} as const
+
+const plugin = pluginSwr({
+  templates: {
+    query: templates,
+  },
+})
+```
+
+:::
+
+## Example
+
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginSwagger } from '@kubb/swagger'
 import { pluginSwr } from '@kubb/swagger-swr'
 import { pluginTs } from '@kubb/swagger-ts'
-
-import { templates } from './CustomClientTemplate'
 
 export default defineConfig({
   input: {
@@ -615,26 +423,22 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginSwr(
-      {
-        output: {
-          path: './hooks',
-        },
-        templates,
+    pluginSwagger(),
+    pluginTs(),
+    pluginSwr({
+      output: {
+        path: './hooks',
       },
-    ),
+      group: {
+        type: 'tag',
+        output: './hooks/{{tag}}Hooks'
+      },
+      dataReturnType: 'full',
+      parser: 'zod',
+    }),
   ],
 })
 ```
-
-:::
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
-- [`@kubb/swagger-ts`](/plugins/swagger-ts/)
 
 ## Links
 

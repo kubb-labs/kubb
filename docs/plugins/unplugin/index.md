@@ -41,7 +41,7 @@ yarn add unplugin-kubb @kubb/core
 
 Define the options for Kubb.
 
-::: info type
+::: info TYPE
 
 ```typescript twoslash [Options]
 import type { UserConfig } from "@kubb/core"
@@ -94,6 +94,7 @@ export default defineViteConfig({
   ],
 })
 ```
+:::
 
 ## Examples
 
@@ -172,10 +173,6 @@ build({
   plugins: [kubb()],
 })
 ```
-
-## Depended
-
-- [`@kubb/core`](/plugins/core/)
 
 ## Links
 

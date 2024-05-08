@@ -9,7 +9,8 @@ outline: deep
 
 ::: tip
 <img src="https://raw.githubusercontent.com/TanStack/query/main/media/repo-header.png" style="max-width: 30vw"/><br/>
-Tanstack/query v5 is fully supported, see [Migrating to TanStack Query v5](https://tanstack.com/query/latest/docs/react/guides/migrating-to-v5).<br/>
+Tanstack/query v5 is fully supported,
+see [Migrating to TanStack Query v5](https://tanstack.com/query/latest/docs/react/guides/migrating-to-v5).<br/>
 
 Just install v5 in your project and `Kubb` will check the `package.json` to see if you are using v4 or v5.
 
@@ -27,19 +28,19 @@ With the Swagger Tanstack Query plugin you can create:
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb/swagger @kubb/swagger-client
+bun add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb/swagger @kubb/swagger-client
+pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb/swagger @kubb/swagger-client
+npm install @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb/swagger @kubb/swagger-client
+yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
 ```
 
 :::
@@ -55,30 +56,13 @@ Output to save the [Tanstack Query](https://tanstack.com/query) hooks.
 Type: `string` <br/>
 Default: `'hooks'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginTanstackQuery({
   output: {
-    path: './src/gen',
+    path: './hooks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      output: {
-        path: './hooks',
-      },
-    }),
-  ],
 })
 ```
 
@@ -91,30 +75,14 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginTanstackQuery({
   output: {
-    path: './src/gen',
+    path: './hooks',
+    exportAs: 'hooks',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      output: {
-        exportAs: 'hooks',
-      },
-    }),
-  ],
 })
 ```
 
@@ -127,30 +95,14 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginTanstackQuery({
   output: {
-    path: './src/gen',
+    path: './hooks',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      output: {
-        extName: '.js',
-      },
-    }),
-  ],
 })
 ```
 
@@ -162,6 +114,17 @@ Define what needs to exported, here you can also disable the export of barrel fi
 
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
+
+```typescript twoslash
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+
+const plugin = pluginTanstackQuery({
+  output: {
+    path: './hooks',
+    exportType: 'barrel',
+  },
+})
+```
 
 :::
 
@@ -202,33 +165,11 @@ Default: `'{{tag}}Hooks'`
 
 ::: info
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        output: {
-          path: './hooks',
-        },
-        group: { type: 'tag', output: './hooks/{{tag}}Hooks' },
-      },
-    ),
-  ],
+const plugin = pluginTanstackQuery({
+  group: { type: 'tag', output: './hooks/{{tag}}Hooks' },
 })
 ```
 
@@ -240,38 +181,20 @@ export default defineConfig({
 
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${client.importPath}'`.<br/>
-It allows both relative and absolute paths. the path will be applied as is, so the relative path should be based on the file being generated.
+It allows both relative and absolute paths. the path will be applied as is, so the relative path should be based on the
+file being generated.
 
 ::: info
 Type: `string` <br/>
 Default: `'@kubb/swagger-client/client'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginTanstackQuery({
+  client: {
+    importPath: '../../client.ts',
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        client: {
-          importPath: '../../client.ts',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -284,7 +207,7 @@ ReturnType that needs to be used when calling client().
 `'data'` will return ResponseConfig[data]. <br/>
 `'full'` will return ResponseConfig.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -292,7 +215,7 @@ ReturnType that needs to be used when calling client().
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>["data"]> {
-  ...
+...
 }
 ```
 
@@ -300,7 +223,7 @@ export async function getPetById<TData>(
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>> {
-  ...
+...
 }
 ```
 
@@ -311,55 +234,11 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-::: code-group
-
-```typescript ['data']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        dataReturnType: 'data',
-      },
-    ),
-  ],
-})
-```
-
-```typescript ['full']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        dataReturnType: 'full',
-      },
-    ),
-  ],
+const plugin = pluginTanstackQuery({
+  dataReturnType: 'data',
 })
 ```
 
@@ -369,12 +248,15 @@ export default defineConfig({
 
 To disable mutations pass `false`.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
-```typescript [Suspense]
-type QueryOptions = {} |
+```typescript [Mutate]
+type Mutate = {
+  variablesType: 'mutate' | 'hook'
+  methods: Array<HttpMethod>
+} | false
 ```
 
 :::
@@ -386,7 +268,7 @@ Define the way of passing through the queryParams, headerParams and data.
 `'mutate'` will use the `mutate` or `mutateAsync` function. <br/>
 `'hook'` will use the `useMutation` hook.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -411,59 +293,14 @@ mutate()
 Type: `'mutate' | 'hook'` <br/>
 Default: `'hook'`
 
-::: code-group
-
-```typescript ['mutate']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginTanstackQuery({
+  mutate: {
+    variablesType: 'mutate',
+    methods: [ 'post', 'put', 'delete' ],
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        mutate: {
-          variablesType: 'mutate',
-        },
-      },
-    ),
-  ],
-})
-```
-
-```typescript ['hook']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        mutate: {
-          variablesType: 'hook',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -473,39 +310,21 @@ export default defineConfig({
 
 Define which HttpMethods can be used for mutations <br/>
 
-::: info type
+::: info TYPE
 
 ::: info
 
 Type: `'Array<HttpMethod>` <br/>
 Default: `['post', 'put', 'delete']`
 
-::: code-group
-
-```typescript
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginTanstackQuery({
+  mutate: {
+    variablesType: 'hook',
+    methods: [ 'post', 'put', 'delete' ],
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        mutate: {
-          methods: ['post', 'put', 'delete'],
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -517,7 +336,7 @@ Which parser can be used before returning the data to `@tanstack/query`.
 
 `'zod'` will use `@kubb/swagger-zod` to parse the data. <br/>
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -529,7 +348,7 @@ export function getPetByIdQueryOptions() {
     queryFn: async () => {
       const res = await client({
         method: 'get',
-        url: `/pet/${petId}`,
+        url: `/pet/${ petId }`,
       })
 
       return getPetByIdQueryResponseSchema.parse(res.data)
@@ -544,30 +363,11 @@ export function getPetByIdQueryOptions() {
 
 Type: `'zod'` <br/>
 
-::: code-group
-
-```typescript ['zod']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        parser: 'zod',
-      },
-    ),
-  ],
+const plugin = pluginTanstackQuery({
+  parser: 'zod',
 })
 ```
 
@@ -582,30 +382,11 @@ Framework to be generated for.
 Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
 Default: `'react'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        framework: 'solid',
-      },
-    ),
-  ],
+const plugin = pluginTanstackQuery({
+  framework: 'react',
 })
 ```
 
@@ -616,7 +397,7 @@ export default defineConfig({
 When set, an 'infiniteQuery' hook will be added. <br/>
 To disable infinite queries pass `false`.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -645,26 +426,11 @@ type Infinite = {
 ::: info
 Type: `Infinite` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({ infinite: {} }),
-  ],
+const plugin = pluginTanstackQuery({
+  infinite: {}
 })
 ```
 
@@ -679,30 +445,13 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
 Type: `string` <br/>
 Default: `'id'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      infinite: {
-        queryParam: 'next_page',
-      },
-    }),
-  ],
+const plugin = pluginTanstackQuery({
+  infinite: {
+    queryParam: 'next_page',
+  }
 })
 ```
 
@@ -717,31 +466,14 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 Type: `string` <br/>
 Default: `'0'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      infinite: {
-        queryParam: 'id',
-        initialPageParam: 0,
-      },
-    }),
-  ],
+const plugin = pluginTanstackQuery({
+  infinite: {
+    queryParam: 'next_page',
+    initialPageParam: 0,
+  }
 })
 ```
 
@@ -755,31 +487,14 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 ::: info
 Type: `string | undefined` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      infinite: {
-        queryParam: 'id',
-        cursorParam: 'nextCursor',
-      },
-    }),
-  ],
+const plugin = pluginTanstackQuery({
+  infinite: {
+    queryParam: 'next_page',
+    cursorParam: 'nextCursor',
+  }
 })
 ```
 
@@ -790,7 +505,7 @@ export default defineConfig({
 Override some useQuery behaviours. <br/>
 To disable queries pass `false`.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -810,26 +525,11 @@ type Query = {
 ::: info
 Type: `Query` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({ query: {} }),
-  ],
+const plugin = pluginTanstackQuery({
+  query: {}
 })
 ```
 
@@ -846,30 +546,13 @@ When using a string you need to use `JSON.stringify`.
 ::: info
 Type: `(key: unknown[]) => unknown[]` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      query: {
-        queryKey: (key: string[]) => [JSON.stringify('SUFFIX'), ...key],
-      },
-    }),
-  ],
+const plugin = pluginTanstackQuery({
+  query: {
+    queryKey: (key) => [ JSON.stringify('SUFFIX'), ...key ],
+  }
 })
 ```
 
@@ -887,30 +570,13 @@ When using a string you need to use `JSON.stringify`.
 Type: `Array<HttpMethod>` <br/>
 Default: `['get']` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      query: {
-        methods: ['get'],
-      },
-    }),
-  ],
+const plugin = pluginTanstackQuery({
+  query: {
+    methods: [ 'get' ],
+  }
 })
 ```
 
@@ -927,41 +593,23 @@ the path will be applied as is, so relative path should be based on the file bei
 Type: `string` <br/>
 Default: `'@tanstack/react-query'` if 'framework' is set to 'react'
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({
-      query: {
-        importPath: "@kubb/react-query"
-      },
-    }),
-  ],
+const plugin = pluginTanstackQuery({
+  query: {
+    importPath: "@kubb/react-query"
+  }
 })
 ```
 
 :::
 
-
 ### queryOptions
 
 To disable queryOptions pass `false`.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -974,26 +622,11 @@ type QueryOptions = {} | false
 ::: info
 Type: `QueryOptions` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({ queryOptions: {} }),
-  ],
+const plugin = pluginTanstackQuery({
+  queryOptions: {}
 })
 ```
 
@@ -1003,7 +636,7 @@ export default defineConfig({
 
 When set, a suspenseQuery hook will be added. This will only work for v5 and react.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -1016,26 +649,11 @@ type Suspense = {} | false
 ::: info
 Type: `Suspense` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery({ suspense: {} }),
-  ],
+const plugin = pluginTanstackQuery({
+  suspense: {}
 })
 ```
 
@@ -1045,7 +663,7 @@ export default defineConfig({
 
 Array containing include parameters to include tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Include]
 export type Include = {
@@ -1060,34 +678,15 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginTanstackQuery({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
@@ -1098,7 +697,7 @@ export default defineConfig({
 
 Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Exclude]
 export type Exclude = {
@@ -1113,34 +712,15 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginTanstackQuery({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
@@ -1151,7 +731,7 @@ export default defineConfig({
 
 Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Override]
 export type Override = {
@@ -1167,39 +747,18 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: {
-                path: './custom',
-              },
-            },
-          },
-        ],
+const plugin = pluginTanstackQuery({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+        dataReturnType: 'full',
       },
-    ),
+    },
   ],
 })
 ```
@@ -1216,34 +775,15 @@ Override the name of the hook that is getting generated, this will also override
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginTanstackQuery({
+  transformers: {
+    name: (name) => {
+      return `${ name }Hook`
+    },
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        transformers: {
-          name: (name) => {
-            return `${name}Hook`
-          },
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -1258,16 +798,17 @@ See [templates](/reference/templates) for more information about creating templa
 Set `false` to disable a template.
 :::
 
-::: info type
+::: info TYPE
 
 ```typescript [Templates]
-import type { Mutation, Query, QueryOptions, QueryKey } from '@kubb/swagger-tanstack-query/components'
+import type { Mutation, Query, QueryOptions, QueryKey, QueryImports } from '@kubb/swagger-tanstack-query/components'
 
 export type Templates = {
   mutation: typeof Mutation.templates | false
   query: typeof Query.templates | false
   queryOptions: typeof QueryOptions.templates | false
   queryKey: typeof QueryKey.templates | false
+  queryImports: typeof QueryImports.templates | false
 }
 ```
 
@@ -1277,15 +818,31 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-::: code-group
+```tsx twoslash
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { Query } from '@kubb/swagger-tanstack-query/components'
+import React from 'react'
 
-```typescript [kubb.config.js]
+export const templates = {
+  ...Query.templates,
+} as const
+
+const plugin = pluginTanstackQuery({
+  templates: {
+    query: templates,
+  },
+})
+```
+
+:::
+
+## Example
+
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginSwagger } from '@kubb/swagger'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
-
-import { templates } from './CustomTemplate'
 
 export default defineConfig({
   input: {
@@ -1295,24 +852,37 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginTanstackQuery(
-      {
-        templates,
+    pluginSwagger(),
+    pluginTs(),
+    pluginTanstackQuery({
+      output: {
+        path: './hooks',
       },
-    ),
+      group: {
+        type: 'tag',
+        output: './hooks/{{tag}}Hooks'
+      },
+      framework: 'react',
+      dataReturnType: 'full',
+      mutate: {
+        variablesType: 'hook',
+        methods: [ 'post', 'put', 'delete' ],
+      },
+      infinite: {
+        queryParam: 'next_page',
+        initialPageParam: 0,
+        cursorParam: 'nextCursor',
+      },
+      query: {
+        methods: [ 'get' ],
+        importPath: "@tanstack/react-query"
+      },
+      suspense: {},
+      parser: 'zod',
+    }),
   ],
 })
 ```
-
-:::
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
-- [`@kubb/swagger-ts`](/plugins/swagger-ts/)
-- [`@kubb/swagger-client`](/plugins/swagger-client/)
 
 ## Links
 

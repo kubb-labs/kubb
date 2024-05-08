@@ -42,30 +42,13 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'zod'`
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginZod({
   output: {
-    path: './src/gen',
+    path: './zod',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        output: {
-          path: './zod',
-        },
-      },
-    ),
-  ],
 })
 ```
 
@@ -76,33 +59,16 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginZod({
   output: {
-    path: './src/gen',
+    path: './zod',
+    exportAs: 'schemas',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        output: {
-          exortAs: 'schemas',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.extName
@@ -112,33 +78,16 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+const plugin = pluginZod({
   output: {
-    path: './src/gen',
+    path: './zod',
+    extName: '.js',
   },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        output: {
-          extName: '.js',
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 #### output.exportType
@@ -148,6 +97,16 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
+```typescript twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+
+const plugin = pluginZod({
+  output: {
+    path: './zod',
+    exportType: 'barrel',
+  },
+})
+```
 
 :::
 
@@ -188,41 +147,20 @@ Default: `'{{tag}}Schemas'`
 
 ::: info
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        output: {
-          path: './schemas',
-        },
-        group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
-      },
-    ),
-  ],
+const plugin = pluginZod({
+  group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
 })
 ```
-
 :::
 
 ### include
 
 Array containing include parameters to include tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Include]
 export type Include = {
@@ -237,43 +175,25 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginZod({
+  include: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### exclude
 
 Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Exclude]
 export type Exclude = {
@@ -288,43 +208,25 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-      },
-    ),
+const plugin = pluginZod({
+  exclude: [
+    {
+      type: 'tag',
+      pattern: 'store',
+    },
   ],
 })
 ```
-
 :::
 
 ### override
 
 Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
-::: info type
+::: info TYPE
 
 ```typescript [Override]
 export type Override = {
@@ -340,42 +242,21 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginTs({}),
-    pluginZod(
-      {
-        override: [
-          {
-            type: 'tag',
-            pattern: 'pet',
-            options: {
-              output: {
-                path: './custom',
-              },
-            },
-          },
-        ],
+const plugin = pluginZod({
+  override: [
+    {
+      type: 'tag',
+      pattern: 'pet',
+      options: {
+        dateType: 'stringOffset',
       },
-    ),
+    },
   ],
 })
 ```
-
 :::
 
 ### typed
@@ -386,42 +267,20 @@ Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
 
 Type: `boolean` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
-import { pluginTs } from '@kubb/swagger-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        typed: true,
-      },
-    ),
-    createSwaggerTs(
-      {},
-    ),
-  ],
+const plugin = pluginZod({
+  typed: true,
 })
 ```
-
 :::
 
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
 See [datetimes](https://zod.dev/?id=datetimes).
-::: info type
+::: info TYPE
 
 ::: code-group
 
@@ -452,131 +311,29 @@ z.date()
 Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
 Default: `'string'`
 
-::: code-group
-```typescript [false]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      dateType: false,
-    }),
-  ],
+const plugin = pluginZod({
+  dateType: 'string',
 })
 ```
-
-
-```typescript ['string']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginZod } from '@kubb/swagger-zod'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      dateType: 'string',
-    }),
-  ],
-})
-```
-
-```typescript ['stringOffset']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginZod } from '@kubb/swagger-zod'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      dateType: 'stringOffset',
-    }),
-  ],
-})
-```
-
-```typescript ['stringLocal']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginZod } from '@kubb/swagger-zod'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      dateType: 'stringLocal',
-    }),
-  ],
-})
-```
-
-```typescript ['date']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginZod } from '@kubb/swagger-zod'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      dateType: 'date',
-    }),
-  ],
-})
-```
-
-
-
 :::
 
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-::: info type
+::: info TYPE
 
 ::: code-group
 
 ```typescript ['any']
-any
+z.any()
 ```
 
 ```typescript ['unknown']
-unknown
+z.unknown()
 ```
 
 :::
@@ -585,52 +342,13 @@ unknown
 Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
-:::
-
-::: code-group
-
-```typescript ['any']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      unknownType: 'any',
-    }),
-  ],
+const plugin = pluginZod({
+  unknownType: 'any',
 })
 ```
-
-```typescript ['unknown']
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
-import { pluginZod } from '@kubb/swagger-zod'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod({
-      unknownType: 'unknown',
-    }),
-  ],
-})
-```
-
 :::
 
 ### transformers
@@ -643,35 +361,17 @@ Override the name of the Zod schema that is getting generated, this will also ov
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
+const plugin = pluginZod({
+  transformers: {
+    name: (name) => {
+      return `${name}Client`
+    },
   },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        transformers: {
-          name: (name) => {
-            return `${name}Client`
-          },
-        },
-      },
-    ),
-  ],
 })
 ```
-
 :::
 
 ### templates
@@ -683,7 +383,7 @@ See [templates](/reference/templates) for more information about creating templa
 Set `false` to disable a template.
 :::
 
-::: info type
+::: info TYPE
 
 ```typescript [Templates]
 import type { Operations } from '@kubb/swagger-zod/components'
@@ -699,14 +399,30 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-::: code-group
+```tsx twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+import { Parser, File, Function } from '@kubb/react'
+import { Operations } from '@kubb/swagger-zod/components'
+import React from 'react'
 
-```typescript [kubb.config.js]
+export const templates = {
+  ...Operations.templates,
+} as const
+
+const plugin = pluginZod({
+  templates: {
+    operations: templates,
+  },
+})
+```
+:::
+
+
+## Example
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerZod from '@kubb/swagger-zod'
-
-import { templates } from './CustomTemplate'
+import { pluginSwagger } from '@kubb/swagger'
+import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
   input: {
@@ -716,22 +432,19 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({ output: false }),
-    pluginZod(
-      {
-        templates,
+    pluginSwagger(),
+    pluginZod({
+      output: {
+        path: './zod',
       },
-    ),
+      group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
+      typed: true,
+      dateType: 'stringOffset',
+      unknownType: 'unknown',
+    }),
   ],
 })
 ```
-
-:::
-
-
-## Depended
-
-- [`@kubb/swagger`](/plugins/swagger/)
 
 ## Links
 
