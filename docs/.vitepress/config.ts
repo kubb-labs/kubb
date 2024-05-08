@@ -553,6 +553,7 @@ export default defineConfig({
               '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
               '@kubb/swagger-msw/components': ['../packages/swagger-msw/src/components/index.ts'],
               '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
+              '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
               '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
               '@kubb/swagger-zod': ['../packages/swagger-zod/src/index.ts'],
               '@kubb/swagger-zodios': ['../packages/swagger-zodios/src/index.ts'],

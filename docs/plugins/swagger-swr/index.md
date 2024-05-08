@@ -110,7 +110,7 @@ import { pluginSwr } from '@kubb/swagger-swr'
 const plugin = pluginSwr({
   output: {
     path: './hooks',
-    exportType: '.barrel',
+    exportType: 'barrel',
   },
 })
 ```
