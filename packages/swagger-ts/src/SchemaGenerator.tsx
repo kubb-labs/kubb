@@ -1,12 +1,12 @@
 import { App, createRoot } from '@kubb/react'
-import { SchemaGenerator as Generator } from '@kubb/swagger'
-import { Oas } from '@kubb/swagger/components'
+import { SchemaGenerator as Generator } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
 
 import { pluginTsName } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
 
 import type { SchemaObject } from '@kubb/oas'
-import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
+import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/plugin-oas'
 import type { FileMeta, PluginTs } from './types.ts'
 
 export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {

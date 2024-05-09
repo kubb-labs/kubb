@@ -1,6 +1,6 @@
 const { defineConfig } = require('@kubb/core')
 
-const { pluginSwagger, schemaKeywords } = require('@kubb/swagger')
+const { pluginOas, schemaKeywords } = require('@kubb/plugin-oas')
 const { pluginFaker } = require('@kubb/swagger-faker')
 const { pluginTs } = require('@kubb/swagger-ts')
 
@@ -15,7 +15,7 @@ module.exports = defineConfig(() => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({ output: false }),
+      pluginOas({ output: false }),
       pluginTs({
         output: {
           path: 'models',

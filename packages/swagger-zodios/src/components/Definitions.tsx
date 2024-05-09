@@ -5,7 +5,7 @@ import { pluginZodName } from '@kubb/swagger-zod'
 
 import { getDefinitions, getDefinitionsImports } from './utils.ts'
 
-import type { OperationsByMethod } from '@kubb/swagger'
+import type { OperationsByMethod } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginZodios } from '../types.ts'
 

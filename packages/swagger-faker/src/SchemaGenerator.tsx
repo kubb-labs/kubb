@@ -1,14 +1,14 @@
 import { App, File, createRoot, useApp, useFile } from '@kubb/react'
-import { SchemaGenerator as Generator, schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator as Generator, schemaKeywords } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/swagger-ts'
-import { Oas, Schema } from '@kubb/swagger/components'
-import { useSchema } from '@kubb/swagger/hooks'
+import { Oas, Schema } from '@kubb/plugin-oas/components'
+import { useSchema } from '@kubb/plugin-oas/hooks'
 
 import { fakerParser } from './fakerParser.tsx'
 import { pluginFakerName } from './plugin.ts'
 
 import type { SchemaObject } from '@kubb/oas'
-import type { SchemaGeneratorBuildOptions, SchemaGeneratorOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
+import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/plugin-oas'
 import type { FileMeta, PluginFaker } from './types.ts'
 
 function SchemaImports() {

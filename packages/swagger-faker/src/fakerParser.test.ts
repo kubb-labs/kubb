@@ -1,4 +1,4 @@
-import { schemas } from '@kubb/swagger/mocks/schemas.js'
+import { schemas } from '../../plugin-oas/mocks/schemas.js'
 
 import { fakerParser, parseFakerMeta } from './fakerParser.tsx'
 

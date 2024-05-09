@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger, schemaKeywords } from '@kubb/swagger'
+import { pluginOas, schemaKeywords } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginZod } from '@kubb/swagger-zod'
 
@@ -18,7 +18,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({ output: false }),
+      pluginOas({ output: false }),
       pluginTs({
         output: {
           path: './ts',

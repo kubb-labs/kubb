@@ -5,8 +5,8 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
-import type { GetOperationGeneratorOptions } from '@kubb/swagger'
-import { parseFromConfig } from '@kubb/swagger/utils'
+import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginFaker } from './types.ts'
 
 describe('OperationGenerator', async () => {

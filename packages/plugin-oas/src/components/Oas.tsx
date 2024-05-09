@@ -5,7 +5,7 @@ import { Schema } from './Schema.tsx'
 
 import type { Oas as OasType, Operation as OperationType } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
-import type { OperationGenerator } from '@kubb/swagger'
+import type { OperationGenerator } from '../OperationGenerator.ts'
 
 type Props = {
   oas: OasType

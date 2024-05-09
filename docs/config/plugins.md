@@ -18,7 +18,7 @@ How to use and set up plugins, see [plugins](/plugins/overview).
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
   input: {
@@ -28,7 +28,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({
+    pluginOas({
       output: {
         path: 'schemas',
       },

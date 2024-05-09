@@ -1,4 +1,4 @@
-import { schemas } from '../../swagger/mocks/schemas.ts'
+import { schemas } from '../../plugin-oas/mocks/schemas.ts'
 import { parseZodMeta, zodParser } from './zodParser.tsx'
 
 describe('parseZodMeta', () => {

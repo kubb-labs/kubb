@@ -1,7 +1,7 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
-import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/swagger'
+import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
-import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/swagger'
+import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 
 export const fakerKeywordMapper = {
   any: () => 'undefined',

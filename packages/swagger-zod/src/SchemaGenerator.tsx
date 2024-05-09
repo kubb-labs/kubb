@@ -1,7 +1,7 @@
 import { App, File, createRoot, useApp, useFile } from '@kubb/react'
-import { SchemaGenerator as Generator } from '@kubb/swagger'
-import { Oas } from '@kubb/swagger/components'
-import { useSchema } from '@kubb/swagger/hooks'
+import { SchemaGenerator as Generator } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
+import { useSchema } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/swagger-ts'
 
 import { zodParser } from './zodParser.tsx'
@@ -9,7 +9,7 @@ import { zodParser } from './zodParser.tsx'
 import { pluginZodName } from './plugin.ts'
 
 import type { SchemaObject } from '@kubb/oas'
-import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/swagger'
+import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaType } from '@kubb/plugin-oas'
 import type { FileMeta, PluginZod } from './types.ts'
 
 function SchemaImports() {

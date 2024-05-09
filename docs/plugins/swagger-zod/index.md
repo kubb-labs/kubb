@@ -422,7 +422,7 @@ const plugin = pluginZod({
 ## Example
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginZod } from '@kubb/swagger-zod'
 
 export default defineConfig({
@@ -433,7 +433,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger(),
+    pluginOas(),
     pluginZod({
       output: {
         path: './zod',

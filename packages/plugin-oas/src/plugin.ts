@@ -9,12 +9,12 @@ import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
-import type { PluginSwagger } from './types.ts'
+import type { PluginOas } from './types.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
-export const pluginSwaggerName = 'swagger' satisfies PluginSwagger['name']
+export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
-export const pluginSwagger = createPlugin<PluginSwagger>((options) => {
+export const pluginOas = createPlugin<PluginOas>((options) => {
   const {
     output = { path: 'schemas', export: false },
     experimentalFilter: filter,
@@ -43,7 +43,7 @@ export const pluginSwagger = createPlugin<PluginSwagger>((options) => {
   }
 
   return {
-    name: pluginSwaggerName,
+    name: pluginOasName,
     options,
 
     api() {
@@ -108,7 +108,7 @@ export const pluginSwagger = createPlugin<PluginSwagger>((options) => {
 
         const resvoledFileName = this.resolveName({
           name: `${name}.json`,
-          pluginKey: [pluginSwaggerName],
+          pluginKey: [pluginOasName],
           type: 'file',
         }) as `${string}.json`
 

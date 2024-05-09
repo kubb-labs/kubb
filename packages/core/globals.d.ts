@@ -28,7 +28,8 @@ declare namespace Kubb {
     type TupleToUnion<T> = T extends Array<infer ITEMS> ? ITEMS : never
   }
   type Plugins = {
-    ['@kubb/swagger']: import('@kubb/swagger').PluginSwagger
+    ['@kubb/plugin-oas']: import('@kubb/plugin-Oas').PluginOas
+    ['@kubb/plugin-redoc']: import('@kubb/plugin-redoc').PluginRedoc
     ['@kubb/swagger-client']: import('@kubb/swagger-client').PluginClient
     ['@kubb/swagger-faker']: import('@kubb/swagger-faker').PluginFaker
     ['@kubb/swagger-swr']: import('@kubb/swagger-swr').PluginSwr

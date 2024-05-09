@@ -1,11 +1,11 @@
 import { Parser, File, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
-import { Oas } from '@kubb/swagger/components'
-import { useOas, useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { Oas } from '@kubb/plugin-oas/components'
+import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
-import type { OperationSchema as OperationSchemaType } from '@kubb/swagger'
+import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginFaker } from '../types.ts'
 

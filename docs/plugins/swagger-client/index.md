@@ -454,7 +454,7 @@ const plugin = pluginClient({
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginClient } from '@kubb/swagger-client'
 
@@ -466,7 +466,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger(),
+    pluginOas(),
     pluginTs(),
     pluginClient({
       output: {

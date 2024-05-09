@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 import { pluginFaker } from '@kubb/swagger-faker'
 import { pluginMsw } from '@kubb/swagger-msw'
@@ -21,8 +21,8 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      pluginSwagger(),
-      pluginSwagger({
+      pluginOas(),
+      pluginOas({
         output: {
           path: 'schemas2',
         },

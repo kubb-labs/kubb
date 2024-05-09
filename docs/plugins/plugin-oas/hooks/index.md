@@ -1,13 +1,13 @@
 ---
 layout: doc
 
-title: \@kubb/swagger
+title: \@kubb/plugin-oas
 outline: deep
 ---
 
 # Hooks
 
-Some hooks that can be used with `@kubb/swagger`.<br/>
+Some hooks that can be used with `@kubb/plugin-oas`.<br/>
 See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` instance or the `Oas` schemas.
 
 ## useOas
@@ -17,7 +17,7 @@ See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` in
 ::: code-group
 
 ```tsx twoslash
-import { useOas } from '@kubb/swagger/hooks'
+import { useOas } from '@kubb/plugin-oas/hooks'
 
 function Component() {
   const oas = useOas()
@@ -35,7 +35,7 @@ function Component() {
 ::: code-group
 
 ```tsx twoslash
-import { useOperation } from '@kubb/swagger/hooks'
+import { useOperation } from '@kubb/plugin-oas/hooks'
 
 function Component() {
   const operation = useOperation()
@@ -55,7 +55,7 @@ function Component() {
 ::: code-group
 
 ```tsx twoslash
-import { useOperations } from '@kubb/swagger/hooks'
+import { useOperations } from '@kubb/plugin-oas/hooks'
 
 function Component() {
   const operations = useOperations()
@@ -74,7 +74,7 @@ function Component() {
 ::: code-group
 
 ```tsx twoslash
-import { useOperationManager } from '@kubb/swagger/hooks'
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
 
 function Component() {
   const { getFile, getName, getSchemas, groupSchemasByByName } = useOperationManager()

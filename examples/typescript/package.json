@@ -22,7 +22,7 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/swagger": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "axios": "^1.6.8",
     "tsup": "^8.0.2"

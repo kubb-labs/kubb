@@ -486,7 +486,7 @@ const plugin = pluginTs({
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({
@@ -497,7 +497,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger(),
+    pluginOas(),
     pluginTs({
       output: {
         path: './types',

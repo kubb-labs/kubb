@@ -2,7 +2,7 @@ import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
 import { Parser, File, useApp } from '@kubb/react'
 import { pluginFakerName } from '@kubb/swagger-faker'
-import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'

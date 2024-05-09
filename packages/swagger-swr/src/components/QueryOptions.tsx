@@ -1,8 +1,8 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, useApp } from '@kubb/react'
-import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
-import { getASTParams } from '@kubb/swagger/utils'
+import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getASTParams } from '@kubb/plugin-oas/utils'
 import { pluginZodName } from '@kubb/swagger-zod'
 
 import type { HttpMethod } from '@kubb/oas'

@@ -33,7 +33,7 @@ Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plug
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig(() => {
@@ -46,7 +46,7 @@ export default defineConfig(() => {
       path: './src',
     },
     plugins: [
-      pluginSwagger(
+      pluginOas(
         {
           output: false,
           validate: true,

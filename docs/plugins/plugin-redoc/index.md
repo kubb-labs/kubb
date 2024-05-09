@@ -45,9 +45,9 @@ Default: `'docs.html'`
 ::: code-group
 
 ```typescript twoslash
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({
+const plugin = pluginOas({
   output: {
     path: './docs/index.html',
   },

@@ -369,7 +369,7 @@ const plugin = pluginFaker({
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginFaker} from '@kubb/swagger-faker'
 import { pluginTs } from '@kubb/swagger-ts'
 
@@ -381,7 +381,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger(),
+    pluginOas(),
     pluginTs(),
     pluginFaker({
       output: {

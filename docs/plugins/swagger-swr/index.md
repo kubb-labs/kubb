@@ -411,7 +411,7 @@ const plugin = pluginSwr({
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/swagger-swr'
 import { pluginTs } from '@kubb/swagger-ts'
 
@@ -423,7 +423,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger(),
+    pluginOas(),
     pluginTs(),
     pluginSwr({
       output: {

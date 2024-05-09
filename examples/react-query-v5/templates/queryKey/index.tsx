@@ -1,7 +1,7 @@
 import { type URLObject, URLPath } from '@kubb/core/utils'
 import { Function, Type } from '@kubb/react'
 import { QueryKey } from '@kubb/swagger-tanstack-query/components'
-import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
 
 export const templates = {
