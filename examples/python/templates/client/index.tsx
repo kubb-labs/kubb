@@ -1,6 +1,6 @@
 import { Parser, File } from '@kubb/react'
 import type { Client } from '@kubb/swagger-client/components'
-import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
 
 export const templates = {

@@ -42,25 +42,25 @@ To get TypeScript support for Kubb, add `@kubb/core/globals` to your tsconfig.js
 
 ```typescript [Kubb.OptionsOfPlugin]
 import { Kubb } from '@kubb/core'
-export type SwaggerPluginOptions = Kubb.OptionsOfPlugin<'@kubb/swagger'>
+export type SwaggerPluginOptions = Kubb.OptionsOfPlugin<'@kubb/plugin-oas'>
 // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 ```typescript [Kubb.Plugins name]
 import { Kubb } from '@kubb/core'
-export type SwaggerName = Kubb.Plugins['@kubb/swagger']['name']
+export type SwaggerName = Kubb.Plugins['@kubb/plugin-oas']['name']
 // ^? "swagger"
 ```
 
 ```typescript [Kubb.Plugins options]
 import { Kubb } from '@kubb/core'
-export type SwaggerPluginOptions = Kubb.Plugins['@kubb/swagger']['options']
+export type SwaggerPluginOptions = Kubb.Plugins['@kubb/plugin-oas']['options']
 // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 ```typescript [Kubb.OptionsPlugins]
 import { Kubb } from '@kubb/core'
-export type SwaggerPluginOptions = Kubb.OptionsPlugins['@kubb/swagger']['options']
+export type SwaggerPluginOptions = Kubb.OptionsPlugins['@kubb/plugin-oas']['options']
 // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 

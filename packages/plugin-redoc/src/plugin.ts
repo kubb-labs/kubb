@@ -2,10 +2,10 @@ import path from 'node:path'
 
 import { PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, trimExtName } from '@kubb/core/transformers'
-import { pluginSwaggerName } from '@kubb/swagger'
+import { pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginSwagger } from '@kubb/swagger'
+import type { PluginOas } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
 
@@ -20,7 +20,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       name: trimExtName(output.path),
       baseURL: undefined,
     },
-    pre: [pluginSwaggerName],
+    pre: [pluginOasName],
     resolvePath(baseName) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
@@ -37,7 +37,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<PluginSwagger>] = PluginManager.getDependedPlugins<PluginSwagger>(this.plugins, [pluginSwaggerName])
+      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
       const oas = await swaggerPlugin.api.getOas()
 
       await oas.dereference()

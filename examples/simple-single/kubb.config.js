@@ -1,5 +1,6 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+// import { pluginOas } from '@kubb/plugin-oas'
+import pluginSwagger from '@kubb/swagger'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginZod } from '@kubb/swagger-zod'

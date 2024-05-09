@@ -22,7 +22,7 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/swagger": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-swr": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",

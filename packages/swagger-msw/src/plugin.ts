@@ -3,16 +3,16 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginSwaggerName } from '@kubb/swagger'
+import { pluginOasName } from '@kubb/plugin-oas'
 import { pluginFakerName } from '@kubb/swagger-faker'
 import { pluginTsName } from '@kubb/swagger-ts'
-import { getGroupedByTagFiles } from '@kubb/swagger/utils'
+import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Mock, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginMsw } from './types.ts'
 
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
@@ -30,7 +30,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         ...templates,
       },
     },
-    pre: [pluginSwaggerName, pluginTsName, pluginFakerName],
+    pre: [pluginOasName, pluginTsName, pluginFakerName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -70,7 +70,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginSwaggerName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

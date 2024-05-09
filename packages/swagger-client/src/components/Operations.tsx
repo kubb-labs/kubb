@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 import { Parser, File, useApp } from '@kubb/react'
-import { useOperations } from '@kubb/swagger/hooks'
+import { useOperations } from '@kubb/plugin-oas/hooks'
 
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'

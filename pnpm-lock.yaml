@@ -80,12 +80,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../packages/plugin-oas
       '@kubb/react':
         specifier: workspace:^
         version: link:../packages/react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../packages/swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../packages/swagger-client
@@ -140,9 +140,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../packages/swagger
+        version: link:../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../packages/swagger-client
@@ -231,9 +231,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -316,12 +316,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../../packages/swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -356,9 +356,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -393,9 +393,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -439,9 +439,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -485,12 +485,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../../packages/swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -531,9 +531,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -589,12 +589,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../../packages/swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -653,6 +653,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
       '@kubb/plugin-redoc':
         specifier: workspace:*
         version: link:../../packages/plugin-redoc
@@ -695,9 +698,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -735,9 +738,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -775,9 +778,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -811,9 +814,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
@@ -836,9 +839,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -885,9 +888,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -937,9 +940,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -974,9 +977,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../../packages/swagger
+        version: link:../../packages/plugin-oas
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
@@ -1069,9 +1072,9 @@ importers:
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
-      '@kubb/swagger':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../swagger
+        version: link:../plugin-oas
       '@types/node':
         specifier: ^20.12.11
         version: 20.12.11
@@ -1302,7 +1305,7 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.3(@types/node@20.12.11))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.11)(typescript@5.4.5))(typescript@5.4.5)
 
-  packages/plugin-redoc:
+  packages/plugin-oas:
     dependencies:
       '@kubb/core':
         specifier: workspace:*
@@ -1316,6 +1319,49 @@ importers:
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
+      remeda:
+        specifier: ^1.61.0
+        version: 1.61.0
+    devDependencies:
+      '@kubb/config-biome':
+        specifier: workspace:*
+        version: link:../config-biome
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.1
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.0
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      tsup:
+        specifier: ^8.0.2
+        version: 8.0.2(@microsoft/api-extractor@7.43.3(@types/node@20.12.11))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.11)(typescript@5.4.5))(typescript@5.4.5)
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
+  packages/plugin-redoc:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1331,9 +1377,6 @@ importers:
       redoc:
         specifier: ^2.1.4
         version: 2.1.4(core-js@3.37.0)(mobx@6.12.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      remeda:
-        specifier: ^1.61.0
-        version: 1.61.0
       styled-components:
         specifier: ^6.1.10
         version: 6.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1405,21 +1448,12 @@ importers:
 
   packages/swagger:
     dependencies:
-      '@kubb/core':
+      '@kubb/plugin-oas':
         specifier: workspace:*
-        version: link:../core
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@stoplight/yaml':
-        specifier: ^4.3.0
-        version: 4.3.0
-      remeda:
-        specifier: ^1.61.0
-        version: 1.61.0
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*
@@ -1430,15 +1464,6 @@ importers:
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.1
-        version: 18.3.1
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.43.3(@types/node@20.12.11))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.11)(typescript@5.4.5))(typescript@5.4.5)
@@ -1457,12 +1482,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
@@ -1503,12 +1528,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
@@ -1546,12 +1571,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-faker':
         specifier: workspace:*
         version: link:../swagger-faker
@@ -1592,12 +1617,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../swagger-client
@@ -1641,12 +1666,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../swagger-client
@@ -1690,12 +1715,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
@@ -1733,12 +1758,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
@@ -1779,12 +1804,12 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../swagger
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
@@ -9333,6 +9358,11 @@ snapshots:
       esbuild: 0.19.12
       load-tsconfig: 0.2.5
 
+  bundle-require@4.1.0(esbuild@0.19.12):
+    dependencies:
+      esbuild: 0.19.12
+      load-tsconfig: 0.2.5
+
   bundle-require@4.1.0(esbuild@0.20.2):
     dependencies:
       esbuild: 0.20.2
@@ -12584,7 +12614,7 @@ snapshots:
 
   tsup@8.0.2(@microsoft/api-extractor@7.43.3(@types/node@20.12.11))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.11)(typescript@5.4.5))(typescript@5.4.5):
     dependencies:
-      bundle-require: 4.0.3(esbuild@0.19.12)
+      bundle-require: 4.1.0(esbuild@0.19.12)
       cac: 6.7.14
       chokidar: 3.6.0
       debug: 4.3.4
@@ -12594,7 +12624,7 @@ snapshots:
       joycon: 3.1.1
       postcss-load-config: 4.0.2(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.11)(typescript@5.4.5))
       resolve-from: 5.0.0
-      rollup: 4.16.4
+      rollup: 4.17.2
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tree-kill: 1.2.2

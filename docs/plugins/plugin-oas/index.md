@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger
+title: \@kubb/plugin-oas
 outline: deep
 ---
 
-# @kubb/swagger <a href="https://paka.dev/npm/@kubb/swagger@latest/api">🦙</a>
+# @kubb/plugin-oas <a href="https://paka.dev/npm/@kubb/plugin-oas@latest/api">🦙</a>
 
 With the Swagger plugin, you can create a JSON schema out of a Swagger file.
 Inside this package, you can also use some utils to create your own Swagger plugin.
@@ -27,19 +27,19 @@ The Swagger plugin also contains some classes and functions that can be used in 
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger
+bun add @kubb/plugin-oas
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger
+pnpm add @kubb/plugin-oas
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger
+npm install @kubb/plugin-oas
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger
+yarn add @kubb/plugin-oas
 ```
 
 :::
@@ -54,9 +54,9 @@ Type: `boolean` <br/>
 Default: `true`
 
 ```typescript twoslash
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({
+const plugin = pluginOas({
   validate: true,
 })
 ```
@@ -76,9 +76,9 @@ Default: `'schemas'`
 ::: code-group
 
 ```typescript twoslash [output string]
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({
+const plugin = pluginOas({
   output: {
     path: './json',
   },
@@ -86,9 +86,9 @@ const plugin = pluginSwagger({
 ```
 
 ```typescript twoslash [output false]
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({
+const plugin = pluginOas({
   output: false
 })
 ```
@@ -124,15 +124,15 @@ servers:
 ```
 
 ```typescript twoslash [serverIndex 0]
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({ serverIndex: 0 })
+const plugin = pluginOas({ serverIndex: 0 })
 ```
 
 ```typescript twoslash [serverIndex 1]
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({ serverIndex: 1 })
+const plugin = pluginOas({ serverIndex: 1 })
 ```
 
 :::
@@ -153,9 +153,9 @@ export type contentType = 'application/json' | (string & {})
 Type: `contentType` <br/>
 
 ```typescript twoslash
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({ contentType: 'application/json' })
+const plugin = pluginOas({ contentType: 'application/json' })
 ```
 :::
 
@@ -164,9 +164,9 @@ const plugin = pluginSwagger({ contentType: 'application/json' })
 ::: info
 
 ```typescript twoslash
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({
+const plugin = pluginOas({
   experimentalFilter: {
     methods: ['get'],
   },
@@ -179,9 +179,9 @@ const plugin = pluginSwagger({
 ::: info
 
 ```typescript twoslash
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
-const plugin = pluginSwagger({
+const plugin = pluginOas({
   experimentalSort: {
     properties: ['description', 'default', 'type']
   },
@@ -193,7 +193,7 @@ const plugin = pluginSwagger({
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
   input: {
@@ -203,7 +203,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger({
+    pluginOas({
       validate: true,
       output: {
         path: './json',

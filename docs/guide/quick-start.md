@@ -63,7 +63,7 @@ kubb --config kubb.config.js
 
 ```typescript twoslash [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 
@@ -78,7 +78,7 @@ export default defineConfig(() => {
         path: './src/gen',
       },
       plugins: [
-        pluginSwagger({}),
+        pluginOas({}),
         pluginTs({}),
         pluginTanstackQuery({}),
       ],
@@ -92,7 +92,7 @@ export default defineConfig(() => {
         path: './src/gen2',
       },
       plugins: [
-        pluginSwagger({}),
+        pluginOas({}),
         pluginTs({}),
         pluginTanstackQuery({}),
       ],

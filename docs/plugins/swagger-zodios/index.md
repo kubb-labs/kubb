@@ -122,7 +122,7 @@ const plugin = pluginZodios({
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginZod } from '@kubb/swagger-zod'
 import { pluginZodios } from '@kubb/swagger-zodios'
 
@@ -134,7 +134,7 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginSwagger(),
+    pluginOas(),
     pluginZod(),
     pluginZodios({
       output: {

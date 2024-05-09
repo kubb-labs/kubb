@@ -138,10 +138,10 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
   options: Partial<TOptions>
 }
 
-export type PluginSwagger = PluginFactoryOptions<'swagger', Options, Options, API, never>
+export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, Options, API, never>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger']: PluginSwagger
+    ['@kubb/plugin-oas']: PluginOas
   }
 }

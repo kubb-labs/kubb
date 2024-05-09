@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/swagger-swr'
 import { pluginTs } from '@kubb/swagger-ts'
 
@@ -13,7 +13,7 @@ export default defineConfig({
     clean: true,
   },
   plugins: [
-    pluginSwagger({ output: false }),
+    pluginOas({ output: false }),
     pluginTs({
       output: {
         path: 'models',

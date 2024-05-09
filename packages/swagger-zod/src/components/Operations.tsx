@@ -1,5 +1,5 @@
 import { Parser, File, useApp } from '@kubb/react'
-import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
+import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 
 import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'

@@ -3,14 +3,14 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginSwaggerName } from '@kubb/swagger'
-import { getGroupedByTagFiles } from '@kubb/swagger/utils'
+import { pluginOasName } from '@kubb/plugin-oas'
+import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
@@ -45,7 +45,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         ...templates,
       },
     },
-    pre: [pluginSwaggerName],
+    pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -83,7 +83,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginSwaggerName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

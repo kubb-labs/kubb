@@ -1,13 +1,13 @@
 import { App, createRoot } from '@kubb/react'
-import { OperationGenerator as Generator } from '@kubb/swagger'
-import { Oas } from '@kubb/swagger/components'
+import { OperationGenerator as Generator } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
 
 import { Mutation } from './components/Mutation.tsx'
 import { Query } from './components/Query.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
-import type { OperationMethodResult } from '@kubb/swagger'
+import type { OperationMethodResult } from '@kubb/plugin-oas'
 import type { FileMeta, PluginSwr } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginSwr['resolvedOptions'], PluginSwr, FileMeta> {

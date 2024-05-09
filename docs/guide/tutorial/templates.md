@@ -93,7 +93,7 @@ import React from 'react'
 import { File, Function } from '@kubb/react'
 import { Client } from '@kubb/swagger-client/components'
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 
 function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
@@ -126,7 +126,7 @@ export default defineConfig(() => {
       path: './src',
     },
     plugins: [
-      pluginSwagger(
+      pluginOas(
         {
           output: false,
           validate: true,

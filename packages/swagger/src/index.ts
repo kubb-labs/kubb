@@ -1,34 +1,12 @@
-import { pluginSwagger } from './plugin.ts'
-
-export type {
-  GetOperationGeneratorOptions,
-  OperationMethodResult,
-} from './OperationGenerator.ts'
-export { OperationGenerator } from './OperationGenerator.ts'
-export { pluginSwagger, pluginSwaggerName } from './plugin.ts'
-export type {
-  SchemaGeneratorBuildOptions,
-  SchemaGeneratorOptions,
-} from './SchemaGenerator.ts'
-export type { SchemaMethodResult } from './SchemaGenerator.ts'
-export { SchemaGenerator } from './SchemaGenerator.ts'
-export type {
-  Schema,
-  SchemaKeyword,
-  SchemaKeywordBase,
-  SchemaKeywordMapper,
-  SchemaMapper,
-} from './SchemaMapper.ts'
-export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
-export type * from './types.ts'
+import { pluginOas } from '@kubb/plugin-oas'
 
 /**
- * @deprecated Use `import { pluginSwagger } from '@kubb/swagger'` instead
+ * @deprecated Use `import { pluginOas } from '@kubb/plugin-oas'` instead
  */
-const definePluginDefault = pluginSwagger
+const definePluginDefault = pluginOas
 /**
- * @deprecated Use `import { pluginSwagger } from '@kubb/swagger'` instead
+ * @deprecated Use `import { pluginOas } from '@kubb/plugin-oas'` instead
  */
-export const definePlugin = pluginSwagger
+export const definePlugin = pluginOas
 
 export default definePluginDefault

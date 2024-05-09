@@ -1,4 +1,3 @@
-import { FileManager } from '@kubb/core'
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
@@ -8,8 +7,8 @@ import { Operations } from './components/Operations.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
-import type { GetOperationGeneratorOptions } from '@kubb/swagger'
-import { parseFromConfig } from '@kubb/swagger/utils'
+import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from './types.ts'
 
 describe('OperationGenerator', async () => {

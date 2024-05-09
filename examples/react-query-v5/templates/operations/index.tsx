@@ -2,7 +2,7 @@ import path from 'node:path'
 import { Parser, File, Type, useApp } from '@kubb/react'
 import type { PluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
-import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
+import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
 
 export const templates = {

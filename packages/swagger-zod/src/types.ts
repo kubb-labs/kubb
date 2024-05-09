@@ -1,6 +1,6 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { SchemaObject } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions, Schema, SchemaMapper } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
 import type { Operations } from './components/Operations'
 import type { zodKeywordMapper } from './zodParser'
 

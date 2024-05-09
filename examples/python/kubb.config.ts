@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 
 import * as client from './templates/client/index'
@@ -16,7 +16,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({ output: false, validate: true }),
+      pluginOas({ output: false, validate: true }),
       pluginClient({
         output: {
           path: './',

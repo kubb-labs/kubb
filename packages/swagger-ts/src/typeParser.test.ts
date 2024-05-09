@@ -1,6 +1,6 @@
 import { print } from '@kubb/parser-ts'
 
-import { schemas } from '../../swagger/mocks/schemas.ts'
+import { schemas } from '../../plugin-oas/mocks/schemas.ts'
 import { parseTypeMeta, typeParser } from './typeParser.ts'
 
 describe('parseTypeMeta', () => {

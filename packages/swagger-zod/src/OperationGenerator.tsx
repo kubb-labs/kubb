@@ -1,11 +1,11 @@
 import { App, createRoot } from '@kubb/react'
-import { OperationGenerator as Generator } from '@kubb/swagger'
-import { Oas } from '@kubb/swagger/components'
+import { OperationGenerator as Generator } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
 
 import { OperationSchema } from './components/OperationSchema.tsx'
 
 import type { Operation } from '@kubb/oas'
-import type { OperationMethodResult, OperationsByMethod } from '@kubb/swagger'
+import type { OperationMethodResult, OperationsByMethod } from '@kubb/plugin-oas'
 import { Operations } from './components/Operations.tsx'
 import type { FileMeta, PluginZod } from './types.ts'
 

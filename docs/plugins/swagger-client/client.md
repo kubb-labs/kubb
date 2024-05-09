@@ -20,7 +20,7 @@ By default, `@kubb/swagger-client/client` is getting used as the [`client`](/plu
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
@@ -34,7 +34,7 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({ output: false }),
+      pluginOas({ output: false }),
       pluginClient({
         output: { // [!code ++]
           path: './clients/axios', // [!code ++]
@@ -111,7 +111,7 @@ You can start by using a copy-paste of `@kubb/swagger-client/client`.
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 
 export default defineConfig(() => {
@@ -125,7 +125,7 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({
+      pluginOas({
         output: false,
       }),
       pluginClient({

@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 
@@ -18,7 +18,7 @@ export const config = {
     clean: true,
   },
   plugins: [
-    pluginSwagger({ output: false }),
+    pluginOas({ output: false }),
     pluginTs({
       output: {
         path: 'models',

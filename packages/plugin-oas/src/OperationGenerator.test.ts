@@ -59,7 +59,7 @@ describe('OperationGenerator core', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-oas/mocks/petStore.yaml' },
   })
 
   test('if pathParams return undefined when there are no params in path', async () => {
@@ -86,7 +86,7 @@ describe('OperationGenerator exclude', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-oas/mocks/petStore.yaml' },
   })
   test('if exclude is filtered out for tag', async () => {
     const og = new DummyOperationGenerator(
@@ -222,7 +222,7 @@ describe('OperationGenerator include', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-oas/mocks/petStore.yaml' },
   })
 
   test('if include is only selecting tag', async () => {
@@ -359,7 +359,7 @@ describe('OperationGenerator include and exclude', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-oas/mocks/petStore.yaml' },
   })
 
   test('if include is only selecting path and exclude is removing the GET calls', async () => {

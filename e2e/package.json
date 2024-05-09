@@ -23,7 +23,7 @@
     "@faker-js/faker": "^8.4.1",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/swagger": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-msw": "workspace:*",

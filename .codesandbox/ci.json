@@ -3,6 +3,8 @@
     "packages/cli",
     "packages/core",
     "packages/swagger",
+    "packages/plugin-oas",
+    "packages/plugin-redoc",
     "packages/swagger-client",
     "packages/swagger-faker",
     "packages/swagger-msw",

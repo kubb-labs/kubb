@@ -3,15 +3,15 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginSwaggerName } from '@kubb/swagger'
+import { pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/swagger-ts'
-import { getGroupedByTagFiles } from '@kubb/swagger/utils'
+import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginSwagger as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
 
@@ -49,7 +49,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         ...templates,
       },
     },
-    pre: [pluginSwaggerName, typed ? pluginTsName : undefined].filter(Boolean),
+    pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -90,7 +90,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginSwaggerName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

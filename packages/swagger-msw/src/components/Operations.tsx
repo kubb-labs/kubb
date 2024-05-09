@@ -1,5 +1,5 @@
 import { Parser, File, useApp } from '@kubb/react'
-import { useOperationManager, useOperations } from '@kubb/swagger/hooks'
+import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'

@@ -3,7 +3,7 @@ import transformers from '@kubb/core/transformers'
 import type { ResolveNameParams, ResolvePathParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/core'
 import type { OasTypes, Operation } from '@kubb/oas'
-import type { OperationSchemas, OperationsByMethod } from '@kubb/swagger'
+import type { OperationSchemas, OperationsByMethod } from '@kubb/plugin-oas'
 
 const parameters = {
   getPathParams(name: string, item: NonNullable<OperationSchemas['pathParams']>): string[] {

@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 import { pluginTs } from '@kubb/swagger-ts'
 
@@ -21,7 +21,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     plugins: [
-      pluginSwagger({
+      pluginOas({
         validate: false,
         experimentalFilter: {
           tags: ['store'],

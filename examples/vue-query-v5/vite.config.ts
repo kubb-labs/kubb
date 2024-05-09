@@ -1,4 +1,4 @@
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 import vue from '@vitejs/plugin-vue'
@@ -20,7 +20,7 @@ export default defineConfig({
           clean: true,
         },
         plugins: [
-          pluginSwagger({
+          pluginOas({
             output: false,
           }),
           pluginTs({

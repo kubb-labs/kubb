@@ -1,5 +1,5 @@
 import { Type, useApp } from '@kubb/react'
-import { useOperation, useOperationManager } from '@kubb/swagger/hooks'
+import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types.ts'

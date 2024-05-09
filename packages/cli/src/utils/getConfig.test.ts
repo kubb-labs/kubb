@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import { pluginSwagger } from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 
 import { getConfig } from './getConfig.ts'
 
@@ -141,7 +141,7 @@ describe('getConfig', () => {
         output: {
           path: './dist',
         },
-        plugins: [pluginSwagger({})],
+        plugins: [pluginOas()],
       }
     })
     const kubbUserConfig = await getConfig(
@@ -153,7 +153,7 @@ describe('getConfig', () => {
       {},
     )
     if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginSwagger({}).name)
+      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginOas().name)
     }
   })
 
@@ -166,7 +166,7 @@ describe('getConfig', () => {
         output: {
           path: './dist',
         },
-        plugins: [['@kubb/swagger']] as any,
+        plugins: [['@kubb/plugin-oas']] as any,
       }
     })
     const kubbUserConfig = await getConfig(
@@ -179,7 +179,7 @@ describe('getConfig', () => {
     )
 
     if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginSwagger({}).name)
+      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginOas().name)
     }
   })
 })

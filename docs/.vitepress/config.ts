@@ -209,13 +209,13 @@ const pluginsSidebar = [
         ],
       },
       {
-        text: '@kubb/swagger',
-        link: '/plugins/swagger/',
+        text: '@kubb/plugin-oas',
+        link: '/plugins/plugin-oas/',
         collapsed: true,
         items: [
           {
             text: 'Hooks',
-            link: '/plugins/swagger/hooks/',
+            link: '/plugins/plugin-oas/hooks/',
           },
         ],
       },
@@ -417,8 +417,8 @@ const pluginsMenu = [
         link: '/plugins/core/',
       },
       {
-        text: '@kubb/swagger',
-        link: '/plugins/swagger/',
+        text: '@kubb/plugin-oas',
+        link: '/plugins/plugin-oas/',
       },
       {
         text: '@kubb/swagger-client',
@@ -552,7 +552,8 @@ export default defineConfig({
               '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
               '@kubb/core/fs': ['../packages/core/src/fs/index.ts'],
               '@kubb/swagger': ['../packages/swagger/src/index.ts'],
-              '@kubb/swagger/hooks': ['../packages/swagger/src/hooks/index.ts'],
+              '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
+              '@kubb/plugin-oas/hooks': ['../packages/plugin-oas/src/hooks/index.ts'],
               '@kubb/swagger-client': ['../packages/swagger-client/src/index.ts'],
               '@kubb/swagger-client/client': ['../packages/swagger-client/client.ts'],
               '@kubb/swagger-client/components': ['../packages/swagger-client/src/components/index.ts'],

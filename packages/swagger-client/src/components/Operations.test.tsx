@@ -1,14 +1,14 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
-import { Oas } from '@kubb/swagger/components'
+import { Oas } from '@kubb/plugin-oas/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Operations } from './Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
-import type { GetOperationGeneratorOptions } from '@kubb/swagger'
-import { parseFromConfig } from '@kubb/swagger/utils'
+import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from '../types.ts'
 
 describe('<Operations/>', async () => {

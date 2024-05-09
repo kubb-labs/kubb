@@ -55,16 +55,13 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@stoplight/yaml": "^4.3.0",
+    "@kubb/plugin-oas": "workspace:*",
     "handlebars": "^4.7.8",
     "mobx": "^6.12.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "redoc": "^2.1.4",
-    "remeda": "^1.61.0",
-    "styled-components": "^6.1.10",
-    "remeda": "^1.61.0"
+    "styled-components": "^6.1.10"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -72,7 +69,6 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
-    "react": "^18.3.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"
   },
