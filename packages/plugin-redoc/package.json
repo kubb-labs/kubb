@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "2.18.2",
+  "version": "2.18.3",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -31,8 +31,7 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
-    "*": {
-    }
+    "*": {}
   },
   "files": [
     "src",
