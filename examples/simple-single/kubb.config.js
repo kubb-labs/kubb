@@ -1,6 +1,5 @@
 import { defineConfig } from '@kubb/core'
-// import { pluginOas } from '@kubb/plugin-oas'
-import pluginSwagger from '@kubb/swagger'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginZod } from '@kubb/swagger-zod'
@@ -18,7 +17,7 @@ export default defineConfig([
       clean: true,
     },
     plugins: [
-      pluginSwagger({
+      pluginOas({
         validate: true,
       }),
       pluginRedoc({
@@ -55,7 +54,7 @@ export default defineConfig([
       clean: true,
     },
     plugins: [
-      pluginSwagger({ validate: false, output: false }),
+      pluginOas({ validate: false, output: false }),
       pluginZod({
         output: {
           // exportType: false,

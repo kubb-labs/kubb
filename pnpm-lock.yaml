@@ -143,6 +143,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../packages/plugin-oas
+      '@kubb/swagger':
+        specifier: workspace:*
+        version: link:../packages/swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../packages/swagger-client
@@ -659,9 +662,6 @@ importers:
       '@kubb/plugin-redoc':
         specifier: workspace:*
         version: link:../../packages/plugin-redoc
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../../packages/swagger
       '@kubb/swagger-client':
         specifier: workspace:*
         version: link:../../packages/swagger-client
