@@ -33,20 +33,6 @@ export type Options = {
         path: string
       }
     | false
-  docs?:
-    | {
-        /**
-         * Output for the generated doc, we are using [https://redocly.com/](https://redocly.com/) for the generation
-         * @default 'docs.html'
-         */
-        path: string
-        /**
-         * Export the generated(with filters and sorting) as HTML.
-         * @default false
-         */
-        export?: boolean
-      }
-    | false
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example

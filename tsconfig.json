@@ -21,6 +21,7 @@
       "@kubb/swagger-client": ["packages/swagger-client/src/index.ts"],
       "@kubb/swagger-client/client": ["packages/swagger-client/src/client.ts"],
       "@kubb/swagger-client/components": ["packages/swagger-client/src/components/index.ts"],
+      "@kubb/plugin-redoc": ["packages/plugin-redoc/src/index.ts"],
       "@kubb/react/server": ["packages/react/src/server/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],

@@ -1,19 +1,18 @@
 {
-  "name": "@kubb/swagger",
+  "name": "@kubb/plugin-redoc",
   "version": "2.18.2",
-  "description": "Generator swagger",
+  "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
     "plugins",
     "kubb",
     "codegen",
-    "swagger",
-    "openapi"
+    "redoc"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger"
+    "directory": "packages/plugin-redoc"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -25,21 +24,6 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs",
-      "default": "./dist/utils.cjs"
-    },
-    "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs",
-      "default": "./dist/hooks.cjs"
-    },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs",
-      "default": "./dist/components.cjs"
-    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -48,20 +32,12 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ],
-      "components": [
-        "./dist/components.d.ts"
-      ]
     }
   },
   "files": [
     "src",
     "dist",
+    "static",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -81,6 +57,13 @@
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
+    "handlebars": "^4.7.8",
+    "mobx": "^6.12.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "redoc": "^2.1.4",
+    "remeda": "^1.61.0",
+    "styled-components": "^6.1.10",
     "remeda": "^1.61.0"
   },
   "devDependencies": {

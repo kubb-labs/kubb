@@ -9,7 +9,6 @@ import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
-import { getPageHTML } from './redoc.tsx'
 import type { PluginSwagger } from './types.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
@@ -18,7 +17,6 @@ export const pluginSwaggerName = 'swagger' satisfies PluginSwagger['name']
 export const pluginSwagger = createPlugin<PluginSwagger>((options) => {
   const {
     output = { path: 'schemas', export: false },
-    docs,
     experimentalFilter: filter,
     experimentalSort: sort,
     validate = true,
@@ -87,68 +85,49 @@ export const pluginSwagger = createPlugin<PluginSwagger>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      if (docs) {
-        const oas = await getOas({
-          config: this.config,
-          logger: this.logger,
-          formatOptions: {
-            filterSet: filter,
-            sortSet: sort,
-          },
-        })
-        await oas.dereference()
-
-        const root = path.resolve(this.config.root, this.config.output.path)
-        const pageHTML = await getPageHTML(oas.api)
-
-        if (docs.export) {
-          await this.fileManager.write(JSON.stringify(oas.api), path.resolve(root, './openapi.json'))
-        }
-
-        await this.fileManager.write(pageHTML, path.resolve(root, docs.path || './docs.html'))
+      if (!output) {
+        return
       }
 
-      if (output) {
-        const oas = await getOas({
-          config: this.config,
-          logger: this.logger,
-          formatOptions: {
-            filterSet: filter,
-            sortSet: sort,
-          },
-        })
-        await oas.dereference()
-        const schemas = getSchemas({ oas, contentType })
+      const oas = await getOas({
+        config: this.config,
+        logger: this.logger,
+        formatOptions: {
+          filterSet: filter,
+          sortSet: sort,
+        },
+      })
+      await oas.dereference()
+      const schemas = getSchemas({ oas, contentType })
 
-        const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
-          const resolvedPath = this.resolvePath({
-            baseName: `${name}.json`,
+      const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
+        const resolvedPath = this.resolvePath({
+          baseName: `${name}.json`,
+          pluginKey: this.plugin.key,
+        })
+
+        const resvoledFileName = this.resolveName({
+          name: `${name}.json`,
+          pluginKey: [pluginSwaggerName],
+          type: 'file',
+        }) as `${string}.json`
+
+        if (!resolvedPath) {
+          return
+        }
+
+        await this.addFile({
+          path: resolvedPath,
+          baseName: resvoledFileName,
+          source: JSON.stringify(schema),
+          meta: {
             pluginKey: this.plugin.key,
-          })
-
-          const resvoledFileName = this.resolveName({
-            name: `${name}.json`,
-            pluginKey: [pluginSwaggerName],
-            type: 'file',
-          }) as `${string}.json`
-
-          if (!resolvedPath) {
-            return
-          }
-
-          await this.addFile({
-            path: resolvedPath,
-            baseName: resvoledFileName,
-            source: JSON.stringify(schema),
-            meta: {
-              pluginKey: this.plugin.key,
-            },
-          })
-        }
-
-        const promises = Object.entries(schemas).map(mapSchema)
-        await Promise.all(promises)
+          },
+        })
       }
+
+      const promises = Object.entries(schemas).map(mapSchema)
+      await Promise.all(promises)
     },
   }
 })
