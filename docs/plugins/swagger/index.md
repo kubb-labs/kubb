@@ -94,59 +94,6 @@ const plugin = pluginSwagger({
 ```
 
 :::
-
-### docs
-#### docs.path
-
-Output for the generated doc, we are using [https://redocly.com/](https://redocly.com/) for the generation<br/>
-
-::: info
-Type: `string | false` <br/>
-Default: `'docs.html'`
-
-::: code-group
-
-```typescript twoslash [docs string]
-import { pluginSwagger } from '@kubb/swagger'
-
-const plugin = pluginSwagger({
-  docs: {
-    path: './docs/index.html',
-  },
-})
-```
-
-```typescript twoslash [docs false]
-import { pluginSwagger } from '@kubb/swagger'
-
-const plugin = pluginSwagger({
-  docs: false
-})
-```
-
-:::
-
-
-#### docs.export
-
-Export the generated(with filters and sorting) OpenAPI as HTML.<br/>
-
-::: info
-Type: `boolean` <br/>
-Default: `false`
-
-```typescript twoslash
-import { pluginSwagger } from '@kubb/swagger'
-
-const plugin = pluginSwagger({
-  docs: {
-    path: './docs/index.html',
-    export: true
-  },
-})
-```
-:::
-
 ### serverIndex
 
 Which server to use from the array of `servers.url[serverIndex]`
@@ -260,9 +207,6 @@ export default defineConfig({
       validate: true,
       output: {
         path: './json',
-      },
-      docs: {
-        path: './docs/index.html',
       },
       serverIndex: 0,
       contentType: 'application/json',

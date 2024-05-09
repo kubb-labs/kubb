@@ -3,6 +3,7 @@ import { pluginSwagger } from '@kubb/swagger'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginZod } from '@kubb/swagger-zod'
+import { pluginRedoc } from '@kubb/plugin-redoc'
 
 export default defineConfig([
   {
@@ -18,7 +19,9 @@ export default defineConfig([
     plugins: [
       pluginSwagger({
         validate: true,
-        docs: {
+      }),
+      pluginRedoc({
+        output: {
           path: './docs/index.html',
         },
       }),
