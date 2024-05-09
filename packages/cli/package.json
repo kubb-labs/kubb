@@ -68,7 +68,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@types/node": "^20.12.10",
+    "@types/node": "^20.12.11",
     "source-map-support": "^0.5.21",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"

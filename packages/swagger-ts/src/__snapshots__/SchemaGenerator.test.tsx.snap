@@ -317,19 +317,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
      * @type string | undefined
     */
     tag?: string;
-    /**
-     * @type object | undefined
-    */
-    category?: {
-        /**
-         * @type integer | undefined, int64
-        */
-        id?: number;
-        /**
-         * @type string | undefined
-        */
-        name?: string;
-    };
+    category?: Category;
 };
 ",
 ]
@@ -350,19 +338,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
      * @type string | undefined
     */
     tag?: string | undefined;
-    /**
-     * @type object | undefined
-    */
-    category?: {
-        /**
-         * @type integer | undefined, int64
-        */
-        id?: number | undefined;
-        /**
-         * @type string | undefined
-        */
-        name?: string | undefined;
-    } | undefined;
+    category?: Category | undefined;
 };
 ",
 ]
@@ -383,19 +359,7 @@ exports[`TypeScript SchemaGenerator petStore > generate type for Pet with option
      * @type string | undefined
     */
     tag: string | undefined;
-    /**
-     * @type object | undefined
-    */
-    category: {
-        /**
-         * @type integer | undefined, int64
-        */
-        id: number | undefined;
-        /**
-         * @type string | undefined
-        */
-        name: string | undefined;
-    } | undefined;
+    category: Category | undefined;
 };
 ",
 ]

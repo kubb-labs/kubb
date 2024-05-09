@@ -192,6 +192,7 @@ export const volumeSnapshotSchema = z.object({
   created_at: z.string().optional(),
   digest: z.string().optional(),
   id: z.string().optional(),
+  retention_days: z.number().optional(),
   size: z.number().optional(),
   status: z.string().optional(),
 })

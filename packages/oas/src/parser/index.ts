@@ -1,5 +1,6 @@
 import OASNormalize from 'oas-normalize'
 import swagger2openapi from 'swagger2openapi'
+import { bundle, loadConfig } from '@redocly/openapi-core'
 
 import { Oas } from '../Oas.ts'
 import { filterAndSort, isOpenApiV2Document } from '../utils.ts'
@@ -50,18 +51,19 @@ export type FormatOptions = {
 }
 
 export async function parse(pathOrApi: string | OASDocument, options: FormatOptions = {}): Promise<Oas> {
+  if (typeof pathOrApi === 'string') {
+    // resolve external refs
+    const config = await loadConfig()
+    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
+
+    return parse(bundleResults.bundle.parsed, options)
+  }
+
   const oasNormalize = new OASNormalize(pathOrApi, {
     enablePaths: true,
     colorizeErrors: true,
   })
-  let document: OpenAPI.Document
-
-  try {
-    // resolve external refs
-    document = await oasNormalize.bundle()
-  } catch (e) {
-    document = (await oasNormalize.load()) as OpenAPI.Document
-  }
+  const document = (await oasNormalize.load()) as OpenAPI.Document
 
   if (isOpenApiV2Document(document)) {
     const { openapi } = await swagger2openapi.convertObj(document, {

@@ -141,7 +141,7 @@
     "@kubb/core": "workspace:*",
     "@nuxt/kit": "^3.11.2",
     "@nuxt/schema": "^3.11.2",
-    "@types/node": "^20.12.10",
+    "@types/node": "^20.12.11",
     "rimraf": "^5.0.5",
     "rollup": "^4.17.2",
     "tsup": "^8.0.2",
