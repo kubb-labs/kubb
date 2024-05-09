@@ -1,5 +1,16 @@
 # @kubb/swagger
 
+## 2.18.3
+
+### Patch Changes
+
+- [#993](https://github.com/kubb-labs/kubb/pull/993) [`a4cead3`](https://github.com/kubb-labs/kubb/commit/a4cead3979d39543f92b3d3babaeee7d31857d4d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - new package plugin-oas as replacement for swagger
+
+- Updated dependencies []:
+  - @kubb/core@2.18.3
+  - @kubb/oas@2.18.3
+  - @kubb/react@2.18.3
+
 ## 2.18.2
 
 ### Patch Changes
