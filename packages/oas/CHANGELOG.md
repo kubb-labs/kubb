@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.18.2
+
+### Patch Changes
+
+- [`815faaa`](https://github.com/kubb-labs/kubb/commit/815faaa849c1b62a07865aefab8c86763c1d36ac) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - relative ref imports with correct bundle logic
+
 ## 2.18.1
 
 ## 2.18.0
