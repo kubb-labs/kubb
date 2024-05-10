@@ -3,10 +3,10 @@ import { squashExportNodes } from './squashExportNodes.ts'
 import { squashImportNodes } from './squashImportNodes.ts'
 import { squashSourceNodes } from './squashSourceNodes.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
-import type { Parser } from '../../components/Parser.tsx'
 import type { File } from '../../components/File.tsx'
+import type { Parser } from '../../components/Parser.tsx'
 import type { DOMElement } from '../../types.ts'
 
 export function getFiles(node: DOMElement, language?: string): KubbFile.File[] {

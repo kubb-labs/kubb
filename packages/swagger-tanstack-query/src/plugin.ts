@@ -4,17 +4,17 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginOasName } from '@kubb/plugin-oas'
+import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/swagger-ts'
 import { pluginZodName } from '@kubb/swagger-zod'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Mutation, Operations, Query, QueryKey, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import type { PluginTanstackQuery } from './types.ts'
 import { QueryImports } from './components/QueryImports.tsx'
+import type { PluginTanstackQuery } from './types.ts'
 
 export const pluginTanstackQueryName = 'plugin-tanstack-query' satisfies PluginTanstackQuery['name']
 
@@ -154,12 +154,12 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
       const files = await operationGenerator.build()
       await this.addFile(...files)
     },
-    async writeFile(source, writePath) {
-      if (!writePath.endsWith('.ts') || !source) {
+    async writeFile(path, source) {
+      if (!path.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, writePath, { sanity: false })
+      return this.fileManager.write(path, source, { sanity: false })
     },
     async buildEnd() {
       if (this.config.output.write === false) {

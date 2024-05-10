@@ -2,8 +2,8 @@ import dirTree from 'directory-tree'
 
 import { FileManager } from '../FileManager.ts'
 
+import type * as KubbFile from '@kubb/fs/types'
 import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
-import type { KubbFile } from '../FileManager.ts'
 
 export type TreeNodeOptions = DirectoryTreeOptions
 

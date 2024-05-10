@@ -1,4 +1,4 @@
-import type { KubbFile } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
 
 export type RootType<T = unknown> = {

@@ -3,8 +3,8 @@ import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginFaker } from './types.ts'

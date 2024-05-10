@@ -4,9 +4,9 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginOasName } from '@kubb/plugin-oas'
+import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 import { pluginFakerName } from '@kubb/swagger-faker'
 import { pluginTsName } from '@kubb/swagger-ts'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Mock, Operations } from './components/index.ts'
@@ -62,12 +62,12 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
       return resolvedName
     },
-    async writeFile(source, writePath) {
-      if (!writePath.endsWith('.ts') || !source) {
+    async writeFile(path, source) {
+      if (!path.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, writePath, { sanity: false })
+      return this.fileManager.write(path, source, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])

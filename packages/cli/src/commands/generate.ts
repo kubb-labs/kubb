@@ -1,7 +1,6 @@
 import { LogLevel } from '@kubb/core/logger'
 import { defineCommand, showUsage } from 'citty'
 import type { ArgsDef, ParsedArgs } from 'citty'
-import consola from 'consola'
 import { execa } from 'execa'
 import c from 'tinyrainbow'
 

@@ -29,12 +29,12 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
     resolveName(name, type) {
       return camelCase(name, { isFile: type === 'file' })
     },
-    async writeFile(source, writePath) {
-      if (!writePath.endsWith('.ts') || !source) {
+    async writeFile(path, source) {
+      if (!path.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, writePath, { sanity: false })
+      return this.fileManager.write(path, source, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
@@ -45,7 +45,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const pageHTML = await getPageHTML(oas.api)
 
-      await this.fileManager.write(pageHTML, path.resolve(root, output.path || './docs.html'))
+      await this.fileManager.write(path.resolve(root, output.path || './docs.html'), pageHTML)
     },
   }
 })

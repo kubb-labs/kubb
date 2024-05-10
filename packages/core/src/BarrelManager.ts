@@ -5,8 +5,8 @@ import path from 'node:path'
 import { trimExtName } from './transformers/trim.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 
+import type * as KubbFile from '@kubb/fs/types'
 import type { DirectoryTreeOptions } from 'directory-tree'
-import type { KubbFile } from './FileManager.ts'
 
 export type BarrelManagerOptions = {
   treeNode?: DirectoryTreeOptions

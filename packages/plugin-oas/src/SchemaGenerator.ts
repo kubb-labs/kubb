@@ -1,4 +1,4 @@
-import { Generator } from '@kubb/core'
+import { type FileMetaBase, Generator } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
@@ -8,12 +8,14 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 
-import type { KubbFile, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
+
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 
-export type SchemaMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
+export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
@@ -62,7 +64,7 @@ type SchemaProps = {
 export abstract class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
-  TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
+  TFileMeta extends FileMetaBase = FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
   // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}

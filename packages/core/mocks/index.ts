@@ -1,8 +1,9 @@
 import { pascalCase } from '../src/transformers/casing.ts'
 
+import { readSync } from '@kubb/fs'
+import type * as KubbFile from '@kubb/fs/types'
+import { FileManager } from '../src'
 import type { PluginManager } from '../src/PluginManager.ts'
-import { readSync } from '../src/fs/read.ts'
-import { FileManager, type KubbFile } from '../src'
 
 export const mockedPluginManager = {
   resolveName: ({ name, type }) => {

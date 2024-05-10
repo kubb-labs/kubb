@@ -1,16 +1,17 @@
 import { resolve } from 'node:path'
 
 import { FileManager } from '@kubb/core'
-import { getRelativePath } from '@kubb/core/fs'
 import transformers from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
+import { getRelativePath } from '@kubb/fs'
 
-import type { KubbFile, Plugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
+import type * as KubbFile from '@kubb/fs/types'
 
 type Options = {
   logger: Logger
-  files: KubbFile.File[]
+  files: Array<KubbFile.File<FileMeta>>
   plugin: Plugin
   template: string
   exportAs: string

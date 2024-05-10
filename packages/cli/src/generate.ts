@@ -10,6 +10,7 @@ import type { Args } from './commands/generate.ts'
 import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
+import { writeLog } from './utils/writeLog.ts'
 
 type GenerateProps = {
   input?: string
@@ -26,6 +27,12 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     consola: createConsola({
       level: LogMapper[logLevel] || 3,
     }),
+  })
+
+  logger.on('debug', async (messages: string[]) => {
+    if (logLevel === LogLevel.debug) {
+      await writeLog(messages.join('\n'))
+    }
   })
 
   logger.consola?.wrapConsole()

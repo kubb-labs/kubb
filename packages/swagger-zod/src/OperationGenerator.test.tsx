@@ -1,12 +1,11 @@
-import { FileManager } from '@kubb/core'
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
-import type { KubbFile } from 'packages/core/dist/index'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
 

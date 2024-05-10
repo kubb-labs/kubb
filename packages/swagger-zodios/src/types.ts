@@ -1,4 +1,5 @@
-import type { KubbFile, Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 
 export type Options = {
   output?: {

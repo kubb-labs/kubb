@@ -1,7 +1,7 @@
 import { build } from './build.ts'
 import { createPlugin } from './plugin.ts'
 
-import type { KubbFile } from './FileManager.ts'
+import type * as KubbFile from '@kubb/fs/types'
 import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {
@@ -99,11 +99,11 @@ describe('build', () => {
     expect(pluginMocks.load.mock.lastCall).toEqual(['hello/world.json'])
 
     // expect(pluginMocks.transform).toHaveBeenCalledWith('id', 'hello/world.json')
-    expect(pluginMocks.transform.mock.lastCall).toEqual(['id', 'hello/world.json'])
+    expect(pluginMocks.transform.mock.lastCall).toEqual([ 'hello/world.json','id',])
 
     expect(pluginMocks.writeFile).toHaveBeenCalledTimes(1)
     // expect(pluginMocks.writeFile).toHaveBeenCalledWith('id plugin', 'hello/world.json')
-    expect(pluginMocks.writeFile.mock.lastCall).toEqual(['id plugin', 'hello/world.json'])
+    expect(pluginMocks.writeFile.mock.lastCall).toEqual(['hello/world.json', 'hello/world.json plugin', ])
 
     expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
   })

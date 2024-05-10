@@ -1,4 +1,4 @@
-import { readSync } from '@kubb/core/fs'
+import { readSync } from '@kubb/fs'
 
 import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'

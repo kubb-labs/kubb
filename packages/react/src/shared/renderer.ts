@@ -3,7 +3,7 @@ import { squashExportNodes } from './utils/squashExportNodes.ts'
 import { squashImportNodes } from './utils/squashImportNodes.ts'
 import { squashTextNodes } from './utils/squashTextNodes.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { DOMElement } from '../types.ts'
 
 type Result = {

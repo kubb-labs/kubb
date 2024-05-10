@@ -71,6 +71,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/fs": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/types": "workspace:*"
   },

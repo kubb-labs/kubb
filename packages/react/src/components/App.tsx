@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 
-import type { KubbFile, Plugin, PluginManager } from '@kubb/core'
+import type { Plugin, PluginManager } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { KubbNode } from '../types.ts'
 
 export type AppContextProps = {

@@ -1,5 +1,6 @@
+import type * as KubbFile from '@kubb/fs/types'
 import type { PossiblePromise } from '@kubb/types'
-import type { FileManager, KubbFile } from './FileManager.ts'
+import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { OptionsPlugins, PluginUnion } from './kubb.ts'
 import type { Logger } from './logger.ts'
@@ -242,7 +243,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
    * @type hookParallel
    */
-  writeFile?: (this: Omit<PluginContext<TOptions>, 'addFile'>, source: string | undefined, path: KubbFile.Path) => PossiblePromise<string | void>
+  writeFile?: (this: Omit<PluginContext<TOptions>, 'addFile'>, path: KubbFile.Path, source: string | undefined) => PossiblePromise<string | void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel

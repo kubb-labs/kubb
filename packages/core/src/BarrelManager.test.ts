@@ -1,6 +1,5 @@
 import path from 'node:path'
 
-import { isBun } from 'js-runtime'
 
 import { format } from '../mocks/format.ts'
 import { BarrelManager } from './BarrelManager.ts'
@@ -34,13 +33,7 @@ describe('BarrelManager', () => {
 
     const code = await FileManager.getSource(rootIndex)
 
-    if (isBun()) {
-      // TODO check why bun is reodering the export sort
-
-      expect(await format(code)).toMatchSnapshot()
-    } else {
-      expect(await format(code)).toMatchSnapshot()
-    }
+   expect(await format(code)).toMatchSnapshot()
 
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })

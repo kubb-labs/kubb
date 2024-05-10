@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "natural-orderby": "^3.0.2"
   },

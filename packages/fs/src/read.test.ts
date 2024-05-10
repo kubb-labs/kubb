@@ -17,7 +17,7 @@ describe('read', () => {
   test('read filePath', async () => {
     const text = `export const hallo = 'world'`
 
-    await write(text, filePath)
+    await write(filePath, text)
 
     const file = await read(filePath)
 
@@ -27,7 +27,7 @@ describe('read', () => {
 
   test('getRelativePath returns correct path for Linux and macOS', async () => {
     const testFile = path.resolve(folderPath, 'test.js')
-    await write('test', testFile)
+    await write(testFile, 'test')
 
     expect(getRelativePath(mocksPath, testFile)).toBe('./folder/test')
 
@@ -43,7 +43,7 @@ describe('read', () => {
   })
   test('getRelativePath returns correct path for Windows', async () => {
     const testFile = path.resolve(folderPath, 'test.js')
-    await write('test', testFile)
+    await write(testFile, 'test')
 
     expect(getRelativePath(mocksPath, testFile, 'windows')).toBe('./folder/test')
     expect(getRelativePath(folderPath, mocksPath, 'windows')).toBe('./..')
