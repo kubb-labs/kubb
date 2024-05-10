@@ -72,7 +72,6 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
       [`     ${c.bold('Time:')}      ${meta.time}`, true],
       [`    ${c.bold('Ended:')}      ${meta.endTime}`, true],
       [`   ${c.bold('Output:')}      ${meta.output}`, true],
-      ['\n', true],
     ]
       .map((item) => {
         if (item.at(1)) {

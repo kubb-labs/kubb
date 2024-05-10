@@ -41,7 +41,7 @@ export const defineConfig = (
     | MaybePromise<KubbUserConfig>
     | ((
       /** The options derived from the CLI flags */
-      cliOptions: CLIOptions,
+      args: Args,
     ) => MaybePromise<KubbUserConfig>),
 ) => options
 ```
