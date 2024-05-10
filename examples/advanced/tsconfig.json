@@ -14,15 +14,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "noEmit": true,
     "allowImportingTsExtensions": true,
-    "types": [
-      "vitest/globals",
-      "bun-types",
-      "../../packages/core/globals.d.ts",
-      "../../packages/swagger-client/globals.d.ts",
-      "../../packages/config-ts/reset.d.ts"
-    ]
+    "noEmit": true,
+    "types": ["vitest/globals", "bun-types", "../../packages/core/globals.d.ts", "../../packages/config-ts/reset.d.ts"]
   },
   "include": ["./src/**/*", "configs/kubb.config.ts"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
