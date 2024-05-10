@@ -1,13 +1,12 @@
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
-import { Parser, File, useApp } from '@kubb/react'
-import { Oas, Schema } from '@kubb/plugin-oas/components'
+import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { File, Parser, useApp } from '@kubb/react'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
-import type { KubbFile } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
 import type { ts } from '@kubb/parser-ts'
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'

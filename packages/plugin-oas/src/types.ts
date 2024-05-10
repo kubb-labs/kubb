@@ -1,5 +1,7 @@
 import type { Plugin } from '@kubb/core'
-import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
+
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
 import type { GetSchemasProps } from './utils/getSchemas.ts'

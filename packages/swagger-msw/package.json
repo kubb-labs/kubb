@@ -70,6 +70,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
+    "@kubb/fs": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*"
   },

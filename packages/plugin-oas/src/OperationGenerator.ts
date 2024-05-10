@@ -1,14 +1,16 @@
-import { Generator } from '@kubb/core'
+import { type FileMetaBase, Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
-import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
+
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod, Oas, OasTypes, Operation, contentType } from '@kubb/oas'
 import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
-export type OperationMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
+export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
@@ -27,7 +29,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 export abstract class OperationGenerator<
   TOptions = unknown,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
-  TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
+  TFileMeta extends FileMetaBase = FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
   #operationsByMethod: OperationsByMethod = {}
   get operationsByMethod(): OperationsByMethod {

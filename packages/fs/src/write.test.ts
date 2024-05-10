@@ -10,7 +10,7 @@ describe('write', () => {
   test('if write is creating a file in the mocks folder', async () => {
     const text = `export const hallo = 'world'`
 
-    await write(text, filePath)
+    await write(filePath, text)
 
     const file = await read(filePath)
 
@@ -21,7 +21,7 @@ describe('write', () => {
   test('do not write if file content is the same', async () => {
     const text = `export const hallo = 'world'`
 
-    await write(text, filePath)
-    await write(text, filePath)
+    await write(filePath, text)
+    await write(filePath, text)
   })
 })

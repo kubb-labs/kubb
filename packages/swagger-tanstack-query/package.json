@@ -68,6 +68,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
+    "@kubb/fs": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger-client": "workspace:*",

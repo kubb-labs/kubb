@@ -6,7 +6,8 @@
     "paths": {
       "@kubb/core/utils": ["packages/core/src/utils/index.ts"],
       "@kubb/core/transformers": ["packages/core/src/transformers/index.ts"],
-      "@kubb/core/fs": ["packages/core/src/fs/index.ts"],
+      "@kubb/fs": ["packages/fs/src/index.ts"],
+      "@kubb/fs/types": ["packages/fs/src/types.ts"],
       "@kubb/core/mocks": ["packages/core/mocks/index.ts"],
       "@kubb/core/transformer": ["packages/core/transformer/index.ts"],
       "@kubb/core": ["packages/core/src/index.ts"],

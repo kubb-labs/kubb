@@ -1,15 +1,13 @@
 import c from 'tinyrainbow'
 
-import { FileManager } from './FileManager.ts'
+import { clean, read } from '@kubb/fs'
+import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isPromise } from './PromiseManager.ts'
 import { isInputPath } from './config.ts'
-import { clean } from './fs/clean.ts'
-import { read } from './fs/read.ts'
 import { LogLevel, createLogger, randomCliColour } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
-import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
 import type { Plugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
 
@@ -62,7 +60,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     await clean(config.output.path)
   }
 
-  const task = async (file: KubbFile.ResolvedFile): Promise<KubbFile.ResolvedFile> => {
+  const task = async (file: ResolvedFile): Promise<ResolvedFile> => {
     const { path } = file
 
     let source: string | null = await FileManager.getSource(file)
@@ -81,23 +79,23 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     if (source) {
       source = await pluginManager.hookReduceArg0({
         hookName: 'transform',
-        parameters: [source, path],
+        parameters: [path, source],
         reduce: transformReducer,
       })
-
+      
       if (config.output.write || config.output.write === undefined) {
         if (file.meta?.pluginKey) {
           // run only for pluginKey defined in the meta of the file
           await pluginManager.hookForPlugin({
             pluginKey: file.meta?.pluginKey,
             hookName: 'writeFile',
-            parameters: [source, path],
+            parameters: [path, source],
           })
         }
 
         await pluginManager.hookFirst({
           hookName: 'writeFile',
-          parameters: [source, path],
+          parameters: [path, source],
         })
       }
     }

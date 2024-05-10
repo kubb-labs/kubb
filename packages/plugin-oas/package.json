@@ -78,6 +78,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",

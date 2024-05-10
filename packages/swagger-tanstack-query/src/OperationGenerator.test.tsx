@@ -1,13 +1,13 @@
 import { FileManager } from '@kubb/core'
-import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import {  mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Query } from './components/Query.tsx'
 import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
 
-import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'

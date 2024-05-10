@@ -32,12 +32,12 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
     resolveName(name, type) {
       return camelCase(name, { isFile: type === 'file' })
     },
-    async writeFile(source, writePath) {
-      if (!writePath.endsWith('.ts') || !source) {
+    async writeFile(path, source) {
+      if (!path.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, writePath, { sanity: false })
+      return this.fileManager.write(path, source, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin, swaggerZodPlugin]: [Plugin<PluginOas>, Plugin<PluginZod>] = PluginManager.getDependedPlugins<PluginOas, PluginZod>(this.plugins, [

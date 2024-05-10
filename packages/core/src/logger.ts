@@ -1,7 +1,6 @@
 import seedrandom from 'seedrandom'
 import c, { createColors } from 'tinyrainbow'
 
-import { writeLog } from './fs/write.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 import type { ConsolaInstance } from 'consola'
@@ -76,12 +75,6 @@ export function createLogger({ logLevel, name, spinner, consola }: Props): Logge
     error.cause = cause
 
     throw error
-  })
-
-  events.on('debug', async (messages) => {
-    if (logLevel === LogLevel.debug) {
-      await writeLog(messages.join('\n'))
-    }
   })
 
   const logger: Logger = {

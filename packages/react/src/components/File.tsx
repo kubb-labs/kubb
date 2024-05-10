@@ -1,9 +1,10 @@
 import { createContext } from 'react'
 
-import type { KubbFile } from '@kubb/core'
+import type { FileMetaBase } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { KubbNode } from '../types.ts'
 
-export type FileContextProps<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = {
+export type FileContextProps<TMeta extends FileMetaBase = FileMetaBase> = {
   /**
    * Name to be used to dynamicly create the baseName(based on input.path).
    * Based on UNIX basename
@@ -41,7 +42,7 @@ type BasePropsWithoutBaseName = {
 
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
-type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BaseProps & {
+type Props<TMeta extends FileMetaBase = FileMetaBase> = BaseProps & {
   /**
    * Unique identifier to reuse later.
    * @default crypto.randomUUID()
@@ -66,7 +67,7 @@ type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BasePr
   children?: KubbNode
 }
 
-export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>({ children, exportable = true, ...rest }: Props<TMeta>): KubbNode {
+export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, exportable = true, ...rest }: Props<TMeta>): KubbNode {
   if (!rest.baseName || !rest.path) {
     return children
   }

@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 
 import type { ResolveNameParams, ResolvePathParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { OasTypes, Operation } from '@kubb/oas'
 import type { OperationSchemas, OperationsByMethod } from '@kubb/plugin-oas'
 

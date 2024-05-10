@@ -1,4 +1,5 @@
-import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {

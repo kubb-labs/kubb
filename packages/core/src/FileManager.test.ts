@@ -3,7 +3,7 @@ import path from 'node:path'
 import { format } from '../mocks/format.ts'
 import { FileManager, combineExports, combineImports } from './FileManager.ts'
 
-import type { KubbFile } from './FileManager.ts'
+import type * as KubbFile from '@kubb/fs/types'
 
 describe('FileManager', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')

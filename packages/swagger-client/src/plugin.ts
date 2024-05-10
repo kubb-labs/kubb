@@ -75,12 +75,12 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       return resolvedName
     },
-    async writeFile(source, writePath) {
+    async writeFile(path, source) {
       if (!source) {
         return
       }
 
-      return this.fileManager.write(source, writePath, { sanity: false })
+      return this.fileManager.write(path, source, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])

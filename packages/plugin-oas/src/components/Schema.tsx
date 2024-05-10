@@ -1,9 +1,9 @@
-import { Parser, File, createContext, useApp, useFile } from '@kubb/react'
+import { File, Parser, createContext, useApp, useFile } from '@kubb/react'
 
 import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'

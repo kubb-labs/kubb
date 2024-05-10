@@ -1,18 +1,18 @@
 import PQueue from 'p-queue'
 
-import { FileManager } from './FileManager.ts'
+import { readSync } from '@kubb/fs'
+import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 import { ValidationPluginError } from './errors.ts'
-import { readSync } from './fs/read.ts'
 import { LogLevel } from './logger.ts'
 import { pluginCore } from './plugin.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
+import type * as KubbFile from '@kubb/fs/types'
 import type { PossiblePromise } from '@kubb/types'
-import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
 import type { PluginCore } from './plugin.ts'
 import type {
@@ -63,7 +63,7 @@ type Options = {
   /**
    * Task for the FileManager
    */
-  task: (file: KubbFile.ResolvedFile) => Promise<KubbFile.ResolvedFile>
+  task: (file: ResolvedFile) => Promise<ResolvedFile>
 }
 
 type Events = {
@@ -634,7 +634,7 @@ export class PluginManager {
 
     // default transform
     if (!plugin.transform) {
-      plugin.transform = function transform(code) {
+      plugin.transform = function transform(_path, code) {
         return code
       }
     }

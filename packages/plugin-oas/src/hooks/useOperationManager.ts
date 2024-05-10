@@ -2,11 +2,12 @@ import { useApp, useContext } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
-import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationSchemas } from '../types.ts'
 
-type FileMeta = KubbFile.FileMetaBase & {
+type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
   name: string
   tag?: string
