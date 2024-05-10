@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "2.18.3",
+  "version": "2.18.4",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",

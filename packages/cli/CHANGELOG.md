@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 2.18.4
+
+### Patch Changes
+
+- [#995](https://github.com/kubb-labs/kubb/pull/995) [`7747032`](https://github.com/kubb-labs/kubb/commit/7747032a8a0e072abb856b505c9a1fcdafd6057d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor CLI + use of consola
+
+- Updated dependencies []:
+  - @kubb/core@2.18.4
+
 ## 2.18.3
 
 ### Patch Changes
