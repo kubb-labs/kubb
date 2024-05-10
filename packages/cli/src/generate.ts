@@ -1,6 +1,5 @@
 import { LogLevel, LogMapper, createLogger, randomCliColour } from '@kubb/core/logger'
 
-import { get } from 'js-runtime'
 import c from 'tinyrainbow'
 
 import { spinner } from './utils/spinner.ts'
@@ -29,6 +28,8 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     }),
   })
 
+  logger.consola?.wrapConsole()
+
   if (logger.name) {
     spinner.prefixText = randomCliColour(logger.name)
   }
@@ -52,7 +53,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   const { root: _root, ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  spinner.start(`🚀 Building with ${get()} ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  spinner.start(`🚀 Building ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   const definedConfig: Config = {
     root: process.cwd(),
@@ -107,7 +108,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   await executeHooks({ hooks: config.hooks, logLevel })
 
   spinner.suffixText = ''
-  spinner.succeed(`🚀 Build completed with ${get()} ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   console.log(summary.join(''))
 }

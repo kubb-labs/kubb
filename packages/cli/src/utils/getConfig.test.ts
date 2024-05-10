@@ -24,7 +24,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {},
+      {} as any,
     )
 
     expect(kubbUserConfig).toEqual({
@@ -69,7 +69,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {},
+      {} as any,
     )
 
     expect(Array.isArray(loadedConfig)).toBeTruthy()
@@ -118,7 +118,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {},
+      {} as any,
     )
 
     expect(kubbUserConfig).toEqual({
@@ -150,7 +150,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {},
+      {} as any,
     )
     if (!Array.isArray(kubbUserConfig)) {
       expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginOas().name)
@@ -175,7 +175,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {},
+      {} as any,
     )
 
     if (!Array.isArray(kubbUserConfig)) {

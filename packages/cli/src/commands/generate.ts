@@ -61,6 +61,9 @@ const command = defineCommand({
     description: "[input] Generate files based on a 'kubb.config.ts' file",
   },
   args,
+  setup() {
+    spinner.start('🔍 Loading config')
+  },
   async run({ args }) {
     const input = args._[0]
 
@@ -80,7 +83,6 @@ const command = defineCommand({
       return
     }
 
-    spinner.start('🔍 Loading config')
     const result = await getCosmiConfig('kubb', args.config)
     spinner.succeed(`🔍 Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
 

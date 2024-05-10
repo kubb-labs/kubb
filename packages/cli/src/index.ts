@@ -1,5 +1,8 @@
 import { defineCommand, runCommand, runMain } from 'citty'
+import getLatestVersion from 'latest-version'
+import { lt } from 'semver'
 
+import consola from 'consola'
 import { version } from '../package.json'
 
 const name = 'kubb'
@@ -10,13 +13,28 @@ const main = defineCommand({
     version,
     description: 'Kubb generation',
   },
-  async setup({ rawArgs }){
-    if(rawArgs[0]!=="generate"){
-      // generate is not being used
-      const generateCommand =await import('./commands/generate.ts').then((r) => r.default)
+  async setup({ rawArgs }) {
+    const latestVersion = await getLatestVersion('@kubb/cli')
 
-      await runCommand(generateCommand,{rawArgs})
-      
+    if (lt(version, latestVersion)) {
+      consola.box({
+        title: 'Update available for `Kubb` ',
+        message: `\`v${version}\` → \`v${latestVersion}\`
+Run \`npm install -g @kubb/cli\` to update`,
+        style: {
+          padding: 2,
+          borderColor: 'yellow',
+          borderStyle: 'rounded',
+        },
+      })
+    }
+
+    if (rawArgs[0] !== 'generate') {
+      // generate is not being used
+      const generateCommand = await import('./commands/generate.ts').then((r) => r.default)
+
+      await runCommand(generateCommand, { rawArgs })
+
       process.exit(0)
     }
   },

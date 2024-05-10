@@ -20,13 +20,16 @@ export default defineConfig(() => {
       path: './src/gen',
       clean: true,
     },
+    hooks: {
+      done: ['npm run typecheck'],
+    },
     plugins: [
-      pluginOas(),
+      pluginOas({ validate: false }),
       pluginOas({
         output: {
           path: 'schemas2',
         },
-        validate: true,
+        validate: false,
       }),
       pluginTs({
         output: {
