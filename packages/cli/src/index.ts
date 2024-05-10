@@ -14,20 +14,24 @@ const main = defineCommand({
     description: 'Kubb generation',
   },
   async setup({ rawArgs }) {
-    const latestVersion = await getLatestVersion('@kubb/cli')
+   try{
+     const latestVersion = await getLatestVersion('@kubb/cli')
 
-    if (lt(version, latestVersion)) {
-      consola.box({
-        title: 'Update available for `Kubb` ',
-        message: `\`v${version}\` → \`v${latestVersion}\`
+     if (lt(version, latestVersion)) {
+       consola.box({
+         title: 'Update available for `Kubb` ',
+         message: `\`v${version}\` → \`v${latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
-        style: {
-          padding: 2,
-          borderColor: 'yellow',
-          borderStyle: 'rounded',
-        },
-      })
-    }
+         style: {
+           padding: 2,
+           borderColor: 'yellow',
+           borderStyle: 'rounded',
+         },
+       })
+     }
+   }catch(_e){
+
+   }
 
     if (rawArgs[0] !== 'generate') {
       // generate is not being used
