@@ -2,7 +2,7 @@ import type { PossiblePromise } from '@kubb/types'
 import type { FileManager, KubbFile } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { OptionsPlugins, PluginUnion } from './kubb.ts'
-import type { LogLevel, Logger } from './logger.ts'
+import type { Logger } from './logger.ts'
 import type { Cache } from './utils/cache.ts'
 
 // config
@@ -94,33 +94,6 @@ export type Config<TInput = Input> = {
      */
     done?: string | Array<string>
   }
-}
-
-export type CLIOptions = {
-  /**
-   * Path to `kubb.config.js`
-   */
-  config?: string
-  /**
-   * Watch changes on input
-   */
-  watch?: string
-
-  /**
-   * Log level to report when using the CLI
-   *
-   * `silent` will hide all information that is not relevant
-   *
-   * `info` will show all information possible(not related to the PluginManager)
-   *
-   * `debug` will show all information possible(related to the PluginManager), handy for seeing logs
-   * @default `silent`
-   */
-  logLevel?: LogLevel
-  /**
-   * Run Kubb with Bun
-   */
-  bun?: boolean
 }
 
 // plugin

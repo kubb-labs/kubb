@@ -51,12 +51,10 @@ Usage:
 Commands:
   [input]           Path of the input file(overrides the one in `kubb.config.js`)
   generate [input]  Path of the input file(overrides the one in `kubb.config.js`)
-  init              Init Kubb
 
 For more info, run any command with the `--help` flag:
   $ kubb --help
   $ kubb generate --help
-  $ kubb init --help
 
 Options:
   -h, --help     Display this message
@@ -119,6 +117,16 @@ kubb --log-level info
 
 :::
 
+#### --debug
+
+::: info
+Alias for `kubb generate log-level debug`
+```sh
+kubb --debug
+```
+
+:::
+
 #### --watch (-w)
 
 Watch mode based on the input file.
@@ -161,19 +169,4 @@ Run with Bun
 kubb --bun
 ```
 :::
-
-## Init
-
-Create a starting `package.json` with dependencies needed to get started with generating files.
-
-```mdx
-kubb/1.2.1
-
-Usage:
-  $ kubb init
-
-Options:
-  -h, --help  Display this message
-```
-
 See [getting-started](/guide/introduction) on how to configure Kubb.

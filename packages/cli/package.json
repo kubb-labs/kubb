@@ -53,14 +53,14 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "bundle-require": "^4.1.0",
-    "cac": "^6.7.14",
     "chokidar": "^3.6.0",
+    "citty": "^0.1.6",
+    "consola": "^3.2.3",
     "cosmiconfig": "^9.0.0",
     "esbuild": "^0.20.2",
     "execa": "^8.0.1",
     "js-runtime": "^0.0.8",
     "ora": "^8.0.1",
-    "pretty-error": "^4.0.0",
     "string-argv": "^0.3.2",
     "tinyrainbow": "^1.1.1"
   },

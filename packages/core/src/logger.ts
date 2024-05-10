@@ -4,6 +4,7 @@ import c, { createColors } from 'tinyrainbow'
 import { writeLog } from './fs/write.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
+import type { ConsolaInstance } from 'consola'
 import type { Ora } from 'ora'
 import type { Formatter } from 'tinyrainbow'
 
@@ -12,6 +13,12 @@ export const LogLevel = {
   silent: 'silent',
   info: 'info',
   debug: 'debug',
+} as const
+
+export const LogMapper = {
+  silent: Number.NEGATIVE_INFINITY,
+  info: 3,
+  debug: 4,
 } as const
 
 export type LogLevel = keyof typeof LogLevel
@@ -29,8 +36,8 @@ export type Logger = {
    */
   name?: string
   logLevel: LogLevel
-
   spinner?: Ora
+  consola?: ConsolaInstance
   on: EventEmitter<Events>['on']
   emit: EventEmitter<Events>['emit']
 }
@@ -39,9 +46,10 @@ type Props = {
   name?: string
   logLevel: LogLevel
   spinner?: Ora
+  consola?: ConsolaInstance
 }
 
-export function createLogger({ logLevel, name, spinner }: Props): Logger {
+export function createLogger({ logLevel, name, spinner, consola }: Props): Logger {
   const events = new EventEmitter<Events>()
 
   events.on('start', (message) => {
@@ -80,6 +88,7 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
     name,
     logLevel,
     spinner,
+    consola,
     on: (...args) => {
       return events.on(...args)
     },

@@ -51,12 +51,10 @@ Usage:
 Commands:
   [input]           Path of the input file(overrides the one in `kubb.config.js`)
   generate [input]  Path of the input file(overrides the one in `kubb.config.js`)
-  init              Init Kubb
 
 For more info, run any command with the `--help` flag:
   $ kubb --help
   $ kubb generate --help
-  $ kubb init --help
 
 Options:
   -h, --help     Display this message
@@ -115,6 +113,16 @@ Type of the logging(overrides the one in `kubb.config.js`).
 
 ```sh
 kubb --log-level info
+```
+
+:::
+
+#### --debug
+
+::: info
+Alias for `kubb generate log-level debug`
+```sh
+kubb --debug
 ```
 
 :::

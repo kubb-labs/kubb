@@ -60,7 +60,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "redoc": "^2.1.4",
-    "styled-components": "^6.1.10"
+    "styled-components": "^6.1.11"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

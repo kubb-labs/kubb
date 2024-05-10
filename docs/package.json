@@ -27,8 +27,8 @@
   "devDependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/react": "workspace:^",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/react": "workspace:^",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-msw": "workspace:*",
