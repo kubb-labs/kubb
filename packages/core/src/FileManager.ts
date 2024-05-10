@@ -37,7 +37,7 @@ export type FileMetaBase = {
   pluginKey?: Plugin['key']
 }
 
-type FileWithMeta<TMeta extends FileMetaBase=FileMetaBase> = KubbFile.File<TMeta>
+type FileWithMeta<TMeta extends FileMetaBase = FileMetaBase> = KubbFile.File<TMeta>
 
 type CacheItem = ResolvedFile & {
   cancel?: () => void

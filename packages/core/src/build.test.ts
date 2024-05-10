@@ -99,11 +99,11 @@ describe('build', () => {
     expect(pluginMocks.load.mock.lastCall).toEqual(['hello/world.json'])
 
     // expect(pluginMocks.transform).toHaveBeenCalledWith('id', 'hello/world.json')
-    expect(pluginMocks.transform.mock.lastCall).toEqual([ 'hello/world.json','id',])
+    expect(pluginMocks.transform.mock.lastCall).toEqual(['hello/world.json', 'id'])
 
     expect(pluginMocks.writeFile).toHaveBeenCalledTimes(1)
     // expect(pluginMocks.writeFile).toHaveBeenCalledWith('id plugin', 'hello/world.json')
-    expect(pluginMocks.writeFile.mock.lastCall).toEqual(['hello/world.json', 'hello/world.json plugin', ])
+    expect(pluginMocks.writeFile.mock.lastCall).toEqual(['hello/world.json', 'hello/world.json plugin'])
 
     expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
   })

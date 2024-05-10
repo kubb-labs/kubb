@@ -1,6 +1,5 @@
 import path from 'node:path'
 
-
 import { format } from '../mocks/format.ts'
 import { BarrelManager } from './BarrelManager.ts'
 import { FileManager } from './FileManager.ts'
@@ -33,7 +32,7 @@ describe('BarrelManager', () => {
 
     const code = await FileManager.getSource(rootIndex)
 
-   expect(await format(code)).toMatchSnapshot()
+    expect(await format(code)).toMatchSnapshot()
 
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })

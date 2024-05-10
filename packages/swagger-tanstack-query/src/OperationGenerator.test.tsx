@@ -1,5 +1,5 @@
 import { FileManager } from '@kubb/core'
-import {  mockedPluginManager } from '@kubb/core/mocks'
+import { mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { Query } from './components/Query.tsx'

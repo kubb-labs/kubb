@@ -82,7 +82,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
         parameters: [path, source],
         reduce: transformReducer,
       })
-      
+
       if (config.output.write || config.output.write === undefined) {
         if (file.meta?.pluginKey) {
           // run only for pluginKey defined in the meta of the file
