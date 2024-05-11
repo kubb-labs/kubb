@@ -12,3 +12,16 @@ exports[`<Type/> > render Function with comments 1`] = `
 export type Data = number | string
 "
 `;
+
+exports[`<Type/> > render Type 1`] = `
+"type Data = string
+"
+`;
+
+exports[`<Type/> > render Type with comments 1`] = `
+"/**
+ * @deprecated
+ */
+export type Data = number | string
+"
+`;

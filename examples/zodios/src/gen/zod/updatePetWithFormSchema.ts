@@ -8,7 +8,6 @@ export const updatePetWithFormQueryParamsSchema = z
     status: z.string().describe('Status of pet that needs to be updated').optional(),
   })
   .optional()
-
 /**
  * @description Invalid input
  */

@@ -1,7 +1,7 @@
-import { App, File, createRoot, useApp, useFile } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useSchema } from '@kubb/plugin-oas/hooks'
+import { App, File, createRoot, useApp, useFile } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
 
 import { zodParser } from './zodParser.tsx'
@@ -44,19 +44,23 @@ function SchemaImports() {
 }
 
 export class SchemaGenerator extends Generator<PluginZod['resolvedOptions'], PluginZod> {
-  async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
+  async schema(name: string, schema: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
     const root = createRoot({
       logger: pluginManager.logger,
     })
 
+    const tree = this.parse({ schema, name })
+    const source = this.getSource(name, tree)
+
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas}>
-          <Oas.Schema generator={this} name={name} object={object}>
+          <Oas.Schema name={name} value={schema} tree={tree}>
             <Oas.Schema.File output={output}>
               <SchemaImports />
+              {source.join('\n')}
             </Oas.Schema.File>
           </Oas.Schema>
         </Oas>
@@ -99,7 +103,7 @@ export class SchemaGenerator extends Generator<PluginZod['resolvedOptions'], Plu
    * @deprecated only used for testing
    */
   buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
-    const schemas = this.buildSchemas({ schema, name })
+    const schemas = this.parse({ schema, name })
 
     // all checks are also inside this.schema(React)
     // hack so Params will be optional when needed

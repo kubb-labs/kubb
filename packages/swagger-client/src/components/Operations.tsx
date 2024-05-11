@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
-import { Parser, File, useApp } from '@kubb/react'
 import { useOperations } from '@kubb/plugin-oas/hooks'
+import { Const, File, Parser, useApp } from '@kubb/react'
 
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
@@ -24,8 +24,11 @@ function Template({ name, operations }: TemplateProps): KubbNode {
       method: operation.method,
     }
   })
-  //TODO add Const component
-  return <>{`export const ${name} = ${JSON.stringify(operationsObject, undefined, 2)} as const;`}</>
+  return (
+    <Const name={name} export asConst>
+      {JSON.stringify(operationsObject, undefined, 2)}
+    </Const>
+  )
 }
 
 type RootTemplateProps = {

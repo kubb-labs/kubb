@@ -1,6 +1,6 @@
-import { App, createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
+import { App, createRoot } from '@kubb/react'
 
 import { Mutation } from './components/Mutation.tsx'
 import { Operations } from './components/Operations.tsx'
@@ -10,8 +10,8 @@ import { QueryOptions } from './components/QueryOptions.tsx'
 
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/plugin-oas'
-import type { FileMeta, PluginTanstackQuery } from './types.ts'
 import { QueryImports } from './components/QueryImports.tsx'
+import type { FileMeta, PluginTanstackQuery } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginTanstackQuery['resolvedOptions'], PluginTanstackQuery, FileMeta> {
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
@@ -82,23 +82,5 @@ export class OperationGenerator extends Generator<PluginTanstackQuery['resolvedO
     )
 
     return root.files
-  }
-
-  async get(): OperationMethodResult<FileMeta> {
-    return null
-  }
-
-  async post(): OperationMethodResult<FileMeta> {
-    return null
-  }
-
-  async put(): OperationMethodResult<FileMeta> {
-    return null
-  }
-  async patch(): OperationMethodResult<FileMeta> {
-    return null
-  }
-  async delete(): OperationMethodResult<FileMeta> {
-    return null
   }
 }

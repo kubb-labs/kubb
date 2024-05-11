@@ -6,17 +6,14 @@ export const loginUserQueryParamsSchema = z
     password: z.string().describe('The password for login in clear text').optional(),
   })
   .optional()
-
 /**
  * @description successful operation
  */
 export const loginUser200Schema = z.string()
-
 /**
  * @description Invalid username/password supplied
  */
 export const loginUser400Schema = z.any()
-
 /**
  * @description successful operation
  */

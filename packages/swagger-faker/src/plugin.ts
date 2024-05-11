@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { fakerKeywordMapper } from './fakerParser'
 
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'

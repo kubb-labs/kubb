@@ -2,7 +2,6 @@
  * @description Null response
  */
 export const CreatePets201 = z.any()
-
 /**
  * @description unexpected error
  */

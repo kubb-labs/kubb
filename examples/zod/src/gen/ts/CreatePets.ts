@@ -7,7 +7,6 @@ export type CreatePetsPathParams = {
    */
   uuid: string
 }
-
 export type CreatePetsQueryParams = {
   /**
    * @description Offset
@@ -15,7 +14,6 @@ export type CreatePetsQueryParams = {
    */
   offset?: number
 }
-
 export const createPetsHeaderParamsXExample = {
   ONE: 'ONE',
   TWO: 'TWO',
@@ -29,17 +27,14 @@ export type CreatePetsHeaderParams = {
    */
   'X-EXAMPLE': CreatePetsHeaderParamsXExample
 }
-
 /**
  * @description Null response
  */
 export type CreatePets201 = any
-
 /**
  * @description unexpected error
  */
 export type CreatePetsError = PetNotFound
-
 export type CreatePetsMutationRequest = {
   /**
    * @type string
@@ -50,9 +45,7 @@ export type CreatePetsMutationRequest = {
    */
   tag: string
 }
-
 export type CreatePetsMutationResponse = any
-
 export type CreatePetsMutation = {
   Response: CreatePetsMutationResponse
   Request: CreatePetsMutationRequest

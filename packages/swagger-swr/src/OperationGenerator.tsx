@@ -5,20 +5,11 @@ import { App, createRoot } from '@kubb/react'
 import { Mutation } from './components/Mutation.tsx'
 import { Query } from './components/Query.tsx'
 
-import type * as KubbFile from '@kubb/fs/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/plugin-oas'
 import type { FileMeta, PluginSwr } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginSwr['resolvedOptions'], PluginSwr, FileMeta> {
-  async all(): Promise<KubbFile.File | null> {
-    return null
-  }
-
-  async operation(): Promise<KubbFile.File | null> {
-    return null
-  }
-
   async get(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 

@@ -92,16 +92,16 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     mode,
     override: plugin.options.override,
   })
-
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
-  const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
+  const mapItem = ({ name, schema, ...options }: OperationSchemaType, i: number) => {
+    const tree = generator.parse({ schema, name })
+    const source = generator.getSource(name, tree, options)
+
     return (
-      <Oas.Schema key={i} generator={generator} name={name} object={object}>
+      <Oas.Schema key={i} name={name} value={schema} tree={tree}>
         {mode === 'split' && <Oas.Schema.Imports isTypeOnly />}
-        <File.Source>
-          <Oas.Schema.Source options={options} />
-        </File.Source>
+        <File.Source>{source.join('\n')}</File.Source>
       </Oas.Schema>
     )
   }

@@ -1,6 +1,6 @@
-import { App, createRoot } from '@kubb/react'
 import { SchemaGenerator as Generator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
+import { App, createRoot } from '@kubb/react'
 
 import { pluginTsName } from './plugin.ts'
 import { typeParser } from './typeParser.ts'
@@ -10,18 +10,23 @@ import type { SchemaGeneratorBuildOptions, SchemaMethodResult, Schema as SchemaT
 import type { FileMeta, PluginTs } from './types.ts'
 
 export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {
-  async schema(name: string, object: SchemaObject): SchemaMethodResult<FileMeta> {
+  async schema(name: string, schema: SchemaObject): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, mode, plugin, output } = this.context
 
     const root = createRoot({
       logger: pluginManager.logger,
     })
 
+    const tree = this.parse({ schema, name })
+    const source = this.getSource(name, tree)
+
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas}>
-          <Oas.Schema generator={this} name={name} object={object}>
-            <Oas.Schema.File isTypeOnly output={output} />
+          <Oas.Schema name={name} value={schema} tree={tree}>
+            <Oas.Schema.File isTypeOnly output={output}>
+              {source.join('\n')}
+            </Oas.Schema.File>
           </Oas.Schema>
         </Oas>
       </App>,
@@ -62,7 +67,7 @@ export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], Plug
    */
 
   buildSource(name: string, schema: SchemaObject, options: SchemaGeneratorBuildOptions = {}): string[] {
-    const schemas = this.buildSchemas({ schema, name })
+    const schemas = this.parse({ schema, name })
 
     return this.getSource(name, schemas, options)
   }
