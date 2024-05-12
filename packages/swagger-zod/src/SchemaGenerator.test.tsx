@@ -9,7 +9,6 @@ import type { PluginZod } from './types'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
 
-import type { SchemaObject } from '@kubb/oas'
 import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { createRootServer } from '@kubb/react/server'

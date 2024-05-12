@@ -1,0 +1,22 @@
+
+definitions:
+  Nullable:
+    type: object
+    properties:
+      foo:
+        type: string
+        nullable: true
+openapi: 3.1.0
+info:
+  title: test
+  version: "1.0.0"
+paths:
+  /names:
+    get:
+      consumes:
+      - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Nullable'
