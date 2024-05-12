@@ -1,30 +1,27 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { createRootServer } from '@kubb/react/server'
 import { Oas } from '@kubb/plugin-oas/components'
+import { createRootServer } from '@kubb/react/server'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Operations } from './Operations.tsx'
 
+import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { App } from '@kubb/react'
+import { parse } from '@kubb/oas/parser'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
+import { App } from '@kubb/react'
 import type { PluginZod } from '../types.ts'
 
 describe('<Operations/>', async () => {
-  const oas = await parseFromConfig({
-    root: './',
-    output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
-  })
-
+  const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
-    exclude: [],
-    include: undefined,
-    override: undefined,
+    dateType: 'date',
     transformers: {},
     typed: false,
-    dateType: 'string',
+    exclude: undefined,
+    include: undefined,
+    override: undefined,
     unknownType: 'any',
     templates: {
       operations: Operations.templates,
@@ -32,27 +29,25 @@ describe('<Operations/>', async () => {
     mapper: {},
   }
   const plugin = { options } as Plugin<PluginZod>
-  const og = await new OperationGenerator(options, {
+  const generator = new OperationGenerator(options, {
     oas,
-    exclude: [],
     include: undefined,
     pluginManager: mockedPluginManager,
     plugin,
     contentType: undefined,
     override: undefined,
     mode: 'split',
+    exclude: [],
   })
 
-  test('showPetById', async () => {
-    const operation = oas.operation('/pets/{pet_id}', 'get')
+  test('operations', async () => {
+    const operations = [oas.operation('/pets/{pet_id}', 'get'), oas.operation('/pets', 'get'), oas.operation('/pets', 'post')]
 
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
-            <Oas.Operation operation={operation}>
-              <Operations.File />
-            </Oas.Operation>
+          <Oas oas={oas} operations={operations} generator={generator}>
+            <Operations.File />
           </Oas>
         </App>
       )
@@ -61,6 +56,6 @@ describe('<Operations/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />)
 
-    expect(output).toMatchFileSnapshot('./__snapshots__/Operations/showPetById.ts')
+    expect(output).toMatchFileSnapshot('./__snapshots__/operations.ts')
   })
 })

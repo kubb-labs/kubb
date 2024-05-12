@@ -1,487 +1,209 @@
 import path from 'node:path'
-
-import { mockedPluginManager } from '@kubb/core/mocks'
-
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { SchemaObject } from '@kubb/oas'
+import { camelCase } from '@kubb/core/transformers'
 import { parse } from '@kubb/oas/parser'
-import { Operations } from './components/Operations.tsx'
-import type { PluginZod } from './types.ts'
+import { App } from '@kubb/react'
+import type { PluginZod } from './types'
 
-describe('Zod SchemaGenerator PetStore', async () => {
-  const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
-  const oas = await parse(petStorePath)
+import { mockedPluginManager } from '@kubb/core/mocks'
 
-  test('generate schema for Pet', async () => {
-    const generator = new SchemaGenerator(
-      {
-        dateType: 'string',
-        include: undefined,
-        transformers: {},
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
+import type { SchemaObject } from '@kubb/oas'
+import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
+import { createRootServer } from '@kubb/react/server'
+import { Operations } from './components'
+import { Schema } from './components/Schema.tsx'
 
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('generate schema for Pet with dateType false', async () => {
-    const generator = new SchemaGenerator(
-      {
-        dateType: false,
-        include: undefined,
-        transformers: {},
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('Pet', schemas?.Pet as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('generate schema for Pets', async () => {
-    const generator = new SchemaGenerator(
-      {
-        transformers: {},
-        dateType: 'string',
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        include: undefined,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('Pets', schemas?.Pets as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('generate schema for OptionalPet', async () => {
-    const generator = new SchemaGenerator(
-      {
-        transformers: {},
-        dateType: 'string',
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        include: undefined,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('OptionalPet', schemas?.OptionalPet as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('generate schema for OptionalPet typed', async () => {
-    const generator = new SchemaGenerator(
-      {
-        transformers: {},
+describe('Zod SchemaGenerator', async () => {
+  const testData = [
+    {
+      name: 'Pet',
+      input: '../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {},
+    },
+    {
+      name: 'Pets',
+      input: '../mocks/petStore.yaml',
+      path: 'Pets',
+      options: {},
+    },
+    {
+      name: 'OptionalPet',
+      input: '../mocks/petStore.yaml',
+      path: 'OptionalPet',
+      options: {
         typed: true,
-        dateType: 'string',
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        include: undefined,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
       },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('OptionalPet', schemas?.OptionalPet as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('generate schema for PetArray', async () => {
-    const generator = new SchemaGenerator(
-      {
-        transformers: {},
-        dateType: 'string',
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        include: undefined,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('PetArray', schemas?.PetArray as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-})
-
-describe('ZodGenerator constCases', async () => {
-  const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
-  const oas = await parse(discriminatorPath)
-  const generator = new SchemaGenerator(
+    },
     {
+      name: 'OptionalPet typed',
+      input: '../mocks/petStore.yaml',
+      path: 'OptionalPet',
+      options: {
+        typed: true,
+      },
+    },
+    {
+      name: 'PetArray',
+      input: '../mocks/petStore.yaml',
+      path: 'PetArray',
+      options: {},
+    },
+    {
+      name: 'Order dateType date',
+      input: '../mocks/petStore.yaml',
+      path: 'Order',
+      options: {},
+    },
+    {
+      name: 'Order dateType string',
+      input: '../mocks/petStore.yaml',
+      path: 'Order',
+      options: {
+        dateType: 'string',
+      },
+    },
+    {
+      name: 'Order dateType false',
+      input: '../mocks/petStore.yaml',
+      path: 'Order',
+      options: {
+        dateType: false,
+      },
+    },
+    {
+      name: 'UuidSchema',
+      input: '../mocks/constCases.yaml',
+      path: 'UuidSchema',
+      options: {},
+    },
+    {
+      name: 'NullableString',
+      input: '../mocks/constCases.yaml',
+      path: 'NullableString',
+      options: {},
+    },
+    {
+      name: 'NullableStringWithAnyOf',
+      input: '../mocks/constCases.yaml',
+      path: 'NullableStringWithAnyOf',
+      options: {},
+    },
+    {
+      name: 'NullableStringUuid',
+      input: '../mocks/constCases.yaml',
+      path: 'NullableStringUuid',
+      options: {},
+    },
+    {
+      name: 'NullConst',
+      input: '../mocks/constCases.yaml',
+      path: 'NullableStringUuid',
+      options: {},
+    },
+    {
+      name: 'StringValueConst',
+      input: '../mocks/constCases.yaml',
+      path: 'StringValueConst',
+      options: {},
+    },
+    {
+      name: 'NumberValueConst',
+      input: '../mocks/constCases.yaml',
+      path: 'NumberValueConst',
+      options: {},
+    },
+    {
+      name: 'MixedValueTypeConst',
+      input: '../mocks/constCases.yaml',
+      path: 'MixedValueTypeConst',
+      options: {},
+    },
+    {
+      name: 'enumVarNames',
+      input: '../mocks/enums.yaml',
+      path: 'enumVarNames.Type',
+
+      options: {},
+    },
+    {
+      name: 'enumNames',
+      input: '../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {},
+    },
+    {
+      name: 'enumNullable 3.1',
+      input: '../mocks/enums3_1.yaml',
+      path: 'enumNullable',
+      options: {},
+    },
+    {
+      name: 'recursive',
+      input: '../mocks/recursive.yaml',
+      path: 'Example',
+      options: {},
+    },
+    {
+      name: 'anyof',
+      input: '../mocks/anyof.yaml',
+      path: 'test',
+      options: {},
+    },
+    {
+      name: 'lazy',
+      input: '../mocks/lazy.yaml',
+      path: 'Example',
+      options: {},
+    },
+  ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
+
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
+    const schemas = oas.getDefinition().components?.schemas
+    const schema = schemas?.[props.path]
+
+    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+      dateType: 'date',
       transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
       typed: false,
+      exclude: undefined,
       include: undefined,
+      override: undefined,
+      unknownType: 'any',
       templates: {
         operations: Operations.templates,
       },
       mapper: {},
-    },
-    {
+      ...props.options,
+    }
+    const plugin = { options } as Plugin<PluginZod>
+    const generator = new SchemaGenerator(options, {
       oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
       include: undefined,
-      mode: 'split',
-      override: [],
-    },
-  )
-
-  const schemas = oas.getDefinition().components?.schemas!
-
-  test('UuidSchema generates a string with uuid format constraint', async () => {
-    const schema = schemas['UuidSchema'] as SchemaObject
-    const node = generator.buildSource('UuidSchema', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('NullableString zodifies correctly', async () => {
-    const schema = schemas?.['NullableString'] as SchemaObject
-    const node = generator.buildSource('NullableString', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('NullableStringWithAnyOf results in union of string and null', async () => {
-    const schema = schemas['NullableStringWithAnyOf'] as SchemaObject
-    const node = generator.buildSource('NullableStringWithAnyOf', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('NullableStringUuid zodifies correctly to a uuid or null', async () => {
-    const schema = schemas['NullableStringUuid'] as SchemaObject
-    const node = generator.buildSource('NullableStringUuid', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('NullConst zodifies correctly', async () => {
-    const schema = schemas['NullConst'] as SchemaObject
-    const node = generator.buildSource('NullConst', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('StringValueConst correctly generates zod literal', async () => {
-    const schema = schemas['StringValueConst'] as SchemaObject
-    const node = generator.buildSource('StringValueConst', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('NumberValueConst correctly generates zod literal', async () => {
-    const schema = schemas['NumberValueConst'] as SchemaObject
-    const node = generator.buildSource('NumberValueConst', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('MixedValueTypeConst generates zod literal value correctly, overriding the type constraint', async () => {
-    const schema = schemas['MixedValueTypeConst'] as SchemaObject
-    const node = generator.buildSource('MixedValueTypeConst', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-})
-
-describe('Zod SchemaGenerator lazy', async () => {
-  const petStorePath = path.resolve(__dirname, '../mocks/lazy.yaml')
-  const oas = await parse(petStorePath)
-
-  test('generate schema for Example', async () => {
-    const generator = new SchemaGenerator(
-      {
-        transformers: {},
-        dateType: 'string',
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        include: undefined,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('Example', schemas?.Example as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-})
-
-describe('Zod SchemaGenerator enums', async () => {
-  const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
-  const oas = await parse(schemaPath)
-  const generator = new SchemaGenerator(
-    {
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: undefined,
       override: undefined,
-      typed: false,
-      include: undefined,
-      templates: {
-        operations: Operations.templates,
-      },
-      mapper: {},
-    },
-    {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
-      include: undefined,
       mode: 'split',
-      override: [],
-    },
-  )
+    })
+    const tree = generator.parse({ schema, name: props.name })
 
-  const schemas = oas.getDefinition().components?.schemas
+    const Component = () => {
+      return (
+        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
+          <Oas.Schema name={camelCase(props.name)} value={undefined} tree={tree}>
+            <Schema.File />
+          </Oas.Schema>
+        </App>
+      )
+    }
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />)
 
-  test('generate x-enum-varnames types', async () => {
-    const node = generator.buildSource('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-
-  test('generate x-enumNames types', async () => {
-    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-})
-
-describe('Zod SchemaGenerator recursive', async () => {
-  const petStorePath = path.resolve(__dirname, '../mocks/recursive.yaml')
-  const oas = await parse(petStorePath)
-
-  test('generate schema for Example', async () => {
-    const generator = new SchemaGenerator(
-      {
-        transformers: {},
-        dateType: 'string',
-        unknownType: 'any',
-        exclude: undefined,
-        override: undefined,
-        typed: false,
-        include: undefined,
-        templates: {
-          operations: Operations.templates,
-        },
-        mapper: {},
-      },
-      {
-        oas,
-        pluginManager: mockedPluginManager,
-        plugin: {} as Plugin<PluginZod>,
-        contentType: undefined,
-        include: undefined,
-        mode: 'split',
-        override: [],
-      },
-    )
-
-    const schemas = oas.getDefinition().components?.schemas
-    const node = generator.buildSource('Example', schemas?.Example as SchemaObject)
-
-    expect(node).toMatchSnapshot()
-  })
-})
-
-describe('Zod SchemaGenerator anyof', async () => {
-  const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
-  const oas = await parse(discriminatorPath)
-  const generator = new SchemaGenerator(
-    {
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-      templates: {
-        operations: Operations.templates,
-      },
-      mapper: {},
-    },
-    {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
-      include: undefined,
-      mode: 'split',
-      override: [],
-    },
-  )
-
-  const schemas = oas.getDefinition().components?.schemas!
-
-  test('anyof with 2 objects', async () => {
-    const schema = schemas['test'] as SchemaObject
-    const node = generator.buildSource('test', schema)
-
-    expect(node).toMatchSnapshot()
-  })
-})
-
-describe('Zod SchemaGenerator enums', async () => {
-  const schemaPath = path.resolve(__dirname, '../mocks/enums3_1.yaml')
-  const oas = await parse(schemaPath)
-  const generator = new SchemaGenerator(
-    {
-      transformers: {},
-      dateType: 'string',
-      unknownType: 'any',
-      exclude: undefined,
-      override: undefined,
-      typed: false,
-      include: undefined,
-      templates: {
-        operations: Operations.templates,
-      },
-      mapper: {},
-    },
-    {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
-      include: undefined,
-      mode: 'split',
-      override: [],
-    },
-  )
-
-  const schemas = oas.getDefinition().components?.schemas
-
-  test('generate nullable 3.1 enums ', async () => {
-    const node = generator.buildSource('enumNullable', schemas?.['enumNullable'] as SchemaObject)
-
-    expect(node).toMatchSnapshot()
+    expect(output).toMatchSnapshot()
   })
 })

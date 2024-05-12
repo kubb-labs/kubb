@@ -1,21 +1,69 @@
-import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
+import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas/parser'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
-import { parseFromConfig } from '@kubb/plugin-oas/utils'
+import { Oas } from '@kubb/plugin-oas/components'
+import { App } from '@kubb/react'
+import { createRootServer } from '@kubb/react/server'
+import { OperationSchema } from './components/OperationSchema.tsx'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
 
 describe('OperationGenerator', async () => {
-  const oas = await parseFromConfig({
-    root: './',
-    output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-zod/mocks/petStore.yaml' },
-  })
-  test('[GET] should generate', async () => {
+  const testData = [
+    {
+      name: 'showPetById',
+      input: '../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
+      options: {},
+    },
+    {
+      name: 'getPets',
+      input: '../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {},
+    },
+    {
+      name: 'createPet',
+      input: '../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {},
+    },
+    {
+      name: 'createPet with unknownType any',
+      input: '../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        unknownType: 'any',
+      },
+    },
+    {
+      name: 'deletePet',
+      input: '../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
+      options: {},
+    },
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<GetOperationGeneratorOptions<OperationGenerator>>
+  }>
+
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
+
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dateType: 'date',
       transformers: {},
@@ -28,118 +76,35 @@ describe('OperationGenerator', async () => {
         operations: Operations.templates,
       },
       mapper: {},
+      ...props.options,
     }
-
-    const og = await new OperationGenerator(options, {
+    const plugin = { options } as Plugin<PluginZod>
+    const generator = new OperationGenerator(options, {
       oas,
-      exclude: [],
       include: undefined,
       pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
+      plugin,
       contentType: undefined,
       override: undefined,
       mode: 'split',
-    })
-    const operation = oas.operation('/pets', 'get')
-    const operationShowById = oas.operation('/pets/{petId}', 'get')
-
-    const files = (await og.operation(operation, options)) as KubbFile.File[]
-    const getShowByIdFiles = (await og.operation(operationShowById, options)) as KubbFile.File[]
-
-    await matchFiles(files)
-    await matchFiles(getShowByIdFiles)
-  })
-
-  test('[POST] should generate', async () => {
-    const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      dateType: 'date',
-      transformers: {},
-      typed: false,
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
-      unknownType: 'any',
-      templates: {
-        operations: Operations.templates,
-      },
-      mapper: {},
-    }
-
-    const og = await new OperationGenerator(options, {
-      oas,
       exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
     })
-    const operation = oas.operation('/pets', 'post')
-    const files = (await og.operation(operation, options)) as KubbFile.File[]
+    const operation = oas.operation(props.path, props.method)
 
-    await matchFiles(files)
-  })
-
-  test('[DELETE] should generate with unknownType `any`', async () => {
-    const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      dateType: 'date',
-      transformers: {},
-      typed: false,
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
-      unknownType: 'any',
-      templates: {
-        operations: Operations.templates,
-      },
-      mapper: {},
+    const Component = () => {
+      return (
+        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
+          <Oas oas={oas} operations={[operation]} generator={generator}>
+            <Oas.Operation operation={operation}>
+              <OperationSchema.File />
+            </Oas.Operation>
+          </Oas>
+        </App>
+      )
     }
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />)
 
-    const og = await new OperationGenerator(options, {
-      oas,
-      exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-    })
-    const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = (await og.operation(operation, options)) as KubbFile.File[]
-
-    await matchFiles(files)
-  })
-
-  test('[DELETE] should generate with unknownType `unknown`', async () => {
-    const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      dateType: 'date',
-      transformers: {},
-      typed: false,
-      exclude: undefined,
-      include: undefined,
-      override: undefined,
-      unknownType: 'unknown',
-      templates: {
-        operations: Operations.templates,
-      },
-      mapper: {},
-    }
-
-    const og = await new OperationGenerator(options, {
-      oas,
-      exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginZod>,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-    })
-    const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.operation(operation, options)
-
-    expect(files).toMatchSnapshot()
+    expect(output).toMatchSnapshot()
   })
 })

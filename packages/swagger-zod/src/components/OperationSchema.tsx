@@ -8,11 +8,15 @@ import { SchemaGenerator } from '../SchemaGenerator.tsx'
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginZod } from '../types.ts'
+import { Schema } from './Schema.tsx'
 
-type Props = {}
+type Props = {
+  description?: string
+  keysToOmit?: string[]
+}
 
-export function OperationSchema({}: Props): ReactNode {
-  return <></>
+export function OperationSchema({ description, keysToOmit }: Props): ReactNode {
+  return <Schema keysToOmit={keysToOmit} withTypeAnnotation={false} description={description} />
 }
 
 type FileProps = {}
@@ -35,17 +39,18 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
-  const mapItem = ({ name, schema, ...options }: OperationSchemaType, i: number) => {
+  const mapItem = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
     // hack so Params can be optional when needed
     const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
     const optional = !required && !!name.includes('Params')
     const tree = generator.parse({ schema, name })
-    const source = generator.getSource(name, [...tree, optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean), options)
 
     return (
-      <Oas.Schema key={i} name={name} value={schema} tree={tree}>
+      <Oas.Schema key={i} name={name} value={schema} tree={[...tree, optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)}>
         {mode === 'split' && <Oas.Schema.Imports />}
-        <File.Source>{source.join('\n')}</File.Source>
+        <File.Source>
+          <OperationSchema description={description} keysToOmit={keysToOmit} />
+        </File.Source>
       </Oas.Schema>
     )
   }

@@ -1,13 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Faker SchemaGenerator enums > 'enumNames' 1`] = `
+exports[`Faker SchemaGenerator > 'enumNames' 1`] = `
 "export function enumNames(): NonNullable<EnumNames> {
   return undefined
 }
 "
 `;
 
-exports[`Faker SchemaGenerator enums > 'enumVarNames' 1`] = `
+exports[`Faker SchemaGenerator > 'enumVarNames' 1`] = `
 "export function enumVarNames(): NonNullable<EnumVarNames> {
   return undefined
 }

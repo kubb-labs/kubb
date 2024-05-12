@@ -11,7 +11,7 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import type { PluginOas } from '@kubb/plugin-oas'
 import type { PluginFaker } from './types.ts'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
@@ -82,7 +82,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       return this.fileManager.write(path, source, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
+      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

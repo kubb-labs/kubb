@@ -3,7 +3,7 @@ import { type SchemaKeywordMapper, isKeyword, schemaKeywords } from '@kubb/plugi
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 
-export const zodKeywordMapper = {
+const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
   number: (min?: number, max?: number) => {
@@ -72,7 +72,7 @@ export const zodKeywordMapper = {
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 
-function sort(items?: Schema[]): Schema[] {
+export function sort(items?: Schema[]): Schema[] {
   const order: string[] = [
     schemaKeywords.string,
     schemaKeywords.datetime,
@@ -114,7 +114,7 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parseZodMeta(parent: Schema | undefined, current: Schema, options: ParserOptions): string | undefined {
+export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): string | undefined {
   const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
   if (!value) {
@@ -124,7 +124,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   if (isKeyword(current, schemaKeywords.union)) {
     // zod union type needs at least 2 items
     if (Array.isArray(current.args) && current.args.length === 1) {
-      return parseZodMeta(parent, current.args[0] as Schema, options)
+      return parse(parent, current.args[0] as Schema, options)
     }
     if (Array.isArray(current.args) && !current.args.length) {
       return ''
@@ -132,7 +132,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
 
     return zodKeywordMapper.union(
       sort(current.args)
-        .map((schema) => parseZodMeta(current, schema, options))
+        .map((schema) => parse(current, schema, options))
         .filter(Boolean),
     )
   }
@@ -142,7 +142,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       .filter((schema: Schema) => {
         return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
       })
-      .map((schema: Schema) => parseZodMeta(current, schema, options))
+      .map((schema: Schema) => parse(current, schema, options))
       .filter(Boolean)
 
     return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1))}`
@@ -151,7 +151,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   if (isKeyword(current, schemaKeywords.array)) {
     return zodKeywordMapper.array(
       sort(current.args.items)
-        .map((schemas) => parseZodMeta(current, schemas, options))
+        .map((schemas) => parse(current, schemas, options))
         .filter(Boolean),
       current.args.min,
       current.args.max,
@@ -163,7 +163,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
       return zodKeywordMapper.union(
         current.args.items
           .map((schema) => {
-            return parseZodMeta(
+            return parse(
               current,
               {
                 keyword: schemaKeywords.const,
@@ -207,7 +207,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
 
         return `"${name}": ${sort(schemas)
           .map((schema, array) => {
-            return parseZodMeta(current, schema, options)
+            return parse(current, schema, options)
           })
           .filter(Boolean)
           .join('')}`
@@ -216,7 +216,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties
-          .map((schema) => parseZodMeta(current, schema, options))
+          .map((schema) => parse(current, schema, options))
           .filter(Boolean)
           .at(0)
       : undefined
@@ -233,7 +233,7 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   if (isKeyword(current, schemaKeywords.tuple)) {
     return zodKeywordMapper.tuple(
       sort(current.args)
-        .map((schema) => parseZodMeta(current, schema, options))
+        .map((schema) => parse(current, schema, options))
         .filter(Boolean),
     )
   }
@@ -301,60 +301,4 @@ export function parseZodMeta(parent: Schema | undefined, current: Schema, option
   }
 
   return undefined
-}
-export function zodParser(schemas: Schema[], options: ParserOptions): string {
-  if (!schemas.length) {
-    return `export const ${options.name} = '';`
-  }
-
-  const sortedSchemas = sort(schemas)
-
-  const JSDoc = createJSDocBlockText({
-    comments: [options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined].filter(Boolean),
-  })
-
-  const constName = `${JSDoc}\nexport const ${options.name}`
-  const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
-  const output = sortedSchemas
-    .map((item) => parseZodMeta(undefined, item, options))
-    .filter(Boolean)
-    .join('')
-
-  if (options.keysToOmit?.length) {
-    const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
-    const omitText = `${suffix}(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
-    return `${constName} = ${output}${omitText}${typeName}\n`
-  }
-
-  return `${constName} = ${output}${typeName}\n`
-
-  // const root = createRoot()
-
-  // if (!schemas.length) {
-  //   root.render(
-  //     <Text.Const
-  //       export
-  //       name={options.name}
-  //       JSDoc={{ comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean) }}
-  //     >
-  //       {'undefined'}
-  //     </Text.Const>,
-  //   )
-  // } else {
-  //   root.render(
-  //     <Text.Const
-  //       export
-  //       name={options.name}
-  //       JSDoc={{ comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean) }}
-  //     >
-  //       {[
-  //         sortedItems.map((item) => parseZodMeta(item, options)).filter(Boolean).join(''),
-  //         options.keysToOmit?.length ? `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-  //         options.typeName ? ` as z.ZodType<${options.typeName}>` : '',
-  //       ].filter(Boolean).join('') || ''}
-  //     </Text.Const>,
-  //   )
-  // }
-
-  // return root.output
 }

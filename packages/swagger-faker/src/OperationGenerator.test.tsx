@@ -14,28 +14,31 @@ import { OperationSchema } from './components'
 import type { PluginFaker } from './types.ts'
 
 describe('OperationGenerator', async () => {
-  const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
   const testData = [
     {
       name: 'showPetById',
+      input: '../mocks/petStore.yaml',
       path: '/pets/{petId}',
       method: 'get',
       options: {},
     },
     {
       name: 'getPets',
+      input: '../mocks/petStore.yaml',
       path: '/pets',
       method: 'get',
       options: {},
     },
     {
       name: 'createPet',
+      input: '../mocks/petStore.yaml',
       path: '/pets',
       method: 'post',
       options: {},
     },
     {
       name: 'createPet with unknownType any',
+      input: '../mocks/petStore.yaml',
       path: '/pets',
       method: 'post',
       options: {
@@ -44,21 +47,31 @@ describe('OperationGenerator', async () => {
     },
     {
       name: 'deletePet',
+      input: '../mocks/petStore.yaml',
       path: '/pets/{petId}',
       method: 'delete',
       options: {},
     },
     {
       name: 'createPet with seed 222',
+      input: '../mocks/petStore.yaml',
       path: '/pets',
       method: 'post',
       options: {
         seed: [222],
       },
     },
-  ] as const satisfies Array<{ name: string; path: string; method: HttpMethod; options: Partial<GetOperationGeneratorOptions<OperationGenerator>> }>
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<GetOperationGeneratorOptions<OperationGenerator>>
+  }>
 
-  test.each(testData)('$name', async ({ name, path, method, options: extraOptions }) => {
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
+
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dateType: 'date',
       seed: undefined,
@@ -66,7 +79,7 @@ describe('OperationGenerator', async () => {
       unknownType: 'any',
       mapper: {},
       override: [],
-      ...extraOptions,
+      ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
     const generator = new OperationGenerator(options, {
@@ -79,7 +92,7 @@ describe('OperationGenerator', async () => {
       mode: 'split',
       exclude: [],
     })
-    const operation = oas.operation(path, method)
+    const operation = oas.operation(props.path, props.method)
 
     const Component = () => {
       return (
