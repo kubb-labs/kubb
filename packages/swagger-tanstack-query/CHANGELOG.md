@@ -1,5 +1,20 @@
 # @kubb/swagger-tanstack-query
 
+## 2.18.5
+
+### Patch Changes
+
+- Updated dependencies [[`d4581fd`](https://github.com/kubb-labs/kubb/commit/d4581fd006d8ecca026512c7b1f63229bec88b21)]:
+  - @kubb/swagger-ts@2.18.5
+  - @kubb/swagger-client@2.18.5
+  - @kubb/swagger-zod@2.18.5
+  - @kubb/core@2.18.5
+  - @kubb/fs@2.18.5
+  - @kubb/oas@2.18.5
+  - @kubb/parser-ts@2.18.5
+  - @kubb/plugin-oas@2.18.5
+  - @kubb/react@2.18.5
+
 ## 2.18.4
 
 ### Patch Changes
