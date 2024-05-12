@@ -13,7 +13,7 @@ import type { PluginOas } from '../types.ts'
 
 export type SchemaContextProps = {
   name: string
-  value?: SchemaObject
+  schema?: SchemaObject
   tree: Array<SchemaType>
 }
 
@@ -30,7 +30,7 @@ const SchemaContext = createContext<SchemaContextProps>({
 })
 
 export function Schema({ name, value, tree = [], children }: Props): KubbNode {
-  return <SchemaContext.Provider value={{ name, value, tree }}>{children}</SchemaContext.Provider>
+  return <SchemaContext.Provider value={{ name, schema: value, tree }}>{children}</SchemaContext.Provider>
 }
 
 type FileProps = {
@@ -63,7 +63,7 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
             pluginKey: plugin.key,
           }}
         >
-          <File.Source>{children}</File.Source>
+          {children}
         </File>
       </Parser>
     )
@@ -93,7 +93,7 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
         }}
       >
         <Schema.Imports isTypeOnly={isTypeOnly} />
-        <File.Source>{children}</File.Source>
+        {children}
       </File>
     </Parser>
   )

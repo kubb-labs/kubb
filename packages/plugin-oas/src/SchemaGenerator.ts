@@ -12,6 +12,7 @@ import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } f
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
+import type { KubbNode } from '@kubb/react'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 
@@ -817,13 +818,4 @@ export abstract class SchemaGenerator<
    * Schema
    */
   abstract schema(name: string, object: SchemaObject): SchemaMethodResult<TFileMeta>
-  /**
-   * Returns the source, in the future it will return a React component
-   */
-  abstract getSource<TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>(name: string, schemas: Schema[], options?: TOptions): string[]
-
-  /**
-   * @deprecated only used for testing
-   */
-  abstract buildSource(name: string, object: SchemaObject | undefined, options?: SchemaGeneratorBuildOptions): string[]
 }

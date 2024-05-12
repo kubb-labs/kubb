@@ -3,9 +3,9 @@ import { createJSDocBlockText } from '@kubb/core/transformers'
 import { getParams, isParamItems } from '../shared/utils/getParams.ts'
 import { Text } from './Text.tsx'
 
+import type { ReactElement } from 'react'
 import type { Params } from '../shared/utils/getParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
-import type { ReactElement } from 'react'
 
 type Props = {
   /**
@@ -62,10 +62,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <Text.Space />
         </Text>
       )}
-      <Text>
-        function {name}
-        <Text.Space />
-      </Text>
+      <Text>function {name}</Text>
       {generics && (
         <>
           <Text>{'<'}</Text>
@@ -84,7 +81,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
       )}
       <Text>{' {'}</Text>
       <br />
-      <Text indentSize={4}>{children}</Text>
+      <Text indentSize={2}>{children}</Text>
       <br />
       <Text>{'}'}</Text>
       <br />
@@ -142,7 +139,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
       {singleLine && (
         <>
           <Text>{' => '}</Text>
-          <Text indentSize={4}>{children}</Text>
+          <Text indentSize={2}>{children}</Text>
           <br />
         </>
       )}
@@ -151,7 +148,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
         <>
           <Text>{' => {'}</Text>
           <br />
-          <Text indentSize={4}>{children}</Text>
+          <Text indentSize={2}>{children}</Text>
           <br />
           <Text>{'}'}</Text>
           <br />
@@ -202,9 +199,9 @@ type ReturnFunctionProps = {
 
 export function ReturnFunction({ children }: ReturnFunctionProps) {
   return (
-    <>
+    <Text indentSize={2}>
       return <Text>{children}</Text>
-    </>
+    </Text>
   )
 }
 
