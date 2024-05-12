@@ -1,4 +1,4 @@
-import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
+import transformers from '@kubb/core/transformers'
 import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
@@ -102,7 +102,7 @@ function schemaKeywordsorter(a: Schema, b: Schema) {
   return 0
 }
 
-function joinItems(items: string[]): string {
+export function joinItems(items: string[]): string {
   switch (items.length) {
     case 0:
       return 'undefined'
@@ -123,7 +123,7 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parseFakerMeta(parent: Schema | undefined, current: Schema, options: ParserOptions): string | null | undefined {
+export function parseFaker(parent: Schema | undefined, current: Schema, options: ParserOptions): string | null | undefined {
   const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
 
   if (!value) {
@@ -131,15 +131,15 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return fakerKeywordMapper.union(current.args.map((schema) => parseFakerMeta(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.union(current.args.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return fakerKeywordMapper.and(current.args.map((schema) => parseFakerMeta(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.and(current.args.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return fakerKeywordMapper.array(current.args.items.map((schema) => parseFakerMeta(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.array(current.args.items.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
@@ -183,7 +183,7 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordsorter)
-            .map((schema) => parseFakerMeta(current, schema, { ...options, withData: false }))
+            .map((schema) => parseFaker(current, schema, { ...options, withData: false }))
             .filter(Boolean),
         )}`
       })
@@ -194,10 +194,10 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     if (Array.isArray(current.args)) {
-      return fakerKeywordMapper.tuple(current.args.map((schema) => parseFakerMeta(current, schema, { ...options, withData: false })).filter(Boolean))
+      return fakerKeywordMapper.tuple(current.args.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
     }
 
-    return parseFakerMeta(current, current.args, { ...options, withData: false })
+    return parseFaker(current, current.args, { ...options, withData: false })
   }
 
   if (isKeyword(current, schemaKeywords.const)) {
@@ -275,62 +275,4 @@ export function parseFakerMeta(parent: Schema | undefined, current: Schema, opti
   }
 
   return undefined
-}
-
-export function fakerParser(schemas: Schema[], options: ParserOptions): string {
-  const fakerText = joinItems(schemas.map((schema) => parseFakerMeta(undefined, schema, options)).filter(Boolean))
-
-  let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
-  let fakerTextWithOverride = fakerText
-
-  if (options.withData && fakerText.startsWith('{')) {
-    fakerDefaultOverride = '{}'
-    fakerTextWithOverride = `{
-  ...${fakerText},
-  ...data
-}`
-  }
-
-  if (options.withData && fakerText.startsWith('faker.helpers.arrayElements')) {
-    fakerDefaultOverride = '[]'
-    fakerTextWithOverride = `[
-      ...${fakerText},
-      ...data
-    ]`
-  }
-
-  const JSDoc = createJSDocBlockText({
-    comments: [options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined].filter(Boolean),
-  })
-
-  const params = fakerDefaultOverride
-    ? `data: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
-    : `data?: NonNullable<Partial<${options.typeName}>>`
-
-  return `
-${JSDoc}
-export function ${options.name}(${options.withData ? params : ''})${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
-  ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
-  return ${fakerTextWithOverride}
-}\n`
-
-  // const root = createRoot()
-
-  // root.render(
-  //   <Function
-  //     export
-  //     name={options.name}
-  //     JSDoc={{ comments: [describeSchema ? `@description ${transformers.stringify(describeSchema.args)}` : undefined].filter(Boolean) }}
-  //     params={fakerDefaultOverride
-  //       ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
-  //       : `override?: NonNullable<Partial<${options.typeName}>>`}
-  //     returnType={options.typeName ? `NonNullable<${options.typeName}>` : ''}
-  //   >
-  //     {options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
-
-  //     {`return ${fakerTextWithOverride}`}
-  //   </Function>,
-  // )
-
-  // return root.output
 }

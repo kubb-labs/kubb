@@ -8,11 +8,14 @@ import { SchemaGenerator } from '../SchemaGenerator.tsx'
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginFaker } from '../types.ts'
+import { Schema } from './Schema.tsx'
 
-type Props = {}
+type Props = {
+  description?: string
+}
 
-export function OperationSchema({}: Props): ReactNode {
-  return <></>
+export function OperationSchema({ description }: Props): ReactNode {
+  return <Schema withData={false} description={description} />
 }
 
 type FileProps = {}
@@ -36,7 +39,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
-  const mapItem = ({ name, schema, ...options }: OperationSchemaType, i: number) => {
+  const mapItem = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
     // used for this.options.typed
     const typeName = pluginManager.resolveName({
       name,
@@ -55,14 +58,15 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     })
 
     const tree = generator.parse({ schema, name })
-    const source = generator.getSource(name, tree, { ...options, withData: false })
 
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
         {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
 
         {mode === 'split' && <Oas.Schema.Imports />}
-        <File.Source>{source.join('\n')}</File.Source>
+        <File.Source>
+          <OperationSchema description={description} />
+        </File.Source>
       </Oas.Schema>
     )
   }

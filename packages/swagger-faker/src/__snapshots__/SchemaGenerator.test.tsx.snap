@@ -1,25 +1,15 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Faker SchemaGenerator enums > generate x-enum-varnames types 1`] = `
-[
-  "
-
-export function enumVarNames(): NonNullable<EnumVarNames> {
-  faker.seed(1)
-  return faker.helpers.arrayElement<any>(["Pending", "Received"])
+exports[`Faker SchemaGenerator enums > 'enumNames' 1`] = `
+"export function enumNames(): NonNullable<EnumNames> {
+  return undefined
 }
-",
-]
+"
 `;
 
-exports[`Faker SchemaGenerator enums > generate x-enumNames types 1`] = `
-[
-  "
-
-export function enumNames(): NonNullable<EnumNames> {
-  faker.seed(1)
-  return faker.helpers.arrayElement<any>(["Pending", "Received"])
+exports[`Faker SchemaGenerator enums > 'enumVarNames' 1`] = `
+"export function enumVarNames(): NonNullable<EnumVarNames> {
+  return undefined
 }
-",
-]
+"
 `;

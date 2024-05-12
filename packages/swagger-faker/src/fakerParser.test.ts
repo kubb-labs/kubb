@@ -1,17 +1,10 @@
-import { schemas } from '../../plugin-oas/mocks/schemas.js'
+import { schemas } from '../../plugin-oas/mocks/schemas.ts'
 
-import { fakerParser, parseFakerMeta } from './fakerParser.tsx'
+import { parseFaker } from './fakerParser.ts'
 
-describe('parseFakerMeta', () => {
+describe('parseFaker', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {
-    const text = parseFakerMeta(undefined, schema, { name })
-    expect(text).toMatchSnapshot()
-  })
-})
-
-describe('fakerParser', () => {
-  test.each(schemas.full)('$name', ({ schema, name }) => {
-    const text = fakerParser(schema, { name })
+    const text = parseFaker(undefined, schema, { name })
     expect(text).toMatchSnapshot()
   })
 })

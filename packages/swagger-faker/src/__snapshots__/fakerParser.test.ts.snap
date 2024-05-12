@@ -1,121 +1,81 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fakerParser > 'Object' 1`] = `
-"
+exports[`parseFaker > 'and' 1`] = `"Object.assign({}, faker.string.alpha(), faker.number.float())"`;
 
-export function Object() {
-  
-  return {"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}
-}
-"
-`;
+exports[`parseFaker > 'any' 1`] = `"undefined"`;
 
-exports[`fakerParser > 'Order' 1`] = `
-"
+exports[`parseFaker > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])]) as any"`;
 
-export function Order() {
-  
-  return {"status": faker.helpers.arrayElement<any>(["Placed", "Approved"])}
-}
-"
-`;
+exports[`parseFaker > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float({ min: 1, max: 10 })]) as any"`;
 
-exports[`fakerParser > 'Record' 1`] = `
-"
+exports[`parseFaker > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-export function Record() {
-  
-  return {}
-}
-"
-`;
+exports[`parseFaker > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
 
-exports[`fakerParser > 'Upload' 1`] = `
-"
+exports[`parseFaker > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
 
-export function Upload() {
-  
-  return faker.image.imageUrl() as unknown as Blob
-}
-"
-`;
+exports[`parseFaker > 'blob' 1`] = `"faker.image.imageUrl() as unknown as Blob"`;
 
-exports[`parseFakerMeta > 'and' 1`] = `"Object.assign({}, faker.string.alpha(), faker.number.float())"`;
+exports[`parseFaker > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
-exports[`parseFakerMeta > 'any' 1`] = `"undefined"`;
+exports[`parseFaker > 'catchall' 1`] = `"{}"`;
 
-exports[`parseFakerMeta > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])]) as any"`;
+exports[`parseFaker > 'date' 1`] = `"faker.date.anytime().toString()"`;
 
-exports[`parseFakerMeta > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float({ min: 1, max: 10 })]) as any"`;
+exports[`parseFaker > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
 
-exports[`parseFakerMeta > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
+exports[`parseFaker > 'default' 1`] = `undefined`;
 
-exports[`parseFakerMeta > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
+exports[`parseFaker > 'default' 2`] = `undefined`;
 
-exports[`parseFakerMeta > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
+exports[`parseFaker > 'enum' 1`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
 
-exports[`parseFakerMeta > 'blob' 1`] = `"faker.image.imageUrl() as unknown as Blob"`;
+exports[`parseFaker > 'matches' 1`] = `"faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))"`;
 
-exports[`parseFakerMeta > 'boolean' 1`] = `"faker.datatype.boolean()"`;
+exports[`parseFaker > 'matchesReg' 1`] = `"faker.helpers.fromRegExp(new RegExp('node_modules'))"`;
 
-exports[`parseFakerMeta > 'catchall' 1`] = `"{}"`;
+exports[`parseFaker > 'max' 1`] = `undefined`;
 
-exports[`parseFakerMeta > 'date' 1`] = `"faker.date.anytime().toString()"`;
+exports[`parseFaker > 'min' 1`] = `undefined`;
 
-exports[`parseFakerMeta > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
+exports[`parseFaker > 'nullable' 1`] = `undefined`;
 
-exports[`parseFakerMeta > 'default' 1`] = `undefined`;
+exports[`parseFaker > 'number' 1`] = `"faker.number.float()"`;
 
-exports[`parseFakerMeta > 'default' 2`] = `undefined`;
+exports[`parseFaker > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
-exports[`parseFakerMeta > 'enum' 1`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
+exports[`parseFaker > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
 
-exports[`parseFakerMeta > 'matches' 1`] = `"faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))"`;
+exports[`parseFaker > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any}"`;
 
-exports[`parseFakerMeta > 'matchesReg' 1`] = `"faker.helpers.fromRegExp(new RegExp('node_modules'))"`;
+exports[`parseFaker > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toString(),"time": faker.date.anytime().toString(),"nativeDate": faker.date.anytime()}"`;
 
-exports[`parseFakerMeta > 'max' 1`] = `undefined`;
+exports[`parseFaker > 'objectEmpty' 1`] = `"{}"`;
 
-exports[`parseFakerMeta > 'min' 1`] = `undefined`;
+exports[`parseFaker > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<any>(["A", "B", "C", 2])}"`;
 
-exports[`parseFakerMeta > 'nullable' 1`] = `undefined`;
+exports[`parseFaker > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
-exports[`parseFakerMeta > 'number' 1`] = `"faker.number.float()"`;
+exports[`parseFaker > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
 
-exports[`parseFakerMeta > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
+exports[`parseFaker > 'ref' 1`] = `"Pet()"`;
 
-exports[`parseFakerMeta > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
+exports[`parseFaker > 'string' 1`] = `"faker.string.alpha()"`;
 
-exports[`parseFakerMeta > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any}"`;
+exports[`parseFaker > 'stringLocal' 1`] = `"faker.date.anytime().toISOString()"`;
 
-exports[`parseFakerMeta > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toString(),"time": faker.date.anytime().toString(),"nativeDate": faker.date.anytime()}"`;
+exports[`parseFaker > 'stringOffset' 1`] = `"faker.date.anytime().toISOString()"`;
 
-exports[`parseFakerMeta > 'objectEmpty' 1`] = `"{}"`;
+exports[`parseFaker > 'time' 1`] = `"faker.date.anytime().toString()"`;
 
-exports[`parseFakerMeta > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<any>(["A", "B", "C", 2])}"`;
+exports[`parseFaker > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
-exports[`parseFakerMeta > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
+exports[`parseFaker > 'tupleMulti' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(), faker.number.float()]) as any"`;
 
-exports[`parseFakerMeta > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
+exports[`parseFaker > 'undefined' 1`] = `"undefined"`;
 
-exports[`parseFakerMeta > 'ref' 1`] = `"Pet()"`;
+exports[`parseFaker > 'union' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha(), faker.number.float()])"`;
 
-exports[`parseFakerMeta > 'string' 1`] = `"faker.string.alpha()"`;
+exports[`parseFaker > 'unionOne' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha()])"`;
 
-exports[`parseFakerMeta > 'stringLocal' 1`] = `"faker.date.anytime().toISOString()"`;
-
-exports[`parseFakerMeta > 'stringOffset' 1`] = `"faker.date.anytime().toISOString()"`;
-
-exports[`parseFakerMeta > 'time' 1`] = `"faker.date.anytime().toString()"`;
-
-exports[`parseFakerMeta > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
-
-exports[`parseFakerMeta > 'tupleMulti' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(), faker.number.float()]) as any"`;
-
-exports[`parseFakerMeta > 'undefined' 1`] = `"undefined"`;
-
-exports[`parseFakerMeta > 'union' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha(), faker.number.float()])"`;
-
-exports[`parseFakerMeta > 'unionOne' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha()])"`;
-
-exports[`parseFakerMeta > 'unknown' 1`] = `"unknown"`;
+exports[`parseFaker > 'unknown' 1`] = `"unknown"`;

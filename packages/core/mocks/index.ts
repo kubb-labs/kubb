@@ -15,8 +15,8 @@ export const mockedPluginManager = {
   },
   config: {
     output: {
-      path: './path'
-    }
+      path: './path',
+    },
   },
   resolvePath: ({ baseName }) => baseName,
   logger: {

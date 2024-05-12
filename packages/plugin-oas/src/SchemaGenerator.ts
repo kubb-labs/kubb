@@ -12,9 +12,10 @@ import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } f
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
+
+export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
