@@ -7,42 +7,80 @@ import { File, Parser, useApp } from '@kubb/react'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
+import type { PluginManager } from '@kubb/core'
 import type { Operation } from '@kubb/oas'
 import type { ts } from '@kubb/parser-ts'
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { pluginTsName } from '@kubb/swagger-ts'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginTs } from '../types.ts'
 
 type Props = {}
 
-function printCombinedSchema(name: string, operation: Operation, schemas: OperationSchemas): string {
+function printCombinedSchema({
+  name,
+  operation,
+  schemas,
+  pluginManager,
+}: { name: string; operation: Operation; schemas: OperationSchemas; pluginManager: PluginManager }): string {
   const properties: Record<string, ts.TypeNode> = {}
 
   if (schemas.response) {
-    properties['response'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.response.name), undefined)
+    const identifier = pluginManager.resolveName({
+      name: schemas.response.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['response'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.request) {
-    properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.request.name), undefined)
+    const identifier = pluginManager.resolveName({
+      name: schemas.request.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.pathParams) {
-    properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.pathParams.name), undefined)
+    const identifier = pluginManager.resolveName({
+      name: schemas.pathParams.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.queryParams) {
-    properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.queryParams.name), undefined)
+    const identifier = pluginManager.resolveName({
+      name: schemas.queryParams.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.headerParams) {
-    properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(schemas.headerParams.name), undefined)
+    const identifier = pluginManager.resolveName({
+      name: schemas.headerParams.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.errors) {
     properties['errors'] = factory.createUnionDeclaration({
       nodes: schemas.errors.map((error) => {
-        return factory.createTypeReferenceNode(factory.createIdentifier(error.name), undefined)
+        const identifier = pluginManager.resolveName({
+          name: error.name,
+          pluginKey: [pluginTsName],
+          type: 'function',
+        })
+
+        return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
       }),
     })!
   }
@@ -111,7 +149,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {items.map(mapItem)}
 
-        <File.Source>{printCombinedSchema(factoryName, operation, schemas)}</File.Source>
+        <File.Source>{printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}</File.Source>
       </File>
     </Parser>
   )

@@ -66,9 +66,9 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
@@ -79,7 +79,7 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.1",
+    "@types/react": "^18.3.2",
     "react": "^18.3.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"

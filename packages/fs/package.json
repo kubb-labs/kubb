@@ -34,7 +34,9 @@
   "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
-      "./types": ["./dist/types.d.ts"]
+      "./types": [
+        "./dist/types.d.ts"
+      ]
     }
   },
   "files": [
