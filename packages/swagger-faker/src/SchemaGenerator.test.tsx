@@ -1,48 +1,68 @@
 import path from 'node:path'
-
-import { mockedPluginManager } from '@kubb/core/mocks'
-
 import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
-import type { SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
+import { App } from '@kubb/react'
 import type { PluginFaker } from './types'
 
-describe('Faker SchemaGenerator enums', async () => {
-  const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
-  const oas = await parse(schemaPath)
-  const generator = new SchemaGenerator(
-    {
-      dateType: 'string',
-      seed: 1,
-      transformers: {},
-      unknownType: 'any',
-      mapper: {},
-      override: [],
-    },
-    {
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin: {} as Plugin<PluginFaker>,
-      contentType: undefined,
-      include: undefined,
-      mode: 'split',
-      override: [],
-    },
-  )
+import { mockedPluginManager } from '@kubb/core/mocks'
 
+import type { SchemaObject } from '@kubb/oas'
+import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
+import { createRootServer } from '@kubb/react/server'
+import { Schema } from './components/Schema.tsx'
+
+describe('Faker SchemaGenerator enums', async () => {
+  const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
+
+  const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+    dateType: 'date',
+    seed: undefined,
+    transformers: {},
+    unknownType: 'any',
+    mapper: {},
+    override: [],
+  }
+  const plugin = { options } as Plugin<PluginFaker>
+  const generator = new SchemaGenerator(options, {
+    oas,
+    include: undefined,
+    pluginManager: mockedPluginManager,
+    plugin,
+    contentType: undefined,
+    override: undefined,
+    mode: 'split',
+  })
   const schemas = oas.getDefinition().components?.schemas
 
-  test('generate x-enum-varnames types', async () => {
-    const node = generator.buildSource('enumVarNames', schemas?.['enumVarNames.Type'] as SchemaObject)
+  const testData = [
+    {
+      name: 'enumVarNames',
+      schema: schemas?.['enumVarNames.Type'] as SchemaObject,
+    },
+    {
+      name: 'enumNames',
+      schema: schemas?.['enumNames.Type'] as SchemaObject,
+    },
+  ] as const satisfies Array<{ name: string; schema: SchemaObject }>
 
-    expect(node).toMatchSnapshot()
-  })
+  test.each(testData)('$name', async ({ name, schema }) => {
+    const tree = generator.parse({ schema, name })
 
-  test('generate x-enumNames types', async () => {
-    const node = generator.buildSource('enumNames', schemas?.['enumNames.Type'] as SchemaObject)
+    const Component = () => {
+      return (
+        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
+          <Oas.Schema name={name} value={undefined} tree={tree}>
+            <Schema.File />
+          </Oas.Schema>
+        </App>
+      )
+    }
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />)
 
-    expect(node).toMatchSnapshot()
+    expect(output).toMatchSnapshot()
   })
 })

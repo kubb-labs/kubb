@@ -1,7 +1,7 @@
-import { Parser, File, useApp } from '@kubb/react'
 import { schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { File, Parser, useApp } from '@kubb/react'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -35,17 +35,17 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
-  const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
+  const mapItem = ({ name, schema, ...options }: OperationSchemaType, i: number) => {
     // hack so Params can be optional when needed
-    const required = Array.isArray(object?.required) ? !!object.required.length : !!object?.required
+    const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
     const optional = !required && !!name.includes('Params')
+    const tree = generator.parse({ schema, name })
+    const source = generator.getSource(name, [...tree, optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean), options)
 
     return (
-      <Oas.Schema key={i} generator={generator} name={name} object={object}>
+      <Oas.Schema key={i} name={name} value={schema} tree={tree}>
         {mode === 'split' && <Oas.Schema.Imports />}
-        <File.Source>
-          <Oas.Schema.Source extraSchemas={optional ? [{ keyword: schemaKeywords.optional }] : undefined} options={options} />
-        </File.Source>
+        <File.Source>{source.join('\n')}</File.Source>
       </Oas.Schema>
     )
   }

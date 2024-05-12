@@ -7,33 +7,30 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
 import type { ReactNode } from 'react'
-import type { SchemaGenerator, SchemaGeneratorBuildOptions } from '../SchemaGenerator.ts'
+import { SchemaGenerator } from '../SchemaGenerator.ts'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
 import type { PluginOas } from '../types.ts'
 
 export type SchemaContextProps = {
   name: string
-  object?: SchemaObject
-  generator?: SchemaGenerator
-  schemas: SchemaType[]
+  schema?: SchemaObject
+  tree: Array<SchemaType>
 }
 
 type Props = {
   name: string
-  object?: SchemaObject
-  generator: SchemaGenerator<any, any, any>
+  value?: SchemaObject
+  tree?: Array<SchemaType>
   children?: KubbNode
 }
 
 const SchemaContext = createContext<SchemaContextProps>({
   name: 'unknown',
-  schemas: [],
+  tree: [],
 })
 
-export function Schema({ name, object, generator, children }: Props): KubbNode {
-  const schemas = generator.buildSchemas({ schema: object, name })
-
-  return <SchemaContext.Provider value={{ name, schemas, object, generator }}>{children}</SchemaContext.Provider>
+export function Schema({ name, value, tree = [], children }: Props): KubbNode {
+  return <SchemaContext.Provider value={{ name, schema: value, tree }}>{children}</SchemaContext.Provider>
 }
 
 type FileProps = {
@@ -66,9 +63,6 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
             pluginKey: plugin.key,
           }}
         >
-          <File.Source>
-            <Schema.Source />
-          </File.Source>
           {children}
         </File>
       </Parser>
@@ -99,9 +93,6 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
         }}
       >
         <Schema.Imports isTypeOnly={isTypeOnly} />
-        <File.Source>
-          <Schema.Source />
-        </File.Source>
         {children}
       </File>
     </Parser>
@@ -113,10 +104,10 @@ type SchemaImportsProps = {
 }
 
 Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
-  const { generator, schemas } = useSchema()
+  const { tree } = useSchema()
   const { path: root } = useFile()
 
-  const refs = generator.deepSearch(schemas, schemaKeywords.ref)
+  const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
   return (
     <>
@@ -129,27 +120,6 @@ Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
           return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
         })
         .filter(Boolean)}
-    </>
-  )
-}
-
-type SchemaSourceProps<TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions> = {
-  extraSchemas?: SchemaType[]
-  options?: TOptions
-}
-
-Schema.Source = <TOptions extends SchemaGeneratorBuildOptions = SchemaGeneratorBuildOptions>({
-  options,
-  extraSchemas = [],
-}: SchemaSourceProps<TOptions>): ReactNode => {
-  const { name, generator, schemas } = useSchema()
-
-  const source = generator.getSource(name, [...schemas, ...extraSchemas], options as SchemaGeneratorBuildOptions)
-
-  return (
-    <>
-      {source}
-      <br />
     </>
   )
 }

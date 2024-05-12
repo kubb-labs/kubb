@@ -2,8 +2,7 @@
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`] = `
 "export type DeletePetPetidMutationResponse = any;
-
- export type DeletePetPetidMutation = {
+export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
 "
@@ -11,8 +10,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`]
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\` 1`] = `
 "export type DeletePetPetidMutationResponse = unknown;
-
- export type DeletePetPetidMutation = {
+export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
 "
@@ -29,23 +27,19 @@ import type { Pets } from "./Pets";
     */
     limit?: string;
 };
-
- /**
+/**
  * @description A paged array of pets
 */
 export type ListPets200 = Pets;
-
- /**
+/**
  * @description unexpected error
 */
 export type ListPetsError = Error;
-
- /**
+/**
  * @description A paged array of pets
 */
 export type ListPetsQueryResponse = Pets;
-
- export type ListPetsQuery = {
+export type ListPetsQuery = {
     Response: ListPetsQueryResponse;
     QueryParams: ListPetsQueryParams;
 };
@@ -68,23 +62,19 @@ import type { Pet } from "./Pet";
     */
     testId: string;
 };
-
- /**
+/**
  * @description Expected response to a valid request
 */
 export type ShowPetById200 = Pet;
-
- /**
+/**
  * @description unexpected error
 */
 export type ShowPetByIdError = Error;
-
- /**
+/**
  * @description Expected response to a valid request
 */
 export type ShowPetByIdQueryResponse = Pet;
-
- export type ShowPetByIdQuery = {
+export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
     PathParams: ShowPetByIdPathParams;
 };
@@ -101,13 +91,11 @@ import type { ErrorCode } from "./ErrorCode";
 export type CreatePets201 = (Error & {
     name?: ErrorCode;
 });
-
- /**
+/**
  * @description unexpected error
 */
 export type CreatePetsError = Error;
-
- export type CreatePetsMutationRequest = {
+export type CreatePetsMutationRequest = {
     /**
      * @type string
     */
@@ -117,15 +105,13 @@ export type CreatePetsError = Error;
     */
     tag: string;
 };
-
- /**
+/**
  * @description Null response
 */
 export type CreatePetsMutationResponse = (Error & {
     name?: ErrorCode;
 });
-
- export type CreatePetsMutation = {
+export type CreatePetsMutation = {
     Response: CreatePetsMutationResponse;
     Request: CreatePetsMutationRequest;
 };

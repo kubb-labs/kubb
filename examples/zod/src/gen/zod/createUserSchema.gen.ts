@@ -5,7 +5,6 @@ import { userSchema } from './userSchema.gen'
  * @description successful operation
  */
 export const createUserErrorSchema = z.lazy(() => userSchema).schema
-
 /**
  * @description Created user object
  */

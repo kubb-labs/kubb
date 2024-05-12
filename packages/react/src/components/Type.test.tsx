@@ -3,7 +3,7 @@ import { createRoot } from '../client/createRoot.ts'
 import { Type } from './Type.tsx'
 
 describe('<Type/>', () => {
-  test('render Function', async () => {
+  test('render Type', async () => {
     const Component = () => {
       return <Type name="Data">string</Type>
     }
@@ -13,7 +13,7 @@ describe('<Type/>', () => {
     expect(await format(root.output)).toMatchSnapshot()
   })
 
-  test('render Function with comments', async () => {
+  test('render Type with comments', async () => {
     const Component = () => {
       return (
         <Type name="Data" export JSDoc={{ comments: ['@deprecated'] }}>

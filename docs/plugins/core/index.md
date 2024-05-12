@@ -48,7 +48,7 @@ yarn add @kubb/core
 ## Usage
 
 ```typescript twoslash
-import { write } from '@kubb/core/fs'
+import { write } from '@kubb/fs'
 import { build } from '@kubb/core'
 
 const { error, files, pluginManager } = await build({

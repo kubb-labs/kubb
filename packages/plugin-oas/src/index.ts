@@ -7,6 +7,7 @@ export type {
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'
 export type {
+  GetSchemaGeneratorOptions,
   SchemaGeneratorBuildOptions,
   SchemaGeneratorOptions,
 } from './SchemaGenerator.ts'

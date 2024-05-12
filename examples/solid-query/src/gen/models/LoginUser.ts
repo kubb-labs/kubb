@@ -10,22 +10,18 @@ export type LoginUserQueryParams = {
    */
   password?: string
 }
-
 /**
  * @description successful operation
  */
 export type LoginUser200 = string
-
 /**
  * @description Invalid username/password supplied
  */
 export type LoginUser400 = any
-
 /**
  * @description successful operation
  */
 export type LoginUserQueryResponse = string
-
 export type LoginUserQuery = {
   Response: LoginUserQueryResponse
   QueryParams: LoginUserQueryParams

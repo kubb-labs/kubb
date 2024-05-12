@@ -297,34 +297,48 @@ export abstract class OperationGenerator<
   /**
    * Operation
    */
-  abstract operation(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
+  async operation(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+    return null
+  }
 
   /**
    * GET
    */
-  abstract get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
+  async get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+    return null
+  }
 
   /**
    * POST
    */
-  abstract post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
+  async post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+    return null
+  }
   /**
    * PATCH
    */
-  abstract patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
+  async patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+    return null
+  }
 
   /**
    * PUT
    */
-  abstract put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
+  async put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+    return null
+  }
 
   /**
    * DELETE
    */
-  abstract delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
+  async delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+    return null
+  }
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  abstract all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta>
+  async all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
+    return null
+  }
 }

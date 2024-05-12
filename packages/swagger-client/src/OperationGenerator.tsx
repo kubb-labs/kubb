@@ -1,6 +1,6 @@
-import { App, createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
+import { App, createRoot } from '@kubb/react'
 
 import { Client, Operations } from './components/index.ts'
 
@@ -61,23 +61,5 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
     )
 
     return root.files
-  }
-
-  async get(): OperationMethodResult<FileMeta> {
-    return null
-  }
-
-  async post(): OperationMethodResult<FileMeta> {
-    return null
-  }
-
-  async put(): OperationMethodResult<FileMeta> {
-    return null
-  }
-  async patch(): OperationMethodResult<FileMeta> {
-    return null
-  }
-  async delete(): OperationMethodResult<FileMeta> {
-    return null
   }
 }

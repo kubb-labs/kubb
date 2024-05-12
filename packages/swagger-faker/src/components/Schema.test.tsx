@@ -1,34 +1,15 @@
+import { schemas } from '../../../plugin-oas/mocks/schemas.ts'
+
+import type { Plugin } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { createRootServer } from '@kubb/react/server'
-import { Oas } from '@kubb/plugin-oas/components'
-
-import { OperationGenerator } from '../OperationGenerator.tsx'
-import { OperationSchema } from './OperationSchema.tsx'
-
-import type { Plugin, ResolveNameParams } from '@kubb/core'
-import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
-import { parseFromConfig } from '@kubb/plugin-oas/utils'
+import { Oas } from '@kubb/plugin-oas/components'
+import { App, createRoot } from '@kubb/react'
+import type { OperationGenerator } from '../OperationGenerator.tsx'
 import type { PluginFaker } from '../types.ts'
+import { Schema } from './Schema.tsx'
 
-describe('<Schema/>', async () => {
-  const oas = await parseFromConfig({
-    root: './',
-    output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-faker/mocks/petStore.yaml' },
-  })
-  mockedPluginManager.resolveName = ({ type, name }: ResolveNameParams) => {
-    if (type === 'file' || type === 'function') {
-      return camelCase(`create ${name}`)
-    }
-
-    if (type === 'type') {
-      return pascalCase(name)
-    }
-    return name
-  }
-
+describe('<Schema/> ', () => {
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
     dateType: 'date',
     seed: undefined,
@@ -39,54 +20,21 @@ describe('<Schema/>', async () => {
   }
 
   const plugin = { options } as Plugin<PluginFaker>
-  const og = await new OperationGenerator(options, {
-    oas,
-    exclude: [],
-    include: undefined,
-    pluginManager: mockedPluginManager,
-    plugin,
-    contentType: undefined,
-    override: undefined,
-    mode: 'split',
-  })
 
-  test('showPetById', async () => {
-    const operation = oas.operation('/pets/{petId}', 'get')
-
+  test.each(schemas.full)('$name', ({ schema, name }) => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
-            <Oas.Operation operation={operation}>
-              <OperationSchema.File />
-            </Oas.Operation>
-          </Oas>
+          <Oas.Schema name={name} value={undefined} tree={schema}>
+            <Schema.File />
+          </Oas.Schema>
         </App>
       )
     }
-    const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />)
 
-    expect(output).toMatchFileSnapshot('./__snapshots__/schema/showPetById.ts')
-  })
+    const root = createRoot()
+    root.render(<Component />)
 
-  test('pets', async () => {
-    const operation = oas.operation('/pets', 'post')
-
-    const Component = () => {
-      return (
-        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
-            <Oas.Operation operation={operation}>
-              <OperationSchema.File />
-            </Oas.Operation>
-          </Oas>
-        </App>
-      )
-    }
-    const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />)
-
-    expect(output).toMatchFileSnapshot('./__snapshots__/schema/Pets.ts')
+    expect(root.output).toMatchSnapshot()
   })
 })

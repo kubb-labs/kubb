@@ -1,18 +1,21 @@
-import { Parser, File, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { File, Parser, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginFaker } from '../types.ts'
+import { Schema } from './Schema.tsx'
 
-type Props = {}
+type Props = {
+  description?: string
+}
 
-export function OperationSchema({}: Props): ReactNode {
-  return <></>
+export function OperationSchema({ description }: Props): ReactNode {
+  return <Schema withData={false} description={description} />
 }
 
 type FileProps = {}
@@ -36,7 +39,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
-  const mapItem = ({ name, schema: object, ...options }: OperationSchemaType, i: number) => {
+  const mapItem = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
     // used for this.options.typed
     const typeName = pluginManager.resolveName({
       name,
@@ -54,13 +57,15 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
       options: { tag: options.operation?.getTags()[0]?.name },
     })
 
+    const tree = generator.parse({ schema, name })
+
     return (
-      <Oas.Schema key={i} generator={generator} name={name} object={object}>
+      <Oas.Schema key={i} name={name} value={schema} tree={tree}>
         {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
 
         {mode === 'split' && <Oas.Schema.Imports />}
         <File.Source>
-          <Oas.Schema.Source options={{ ...options, withData: false }} />
+          <OperationSchema description={description} />
         </File.Source>
       </Oas.Schema>
     )

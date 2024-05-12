@@ -13,22 +13,18 @@ export type FindPetsByStatusQueryParams = {
    */
   status?: FindPetsByStatusQueryParamsStatusEnum
 }
-
 /**
  * @description successful operation
  */
 export type FindPetsByStatus200 = Pet[]
-
 /**
  * @description Invalid status value
  */
 export type FindPetsByStatus400 = any
-
 /**
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
-
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
   QueryParams: FindPetsByStatusQueryParams
