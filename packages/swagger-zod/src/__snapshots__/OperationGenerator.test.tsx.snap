@@ -1,105 +1,75 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 1`] = `
-"import { z } from "zod";
-
-
-export const DeletePetPetidMutationResponse = z.any();
-"
-`;
-
-exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknown\` 1`] = `
-[
-  {
-    "baseName": "delete_pet-petid.ts",
-    "env": undefined,
-    "exportable": true,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": false,
-        "name": [
-          "z",
-        ],
-        "path": "zod",
-        "root": undefined,
-      },
-    ],
-    "language": "typescript",
-    "meta": {
-      "name": "delete_pet-petid",
-      "pluginKey": undefined,
-      "tag": undefined,
-    },
-    "override": undefined,
-    "path": "delete_pet-petid.ts",
-    "source": "
-export const DeletePetPetidMutationResponse = z.unknown()
-",
-  },
-]
-`;
-
-exports[`OperationGenerator > [GET] should generate 1`] = `
-"import { z } from "zod";
-import { Pets } from "./Pets";
-import { Error } from "./Error";
-
-
-export const ListPetsQueryParams = z.object({ "limit": z.string().describe("How many items to return at one time (max 100)").optional() }).optional();
-/**
- * @description A paged array of pets
- */
-export const ListPets200 = z.lazy(() => Pets).schema;
-/**
- * @description unexpected error
- */
-export const ListPetsError = z.lazy(() => Error).schema;
-/**
- * @description A paged array of pets
- */
-export const ListPetsQueryResponse = z.lazy(() => Pets).schema;
-"
-`;
-
-exports[`OperationGenerator > [GET] should generate 2`] = `
-"import { z } from "zod";
-import { Pet } from "./Pet";
-import { Error } from "./Error";
-
-
-export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe("The id of the pet to retrieve"), "testId": z.string().describe("The id of the pet to retrieve") });
-/**
- * @description Expected response to a valid request
- */
-export const ShowPetById200 = z.lazy(() => Pet).schema;
-/**
- * @description unexpected error
- */
-export const ShowPetByIdError = z.lazy(() => Error).schema;
-/**
- * @description Expected response to a valid request
- */
-export const ShowPetByIdQueryResponse = z.lazy(() => Pet).schema;
-"
-`;
-
-exports[`OperationGenerator > [POST] should generate 1`] = `
-"import { z } from "zod";
-import { Error } from "./Error";
-
- /**
+exports[`OperationGenerator > 'createPet with unknownType any' 1`] = `
+"/**
  * @description Null response
  */
-export const CreatePets201 = z.any();
+export const CreatePets201 = z.any()
 /**
  * @description unexpected error
  */
-export const CreatePetsError = z.lazy(() => Error).schema;
+export const CreatePetsError = z.lazy(() => Error).schema
 
- export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
+export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
 
- export const CreatePetsMutationResponse = z.any();
+export const CreatePetsMutationResponse = z.any()
+"
+`;
+
+exports[`OperationGenerator > 'createPet' 1`] = `
+"/**
+ * @description Null response
+ */
+export const CreatePets201 = z.any()
+/**
+ * @description unexpected error
+ */
+export const CreatePetsError = z.lazy(() => Error).schema
+
+export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
+
+export const CreatePetsMutationResponse = z.any()
+"
+`;
+
+exports[`OperationGenerator > 'deletePet' 1`] = `
+"export const DeletePetsPetidMutationResponse = z.any()
+"
+`;
+
+exports[`OperationGenerator > 'getPets' 1`] = `
+"export const ListPetsQueryParams = z.object({ limit: z.string().describe('How many items to return at one time (max 100)').optional() }).optional()
+/**
+ * @description A paged array of pets
+ */
+export const ListPets200 = z.lazy(() => Pets).schema
+/**
+ * @description unexpected error
+ */
+export const ListPetsError = z.lazy(() => Error).schema
+/**
+ * @description A paged array of pets
+ */
+export const ListPetsQueryResponse = z.lazy(() => Pets).schema
+"
+`;
+
+exports[`OperationGenerator > 'showPetById' 1`] = `
+"export const ShowPetByIdPathParams = z.object({
+  petId: z.string().describe('The id of the pet to retrieve'),
+  testId: z.string().describe('The id of the pet to retrieve'),
+})
+/**
+ * @description Expected response to a valid request
+ */
+export const ShowPetById200 = z.lazy(() => Pet).schema
+/**
+ * @description unexpected error
+ */
+export const ShowPetByIdError = z.lazy(() => Error).schema
+/**
+ * @description Expected response to a valid request
+ */
+export const ShowPetByIdQueryResponse = z.lazy(() => Pet).schema
 "
 `;

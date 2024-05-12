@@ -6,20 +6,26 @@ import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 import type { OperationGenerator } from '../OperationGenerator.tsx'
-import type { PluginFaker } from '../types.ts'
+import type { PluginZod } from '../types.ts'
+import { Operations } from './Operations.tsx'
 import { Schema } from './Schema.tsx'
 
 describe('<Schema/> ', () => {
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
-    dateType: 'date',
-    seed: undefined,
+    dateType: 'string',
+    include: undefined,
     transformers: {},
     unknownType: 'any',
+    exclude: undefined,
+    override: undefined,
+    typed: false,
+    templates: {
+      operations: Operations.templates,
+    },
     mapper: {},
-    override: [],
   }
 
-  const plugin = { options } as Plugin<PluginFaker>
+  const plugin = { options } as Plugin<PluginZod>
 
   test.each(schemas.full)('$name', ({ schema, name }) => {
     const Component = () => {
