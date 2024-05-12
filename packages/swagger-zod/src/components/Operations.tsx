@@ -1,5 +1,5 @@
-import { Parser, File, useApp } from '@kubb/react'
 import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
+import { Const, File, Parser, useApp } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'
@@ -46,13 +46,12 @@ function Template({ operationsName, pathsName, operations }: TemplateProps): Kub
 
   return (
     <>
-      {`export const ${operationsName} = {
-          ${transformers.stringifyObject(operationsJSON)}
-       } as const;`}
-      <br />
-      {`export const ${pathsName} = {
-         ${transformers.stringifyObject(pathsJSON)}
-       } as const;`}
+      <Const export name={operationsName} asConst>
+        {`{${transformers.stringifyObject(operationsJSON)}}`}
+      </Const>
+      <Const export name={pathsName} asConst>
+        {`{${transformers.stringifyObject(pathsJSON)}}`}
+      </Const>
     </>
   )
 }

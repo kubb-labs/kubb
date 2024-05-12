@@ -39,6 +39,9 @@ export const createMachineRequestSchema = z.object({
   skip_service_registration: z.boolean().optional(),
 })
 
+/**
+ * @description Optional parameters
+ */
 export const createOidcTokenRequestSchema = z.object({ aud: z.string().optional() }).describe('Optional parameters')
 
 export const createVolumeRequestSchema = z.object({
@@ -207,6 +210,9 @@ export const flyDnsConfigSchema = z.object({
 
 export const flyDurationSchema = z.object({ 'time.Duration': z.number().optional() })
 
+/**
+ * @description EnvVar defines an environment variable to be populated from a machine field, env_var
+ */
 export const flyEnvFromSchema = z
   .object({
     env_var: z
@@ -222,6 +228,9 @@ export const flyEnvFromSchema = z
   })
   .describe('EnvVar defines an environment variable to be populated from a machine field, env_var')
 
+/**
+ * @description A file that will be written to the Machine. One of RawValue or SecretName must be set.
+ */
 export const flyFileSchema = z
   .object({
     guest_path: z
@@ -241,6 +250,9 @@ export const flyHttpOptionsSchema = z.object({
 
 export const flyHttpResponseOptionsSchema = z.object({ headers: z.object({}).catchall(z.object({})).optional(), pristine: z.boolean().optional() })
 
+/**
+ * @description An optional object that defines one or more named checks. The key for each check is the check name.
+ */
 export const flyMachineCheckSchema = z
   .object({
     grace_period: z
@@ -305,6 +317,9 @@ export const flyMachineGuestSchema = z.object({
   memory_mb: z.number().optional(),
 })
 
+/**
+ * @description For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.
+ */
 export const flyMachineHttpHeaderSchema = z
   .object({ name: z.string().describe('The header name').optional(), values: z.array(z.string()).describe('The header value').optional() })
   .describe(
@@ -368,6 +383,9 @@ export const flyMachineProcessSchema = z.object({
   user: z.string().optional(),
 })
 
+/**
+ * @description The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.
+ */
 export const flyMachineRestartSchema = z
   .object({
     max_retries: z
@@ -385,6 +403,9 @@ export const flyMachineRestartSchema = z
     'The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.',
   )
 
+/**
+ * @description A Secret needing to be set in the environment of the Machine. env_var is required
+ */
 export const flyMachineSecretSchema = z
   .object({
     env_var: z

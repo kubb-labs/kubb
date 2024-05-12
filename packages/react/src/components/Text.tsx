@@ -40,6 +40,9 @@ type ConstProps = Props & {
   JSDoc?: JSDoc
 }
 
+/**
+ * @deprecated
+ */
 export function Const({ name, export: canExport, JSDoc, children }: ConstProps): KubbNode {
   return (
     <>
@@ -79,4 +82,7 @@ function Space({ size = 1 }: SpaceProps): KubbNode {
 }
 
 Text.Space = Space
+/**
+ * @deprecated
+ */
 Text.Const = Const
