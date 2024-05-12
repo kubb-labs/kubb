@@ -1,16 +1,16 @@
-import {  mockedPluginManager } from '@kubb/core/mocks'
+import { mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import path from 'node:path';
+import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas';
-import { parse } from '@kubb/oas/parser';
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas/parser'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components';
-import { App } from '@kubb/react';
-import { createRootServer } from '@kubb/react/server';
-import { OperationSchema } from './components';
+import { Oas } from '@kubb/plugin-oas/components'
+import { App } from '@kubb/react'
+import { createRootServer } from '@kubb/react/server'
+import { OperationSchema } from './components'
 import type { PluginFaker } from './types.ts'
 
 describe('OperationGenerator', async () => {
@@ -20,43 +20,42 @@ describe('OperationGenerator', async () => {
       name: 'showPetById',
       path: '/pets/{petId}',
       method: 'get',
-      options:{}
+      options: {},
     },
     {
       name: 'getPets',
       path: '/pets',
       method: 'get',
-      options:{}
-    },  {
+      options: {},
+    },
+    {
       name: 'createPet',
       path: '/pets',
       method: 'post',
-      options:{
-      }
+      options: {},
     },
     {
       name: 'createPet with unknownType any',
       path: '/pets',
       method: 'post',
-      options:{
-        unknownType: "any"
-      }
+      options: {
+        unknownType: 'any',
+      },
     },
     {
       name: 'deletePet',
       path: '/pets/{petId}',
       method: 'delete',
-      options:{}
+      options: {},
     },
     {
       name: 'createPet with seed 222',
       path: '/pets',
       method: 'post',
-      options:{
+      options: {
         seed: [222],
-      }
+      },
     },
-
   ] as const satisfies Array<{ name: string; path: string; method: HttpMethod; options: Partial<GetOperationGeneratorOptions<OperationGenerator>> }>
 
   test.each(testData)('$name', async ({ name, path, method, options: extraOptions }) => {
@@ -67,7 +66,7 @@ describe('OperationGenerator', async () => {
       unknownType: 'any',
       mapper: {},
       override: [],
-      ...extraOptions
+      ...extraOptions,
     }
     const plugin = { options } as Plugin<PluginFaker>
     const generator = new OperationGenerator(options, {

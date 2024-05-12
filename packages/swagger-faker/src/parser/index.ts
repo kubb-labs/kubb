@@ -3,7 +3,7 @@ import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 
-export const fakerKeywordMapper = {
+const fakerKeywordMapper = {
   any: () => 'undefined',
   unknown: () => 'unknown',
   number: (min?: number, max?: number) => {
@@ -123,7 +123,7 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parseFaker(parent: Schema | undefined, current: Schema, options: ParserOptions): string | null | undefined {
+export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): string | null | undefined {
   const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
 
   if (!value) {
@@ -131,15 +131,15 @@ export function parseFaker(parent: Schema | undefined, current: Schema, options:
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return fakerKeywordMapper.union(current.args.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.union(current.args.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return fakerKeywordMapper.and(current.args.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.and(current.args.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return fakerKeywordMapper.array(current.args.items.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.array(current.args.items.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
@@ -183,7 +183,7 @@ export function parseFaker(parent: Schema | undefined, current: Schema, options:
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordsorter)
-            .map((schema) => parseFaker(current, schema, { ...options, withData: false }))
+            .map((schema) => parse(current, schema, { ...options, withData: false }))
             .filter(Boolean),
         )}`
       })
@@ -194,10 +194,10 @@ export function parseFaker(parent: Schema | undefined, current: Schema, options:
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     if (Array.isArray(current.args)) {
-      return fakerKeywordMapper.tuple(current.args.map((schema) => parseFaker(current, schema, { ...options, withData: false })).filter(Boolean))
+      return fakerKeywordMapper.tuple(current.args.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
     }
 
-    return parseFaker(current, current.args, { ...options, withData: false })
+    return parse(current, current.args, { ...options, withData: false })
   }
 
   if (isKeyword(current, schemaKeywords.const)) {

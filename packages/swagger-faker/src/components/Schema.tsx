@@ -1,12 +1,12 @@
 import { Oas } from '@kubb/plugin-oas/components'
-import { File, Function, Parser, useApp, useFile } from '@kubb/react'
+import { File, Function, useApp, useFile } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
 
 import transformers from '@kubb/core/transformers'
 import { schemaKeywords } from '@kubb/plugin-oas'
 import { useSchema } from '@kubb/plugin-oas/hooks'
 import type { ReactNode } from 'react'
-import { joinItems, parseFaker } from '../fakerParser.ts'
+import * as parserFaker from '../parser/index.ts'
 import { pluginFakerName } from '../plugin.ts'
 import type { PluginFaker } from '../types.ts'
 
@@ -38,7 +38,9 @@ export function Schema(props: Props): ReactNode {
     type: 'type',
   })
 
-  const fakerText = joinItems(tree.map((schema) => parseFaker(undefined, schema, { name: resolvedName, typeName, seed, mapper, withData })).filter(Boolean))
+  const fakerText = parserFaker.joinItems(
+    tree.map((schema) => parserFaker.parse(undefined, schema, { name: resolvedName, typeName, seed, mapper, withData })).filter(Boolean),
+  )
 
   let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
   let fakerTextWithOverride = fakerText
@@ -83,24 +85,7 @@ type FileProps = {}
 
 Schema.File = function ({}: FileProps): ReactNode {
   const { pluginManager } = useApp<PluginFaker>()
-  const { path: root } = useFile()
-  const { name, tree, schema } = useSchema()
-
-  // used for this.options.typed
-  const typeName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginTsName],
-    type: 'type',
-  })
-  const typeFileName = pluginManager.resolveName({
-    name: name,
-    pluginKey: [pluginTsName],
-    type: 'file',
-  })
-  const typePath = pluginManager.resolvePath({
-    baseName: typeFileName,
-    pluginKey: [pluginTsName],
-  })
+  const { tree, schema } = useSchema()
 
   const withData = tree.some(
     (schema) =>
@@ -112,14 +97,41 @@ Schema.File = function ({}: FileProps): ReactNode {
   )
 
   return (
-    <Parser language="typescript">
-      <Oas.Schema.File output={pluginManager.config.output.path}>
-        <File.Import name={['faker']} path="@faker-js/faker" />
-        {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
-        <File.Source>
-          <Schema description={schema?.description} withData={withData} />
-        </File.Source>
-      </Oas.Schema.File>
-    </Parser>
+    <Oas.Schema.File output={pluginManager.config.output.path}>
+      <Schema.Imports />
+      <File.Source>
+        <Schema description={schema?.description} withData={withData} />
+      </File.Source>
+    </Oas.Schema.File>
+  )
+}
+Schema.Imports = (): ReactNode => {
+  const { pluginManager } = useApp<PluginFaker>()
+  const { path: root } = useFile()
+  const { name, tree, schema } = useSchema()
+
+  // used for this.options.typed
+  const typeName = pluginManager.resolveName({
+    name,
+    pluginKey: [pluginTsName],
+    type: 'type',
+  })
+
+  const typeFileName = pluginManager.resolveName({
+    name: name,
+    pluginKey: [pluginTsName],
+    type: 'file',
+  })
+
+  const typePath = pluginManager.resolvePath({
+    baseName: typeFileName,
+    pluginKey: [pluginTsName],
+  })
+
+  return (
+    <>
+      <File.Import name={['faker']} path="@faker-js/faker" />
+      {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
+    </>
   )
 }
