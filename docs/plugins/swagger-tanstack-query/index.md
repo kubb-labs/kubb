@@ -28,19 +28,19 @@ With the Swagger Tanstack Query plugin you can create:
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
+bun add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas @kubb/swagger-client
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
+pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/swagger-client
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
+npm install @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/swagger-client
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/swagger @kubb/swagger-client
+yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/swagger-client
 ```
 
 :::

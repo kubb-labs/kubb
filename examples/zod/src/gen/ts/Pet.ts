@@ -1,5 +1,5 @@
-import type { Tag } from './Tag'
 import type { Category } from './Category'
+import type { Tag } from './Tag'
 
 export const petStatus = {
   available: 'available',

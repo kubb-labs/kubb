@@ -1,0 +1,1459 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`type parse > 'and' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 196,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "type": NodeObject {
+    "end": -1,
+    "flags": 16,
+    "kind": 193,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+    "types": [
+      TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+      TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 150,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    ],
+  },
+}
+`;
+
+exports[`type parse > 'any' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 133,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'array' 1`] = `
+NodeObject {
+  "elementType": NodeObject {
+    "end": -1,
+    "flags": 16,
+    "kind": 196,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+    "type": NodeObject {
+      "end": -1,
+      "flags": 16,
+      "kind": 192,
+      "modifierFlagsCache": 0,
+      "parent": undefined,
+      "pos": -1,
+      "transformFlags": 1,
+      "types": [
+        TokenObject {
+          "end": -1,
+          "flags": 16,
+          "kind": 150,
+          "modifierFlagsCache": 0,
+          "parent": undefined,
+          "pos": -1,
+          "transformFlags": 1,
+        },
+        TokenObject {
+          "end": -1,
+          "flags": 16,
+          "kind": 154,
+          "modifierFlagsCache": 0,
+          "parent": undefined,
+          "pos": -1,
+          "transformFlags": 1,
+        },
+      ],
+    },
+  },
+  "end": -1,
+  "flags": 16,
+  "kind": 188,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'arrayAdvanced' 1`] = `
+NodeObject {
+  "elementType": TokenObject {
+    "end": -1,
+    "flags": 16,
+    "kind": 150,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+  },
+  "end": -1,
+  "flags": 16,
+  "kind": 188,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'arrayEmpty' 1`] = `
+NodeObject {
+  "elements": [],
+  "end": -1,
+  "flags": 16,
+  "kind": 189,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'arrayRef' 1`] = `
+NodeObject {
+  "elementType": NodeObject {
+    "end": -1,
+    "flags": 16,
+    "kind": 183,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+    "typeArguments": undefined,
+    "typeName": IdentifierObject {
+      "end": -1,
+      "escapedText": "Pet",
+      "flags": 16,
+      "flowNode": undefined,
+      "jsDoc": undefined,
+      "kind": 80,
+      "modifierFlagsCache": 0,
+      "parent": undefined,
+      "pos": -1,
+      "symbol": undefined,
+      "transformFlags": 0,
+    },
+  },
+  "end": -1,
+  "flags": 16,
+  "kind": 188,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'arrayRegex' 1`] = `
+NodeObject {
+  "elementType": TokenObject {
+    "end": -1,
+    "flags": 16,
+    "kind": 154,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+  },
+  "end": -1,
+  "flags": 16,
+  "kind": 188,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'blob' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 183,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "typeArguments": undefined,
+  "typeName": IdentifierObject {
+    "end": -1,
+    "escapedText": "Blob",
+    "flags": 16,
+    "flowNode": undefined,
+    "jsDoc": undefined,
+    "kind": 80,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "symbol": undefined,
+    "transformFlags": 0,
+  },
+}
+`;
+
+exports[`type parse > 'boolean' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 136,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'catchall' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "jsDoc": undefined,
+      "kind": 181,
+      "localSymbol": undefined,
+      "locals": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": undefined,
+      "nextContainer": undefined,
+      "parameters": [
+        NodeObject {
+          "dotDotDotToken": undefined,
+          "end": -1,
+          "flags": 16,
+          "initializer": undefined,
+          "jsDoc": undefined,
+          "kind": 169,
+          "localSymbol": undefined,
+          "modifierFlagsCache": 0,
+          "modifiers": undefined,
+          "name": IdentifierObject {
+            "end": -1,
+            "escapedText": "key",
+            "flags": 16,
+            "flowNode": undefined,
+            "jsDoc": undefined,
+            "kind": 80,
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "symbol": undefined,
+            "transformFlags": 0,
+          },
+          "parent": undefined,
+          "pos": -1,
+          "questionToken": undefined,
+          "symbol": undefined,
+          "transformFlags": 1,
+          "type": TokenObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 154,
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+          },
+        },
+      ],
+      "parent": undefined,
+      "pos": -1,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 183,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+        "typeArguments": undefined,
+        "typeName": IdentifierObject {
+          "end": -1,
+          "escapedText": "Pet",
+          "flags": 16,
+          "flowNode": undefined,
+          "jsDoc": undefined,
+          "kind": 80,
+          "modifierFlagsCache": 0,
+          "parent": undefined,
+          "pos": -1,
+          "symbol": undefined,
+          "transformFlags": 0,
+        },
+      },
+      "typeArguments": undefined,
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'date' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'datetime' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'default' 1`] = `undefined`;
+
+exports[`type parse > 'default' 2`] = `undefined`;
+
+exports[`type parse > 'enum' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 183,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "typeArguments": undefined,
+  "typeName": IdentifierObject {
+    "end": -1,
+    "escapedText": "Enum",
+    "flags": 16,
+    "flowNode": undefined,
+    "jsDoc": undefined,
+    "kind": 80,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "symbol": undefined,
+    "transformFlags": 0,
+  },
+}
+`;
+
+exports[`type parse > 'matches' 1`] = `undefined`;
+
+exports[`type parse > 'matchesReg' 1`] = `undefined`;
+
+exports[`type parse > 'max' 1`] = `undefined`;
+
+exports[`type parse > 'min' 1`] = `undefined`;
+
+exports[`type parse > 'nullable' 1`] = `undefined`;
+
+exports[`type parse > 'number' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 150,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'object' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "firstName",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @description \\"Your address\\"
+",
+          },
+        ],
+      },
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "address",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 192,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+        "types": [
+          TokenObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 154,
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+          },
+          NodeObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 201,
+            "literal": TokenObject {
+              "end": -1,
+              "flags": 16,
+              "kind": 106,
+              "modifierFlagsCache": 0,
+              "parent": undefined,
+              "pos": -1,
+              "transformFlags": 0,
+            },
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+          },
+        ],
+      },
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'objectAnd' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @deprecated
+ * @default test
+",
+          },
+        ],
+      },
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "firstName",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @default 2
+ * @example 2
+",
+          },
+        ],
+      },
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "age",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 150,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @description Your address
+",
+          },
+        ],
+      },
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "address",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 192,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+        "types": [
+          NodeObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 196,
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+            "type": NodeObject {
+              "end": -1,
+              "flags": 16,
+              "kind": 193,
+              "modifierFlagsCache": 0,
+              "parent": undefined,
+              "pos": -1,
+              "transformFlags": 1,
+              "types": [
+                TokenObject {
+                  "end": -1,
+                  "flags": 16,
+                  "kind": 154,
+                  "modifierFlagsCache": 0,
+                  "parent": undefined,
+                  "pos": -1,
+                  "transformFlags": 1,
+                },
+                TokenObject {
+                  "end": -1,
+                  "flags": 16,
+                  "kind": 150,
+                  "modifierFlagsCache": 0,
+                  "parent": undefined,
+                  "pos": -1,
+                  "transformFlags": 1,
+                },
+              ],
+            },
+          },
+          NodeObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 201,
+            "literal": TokenObject {
+              "end": -1,
+              "flags": 16,
+              "kind": 106,
+              "modifierFlagsCache": 0,
+              "parent": undefined,
+              "pos": -1,
+              "transformFlags": 0,
+            },
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+          },
+        ],
+      },
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'objectArray' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "ids",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "elementType": TokenObject {
+          "end": -1,
+          "flags": 16,
+          "kind": 154,
+          "modifierFlagsCache": 0,
+          "parent": undefined,
+          "pos": -1,
+          "transformFlags": 1,
+        },
+        "end": -1,
+        "flags": 16,
+        "kind": 188,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'objectDates' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "dateTime",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "date",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "time",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "nativeDate",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 183,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+        "typeArguments": undefined,
+        "typeName": IdentifierObject {
+          "end": -1,
+          "escapedText": "Date",
+          "flags": 16,
+          "flowNode": undefined,
+          "jsDoc": undefined,
+          "kind": 80,
+          "modifierFlagsCache": 0,
+          "parent": undefined,
+          "pos": -1,
+          "symbol": undefined,
+          "transformFlags": 0,
+        },
+      },
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'objectEmpty' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'objectEnum' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @description Your address
+ * @type string, string
+",
+          },
+        ],
+      },
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "version",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 183,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+        "typeArguments": undefined,
+        "typeName": IdentifierObject {
+          "end": -1,
+          "escapedText": "Enum",
+          "flags": 16,
+          "flowNode": undefined,
+          "jsDoc": undefined,
+          "kind": 80,
+          "modifierFlagsCache": 0,
+          "parent": undefined,
+          "pos": -1,
+          "symbol": undefined,
+          "transformFlags": 0,
+        },
+      },
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'objectOptional' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 187,
+  "localSymbol": undefined,
+  "members": [
+    NodeObject {
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "firstName",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 58,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 0,
+      },
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    },
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @description \\"Your address\\"
+",
+          },
+        ],
+      },
+      "end": -1,
+      "flags": 16,
+      "initializer": undefined,
+      "jsDoc": undefined,
+      "kind": 171,
+      "localSymbol": undefined,
+      "modifierFlagsCache": 0,
+      "modifiers": [],
+      "name": IdentifierObject {
+        "end": -1,
+        "escapedText": "address",
+        "flags": 16,
+        "flowNode": undefined,
+        "jsDoc": undefined,
+        "kind": 80,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "symbol": undefined,
+        "transformFlags": 0,
+      },
+      "parent": undefined,
+      "pos": -1,
+      "questionToken": undefined,
+      "symbol": undefined,
+      "transformFlags": 1,
+      "type": NodeObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 192,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+        "types": [
+          TokenObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 154,
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+          },
+          NodeObject {
+            "end": -1,
+            "flags": 16,
+            "kind": 201,
+            "literal": TokenObject {
+              "end": -1,
+              "flags": 16,
+              "kind": 106,
+              "modifierFlagsCache": 0,
+              "parent": undefined,
+              "pos": -1,
+              "transformFlags": 0,
+            },
+            "modifierFlagsCache": 0,
+            "parent": undefined,
+            "pos": -1,
+            "transformFlags": 1,
+          },
+        ],
+      },
+    },
+  ],
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "symbol": undefined,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'primitiveDate' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 183,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "typeArguments": undefined,
+  "typeName": IdentifierObject {
+    "end": -1,
+    "escapedText": "Date",
+    "flags": 16,
+    "flowNode": undefined,
+    "jsDoc": undefined,
+    "kind": 80,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "symbol": undefined,
+    "transformFlags": 0,
+  },
+}
+`;
+
+exports[`type parse > 'ref' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 183,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "typeArguments": undefined,
+  "typeName": IdentifierObject {
+    "end": -1,
+    "escapedText": "Pet",
+    "flags": 16,
+    "flowNode": undefined,
+    "jsDoc": undefined,
+    "kind": 80,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "symbol": undefined,
+    "transformFlags": 0,
+  },
+}
+`;
+
+exports[`type parse > 'string' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'stringLocal' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'stringOffset' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'time' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'tuple' 1`] = `
+NodeObject {
+  "elements": [],
+  "end": -1,
+  "flags": 16,
+  "kind": 189,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'tupleMulti' 1`] = `
+NodeObject {
+  "elements": [
+    TokenObject {
+      "end": -1,
+      "flags": 16,
+      "kind": 154,
+      "modifierFlagsCache": 0,
+      "parent": undefined,
+      "pos": -1,
+      "transformFlags": 1,
+    },
+    TokenObject {
+      "end": -1,
+      "flags": 16,
+      "kind": 150,
+      "modifierFlagsCache": 0,
+      "parent": undefined,
+      "pos": -1,
+      "transformFlags": 1,
+    },
+  ],
+  "end": -1,
+  "flags": 16,
+  "kind": 189,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'undefined' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 157,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'union' 1`] = `
+NodeObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 196,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "type": NodeObject {
+    "end": -1,
+    "flags": 16,
+    "kind": 192,
+    "modifierFlagsCache": 0,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+    "types": [
+      TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 154,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+      TokenObject {
+        "end": -1,
+        "flags": 16,
+        "kind": 150,
+        "modifierFlagsCache": 0,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    ],
+  },
+}
+`;
+
+exports[`type parse > 'unionOne' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 154,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > 'unknown' 1`] = `
+TokenObject {
+  "end": -1,
+  "flags": 16,
+  "kind": 159,
+  "modifierFlagsCache": 0,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;

@@ -9,8 +9,11 @@ import type { PluginTs } from './types'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
 
-import type { SchemaObject } from '@kubb/oas'
 import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
+import { App } from '@kubb/react'
+import { createRootServer } from '@kubb/react/server'
+import { Schema } from './components/Schema.tsx'
 
 describe('TypeScript SchemaGenerator', async () => {
   const testData = [
@@ -320,9 +323,20 @@ describe('TypeScript SchemaGenerator', async () => {
       override: undefined,
       mode: 'split',
     })
+    const tree = generator.parse({ schema, name: props.name })
 
-    const node = generator.buildSource(camelCase(props.name), schema as SchemaObject)
+    const Component = () => {
+      return (
+        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
+          <Oas.Schema name={camelCase(props.name)} value={undefined} tree={tree}>
+            <Schema.File />
+          </Oas.Schema>
+        </App>
+      )
+    }
+    const root = createRootServer({ logger: mockedPluginManager.logger })
+    const output = await root.renderToString(<Component />)
 
-    expect(node).toMatchSnapshot()
+    expect(output).toMatchSnapshot()
   })
 })

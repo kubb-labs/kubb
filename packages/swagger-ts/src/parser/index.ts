@@ -1,7 +1,6 @@
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
-import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { ts } from '@kubb/parser-ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
@@ -127,7 +126,7 @@ type ParserOptions = {
   mapper?: SchemaMapper
 }
 
-export function parseTypeMeta(parent: Schema | undefined, current: Schema, options: ParserOptions): ts.Node | null | undefined {
+export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {
@@ -135,15 +134,15 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return typeKeywordMapper.union(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.union(current.args.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return typeKeywordMapper.and(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.and(current.args.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return typeKeywordMapper.array(current.args.items.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.array(current.args.items.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
@@ -159,7 +158,7 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    return typeKeywordMapper.tuple(current.args.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.tuple(current.args.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.const)) {
@@ -190,7 +189,7 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
         const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
         const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
 
-        let type = schemas.map((schema) => parseTypeMeta(current, schema, options)).filter(Boolean)[0] as ts.TypeNode
+        let type = schemas.map((schema) => parse(current, schema, options)).filter(Boolean)[0] as ts.TypeNode
 
         if (isNullable) {
           type = factory.createUnionDeclaration({
@@ -234,7 +233,7 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
     const additionalProperties = current.args?.additionalProperties?.length
       ? factory.createIndexSignature(
           current.args.additionalProperties
-            .map((schema) => parseTypeMeta(current, schema, options))
+            .map((schema) => parse(current, schema, options))
             .filter(Boolean)
             .at(0) as ts.TypeNode,
         )
@@ -260,85 +259,4 @@ export function parseTypeMeta(parent: Schema | undefined, current: Schema, optio
   }
 
   return undefined
-}
-
-export function typeParser(schemas: Schema[], options: ParserOptions): string {
-  const nodes: ts.Node[] = []
-  const extraNodes: ts.Node[] = []
-
-  if (!schemas.length) {
-    return ''
-  }
-
-  const isNullish = schemas.some((item) => item.keyword === schemaKeywords.nullish)
-  const isNullable = schemas.some((item) => item.keyword === schemaKeywords.nullable)
-  const isOptional = schemas.some((item) => item.keyword === schemaKeywords.optional)
-
-  let type =
-    (schemas
-      .map((schema) => parseTypeMeta(undefined, schema, options))
-      .filter(Boolean)
-      .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
-
-  if (isNullable) {
-    type = factory.createUnionDeclaration({
-      nodes: [type, factory.keywordTypeNodes.null],
-    }) as ts.TypeNode
-  }
-
-  if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
-    type = factory.createUnionDeclaration({
-      nodes: [type, factory.keywordTypeNodes.undefined],
-    }) as ts.TypeNode
-  }
-
-  if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
-    type = factory.createUnionDeclaration({
-      nodes: [type, factory.keywordTypeNodes.undefined],
-    }) as ts.TypeNode
-  }
-
-  const node = factory.createTypeAliasDeclaration({
-    modifiers: [factory.modifiers.export],
-    name: options.name,
-    type: options.keysToOmit?.length
-      ? factory.createOmitDeclaration({
-          keys: options.keysToOmit,
-          type,
-          nonNullable: true,
-        })
-      : type,
-  })
-
-  const enumSchemas = SchemaGenerator.deepSearch(schemas, schemaKeywords.enum)
-  if (enumSchemas) {
-    enumSchemas.forEach((enumSchema) => {
-      extraNodes.push(
-        ...factory.createEnumDeclaration({
-          name: transformers.camelCase(enumSchema.args.name),
-          typeName: enumSchema.args.typeName,
-          enums: enumSchema.args.items
-            .map((item) => (item.value === undefined ? undefined : [transformers.trimQuotes(item.name?.toString()), item.value]))
-            .filter(Boolean) as unknown as [string, string][],
-          type: options.enumType,
-        }),
-      )
-    })
-  }
-
-  nodes.push(
-    factory.appendJSDocToNode({
-      node,
-      comments: [options.description ? `@description ${transformers.jsStringEscape(options.description)}` : undefined].filter(Boolean),
-    }),
-  )
-
-  const filterdNodes = nodes.filter(
-    (node: ts.Node) =>
-      !extraNodes.some(
-        (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText,
-      ),
-  )
-
-  return print([...extraNodes, ...filterdNodes])
 }

@@ -15,8 +15,7 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/swagger-ts'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginTs } from '../types.ts'
-
-type Props = {}
+import { Schema } from './Schema.tsx'
 
 function printCombinedSchema({
   name,
@@ -108,8 +107,13 @@ function printCombinedSchema({
   return print(namespaceNode)
 }
 
-export function OperationSchema({}: Props): ReactNode {
-  return <></>
+type Props = {
+  description?: string
+  keysToOmit?: string[]
+}
+
+export function OperationSchema({ keysToOmit, description }: Props): ReactNode {
+  return <Schema keysToOmit={keysToOmit} description={description} />
 }
 
 type FileProps = {}
@@ -132,14 +136,15 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
   })
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)
 
-  const mapItem = ({ name, schema, ...options }: OperationSchemaType, i: number) => {
+  const mapItem = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
     const tree = generator.parse({ schema, name })
-    const source = generator.getSource(name, tree, options)
 
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
         {mode === 'split' && <Oas.Schema.Imports isTypeOnly />}
-        <File.Source>{source.join('\n')}</File.Source>
+        <File.Source>
+          <OperationSchema description={description} keysToOmit={keysToOmit} />
+        </File.Source>
       </Oas.Schema>
     )
   }

@@ -3,7 +3,7 @@ import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 
-const fakerKeywordMapper = {
+export const fakerKeywordMapper = {
   any: () => 'undefined',
   unknown: () => 'unknown',
   number: (min?: number, max?: number) => {
