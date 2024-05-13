@@ -1,5 +1,20 @@
 # @kubb/swagger-ts
 
+## 2.18.6
+
+### Patch Changes
+
+- [`4b4c762`](https://github.com/kubb-labs/kubb/commit/4b4c7620ab7be718a386292d965d8335cad6c1ec) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - add react for schema generation
+
+- Updated dependencies []:
+  - @kubb/core@2.18.6
+  - @kubb/fs@2.18.6
+  - @kubb/oas@2.18.6
+  - @kubb/parser-ts@2.18.6
+  - @kubb/plugin-oas@2.18.6
+  - @kubb/react@2.18.6
+  - @kubb/types@2.18.6
+
 ## 2.18.5
 
 ### Patch Changes
