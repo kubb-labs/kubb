@@ -8,7 +8,7 @@ export const CreatePets201 = z.any()
 /**
  * @description unexpected error
  */
-export const CreatePetsError = z.lazy(() => Error).schema
+export const CreatePetsError = z.lazy(() => Error)
 
 export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
 
@@ -24,7 +24,7 @@ export const CreatePets201 = z.any()
 /**
  * @description unexpected error
  */
-export const CreatePetsError = z.lazy(() => Error).schema
+export const CreatePetsError = z.lazy(() => Error)
 
 export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
 
@@ -42,15 +42,15 @@ exports[`OperationGenerator > 'getPets' 1`] = `
 /**
  * @description A paged array of pets
  */
-export const ListPets200 = z.lazy(() => Pets).schema
+export const ListPets200 = z.lazy(() => Pets)
 /**
  * @description unexpected error
  */
-export const ListPetsError = z.lazy(() => Error).schema
+export const ListPetsError = z.lazy(() => Error)
 /**
  * @description A paged array of pets
  */
-export const ListPetsQueryResponse = z.lazy(() => Pets).schema
+export const ListPetsQueryResponse = z.lazy(() => Pets)
 "
 `;
 
@@ -62,14 +62,14 @@ exports[`OperationGenerator > 'showPetById' 1`] = `
 /**
  * @description Expected response to a valid request
  */
-export const ShowPetById200 = z.lazy(() => Pet).schema
+export const ShowPetById200 = z.lazy(() => Pet)
 /**
  * @description unexpected error
  */
-export const ShowPetByIdError = z.lazy(() => Error).schema
+export const ShowPetByIdError = z.lazy(() => Error)
 /**
  * @description Expected response to a valid request
  */
-export const ShowPetByIdQueryResponse = z.lazy(() => Pet).schema
+export const ShowPetByIdQueryResponse = z.lazy(() => Pet)
 "
 `;

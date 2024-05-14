@@ -10,7 +10,7 @@ exports[`zod parse > 'arrayAdvanced' 1`] = `"z.array(z.number().min(1).max(10)).
 
 exports[`zod parse > 'arrayEmpty' 1`] = `"z.array()"`;
 
-exports[`zod parse > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet).schema)"`;
+exports[`zod parse > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet))"`;
 
 exports[`zod parse > 'arrayRegex' 1`] = `"z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)"`;
 
@@ -18,7 +18,7 @@ exports[`zod parse > 'blob' 1`] = `"z.string()"`;
 
 exports[`zod parse > 'boolean' 1`] = `"z.boolean()"`;
 
-exports[`zod parse > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pet).schema)"`;
+exports[`zod parse > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pet))"`;
 
 exports[`zod parse > 'date' 1`] = `"z.string().date()"`;
 
@@ -58,7 +58,7 @@ exports[`zod parse > 'objectOptional' 1`] = `"z.object({"firstName": z.string().
 
 exports[`zod parse > 'primitiveDate' 1`] = `"z.date()"`;
 
-exports[`zod parse > 'ref' 1`] = `"z.lazy(() => Pet).schema"`;
+exports[`zod parse > 'ref' 1`] = `"z.lazy(() => Pet)"`;
 
 exports[`zod parse > 'string' 1`] = `"z.string()"`;
 
