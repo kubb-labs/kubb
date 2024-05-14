@@ -5,7 +5,7 @@ export const getUserByNamePathParamsSchema = z.object({ username: z.string().des
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema).schema
+export const getUserByName200Schema = z.lazy(() => userSchema)
 /**
  * @description Invalid username supplied
  */
@@ -17,4 +17,4 @@ export const getUserByName404Schema = z.any()
 /**
  * @description successful operation
  */
-export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema).schema
+export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema)

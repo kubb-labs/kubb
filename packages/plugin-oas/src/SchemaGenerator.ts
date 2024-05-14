@@ -455,7 +455,16 @@ export abstract class SchemaGenerator<
     }
 
     if (isReference(schema)) {
-      return [...this.#getRefAlias(schema), ...baseItems]
+      return [
+        ...this.#getRefAlias(schema),
+        {
+          keyword: schemaKeywords.schema,
+          args: {
+            type: schema.type as any,
+            format: schema.format,
+          },
+        },
+      ]
     }
 
     if (schema.oneOf) {
