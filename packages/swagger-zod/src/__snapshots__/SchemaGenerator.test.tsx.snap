@@ -83,7 +83,7 @@ exports[`Zod SchemaGenerator > 'Pet' 1`] = `
 
 exports[`Zod SchemaGenerator > 'PetArray' 1`] = `
 "export const petArray = z
-  .array(z.lazy(() => Pet).schema)
+  .array(z.lazy(() => Pet))
   .min(1)
   .max(3)
   .describe('List of Pet object')
@@ -126,11 +126,11 @@ exports[`Zod SchemaGenerator > 'enumVarNames' 1`] = `
 `;
 
 exports[`Zod SchemaGenerator > 'lazy' 1`] = `
-"export const lazy = z.object({ nestedExamples: z.lazy(() => Example).schema.optional() })
+"export const lazy = z.object({ nestedExamples: z.lazy(() => Example).optional() })
 "
 `;
 
 exports[`Zod SchemaGenerator > 'recursive' 1`] = `
-"export const recursive = z.object({ name: z.string(), children: z.array(z.lazy(() => Example).schema) })
+"export const recursive = z.object({ name: z.string(), children: z.array(z.lazy(() => Example)) })
 "
 `;

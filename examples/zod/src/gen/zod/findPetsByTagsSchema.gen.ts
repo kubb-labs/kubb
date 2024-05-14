@@ -13,7 +13,7 @@ export const findPetsByTagsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum([
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema).schema)
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
 /**
  * @description Invalid tag value
  */
@@ -21,4 +21,4 @@ export const findPetsByTags400Schema = z.any()
 /**
  * @description successful operation
  */
-export const findPetsByTagsQueryResponseSchema = z.array(z.lazy(() => petSchema).schema)
+export const findPetsByTagsQueryResponseSchema = z.array(z.lazy(() => petSchema))
