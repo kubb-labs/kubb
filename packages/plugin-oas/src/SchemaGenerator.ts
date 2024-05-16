@@ -457,6 +457,7 @@ export abstract class SchemaGenerator<
     if (isReference(schema)) {
       return [
         ...this.#getRefAlias(schema),
+        nullable && { keyword: schemaKeywords.nullable },
         {
           keyword: schemaKeywords.schema,
           args: {
@@ -464,7 +465,7 @@ export abstract class SchemaGenerator<
             format: schema.format,
           },
         },
-      ]
+      ].filter(Boolean)
     }
 
     if (schema.oneOf) {
