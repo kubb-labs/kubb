@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "2.18.7",
+  "version": "2.18.8",
   "description": "Generator cli",
   "keywords": [
     "typescript",
