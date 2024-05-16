@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 2.18.8
+
+### Patch Changes
+
+- [`200fe5d`](https://github.com/kubb-labs/kubb/commit/200fe5d2b6e9a871250b4193b24634a16fe1decf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - nullable for refs
+
+- Updated dependencies []:
+  - @kubb/core@2.18.8
+  - @kubb/fs@2.18.8
+  - @kubb/oas@2.18.8
+  - @kubb/react@2.18.8
+
 ## 2.18.7
 
 ### Patch Changes
