@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 0.1.50
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.18.8
+
 ## 0.1.49
 
 ### Patch Changes
