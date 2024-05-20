@@ -57,13 +57,13 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     performanceOpserver.observe({ type: 'measure' })
   }
 
-  const { root: _root, ...userConfig } = config
+  const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
   spinner.start(`🚀 Building ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   const definedConfig: Config = {
-    root: process.cwd(),
+    root,
     ...userConfig,
     input: inputPath
       ? {
