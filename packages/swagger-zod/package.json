@@ -82,10 +82,8 @@
   "peerDependencies": {
     "@kubb/react": "workspace:*"
   },
-  "packageManager": "pnpm@9.0.5",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=8.15.0"
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public",

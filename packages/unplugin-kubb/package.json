@@ -150,10 +150,8 @@
     "vitest": "^1.6.0",
     "webpack": "^5.91.0"
   },
-  "packageManager": "pnpm@9.0.5",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=8.15.0"
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public",

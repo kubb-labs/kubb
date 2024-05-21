@@ -88,7 +88,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.2",
-    "axios": "^1.7.1",
+    "axios": "^1.7.2",
     "react": "^18.3.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"
@@ -102,10 +102,8 @@
       "optional": true
     }
   },
-  "packageManager": "pnpm@9.0.5",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=8.15.0"
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public",
