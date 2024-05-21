@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-tanstack-query",
-  "version": "2.18.8",
+  "version": "2.18.9",
   "description": "Generator swagger-tanstack-query",
   "keywords": [
     "typescript",

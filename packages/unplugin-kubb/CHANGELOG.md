@@ -1,5 +1,14 @@
 # unplugin-kubb
 
+## 0.1.51
+
+### Patch Changes
+
+- [`8be5a22`](https://github.com/kubb-labs/kubb/commit/8be5a223c3167e372763d80335336144ebd98b60) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of packageManager
+
+- Updated dependencies [[`8be5a22`](https://github.com/kubb-labs/kubb/commit/8be5a223c3167e372763d80335336144ebd98b60)]:
+  - @kubb/core@2.18.9
+
 ## 0.1.50
 
 ### Patch Changes
