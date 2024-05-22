@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "dayjs": "^1.11.11",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",

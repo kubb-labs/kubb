@@ -55,6 +55,16 @@ module.exports = defineConfig(() => {
           },
         ],
         exclude: [],
+        override: [
+          {
+            type: 'schemaName',
+            pattern: /Order/i,
+            options: {
+              dateType: 'string',
+              dateParser: 'dayjs',
+            },
+          },
+        ],
       }),
     ],
   }

@@ -2,6 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import type { Options } from '../types.ts'
 
 export const fakerKeywordMapper = {
   any: () => 'undefined',
@@ -58,9 +59,38 @@ export const fakerKeywordMapper = {
   tuple: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
   enum: (items: Array<string | number> = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
   union: (items: string[] = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
+  /**
+   * ISO 8601
+   */
   datetime: () => 'faker.date.anytime().toISOString()',
-  date: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'faker.date.anytime().toString()' : 'faker.date.anytime()'),
-  time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'faker.date.anytime().toString()' : 'faker.date.anytime()'),
+  /**
+   * Type `'date'` Date
+   * Type `'string'` ISO date format (YYYY-MM-DD)
+   * @default ISO date format (YYYY-MM-DD)
+   */
+  date: (type: 'date' | 'string' = 'string', parser?: string) => {
+    if (type === 'string') {
+      if (parser) {
+        return `${parser}(faker.date.anytime()).format("YYYY-MM-DD")`
+      }
+      return 'faker.date.anytime().toString()'
+    }
+    return 'faker.date.anytime()'
+  },
+  /**
+   * Type `'date'` Date
+   * Type `'string'` ISO time format (HH:mm:ss[.SSSSSS])
+   * @default ISO time format (HH:mm:ss[.SSSSSS])
+   */
+  time: (type: 'date' | 'string' = 'string', parser?: string) => {
+    if (type === 'string') {
+      if (parser) {
+        return `${parser}(faker.date.anytime()).format("HH:mm:ss")`
+      }
+      return 'faker.date.anytime().toString()'
+    }
+    return 'faker.date.anytime()'
+  },
   uuid: () => 'faker.string.uuid()',
   url: () => 'faker.internet.url()',
   and: (items: string[] = []) => `Object.assign({}, ${items.join(', ')})`,
@@ -120,6 +150,7 @@ type ParserOptions = {
 
   seed?: number | number[]
   withData?: boolean
+  dateParser?: Options['dateParser']
   mapper?: Record<string, string>
 }
 
@@ -255,11 +286,11 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.date)) {
-    return fakerKeywordMapper.date(current.args.type)
+    return fakerKeywordMapper.date(current.args.type, options.dateParser)
   }
 
   if (isKeyword(current, schemaKeywords.time)) {
-    return fakerKeywordMapper.time(current.args.type)
+    return fakerKeywordMapper.time(current.args.type, options.dateParser)
   }
 
   if (current.keyword in fakerKeywordMapper && 'args' in current) {

@@ -113,6 +113,12 @@ components:
           type: string
         tag:
           type: string
+        shipDate:
+            type: string
+            format: date
+        shipTime:
+          type: string
+          format: time
     Pets:
       type: array
       items:

@@ -20,7 +20,15 @@ export type Order = {
   /**
    * @type string | undefined, date-time
    */
+  shipDateTime?: string
+  /**
+   * @type string | undefined, date
+   */
   shipDate?: string
+  /**
+   * @type string | undefined, time
+   */
+  shipTime?: string
   /**
    * @description Order Status
    * @type string | undefined

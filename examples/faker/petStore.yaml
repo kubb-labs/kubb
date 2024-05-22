@@ -613,9 +613,15 @@ components:
           type: integer
           format: int32
           example: 7
-        shipDate:
+        shipDateTime:
           type: string
           format: date-time
+        shipDate:
+          type: string
+          format: date
+        shipTime:
+          type: string
+          format: time
         status:
           type: string
           description: Order Status

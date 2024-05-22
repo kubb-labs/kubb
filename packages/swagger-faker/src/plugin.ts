@@ -28,6 +28,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     mapper = {},
     dateType = 'string',
     unknownType = 'any',
+    dateParser,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -38,6 +39,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       dateType,
       seed,
       unknownType,
+      dateParser,
       mapper,
       override,
     },
