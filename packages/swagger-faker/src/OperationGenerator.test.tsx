@@ -79,6 +79,7 @@ describe('OperationGenerator', async () => {
       unknownType: 'any',
       mapper: {},
       override: [],
+      dateParser: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
