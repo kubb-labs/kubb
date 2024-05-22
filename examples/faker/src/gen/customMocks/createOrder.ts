@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker'
+import dayjs from 'dayjs'
 import type { Order } from '../models/Order'
 
 export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
@@ -7,7 +8,9 @@ export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable
       id: faker.number.int(),
       petId: faker.number.int(),
       quantity: faker.number.int(),
-      shipDate: faker.date.anytime().toISOString(),
+      shipDateTime: faker.date.anytime().toISOString(),
+      shipDate: dayjs(faker.date.anytime()).format('YYYY-MM-DD'),
+      shipTime: dayjs(faker.date.anytime()).format('HH:mm:ss'),
       status: faker.helpers.arrayElement<any>(['placed', 'approved', 'delivered']),
       complete: faker.datatype.boolean(),
     },

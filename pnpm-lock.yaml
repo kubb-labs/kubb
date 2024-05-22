@@ -371,6 +371,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
+      dayjs:
+        specifier: ^1.11.11
+        version: 1.11.11
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -4216,6 +4219,9 @@ packages:
 
   dataloader@1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+
+  dayjs@1.11.11:
+    resolution: {integrity: sha512-okzr3f11N6WuqYtZSvm+F776mB41wRZMhKP+hc34YdW+KmtYYK9iqvHSwo2k9FEH3fhGXvOPV6yz2IcSrfRUDg==}
 
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
@@ -9770,6 +9776,8 @@ snapshots:
       is-data-view: 1.0.1
 
   dataloader@1.4.0: {}
+
+  dayjs@1.11.11: {}
 
   de-indent@1.0.2: {}
 

@@ -1,5 +1,38 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Faker SchemaGenerator > 'Pet' 1`] = `
+"export function pet(data: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
+  return {
+    ...{ id: faker.number.int(), name: faker.string.alpha(), tag: faker.string.alpha(), shipDate: faker.date.anytime(), shipTime: faker.date.anytime() },
+    ...data,
+  }
+}
+"
+`;
+
+exports[`Faker SchemaGenerator > 'PetWithParser' 1`] = `
+"export function petWithParser(data: NonNullable<Partial<PetWithParser>> = {}): NonNullable<PetWithParser> {
+  return {
+    ...{
+      id: faker.number.int(),
+      name: faker.string.alpha(),
+      tag: faker.string.alpha(),
+      shipDate: dayjs(faker.date.anytime()).format('YYYY-MM-DD'),
+      shipTime: dayjs(faker.date.anytime()).format('HH:mm:ss'),
+    },
+    ...data,
+  }
+}
+"
+`;
+
+exports[`Faker SchemaGenerator > 'Pets' 1`] = `
+"export function pets(data: NonNullable<Partial<Pets>> = []): NonNullable<Pets> {
+  return [...(faker.helpers.arrayElements([Pet()]) as any), ...data]
+}
+"
+`;
+
 exports[`Faker SchemaGenerator > 'enumNames' 1`] = `
 "export function enumNames(): NonNullable<EnumNames> {
   return undefined

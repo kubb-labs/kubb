@@ -190,6 +190,61 @@ const plugin = pluginFaker({
 ```
 :::
 
+### dateParser
+
+Which parser should be used when dateType is set to 'string'.
+
+::: tip
+You can use any other library. For example, when you want to use `moment` you can pass `moment` and Kubb will add the import for moment: `import moment from 'moment'`.
+
+This only works when the package is using default exports like Dayjs and Moment.
+:::
+
+::: info TYPE
+
+::: code-group
+
+```typescript [undefined]
+// schema with format set to 'date'
+faker.date.anytime().toString()
+
+// schema with format set to 'time'
+faker.date.anytime().toString()
+
+```
+
+```typescript ['dayjs']
+// schema with format set to 'date'
+dayjs(faker.date.anytime()).format("YYYY-MM-DD")
+
+// schema with format set to 'time'
+dayjs(faker.date.anytime()).format("HH:mm:ss")
+
+```
+
+```typescript ['moment']
+// schema with format set to 'date'
+moment(faker.date.anytime()).format("YYYY-MM-DD")
+
+// schema with format set to 'time'
+moment(faker.date.anytime()).format("HH:mm:ss")
+```
+
+:::
+
+::: info
+Type: `'dayjs' | 'moment' | string` <br/>
+Default: `undefined`
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  dateParser: 'dayjs',
+})
+```
+:::
+
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.

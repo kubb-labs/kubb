@@ -21,7 +21,7 @@ export function Schema(props: Props): ReactNode {
   const {
     pluginManager,
     plugin: {
-      options: { unknownType, mapper, seed },
+      options: { dateParser, unknownType, mapper, seed },
     },
   } = useApp<PluginFaker>()
 
@@ -39,7 +39,7 @@ export function Schema(props: Props): ReactNode {
   })
 
   const fakerText = parserFaker.joinItems(
-    tree.map((schema) => parserFaker.parse(undefined, schema, { name: resolvedName, typeName, seed, mapper, withData })).filter(Boolean),
+    tree.map((schema) => parserFaker.parse(undefined, schema, { name: resolvedName, typeName, seed, mapper, withData, dateParser })).filter(Boolean),
   )
 
   let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
@@ -106,7 +106,12 @@ Schema.File = function ({}: FileProps): ReactNode {
   )
 }
 Schema.Imports = (): ReactNode => {
-  const { pluginManager } = useApp<PluginFaker>()
+  const {
+    pluginManager,
+    plugin: {
+      options: { dateParser },
+    },
+  } = useApp<PluginFaker>()
   const { path: root } = useFile()
   const { name, tree, schema } = useSchema()
 
@@ -131,6 +136,7 @@ Schema.Imports = (): ReactNode => {
   return (
     <>
       <File.Import name={['faker']} path="@faker-js/faker" />
+      {dateParser && <File.Import path={dateParser} name={dateParser} />}
       {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
     </>
   )

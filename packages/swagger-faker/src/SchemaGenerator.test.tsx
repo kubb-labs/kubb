@@ -17,6 +17,28 @@ import { Schema } from './components/Schema.tsx'
 describe('Faker SchemaGenerator', async () => {
   const testData = [
     {
+      name: 'Pet',
+      input: '../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {},
+    },
+    {
+      name: 'PetWithParser',
+      input: '../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        dateType: 'string',
+        dateParser: 'dayjs',
+      },
+    },
+    {
+      name: 'Pets',
+      input: '../mocks/petStore.yaml',
+      path: 'Pets',
+      options: {},
+    },
+
+    {
       name: 'enumVarNames',
       input: '../mocks/petStore.yaml',
       path: 'enumVarNames.Type',
@@ -42,6 +64,7 @@ describe('Faker SchemaGenerator', async () => {
       unknownType: 'any',
       mapper: {},
       override: [],
+      dateParser: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>

@@ -7,7 +7,7 @@ import { Schema } from './components/Schema.tsx'
 import type { FileMeta, PluginFaker } from './types.ts'
 
 export class SchemaGenerator extends Generator<PluginFaker['resolvedOptions'], PluginFaker> {
-  async schema(name: string, schema: SchemaObject): SchemaMethodResult<FileMeta> {
+  async schema(name: string, schema: SchemaObject, options: PluginFaker['resolvedOptions']): SchemaMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode, output } = this.context
 
     const root = createRoot({
@@ -17,7 +17,7 @@ export class SchemaGenerator extends Generator<PluginFaker['resolvedOptions'], P
     const tree = this.parse({ schema, name })
 
     root.render(
-      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
+      <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
         <Oas oas={oas}>
           <Oas.Schema name={name} value={schema} tree={tree}>
             <Schema.File />

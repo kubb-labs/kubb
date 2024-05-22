@@ -30,6 +30,9 @@ export const zodKeywordMapper = {
   enum: (items: string[] = []) => `z.enum([${items?.join(', ')}])`,
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
   const: (value?: string | number) => `z.literal(${value ?? ''})`,
+  /**
+   * ISO 8601
+   */
   datetime: (offset = false, local = false) => {
     if (offset) {
       return `z.string().datetime({ offset: ${offset} })`
@@ -41,8 +44,18 @@ export const zodKeywordMapper = {
 
     return 'z.string().datetime()'
   },
+  /**
+   * Type `'date'` Date
+   * Type `'string'` ISO date format (YYYY-MM-DD)
+   * @default ISO date format (YYYY-MM-DD)
+   */
   date: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().date()' : 'z.date()'),
-  time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().time()' : 'z.time()'),
+  /**
+   * Type `'date'` Date
+   * Type `'string'` ISO time format (HH:mm:ss[.SSSSSS])
+   * @default ISO time format (HH:mm:ss[.SSSSSS])
+   */
+  time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().time()' : 'z.date()'),
   uuid: () => '.uuid()',
   url: () => '.url()',
   strict: () => '.strict()',

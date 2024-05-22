@@ -810,7 +810,11 @@ export abstract class SchemaGenerator<
     const schemas = getSchemas({ oas, contentType, includes: include })
 
     const promises = Object.entries(schemas).reduce((acc, [name, schema]) => {
-      const promiseOperation = this.schema.call(this, name, schema)
+      const options = this.#getOptions({ name })
+      const promiseOperation = this.schema.call(this, name, schema, {
+        ...this.options,
+        ...options,
+      })
 
       if (promiseOperation) {
         acc.push(promiseOperation)
@@ -828,5 +832,5 @@ export abstract class SchemaGenerator<
   /**
    * Schema
    */
-  abstract schema(name: string, object: SchemaObject): SchemaMethodResult<TFileMeta>
+  abstract schema(name: string, object: SchemaObject, options: TOptions): SchemaMethodResult<TFileMeta>
 }

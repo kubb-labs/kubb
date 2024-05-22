@@ -67,6 +67,17 @@ export type Options = {
    */
   dateType?: 'string' | 'date'
   /**
+   * Which parser should be used when dateType is set to 'string'.
+   * - Schema with format 'date' will use ISO date format (YYYY-MM-DD)
+   *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("YYYY-MM-DD")`.
+   *   - `undefined` will use `faker.date.anytime().toString()`
+   * - Schema with format 'time' will use ISO time format (HH:mm:ss[.SSSSSS])
+   *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("HH:mm:ss")`.
+   *   - `undefined` will use `faker.date.anytime().toString()`
+   * * @default undefined
+   */
+  dateParser?: 'dayjs' | 'moment' | (string & {})
+  /**
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'
    */
@@ -92,6 +103,7 @@ export type Options = {
 
 type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
+  dateParser: Options['dateParser']
   unknownType: NonNullable<Options['unknownType']>
   transformers: NonNullable<Options['transformers']>
   override: NonNullable<Options['override']>
