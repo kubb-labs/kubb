@@ -1,5 +1,14 @@
 # @kubb/react
 
+## 2.19.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.19.0
+  - @kubb/fs@2.19.0
+  - @kubb/parser-ts@2.19.0
+
 ## 2.18.9
 
 ### Patch Changes
