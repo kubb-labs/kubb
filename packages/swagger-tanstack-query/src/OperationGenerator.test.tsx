@@ -211,11 +211,38 @@ describe('OperationGenerator', async () => {
         },
         parser: undefined,
         query: {
-          methods: ['get'],
+          methods: ['post'],
           queryKey: (key: unknown[]) => key,
         },
         queryOptions: {},
         mutate: false,
+      },
+      method: 'post',
+      operation: oas.operation('/upload', 'post'),
+    },
+    {
+      name: 'uploadMutation',
+      options: {
+        framework: 'react',
+        infinite: false,
+        suspense: false,
+        dataReturnType: 'data',
+        pathParamsType: 'object',
+        templates: {
+          query: Query.templates,
+          queryKey: QueryKey.templates,
+          queryOptions: QueryOptions.templates,
+        },
+        client: {
+          importPath: '@kubb/swagger-client/client',
+        },
+        parser: undefined,
+        mutate: {
+          methods: ['post'],
+          variablesType: 'mutate'
+        },
+        queryOptions: {},
+        query: false,
       },
       method: 'post',
       operation: oas.operation('/upload', 'post'),
@@ -236,9 +263,11 @@ describe('OperationGenerator', async () => {
 
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
+
     for (const file of files) {
       const source = await FileManager.getSource(file)
-      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file.path}`)
+
+      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file}`)
     }
   })
 })

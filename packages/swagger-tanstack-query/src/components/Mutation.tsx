@@ -1,10 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { File, Function, Parser, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
@@ -45,29 +45,46 @@ type TemplateProps = {
     children?: string
   }
   client: {
-    method: HttpMethod
     generics: string
+    method: HttpMethod
+    path: URLPath
     withQueryParams: boolean
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
-    path: URLPath
+    contentType: string
   }
   dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
 }
 
 function Template({ name, generics, returnType, params, mutateParams, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isFormData= client.contentType === 'multipart/form-data'
+  const headers = [
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
+    client.withHeaders ? '...headers' : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
+  console.log(client.contentType)
+
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
-    client.withData ? 'data' : undefined,
-    client.withHeaders ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
+    client.withData && !isFormData ? 'data' : undefined,
+    client.withData && isFormData ? 'data: formData' : undefined,
+    headers.length ? `headers: { ${headers}, ...clientOptions.headers }` : undefined,
     '...clientOptions',
   ].filter(Boolean)
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
+
+  const formData = isFormData? `
+   const formData = new FormData()
+   Object.keys(data).forEach(key => formData.append(key, data[key]))
+  ` : undefined
 
   if (isV5) {
     return (
@@ -77,7 +94,8 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
 
          return ${hook.name}({
            mutationFn: async(${mutateParams}) => {
-            ${hook.children || ''}
+             ${hook.children || ''}
+             ${formData || '' }
              const res = await client<${client.generics}>({
               ${resolvedClientOptions}
              })
@@ -97,7 +115,8 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
 
        return ${hook.name}<${hook.generics}>({
          mutationFn: async(${mutateParams}) => {
-          ${hook.children || ''}
+           ${hook.children || ''}
+           ${formData || '' }
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
            })
@@ -239,6 +258,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
 
   const name = getName(operation, { type: 'function' })
   const schemas = getSchemas(operation)
+  const contentType = operation.getContentType()
 
   const params = new FunctionParams()
   const mutateParams = new FunctionParams()
@@ -278,6 +298,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
+    contentType
   }
   const hook = {
     name: hookName,

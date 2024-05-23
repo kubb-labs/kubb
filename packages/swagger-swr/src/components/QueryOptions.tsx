@@ -1,8 +1,8 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
+import { Function, useApp } from '@kubb/react'
 import { pluginZodName } from '@kubb/swagger-zod'
 
 import type { HttpMethod } from '@kubb/oas'
@@ -47,6 +47,7 @@ type TemplateProps = {
 }
 
 function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType, parser }: TemplateProps): ReactNode {
+  const isFormData= client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
@@ -58,7 +59,8 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
-    client.withData ? 'data' : undefined,
+    client.withData && !isFormData ? 'data' : undefined,
+    client.withData && isFormData ? 'data: formData' : undefined,
     headers.length ? `headers: { ${headers}, ...options.headers }` : undefined,
     '...options',
   ].filter(Boolean)
@@ -71,11 +73,17 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
   }
 
+  const formData = isFormData? `
+   const formData = new FormData()
+   Object.keys(data).forEach(key => formData.append(key, data[key]))
+  ` : undefined
+
   return (
     <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
       return {
         fetcher: async () => {
+          ${formData || '' }
           const res = await client<${client.generics}>({
             ${resolvedClientOptions}
           })

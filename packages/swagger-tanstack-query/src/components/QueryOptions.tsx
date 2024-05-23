@@ -1,10 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, useApp } from '@kubb/react'
-import { pluginZodName } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
+import { Function, useApp } from '@kubb/react'
+import { pluginZodName } from '@kubb/swagger-zod'
 
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
@@ -55,7 +55,7 @@ type TemplateProps = {
 
 function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
-
+  const isFormData= client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
@@ -67,7 +67,8 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams && !infinite ? 'params' : undefined,
-    client.withData ? 'data' : undefined,
+    client.withData && !isFormData ? 'data' : undefined,
+    client.withData && isFormData ? 'data: formData' : undefined,
     headers.length ? `headers: { ${headers}, ...options.headers }` : undefined,
     '...options',
     client.withQueryParams && !!infinite
@@ -103,6 +104,11 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
     returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
   }
 
+  const formData = isFormData? `
+   const formData = new FormData()
+   Object.keys(data).forEach(key => formData.append(key, data[key]))
+  ` : undefined
+
   if (infinite) {
     if (isV5) {
       return (
@@ -114,6 +120,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
          queryKey,
          queryFn: async ({ pageParam }) => {
           ${hook.children || ''}
+          ${formData || '' }
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
            })
@@ -136,7 +143,8 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
          return {
            queryKey,
            queryFn: async ({ pageParam }) => {
-            ${hook.children || ''}
+             ${hook.children || ''}
+             ${formData || '' }
              const res = await client<${client.generics}>({
               ${resolvedClientOptions}
              })
@@ -160,7 +168,8 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
    return queryOptions({
      queryKey,
      queryFn: async () => {
-      ${hook.children || ''}
+       ${hook.children || ''}
+       ${formData || '' }
        const res = await client<${client.generics}>({
         ${resolvedClientOptions}
        })
@@ -183,7 +192,8 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
        return {
          queryKey,
          queryFn: async () => {
-          ${hook.children || ''}
+           ${hook.children || ''}
+           ${formData || '' }
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
            })
