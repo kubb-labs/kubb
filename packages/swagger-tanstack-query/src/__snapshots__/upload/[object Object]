@@ -1,13 +1,12 @@
 import client from "@kubb/swagger-client/client";
 import { useQuery } from "@tanstack/react-query";
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFile400 } from "./";
 import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from "@tanstack/react-query";
 
- type UploadFileClient = typeof client<UploadFileMutationResponse, UploadFile400, UploadFileMutationRequest>;
+ type UploadFileClient = typeof client<UploadFileMutationResponse, UploadFile400, FormData>;
 type UploadFile = {
     data: UploadFileMutationResponse;
     error: UploadFile400;
-    request: UploadFileMutationRequest;
+    request: FormData;
     pathParams: never;
     queryParams: never;
     headerParams: never;
@@ -24,10 +23,14 @@ export function UploadFileQueryOptions<TData = UploadFile["response"], TQueryDat
     return {
         queryKey,
         queryFn: async () => {
+            const formData = new FormData();
+            if (data) {
+                Object.keys(data).forEach(key => formData.append(key, data[key]));
+            }
             const res = await client<UploadFile["data"], UploadFile["error"]>({
                 method: "post",
                 url: `/upload`,
-                data,
+                data: formData,
                 headers: { "Content-Type": "multipart/form-data", ...options.headers },
                 ...options
             });
