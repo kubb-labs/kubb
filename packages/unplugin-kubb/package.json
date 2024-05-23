@@ -143,7 +143,7 @@
     "@nuxt/schema": "^3.11.2",
     "@types/node": "^20.12.12",
     "rimraf": "^5.0.7",
-    "rollup": "^4.17.2",
+    "rollup": "^4.18.0",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",
