@@ -1,5 +1,22 @@
 # @kubb/swagger-swr
 
+## 2.19.1
+
+### Patch Changes
+
+- [#1015](https://github.com/kubb-labs/kubb/pull/1015) [`00dc83c`](https://github.com/kubb-labs/kubb/commit/00dc83ca60b9f106f326f25e0cfc633c8a7f0bee) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for multipart/formData
+
+- Updated dependencies []:
+  - @kubb/core@2.19.1
+  - @kubb/fs@2.19.1
+  - @kubb/oas@2.19.1
+  - @kubb/parser-ts@2.19.1
+  - @kubb/plugin-oas@2.19.1
+  - @kubb/react@2.19.1
+  - @kubb/swagger-client@2.19.1
+  - @kubb/swagger-ts@2.19.1
+  - @kubb/swagger-zod@2.19.1
+
 ## 2.19.0
 
 ### Patch Changes
