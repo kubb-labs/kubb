@@ -41,6 +41,7 @@ export function useUploadFile(
         url: `/pet/${petId}/uploadImage`,
         params,
         data,
+        headers: { 'Content-Type': 'application/octet-stream', ...clientOptions.headers },
         ...clientOptions,
       })
       return res.data

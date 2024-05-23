@@ -17,7 +17,7 @@ describe('<Schema/> ', () => {
     unknownType: 'any',
     mapper: {},
     override: [],
-    dateParser: undefined
+    dateParser: undefined,
   }
 
   const plugin = { options } as Plugin<PluginFaker>

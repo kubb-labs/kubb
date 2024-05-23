@@ -239,7 +239,7 @@ describe('OperationGenerator', async () => {
         parser: undefined,
         mutate: {
           methods: ['post'],
-          variablesType: 'mutate'
+          variablesType: 'mutate',
         },
         queryOptions: {},
         query: false,
@@ -262,7 +262,6 @@ describe('OperationGenerator', async () => {
     })
 
     const files = (await og.operation(operation, options)) as KubbFile.File[]
-
 
     for (const file of files) {
       const source = await FileManager.getSource(file)

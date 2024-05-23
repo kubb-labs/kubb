@@ -1,5 +1,5 @@
-import { Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { Type, useApp } from '@kubb/react'
 
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types.ts'
@@ -32,16 +32,17 @@ export function SchemaType({ factory }: Props): ReactNode {
   ]
 
   const clientType = `${factory.name}Client`
+  const isFormData = operation.getContentType() === 'multipart/form-data'
 
   return (
     <>
-      <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
+      <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
       <Type name={factory.name}>
         {`
         {
           data: ${TData}
           error: ${TError}
-          request: ${TRequest}
+          request: ${isFormData ? 'FormData' : TRequest}
           pathParams: ${TPathParams}
           queryParams: ${TQueryParams}
           headerParams: ${THeaderParams}

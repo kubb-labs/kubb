@@ -55,7 +55,7 @@ type TemplateProps = {
 
 function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
-  const isFormData= client.contentType === 'multipart/form-data'
+  const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
@@ -104,10 +104,14 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
     returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
   }
 
-  const formData = isFormData? `
+  const formData = isFormData
+    ? `
    const formData = new FormData()
-   Object.keys(data).forEach(key => formData.append(key, data[key]))
-  ` : undefined
+   if(data) {
+     Object.keys(data).forEach(key => formData.append(key, data[key]))
+   }
+  `
+    : undefined
 
   if (infinite) {
     if (isV5) {
@@ -120,7 +124,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
          queryKey,
          queryFn: async ({ pageParam }) => {
           ${hook.children || ''}
-          ${formData || '' }
+          ${formData || ''}
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
            })
@@ -144,7 +148,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
            queryKey,
            queryFn: async ({ pageParam }) => {
              ${hook.children || ''}
-             ${formData || '' }
+             ${formData || ''}
              const res = await client<${client.generics}>({
               ${resolvedClientOptions}
              })
@@ -169,7 +173,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
      queryKey,
      queryFn: async () => {
        ${hook.children || ''}
-       ${formData || '' }
+       ${formData || ''}
        const res = await client<${client.generics}>({
         ${resolvedClientOptions}
        })
@@ -193,7 +197,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
          queryKey,
          queryFn: async () => {
            ${hook.children || ''}
-           ${formData || '' }
+           ${formData || ''}
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
            })

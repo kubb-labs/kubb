@@ -47,7 +47,7 @@ type TemplateProps = {
 }
 
 function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType, parser }: TemplateProps): ReactNode {
-  const isFormData= client.contentType === 'multipart/form-data'
+  const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
@@ -73,17 +73,21 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
   }
 
-  const formData = isFormData? `
+  const formData = isFormData
+    ? `
    const formData = new FormData()
-   Object.keys(data).forEach(key => formData.append(key, data[key]))
-  ` : undefined
+   if(data) {
+     Object.keys(data).forEach(key => formData.append(key, data[key]))
+   }
+  `
+    : undefined
 
   return (
     <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
       return {
         fetcher: async () => {
-          ${formData || '' }
+          ${formData || ''}
           const res = await client<${client.generics}>({
             ${resolvedClientOptions}
           })

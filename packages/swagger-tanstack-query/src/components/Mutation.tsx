@@ -59,15 +59,13 @@ type TemplateProps = {
 
 function Template({ name, generics, returnType, params, mutateParams, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
-  const isFormData= client.contentType === 'multipart/form-data'
+  const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
   ]
     .filter(Boolean)
     .join(', ')
-
-  console.log(client.contentType)
 
   const clientOptions = [
     `method: "${client.method}"`,
@@ -81,10 +79,14 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
-  const formData = isFormData? `
+  const formData = isFormData
+    ? `
    const formData = new FormData()
-   Object.keys(data).forEach(key => formData.append(key, data[key]))
-  ` : undefined
+   if(data) {
+     Object.keys(data).forEach(key => formData.append(key, data[key]))
+   }
+  `
+    : undefined
 
   if (isV5) {
     return (
@@ -95,7 +97,7 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
          return ${hook.name}({
            mutationFn: async(${mutateParams}) => {
              ${hook.children || ''}
-             ${formData || '' }
+             ${formData || ''}
              const res = await client<${client.generics}>({
               ${resolvedClientOptions}
              })
@@ -116,7 +118,7 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
        return ${hook.name}<${hook.generics}>({
          mutationFn: async(${mutateParams}) => {
            ${hook.children || ''}
-           ${formData || '' }
+           ${formData || ''}
            const res = await client<${client.generics}>({
             ${resolvedClientOptions}
            })
@@ -298,7 +300,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
-    contentType
+    contentType,
   }
   const hook = {
     name: hookName,
