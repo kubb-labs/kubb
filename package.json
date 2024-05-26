@@ -52,13 +52,13 @@
   "devDependencies": {
     "@biomejs/biome": "^1.7.3",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.3",
+    "@changesets/cli": "^2.27.5",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@types/node": "^20.12.12",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "bun-types": "^1.1.9",
+    "bun-types": "^1.1.10",
     "rimraf": "^5.0.7",
     "ts-node": "^10.9.2",
     "turbo": "^1.13.3",
@@ -70,11 +70,6 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.15.0"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
-    }
   },
   "namespace": "@kubb"
 }

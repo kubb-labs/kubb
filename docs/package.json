@@ -19,7 +19,7 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^1.6.0",
+    "@shikijs/vitepress-twoslash": "^1.6.1",
     "sitemap": "^7.1.2",
     "vitepress": "^1.2.2",
     "vue": "^3.4.27"
@@ -38,11 +38,11 @@
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
     "@types/node": "^20.12.12",
-    "@types/react": "^18.3.2",
+    "@types/react": "^18.3.3",
     "axios": "^1.7.2",
     "react": "^18.3.1",
     "unplugin-kubb": "workspace:^",
-    "vite": "^5.2.11"
+    "vite": "^5.2.12"
   },
   "packageManager": "pnpm@9.0.5",
   "engines": {
