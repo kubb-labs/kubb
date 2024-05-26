@@ -38,8 +38,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0)
       bun-types:
-        specifier: ^1.1.9
-        version: 1.1.9
+        specifier: ^1.1.10
+        version: 1.1.10
       rimraf:
         specifier: ^5.0.7
         version: 5.0.7
@@ -69,7 +69,7 @@ importers:
         version: 7.1.2
       vitepress:
         specifier: ^1.2.2
-        version: 1.2.2(@algolia/client-search@4.23.3)(@types/node@20.12.12)(@types/react@18.3.2)(axios@1.7.2)(change-case@5.4.4)(postcss@8.4.38)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(terser@5.30.4)(typescript@5.4.5)
+        version: 1.2.2(@algolia/client-search@4.23.3)(@types/node@20.12.12)(@types/react@18.3.3)(axios@1.7.2)(change-case@5.4.4)(postcss@8.4.38)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(terser@5.30.4)(typescript@5.4.5)
       vue:
         specifier: ^3.4.27
         version: 3.4.27(typescript@5.4.5)
@@ -114,8 +114,8 @@ importers:
         specifier: ^20.12.12
         version: 20.12.12
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -171,17 +171,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^5.37.1
-        version: 5.37.1(react@18.3.1)
+        specifier: ^5.39.0
+        version: 5.39.0(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.37.1
-        version: 5.37.1(solid-js@1.8.17)
+        specifier: ^5.38.0
+        version: 5.38.0(solid-js@1.8.17)
       '@tanstack/svelte-query':
-        specifier: ^5.37.1
-        version: 5.37.1(svelte@3.59.2)
+        specifier: ^5.38.0
+        version: 5.38.0(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.37.1
-        version: 5.37.1(vue@3.4.27(typescript@5.2.2))
+        specifier: ^5.38.0
+        version: 5.38.0(vue@3.4.27(typescript@5.2.2))
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.7.2)(zod@3.23.8)
@@ -205,7 +205,7 @@ importers:
         version: 2.2.5(react@18.3.1)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
       vue:
         specifier: ^3.4.27
         version: 3.4.27(typescript@5.2.2)
@@ -306,7 +306,7 @@ importers:
         version: link:../../packages/config-ts
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -343,7 +343,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -379,7 +379,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -425,7 +425,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -471,7 +471,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -517,14 +517,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -566,8 +566,8 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
@@ -579,7 +579,7 @@ importers:
         version: 1.3.3(typescript@5.2.2)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -611,11 +611,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^5.37.1
-        version: 5.37.1(react@18.3.1)
+        specifier: ^5.39.0
+        version: 5.39.0(react@18.3.1)
       '@tanstack/react-query-devtools':
         specifier: 5.0.0
-        version: 5.0.0(@tanstack/react-query@5.37.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.0.0(@tanstack/react-query@5.39.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -627,8 +627,8 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
@@ -640,7 +640,7 @@ importers:
         version: 1.3.3(typescript@5.2.2)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -688,7 +688,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -727,7 +727,7 @@ importers:
         version: 1.8.17
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
     devDependencies:
       typescript:
         specifier: ^5.4.5
@@ -767,7 +767,7 @@ importers:
         version: 3.59.2
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
     devDependencies:
       typescript:
         specifier: ^5.4.5
@@ -807,7 +807,7 @@ importers:
         version: 2.2.5(react@18.3.1)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
 
   examples/typescript:
     dependencies:
@@ -828,7 +828,7 @@ importers:
         version: 1.7.2
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
     devDependencies:
       typescript:
         specifier: ^5.4.5
@@ -875,7 +875,7 @@ importers:
         version: 1.3.3(typescript@5.2.2)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -907,8 +907,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^5.37.1
-        version: 5.37.1(vue@3.4.27(typescript@5.2.2))
+        specifier: ^5.38.0
+        version: 5.38.0(vue@3.4.27(typescript@5.2.2))
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -927,7 +927,7 @@ importers:
         version: 1.3.3(typescript@5.2.2)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2)
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -960,7 +960,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -1025,7 +1025,7 @@ importers:
         version: 4.17.21
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1098,7 +1098,7 @@ importers:
         version: 0.5.21
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1114,8 +1114,8 @@ importers:
   packages/config-tsup:
     dependencies:
       '@microsoft/api-extractor':
-        specifier: ^7.43.8
-        version: 7.43.8(@types/node@20.12.12)
+        specifier: ^7.44.1
+        version: 7.44.1(@types/node@20.12.12)
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -1131,7 +1131,7 @@ importers:
         version: 20.12.12
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
 
   packages/core:
     dependencies:
@@ -1182,8 +1182,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/seedrandom':
         specifier: ^3.0.8
         version: 3.0.8
@@ -1204,7 +1204,7 @@ importers:
         version: 1.1.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1235,7 +1235,7 @@ importers:
         version: 3.2.5
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
 
   packages/kubb:
     dependencies:
@@ -1257,7 +1257,7 @@ importers:
         version: 20.12.12
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1315,7 +1315,7 @@ importers:
         version: 0.19.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1343,7 +1343,7 @@ importers:
         version: 3.2.5
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
 
   packages/plugin-oas:
     dependencies:
@@ -1376,8 +1376,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
@@ -1386,7 +1386,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1434,14 +1434,14 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1471,8 +1471,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-reconciler':
         specifier: ^0.28.8
         version: 0.28.8
@@ -1487,7 +1487,7 @@ importers:
         version: 0.29.2(react@18.3.1)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1511,8 +1511,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
@@ -1521,7 +1521,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1560,8 +1560,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -1570,7 +1570,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1609,14 +1609,14 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       react:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1658,14 +1658,14 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       react:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1710,14 +1710,14 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       react:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1762,14 +1762,14 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       react:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1808,8 +1808,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -1818,7 +1818,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
 
   packages/swagger-zod:
     dependencies:
@@ -1854,8 +1854,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -1864,7 +1864,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1903,8 +1903,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -1913,7 +1913,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1931,7 +1931,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1974,7 +1974,7 @@ importers:
         version: 4.18.0
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
+        version: 8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -2881,11 +2881,11 @@ packages:
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
 
-  '@microsoft/api-extractor-model@7.28.18':
-    resolution: {integrity: sha512-5j8Vp4IiXD68Auccf9wP/VQ0GYfI5x3bW447SLwJOqinvnnXfNZlaYp7sj3u/LyzhrJFsynJ+tBJlN/koDGfZg==}
+  '@microsoft/api-extractor-model@7.28.19':
+    resolution: {integrity: sha512-WZpzi/BWcKVTwr9owCpk8/JVdrkwSde9D9kmBzXv3KAyHWWcyo5Z32I1NfoDD1Yr1Vybk4xoeKcT3sn87kJ/0g==}
 
-  '@microsoft/api-extractor@7.43.8':
-    resolution: {integrity: sha512-rGEFjr9xnjP/5YwDpPL10BBPQnWEz7X7sSF8twHevZVJTlBFKRetMLE7v8tIw6CX1iIJeYO6NWQcUz23cGthdA==}
+  '@microsoft/api-extractor@7.44.1':
+    resolution: {integrity: sha512-y070iI8RVBJrTgvjpVj2WMFlQNIJ529sbz/VQBjgKjkTCmbnn5n+o52W6cAFS8eAFt/NaHMyuvtgo6Fitecg/A==}
     hasBin: true
 
   '@microsoft/tsdoc-config@0.16.2':
@@ -3257,8 +3257,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rushstack/node-core-library@5.0.0':
-    resolution: {integrity: sha512-5VpOqJ48ADNTl3AOQlFbck6ig0fFGxT22eXAFtW0zOfCtrqJi50lyzEWjhJ8o+xyfEh+mD6ay0cJImkWJYoshg==}
+  '@rushstack/node-core-library@5.1.0':
+    resolution: {integrity: sha512-SrBLOc4TkCAlDmO4bKxXCwaGL9LtD+azN5B9/8MH/db5/cJM3KX1bLzj4lZSldX7dhW7Rv5zPrX/N0UZo4JDNA==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
@@ -3268,16 +3268,16 @@ packages:
   '@rushstack/rig-package@0.5.2':
     resolution: {integrity: sha512-mUDecIJeH3yYGZs2a48k+pbhM6JYwWlgjs2Ca5f2n1G2/kgdgP9D/07oglEGf6mRyXEnazhEENeYTSNDRCwdqA==}
 
-  '@rushstack/terminal@0.11.1':
-    resolution: {integrity: sha512-DtTYA8ujZFJZUYD+dJkH3soAeOJ710Bu/5sLO5T0QBoMFR1PkCUUBYsGo9r8f2vLKSATbAJCeWH9ijoP7hhN9w==}
+  '@rushstack/terminal@0.12.0':
+    resolution: {integrity: sha512-29wKzh+iW42Q2+vPit+NvkD7bhz73Iigu/LjeKWMS/393IXKepX+XbaIbjwe2VK6BB3kBIgBJzDwtd8eZAuirw==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
       '@types/node':
         optional: true
 
-  '@rushstack/ts-command-line@4.21.1':
-    resolution: {integrity: sha512-D4sNIzGqgPRPSJ3UirnpMmxlVzs+x7vL+hwC0b73CE0aflFoU87P/93Fm2QJFGYM099ErM4Usxa1JR4eICIiKw==}
+  '@rushstack/ts-command-line@4.21.2':
+    resolution: {integrity: sha512-paVZW7JvhFYek5Qf5aBmSpSsmcwU8pQlmhawJbfgGhApnGq2JO2S5Vzm/SMLo2HA/rNKz/ug+BxI8dqSQ7wiRg==}
 
   '@shikijs/core@1.6.0':
     resolution: {integrity: sha512-NIEAi5U5R7BLkbW1pG/ZKu3eb1lzc3/+jD0lFsuxMT7zjaf9bbNwdNyMr7zh/Zl8EXQtQ+MYBAt5G+JLu+5DlA==}
@@ -3326,8 +3326,8 @@ packages:
   '@tanstack/query-core@4.36.1':
     resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
 
-  '@tanstack/query-core@5.36.1':
-    resolution: {integrity: sha512-BteWYEPUcucEu3NBcDAgKuI4U25R9aPrHSP6YSf2NvaD2pSlIQTdqOfLRsxH9WdRYg7k0Uom35Uacb6nvbIMJg==}
+  '@tanstack/query-core@5.38.0':
+    resolution: {integrity: sha512-QtkoxvFcu52mNpp3+qOo9H265m3rt83Dgbw5WnNyJvr83cegrQ7zT8haHhL4Rul6ZQkeovxyWbXVW9zI0WYx6g==}
 
   '@tanstack/query-devtools@5.0.0':
     resolution: {integrity: sha512-WATg9+nreAmtTRHzxvCFN6j4ucUVbkJNd8ErcYmf7Y6GsJw/BGscd4rWS7cdAP7zfTcPjHjGaRB041pcv8dNvA==}
@@ -3358,8 +3358,8 @@ packages:
       react-native:
         optional: true
 
-  '@tanstack/react-query@5.37.1':
-    resolution: {integrity: sha512-EhtBNA8GL3XFeSx6VYUjXQ96n44xe3JGKZCzBINrCYlxbZP6UwBafv7ti4eSRWc2Fy+fybQre0w17gR6lMzULA==}
+  '@tanstack/react-query@5.39.0':
+    resolution: {integrity: sha512-zc0WnyEffyTgG+myLv8cY2tJOUT6jOprCiprpbMqylCaCFipSDUPCYCt2AC+qxgk2CFuqiI/fjb1u5/HhLkrPg==}
     peerDependencies:
       react: ^18.0.0
 
@@ -3368,8 +3368,8 @@ packages:
     peerDependencies:
       solid-js: ^1.5.7
 
-  '@tanstack/solid-query@5.37.1':
-    resolution: {integrity: sha512-XLIwvIFaFNhSl+ldeT+CxHYBjLnXcevzQmnjae/6KD8qX8CfEuSCnYxmDDtfW+diDtavi7G9ZROMwoc/IyAlEQ==}
+  '@tanstack/solid-query@5.38.0':
+    resolution: {integrity: sha512-5BvW3DJfQRNYedun/95jQcLDHO5iM51Jkz0OcjNS9Pm1l47lqCAhoYzwHKsVz5GkMKW9EPuqSvG64yZ+mFF5cw==}
     peerDependencies:
       solid-js: ^1.6.0
 
@@ -3378,8 +3378,8 @@ packages:
     peerDependencies:
       svelte: '>=3 <5'
 
-  '@tanstack/svelte-query@5.37.1':
-    resolution: {integrity: sha512-2Z+QhGrVV+Nd4dVK41uFMg4l3TRzVBrgHopOeJiA9OVOEaeXp3E1Yvf6htjGhP2+0lyZ7KoyyX10iv7mUMVwGw==}
+  '@tanstack/svelte-query@5.38.0':
+    resolution: {integrity: sha512-29jg4mz5s0ZuIV4HUKEAd9rpgOsGq7DLzMBQRwYLQuTYulwT+ZitYYq6YL8n9t2pOk+kApz45DIOMywjpzi+3w==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
@@ -3392,8 +3392,8 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  '@tanstack/vue-query@5.37.1':
-    resolution: {integrity: sha512-KlE1BlvoPw3cjxf/Hpk/m46ClIXAAdii7lqyMnO0sr0Yka2SPReHOIivy30Z0n3N1eSGaO98CEQ9uHLwI/CDcg==}
+  '@tanstack/vue-query@5.38.0':
+    resolution: {integrity: sha512-1RTthXW8tqA3LC1HatIN7goRaL4kRdo3eOtI6TBdAl3N82VQRP2KNqa2De7Q1zLQWkHTUZFj56Ds7pMW2RtVvQ==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -3546,8 +3546,8 @@ packages:
   '@types/react-reconciler@0.28.8':
     resolution: {integrity: sha512-SN9c4kxXZonFhbX4hJrZy37yw9e7EIxcpHCxQv5JUS18wDE5ovkQKlqQEkufdJCCMfuI9BnjUJvhYeJ9x5Ra7g==}
 
-  '@types/react@18.3.2':
-    resolution: {integrity: sha512-Btgg89dAnqD4vV7R3hlwOxgqobUQKgx3MmrQRi0yYbs/P0ym8XozIAlkqVilPqHQwXs4e9Tf63rrCgl58BcO4w==}
+  '@types/react@18.3.3':
+    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
 
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
@@ -4031,8 +4031,8 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
-  bun-types@1.1.9:
-    resolution: {integrity: sha512-3YuLiH4Ne/ghk7K6mHiaqCqKOMrtB0Z5p1WAskHSVgi0iMZgsARV4yGkbfi565YsStvUq6GXTWB3ga7M8cznkA==}
+  bun-types@1.1.10:
+    resolution: {integrity: sha512-oBsZ0Bf9HEKr1Ta5bUYgVO6sHkZtTlfHlEj9DGpghZphNdhKI/38eZ5dk+/et/HrStT1sfykHBUW4ughmoNKog==}
 
   bundle-require@4.0.3:
     resolution: {integrity: sha512-2iscZ3fcthP2vka4Y7j277YJevwmsby/FpFDwjgw34Nl7dtCpt7zz/4TexmHMzY6KZEih7En9ImlbbgUNNQGtA==}
@@ -8028,9 +8028,9 @@ snapshots:
 
   '@docsearch/css@3.6.0': {}
 
-  '@docsearch/js@3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
+  '@docsearch/js@3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
     dependencies:
-      '@docsearch/react': 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
+      '@docsearch/react': 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
       preact: 10.20.2
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -8039,14 +8039,14 @@ snapshots:
       - react-dom
       - search-insights
 
-  '@docsearch/react@3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
+  '@docsearch/react@3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)':
     dependencies:
       '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.23.3)(algoliasearch@4.23.3)(search-insights@2.13.0)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.23.3)(algoliasearch@4.23.3)
       '@docsearch/css': 3.6.0
       algoliasearch: 4.23.3
     optionalDependencies:
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       search-insights: 2.13.0
@@ -8391,23 +8391,23 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@microsoft/api-extractor-model@7.28.18(@types/node@20.12.12)':
+  '@microsoft/api-extractor-model@7.28.19(@types/node@20.12.12)':
     dependencies:
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 5.0.0(@types/node@20.12.12)
+      '@rushstack/node-core-library': 5.1.0(@types/node@20.12.12)
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.43.8(@types/node@20.12.12)':
+  '@microsoft/api-extractor@7.44.1(@types/node@20.12.12)':
     dependencies:
-      '@microsoft/api-extractor-model': 7.28.18(@types/node@20.12.12)
+      '@microsoft/api-extractor-model': 7.28.19(@types/node@20.12.12)
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 5.0.0(@types/node@20.12.12)
+      '@rushstack/node-core-library': 5.1.0(@types/node@20.12.12)
       '@rushstack/rig-package': 0.5.2
-      '@rushstack/terminal': 0.11.1(@types/node@20.12.12)
-      '@rushstack/ts-command-line': 4.21.1(@types/node@20.12.12)
+      '@rushstack/terminal': 0.12.0(@types/node@20.12.12)
+      '@rushstack/ts-command-line': 4.21.2(@types/node@20.12.12)
       lodash: 4.17.21
       minimatch: 3.0.8
       resolve: 1.22.8
@@ -8771,7 +8771,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.18.0':
     optional: true
 
-  '@rushstack/node-core-library@5.0.0(@types/node@20.12.12)':
+  '@rushstack/node-core-library@5.1.0(@types/node@20.12.12)':
     dependencies:
       ajv: 8.13.0
       ajv-draft-04: 1.0.0(ajv@8.13.0)
@@ -8789,16 +8789,16 @@ snapshots:
       resolve: 1.22.8
       strip-json-comments: 3.1.1
 
-  '@rushstack/terminal@0.11.1(@types/node@20.12.12)':
+  '@rushstack/terminal@0.12.0(@types/node@20.12.12)':
     dependencies:
-      '@rushstack/node-core-library': 5.0.0(@types/node@20.12.12)
+      '@rushstack/node-core-library': 5.1.0(@types/node@20.12.12)
       supports-color: 8.1.1
     optionalDependencies:
       '@types/node': 20.12.12
 
-  '@rushstack/ts-command-line@4.21.1(@types/node@20.12.12)':
+  '@rushstack/ts-command-line@4.21.2(@types/node@20.12.12)':
     dependencies:
-      '@rushstack/terminal': 0.11.1(@types/node@20.12.12)
+      '@rushstack/terminal': 0.12.0(@types/node@20.12.12)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
@@ -8869,7 +8869,7 @@ snapshots:
 
   '@tanstack/query-core@4.36.1': {}
 
-  '@tanstack/query-core@5.36.1': {}
+  '@tanstack/query-core@5.38.0': {}
 
   '@tanstack/query-devtools@5.0.0': {}
 
@@ -8882,10 +8882,10 @@ snapshots:
       superjson: 1.13.3
       use-sync-external-store: 1.2.2(react@18.3.1)
 
-  '@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.37.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.39.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/query-devtools': 5.0.0
-      '@tanstack/react-query': 5.37.1(react@18.3.1)
+      '@tanstack/react-query': 5.39.0(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -8897,9 +8897,9 @@ snapshots:
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/react-query@5.37.1(react@18.3.1)':
+  '@tanstack/react-query@5.39.0(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.36.1
+      '@tanstack/query-core': 5.38.0
       react: 18.3.1
 
   '@tanstack/solid-query@4.36.1(solid-js@1.8.17)':
@@ -8907,9 +8907,9 @@ snapshots:
       '@tanstack/query-core': 4.36.1
       solid-js: 1.8.17
 
-  '@tanstack/solid-query@5.37.1(solid-js@1.8.17)':
+  '@tanstack/solid-query@5.38.0(solid-js@1.8.17)':
     dependencies:
-      '@tanstack/query-core': 5.36.1
+      '@tanstack/query-core': 5.38.0
       solid-js: 1.8.17
 
   '@tanstack/svelte-query@4.36.1(svelte@3.59.2)':
@@ -8917,9 +8917,9 @@ snapshots:
       '@tanstack/query-core': 4.36.1
       svelte: 3.59.2
 
-  '@tanstack/svelte-query@5.37.1(svelte@3.59.2)':
+  '@tanstack/svelte-query@5.38.0(svelte@3.59.2)':
     dependencies:
-      '@tanstack/query-core': 5.36.1
+      '@tanstack/query-core': 5.38.0
       svelte: 3.59.2
 
   '@tanstack/vue-query@4.37.1(vue@3.4.27(typescript@5.2.2))':
@@ -8930,10 +8930,10 @@ snapshots:
       vue: 3.4.27(typescript@5.2.2)
       vue-demi: 0.13.11(vue@3.4.27(typescript@5.2.2))
 
-  '@tanstack/vue-query@5.37.1(vue@3.4.27(typescript@5.2.2))':
+  '@tanstack/vue-query@5.38.0(vue@3.4.27(typescript@5.2.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.15.1
-      '@tanstack/query-core': 5.36.1
+      '@tanstack/query-core': 5.38.0
       '@vue/devtools-api': 6.6.1
       vue: 3.4.27(typescript@5.2.2)
       vue-demi: 0.14.7(vue@3.4.27(typescript@5.2.2))
@@ -9094,13 +9094,13 @@ snapshots:
 
   '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
 
   '@types/react-reconciler@0.28.8':
     dependencies:
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
 
-  '@types/react@18.3.2':
+  '@types/react@18.3.3':
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
@@ -9713,7 +9713,7 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.1.9:
+  bun-types@1.1.10:
     dependencies:
       '@types/node': 20.12.12
       '@types/ws': 8.5.10
@@ -12951,7 +12951,7 @@ snapshots:
 
   tslib@2.6.2: {}
 
-  tsup@8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2):
+  tsup@8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.2.2))(typescript@5.2.2):
     dependencies:
       bundle-require: 4.0.3(esbuild@0.19.12)
       cac: 6.7.14
@@ -12968,14 +12968,14 @@ snapshots:
       sucrase: 3.35.0
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.43.8(@types/node@20.12.12)
+      '@microsoft/api-extractor': 7.44.1(@types/node@20.12.12)
       postcss: 8.4.38
       typescript: 5.2.2
     transitivePeerDependencies:
       - supports-color
       - ts-node
 
-  tsup@8.0.2(@microsoft/api-extractor@7.43.8(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5):
+  tsup@8.0.2(@microsoft/api-extractor@7.44.1(@types/node@20.12.12))(postcss@8.4.38)(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))(typescript@5.4.5):
     dependencies:
       bundle-require: 4.1.0(esbuild@0.19.12)
       cac: 6.7.14
@@ -12992,7 +12992,7 @@ snapshots:
       sucrase: 3.35.0
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.43.8(@types/node@20.12.12)
+      '@microsoft/api-extractor': 7.44.1(@types/node@20.12.12)
       postcss: 8.4.38
       typescript: 5.4.5
     transitivePeerDependencies:
@@ -13338,10 +13338,10 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.30.4
 
-  vitepress@1.2.2(@algolia/client-search@4.23.3)(@types/node@20.12.12)(@types/react@18.3.2)(axios@1.7.2)(change-case@5.4.4)(postcss@8.4.38)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(terser@5.30.4)(typescript@5.4.5):
+  vitepress@1.2.2(@algolia/client-search@4.23.3)(@types/node@20.12.12)(@types/react@18.3.3)(axios@1.7.2)(change-case@5.4.4)(postcss@8.4.38)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)(terser@5.30.4)(typescript@5.4.5):
     dependencies:
       '@docsearch/css': 3.6.0
-      '@docsearch/js': 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
+      '@docsearch/js': 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.13.0)
       '@shikijs/core': 1.6.0
       '@shikijs/transformers': 1.6.0
       '@types/markdown-it': 14.1.1
