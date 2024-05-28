@@ -91,6 +91,7 @@ export function sort(items?: Schema[]): Schema[] {
     schemaKeywords.datetime,
     schemaKeywords.date,
     schemaKeywords.time,
+    schemaKeywords.tuple,
     schemaKeywords.number,
     schemaKeywords.object,
     schemaKeywords.enum,

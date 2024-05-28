@@ -1,9 +1,9 @@
 import { Oas } from '@kubb/plugin-oas/components'
-import { Const, File, Function, useApp, useFile } from '@kubb/react'
+import { Const, File, useApp, useFile } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
 
 import transformers from '@kubb/core/transformers'
-import { schemaKeywords } from '@kubb/plugin-oas'
+import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { useSchema } from '@kubb/plugin-oas/hooks'
 import type { ReactNode } from 'react'
 import * as parserZod from '../parser/index.ts'
@@ -53,8 +53,17 @@ export function Schema(props: Props): ReactNode {
     )
   }
 
+  const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
+
   const output = parserZod
     .sort(tree)
+    .filter((item) => {
+      if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
+        return false
+      }
+
+      return true
+    })
     .map((item) => parserZod.parse(undefined, item, { name, typeName, description, mapper, keysToOmit }))
     .filter(Boolean)
     .join('')

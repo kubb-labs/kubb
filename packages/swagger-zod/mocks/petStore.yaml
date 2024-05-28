@@ -165,6 +165,15 @@ components:
           type: string
         tag:
           type: string
+    PetTuple:
+      maxItems: 2
+      minItems: 2
+      prefixItems:
+        - type: string
+        - type: string
+      title: Attributes
+      type: array
+      description: Tuple of exact length 2
     Pets:
       type: array
       items: {
