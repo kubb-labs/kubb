@@ -1,5 +1,20 @@
 # @kubb/swagger-zod
 
+## 2.19.2
+
+### Patch Changes
+
+- [`5285a0b`](https://github.com/kubb-labs/kubb/commit/5285a0b974f5039723aaa2beb6aed2d758f4fc01) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Zod cannot use min/max for z.tuple
+
+- Updated dependencies []:
+  - @kubb/core@2.19.2
+  - @kubb/fs@2.19.2
+  - @kubb/oas@2.19.2
+  - @kubb/parser-ts@2.19.2
+  - @kubb/plugin-oas@2.19.2
+  - @kubb/react@2.19.2
+  - @kubb/swagger-ts@2.19.2
+
 ## 2.19.1
 
 ### Patch Changes
