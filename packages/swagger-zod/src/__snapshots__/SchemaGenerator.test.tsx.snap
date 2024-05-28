@@ -91,7 +91,7 @@ exports[`Zod SchemaGenerator > 'PetArray' 1`] = `
 `;
 
 exports[`Zod SchemaGenerator > 'PetTuple' 1`] = `
-"export const petTuple = z.tuple([z.string(), z.string()]).min(2).max(2)
+"export const petTuple = z.tuple([z.string(), z.string()])
 "
 `;
 
