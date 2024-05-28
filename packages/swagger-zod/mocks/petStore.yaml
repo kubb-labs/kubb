@@ -155,6 +155,15 @@ components:
       maxItems: 3
       items:
         $ref: '#/components/schemas/Pet'
+    PetTuple:
+      maxItems: 2
+      minItems: 2
+      prefixItems:
+        - type: string
+        - type: string
+      title: Attributes
+      type: array
+      description: Tuple of exact length 2
     OptionalPet:
       type: object
       properties:
