@@ -91,7 +91,14 @@ exports[`Zod SchemaGenerator > 'PetArray' 1`] = `
 `;
 
 exports[`Zod SchemaGenerator > 'PetTuple' 1`] = `
-"export const petTuple = z.tuple([z.string(), z.string()])
+"export const petTuple = z.tuple([z.string(), z.string()]).describe('Tuple of exact length 2')
+"
+`;
+
+exports[`Zod SchemaGenerator > 'PetTupleObject' 1`] = `
+"export const petTupleObject = z
+  .object({ tupleProperty: z.tuple([z.string(), z.string()]).optional() })
+  .describe('Tuple of exact length 2 nested in an object')
 "
 `;
 

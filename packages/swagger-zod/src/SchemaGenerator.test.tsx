@@ -30,6 +30,18 @@ describe('Zod SchemaGenerator', async () => {
       options: {},
     },
     {
+      name: 'PetTuple',
+      input: '../mocks/petStore.yaml',
+      path: 'PetTuple',
+      options: {},
+    },
+    {
+      name: 'PetTupleObject',
+      input: '../mocks/petStore.yaml',
+      path: 'PetTupleObject',
+      options: {},
+    }, 
+    {
       name: 'OptionalPet',
       input: '../mocks/petStore.yaml',
       path: 'OptionalPet',
@@ -49,12 +61,6 @@ describe('Zod SchemaGenerator', async () => {
       name: 'PetArray',
       input: '../mocks/petStore.yaml',
       path: 'PetArray',
-      options: {},
-    },
-    {
-      name: 'PetTuple',
-      input: '../mocks/petStore.yaml',
-      path: 'PetTuple',
       options: {},
     },
     {
