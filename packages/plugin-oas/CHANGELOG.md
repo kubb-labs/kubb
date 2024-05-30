@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 2.19.5
+
+### Patch Changes
+
+- [#1023](https://github.com/kubb-labs/kubb/pull/1023) [`1480324`](https://github.com/kubb-labs/kubb/commit/1480324785cd8dbaf0de2d1161ae2c4a3a82bb8e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for remeda v2
+
+- Updated dependencies [[`1480324`](https://github.com/kubb-labs/kubb/commit/1480324785cd8dbaf0de2d1161ae2c4a3a82bb8e)]:
+  - @kubb/core@2.19.5
+  - @kubb/oas@2.19.5
+  - @kubb/react@2.19.5
+  - @kubb/fs@2.19.5
+
 ## 2.19.4
 
 ### Patch Changes
