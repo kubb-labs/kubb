@@ -1269,11 +1269,11 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
       oas:
-        specifier: ^24.3.5
-        version: 24.3.5
+        specifier: ^24.3.6
+        version: 24.3.6
       oas-normalize:
-        specifier: ^11.0.7
-        version: 11.0.7
+        specifier: ^11.1.0
+        version: 11.1.0
       openapi-format:
         specifier: ^1.17.1
         version: 1.17.1
@@ -2053,10 +2053,6 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
-
-  '@apidevtools/openapi-schemas@2.1.0':
-    resolution: {integrity: sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==}
-    engines: {node: '>=10'}
 
   '@apidevtools/swagger-methods@3.0.2':
     resolution: {integrity: sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==}
@@ -2986,11 +2982,15 @@ packages:
   '@readme/json-schema-ref-parser@1.2.0':
     resolution: {integrity: sha512-Bt3QVovFSua4QmHa65EHUmh2xS0XJ3rgTEUPH998f4OW4VVJke3BuS16f+kM0ZLOGdvIrzrPRqwihuv5BAjtrA==}
 
-  '@readme/openapi-parser@2.5.1':
-    resolution: {integrity: sha512-p9ndWhwjtP+DEiOOF6jeNMpdmYIPM4nl+JEIdnQNdq7b68esI024x7HiYACZpaYaSvISDSyKc7aiRJx4K4IDhg==}
+  '@readme/openapi-parser@2.6.0':
+    resolution: {integrity: sha512-pyFJXezWj9WI1O+gdp95CoxfY+i+Uq3kKk4zXIFuRAZi9YnHpHOpjumWWr67wkmRTw19Hskh9spyY0Iyikf3fA==}
     engines: {node: '>=18'}
     peerDependencies:
       openapi-types: '>=7'
+
+  '@readme/openapi-schemas@3.1.0':
+    resolution: {integrity: sha512-9FC/6ho8uFa8fV50+FPy/ngWN53jaUu4GRXlAjcxIRrzhltJnpKkBG2Tp0IDraFJeWrOpk84RJ9EMEEYzaI1Bw==}
+    engines: {node: '>=18'}
 
   '@readme/postman-to-openapi@4.1.0':
     resolution: {integrity: sha512-VvV2Hzjskz01m8doSn7Ypt6cSZzgjnypVqXy1ipThbyYD6SGiM74VSePXykOODj/43Y2m6zeYedPk/ZLts/HvQ==}
@@ -5421,8 +5421,9 @@ packages:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
 
-  memoizee@0.4.15:
-    resolution: {integrity: sha512-UBWmJpLZd5STPm7PMUlOw/TSy972M+z8gcyQ5veOnSDRREz/0bmpyTfKt3/51DhEBqCZQn1udM/5flcSPYhkdQ==}
+  memoizee@0.4.17:
+    resolution: {integrity: sha512-DGqD7Hjpi/1or4F/aYAspXKNm5Yili0QDAFAY4QYvpqpgiY6+1jOfqpmByzjxbWd/T9mChbCArXAbDAsTm5oXA==}
+    engines: {node: '>=0.12'}
 
   meow@6.1.1:
     resolution: {integrity: sha512-3YffViIt2QWgTy6Pale5QpopX/IvU3LPL03jOTqp6pGj3VjesdO/U8CuHMKpnQr4shCNCM5fd5XFFvIIl6JBHg==}
@@ -5742,8 +5743,8 @@ packages:
   oas-linter@3.2.2:
     resolution: {integrity: sha512-KEGjPDVoU5K6swgo9hJVA/qYGlwfbFx+Kg2QB/kd7rzV5N8N5Mg6PlsoCMohVnQmo+pzJap/F610qTodKzecGQ==}
 
-  oas-normalize@11.0.7:
-    resolution: {integrity: sha512-tRDVl4p5/yGqU0W2qZL86J9VCAzzZ7VSE8q3+9YG0SL70EiQoVxr0csrieFEIkpAkL/wV/uviggUP2goU/cL/w==}
+  oas-normalize@11.1.0:
+    resolution: {integrity: sha512-J6bOG0wCm/OG/qkuVmp8Q6J4kft0Z6y/E/UDZp2NsJW1ZR8gcECXLKBdbFGRvTzJBmpTSRbLVu7yWdHllQhuIQ==}
     engines: {node: '>=18'}
 
   oas-resolver@2.5.6:
@@ -5756,8 +5757,8 @@ packages:
   oas-validator@5.0.8:
     resolution: {integrity: sha512-cu20/HE5N5HKqVygs3dt94eYJfBi0TsZvPVXDhbXQHiEityDN+RROTleefoKRKKJ9dFAF2JBkDHgvWj0sjKGmw==}
 
-  oas@24.3.5:
-    resolution: {integrity: sha512-MRiQ9NbtgGOnvDeZx3KCF3mvE8M6eqNwIOsAs4hLjA4v157BkFLoBXfuCCX7tPpWDCODEqaH6QBNmE+lO0CzgQ==}
+  oas@24.3.6:
+    resolution: {integrity: sha512-KgtJPEksGGAhQFuIY0JezU48sW+3jbYcexc7TlfOfBaNCQHlGMt3aWVjKC/soYn18E0okkyQemDhLnG1yy2MzA==}
     engines: {node: '>=18'}
 
   object-assign@4.1.1:
@@ -7495,8 +7496,6 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@apidevtools/openapi-schemas@2.1.0': {}
-
   '@apidevtools/swagger-methods@3.0.2': {}
 
   '@babel/code-frame@7.24.2':
@@ -8473,12 +8472,12 @@ snapshots:
 
   '@polka/url@1.0.0-next.25': {}
 
-  '@readme/better-ajv-errors@1.6.0(ajv@8.12.0)':
+  '@readme/better-ajv-errors@1.6.0(ajv@8.13.0)':
     dependencies:
       '@babel/code-frame': 7.24.2
       '@babel/runtime': 7.24.4
       '@humanwhocodes/momoa': 2.0.4
-      ajv: 8.12.0
+      ajv: 8.13.0
       chalk: 4.1.2
       json-to-ast: 2.1.0
       jsonpointer: 5.0.1
@@ -8493,17 +8492,19 @@ snapshots:
       call-me-maybe: 1.0.2
       js-yaml: 4.1.0
 
-  '@readme/openapi-parser@2.5.1(openapi-types@12.1.3)':
+  '@readme/openapi-parser@2.6.0(openapi-types@12.1.3)':
     dependencies:
-      '@apidevtools/openapi-schemas': 2.1.0
       '@apidevtools/swagger-methods': 3.0.2
       '@jsdevtools/ono': 7.1.3
-      '@readme/better-ajv-errors': 1.6.0(ajv@8.12.0)
+      '@readme/better-ajv-errors': 1.6.0(ajv@8.13.0)
       '@readme/json-schema-ref-parser': 1.2.0
-      ajv: 8.12.0
-      ajv-draft-04: 1.0.0(ajv@8.12.0)
+      '@readme/openapi-schemas': 3.1.0
+      ajv: 8.13.0
+      ajv-draft-04: 1.0.0(ajv@8.13.0)
       call-me-maybe: 1.0.2
       openapi-types: 12.1.3
+
+  '@readme/openapi-schemas@3.1.0': {}
 
   '@readme/postman-to-openapi@4.1.0':
     dependencies:
@@ -9378,10 +9379,6 @@ snapshots:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
-
-  ajv-draft-04@1.0.0(ajv@8.12.0):
-    optionalDependencies:
-      ajv: 8.12.0
 
   ajv-draft-04@1.0.0(ajv@8.13.0):
     optionalDependencies:
@@ -11266,7 +11263,7 @@ snapshots:
 
   media-typer@0.3.0: {}
 
-  memoizee@0.4.15:
+  memoizee@0.4.17:
     dependencies:
       d: 1.0.2
       es5-ext: 0.10.64
@@ -11656,9 +11653,9 @@ snapshots:
       should: 13.2.3
       yaml: 1.10.2
 
-  oas-normalize@11.0.7:
+  oas-normalize@11.1.0:
     dependencies:
-      '@readme/openapi-parser': 2.5.1(openapi-types@12.1.3)
+      '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
       '@readme/postman-to-openapi': 4.1.0
       js-yaml: 4.1.0
       openapi-types: 12.1.3
@@ -11687,15 +11684,15 @@ snapshots:
       should: 13.2.3
       yaml: 1.10.2
 
-  oas@24.3.5:
+  oas@24.3.6:
     dependencies:
       '@readme/json-schema-ref-parser': 1.2.0
       '@types/json-schema': 7.0.15
       json-schema-merge-allof: 0.8.1
       jsonpath-plus: 8.1.0
       jsonpointer: 5.0.1
-      memoizee: 0.4.15
-      oas-normalize: 11.0.7
+      memoizee: 0.4.17
+      oas-normalize: 11.1.0
       openapi-types: 12.1.3
       path-to-regexp: 6.2.2
       remove-undefined-objects: 5.0.0
