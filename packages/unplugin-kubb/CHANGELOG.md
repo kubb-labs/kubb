@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 0.1.57
+
+### Patch Changes
+
+- Updated dependencies [[`1480324`](https://github.com/kubb-labs/kubb/commit/1480324785cd8dbaf0de2d1161ae2c4a3a82bb8e)]:
+  - @kubb/core@2.19.5
+
 ## 0.1.56
 
 ### Patch Changes
