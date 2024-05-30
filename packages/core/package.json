@@ -97,7 +97,7 @@
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^1.61.0",
+    "remeda": "^2.0.0",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.2",
     "unraw": "^3.0.0"

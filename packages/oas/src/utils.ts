@@ -1,20 +1,20 @@
 import { isRef, isSchema } from 'oas/types'
 import openapiFormat from 'openapi-format'
-import { isObject } from 'remeda'
+import { isPlainObject } from 'remeda'
 
 import type { OASDocument, ParameterObject, SchemaObject } from 'oas/types'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import type { FormatOptions } from './parser/index.ts'
 
 export function isOpenApiV2Document(doc: any): doc is OpenAPIV2.Document {
-  return doc && isObject(doc) && !('openapi' in doc)
+  return doc && isPlainObject(doc) && !('openapi' in doc)
 }
 export function isOpenApiV3Document(doc: any): doc is OpenAPIV3.Document {
-  return doc && isObject(doc) && 'openapi' in doc
+  return doc && isPlainObject(doc) && 'openapi' in doc
 }
 
 export function isOpenApiV3_1Document(doc: any): doc is OpenAPIV3_1.Document {
-  return doc && isObject(doc) && 'openapi' in doc && doc.openapi.startsWith('3.1')
+  return doc && isPlainObject<OpenAPIV3_1.Document>(doc) && 'openapi' in doc && doc.openapi.startsWith('3.1')
 }
 
 export function isJSONSchema(obj?: unknown): obj is SchemaObject {
