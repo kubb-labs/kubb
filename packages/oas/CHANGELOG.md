@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.19.4
+
+### Patch Changes
+
+- [`d91fd08`](https://github.com/kubb-labs/kubb/commit/d91fd08bf139cfbf96b687d2ed926a16ce1e1e15) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - vulnerability fix for Memoizee(oas update)
+
 ## 2.19.3
 
 ## 2.19.2
