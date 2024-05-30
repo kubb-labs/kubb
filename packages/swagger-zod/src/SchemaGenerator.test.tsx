@@ -36,6 +36,12 @@ describe('Zod SchemaGenerator', async () => {
       options: {},
     },
     {
+      name: 'PetTupleObject',
+      input: '../mocks/petStore.yaml',
+      path: 'PetTupleObject',
+      options: {},
+    },
+    {
       name: 'OptionalPet',
       input: '../mocks/petStore.yaml',
       path: 'OptionalPet',

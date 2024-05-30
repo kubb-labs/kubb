@@ -891,19 +891,19 @@ export const createVolumeSnapshotMutationResponseSchema = z.any()
 /**
  * @description OIDC token
  */
-export const machinesTokenOidc200Schema = z.string()
+export const tokensRequestOidc200Schema = z.string()
 /**
  * @description Bad Request
  */
-export const machinesTokenOidc400Schema = z.lazy(() => errorResponseSchema)
+export const tokensRequestOidc400Schema = z.lazy(() => errorResponseSchema)
 /**
  * @description Optional request body
  */
-export const machinesTokenOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema)
+export const tokensRequestOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema)
 /**
  * @description OIDC token
  */
-export const machinesTokenOidcMutationResponseSchema = z.string()
+export const tokensRequestOidcMutationResponseSchema = z.string()
 
 export const operations = {
   Apps_list: {
@@ -1290,16 +1290,16 @@ export const operations = {
       200: createVolumeSnapshotMutationResponseSchema,
     },
   },
-  Machines_token_OIDC: {
-    request: machinesTokenOidcMutationRequestSchema,
+  Tokens_request_OIDC: {
+    request: tokensRequestOidcMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: machinesTokenOidcMutationResponseSchema,
-      400: machinesTokenOidc400Schema,
+      200: tokensRequestOidcMutationResponseSchema,
+      400: tokensRequestOidc400Schema,
     },
   },
 } as const
@@ -1383,6 +1383,6 @@ export const paths = {
     post: operations['createVolumeSnapshot'],
   },
   '/tokens/oidc': {
-    post: operations['Machines_token_OIDC'],
+    post: operations['Tokens_request_OIDC'],
   },
 } as const

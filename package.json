@@ -55,7 +55,7 @@
     "@changesets/cli": "^2.27.5",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.12.13",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "bun-types": "^1.1.10",

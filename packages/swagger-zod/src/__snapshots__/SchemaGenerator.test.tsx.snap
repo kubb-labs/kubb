@@ -95,6 +95,11 @@ exports[`Zod SchemaGenerator > 'PetTuple' 1`] = `
 "
 `;
 
+exports[`Zod SchemaGenerator > 'PetTupleObject' 1`] = `
+"export const petTupleObject = z.object({ tupleProperty: z.tuple([z.string(), z.string()]).optional() }).describe('Tuple of exact length 2 nested in an object')
+"
+`;
+
 exports[`Zod SchemaGenerator > 'Pets' 1`] = `
 "export const pets = z.array(z.object({ id: z.number(), name: z.string(), tag: z.string().optional() }))
 "

@@ -135,7 +135,7 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.tuple) {
         const subItem = schema as SchemaKeywordMapper['tuple']
 
-        subItem.args.forEach((entrySchema) => {
+        subItem.args.items.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -211,7 +211,7 @@ export abstract class SchemaGenerator<
       if (schema.keyword === schemaKeywords.tuple) {
         const subItem = schema as SchemaKeywordMapper['tuple']
 
-        subItem.args.forEach((entrySchema) => {
+        subItem.args.items.forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
           }
@@ -637,17 +637,23 @@ export abstract class SchemaGenerator<
 
     if ('prefixItems' in schema) {
       const prefixItems = schema.prefixItems as SchemaObject[]
+      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
       return [
         {
           keyword: schemaKeywords.tuple,
-          args: prefixItems
-            .map((item) => {
-              return this.parse({ schema: item, name, parentName })[0]
-            })
-            .filter(Boolean),
+          args: {
+            min,
+            max,
+            items: prefixItems
+              .map((item) => {
+                return this.parse({ schema: item, name, parentName })[0]
+              })
+              .filter(Boolean),
+          },
         },
-        ...baseItems,
+        ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
       ]
     }
 

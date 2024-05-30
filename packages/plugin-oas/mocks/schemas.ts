@@ -157,14 +157,18 @@ const basic: Array<{ name: string; schema: Schema }> = [
     name: 'tuple',
     schema: {
       keyword: schemaKeywords.tuple,
-      args: [],
+      args: {
+        items: [],
+      },
     },
   },
   {
     name: 'tupleMulti',
     schema: {
       keyword: schemaKeywords.tuple,
-      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+      args: {
+        items: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+      },
     },
   },
   {

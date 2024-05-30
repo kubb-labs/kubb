@@ -174,6 +174,25 @@ components:
       title: Attributes
       type: array
       description: Tuple of exact length 2
+      PetTuple:
+        maxItems: 2
+        minItems: 2
+        prefixItems:
+          - type: string
+          - type: string
+        type: array
+        description: Tuple of exact length 2
+    PetTupleObject:
+      type: object
+      description: Tuple of exact length 2 nested in an object
+      properties:
+        tupleProperty:
+          type: array,
+          maxItems: 2,
+          minItems: 2,
+          prefixItems:
+            - type: string
+            - type: string
     Pets:
       type: array
       items: {

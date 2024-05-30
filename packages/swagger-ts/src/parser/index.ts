@@ -158,7 +158,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    return typeKeywordMapper.tuple(current.args.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.const)) {

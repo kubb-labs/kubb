@@ -224,11 +224,11 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    if (Array.isArray(current.args)) {
-      return fakerKeywordMapper.tuple(current.args.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
+    if (Array.isArray(current.args.items)) {
+      return fakerKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
     }
 
-    return parse(current, current.args, { ...options, withData: false })
+    return parse(current, current.args.items, { ...options, withData: false })
   }
 
   if (isKeyword(current, schemaKeywords.const)) {
