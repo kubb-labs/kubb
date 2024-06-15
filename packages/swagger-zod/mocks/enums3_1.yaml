@@ -12,6 +12,7 @@ components:
       enum:
       - Pending
       - Received
+      - null
 
 paths:
   /var-names:

@@ -157,6 +157,24 @@ describe('TypeScript SchemaGenerator', async () => {
       },
     },
     {
+      name: 'EnumNullableMember',
+      input: '../mocks/enums.yaml',
+      path: 'enum.NullableMember',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumNullableType',
+      input: '../mocks/enums.yaml',
+      path: 'enum.NullableType',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'EnumAllOf',
       input: '../mocks/enums.yaml',
       path: 'enum.AllOf',
@@ -176,7 +194,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumArray',
-      input: '../mocks/enums.yaml',
+      input: '../mocks/enums_2.0.yaml',
       path: 'enum.Array',
       options: {
         enumType: 'asConst',

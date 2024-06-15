@@ -560,6 +560,12 @@ export abstract class SchemaGenerator<
         type: 'type',
       })
 
+      const nullableEnum = schema.enum.includes(null);
+      if (nullableEnum) {
+        baseItems.push({ keyword: schemaKeywords.nullable })
+      }
+      const filteredValues = schema.enum.filter((value) => value !== null);
+
       // x-enumNames has priority
       const extensionEnums = ['x-enumNames', 'x-enum-varnames']
         .filter((extensionKey) => extensionKey in schema)
@@ -600,7 +606,7 @@ export abstract class SchemaGenerator<
                     value,
                     format: 'number',
                   }))
-                : [...new Set(schema.enum)].map((value: string) => {
+                : [...new Set(filteredValues)].map((value: string) => {
                     return {
                       name: value,
                       value,
@@ -624,7 +630,7 @@ export abstract class SchemaGenerator<
             name: enumName,
             typeName,
             asConst: false,
-            items: [...new Set(schema.enum)].map((value: string) => ({
+            items: [...new Set(filteredValues)].map((value: string) => ({
               name: transformers.stringify(value),
               value,
               format: isNumber(value) ? 'number' : 'string',

@@ -138,6 +138,26 @@ export type enumNamesType = EnumNamesTypeEnum
 "
 `;
 
+exports[`TypeScript SchemaGenerator > 'EnumNullableMember' 1`] = `
+"export const enumNullableMemberEnum = {
+  first: 'first',
+  second: 'second',
+} as const
+export type EnumNullableMemberEnum = (typeof enumNullableMemberEnum)[keyof typeof enumNullableMemberEnum]
+export type enumNullableMember = EnumNullableMemberEnum | null
+"
+`;
+
+exports[`TypeScript SchemaGenerator > 'EnumNullableType' 1`] = `
+"export const enumNullableTypeEnum = {
+  first: 'first',
+  second: 'second',
+} as const
+export type EnumNullableTypeEnum = (typeof enumNullableTypeEnum)[keyof typeof enumNullableTypeEnum]
+export type enumNullableType = EnumNullableTypeEnum | null
+"
+`;
+
 exports[`TypeScript SchemaGenerator > 'EnumString' 1`] = `
 "export const enumStringEnum = {
   created_at: 'created_at',
