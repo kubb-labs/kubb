@@ -1,0 +1,23 @@
+definitions:
+  enum.Array:
+    type: object
+    properties:
+      identifier:
+        type: array
+        prefixItems:
+          - type: integer
+            description: Number of items
+          - type: string
+            description: Description
+          - enum:
+              - "NW"
+              - "NE"
+              - "SW"
+              - "SE"
+            description: Wind direction
+
+swagger: "2.0"
+info:
+  title: test
+  version: "1.0.0"
+paths: {}
