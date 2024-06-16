@@ -58,7 +58,7 @@
   "javascript": {
     "formatter": {
       "enabled": true,
-      "trailingComma": "all",
+      "trailingCommas": "all",
       "semicolons": "asNeeded",
       "quoteStyle": "single",
       "jsxQuoteStyle": "double",

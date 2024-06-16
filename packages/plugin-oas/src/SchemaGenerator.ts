@@ -560,11 +560,11 @@ export abstract class SchemaGenerator<
         type: 'type',
       })
 
-      const nullableEnum = schema.enum.includes(null);
+      const nullableEnum = schema.enum.includes(null)
       if (nullableEnum) {
         baseItems.push({ keyword: schemaKeywords.nullable })
       }
-      const filteredValues = schema.enum.filter((value) => value !== null);
+      const filteredValues = schema.enum.filter((value) => value !== null)
 
       // x-enumNames has priority
       const extensionEnums = ['x-enumNames', 'x-enum-varnames']

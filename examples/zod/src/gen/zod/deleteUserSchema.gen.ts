@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const deleteUserPathParamsSchema = z.object({ username: z.string().describe('The name that needs to be deleted') })
+export const deleteUserPathParamsSchema = z.object({ username: z.coerce.string().describe('The name that needs to be deleted') })
 /**
  * @description Invalid username supplied
  */

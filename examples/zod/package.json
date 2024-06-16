@@ -27,7 +27,7 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.0.2",
+    "tsup": "^8.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
