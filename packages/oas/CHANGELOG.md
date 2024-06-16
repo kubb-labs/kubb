@@ -1,5 +1,7 @@
 # @kubb/oas
 
+## 2.19.6
+
 ## 2.19.5
 
 ### Patch Changes
