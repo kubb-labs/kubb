@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-export const deletePetPathParamsSchema = z.object({ petId: z.number().describe('Pet id to delete') })
+export const deletePetPathParamsSchema = z.object({ petId: z.coerce.number().describe('Pet id to delete') })
 
-export const deletePetHeaderParamsSchema = z.object({ api_key: z.string().optional() }).optional()
+export const deletePetHeaderParamsSchema = z.object({ api_key: z.coerce.string().optional() }).optional()
 /**
  * @description Invalid pet value
  */

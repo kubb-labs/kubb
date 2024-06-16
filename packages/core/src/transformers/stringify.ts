@@ -1,7 +1,7 @@
 import { trimQuotes } from './trim'
 
 export function stringify(value: string | number | undefined): string {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     return '""'
   }
 

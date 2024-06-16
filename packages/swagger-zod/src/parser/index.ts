@@ -7,14 +7,14 @@ export const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
   number: (min?: number, max?: number) => {
-    return ['z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
+    return ['z.coerce.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
   },
   integer: (min?: number, max?: number) => {
-    return ['z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
+    return ['z.coerce.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
   },
   object: (value?: string) => `z.object({${value}})`,
   string: (min?: number, max?: number) => {
-    return ['z.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
+    return ['z.coerce.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
   },
   boolean: () => 'z.boolean()',
   undefined: () => 'z.undefined()',

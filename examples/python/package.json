@@ -34,7 +34,7 @@
     "@kubb/config-ts": "workspace:*",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "tsup": "^8.0.2",
+    "tsup": "^8.1.0",
     "typescript": "^5.4.5"
   },
   "packageManager": "pnpm@9.0.5",
