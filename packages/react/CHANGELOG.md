@@ -1,5 +1,14 @@
 # @kubb/react
 
+## 2.19.6
+
+### Patch Changes
+
+- Updated dependencies [[`c0e2a9c`](https://github.com/kubb-labs/kubb/commit/c0e2a9c5bbc85e657e9a1dee3534b5113d67b4aa)]:
+  - @kubb/core@2.19.6
+  - @kubb/fs@2.19.6
+  - @kubb/parser-ts@2.19.6
+
 ## 2.19.5
 
 ### Patch Changes
