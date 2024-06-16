@@ -1,5 +1,22 @@
 # @kubb/swagger-zod
 
+## 3.0.0
+
+### Minor Changes
+
+- [#1037](https://github.com/kubb-labs/kubb/pull/1037) [`c0e2a9c`](https://github.com/kubb-labs/kubb/commit/c0e2a9c5bbc85e657e9a1dee3534b5113d67b4aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add the ability to use the coerce option for primitives in the Zod plugin configuration.
+
+### Patch Changes
+
+- Updated dependencies [[`6e654c9`](https://github.com/kubb-labs/kubb/commit/6e654c92a7acc850f2e4dae609e153c4730ef580), [`c0e2a9c`](https://github.com/kubb-labs/kubb/commit/c0e2a9c5bbc85e657e9a1dee3534b5113d67b4aa)]:
+  - @kubb/plugin-oas@3.0.0
+  - @kubb/core@3.0.0
+  - @kubb/swagger-ts@3.0.0
+  - @kubb/react@3.0.0
+  - @kubb/fs@3.0.0
+  - @kubb/oas@3.0.0
+  - @kubb/parser-ts@3.0.0
+
 ## 2.19.5
 
 ### Patch Changes

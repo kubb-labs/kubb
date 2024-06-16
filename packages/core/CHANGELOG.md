@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.0.0
+
+### Patch Changes
+
+- [#1037](https://github.com/kubb-labs/kubb/pull/1037) [`c0e2a9c`](https://github.com/kubb-labs/kubb/commit/c0e2a9c5bbc85e657e9a1dee3534b5113d67b4aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Error generating TS client from the GitHub API: stringify is unexpectedly receiving null
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.0
+  - @kubb/parser-ts@3.0.0
+  - @kubb/types@3.0.0
+
 ## 2.19.5
 
 ### Patch Changes

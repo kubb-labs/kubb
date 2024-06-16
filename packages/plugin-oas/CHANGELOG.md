@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.0
+
+### Patch Changes
+
+- [#1034](https://github.com/kubb-labs/kubb/pull/1034) [`6e654c9`](https://github.com/kubb-labs/kubb/commit/6e654c92a7acc850f2e4dae609e153c4730ef580) Thanks [@aburgel](https://github.com/aburgel)! - Mark enum as nullable for null enum members
+
+- Updated dependencies [[`c0e2a9c`](https://github.com/kubb-labs/kubb/commit/c0e2a9c5bbc85e657e9a1dee3534b5113d67b4aa)]:
+  - @kubb/core@3.0.0
+  - @kubb/react@3.0.0
+  - @kubb/fs@3.0.0
+  - @kubb/oas@3.0.0
+
 ## 2.19.5
 
 ### Patch Changes

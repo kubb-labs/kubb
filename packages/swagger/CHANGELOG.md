@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`6e654c9`](https://github.com/kubb-labs/kubb/commit/6e654c92a7acc850f2e4dae609e153c4730ef580)]:
+  - @kubb/plugin-oas@3.0.0
+  - @kubb/react@3.0.0
+
 ## 2.19.5
 
 ### Patch Changes
