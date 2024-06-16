@@ -2,7 +2,7 @@
 
 exports[`<Schema/>  > 'Object' 1`] = `
 "
-export const Object = z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(2).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
+export const Object = z.object({"firstName": z.coerce.string().min(2).default(test),"age": z.coerce.number().min(2).default(2),"address": z.coerce.string().and(z.coerce.number()).describe("Your address").nullable()}).describe("Your address").nullable()
 "
 `;
 
@@ -14,7 +14,7 @@ export const Order = z.object({"status": z.enum(["placed", "approved"])})
 
 exports[`<Schema/>  > 'Record' 1`] = `
 "
-export const Record = z.object({}).catchall(z.number()).optional()
+export const Record = z.object({}).catchall(z.coerce.number()).optional()
 "
 `;
 
