@@ -103,6 +103,14 @@ export type Options = {
    * Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
    */
   typed?: boolean
+  /**
+   * Path to Zod
+   * It will be used as `import { z } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default 'zod'
+   */
+  importPath?: string
 }
 
 type ResolvedOptions = {
@@ -115,6 +123,7 @@ type ResolvedOptions = {
   typed: NonNullable<Options['typed']>
   templates: NonNullable<Templates>
   mapper: Record<string, string>
+  importPath: NonNullable<Options['importPath']>
 }
 
 export type FileMeta = {

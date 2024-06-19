@@ -1,55 +1,55 @@
-import type { PetNotFound } from './PetNotFound'
+import { PetNotFound } from "./PetNotFound";
 
-export type CreatePetsPathParams = {
-  /**
-   * @description UUID
-   * @type string
-   */
-  uuid: string
-}
+ export type CreatePetsPathParams = {
+    /**
+     * @description UUID
+     * @type string
+    */
+    uuid: string;
+};
 export type CreatePetsQueryParams = {
-  /**
-   * @description Offset
-   * @type integer | undefined
-   */
-  offset?: number
-}
+    /**
+     * @description Offset
+     * @type integer | undefined
+    */
+    offset?: number;
+};
 export const createPetsHeaderParamsXExample = {
-  ONE: 'ONE',
-  TWO: 'TWO',
-  THREE: 'THREE',
-} as const
-export type CreatePetsHeaderParamsXExample = (typeof createPetsHeaderParamsXExample)[keyof typeof createPetsHeaderParamsXExample]
+    "ONE": "ONE",
+    "TWO": "TWO",
+    "THREE": "THREE"
+} as const;
+export type CreatePetsHeaderParamsXExample = (typeof createPetsHeaderParamsXExample)[keyof typeof createPetsHeaderParamsXExample];
 export type CreatePetsHeaderParams = {
-  /**
-   * @description Header parameters
-   * @type string
-   */
-  'X-EXAMPLE': CreatePetsHeaderParamsXExample
-}
+    /**
+     * @description Header parameters
+     * @type string
+    */
+    "X-EXAMPLE": CreatePetsHeaderParamsXExample;
+};
 /**
  * @description Null response
- */
-export type CreatePets201 = any
+*/
+export type CreatePets201 = any;
 /**
  * @description unexpected error
- */
-export type CreatePetsError = PetNotFound
+*/
+export type CreatePetsError = PetNotFound;
 export type CreatePetsMutationRequest = {
-  /**
-   * @type string
-   */
-  name: string
-  /**
-   * @type string
-   */
-  tag: string
-}
-export type CreatePetsMutationResponse = any
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string
+    */
+    tag: string;
+};
+export type CreatePetsMutationResponse = any;
 export type CreatePetsMutation = {
-  Response: CreatePetsMutationResponse
-  Request: CreatePetsMutationRequest
-  PathParams: CreatePetsPathParams
-  QueryParams: CreatePetsQueryParams
-  HeaderParams: CreatePetsHeaderParams
-}
+    Response: CreatePetsMutationResponse;
+    Request: CreatePetsMutationRequest;
+    PathParams: CreatePetsPathParams;
+    QueryParams: CreatePetsQueryParams;
+    HeaderParams: CreatePetsHeaderParams;
+};

@@ -1,1465 +1,1072 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-export const appSchema = z.object({
-  id: z.coerce.string().optional(),
-  name: z.coerce.string().optional(),
-  organization: z.lazy(() => organizationSchema).optional(),
-  status: z.coerce.string().optional(),
-})
 
-export const checkStatusSchema = z.object({
-  name: z.coerce.string().optional(),
-  output: z.coerce.string().optional(),
-  status: z.coerce.string().optional(),
-  updated_at: z.coerce.string().optional(),
-})
+export const appSchema = z.object({ "id": z.coerce.string().optional(), "name": z.coerce.string().optional(), "organization": z.lazy(() => organizationSchema).optional(), "status": z.coerce.string().optional() });
 
-export const createAppRequestSchema = z.object({
-  app_name: z.coerce.string().optional(),
-  enable_subdomains: z.boolean().optional(),
-  network: z.coerce.string().optional(),
-  org_slug: z.coerce.string().optional(),
-})
 
-export const createLeaseRequestSchema = z.object({
-  description: z.coerce.string().optional(),
-  ttl: z.coerce.number().describe('seconds lease will be valid').optional(),
-})
+export const checkStatusSchema = z.object({ "name": z.coerce.string().optional(), "output": z.coerce.string().optional(), "status": z.coerce.string().optional(), "updated_at": z.coerce.string().optional() });
 
-export const createMachineRequestSchema = z.object({
-  config: z
-    .lazy(() => flyMachineConfigSchema)
-    .describe('An object defining the Machine configuration')
-    .optional(),
-  lease_ttl: z.coerce.number().optional(),
-  lsvd: z.boolean().optional(),
-  name: z.coerce.string().describe('Unique name for this Machine. If omitted, one is generated for you').optional(),
-  region: z.coerce
-    .string()
-    .describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).')
-    .optional(),
-  skip_launch: z.boolean().optional(),
-  skip_service_registration: z.boolean().optional(),
-})
 
-/**
+export const createAppRequestSchema = z.object({ "app_name": z.coerce.string().optional(), "enable_subdomains": z.boolean().optional(), "network": z.coerce.string().optional(), "org_slug": z.coerce.string().optional() });
+
+
+export const createLeaseRequestSchema = z.object({ "description": z.coerce.string().optional(), "ttl": z.coerce.number().describe("seconds lease will be valid").optional() });
+
+
+export const createMachineRequestSchema = z.object({ "config": z.lazy(() => flyMachineConfigSchema).describe("An object defining the Machine configuration").optional(), "lease_ttl": z.coerce.number().optional(), "lsvd": z.boolean().optional(), "name": z.coerce.string().describe("Unique name for this Machine. If omitted, one is generated for you").optional(), "region": z.coerce.string().describe("The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).").optional(), "skip_launch": z.boolean().optional(), "skip_service_registration": z.boolean().optional() });
+
+ /**
  * @description Optional parameters
  */
-export const createOidcTokenRequestSchema = z.object({ aud: z.coerce.string().optional() }).describe('Optional parameters')
+export const createOidcTokenRequestSchema = z.object({ "aud": z.coerce.string().optional() }).describe("Optional parameters");
 
-export const createVolumeRequestSchema = z.object({
-  compute: z.lazy(() => flyMachineGuestSchema).optional(),
-  compute_image: z.coerce.string().optional(),
-  encrypted: z.boolean().optional(),
-  fstype: z.coerce.string().optional(),
-  machines_only: z.boolean().optional(),
-  name: z.coerce.string().optional(),
-  region: z.coerce.string().optional(),
-  require_unique_zone: z.boolean().optional(),
-  size_gb: z.coerce.number().optional(),
-  snapshot_id: z.coerce.string().describe('restore from snapshot').optional(),
-  snapshot_retention: z.coerce.number().optional(),
-  source_volume_id: z.coerce.string().describe('fork from remote volume').optional(),
-})
 
-export const errorResponseSchema = z.object({
-  details: z.object({}).describe('Deprecated').optional(),
-  error: z.coerce.string().optional(),
-  status: z.lazy(() => mainStatusCodeSchema).optional(),
-})
+export const createVolumeRequestSchema = z.object({ "compute": z.lazy(() => flyMachineGuestSchema).optional(), "compute_image": z.coerce.string().optional(), "encrypted": z.boolean().optional(), "fstype": z.coerce.string().optional(), "machines_only": z.boolean().optional(), "name": z.coerce.string().optional(), "region": z.coerce.string().optional(), "require_unique_zone": z.boolean().optional(), "size_gb": z.coerce.number().optional(), "snapshot_id": z.coerce.string().describe("restore from snapshot").optional(), "snapshot_retention": z.coerce.number().optional(), "source_volume_id": z.coerce.string().describe("fork from remote volume").optional() });
 
-export const extendVolumeRequestSchema = z.object({ size_gb: z.coerce.number().optional() })
 
-export const extendVolumeResponseSchema = z.object({ needs_restart: z.boolean().optional(), volume: z.lazy(() => volumeSchema).optional() })
+export const errorResponseSchema = z.object({ "details": z.object({}).describe("Deprecated").optional(), "error": z.coerce.string().optional(), "status": z.lazy(() => mainStatusCodeSchema).optional() });
 
-export const imageRefSchema = z.object({
-  digest: z.coerce.string().optional(),
-  labels: z.object({}).catchall(z.coerce.string()).optional(),
-  registry: z.coerce.string().optional(),
-  repository: z.coerce.string().optional(),
-  tag: z.coerce.string().optional(),
-})
 
-export const leaseSchema = z.object({
-  description: z.coerce.string().describe('Description or reason for the Lease.').optional(),
-  expires_at: z.coerce.number().describe('ExpiresAt is the unix timestamp in UTC to denote when the Lease will no longer be valid.').optional(),
-  nonce: z.coerce.string().describe('Nonce is the unique ID autogenerated and associated with the Lease.').optional(),
-  owner: z.coerce.string().describe('Owner is the user identifier which acquired the Lease.').optional(),
-  version: z.coerce.string().describe('Machine version').optional(),
-})
+export const extendVolumeRequestSchema = z.object({ "size_gb": z.coerce.number().optional() });
 
-export const listAppSchema = z.object({
-  id: z.coerce.string().optional(),
-  machine_count: z.coerce.number().optional(),
-  name: z.coerce.string().optional(),
-  network: z.object({}).optional(),
-})
 
-export const listAppsResponseSchema = z.object({ apps: z.array(z.lazy(() => listAppSchema)).optional(), total_apps: z.coerce.number().optional() })
+export const extendVolumeResponseSchema = z.object({ "needs_restart": z.boolean().optional(), "volume": z.lazy(() => volumeSchema).optional() });
 
-export const listenSocketSchema = z.object({ address: z.coerce.string().optional(), proto: z.coerce.string().optional() })
 
-export const machineSchema = z.object({
-  checks: z.array(z.lazy(() => checkStatusSchema)).optional(),
-  config: z.lazy(() => flyMachineConfigSchema).optional(),
-  created_at: z.coerce.string().optional(),
-  events: z.array(z.lazy(() => machineEventSchema)).optional(),
-  host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
-  id: z.coerce.string().optional(),
-  image_ref: z.lazy(() => imageRefSchema).optional(),
-  instance_id: z.coerce.string().describe('InstanceID is unique for each version of the machine').optional(),
-  name: z.coerce.string().optional(),
-  nonce: z.coerce.string().describe('Nonce is only every returned on machine creation if a lease_duration was provided.').optional(),
-  private_ip: z.coerce.string().describe('PrivateIP is the internal 6PN address of the machine.').optional(),
-  region: z.coerce.string().optional(),
-  state: z.coerce.string().optional(),
-  updated_at: z.coerce.string().optional(),
-})
+export const imageRefSchema = z.object({ "digest": z.coerce.string().optional(), "labels": z.object({}).catchall(z.coerce.string()).optional(), "registry": z.coerce.string().optional(), "repository": z.coerce.string().optional(), "tag": z.coerce.string().optional() });
 
-export const machineEventSchema = z.object({
-  id: z.coerce.string().optional(),
-  request: z.object({}).optional(),
-  source: z.coerce.string().optional(),
-  status: z.coerce.string().optional(),
-  timestamp: z.coerce.number().optional(),
-  type: z.coerce.string().optional(),
-})
 
-export const machineExecRequestSchema = z.object({
-  cmd: z.coerce.string().describe('Deprecated: use Command instead').optional(),
-  command: z.array(z.coerce.string()).optional(),
-  timeout: z.coerce.number().optional(),
-})
+export const leaseSchema = z.object({ "description": z.coerce.string().describe("Description or reason for the Lease.").optional(), "expires_at": z.coerce.number().describe("ExpiresAt is the unix timestamp in UTC to denote when the Lease will no longer be valid.").optional(), "nonce": z.coerce.string().describe("Nonce is the unique ID autogenerated and associated with the Lease.").optional(), "owner": z.coerce.string().describe("Owner is the user identifier which acquired the Lease.").optional(), "version": z.coerce.string().describe("Machine version").optional() });
 
-export const machineVersionSchema = z.object({ user_config: z.lazy(() => flyMachineConfigSchema).optional(), version: z.coerce.string().optional() })
 
-export const organizationSchema = z.object({ name: z.coerce.string().optional(), slug: z.coerce.string().optional() })
+export const listAppSchema = z.object({ "id": z.coerce.string().optional(), "machine_count": z.coerce.number().optional(), "name": z.coerce.string().optional(), "network": z.object({}).optional() });
 
-export const processStatSchema = z.object({
-  command: z.coerce.string().optional(),
-  cpu: z.coerce.number().optional(),
-  directory: z.coerce.string().optional(),
-  listen_sockets: z.array(z.lazy(() => listenSocketSchema)).optional(),
-  pid: z.coerce.number().optional(),
-  rss: z.coerce.number().optional(),
-  rtime: z.coerce.number().optional(),
-  stime: z.coerce.number().optional(),
-})
 
-export const signalRequestSchema = z.object({
-  signal: z
-    .enum(['SIGABRT', 'SIGALRM', 'SIGFPE', 'SIGHUP', 'SIGILL', 'SIGINT', 'SIGKILL', 'SIGPIPE', 'SIGQUIT', 'SIGSEGV', 'SIGTERM', 'SIGTRAP', 'SIGUSR1'])
-    .optional(),
-})
+export const listAppsResponseSchema = z.object({ "apps": z.array(z.lazy(() => listAppSchema)).optional(), "total_apps": z.coerce.number().optional() });
 
-export const stopRequestSchema = z.object({ signal: z.coerce.string().optional(), timeout: z.lazy(() => flyDurationSchema).optional() })
 
-export const updateMachineRequestSchema = z.object({
-  config: z
-    .lazy(() => flyMachineConfigSchema)
-    .describe('An object defining the Machine configuration')
-    .optional(),
-  current_version: z.coerce.string().optional(),
-  lease_ttl: z.coerce.number().optional(),
-  lsvd: z.boolean().optional(),
-  name: z.coerce.string().describe('Unique name for this Machine. If omitted, one is generated for you').optional(),
-  region: z.coerce
-    .string()
-    .describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).')
-    .optional(),
-  skip_launch: z.boolean().optional(),
-  skip_service_registration: z.boolean().optional(),
-})
+export const listenSocketSchema = z.object({ "address": z.coerce.string().optional(), "proto": z.coerce.string().optional() });
 
-export const updateVolumeRequestSchema = z.object({ auto_backup_enabled: z.boolean().optional(), snapshot_retention: z.coerce.number().optional() })
 
-export const volumeSchema = z.object({
-  attached_alloc_id: z.coerce.string().optional(),
-  attached_machine_id: z.coerce.string().optional(),
-  auto_backup_enabled: z.boolean().optional(),
-  block_size: z.coerce.number().optional(),
-  blocks: z.coerce.number().optional(),
-  blocks_avail: z.coerce.number().optional(),
-  blocks_free: z.coerce.number().optional(),
-  created_at: z.coerce.string().optional(),
-  encrypted: z.boolean().optional(),
-  fstype: z.coerce.string().optional(),
-  host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
-  id: z.coerce.string().optional(),
-  name: z.coerce.string().optional(),
-  region: z.coerce.string().optional(),
-  size_gb: z.coerce.number().optional(),
-  snapshot_retention: z.coerce.number().optional(),
-  state: z.coerce.string().optional(),
-  zone: z.coerce.string().optional(),
-})
+export const machineSchema = z.object({ "checks": z.array(z.lazy(() => checkStatusSchema)).optional(), "config": z.lazy(() => flyMachineConfigSchema).optional(), "created_at": z.coerce.string().optional(), "events": z.array(z.lazy(() => machineEventSchema)).optional(), "host_status": z.enum(["ok", "unknown", "unreachable"]).optional(), "id": z.coerce.string().optional(), "image_ref": z.lazy(() => imageRefSchema).optional(), "instance_id": z.coerce.string().describe("InstanceID is unique for each version of the machine").optional(), "name": z.coerce.string().optional(), "nonce": z.coerce.string().describe("Nonce is only every returned on machine creation if a lease_duration was provided.").optional(), "private_ip": z.coerce.string().describe("PrivateIP is the internal 6PN address of the machine.").optional(), "region": z.coerce.string().optional(), "state": z.coerce.string().optional(), "updated_at": z.coerce.string().optional() });
 
-export const volumeSnapshotSchema = z.object({
-  created_at: z.coerce.string().optional(),
-  digest: z.coerce.string().optional(),
-  id: z.coerce.string().optional(),
-  retention_days: z.coerce.number().optional(),
-  size: z.coerce.number().optional(),
-  status: z.coerce.string().optional(),
-})
 
-export const flyDnsConfigSchema = z.object({
-  dns_forward_rules: z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(),
-  nameservers: z.array(z.coerce.string()).optional(),
-  options: z.array(z.lazy(() => flyDnsOptionSchema)).optional(),
-  searches: z.array(z.coerce.string()).optional(),
-  skip_registration: z.boolean().optional(),
-})
+export const machineEventSchema = z.object({ "id": z.coerce.string().optional(), "request": z.object({}).optional(), "source": z.coerce.string().optional(), "status": z.coerce.string().optional(), "timestamp": z.coerce.number().optional(), "type": z.coerce.string().optional() });
 
-export const flyDurationSchema = z.object({ 'time.Duration': z.coerce.number().optional() })
 
-/**
+export const machineExecRequestSchema = z.object({ "cmd": z.coerce.string().describe("Deprecated: use Command instead").optional(), "command": z.array(z.coerce.string()).optional(), "timeout": z.coerce.number().optional() });
+
+
+export const machineVersionSchema = z.object({ "user_config": z.lazy(() => flyMachineConfigSchema).optional(), "version": z.coerce.string().optional() });
+
+
+export const organizationSchema = z.object({ "name": z.coerce.string().optional(), "slug": z.coerce.string().optional() });
+
+
+export const processStatSchema = z.object({ "command": z.coerce.string().optional(), "cpu": z.coerce.number().optional(), "directory": z.coerce.string().optional(), "listen_sockets": z.array(z.lazy(() => listenSocketSchema)).optional(), "pid": z.coerce.number().optional(), "rss": z.coerce.number().optional(), "rtime": z.coerce.number().optional(), "stime": z.coerce.number().optional() });
+
+
+export const signalRequestSchema = z.object({ "signal": z.enum(["SIGABRT", "SIGALRM", "SIGFPE", "SIGHUP", "SIGILL", "SIGINT", "SIGKILL", "SIGPIPE", "SIGQUIT", "SIGSEGV", "SIGTERM", "SIGTRAP", "SIGUSR1"]).optional() });
+
+
+export const stopRequestSchema = z.object({ "signal": z.coerce.string().optional(), "timeout": z.lazy(() => flyDurationSchema).optional() });
+
+
+export const updateMachineRequestSchema = z.object({ "config": z.lazy(() => flyMachineConfigSchema).describe("An object defining the Machine configuration").optional(), "current_version": z.coerce.string().optional(), "lease_ttl": z.coerce.number().optional(), "lsvd": z.boolean().optional(), "name": z.coerce.string().describe("Unique name for this Machine. If omitted, one is generated for you").optional(), "region": z.coerce.string().describe("The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).").optional(), "skip_launch": z.boolean().optional(), "skip_service_registration": z.boolean().optional() });
+
+
+export const updateVolumeRequestSchema = z.object({ "auto_backup_enabled": z.boolean().optional(), "snapshot_retention": z.coerce.number().optional() });
+
+
+export const volumeSchema = z.object({ "attached_alloc_id": z.coerce.string().optional(), "attached_machine_id": z.coerce.string().optional(), "auto_backup_enabled": z.boolean().optional(), "block_size": z.coerce.number().optional(), "blocks": z.coerce.number().optional(), "blocks_avail": z.coerce.number().optional(), "blocks_free": z.coerce.number().optional(), "created_at": z.coerce.string().optional(), "encrypted": z.boolean().optional(), "fstype": z.coerce.string().optional(), "host_status": z.enum(["ok", "unknown", "unreachable"]).optional(), "id": z.coerce.string().optional(), "name": z.coerce.string().optional(), "region": z.coerce.string().optional(), "size_gb": z.coerce.number().optional(), "snapshot_retention": z.coerce.number().optional(), "state": z.coerce.string().optional(), "zone": z.coerce.string().optional() });
+
+
+export const volumeSnapshotSchema = z.object({ "created_at": z.coerce.string().optional(), "digest": z.coerce.string().optional(), "id": z.coerce.string().optional(), "retention_days": z.coerce.number().optional(), "size": z.coerce.number().optional(), "status": z.coerce.string().optional() });
+
+
+export const flyDnsConfigSchema = z.object({ "dns_forward_rules": z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(), "nameservers": z.array(z.coerce.string()).optional(), "options": z.array(z.lazy(() => flyDnsOptionSchema)).optional(), "searches": z.array(z.coerce.string()).optional(), "skip_registration": z.boolean().optional() });
+
+
+export const flyDurationSchema = z.object({ "time.Duration": z.coerce.number().optional() });
+
+ /**
  * @description EnvVar defines an environment variable to be populated from a machine field, env_var
  */
-export const flyEnvFromSchema = z
-  .object({
-    env_var: z.coerce
-      .string()
-      .describe(
-        'EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.',
-      )
-      .optional(),
-    field_ref: z
-      .enum(['id', 'version', 'app_name', 'private_ip', 'region', 'image'])
-      .describe('FieldRef selects a field of the Machine: supports id, version, app_name, private_ip, region, image.')
-      .optional(),
-  })
-  .describe('EnvVar defines an environment variable to be populated from a machine field, env_var')
+export const flyEnvFromSchema = z.object({ "env_var": z.coerce.string().describe("EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.").optional(), "field_ref": z.enum(["id", "version", "app_name", "private_ip", "region", "image"]).describe("FieldRef selects a field of the Machine: supports id, version, app_name, private_ip, region, image.").optional() }).describe("EnvVar defines an environment variable to be populated from a machine field, env_var");
 
-/**
+ /**
  * @description A file that will be written to the Machine. One of RawValue or SecretName must be set.
  */
-export const flyFileSchema = z
-  .object({
-    guest_path: z.coerce
-      .string()
-      .describe('GuestPath is the path on the machine where the file will be written and must be an absolute path.\nFor example: /full/path/to/file.json')
-      .optional(),
-    raw_value: z.coerce.string().describe('The base64 encoded string of the file contents.').optional(),
-    secret_name: z.coerce.string().describe('The name of the secret that contains the base64 encoded file contents.').optional(),
-  })
-  .describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.')
+export const flyFileSchema = z.object({ "guest_path": z.coerce.string().describe("GuestPath is the path on the machine where the file will be written and must be an absolute path.\nFor example: /full/path/to/file.json").optional(), "raw_value": z.coerce.string().describe("The base64 encoded string of the file contents.").optional(), "secret_name": z.coerce.string().describe("The name of the secret that contains the base64 encoded file contents.").optional() }).describe("A file that will be written to the Machine. One of RawValue or SecretName must be set.");
 
-export const flyHttpOptionsSchema = z.object({
-  compress: z.boolean().optional(),
-  h2_backend: z.boolean().optional(),
-  response: z.lazy(() => flyHttpResponseOptionsSchema).optional(),
-})
 
-export const flyHttpResponseOptionsSchema = z.object({ headers: z.object({}).catchall(z.object({})).optional(), pristine: z.boolean().optional() })
+export const flyHttpOptionsSchema = z.object({ "compress": z.boolean().optional(), "h2_backend": z.boolean().optional(), "response": z.lazy(() => flyHttpResponseOptionsSchema).optional() });
 
-/**
+
+export const flyHttpResponseOptionsSchema = z.object({ "headers": z.object({}).catchall(z.object({})).optional(), "pristine": z.boolean().optional() });
+
+ /**
  * @description An optional object that defines one or more named checks. The key for each check is the check name.
  */
-export const flyMachineCheckSchema = z
-  .object({
-    grace_period: z
-      .lazy(() => flyDurationSchema)
-      .describe('The time to wait after a VM starts before checking its health')
-      .optional(),
-    headers: z.array(z.lazy(() => flyMachineHttpHeaderSchema)).optional(),
-    interval: z
-      .lazy(() => flyDurationSchema)
-      .describe('The time between connectivity checks')
-      .optional(),
-    method: z.coerce.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
-    path: z.coerce.string().describe('For http checks, the path to send the request to').optional(),
-    port: z.coerce.number().describe('The port to connect to, often the same as internal_port').optional(),
-    protocol: z.coerce.string().describe('For http checks, whether to use http or https').optional(),
-    timeout: z
-      .lazy(() => flyDurationSchema)
-      .describe('The maximum time a connection can take before being reported as failing its health check')
-      .optional(),
-    tls_server_name: z.coerce.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
-    tls_skip_verify: z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate').optional(),
-    type: z.coerce.string().describe('tcp or http').optional(),
-  })
-  .describe('An optional object that defines one or more named checks. The key for each check is the check name.')
+export const flyMachineCheckSchema = z.object({ "grace_period": z.lazy(() => flyDurationSchema).describe("The time to wait after a VM starts before checking its health").optional(), "headers": z.array(z.lazy(() => flyMachineHttpHeaderSchema)).optional(), "interval": z.lazy(() => flyDurationSchema).describe("The time between connectivity checks").optional(), "method": z.coerce.string().describe("For http checks, the HTTP method to use to when making the request").optional(), "path": z.coerce.string().describe("For http checks, the path to send the request to").optional(), "port": z.coerce.number().describe("The port to connect to, often the same as internal_port").optional(), "protocol": z.coerce.string().describe("For http checks, whether to use http or https").optional(), "timeout": z.lazy(() => flyDurationSchema).describe("The maximum time a connection can take before being reported as failing its health check").optional(), "tls_server_name": z.coerce.string().describe("If the protocol is https, the hostname to use for TLS certificate validation").optional(), "tls_skip_verify": z.boolean().describe("For http checks with https protocol, whether or not to verify the TLS certificate").optional(), "type": z.coerce.string().describe("tcp or http").optional() }).describe("An optional object that defines one or more named checks. The key for each check is the check name.");
 
-export const flyMachineConfigSchema = z.object({
-  auto_destroy: z.boolean().describe('Optional boolean telling the Machine to destroy itself once it\u2019s complete (default false)').optional(),
-  checks: z
-    .object({})
-    .catchall(z.lazy(() => flyMachineCheckSchema))
-    .optional(),
-  disable_machine_autostart: z.boolean().describe('Deprecated: use Service.Autostart instead').optional(),
-  dns: z.lazy(() => flyDnsConfigSchema).optional(),
-  env: z.object({}).catchall(z.coerce.string()).describe('An object filled with key/value pairs to be set as environment variables').optional(),
-  files: z.array(z.lazy(() => flyFileSchema)).optional(),
-  guest: z.lazy(() => flyMachineGuestSchema).optional(),
-  image: z.coerce.string().describe('The docker image to run').optional(),
-  init: z.lazy(() => flyMachineInitSchema).optional(),
-  metadata: z.object({}).catchall(z.coerce.string()).optional(),
-  metrics: z.lazy(() => flyMachineMetricsSchema).optional(),
-  mounts: z.array(z.lazy(() => flyMachineMountSchema)).optional(),
-  processes: z.array(z.lazy(() => flyMachineProcessSchema)).optional(),
-  restart: z.lazy(() => flyMachineRestartSchema).optional(),
-  schedule: z.coerce.string().optional(),
-  services: z.array(z.lazy(() => flyMachineServiceSchema)).optional(),
-  size: z.coerce.string().describe('Deprecated: use Guest instead').optional(),
-  standbys: z
-    .array(z.coerce.string())
-    .describe('Standbys enable a machine to be a standby for another. In the event of a hardware failure,\nthe standby machine will be started.')
-    .optional(),
-  statics: z.array(z.lazy(() => flyStaticSchema)).optional(),
-  stop_config: z.lazy(() => flyStopConfigSchema).optional(),
-})
 
-export const flyMachineGuestSchema = z.object({
-  cpu_kind: z.coerce.string().optional(),
-  cpus: z.coerce.number().optional(),
-  gpu_kind: z.coerce.string().optional(),
-  gpus: z.coerce.number().optional(),
-  host_dedication_id: z.coerce.string().optional(),
-  kernel_args: z.array(z.coerce.string()).optional(),
-  memory_mb: z.coerce.number().optional(),
-})
+export const flyMachineConfigSchema = z.object({ "auto_destroy": z.boolean().describe("Optional boolean telling the Machine to destroy itself once it\u2019s complete (default false)").optional(), "checks": z.object({}).catchall(z.lazy(() => flyMachineCheckSchema)).optional(), "disable_machine_autostart": z.boolean().describe("Deprecated: use Service.Autostart instead").optional(), "dns": z.lazy(() => flyDnsConfigSchema).optional(), "env": z.object({}).catchall(z.coerce.string()).describe("An object filled with key/value pairs to be set as environment variables").optional(), "files": z.array(z.lazy(() => flyFileSchema)).optional(), "guest": z.lazy(() => flyMachineGuestSchema).optional(), "image": z.coerce.string().describe("The docker image to run").optional(), "init": z.lazy(() => flyMachineInitSchema).optional(), "metadata": z.object({}).catchall(z.coerce.string()).optional(), "metrics": z.lazy(() => flyMachineMetricsSchema).optional(), "mounts": z.array(z.lazy(() => flyMachineMountSchema)).optional(), "processes": z.array(z.lazy(() => flyMachineProcessSchema)).optional(), "restart": z.lazy(() => flyMachineRestartSchema).optional(), "schedule": z.coerce.string().optional(), "services": z.array(z.lazy(() => flyMachineServiceSchema)).optional(), "size": z.coerce.string().describe("Deprecated: use Guest instead").optional(), "standbys": z.array(z.coerce.string()).describe("Standbys enable a machine to be a standby for another. In the event of a hardware failure,\nthe standby machine will be started.").optional(), "statics": z.array(z.lazy(() => flyStaticSchema)).optional(), "stop_config": z.lazy(() => flyStopConfigSchema).optional() });
 
-/**
+
+export const flyMachineGuestSchema = z.object({ "cpu_kind": z.coerce.string().optional(), "cpus": z.coerce.number().optional(), "gpu_kind": z.coerce.string().optional(), "gpus": z.coerce.number().optional(), "host_dedication_id": z.coerce.string().optional(), "kernel_args": z.array(z.coerce.string()).optional(), "memory_mb": z.coerce.number().optional() });
+
+ /**
  * @description For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.
  */
-export const flyMachineHttpHeaderSchema = z
-  .object({ name: z.coerce.string().describe('The header name').optional(), values: z.array(z.coerce.string()).describe('The header value').optional() })
-  .describe(
-    'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
-  )
+export const flyMachineHttpHeaderSchema = z.object({ "name": z.coerce.string().describe("The header name").optional(), "values": z.array(z.coerce.string()).describe("The header value").optional() }).describe("For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.");
 
-export const flyMachineInitSchema = z.object({
-  cmd: z.array(z.coerce.string()).optional(),
-  entrypoint: z.array(z.coerce.string()).optional(),
-  exec: z.array(z.coerce.string()).optional(),
-  kernel_args: z.array(z.coerce.string()).optional(),
-  swap_size_mb: z.coerce.number().optional(),
-  tty: z.boolean().optional(),
-})
 
-export const flyMachineMetricsSchema = z.object({ path: z.coerce.string().optional(), port: z.coerce.number().optional() })
+export const flyMachineInitSchema = z.object({ "cmd": z.array(z.coerce.string()).optional(), "entrypoint": z.array(z.coerce.string()).optional(), "exec": z.array(z.coerce.string()).optional(), "kernel_args": z.array(z.coerce.string()).optional(), "swap_size_mb": z.coerce.number().optional(), "tty": z.boolean().optional() });
 
-export const flyMachineMountSchema = z.object({
-  add_size_gb: z.coerce.number().optional(),
-  encrypted: z.boolean().optional(),
-  extend_threshold_percent: z.coerce.number().optional(),
-  name: z.coerce.string().optional(),
-  path: z.coerce.string().optional(),
-  size_gb: z.coerce.number().optional(),
-  size_gb_limit: z.coerce.number().optional(),
-  volume: z.coerce.string().optional(),
-})
 
-export const flyMachinePortSchema = z.object({
-  end_port: z.coerce.number().optional(),
-  force_https: z.boolean().optional(),
-  handlers: z.array(z.coerce.string()).optional(),
-  http_options: z.lazy(() => flyHttpOptionsSchema).optional(),
-  port: z.coerce.number().optional(),
-  proxy_proto_options: z.lazy(() => flyProxyProtoOptionsSchema).optional(),
-  start_port: z.coerce.number().optional(),
-  tls_options: z.lazy(() => flyTlsOptionsSchema).optional(),
-})
+export const flyMachineMetricsSchema = z.object({ "path": z.coerce.string().optional(), "port": z.coerce.number().optional() });
 
-export const flyMachineProcessSchema = z.object({
-  cmd: z.array(z.coerce.string()).optional(),
-  entrypoint: z.array(z.coerce.string()).optional(),
-  env: z.object({}).catchall(z.coerce.string()).optional(),
-  env_from: z
-    .array(z.lazy(() => flyEnvFromSchema))
-    .describe('EnvFrom can be provided to set environment variables from machine fields.')
-    .optional(),
-  exec: z.array(z.coerce.string()).optional(),
-  ignore_app_secrets: z
-    .boolean()
-    .describe(
-      'IgnoreAppSecrets can be set to true to ignore the secrets for the App the Machine belongs to\nand only use the secrets provided at the process level. The default/legacy behavior is to use\nthe secrets provided at the App level.',
-    )
-    .optional(),
-  secrets: z
-    .array(z.lazy(() => flyMachineSecretSchema))
-    .describe(
-      'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
-    )
-    .optional(),
-  user: z.coerce.string().optional(),
-})
 
-/**
+export const flyMachineMountSchema = z.object({ "add_size_gb": z.coerce.number().optional(), "encrypted": z.boolean().optional(), "extend_threshold_percent": z.coerce.number().optional(), "name": z.coerce.string().optional(), "path": z.coerce.string().optional(), "size_gb": z.coerce.number().optional(), "size_gb_limit": z.coerce.number().optional(), "volume": z.coerce.string().optional() });
+
+
+export const flyMachinePortSchema = z.object({ "end_port": z.coerce.number().optional(), "force_https": z.boolean().optional(), "handlers": z.array(z.coerce.string()).optional(), "http_options": z.lazy(() => flyHttpOptionsSchema).optional(), "port": z.coerce.number().optional(), "proxy_proto_options": z.lazy(() => flyProxyProtoOptionsSchema).optional(), "start_port": z.coerce.number().optional(), "tls_options": z.lazy(() => flyTlsOptionsSchema).optional() });
+
+
+export const flyMachineProcessSchema = z.object({ "cmd": z.array(z.coerce.string()).optional(), "entrypoint": z.array(z.coerce.string()).optional(), "env": z.object({}).catchall(z.coerce.string()).optional(), "env_from": z.array(z.lazy(() => flyEnvFromSchema)).describe("EnvFrom can be provided to set environment variables from machine fields.").optional(), "exec": z.array(z.coerce.string()).optional(), "ignore_app_secrets": z.boolean().describe("IgnoreAppSecrets can be set to true to ignore the secrets for the App the Machine belongs to\nand only use the secrets provided at the process level. The default/legacy behavior is to use\nthe secrets provided at the App level.").optional(), "secrets": z.array(z.lazy(() => flyMachineSecretSchema)).describe("Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.").optional(), "user": z.coerce.string().optional() });
+
+ /**
  * @description The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.
  */
-export const flyMachineRestartSchema = z
-  .object({
-    max_retries: z.coerce
-      .number()
-      .describe('When policy is on-failure, the maximum number of times to attempt to restart the Machine before letting it stop.')
-      .optional(),
-    policy: z
-      .enum(['no', 'always', 'on-failure'])
-      .describe(
-        '* no - Never try to restart a Machine automatically when its main process exits, whether that\u2019s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.',
-      )
-      .optional(),
-  })
-  .describe(
-    'The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.',
-  )
+export const flyMachineRestartSchema = z.object({ "max_retries": z.coerce.number().describe("When policy is on-failure, the maximum number of times to attempt to restart the Machine before letting it stop.").optional(), "policy": z.enum(["no", "always", "on-failure"]).describe("* no - Never try to restart a Machine automatically when its main process exits, whether that\u2019s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.").optional() }).describe("The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.");
 
-/**
+ /**
  * @description A Secret needing to be set in the environment of the Machine. env_var is required
  */
-export const flyMachineSecretSchema = z
-  .object({
-    env_var: z.coerce
-      .string()
-      .describe(
-        'EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.',
-      )
-      .optional(),
-    name: z.coerce
-      .string()
-      .describe('Name is optional and when provided is used to reference a secret name where the EnvVar is\ndifferent from what was set as the secret name.')
-      .optional(),
-  })
-  .describe('A Secret needing to be set in the environment of the Machine. env_var is required')
+export const flyMachineSecretSchema = z.object({ "env_var": z.coerce.string().describe("EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.").optional(), "name": z.coerce.string().describe("Name is optional and when provided is used to reference a secret name where the EnvVar is\ndifferent from what was set as the secret name.").optional() }).describe("A Secret needing to be set in the environment of the Machine. env_var is required");
 
-export const flyMachineServiceSchema = z.object({
-  autostart: z.boolean().optional(),
-  autostop: z.boolean().optional(),
-  checks: z.array(z.lazy(() => flyMachineCheckSchema)).optional(),
-  concurrency: z.lazy(() => flyMachineServiceConcurrencySchema).optional(),
-  force_instance_description: z.coerce.string().optional(),
-  force_instance_key: z.coerce.string().optional(),
-  internal_port: z.coerce.number().optional(),
-  min_machines_running: z.coerce.number().optional(),
-  ports: z.array(z.lazy(() => flyMachinePortSchema)).optional(),
-  protocol: z.coerce.string().optional(),
-})
 
-export const flyMachineServiceConcurrencySchema = z.object({
-  hard_limit: z.coerce.number().optional(),
-  soft_limit: z.coerce.number().optional(),
-  type: z.coerce.string().optional(),
-})
+export const flyMachineServiceSchema = z.object({ "autostart": z.boolean().optional(), "autostop": z.boolean().optional(), "checks": z.array(z.lazy(() => flyMachineCheckSchema)).optional(), "concurrency": z.lazy(() => flyMachineServiceConcurrencySchema).optional(), "force_instance_description": z.coerce.string().optional(), "force_instance_key": z.coerce.string().optional(), "internal_port": z.coerce.number().optional(), "min_machines_running": z.coerce.number().optional(), "ports": z.array(z.lazy(() => flyMachinePortSchema)).optional(), "protocol": z.coerce.string().optional() });
 
-export const flyProxyProtoOptionsSchema = z.object({ version: z.coerce.string().optional() })
 
-export const flyStaticSchema = z.object({ guest_path: z.coerce.string(), tigris_bucket: z.coerce.string().optional(), url_prefix: z.coerce.string() })
+export const flyMachineServiceConcurrencySchema = z.object({ "hard_limit": z.coerce.number().optional(), "soft_limit": z.coerce.number().optional(), "type": z.coerce.string().optional() });
 
-export const flyStopConfigSchema = z.object({ signal: z.coerce.string().optional(), timeout: z.lazy(() => flyDurationSchema).optional() })
 
-export const flyTlsOptionsSchema = z.object({
-  alpn: z.array(z.coerce.string()).optional(),
-  default_self_signed: z.boolean().optional(),
-  versions: z.array(z.coerce.string()).optional(),
-})
+export const flyProxyProtoOptionsSchema = z.object({ "version": z.coerce.string().optional() });
 
-export const flyDnsForwardRuleSchema = z.object({ addr: z.coerce.string().optional(), basename: z.coerce.string().optional() })
 
-export const flyDnsOptionSchema = z.object({ name: z.coerce.string().optional(), value: z.coerce.string().optional() })
+export const flyStaticSchema = z.object({ "guest_path": z.coerce.string(), "tigris_bucket": z.coerce.string().optional(), "url_prefix": z.coerce.string() });
 
-export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
 
-export const appsListQueryParamsSchema = z.object({ org_slug: z.coerce.string().describe("The org slug, or 'personal', to filter apps") })
+export const flyStopConfigSchema = z.object({ "signal": z.coerce.string().optional(), "timeout": z.lazy(() => flyDurationSchema).optional() });
+
+
+export const flyTlsOptionsSchema = z.object({ "alpn": z.array(z.coerce.string()).optional(), "default_self_signed": z.boolean().optional(), "versions": z.array(z.coerce.string()).optional() });
+
+
+export const flyDnsForwardRuleSchema = z.object({ "addr": z.coerce.string().optional(), "basename": z.coerce.string().optional() });
+
+
+export const flyDnsOptionSchema = z.object({ "name": z.coerce.string().optional(), "value": z.coerce.string().optional() });
+
+
+export const mainStatusCodeSchema = z.enum(["unknown", "insufficient_capacity"]);
+
+
+export const appsListQueryParamsSchema = z.object({ "org_slug": z.coerce.string().describe("The org slug, or 'personal', to filter apps") });
 /**
  * @description OK
  */
-export const appsList200Schema = z.lazy(() => listAppsResponseSchema)
+export const appsList200Schema = z.lazy(() => listAppsResponseSchema);
 /**
  * @description OK
  */
-export const appsListQueryResponseSchema = z.lazy(() => listAppsResponseSchema)
+export const appsListQueryResponseSchema = z.lazy(() => listAppsResponseSchema);
 
-/**
+ /**
  * @description Created
  */
-export const appsCreate201Schema = z.any()
+export const appsCreate201Schema = z.any();
 /**
  * @description Bad Request
  */
-export const appsCreate400Schema = z.lazy(() => errorResponseSchema)
+export const appsCreate400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description App body
  */
-export const appsCreateMutationRequestSchema = z.lazy(() => createAppRequestSchema)
+export const appsCreateMutationRequestSchema = z.lazy(() => createAppRequestSchema);
 
-export const appsCreateMutationResponseSchema = z.any()
+ export const appsCreateMutationResponseSchema = z.any();
 
-export const appsShowPathParamsSchema = z.object({ app_name: z.coerce.string().describe('Fly App Name') })
+
+export const appsShowPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name") });
 /**
  * @description OK
  */
-export const appsShow200Schema = z.lazy(() => appSchema)
+export const appsShow200Schema = z.lazy(() => appSchema);
 /**
  * @description OK
  */
-export const appsShowQueryResponseSchema = z.lazy(() => appSchema)
+export const appsShowQueryResponseSchema = z.lazy(() => appSchema);
 
-export const appsDeletePathParamsSchema = z.object({ app_name: z.coerce.string().describe('Fly App Name') })
+
+export const appsDeletePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name") });
 /**
  * @description Accepted
  */
-export const appsDelete202Schema = z.any()
+export const appsDelete202Schema = z.any();
 
-export const appsDeleteMutationResponseSchema = z.any()
+ export const appsDeleteMutationResponseSchema = z.any();
 
-export const machinesListPathParamsSchema = z.object({ app_name: z.coerce.string().describe('Fly App Name') })
 
-export const machinesListQueryParamsSchema = z
-  .object({ include_deleted: z.boolean().describe('Include deleted machines').optional(), region: z.coerce.string().describe('Region filter').optional() })
-  .optional()
+export const machinesListPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name") });
+
+ export const machinesListQueryParamsSchema = z.object({ "include_deleted": z.boolean().describe("Include deleted machines").optional(), "region": z.coerce.string().describe("Region filter").optional() }).optional();
 /**
  * @description OK
  */
-export const machinesList200Schema = z.array(z.lazy(() => machineSchema))
+export const machinesList200Schema = z.array(z.lazy(() => machineSchema));
 /**
  * @description OK
  */
-export const machinesListQueryResponseSchema = z.array(z.lazy(() => machineSchema))
+export const machinesListQueryResponseSchema = z.array(z.lazy(() => machineSchema));
 
-export const machinesCreatePathParamsSchema = z.object({ app_name: z.coerce.string().describe('Fly App Name') })
+
+export const machinesCreatePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name") });
 /**
  * @description OK
  */
-export const machinesCreate200Schema = z.lazy(() => machineSchema)
+export const machinesCreate200Schema = z.lazy(() => machineSchema);
 /**
  * @description Create machine request
  */
-export const machinesCreateMutationRequestSchema = z.lazy(() => createMachineRequestSchema)
+export const machinesCreateMutationRequestSchema = z.lazy(() => createMachineRequestSchema);
 /**
  * @description OK
  */
-export const machinesCreateMutationResponseSchema = z.lazy(() => machineSchema)
+export const machinesCreateMutationResponseSchema = z.lazy(() => machineSchema);
 
-export const machinesShowPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
-/**
- * @description OK
- */
-export const machinesShow200Schema = z.lazy(() => machineSchema)
-/**
- * @description OK
- */
-export const machinesShowQueryResponseSchema = z.lazy(() => machineSchema)
 
-export const machinesUpdatePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+export const machinesShowPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesUpdate200Schema = z.lazy(() => machineSchema)
+export const machinesShow200Schema = z.lazy(() => machineSchema);
+/**
+ * @description OK
+ */
+export const machinesShowQueryResponseSchema = z.lazy(() => machineSchema);
+
+
+export const machinesUpdatePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+/**
+ * @description OK
+ */
+export const machinesUpdate200Schema = z.lazy(() => machineSchema);
 /**
  * @description Bad Request
  */
-export const machinesUpdate400Schema = z.lazy(() => errorResponseSchema)
+export const machinesUpdate400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description Request body
  */
-export const machinesUpdateMutationRequestSchema = z.lazy(() => updateMachineRequestSchema)
+export const machinesUpdateMutationRequestSchema = z.lazy(() => updateMachineRequestSchema);
 /**
  * @description OK
  */
-export const machinesUpdateMutationResponseSchema = z.lazy(() => machineSchema)
+export const machinesUpdateMutationResponseSchema = z.lazy(() => machineSchema);
 
-export const machinesDeletePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
 
-export const machinesDeleteQueryParamsSchema = z.object({ force: z.boolean().describe("Force kill the machine if it's running").optional() }).optional()
+export const machinesDeletePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+
+ export const machinesDeleteQueryParamsSchema = z.object({ "force": z.boolean().describe("Force kill the machine if it's running").optional() }).optional();
 /**
  * @description OK
  */
-export const machinesDelete200Schema = z.any()
+export const machinesDelete200Schema = z.any();
 
-export const machinesDeleteMutationResponseSchema = z.any()
+ export const machinesDeleteMutationResponseSchema = z.any();
 
-export const machinesCordonPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesCordonPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesCordon200Schema = z.any()
+export const machinesCordon200Schema = z.any();
 
-export const machinesCordonMutationResponseSchema = z.any()
+ export const machinesCordonMutationResponseSchema = z.any();
 
-export const machinesListEventsPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesListEventsPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesListEvents200Schema = z.array(z.lazy(() => machineEventSchema))
+export const machinesListEvents200Schema = z.array(z.lazy(() => machineEventSchema));
 /**
  * @description OK
  */
-export const machinesListEventsQueryResponseSchema = z.array(z.lazy(() => machineEventSchema))
+export const machinesListEventsQueryResponseSchema = z.array(z.lazy(() => machineEventSchema));
 
-export const machinesExecPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesExecPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description Raw command output bytes are written back
  */
-export const machinesExec200Schema = z.coerce.string()
+export const machinesExec200Schema = z.coerce.string();
 /**
  * @description Bad Request
  */
-export const machinesExec400Schema = z.lazy(() => errorResponseSchema)
+export const machinesExec400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description Request body
  */
-export const machinesExecMutationRequestSchema = z.lazy(() => machineExecRequestSchema)
+export const machinesExecMutationRequestSchema = z.lazy(() => machineExecRequestSchema);
 /**
  * @description Raw command output bytes are written back
  */
-export const machinesExecMutationResponseSchema = z.coerce.string()
+export const machinesExecMutationResponseSchema = z.coerce.string();
 
-export const machinesShowLeasePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesShowLeasePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesShowLease200Schema = z.lazy(() => leaseSchema)
+export const machinesShowLease200Schema = z.lazy(() => leaseSchema);
 /**
  * @description OK
  */
-export const machinesShowLeaseQueryResponseSchema = z.lazy(() => leaseSchema)
+export const machinesShowLeaseQueryResponseSchema = z.lazy(() => leaseSchema);
 
-export const machinesCreateLeasePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
 
-export const machinesCreateLeaseHeaderParamsSchema = z
-  .object({
-    'fly-machine-lease-nonce': z.coerce.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease').optional(),
-  })
-  .optional()
+export const machinesCreateLeasePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+
+ export const machinesCreateLeaseHeaderParamsSchema = z.object({ "fly-machine-lease-nonce": z.coerce.string().describe("Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease").optional() }).optional();
 /**
  * @description OK
  */
-export const machinesCreateLease200Schema = z.lazy(() => leaseSchema)
+export const machinesCreateLease200Schema = z.lazy(() => leaseSchema);
 /**
  * @description Request body
  */
-export const machinesCreateLeaseMutationRequestSchema = z.lazy(() => createLeaseRequestSchema)
+export const machinesCreateLeaseMutationRequestSchema = z.lazy(() => createLeaseRequestSchema);
 /**
  * @description OK
  */
-export const machinesCreateLeaseMutationResponseSchema = z.lazy(() => leaseSchema)
+export const machinesCreateLeaseMutationResponseSchema = z.lazy(() => leaseSchema);
 
-export const machinesReleaseLeasePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
 
-export const machinesReleaseLeaseHeaderParamsSchema = z.object({ 'fly-machine-lease-nonce': z.coerce.string().describe('Existing lease nonce') })
+export const machinesReleaseLeasePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+
+ export const machinesReleaseLeaseHeaderParamsSchema = z.object({ "fly-machine-lease-nonce": z.coerce.string().describe("Existing lease nonce") });
 /**
  * @description OK
  */
-export const machinesReleaseLease200Schema = z.any()
+export const machinesReleaseLease200Schema = z.any();
 
-export const machinesReleaseLeaseMutationResponseSchema = z.any()
+ export const machinesReleaseLeaseMutationResponseSchema = z.any();
 
-export const machinesShowMetadataPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesShowMetadataPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesShowMetadata200Schema = z.object({}).catchall(z.coerce.string())
+export const machinesShowMetadata200Schema = z.object({}).catchall(z.coerce.string());
 /**
  * @description OK
  */
-export const machinesShowMetadataQueryResponseSchema = z.object({}).catchall(z.coerce.string())
+export const machinesShowMetadataQueryResponseSchema = z.object({}).catchall(z.coerce.string());
 
-export const machinesUpdateMetadataPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-  key: z.coerce.string().describe('Metadata Key'),
-})
+
+export const machinesUpdateMetadataPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID"), "key": z.coerce.string().describe("Metadata Key") });
 /**
  * @description No Content
  */
-export const machinesUpdateMetadata204Schema = z.any()
+export const machinesUpdateMetadata204Schema = z.any();
 /**
  * @description Bad Request
  */
-export const machinesUpdateMetadata400Schema = z.lazy(() => errorResponseSchema)
+export const machinesUpdateMetadata400Schema = z.lazy(() => errorResponseSchema);
 
-export const machinesUpdateMetadataMutationResponseSchema = z.any()
+ export const machinesUpdateMetadataMutationResponseSchema = z.any();
 
-export const machinesDeleteMetadataPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-  key: z.coerce.string().describe('Metadata Key'),
-})
+
+export const machinesDeleteMetadataPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID"), "key": z.coerce.string().describe("Metadata Key") });
 /**
  * @description No Content
  */
-export const machinesDeleteMetadata204Schema = z.any()
+export const machinesDeleteMetadata204Schema = z.any();
 
-export const machinesDeleteMetadataMutationResponseSchema = z.any()
+ export const machinesDeleteMetadataMutationResponseSchema = z.any();
 
-export const machinesListProcessesPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
 
-export const machinesListProcessesQueryParamsSchema = z
-  .object({ sort_by: z.coerce.string().describe('Sort by').optional(), order: z.coerce.string().describe('Order').optional() })
-  .optional()
+export const machinesListProcessesPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+
+ export const machinesListProcessesQueryParamsSchema = z.object({ "sort_by": z.coerce.string().describe("Sort by").optional(), "order": z.coerce.string().describe("Order").optional() }).optional();
 /**
  * @description OK
  */
-export const machinesListProcesses200Schema = z.array(z.lazy(() => processStatSchema))
+export const machinesListProcesses200Schema = z.array(z.lazy(() => processStatSchema));
 /**
  * @description Bad Request
  */
-export const machinesListProcesses400Schema = z.lazy(() => errorResponseSchema)
+export const machinesListProcesses400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description OK
  */
-export const machinesListProcessesQueryResponseSchema = z.array(z.lazy(() => processStatSchema))
+export const machinesListProcessesQueryResponseSchema = z.array(z.lazy(() => processStatSchema));
 
-export const machinesRestartPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
 
-export const machinesRestartQueryParamsSchema = z
-  .object({
-    timeout: z.coerce.string().describe('Restart timeout as a Go duration string or number of seconds').optional(),
-    signal: z.coerce.string().describe('UNIX signal name').optional(),
-  })
-  .optional()
+export const machinesRestartPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+
+ export const machinesRestartQueryParamsSchema = z.object({ "timeout": z.coerce.string().describe("Restart timeout as a Go duration string or number of seconds").optional(), "signal": z.coerce.string().describe("Unix signal name").optional() }).optional();
 /**
  * @description OK
  */
-export const machinesRestart200Schema = z.any()
+export const machinesRestart200Schema = z.any();
 /**
  * @description Bad Request
  */
-export const machinesRestart400Schema = z.lazy(() => errorResponseSchema)
+export const machinesRestart400Schema = z.lazy(() => errorResponseSchema);
 
-export const machinesRestartMutationResponseSchema = z.any()
+ export const machinesRestartMutationResponseSchema = z.any();
 
-export const machinesSignalPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesSignalPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesSignal200Schema = z.any()
+export const machinesSignal200Schema = z.any();
 /**
  * @description Bad Request
  */
-export const machinesSignal400Schema = z.lazy(() => errorResponseSchema)
+export const machinesSignal400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description Request body
  */
-export const machinesSignalMutationRequestSchema = z.lazy(() => signalRequestSchema)
+export const machinesSignalMutationRequestSchema = z.lazy(() => signalRequestSchema);
 
-export const machinesSignalMutationResponseSchema = z.any()
+ export const machinesSignalMutationResponseSchema = z.any();
 
-export const machinesStartPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesStartPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesStart200Schema = z.any()
+export const machinesStart200Schema = z.any();
 
-export const machinesStartMutationResponseSchema = z.any()
+ export const machinesStartMutationResponseSchema = z.any();
 
-export const machinesStopPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesStopPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesStop200Schema = z.any()
+export const machinesStop200Schema = z.any();
 /**
  * @description Bad Request
  */
-export const machinesStop400Schema = z.lazy(() => errorResponseSchema)
+export const machinesStop400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description Optional request body
  */
-export const machinesStopMutationRequestSchema = z.lazy(() => stopRequestSchema)
+export const machinesStopMutationRequestSchema = z.lazy(() => stopRequestSchema);
 
-export const machinesStopMutationResponseSchema = z.any()
+ export const machinesStopMutationResponseSchema = z.any();
 
-export const machinesUncordonPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesSuspendPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesUncordon200Schema = z.any()
+export const machinesSuspend200Schema = z.any();
 
-export const machinesUncordonMutationResponseSchema = z.any()
+ export const machinesSuspendMutationResponseSchema = z.any();
 
-export const machinesListVersionsPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
+
+export const machinesUncordonPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesListVersions200Schema = z.array(z.lazy(() => machineVersionSchema))
+export const machinesUncordon200Schema = z.any();
+
+ export const machinesUncordonMutationResponseSchema = z.any();
+
+
+export const machinesListVersionsPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
 /**
  * @description OK
  */
-export const machinesListVersionsQueryResponseSchema = z.array(z.lazy(() => machineVersionSchema))
-
-export const machinesWaitPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  machine_id: z.coerce.string().describe('Machine ID'),
-})
-
-export const machinesWaitQueryParamsSchema = z
-  .object({
-    instance_id: z.coerce.string().describe('instance? version? TODO').optional(),
-    timeout: z.coerce.number().describe('wait timeout. default 60s').optional(),
-    state: z.enum(['started', 'stopped', 'destroyed']).describe('desired state').optional(),
-  })
-  .optional()
+export const machinesListVersions200Schema = z.array(z.lazy(() => machineVersionSchema));
 /**
  * @description OK
  */
-export const machinesWait200Schema = z.any()
+export const machinesListVersionsQueryResponseSchema = z.array(z.lazy(() => machineVersionSchema));
+
+
+export const machinesWaitPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "machine_id": z.coerce.string().describe("Machine ID") });
+
+ export const machinesWaitQueryParamsSchema = z.object({ "instance_id": z.coerce.string().describe("instance? version? TODO").optional(), "timeout": z.coerce.number().describe("wait timeout. default 60s").optional(), "state": z.enum(["started", "stopped", "suspended", "destroyed"]).describe("desired state").optional() }).optional();
+/**
+ * @description OK
+ */
+export const machinesWait200Schema = z.any();
 /**
  * @description Bad Request
  */
-export const machinesWait400Schema = z.lazy(() => errorResponseSchema)
+export const machinesWait400Schema = z.lazy(() => errorResponseSchema);
 
-export const machinesWaitQueryResponseSchema = z.any()
+ export const machinesWaitQueryResponseSchema = z.any();
 
-export const volumesListPathParamsSchema = z.object({ app_name: z.coerce.string().describe('Fly App Name') })
+
+export const volumesListPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name") });
 /**
  * @description OK
  */
-export const volumesList200Schema = z.array(z.lazy(() => volumeSchema))
+export const volumesList200Schema = z.array(z.lazy(() => volumeSchema));
 /**
  * @description OK
  */
-export const volumesListQueryResponseSchema = z.array(z.lazy(() => volumeSchema))
+export const volumesListQueryResponseSchema = z.array(z.lazy(() => volumeSchema));
 
-export const volumesCreatePathParamsSchema = z.object({ app_name: z.coerce.string().describe('Fly App Name') })
+
+export const volumesCreatePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name") });
 /**
  * @description OK
  */
-export const volumesCreate200Schema = z.lazy(() => volumeSchema)
+export const volumesCreate200Schema = z.lazy(() => volumeSchema);
 /**
  * @description Request body
  */
-export const volumesCreateMutationRequestSchema = z.lazy(() => createVolumeRequestSchema)
+export const volumesCreateMutationRequestSchema = z.lazy(() => createVolumeRequestSchema);
 /**
  * @description OK
  */
-export const volumesCreateMutationResponseSchema = z.lazy(() => volumeSchema)
+export const volumesCreateMutationResponseSchema = z.lazy(() => volumeSchema);
 
-export const volumesGetByIdPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  volume_id: z.coerce.string().describe('Volume ID'),
-})
-/**
- * @description OK
- */
-export const volumesGetById200Schema = z.lazy(() => volumeSchema)
-/**
- * @description OK
- */
-export const volumesGetByIdQueryResponseSchema = z.lazy(() => volumeSchema)
 
-export const volumesUpdatePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  volume_id: z.coerce.string().describe('Volume ID'),
-})
+export const volumesGetByIdPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "volume_id": z.coerce.string().describe("Volume ID") });
 /**
  * @description OK
  */
-export const volumesUpdate200Schema = z.lazy(() => volumeSchema)
+export const volumesGetById200Schema = z.lazy(() => volumeSchema);
+/**
+ * @description OK
+ */
+export const volumesGetByIdQueryResponseSchema = z.lazy(() => volumeSchema);
+
+
+export const volumesUpdatePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "volume_id": z.coerce.string().describe("Volume ID") });
+/**
+ * @description OK
+ */
+export const volumesUpdate200Schema = z.lazy(() => volumeSchema);
 /**
  * @description Bad Request
  */
-export const volumesUpdate400Schema = z.lazy(() => errorResponseSchema)
+export const volumesUpdate400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description Request body
  */
-export const volumesUpdateMutationRequestSchema = z.lazy(() => updateVolumeRequestSchema)
+export const volumesUpdateMutationRequestSchema = z.lazy(() => updateVolumeRequestSchema);
 /**
  * @description OK
  */
-export const volumesUpdateMutationResponseSchema = z.lazy(() => volumeSchema)
+export const volumesUpdateMutationResponseSchema = z.lazy(() => volumeSchema);
 
-export const volumeDeletePathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  volume_id: z.coerce.string().describe('Volume ID'),
-})
-/**
- * @description OK
- */
-export const volumeDelete200Schema = z.lazy(() => volumeSchema)
-/**
- * @description OK
- */
-export const volumeDeleteMutationResponseSchema = z.lazy(() => volumeSchema)
 
-export const volumesExtendPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  volume_id: z.coerce.string().describe('Volume ID'),
-})
+export const volumeDeletePathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "volume_id": z.coerce.string().describe("Volume ID") });
 /**
  * @description OK
  */
-export const volumesExtend200Schema = z.lazy(() => extendVolumeResponseSchema)
+export const volumeDelete200Schema = z.lazy(() => volumeSchema);
+/**
+ * @description OK
+ */
+export const volumeDeleteMutationResponseSchema = z.lazy(() => volumeSchema);
+
+
+export const volumesExtendPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "volume_id": z.coerce.string().describe("Volume ID") });
+/**
+ * @description OK
+ */
+export const volumesExtend200Schema = z.lazy(() => extendVolumeResponseSchema);
 /**
  * @description Request body
  */
-export const volumesExtendMutationRequestSchema = z.lazy(() => extendVolumeRequestSchema)
+export const volumesExtendMutationRequestSchema = z.lazy(() => extendVolumeRequestSchema);
 /**
  * @description OK
  */
-export const volumesExtendMutationResponseSchema = z.lazy(() => extendVolumeResponseSchema)
+export const volumesExtendMutationResponseSchema = z.lazy(() => extendVolumeResponseSchema);
 
-export const volumesListSnapshotsPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  volume_id: z.coerce.string().describe('Volume ID'),
-})
+
+export const volumesListSnapshotsPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "volume_id": z.coerce.string().describe("Volume ID") });
 /**
  * @description OK
  */
-export const volumesListSnapshots200Schema = z.array(z.lazy(() => volumeSnapshotSchema))
+export const volumesListSnapshots200Schema = z.array(z.lazy(() => volumeSnapshotSchema));
 /**
  * @description OK
  */
-export const volumesListSnapshotsQueryResponseSchema = z.array(z.lazy(() => volumeSnapshotSchema))
+export const volumesListSnapshotsQueryResponseSchema = z.array(z.lazy(() => volumeSnapshotSchema));
 
-export const createVolumeSnapshotPathParamsSchema = z.object({
-  app_name: z.coerce.string().describe('Fly App Name'),
-  volume_id: z.coerce.string().describe('Volume ID'),
-})
+
+export const createVolumeSnapshotPathParamsSchema = z.object({ "app_name": z.coerce.string().describe("Fly App Name"), "volume_id": z.coerce.string().describe("Volume ID") });
 /**
  * @description OK
  */
-export const createVolumeSnapshot200Schema = z.any()
+export const createVolumeSnapshot200Schema = z.any();
 
-export const createVolumeSnapshotMutationResponseSchema = z.any()
+ export const createVolumeSnapshotMutationResponseSchema = z.any();
 
-/**
+ /**
  * @description OIDC token
  */
-export const tokensRequestOidc200Schema = z.coerce.string()
+export const tokensRequestOidc200Schema = z.coerce.string();
 /**
  * @description Bad Request
  */
-export const tokensRequestOidc400Schema = z.lazy(() => errorResponseSchema)
+export const tokensRequestOidc400Schema = z.lazy(() => errorResponseSchema);
 /**
  * @description Optional request body
  */
-export const tokensRequestOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema)
+export const tokensRequestOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema);
 /**
  * @description OIDC token
  */
-export const tokensRequestOidcMutationResponseSchema = z.coerce.string()
+export const tokensRequestOidcMutationResponseSchema = z.coerce.string();
 
-export const operations = {
-  Apps_list: {
-    request: undefined,
-    parameters: {
-      path: undefined,
-      query: appsListQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: appsListQueryResponseSchema,
-    },
-  },
-  Apps_create: {
-    request: appsCreateMutationRequestSchema,
-    parameters: {
-      path: undefined,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      201: appsCreateMutationResponseSchema,
-      400: appsCreate400Schema,
-    },
-  },
-  Apps_show: {
-    request: undefined,
-    parameters: {
-      path: appsShowPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: appsShowQueryResponseSchema,
-    },
-  },
-  Apps_delete: {
-    request: undefined,
-    parameters: {
-      path: appsDeletePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      202: appsDeleteMutationResponseSchema,
-    },
-  },
-  Machines_list: {
-    request: undefined,
-    parameters: {
-      path: machinesListPathParamsSchema,
-      query: machinesListQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListQueryResponseSchema,
-    },
-  },
-  Machines_create: {
-    request: machinesCreateMutationRequestSchema,
-    parameters: {
-      path: machinesCreatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesCreateMutationResponseSchema,
-    },
-  },
-  Machines_show: {
-    request: undefined,
-    parameters: {
-      path: machinesShowPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesShowQueryResponseSchema,
-    },
-  },
-  Machines_update: {
-    request: machinesUpdateMutationRequestSchema,
-    parameters: {
-      path: machinesUpdatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesUpdateMutationResponseSchema,
-      400: machinesUpdate400Schema,
-    },
-  },
-  Machines_delete: {
-    request: undefined,
-    parameters: {
-      path: machinesDeletePathParamsSchema,
-      query: machinesDeleteQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesDeleteMutationResponseSchema,
-    },
-  },
-  Machines_cordon: {
-    request: undefined,
-    parameters: {
-      path: machinesCordonPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesCordonMutationResponseSchema,
-    },
-  },
-  Machines_list_events: {
-    request: undefined,
-    parameters: {
-      path: machinesListEventsPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListEventsQueryResponseSchema,
-    },
-  },
-  Machines_exec: {
-    request: machinesExecMutationRequestSchema,
-    parameters: {
-      path: machinesExecPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesExecMutationResponseSchema,
-      400: machinesExec400Schema,
-    },
-  },
-  Machines_show_lease: {
-    request: undefined,
-    parameters: {
-      path: machinesShowLeasePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesShowLeaseQueryResponseSchema,
-    },
-  },
-  Machines_create_lease: {
-    request: machinesCreateLeaseMutationRequestSchema,
-    parameters: {
-      path: machinesCreateLeasePathParamsSchema,
-      query: undefined,
-      header: machinesCreateLeaseHeaderParamsSchema,
-    },
-    responses: {
-      200: machinesCreateLeaseMutationResponseSchema,
-    },
-  },
-  Machines_release_lease: {
-    request: undefined,
-    parameters: {
-      path: machinesReleaseLeasePathParamsSchema,
-      query: undefined,
-      header: machinesReleaseLeaseHeaderParamsSchema,
-    },
-    responses: {
-      200: machinesReleaseLeaseMutationResponseSchema,
-    },
-  },
-  Machines_show_metadata: {
-    request: undefined,
-    parameters: {
-      path: machinesShowMetadataPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesShowMetadataQueryResponseSchema,
-    },
-  },
-  Machines_update_metadata: {
-    request: undefined,
-    parameters: {
-      path: machinesUpdateMetadataPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      204: machinesUpdateMetadataMutationResponseSchema,
-      400: machinesUpdateMetadata400Schema,
-    },
-  },
-  Machines_delete_metadata: {
-    request: undefined,
-    parameters: {
-      path: machinesDeleteMetadataPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      204: machinesDeleteMetadataMutationResponseSchema,
-    },
-  },
-  Machines_list_processes: {
-    request: undefined,
-    parameters: {
-      path: machinesListProcessesPathParamsSchema,
-      query: machinesListProcessesQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListProcessesQueryResponseSchema,
-      400: machinesListProcesses400Schema,
-    },
-  },
-  Machines_restart: {
-    request: undefined,
-    parameters: {
-      path: machinesRestartPathParamsSchema,
-      query: machinesRestartQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesRestartMutationResponseSchema,
-      400: machinesRestart400Schema,
-    },
-  },
-  Machines_signal: {
-    request: machinesSignalMutationRequestSchema,
-    parameters: {
-      path: machinesSignalPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesSignalMutationResponseSchema,
-      400: machinesSignal400Schema,
-    },
-  },
-  Machines_start: {
-    request: undefined,
-    parameters: {
-      path: machinesStartPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesStartMutationResponseSchema,
-    },
-  },
-  Machines_stop: {
-    request: machinesStopMutationRequestSchema,
-    parameters: {
-      path: machinesStopPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesStopMutationResponseSchema,
-      400: machinesStop400Schema,
-    },
-  },
-  Machines_uncordon: {
-    request: undefined,
-    parameters: {
-      path: machinesUncordonPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesUncordonMutationResponseSchema,
-    },
-  },
-  Machines_list_versions: {
-    request: undefined,
-    parameters: {
-      path: machinesListVersionsPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListVersionsQueryResponseSchema,
-    },
-  },
-  Machines_wait: {
-    request: undefined,
-    parameters: {
-      path: machinesWaitPathParamsSchema,
-      query: machinesWaitQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesWaitQueryResponseSchema,
-      400: machinesWait400Schema,
-    },
-  },
-  Volumes_list: {
-    request: undefined,
-    parameters: {
-      path: volumesListPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesListQueryResponseSchema,
-    },
-  },
-  Volumes_create: {
-    request: volumesCreateMutationRequestSchema,
-    parameters: {
-      path: volumesCreatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesCreateMutationResponseSchema,
-    },
-  },
-  Volumes_get_by_id: {
-    request: undefined,
-    parameters: {
-      path: volumesGetByIdPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesGetByIdQueryResponseSchema,
-    },
-  },
-  Volumes_update: {
-    request: volumesUpdateMutationRequestSchema,
-    parameters: {
-      path: volumesUpdatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesUpdateMutationResponseSchema,
-      400: volumesUpdate400Schema,
-    },
-  },
-  Volume_delete: {
-    request: undefined,
-    parameters: {
-      path: volumeDeletePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumeDeleteMutationResponseSchema,
-    },
-  },
-  Volumes_extend: {
-    request: volumesExtendMutationRequestSchema,
-    parameters: {
-      path: volumesExtendPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesExtendMutationResponseSchema,
-    },
-  },
-  Volumes_list_snapshots: {
-    request: undefined,
-    parameters: {
-      path: volumesListSnapshotsPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesListSnapshotsQueryResponseSchema,
-    },
-  },
-  createVolumeSnapshot: {
-    request: undefined,
-    parameters: {
-      path: createVolumeSnapshotPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: createVolumeSnapshotMutationResponseSchema,
-    },
-  },
-  Tokens_request_OIDC: {
-    request: tokensRequestOidcMutationRequestSchema,
-    parameters: {
-      path: undefined,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: tokensRequestOidcMutationResponseSchema,
-      400: tokensRequestOidc400Schema,
-    },
-  },
-} as const
-export const paths = {
-  '/apps': {
-    get: operations['Apps_list'],
-    post: operations['Apps_create'],
-  },
-  '/apps/{app_name}': {
-    get: operations['Apps_show'],
-    delete: operations['Apps_delete'],
-  },
-  '/apps/{app_name}/machines': {
-    get: operations['Machines_list'],
-    post: operations['Machines_create'],
-  },
-  '/apps/{app_name}/machines/{machine_id}': {
-    get: operations['Machines_show'],
-    post: operations['Machines_update'],
-    delete: operations['Machines_delete'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/cordon': {
-    post: operations['Machines_cordon'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/events': {
-    get: operations['Machines_list_events'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/exec': {
-    post: operations['Machines_exec'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/lease': {
-    get: operations['Machines_show_lease'],
-    post: operations['Machines_create_lease'],
-    delete: operations['Machines_release_lease'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/metadata': {
-    get: operations['Machines_show_metadata'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/metadata/{key}': {
-    post: operations['Machines_update_metadata'],
-    delete: operations['Machines_delete_metadata'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/ps': {
-    get: operations['Machines_list_processes'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/restart': {
-    post: operations['Machines_restart'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/signal': {
-    post: operations['Machines_signal'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/start': {
-    post: operations['Machines_start'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/stop': {
-    post: operations['Machines_stop'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/uncordon': {
-    post: operations['Machines_uncordon'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/versions': {
-    get: operations['Machines_list_versions'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/wait': {
-    get: operations['Machines_wait'],
-  },
-  '/apps/{app_name}/volumes': {
-    get: operations['Volumes_list'],
-    post: operations['Volumes_create'],
-  },
-  '/apps/{app_name}/volumes/{volume_id}': {
-    get: operations['Volumes_get_by_id'],
-    post: operations['Volumes_update'],
-    delete: operations['Volume_delete'],
-  },
-  '/apps/{app_name}/volumes/{volume_id}/extend': {
-    put: operations['Volumes_extend'],
-  },
-  '/apps/{app_name}/volumes/{volume_id}/snapshots': {
-    get: operations['Volumes_list_snapshots'],
-    post: operations['createVolumeSnapshot'],
-  },
-  '/tokens/oidc': {
-    post: operations['Tokens_request_OIDC'],
-  },
-} as const
+ export const operations = { "Apps_list": {
+        request: undefined,
+        parameters: {
+            path: undefined,
+            query: appsListQueryParamsSchema,
+            header: undefined
+        },
+        responses: {
+            200: appsListQueryResponseSchema
+        }
+    }, "Apps_create": {
+        request: appsCreateMutationRequestSchema,
+        parameters: {
+            path: undefined,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            201: appsCreateMutationResponseSchema,
+            400: appsCreate400Schema
+        }
+    }, "Apps_show": {
+        request: undefined,
+        parameters: {
+            path: appsShowPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: appsShowQueryResponseSchema
+        }
+    }, "Apps_delete": {
+        request: undefined,
+        parameters: {
+            path: appsDeletePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            202: appsDeleteMutationResponseSchema
+        }
+    }, "Machines_list": {
+        request: undefined,
+        parameters: {
+            path: machinesListPathParamsSchema,
+            query: machinesListQueryParamsSchema,
+            header: undefined
+        },
+        responses: {
+            200: machinesListQueryResponseSchema
+        }
+    }, "Machines_create": {
+        request: machinesCreateMutationRequestSchema,
+        parameters: {
+            path: machinesCreatePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesCreateMutationResponseSchema
+        }
+    }, "Machines_show": {
+        request: undefined,
+        parameters: {
+            path: machinesShowPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesShowQueryResponseSchema
+        }
+    }, "Machines_update": {
+        request: machinesUpdateMutationRequestSchema,
+        parameters: {
+            path: machinesUpdatePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesUpdateMutationResponseSchema,
+            400: machinesUpdate400Schema
+        }
+    }, "Machines_delete": {
+        request: undefined,
+        parameters: {
+            path: machinesDeletePathParamsSchema,
+            query: machinesDeleteQueryParamsSchema,
+            header: undefined
+        },
+        responses: {
+            200: machinesDeleteMutationResponseSchema
+        }
+    }, "Machines_cordon": {
+        request: undefined,
+        parameters: {
+            path: machinesCordonPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesCordonMutationResponseSchema
+        }
+    }, "Machines_list_events": {
+        request: undefined,
+        parameters: {
+            path: machinesListEventsPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesListEventsQueryResponseSchema
+        }
+    }, "Machines_exec": {
+        request: machinesExecMutationRequestSchema,
+        parameters: {
+            path: machinesExecPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesExecMutationResponseSchema,
+            400: machinesExec400Schema
+        }
+    }, "Machines_show_lease": {
+        request: undefined,
+        parameters: {
+            path: machinesShowLeasePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesShowLeaseQueryResponseSchema
+        }
+    }, "Machines_create_lease": {
+        request: machinesCreateLeaseMutationRequestSchema,
+        parameters: {
+            path: machinesCreateLeasePathParamsSchema,
+            query: undefined,
+            header: machinesCreateLeaseHeaderParamsSchema
+        },
+        responses: {
+            200: machinesCreateLeaseMutationResponseSchema
+        }
+    }, "Machines_release_lease": {
+        request: undefined,
+        parameters: {
+            path: machinesReleaseLeasePathParamsSchema,
+            query: undefined,
+            header: machinesReleaseLeaseHeaderParamsSchema
+        },
+        responses: {
+            200: machinesReleaseLeaseMutationResponseSchema
+        }
+    }, "Machines_show_metadata": {
+        request: undefined,
+        parameters: {
+            path: machinesShowMetadataPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesShowMetadataQueryResponseSchema
+        }
+    }, "Machines_update_metadata": {
+        request: undefined,
+        parameters: {
+            path: machinesUpdateMetadataPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            204: machinesUpdateMetadataMutationResponseSchema,
+            400: machinesUpdateMetadata400Schema
+        }
+    }, "Machines_delete_metadata": {
+        request: undefined,
+        parameters: {
+            path: machinesDeleteMetadataPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            204: machinesDeleteMetadataMutationResponseSchema
+        }
+    }, "Machines_list_processes": {
+        request: undefined,
+        parameters: {
+            path: machinesListProcessesPathParamsSchema,
+            query: machinesListProcessesQueryParamsSchema,
+            header: undefined
+        },
+        responses: {
+            200: machinesListProcessesQueryResponseSchema,
+            400: machinesListProcesses400Schema
+        }
+    }, "Machines_restart": {
+        request: undefined,
+        parameters: {
+            path: machinesRestartPathParamsSchema,
+            query: machinesRestartQueryParamsSchema,
+            header: undefined
+        },
+        responses: {
+            200: machinesRestartMutationResponseSchema,
+            400: machinesRestart400Schema
+        }
+    }, "Machines_signal": {
+        request: machinesSignalMutationRequestSchema,
+        parameters: {
+            path: machinesSignalPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesSignalMutationResponseSchema,
+            400: machinesSignal400Schema
+        }
+    }, "Machines_start": {
+        request: undefined,
+        parameters: {
+            path: machinesStartPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesStartMutationResponseSchema
+        }
+    }, "Machines_stop": {
+        request: machinesStopMutationRequestSchema,
+        parameters: {
+            path: machinesStopPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesStopMutationResponseSchema,
+            400: machinesStop400Schema
+        }
+    }, "Machines_suspend": {
+        request: undefined,
+        parameters: {
+            path: machinesSuspendPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesSuspendMutationResponseSchema
+        }
+    }, "Machines_uncordon": {
+        request: undefined,
+        parameters: {
+            path: machinesUncordonPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesUncordonMutationResponseSchema
+        }
+    }, "Machines_list_versions": {
+        request: undefined,
+        parameters: {
+            path: machinesListVersionsPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: machinesListVersionsQueryResponseSchema
+        }
+    }, "Machines_wait": {
+        request: undefined,
+        parameters: {
+            path: machinesWaitPathParamsSchema,
+            query: machinesWaitQueryParamsSchema,
+            header: undefined
+        },
+        responses: {
+            200: machinesWaitQueryResponseSchema,
+            400: machinesWait400Schema
+        }
+    }, "Volumes_list": {
+        request: undefined,
+        parameters: {
+            path: volumesListPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumesListQueryResponseSchema
+        }
+    }, "Volumes_create": {
+        request: volumesCreateMutationRequestSchema,
+        parameters: {
+            path: volumesCreatePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumesCreateMutationResponseSchema
+        }
+    }, "Volumes_get_by_id": {
+        request: undefined,
+        parameters: {
+            path: volumesGetByIdPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumesGetByIdQueryResponseSchema
+        }
+    }, "Volumes_update": {
+        request: volumesUpdateMutationRequestSchema,
+        parameters: {
+            path: volumesUpdatePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumesUpdateMutationResponseSchema,
+            400: volumesUpdate400Schema
+        }
+    }, "Volume_delete": {
+        request: undefined,
+        parameters: {
+            path: volumeDeletePathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumeDeleteMutationResponseSchema
+        }
+    }, "Volumes_extend": {
+        request: volumesExtendMutationRequestSchema,
+        parameters: {
+            path: volumesExtendPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumesExtendMutationResponseSchema
+        }
+    }, "Volumes_list_snapshots": {
+        request: undefined,
+        parameters: {
+            path: volumesListSnapshotsPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: volumesListSnapshotsQueryResponseSchema
+        }
+    }, "createVolumeSnapshot": {
+        request: undefined,
+        parameters: {
+            path: createVolumeSnapshotPathParamsSchema,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: createVolumeSnapshotMutationResponseSchema
+        }
+    }, "Tokens_request_OIDC": {
+        request: tokensRequestOidcMutationRequestSchema,
+        parameters: {
+            path: undefined,
+            query: undefined,
+            header: undefined
+        },
+        responses: {
+            200: tokensRequestOidcMutationResponseSchema,
+            400: tokensRequestOidc400Schema
+        }
+    } } as const;
+export const paths = { "/apps": {
+        get: operations["Apps_list"],
+        post: operations["Apps_create"]
+    }, "/apps/{app_name}": {
+        get: operations["Apps_show"],
+        delete: operations["Apps_delete"]
+    }, "/apps/{app_name}/machines": {
+        get: operations["Machines_list"],
+        post: operations["Machines_create"]
+    }, "/apps/{app_name}/machines/{machine_id}": {
+        get: operations["Machines_show"],
+        post: operations["Machines_update"],
+        delete: operations["Machines_delete"]
+    }, "/apps/{app_name}/machines/{machine_id}/cordon": {
+        post: operations["Machines_cordon"]
+    }, "/apps/{app_name}/machines/{machine_id}/events": {
+        get: operations["Machines_list_events"]
+    }, "/apps/{app_name}/machines/{machine_id}/exec": {
+        post: operations["Machines_exec"]
+    }, "/apps/{app_name}/machines/{machine_id}/lease": {
+        get: operations["Machines_show_lease"],
+        post: operations["Machines_create_lease"],
+        delete: operations["Machines_release_lease"]
+    }, "/apps/{app_name}/machines/{machine_id}/metadata": {
+        get: operations["Machines_show_metadata"]
+    }, "/apps/{app_name}/machines/{machine_id}/metadata/{key}": {
+        post: operations["Machines_update_metadata"],
+        delete: operations["Machines_delete_metadata"]
+    }, "/apps/{app_name}/machines/{machine_id}/ps": {
+        get: operations["Machines_list_processes"]
+    }, "/apps/{app_name}/machines/{machine_id}/restart": {
+        post: operations["Machines_restart"]
+    }, "/apps/{app_name}/machines/{machine_id}/signal": {
+        post: operations["Machines_signal"]
+    }, "/apps/{app_name}/machines/{machine_id}/start": {
+        post: operations["Machines_start"]
+    }, "/apps/{app_name}/machines/{machine_id}/stop": {
+        post: operations["Machines_stop"]
+    }, "/apps/{app_name}/machines/{machine_id}/suspend": {
+        post: operations["Machines_suspend"]
+    }, "/apps/{app_name}/machines/{machine_id}/uncordon": {
+        post: operations["Machines_uncordon"]
+    }, "/apps/{app_name}/machines/{machine_id}/versions": {
+        get: operations["Machines_list_versions"]
+    }, "/apps/{app_name}/machines/{machine_id}/wait": {
+        get: operations["Machines_wait"]
+    }, "/apps/{app_name}/volumes": {
+        get: operations["Volumes_list"],
+        post: operations["Volumes_create"]
+    }, "/apps/{app_name}/volumes/{volume_id}": {
+        get: operations["Volumes_get_by_id"],
+        post: operations["Volumes_update"],
+        delete: operations["Volume_delete"]
+    }, "/apps/{app_name}/volumes/{volume_id}/extend": {
+        put: operations["Volumes_extend"]
+    }, "/apps/{app_name}/volumes/{volume_id}/snapshots": {
+        get: operations["Volumes_list_snapshots"],
+        post: operations["createVolumeSnapshot"]
+    }, "/tokens/oidc": {
+        post: operations["Tokens_request_OIDC"]
+    } } as const;

@@ -58,7 +58,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['z']} path="zod" />
+        <File.Import name={['z']} path={plugin.options.importPath} />
         {items.map(mapItem)}
       </File>
     </Parser>

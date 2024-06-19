@@ -124,7 +124,7 @@ Schema.Imports = (): ReactNode => {
   const {
     pluginManager,
     plugin: {
-      options: { typed },
+      options: { typed, importPath },
     },
   } = useApp<PluginZod>()
   const { path: root } = useFile()
@@ -152,7 +152,7 @@ Schema.Imports = (): ReactNode => {
 
   return (
     <>
-      <File.Import name={['z']} path="zod" />
+      <File.Import name={['z']} path={importPath} />
       {withTypeAnnotation && typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
     </>
   )

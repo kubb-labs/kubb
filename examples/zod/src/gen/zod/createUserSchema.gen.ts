@@ -1,13 +1,13 @@
-import { z } from 'zod'
-import { userSchema } from './userSchema.gen'
+import { z } from "../../zod.ts";
+import { userSchema } from "./userSchema.gen";
 
-/**
+ /**
  * @description successful operation
  */
-export const createUserErrorSchema = z.lazy(() => userSchema)
+export const createUserErrorSchema = z.lazy(() => userSchema);
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema)
+export const createUserMutationRequestSchema = z.lazy(() => userSchema);
 
-export const createUserMutationResponseSchema = z.any()
+ export const createUserMutationResponseSchema = z.any();

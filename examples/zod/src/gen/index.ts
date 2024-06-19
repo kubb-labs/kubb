@@ -1,2 +1,2 @@
-export * from './ts/index'
-export * from './zod/index'
+export * from "./ts/index";
+export * from "./zod/index";

@@ -1,50 +1,50 @@
-import type { Pet } from './Pet'
+import type { Pet } from "./Pet";
 
-export type FindPetsByTagsQueryParams = {
-  /**
-   * @description Tags to filter by
-   * @type array | undefined
-   */
-  tags?: string[]
-  /**
-   * @description to request with required page number or pagination
-   * @type string | undefined
-   */
-  page?: string
-  /**
-   * @description to request with required page size
-   * @type string | undefined
-   */
-  pageSize?: string
-}
+ export type FindPetsByTagsQueryParams = {
+    /**
+     * @description Tags to filter by
+     * @type array | undefined
+    */
+    tags?: string[];
+    /**
+     * @description to request with required page number or pagination
+     * @type string | undefined
+    */
+    page?: string;
+    /**
+     * @description to request with required page size
+     * @type string | undefined
+    */
+    pageSize?: string;
+};
 export const findPetsByTagsHeaderParamsXExample = {
-  ONE: 'ONE',
-  TWO: 'TWO',
-  THREE: 'THREE',
-} as const
-export type FindPetsByTagsHeaderParamsXExample = (typeof findPetsByTagsHeaderParamsXExample)[keyof typeof findPetsByTagsHeaderParamsXExample]
+    "ONE": "ONE",
+    "TWO": "TWO",
+    "THREE": "THREE"
+} as const;
+export type FindPetsByTagsHeaderParamsXExample = (typeof findPetsByTagsHeaderParamsXExample)[keyof typeof findPetsByTagsHeaderParamsXExample];
 export type FindPetsByTagsHeaderParams = {
-  /**
-   * @description Header parameters
-   * @type string
-   */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExample
-}
+    /**
+     * @description Header parameters
+     * @type string
+    */
+    "X-EXAMPLE": FindPetsByTagsHeaderParamsXExample;
+};
 /**
  * @description successful operation
- */
-export type FindPetsByTags200 = Pet[]
+*/
+export type FindPetsByTags200 = Pet[];
 /**
  * @description Invalid tag value
- */
-export type FindPetsByTags400 = any
+*/
+export type FindPetsByTags400 = any;
 /**
  * @description successful operation
- */
-export type FindPetsByTagsQueryResponse = Pet[]
+*/
+export type FindPetsByTagsQueryResponse = Pet[];
 export type FindPetsByTagsQuery = {
-  Response: FindPetsByTagsQueryResponse
-  QueryParams: FindPetsByTagsQueryParams
-  HeaderParams: FindPetsByTagsHeaderParams
-  Errors: FindPetsByTags400
-}
+    Response: FindPetsByTagsQueryResponse;
+    QueryParams: FindPetsByTagsQueryParams;
+    HeaderParams: FindPetsByTagsHeaderParams;
+    Errors: FindPetsByTags400;
+};

@@ -1,13 +1,14 @@
-import { z } from 'zod'
+import { z } from "../../zod.ts";
 
-export const deleteOrderPathParamsSchema = z.object({ orderId: z.coerce.number().describe('ID of the order that needs to be deleted') })
+
+export const deleteOrderPathParamsSchema = z.object({ "orderId": z.coerce.number().describe("ID of the order that needs to be deleted") });
 /**
  * @description Invalid ID supplied
  */
-export const deleteOrder400Schema = z.any()
+export const deleteOrder400Schema = z.any();
 /**
  * @description Order not found
  */
-export const deleteOrder404Schema = z.any()
+export const deleteOrder404Schema = z.any();
 
-export const deleteOrderMutationResponseSchema = z.any()
+ export const deleteOrderMutationResponseSchema = z.any();
