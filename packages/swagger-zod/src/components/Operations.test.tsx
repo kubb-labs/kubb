@@ -27,6 +27,7 @@ describe('<Operations/>', async () => {
       operations: Operations.templates,
     },
     mapper: {},
+    importPath: 'zod',
   }
   const plugin = { options } as Plugin<PluginZod>
   const generator = new OperationGenerator(options, {

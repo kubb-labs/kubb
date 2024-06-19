@@ -23,6 +23,7 @@ describe('<Schema/> ', () => {
       operations: Operations.templates,
     },
     mapper: {},
+    importPath: 'zod',
   }
 
   const plugin = { options } as Plugin<PluginZod>
