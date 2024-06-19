@@ -71,5 +71,13 @@
     "node": ">=18",
     "pnpm": ">=8.15.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@changesets/assemble-release-plan": "6.0.0"
+    },
+    "patchedDependencies": {
+      "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
+    }
+  },
   "namespace": "@kubb"
 }
