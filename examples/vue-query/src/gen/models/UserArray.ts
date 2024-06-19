@@ -1,3 +1,3 @@
-import { User } from "./User";
+import type { User } from './User'
 
- export type UserArray = User[];
+export type UserArray = User[]
