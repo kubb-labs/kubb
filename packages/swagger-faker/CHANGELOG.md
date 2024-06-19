@@ -1,5 +1,20 @@
 # @kubb/swagger-faker
 
+## 3.0.0
+
+### Patch Changes
+
+- [#1045](https://github.com/kubb-labs/kubb/pull/1045) [`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Issue with Incorrect Imported Names in Generated Hooks(use of pluginKey and type for getSchemas)
+
+- Updated dependencies [[`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902)]:
+  - @kubb/plugin-oas@3.0.0
+  - @kubb/parser-ts@3.0.0
+  - @kubb/core@3.0.0
+  - @kubb/oas@3.0.0
+  - @kubb/fs@3.0.0
+  - @kubb/react@3.0.0
+  - @kubb/swagger-ts@3.0.0
+
 ## 2.19.6
 
 ### Patch Changes
