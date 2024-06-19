@@ -1,5 +1,15 @@
 # kubb
 
+## 2.18.17
+
+### Patch Changes
+
+- [#1045](https://github.com/kubb-labs/kubb/pull/1045) [`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Issue with Incorrect Imported Names in Generated Hooks(use of pluginKey and type for getSchemas)
+
+- Updated dependencies [[`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902)]:
+  - @kubb/core@2.20.0
+  - @kubb/cli@2.20.0
+
 ## 2.18.16
 
 ### Patch Changes
