@@ -47,12 +47,12 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
       type: 'type',
     })
     const typeFileName = pluginManager.resolveName({
-      name: name,
+      name: options.operationName || name,
       pluginKey: [pluginTsName],
       type: 'file',
     })
     const typePath = pluginManager.resolvePath({
-      baseName: options.operationName || typeFileName,
+      baseName: typeFileName,
       pluginKey: [pluginTsName],
       options: { tag: options.operation?.getTags()[0]?.name },
     })

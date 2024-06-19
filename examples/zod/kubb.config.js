@@ -23,6 +23,11 @@ export default defineConfig(async () => {
         output: {
           path: './ts',
         },
+        transformers: {
+          name: (name, type) => {
+            return `${name}Type`
+          },
+        },
       }),
       pluginZod({
         output: {

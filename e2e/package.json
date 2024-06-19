@@ -33,7 +33,7 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
-    "@tanstack/react-query": "^5.45.0",
+    "@tanstack/react-query": "^5.45.1",
     "@tanstack/solid-query": "^5.45.0",
     "@tanstack/svelte-query": "^5.45.0",
     "@tanstack/vue-query": "^5.45.0",
@@ -54,7 +54,7 @@
     "tsup": "^8.1.0",
     "typescript": "~5.2.2"
   },
-  "packageManager": "pnpm@9.0.5",
+  "packageManager": "pnpm@9.0.6",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"

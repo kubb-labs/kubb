@@ -4,6 +4,7 @@ import type { PluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 export const templates = {
   ...Operations.templates,
@@ -19,7 +20,7 @@ export const templates = {
 
     const imports = operations
       .flatMap((operation) => {
-        const schemas = getSchemas(operation)
+        const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
         return [schemas.response?.name, schemas.request?.name]
       })
@@ -28,7 +29,7 @@ export const templates = {
     const invalidations = operations.reduce(
       (acc, operation) => {
         const name = getName(operation, { pluginKey, type: 'function' })
-        const schemas = getSchemas(operation)
+        const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
         acc[name] = `UseMutationOptions<${schemas.response.name}, unknown, ${schemas.request?.name || 'void'}>['onSuccess']`
 

@@ -129,7 +129,7 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
   const operation = useOperation()
 
   const name = getName(operation, { type: 'function' })
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   const params = new FunctionParams()
   const client = {
@@ -207,7 +207,7 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const file = getFile(operation)
   const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const factoryName = getName(operation, { type: 'type' })

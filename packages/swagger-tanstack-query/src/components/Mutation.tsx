@@ -167,7 +167,7 @@ const defaultTemplates = {
       const hookName = importNames.mutation.vue.hookName
       const resultType = importNames.mutation.vue.resultType
       const optionsType = importNames.mutation.vue.optionsType
-      const schemas = getSchemas(operation)
+      const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
       const params = new FunctionParams()
 
       const resultGenerics = [`${factory.name}["response"]`, `${factory.name}["error"]`, client.withData ? `${factory.name}["request"]` : 'void', 'unknown']
@@ -259,7 +259,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
   const { getSchemas, getName } = useOperationManager()
 
   const name = getName(operation, { type: 'function' })
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const contentType = operation.getContentType()
 
   const params = new FunctionParams()
@@ -425,7 +425,7 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const file = getFile(operation)
   const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const factoryName = getName(operation, { type: 'type' })

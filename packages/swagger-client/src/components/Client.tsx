@@ -107,7 +107,7 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   const file = getFile(operation)
   const fileType = getFile(operation, { pluginKey: [pluginTsName] })
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   return (
     <Parser language="typescript">
@@ -148,7 +148,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
   const operation = useOperation()
 
   const name = getName(operation, { type: 'function' })
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   return (
     <Template
