@@ -82,7 +82,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
-    "remeda": "^2.0.10"
+    "remeda": "^2.2.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

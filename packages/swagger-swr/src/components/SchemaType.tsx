@@ -3,6 +3,7 @@ import { Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 type Props = {
   factory: {
@@ -19,7 +20,7 @@ export function SchemaType({ factory }: Props): ReactNode {
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,

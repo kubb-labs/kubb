@@ -8,7 +8,9 @@ export const operations = {
     },
     responses: {
       200: GetPetsPetIdQueryResponse,
+      default: GetPetsPetIdQueryResponse,
     },
+    errors: {},
   },
   listPets: {
     request: undefined,
@@ -19,7 +21,9 @@ export const operations = {
     },
     responses: {
       200: ListPetsQueryResponse,
+      default: ListPetsQueryResponse,
     },
+    errors: {},
   },
   createPets: {
     request: CreatePetsMutationRequest,
@@ -30,7 +34,9 @@ export const operations = {
     },
     responses: {
       201: CreatePetsMutationResponse,
+      default: CreatePetsMutationResponse,
     },
+    errors: {},
   },
 } as const
 export const paths = {

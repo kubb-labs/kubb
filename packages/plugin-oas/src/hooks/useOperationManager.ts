@@ -20,14 +20,19 @@ type SchemaNames = {
     query: string | undefined
     header: string | undefined
   }
-  responses: Record<number, string>
+  responses: { default?: string } & Record<number | string, string>
+  errors: Record<number | string, string>
 }
 
 type UseOperationManagerResult = {
   getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
   getFile: (operation: OperationType, params?: { pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
-  groupSchemasByByName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => SchemaNames
-  getSchemas: (operation: Operation, forStatusCode?: string | number) => OperationSchemas
+  groupSchemasByName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => SchemaNames
+  getSchemas: (
+    operation: Operation,
+    params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] },
+    forStatusCode?: string | number,
+  ) => OperationSchemas
 }
 
 /**
@@ -72,7 +77,7 @@ export function useOperationManager(): UseOperationManagerResult {
     }
   }
 
-  const groupSchemasByByName: UseOperationManagerResult['groupSchemasByByName'] = (operation, { pluginKey = plugin.key, type }) => {
+  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, type }) => {
     const schemas = generator.getSchemas(operation)
 
     const errors = (schemas.errors || []).reduce(
@@ -83,7 +88,7 @@ export function useOperationManager(): UseOperationManagerResult {
 
         prev[acc.statusCode] = pluginManager.resolveName({
           name: acc.name,
-          pluginKey: plugin.key,
+          pluginKey,
           type,
         })
 
@@ -129,15 +134,30 @@ export function useOperationManager(): UseOperationManagerResult {
           pluginKey,
           type,
         }),
+        ['default']: pluginManager.resolveName({
+          name: schemas.response.name,
+          pluginKey,
+          type,
+        }),
         ...errors,
       },
+      errors,
     }
   }
 
   return {
     getName,
     getFile,
-    getSchemas: (operation, forStatusCode) => generator.getSchemas(operation, forStatusCode),
-    groupSchemasByByName,
+    getSchemas: (operation, params, forStatusCode) =>
+      generator.getSchemas(operation, {
+        forStatusCode,
+        resolveName: (name) =>
+          pluginManager.resolveName({
+            name,
+            pluginKey: params?.pluginKey,
+            type: params?.type,
+          }),
+      }),
+    groupSchemasByName,
   }
 }

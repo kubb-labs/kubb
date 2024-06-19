@@ -8,6 +8,7 @@ import { pluginZodName } from '@kubb/swagger-zod'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 type TemplateProps = {
   /**
@@ -127,17 +128,13 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
+  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
   const name = pluginManager.resolveName({
     name: `${factory.name}QueryOptions`,
     pluginKey,
   })
   const contentType = operation.getContentType()
-  const zodResponseName = pluginManager.resolveName({
-    name: schemas.response.name,
-    pluginKey: [pluginZodName],
-    type: 'function',
-  })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -187,7 +184,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
       returnType={`SWRConfiguration<${resultGenerics.join(', ')}>`}
       client={client}
       dataReturnType={dataReturnType}
-      parser={parser === 'zod' ? `${zodResponseName}.parse` : undefined}
+      parser={parser === 'zod' ? `${zodSchemas.response.name}.parse` : undefined}
     />
   )
 }

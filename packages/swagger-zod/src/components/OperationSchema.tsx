@@ -9,6 +9,7 @@ import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginZod } from '../types.ts'
 import { Schema } from './Schema.tsx'
+import { pluginZodName } from '../plugin.ts'
 
 type Props = {
   description?: string

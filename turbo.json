@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
@@ -9,7 +9,7 @@
       "dependsOn": ["^clean"],
       "outputs": [],
       "cache": false,
-      "outputMode": "new-only"
+      "outputLogs": "new-only"
     },
     "start": {
       "dependsOn": ["^start"],
@@ -28,7 +28,7 @@
     "lint-fix": {
       "outputs": ["src/**"],
       "cache": false,
-      "outputMode": "new-only"
+      "outputLogs": "new-only"
     },
     "typecheck": {
       "dependsOn": ["^build"]

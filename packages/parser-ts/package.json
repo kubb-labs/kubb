@@ -59,7 +59,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "^2.0.10",
+    "remeda": "^2.2.0",
     "typescript": "^5.4.5"
   },
   "devDependencies": {

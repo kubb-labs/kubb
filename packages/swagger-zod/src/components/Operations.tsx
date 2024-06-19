@@ -20,8 +20,8 @@ type TemplateProps = {
 }
 
 function Template({ operationsName, pathsName, operations }: TemplateProps): KubbNode {
-  const { groupSchemasByByName } = useOperationManager()
-  const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByByName(operation, { type: 'function' }) }))
+  const { groupSchemasByName } = useOperationManager()
+  const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByName(operation, { type: 'function' }) }))
 
   const operationsJSON = transformedOperations.reduce(
     (prev, acc) => {
@@ -68,8 +68,8 @@ function RootTemplate({ children }: RootTemplateProps) {
   } = useApp<PluginZod>()
   const { getFile } = useOperationManager()
   const operations = useOperations()
-  const { groupSchemasByByName } = useOperationManager()
-  const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByByName(operation, { type: 'function' }) }))
+  const { groupSchemasByName } = useOperationManager()
+  const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByName(operation, { type: 'function' }) }))
 
   const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
   const imports = Object.entries(transformedOperations)

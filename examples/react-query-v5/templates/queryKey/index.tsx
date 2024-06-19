@@ -3,6 +3,7 @@ import { Function, Type } from '@kubb/react'
 import { QueryKey } from '@kubb/swagger-tanstack-query/components'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 export const templates = {
   ...QueryKey.templates,
@@ -10,7 +11,7 @@ export const templates = {
     const operation = useOperation()
     const { getSchemas } = useOperationManager()
 
-    const schemas = getSchemas(operation)
+    const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
     const path = new URLPath(operation.path)
     const withQueryParams = !!schemas.queryParams?.name
 

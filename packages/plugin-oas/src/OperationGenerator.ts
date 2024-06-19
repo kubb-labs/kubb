@@ -122,7 +122,10 @@ export abstract class OperationGenerator<
     return matched
   }
 
-  getSchemas(operation: Operation, forStatusCode?: string | number): OperationSchemas {
+  getSchemas(
+    operation: Operation,
+    { forStatusCode, resolveName = (name) => name }: { forStatusCode?: string | number; resolveName?: (name: string) => string } = {},
+  ): OperationSchemas {
     const pathParamsSchema = this.context.oas.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
@@ -139,7 +142,7 @@ export abstract class OperationGenerator<
       const schema = this.context.oas.getResponseSchema(operation, statusCode)
 
       return {
-        name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),
+        name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
@@ -152,7 +155,7 @@ export abstract class OperationGenerator<
     return {
       pathParams: pathParamsSchema
         ? {
-            name: transformers.pascalCase(`${operation.getOperationId()} PathParams`),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} PathParams`)),
             operation,
             operationName: transformers.pascalCase(`${operation.getOperationId()}`),
             schema: pathParamsSchema,
@@ -161,7 +164,7 @@ export abstract class OperationGenerator<
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: transformers.pascalCase(`${operation.getOperationId()} QueryParams`),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} QueryParams`)),
             operation,
             operationName: transformers.pascalCase(`${operation.getOperationId()}`),
             schema: queryParamsSchema,
@@ -170,7 +173,7 @@ export abstract class OperationGenerator<
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: transformers.pascalCase(`${operation.getOperationId()} HeaderParams`),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} HeaderParams`)),
             operation,
             operationName: transformers.pascalCase(`${operation.getOperationId()}`),
             schema: headerParamsSchema,
@@ -179,7 +182,7 @@ export abstract class OperationGenerator<
         : undefined,
       request: requestSchema
         ? {
-            name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName: transformers.pascalCase(`${operation.getOperationId()}`),
@@ -195,7 +198,7 @@ export abstract class OperationGenerator<
           }
         : undefined,
       response: {
-        name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
+        name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
         description: operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.description,
         operation,
         operationName: transformers.pascalCase(`${operation.getOperationId()}`),

@@ -10,6 +10,7 @@ import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 type TemplateProps = {
   /**
@@ -250,7 +251,7 @@ const defaultTemplates = {
       const { getSchemas } = useOperationManager()
       const operation = useOperation()
 
-      const schemas = getSchemas(operation)
+      const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
       const params = new FunctionParams()
       const queryKeyParams = new FunctionParams()
 
@@ -371,7 +372,8 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
   const operation = useOperation()
 
   const contentType = operation.getContentType()
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
+  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
 
   const queryKey = pluginManager.resolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
@@ -380,12 +382,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
   const queryOptionsName = pluginManager.resolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
-  })
-
-  const zodResponseName = pluginManager.resolveName({
-    name: schemas.response.name,
-    pluginKey: [pluginZodName],
-    type: 'function',
   })
 
   const generics = new FunctionParams()
@@ -473,7 +469,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
       hook={hook}
       infinite={infinite}
       dataReturnType={dataReturnType}
-      parser={parser === 'zod' ? `${zodResponseName}.parse` : undefined}
+      parser={parser === 'zod' ? `${zodSchemas.response.name}.parse` : undefined}
       context={{
         factory,
         queryKey,

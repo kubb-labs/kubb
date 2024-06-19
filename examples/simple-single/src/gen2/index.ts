@@ -1003,7 +1003,9 @@ export const operations = {
     },
     responses: {
       200: appsListQueryResponseSchema,
+      default: appsListQueryResponseSchema,
     },
+    errors: {},
   },
   Apps_create: {
     request: appsCreateMutationRequestSchema,
@@ -1014,6 +1016,10 @@ export const operations = {
     },
     responses: {
       201: appsCreateMutationResponseSchema,
+      400: appsCreate400Schema,
+      default: appsCreateMutationResponseSchema,
+    },
+    errors: {
       400: appsCreate400Schema,
     },
   },
@@ -1026,7 +1032,9 @@ export const operations = {
     },
     responses: {
       200: appsShowQueryResponseSchema,
+      default: appsShowQueryResponseSchema,
     },
+    errors: {},
   },
   Apps_delete: {
     request: undefined,
@@ -1037,7 +1045,9 @@ export const operations = {
     },
     responses: {
       202: appsDeleteMutationResponseSchema,
+      default: appsDeleteMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_list: {
     request: undefined,
@@ -1048,7 +1058,9 @@ export const operations = {
     },
     responses: {
       200: machinesListQueryResponseSchema,
+      default: machinesListQueryResponseSchema,
     },
+    errors: {},
   },
   Machines_create: {
     request: machinesCreateMutationRequestSchema,
@@ -1059,7 +1071,9 @@ export const operations = {
     },
     responses: {
       200: machinesCreateMutationResponseSchema,
+      default: machinesCreateMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_show: {
     request: undefined,
@@ -1070,7 +1084,9 @@ export const operations = {
     },
     responses: {
       200: machinesShowQueryResponseSchema,
+      default: machinesShowQueryResponseSchema,
     },
+    errors: {},
   },
   Machines_update: {
     request: machinesUpdateMutationRequestSchema,
@@ -1081,6 +1097,10 @@ export const operations = {
     },
     responses: {
       200: machinesUpdateMutationResponseSchema,
+      400: machinesUpdate400Schema,
+      default: machinesUpdateMutationResponseSchema,
+    },
+    errors: {
       400: machinesUpdate400Schema,
     },
   },
@@ -1093,7 +1113,9 @@ export const operations = {
     },
     responses: {
       200: machinesDeleteMutationResponseSchema,
+      default: machinesDeleteMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_cordon: {
     request: undefined,
@@ -1104,7 +1126,9 @@ export const operations = {
     },
     responses: {
       200: machinesCordonMutationResponseSchema,
+      default: machinesCordonMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_list_events: {
     request: undefined,
@@ -1115,7 +1139,9 @@ export const operations = {
     },
     responses: {
       200: machinesListEventsQueryResponseSchema,
+      default: machinesListEventsQueryResponseSchema,
     },
+    errors: {},
   },
   Machines_exec: {
     request: machinesExecMutationRequestSchema,
@@ -1126,6 +1152,10 @@ export const operations = {
     },
     responses: {
       200: machinesExecMutationResponseSchema,
+      400: machinesExec400Schema,
+      default: machinesExecMutationResponseSchema,
+    },
+    errors: {
       400: machinesExec400Schema,
     },
   },
@@ -1138,7 +1168,9 @@ export const operations = {
     },
     responses: {
       200: machinesShowLeaseQueryResponseSchema,
+      default: machinesShowLeaseQueryResponseSchema,
     },
+    errors: {},
   },
   Machines_create_lease: {
     request: machinesCreateLeaseMutationRequestSchema,
@@ -1149,7 +1181,9 @@ export const operations = {
     },
     responses: {
       200: machinesCreateLeaseMutationResponseSchema,
+      default: machinesCreateLeaseMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_release_lease: {
     request: undefined,
@@ -1160,7 +1194,9 @@ export const operations = {
     },
     responses: {
       200: machinesReleaseLeaseMutationResponseSchema,
+      default: machinesReleaseLeaseMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_show_metadata: {
     request: undefined,
@@ -1171,7 +1207,9 @@ export const operations = {
     },
     responses: {
       200: machinesShowMetadataQueryResponseSchema,
+      default: machinesShowMetadataQueryResponseSchema,
     },
+    errors: {},
   },
   Machines_update_metadata: {
     request: undefined,
@@ -1182,6 +1220,10 @@ export const operations = {
     },
     responses: {
       204: machinesUpdateMetadataMutationResponseSchema,
+      400: machinesUpdateMetadata400Schema,
+      default: machinesUpdateMetadataMutationResponseSchema,
+    },
+    errors: {
       400: machinesUpdateMetadata400Schema,
     },
   },
@@ -1194,7 +1236,9 @@ export const operations = {
     },
     responses: {
       204: machinesDeleteMetadataMutationResponseSchema,
+      default: machinesDeleteMetadataMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_list_processes: {
     request: undefined,
@@ -1205,6 +1249,10 @@ export const operations = {
     },
     responses: {
       200: machinesListProcessesQueryResponseSchema,
+      400: machinesListProcesses400Schema,
+      default: machinesListProcessesQueryResponseSchema,
+    },
+    errors: {
       400: machinesListProcesses400Schema,
     },
   },
@@ -1218,6 +1266,10 @@ export const operations = {
     responses: {
       200: machinesRestartMutationResponseSchema,
       400: machinesRestart400Schema,
+      default: machinesRestartMutationResponseSchema,
+    },
+    errors: {
+      400: machinesRestart400Schema,
     },
   },
   Machines_signal: {
@@ -1230,6 +1282,10 @@ export const operations = {
     responses: {
       200: machinesSignalMutationResponseSchema,
       400: machinesSignal400Schema,
+      default: machinesSignalMutationResponseSchema,
+    },
+    errors: {
+      400: machinesSignal400Schema,
     },
   },
   Machines_start: {
@@ -1241,7 +1297,9 @@ export const operations = {
     },
     responses: {
       200: machinesStartMutationResponseSchema,
+      default: machinesStartMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_stop: {
     request: machinesStopMutationRequestSchema,
@@ -1253,7 +1311,24 @@ export const operations = {
     responses: {
       200: machinesStopMutationResponseSchema,
       400: machinesStop400Schema,
+      default: machinesStopMutationResponseSchema,
     },
+    errors: {
+      400: machinesStop400Schema,
+    },
+  },
+  Machines_suspend: {
+    request: undefined,
+    parameters: {
+      path: machinesSuspendPathParamsSchema,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      200: machinesSuspendMutationResponseSchema,
+      default: machinesSuspendMutationResponseSchema,
+    },
+    errors: {},
   },
   Machines_suspend: {
     request: undefined,
@@ -1275,7 +1350,9 @@ export const operations = {
     },
     responses: {
       200: machinesUncordonMutationResponseSchema,
+      default: machinesUncordonMutationResponseSchema,
     },
+    errors: {},
   },
   Machines_list_versions: {
     request: undefined,
@@ -1286,7 +1363,9 @@ export const operations = {
     },
     responses: {
       200: machinesListVersionsQueryResponseSchema,
+      default: machinesListVersionsQueryResponseSchema,
     },
+    errors: {},
   },
   Machines_wait: {
     request: undefined,
@@ -1297,6 +1376,10 @@ export const operations = {
     },
     responses: {
       200: machinesWaitQueryResponseSchema,
+      400: machinesWait400Schema,
+      default: machinesWaitQueryResponseSchema,
+    },
+    errors: {
       400: machinesWait400Schema,
     },
   },
@@ -1309,7 +1392,9 @@ export const operations = {
     },
     responses: {
       200: volumesListQueryResponseSchema,
+      default: volumesListQueryResponseSchema,
     },
+    errors: {},
   },
   Volumes_create: {
     request: volumesCreateMutationRequestSchema,
@@ -1320,7 +1405,9 @@ export const operations = {
     },
     responses: {
       200: volumesCreateMutationResponseSchema,
+      default: volumesCreateMutationResponseSchema,
     },
+    errors: {},
   },
   Volumes_get_by_id: {
     request: undefined,
@@ -1331,7 +1418,9 @@ export const operations = {
     },
     responses: {
       200: volumesGetByIdQueryResponseSchema,
+      default: volumesGetByIdQueryResponseSchema,
     },
+    errors: {},
   },
   Volumes_update: {
     request: volumesUpdateMutationRequestSchema,
@@ -1342,6 +1431,10 @@ export const operations = {
     },
     responses: {
       200: volumesUpdateMutationResponseSchema,
+      400: volumesUpdate400Schema,
+      default: volumesUpdateMutationResponseSchema,
+    },
+    errors: {
       400: volumesUpdate400Schema,
     },
   },
@@ -1354,7 +1447,9 @@ export const operations = {
     },
     responses: {
       200: volumeDeleteMutationResponseSchema,
+      default: volumeDeleteMutationResponseSchema,
     },
+    errors: {},
   },
   Volumes_extend: {
     request: volumesExtendMutationRequestSchema,
@@ -1365,7 +1460,9 @@ export const operations = {
     },
     responses: {
       200: volumesExtendMutationResponseSchema,
+      default: volumesExtendMutationResponseSchema,
     },
+    errors: {},
   },
   Volumes_list_snapshots: {
     request: undefined,
@@ -1376,7 +1473,9 @@ export const operations = {
     },
     responses: {
       200: volumesListSnapshotsQueryResponseSchema,
+      default: volumesListSnapshotsQueryResponseSchema,
     },
+    errors: {},
   },
   createVolumeSnapshot: {
     request: undefined,
@@ -1387,7 +1486,9 @@ export const operations = {
     },
     responses: {
       200: createVolumeSnapshotMutationResponseSchema,
+      default: createVolumeSnapshotMutationResponseSchema,
     },
+    errors: {},
   },
   Tokens_request_OIDC: {
     request: tokensRequestOidcMutationRequestSchema,
@@ -1398,6 +1499,10 @@ export const operations = {
     },
     responses: {
       200: tokensRequestOidcMutationResponseSchema,
+      400: tokensRequestOidc400Schema,
+      default: tokensRequestOidcMutationResponseSchema,
+    },
+    errors: {
       400: tokensRequestOidc400Schema,
     },
   },

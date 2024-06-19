@@ -151,7 +151,7 @@ const defaultTemplates = {
       const resultType = rest.infinite ? importNames.queryInfinite.vue.resultType : importNames.query.vue.resultType
       const optionsType = rest.infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
-      const schemas = getSchemas(operation)
+      const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
@@ -332,7 +332,7 @@ export function Query({
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
 
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const name = getName(operation, { type: 'function' })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
@@ -527,16 +527,12 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation)
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
+  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
   const file = getFile(operation)
   const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const fileZodSchemas = getFile(operation, {
     pluginKey: [pluginZodName],
-  })
-  const zodResponseName = pluginManager.resolveName({
-    name: schemas.response.name,
-    pluginKey: [pluginZodName],
-    type: 'function',
   })
 
   const factoryName = getName(operation, { type: 'type' })
@@ -555,7 +551,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {parser === 'zod' && <File.Import name={[zodResponseName]} root={file.path} path={fileZodSchemas.path} />}
+        {parser === 'zod' && <File.Import name={[zodSchemas.response?.name]} root={file.path} path={fileZodSchemas.path} />}
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
