@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const deleteOrderPathParamsSchema = z.object({ orderId: z.coerce.number().describe('ID of the order that needs to be deleted') })
 /**

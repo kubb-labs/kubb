@@ -51,6 +51,7 @@ export default defineConfig(async () => {
         mapper: {
           productName: 'z.string().uuid()',
         },
+        importPath: '../../zod.ts',
       }),
     ],
   }

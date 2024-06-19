@@ -1,6 +1,6 @@
 import { categorySchema } from './categorySchema.gen'
 import { tagSchema } from './tagSchema.gen'
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const petSchema = z.object({
   id: z.coerce.number().optional(),

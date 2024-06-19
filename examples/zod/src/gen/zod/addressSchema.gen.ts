@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const addressSchema = z.object({
   street: z.coerce.string().optional(),

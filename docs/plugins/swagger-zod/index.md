@@ -375,6 +375,27 @@ const plugin = pluginZod({
 ```
 :::
 
+#### importPath
+
+Path to Zod. It will be used as `import { z } from '${importPath}'`.
+It allows both relative and absolute path.
+the path will be applied as is, so relative path should be based on the file being generated.
+
+::: info
+Type: `string` <br/>
+Default: `'zod'`
+
+```typescript twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+
+const plugin = pluginZod({
+ importPath: 'zod'
+})
+```
+
+:::
+
+
 ### templates
 
 Make it possible to override one of the templates. <br/>
@@ -442,6 +463,7 @@ export default defineConfig({
       typed: true,
       dateType: 'stringOffset',
       unknownType: 'unknown',
+      importPath: 'zod'
     }),
   ],
 })

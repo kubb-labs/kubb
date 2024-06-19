@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const updatePetWithFormPathParamsSchema = z.object({ petId: z.coerce.number().describe('ID of pet that needs to be updated') })
 

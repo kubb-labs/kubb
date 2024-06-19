@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const deletePetPathParamsSchema = z.object({ petId: z.coerce.number().describe('Pet id to delete') })
 

@@ -1,5 +1,5 @@
 import { addressSchema } from './addressSchema.gen'
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const customerSchema = z.object({
   id: z.coerce.number().optional(),

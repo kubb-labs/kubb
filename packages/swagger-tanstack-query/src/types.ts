@@ -33,7 +33,7 @@ export type Query = {
   methods: Array<HttpMethod>
   /**
    * Path to the useQuery that will be used to do the useQuery functionality.
-   * It will be used as `import { useQuery } from '${hook.importPath}'`.
+   * It will be used as `import { useQuery } from '${importPath}'`.
    * It allows both relative and absolute path.
    * the path will be applied as is, so relative path should be based on the file being generated.
    * @default '@tanstack/react-query' if 'framework' is set to 'react'

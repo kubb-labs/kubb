@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 import { petNotFoundSchema } from './petNotFoundSchema.gen'
 
 export const createPetsPathParamsSchema = z.object({ uuid: z.coerce.string().describe('UUID') })

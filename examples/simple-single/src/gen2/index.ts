@@ -806,6 +806,17 @@ export const machinesStopMutationRequestSchema = z.lazy(() => stopRequestSchema)
 
 export const machinesStopMutationResponseSchema = z.any()
 
+export const machinesSuspendPathParamsSchema = z.object({
+  app_name: z.coerce.string().describe('Fly App Name'),
+  machine_id: z.coerce.string().describe('Machine ID'),
+})
+/**
+ * @description OK
+ */
+export const machinesSuspend200Schema = z.any()
+
+export const machinesSuspendMutationResponseSchema = z.any()
+
 export const machinesUncordonPathParamsSchema = z.object({
   app_name: z.coerce.string().describe('Fly App Name'),
   machine_id: z.coerce.string().describe('Machine ID'),
@@ -839,7 +850,7 @@ export const machinesWaitQueryParamsSchema = z
   .object({
     instance_id: z.coerce.string().describe('instance? version? TODO').optional(),
     timeout: z.coerce.number().describe('wait timeout. default 60s').optional(),
-    state: z.enum(['started', 'stopped', 'destroyed']).describe('desired state').optional(),
+    state: z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state').optional(),
   })
   .optional()
 /**
@@ -1244,6 +1255,17 @@ export const operations = {
       400: machinesStop400Schema,
     },
   },
+  Machines_suspend: {
+    request: undefined,
+    parameters: {
+      path: machinesSuspendPathParamsSchema,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      200: machinesSuspendMutationResponseSchema,
+    },
+  },
   Machines_uncordon: {
     request: undefined,
     parameters: {
@@ -1433,6 +1455,9 @@ export const paths = {
   },
   '/apps/{app_name}/machines/{machine_id}/stop': {
     post: operations['Machines_stop'],
+  },
+  '/apps/{app_name}/machines/{machine_id}/suspend': {
+    post: operations['Machines_suspend'],
   },
   '/apps/{app_name}/machines/{machine_id}/uncordon': {
     post: operations['Machines_uncordon'],

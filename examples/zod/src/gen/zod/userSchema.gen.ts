@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 
 export const userSchema = z.object({
   id: z.coerce.number().optional(),

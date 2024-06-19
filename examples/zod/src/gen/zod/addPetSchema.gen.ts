@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../zod.ts'
 import { petSchema } from './petSchema.gen'
 import { addPetRequestSchema } from './addPetRequestSchema.gen'
 
