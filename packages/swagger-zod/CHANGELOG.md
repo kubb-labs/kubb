@@ -1,5 +1,24 @@
 # @kubb/swagger-zod
 
+## 2.20.0
+
+### Minor Changes
+
+- [#1046](https://github.com/kubb-labs/kubb/pull/1046) [`18250ca`](https://github.com/kubb-labs/kubb/commit/18250cab70bd7d9b8816475a76c5bdbb630f75c4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Custom importpath for zod(with support for i18n-zod)
+
+### Patch Changes
+
+- [#1045](https://github.com/kubb-labs/kubb/pull/1045) [`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Issue with Incorrect Imported Names in Generated Hooks(use of pluginKey and type for getSchemas)
+
+- Updated dependencies [[`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902)]:
+  - @kubb/plugin-oas@2.20.0
+  - @kubb/parser-ts@2.20.0
+  - @kubb/core@2.20.0
+  - @kubb/oas@2.20.0
+  - @kubb/fs@2.20.0
+  - @kubb/react@2.20.0
+  - @kubb/swagger-ts@2.20.0
+
 ## 2.19.6
 
 ### Patch Changes
