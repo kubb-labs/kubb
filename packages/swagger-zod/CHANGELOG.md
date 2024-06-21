@@ -1,5 +1,22 @@
 # @kubb/swagger-zod
 
+## 2.21.0
+
+### Minor Changes
+
+- [#1051](https://github.com/kubb-labs/kubb/pull/1051) [`88b2069`](https://github.com/kubb-labs/kubb/commit/88b2069dcbb52b908ff58ee52969fea2764e13fc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - coercion option to enable/disable z.coerce
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.21.0
+  - @kubb/fs@2.21.0
+  - @kubb/oas@2.21.0
+  - @kubb/parser-ts@2.21.0
+  - @kubb/plugin-oas@2.21.0
+  - @kubb/react@2.21.0
+  - @kubb/swagger-ts@2.21.0
+
 ## 2.20.0
 
 ### Minor Changes
