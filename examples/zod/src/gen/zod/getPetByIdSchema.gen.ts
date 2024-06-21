@@ -1,7 +1,7 @@
 import { z } from '../../zod.ts'
 import { petSchema } from './petSchema.gen'
 
-export const getPetByIdPathParamsSchema = z.object({ petId: z.coerce.number().describe('ID of pet to return') })
+export const getPetByIdPathParamsSchema = z.object({ petId: z.number().describe('ID of pet to return') })
 /**
  * @description successful operation
  */

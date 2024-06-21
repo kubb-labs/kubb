@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const deleteOrderPathParamsSchema = z.object({ orderId: z.coerce.number().describe('ID of the order that needs to be deleted') })
+export const deleteOrderPathParamsSchema = z.object({ orderId: z.number().describe('ID of the order that needs to be deleted') })
 /**
  * @description Invalid ID supplied
  */

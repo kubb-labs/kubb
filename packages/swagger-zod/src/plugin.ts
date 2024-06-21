@@ -31,6 +31,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     mapper = {},
     templates,
     importPath = 'zod',
+    coercion = false,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -46,6 +47,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       unknownType,
       mapper,
       importPath,
+      coercion,
       templates: {
         operations: Operations.templates,
         ...templates,

@@ -1,9 +1,9 @@
 import { z } from '../../zod.ts'
 
 export const orderSchema = z.object({
-  id: z.coerce.number().optional(),
-  petId: z.coerce.number().optional(),
-  quantity: z.coerce.number().optional(),
+  id: z.number().optional(),
+  petId: z.number().optional(),
+  quantity: z.number().optional(),
   shipDate: z.string().datetime().optional(),
   status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
   http_status: z

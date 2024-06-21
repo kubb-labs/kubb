@@ -104,6 +104,10 @@ export type Options = {
    */
   typed?: boolean
   /**
+   * Use of z.coerce.string() instead of z.string()
+   */
+  coercion?: boolean
+  /**
    * Path to Zod
    * It will be used as `import { z } from '${importPath}'`.
    * It allows both relative and absolute path.
@@ -124,6 +128,7 @@ type ResolvedOptions = {
   templates: NonNullable<Templates>
   mapper: Record<string, string>
   importPath: NonNullable<Options['importPath']>
+  coercion: NonNullable<Options['coercion']>
 }
 
 export type FileMeta = {

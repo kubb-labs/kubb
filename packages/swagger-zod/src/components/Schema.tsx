@@ -22,7 +22,7 @@ export function Schema(props: Props): ReactNode {
   const {
     pluginManager,
     plugin: {
-      options: { mapper },
+      options: { mapper, coercion },
     },
   } = useApp<PluginZod>()
 
@@ -64,7 +64,7 @@ export function Schema(props: Props): ReactNode {
 
       return true
     })
-    .map((item) => parserZod.parse(undefined, item, { name, typeName, description, mapper, keysToOmit }))
+    .map((item) => parserZod.parse(undefined, item, { name, typeName, description, mapper, coercion, keysToOmit }))
     .filter(Boolean)
     .join('')
 

@@ -36,6 +36,14 @@ describe('Zod SchemaGenerator', async () => {
       options: {},
     },
     {
+      name: 'PetCoercion',
+      input: '../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        coercion: true,
+      },
+    },
+    {
       name: 'PetTupleObject',
       input: '../mocks/petStore.yaml',
       path: 'PetTupleObject',
@@ -190,6 +198,7 @@ describe('Zod SchemaGenerator', async () => {
       },
       mapper: {},
       importPath: 'zod',
+      coercion: false,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
