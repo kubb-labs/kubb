@@ -235,15 +235,39 @@ z.unknown()
 
 :::
 
+
+### coercion
+
+Use of z.coerce.string() instead of z.string().
+[Coercion for primitives](https://zod.dev/?id=coercion-for-primitives)
+
+::: info TYPE
+
+::: code-group
+
+```typescript [true]
+z.coerce.string()
+z.coerce.date()
+z.coerce.number()
+```
+
+```typescript [false]
+z.string()
+z.date()
+z.number()
+```
+
+:::
+
 ::: info
-Type: `'any' | 'unknown'` <br/>
-Default: `'any'`
+Type: `boolean` <br/>
+Default: `false`
 
 ```typescript twoslash
 import { pluginZod } from '@kubb/swagger-zod'
 
 const plugin = pluginZod({
-  unknownType: 'any',
+  coercion: true
 })
 ```
 :::

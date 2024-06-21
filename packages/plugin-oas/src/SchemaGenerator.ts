@@ -592,7 +592,7 @@ export abstract class SchemaGenerator<
 
       if (schema.type === 'number' || schema.type === 'integer') {
         // we cannot use z.enum when enum type is number/integer
-        const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as SchemaKeywordMapper['enum']
+        const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as unknown as SchemaKeywordMapper['enum']
         return [
           {
             keyword: schemaKeywords.enum,

@@ -6,15 +6,21 @@ import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 export const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
-  number: (min?: number, max?: number) => {
-    return ['z.coerce.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
+  number: (coercion?: boolean, min?: number, max?: number) => {
+    return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+      .filter(Boolean)
+      .join('')
   },
-  integer: (min?: number, max?: number) => {
-    return ['z.coerce.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
+  integer: (coercion?: boolean, min?: number, max?: number) => {
+    return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+      .filter(Boolean)
+      .join('')
   },
   object: (value?: string) => `z.object({${value}})`,
-  string: (min?: number, max?: number) => {
-    return ['z.coerce.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined].filter(Boolean).join('')
+  string: (coercion?: boolean, min?: number, max?: number) => {
+    return [coercion ? 'z.coerce.string()' : 'z.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+      .filter(Boolean)
+      .join('')
   },
   boolean: () => 'z.boolean()',
   undefined: () => 'z.undefined()',
@@ -49,13 +55,33 @@ export const zodKeywordMapper = {
    * Type `'string'` ISO date format (YYYY-MM-DD)
    * @default ISO date format (YYYY-MM-DD)
    */
-  date: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().date()' : 'z.date()'),
+  date: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
+    if (type === 'string') {
+      return 'z.string().date()'
+    }
+
+    if (coercion) {
+      return 'z.coerce.date()'
+    }
+
+    return 'z.date()'
+  },
   /**
    * Type `'date'` Date
    * Type `'string'` ISO time format (HH:mm:ss[.SSSSSS])
    * @default ISO time format (HH:mm:ss[.SSSSSS])
    */
-  time: (type: 'date' | 'string' = 'string') => (type === 'string' ? 'z.string().time()' : 'z.date()'),
+  time: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
+    if (type === 'string') {
+      return 'z.string().time()'
+    }
+
+    if (coercion) {
+      return 'z.coerce.date()'
+    }
+
+    return 'z.date()'
+  },
   uuid: () => '.uuid()',
   url: () => '.url()',
   strict: () => '.strict()',
@@ -126,6 +152,7 @@ type ParserOptions = {
 
   keysToOmit?: string[]
   mapper?: Record<string, string>
+  coercion?: boolean
 }
 
 export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): string | undefined {
@@ -278,11 +305,11 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.string)) {
-    return zodKeywordMapper.string()
+    return zodKeywordMapper.string(options.coercion)
   }
 
   if (isKeyword(current, schemaKeywords.number) || isKeyword(current, schemaKeywords.integer)) {
-    return zodKeywordMapper.number()
+    return zodKeywordMapper.number(options.coercion)
   }
 
   if (isKeyword(current, schemaKeywords.min)) {
@@ -297,11 +324,11 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.date)) {
-    return zodKeywordMapper.date(current.args.type)
+    return zodKeywordMapper.date(current.args.type, options.coercion)
   }
 
   if (isKeyword(current, schemaKeywords.time)) {
-    return zodKeywordMapper.time(current.args.type)
+    return zodKeywordMapper.time(current.args.type, options.coercion)
   }
 
   if (current.keyword in zodKeywordMapper && 'args' in current) {

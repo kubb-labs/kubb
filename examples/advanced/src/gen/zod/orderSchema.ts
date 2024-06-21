@@ -2,11 +2,11 @@ import { z } from 'zod'
 import type { Order } from '../models/ts/Order'
 
 export const orderSchema = z.object({
-  id: z.coerce.number().optional(),
-  petId: z.coerce.number().optional(),
-  quantity: z.coerce.number().optional(),
+  id: z.number().optional(),
+  petId: z.number().optional(),
+  quantity: z.number().optional(),
   orderType: z.enum(['foo', 'bar']).optional(),
-  type: z.coerce.string().describe('Order Status').optional(),
+  type: z.string().describe('Order Status').optional(),
   shipDate: z.string().datetime({ offset: true }).optional(),
   status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
   http_status: z

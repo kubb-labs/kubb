@@ -54,7 +54,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "tsup": "^8.1.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.2"
   },
   "engines": {
     "node": ">=18"

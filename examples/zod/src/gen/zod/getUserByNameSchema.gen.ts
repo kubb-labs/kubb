@@ -1,7 +1,7 @@
 import { z } from '../../zod.ts'
 import { userSchema } from './userSchema.gen'
 
-export const getUserByNamePathParamsSchema = z.object({ username: z.coerce.string().describe('The name that needs to be fetched. Use user1 for testing. ') })
+export const getUserByNamePathParamsSchema = z.object({ username: z.string().describe('The name that needs to be fetched. Use user1 for testing. ') })
 /**
  * @description successful operation
  */

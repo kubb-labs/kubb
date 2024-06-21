@@ -1,8 +1,3 @@
 import { z } from '../../zod.ts'
 
-export const addressSchema = z.object({
-  street: z.coerce.string().optional(),
-  city: z.coerce.string().optional(),
-  state: z.coerce.string().optional(),
-  zip: z.coerce.string().optional(),
-})
+export const addressSchema = z.object({ street: z.string().optional(), city: z.string().optional(), state: z.string().optional(), zip: z.string().optional() })
