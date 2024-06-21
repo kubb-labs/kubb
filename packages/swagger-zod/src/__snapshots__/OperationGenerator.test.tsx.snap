@@ -10,7 +10,7 @@ export const CreatePets201 = z.any()
  */
 export const CreatePetsError = z.lazy(() => Error)
 
-export const CreatePetsMutationRequest = z.object({ name: z.coerce.string(), tag: z.coerce.string() })
+export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
 
 export const CreatePetsMutationResponse = z.any()
 "
@@ -26,7 +26,7 @@ export const CreatePets201 = z.any()
  */
 export const CreatePetsError = z.lazy(() => Error)
 
-export const CreatePetsMutationRequest = z.object({ name: z.coerce.string(), tag: z.coerce.string() })
+export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
 
 export const CreatePetsMutationResponse = z.any()
 "
@@ -38,7 +38,7 @@ exports[`OperationGenerator > 'deletePet' 1`] = `
 `;
 
 exports[`OperationGenerator > 'getPets' 1`] = `
-"export const ListPetsQueryParams = z.object({ limit: z.coerce.string().describe('How many items to return at one time (max 100)').optional() }).optional()
+"export const ListPetsQueryParams = z.object({ limit: z.string().describe('How many items to return at one time (max 100)').optional() }).optional()
 /**
  * @description A paged array of pets
  */
@@ -56,8 +56,8 @@ export const ListPetsQueryResponse = z.lazy(() => Pets)
 
 exports[`OperationGenerator > 'showPetById' 1`] = `
 "export const ShowPetByIdPathParams = z.object({
-  petId: z.coerce.string().describe('The id of the pet to retrieve'),
-  testId: z.coerce.string().describe('The id of the pet to retrieve'),
+  petId: z.string().describe('The id of the pet to retrieve'),
+  testId: z.string().describe('The id of the pet to retrieve'),
 })
 /**
  * @description Expected response to a valid request
