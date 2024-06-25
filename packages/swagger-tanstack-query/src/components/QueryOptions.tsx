@@ -55,7 +55,7 @@ type TemplateProps = {
 }
 
 function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,

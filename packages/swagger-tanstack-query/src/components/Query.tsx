@@ -51,7 +51,7 @@ type TemplateProps = {
 }
 
 function Template({ name, generics, returnType, params, JSDoc, hook, infinite }: TemplateProps): ReactNode {
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   if (isV5) {
@@ -152,7 +152,7 @@ const defaultTemplates = {
       const optionsType = rest.infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
       const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
       const queryKeyParams = new FunctionParams()
@@ -334,7 +334,7 @@ export function Query({
 
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const name = getName(operation, { type: 'function' })
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
 
   const queryKey = pluginManager.resolveName({
     name: [factory.name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
@@ -538,7 +538,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   const factoryName = getName(operation, { type: 'type' })
 
   const importNames = getImportNames()
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
   const Template = templates?.query[framework] || defaultTemplates[framework]
   const QueryOptionsTemplate = templates?.queryOptions[framework] || QueryOptions.templates[framework]
   const QueryKeyTemplate = templates?.queryKey[framework] || QueryKey.templates[framework]

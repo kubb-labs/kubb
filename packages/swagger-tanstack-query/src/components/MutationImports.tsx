@@ -48,7 +48,7 @@ const defaultTemplates = {
   get vue() {
     return function ({ ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
       const path = '@tanstack/vue-query'
 
       return (

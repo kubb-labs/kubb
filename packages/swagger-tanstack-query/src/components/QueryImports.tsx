@@ -45,7 +45,7 @@ const defaultTemplates = {
   get react() {
     return function ({ context, hookPath, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
       const { isInfinite, isSuspense } = context
 
       return (
@@ -62,7 +62,7 @@ const defaultTemplates = {
   get solid() {
     return function ({ context, hookPath, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
       const { isInfinite } = context
 
       return (
@@ -79,7 +79,7 @@ const defaultTemplates = {
   get svelte() {
     return function ({ context, hookPath, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
       const { isInfinite } = context
 
       return (
@@ -96,7 +96,7 @@ const defaultTemplates = {
   get vue() {
     return function ({ context, hookPath, ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
       const { isInfinite } = context
       const path = '@tanstack/vue-query'
 

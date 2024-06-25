@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 
 export function getImportNames() {
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
 
   return {
     mutation: {
