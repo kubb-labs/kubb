@@ -11,7 +11,7 @@ export const typeKeywordMapper = {
   number: () => factory.keywordTypeNodes.number,
   integer: () => factory.keywordTypeNodes.number,
   object: (nodes?: ts.TypeElement[]) => {
-    if (!nodes) {
+    if (!nodes || !nodes.length) {
       return factory.keywordTypeNodes.object
     }
 
