@@ -1,7 +1,9 @@
 import { PackageManager } from '@kubb/core'
 
+export const reactQueryDepRegex = /@tanstack\/(react|solid|vue|svelte)-query/
+
 export function getImportNames() {
-  const isV5 = new PackageManager().isValidSync(/@tanstack\/react-query/, '>=5')
+  const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
 
   return {
     mutation: {
