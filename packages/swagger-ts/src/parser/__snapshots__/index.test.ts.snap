@@ -1151,19 +1151,14 @@ NodeObject {
 `;
 
 exports[`type parse > 'objectEmpty' 1`] = `
-NodeObject {
+TokenObject {
   "emitNode": undefined,
   "end": -1,
   "flags": 16,
   "id": 0,
-  "kind": 187,
-  "localSymbol": undefined,
-  "members": [],
-  "modifierFlagsCache": 0,
-  "original": undefined,
+  "kind": 151,
   "parent": undefined,
   "pos": -1,
-  "symbol": undefined,
   "transformFlags": 1,
 }
 `;
