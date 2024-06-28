@@ -6,7 +6,7 @@ import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
 import { File, Function, Parser, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
 
-import { getImportNames } from '../utils.ts'
+import { getImportNames, reactQueryDepRegex } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
@@ -58,7 +58,7 @@ type TemplateProps = {
 }
 
 function Template({ name, generics, returnType, params, mutateParams, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,

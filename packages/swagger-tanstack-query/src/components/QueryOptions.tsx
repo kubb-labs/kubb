@@ -11,6 +11,7 @@ import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
 import { pluginTsName } from '@kubb/swagger-ts'
+import { reactQueryDepRegex } from '../utils.ts'
 
 type TemplateProps = {
   /**
@@ -55,7 +56,7 @@ type TemplateProps = {
 }
 
 function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,

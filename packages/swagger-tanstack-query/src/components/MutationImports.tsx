@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import { File } from '@kubb/react'
 
-import { getImportNames } from '../utils.ts'
+import { getImportNames, reactQueryDepRegex } from '../utils.ts'
 
 import type { ReactNode } from 'react'
 
@@ -48,7 +48,7 @@ const defaultTemplates = {
   get vue() {
     return function ({ ...rest }: FrameworkProps): ReactNode {
       const importNames = getImportNames()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
       const path = '@tanstack/vue-query'
 
       return (
