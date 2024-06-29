@@ -1,5 +1,22 @@
 # @kubb/swagger-tanstack-query
 
+## 2.21.1
+
+### Patch Changes
+
+- [#1054](https://github.com/kubb-labs/kubb/pull/1054) [`d493d04`](https://github.com/kubb-labs/kubb/commit/d493d041655b38ca6ed9502fbe0a6eb25a746a1f) Thanks [@dgarciamuria](https://github.com/dgarciamuria)! - Fix react-query dependency lookup
+
+- Updated dependencies [[`72a6a18`](https://github.com/kubb-labs/kubb/commit/72a6a18d20c984c8b54b6f685c8f13395253a05e)]:
+  - @kubb/swagger-ts@2.21.1
+  - @kubb/swagger-client@2.21.1
+  - @kubb/swagger-zod@2.21.1
+  - @kubb/core@2.21.1
+  - @kubb/fs@2.21.1
+  - @kubb/oas@2.21.1
+  - @kubb/parser-ts@2.21.1
+  - @kubb/plugin-oas@2.21.1
+  - @kubb/react@2.21.1
+
 ## 2.21.0
 
 ### Patch Changes
