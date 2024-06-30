@@ -245,6 +245,8 @@ export const flyFileSchema = z
 export const flyHttpOptionsSchema = z.object({
   compress: z.boolean().optional(),
   h2_backend: z.boolean().optional(),
+  headers_read_timeout: z.number().optional(),
+  idle_timeout: z.number().optional(),
   response: z.lazy(() => flyHttpResponseOptionsSchema).optional(),
 })
 
@@ -456,6 +458,13 @@ export const flyDnsForwardRuleSchema = z.object({ addr: z.string().optional(), b
 
 export const flyDnsOptionSchema = z.object({ name: z.string().optional(), value: z.string().optional() })
 
+export const flydv1ExecResponseSchema = z.object({
+  exit_code: z.number().optional(),
+  exit_signal: z.number().optional(),
+  stderr: z.string().optional(),
+  stdout: z.string().optional(),
+})
+
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
 
 export const appsListQueryParamsSchema = z.object({ org_slug: z.string().describe("The org slug, or 'personal', to filter apps") })
@@ -587,9 +596,9 @@ export const machinesListEventsQueryResponseSchema = z.array(z.lazy(() => machin
 
 export const machinesExecPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 /**
- * @description Raw command output bytes are written back
+ * @description stdout, stderr, exit code, and exit signal are returned
  */
-export const machinesExec200Schema = z.string()
+export const machinesExec200Schema = z.lazy(() => flydv1ExecResponseSchema)
 /**
  * @description Bad Request
  */
@@ -599,9 +608,9 @@ export const machinesExec400Schema = z.lazy(() => errorResponseSchema)
  */
 export const machinesExecMutationRequestSchema = z.lazy(() => machineExecRequestSchema)
 /**
- * @description Raw command output bytes are written back
+ * @description stdout, stderr, exit code, and exit signal are returned
  */
-export const machinesExecMutationResponseSchema = z.string()
+export const machinesExecMutationResponseSchema = z.lazy(() => flydv1ExecResponseSchema)
 
 export const machinesShowLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 /**

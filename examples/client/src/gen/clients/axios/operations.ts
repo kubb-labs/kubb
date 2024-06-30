@@ -1,8 +1,4 @@
 export const operations = {
-  createPets: {
-    path: '/pets/:uuid',
-    method: 'post',
-  },
   updatePet: {
     path: '/pet',
     method: 'put',

@@ -41,10 +41,18 @@ type TemplateProps = {
     withQueryParams: boolean
     withData: boolean
     withHeaders: boolean
+    contentType: string
   }
 }
 
 function Template({ name, generics, returnType, params, JSDoc, client }: TemplateProps): KubbNode {
+  const isFormData = client.contentType === 'multipart/form-data'
+  const headers = [
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
+    client.withHeaders ? '...headers' : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ')
   const clientParams: Params = {
     data: {
       mode: 'object',
@@ -65,12 +73,13 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
         data: client.withData
           ? {
               type: 'any',
+              value: isFormData ? 'formData' : undefined,
             }
           : undefined,
-        headers: client.withHeaders
+        headers: headers.length
           ? {
               type: 'any',
-              value: '{ ...headers, ...options.headers }',
+              value: headers.length ? `{ ${headers}, ...options.headers }` : undefined,
             }
           : undefined,
         options: {
@@ -81,8 +90,18 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
     },
   }
 
+  const formData = isFormData
+    ? `
+   const formData = new FormData()
+   if(data) {
+     Object.keys(data).forEach(key => formData.append(key, data[key]))
+   }
+  `
+    : undefined
+
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+      {formData || ''}
       <Function.Call name="res" to={<Function name="client" async generics={client.generics} params={clientParams} />} />
       <Function.Return>{client.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
     </Function>
@@ -147,6 +166,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
   const { getSchemas, getName } = useOperationManager()
   const operation = useOperation()
 
+  const contentType = operation.getContentType()
   const name = getName(operation, { type: 'function' })
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
@@ -193,6 +213,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
         withHeaders: !!schemas.headerParams?.name,
         method: operation.method,
         path: new URLPath(operation.path),
+        contentType,
       }}
     />
   )

@@ -48,3 +48,5 @@ Run \`npm install -g @kubb/cli\` to update`,
 export async function run(_argv?: string[]): Promise<void> {
   await runMain(main)
 }
+
+export { generate } from './generate.ts'

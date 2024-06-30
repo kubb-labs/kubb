@@ -50,18 +50,18 @@
     "version:canary": "changeset version --snapshot canary"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.2",
+    "@biomejs/biome": "^1.8.3",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.5",
+    "@changesets/cli": "^2.27.6",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.14.7",
+    "@types/node": "^20.14.9",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "bun-types": "^1.1.15",
+    "bun-types": "^1.1.17",
     "rimraf": "^5.0.7",
     "ts-node": "^10.9.2",
-    "turbo": "^2.0.4",
+    "turbo": "^2.0.6",
     "typescript": "^5.5.2",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0"

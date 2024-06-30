@@ -26,6 +26,7 @@ export async function uploadFile(
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
+    headers: { 'Content-Type': 'application/octet-stream', ...options.headers },
     ...options,
   })
   return res

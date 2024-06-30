@@ -13,15 +13,20 @@ import type {
  */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
-  data?: UploadFileMutationRequest,
+  data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UploadFileMutationResponse>['data']> {
+  const formData = new FormData()
+  if (data) {
+    Object.keys(data).forEach((key) => formData.append(key, data[key]))
+  }
   const res = await client<UploadFileMutationResponse, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     params,
-    data,
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data', ...options.headers },
     ...options,
   })
   return res.data
