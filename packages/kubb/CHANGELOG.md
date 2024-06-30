@@ -1,5 +1,13 @@
 # kubb
 
+## 2.18.20
+
+### Patch Changes
+
+- Updated dependencies [[`d6dc9a3`](https://github.com/kubb-labs/kubb/commit/d6dc9a3033c9b948b5cbcab4baaf787382c694b8)]:
+  - @kubb/cli@2.21.2
+  - @kubb/core@2.21.2
+
 ## 2.18.19
 
 ### Patch Changes
