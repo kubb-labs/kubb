@@ -112,6 +112,7 @@ exports[`Zod SchemaGenerator > 'PetTupleObject' 1`] = `
 
 exports[`Zod SchemaGenerator > 'Pets' 1`] = `
 "export const pets = z.array(z.object({ id: z.number(), name: z.string(), tag: z.string().optional() }))
+export type Pets = z.infer<typeof pets>
 "
 `;
 

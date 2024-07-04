@@ -27,7 +27,9 @@ describe('Zod SchemaGenerator', async () => {
       name: 'Pets',
       input: '../mocks/petStore.yaml',
       path: 'Pets',
-      options: {},
+      options: {
+        typedSchema: true,
+      },
     },
     {
       name: 'PetTuple',
@@ -189,6 +191,7 @@ describe('Zod SchemaGenerator', async () => {
       dateType: 'date',
       transformers: {},
       typed: false,
+      typedSchema: false,
       exclude: undefined,
       include: undefined,
       override: undefined,

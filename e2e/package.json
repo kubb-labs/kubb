@@ -54,7 +54,7 @@
     "tsup": "^8.1.0",
     "typescript": "~5.2.2"
   },
-  "packageManager": "pnpm@9.0.6",
+  "packageManager": "pnpm@9.4.0",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"

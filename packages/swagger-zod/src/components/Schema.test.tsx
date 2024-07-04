@@ -19,6 +19,7 @@ describe('<Schema/> ', () => {
     exclude: undefined,
     override: undefined,
     typed: false,
+    typedSchema: false,
     templates: {
       operations: Operations.templates,
     },

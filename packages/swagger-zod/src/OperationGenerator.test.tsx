@@ -68,6 +68,7 @@ describe('OperationGenerator', async () => {
       dateType: 'date',
       transformers: {},
       typed: false,
+      typedSchema: false,
       exclude: undefined,
       include: undefined,
       override: undefined,
