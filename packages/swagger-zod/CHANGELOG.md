@@ -1,5 +1,22 @@
 # @kubb/swagger-zod
 
+## 2.22.0
+
+### Minor Changes
+
+- [#1065](https://github.com/kubb-labs/kubb/pull/1065) [`56687ec`](https://github.com/kubb-labs/kubb/commit/56687ec0deec06f3b42f8b4e18a1064b9474032b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Export schemaType with z.infer
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.22.0
+  - @kubb/fs@2.22.0
+  - @kubb/oas@2.22.0
+  - @kubb/parser-ts@2.22.0
+  - @kubb/plugin-oas@2.22.0
+  - @kubb/react@2.22.0
+  - @kubb/swagger-ts@2.22.0
+
 ## 2.21.2
 
 ### Patch Changes
