@@ -91,7 +91,7 @@ const baseConfig = {
         path: './zod',
       },
       group: { type: 'tag' },
-      typed: true,
+      typed: false,
       typedSchema: true
     }),
     pluginZodios({
