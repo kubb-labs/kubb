@@ -9,7 +9,6 @@ import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas/parser'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
-import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import { App } from '@kubb/react'
 import type { PluginZod } from '../types.ts'
 
@@ -19,6 +18,7 @@ describe('<Operations/>', async () => {
     dateType: 'date',
     transformers: {},
     typed: false,
+    typedSchema: false,
     exclude: undefined,
     include: undefined,
     override: undefined,
