@@ -878,7 +878,6 @@ export default defineConfig({
         importPath: "@tanstack/react-query"
       },
       suspense: {},
-      parser: 'zod',
     }),
   ],
 })
