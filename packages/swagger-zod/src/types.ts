@@ -104,6 +104,10 @@ export type Options = {
    */
   typed?: boolean
   /**
+   * Return Zod generated schema as type with z.infer<TYPE>
+   */
+  typedSchema?: boolean
+  /**
    * Use of z.coerce.string() instead of z.string()
    */
   coercion?: boolean
@@ -125,6 +129,7 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
+  typedSchema: NonNullable<Options['typedSchema']>
   templates: NonNullable<Templates>
   mapper: Record<string, string>
   importPath: NonNullable<Options['importPath']>

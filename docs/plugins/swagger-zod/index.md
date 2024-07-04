@@ -173,6 +173,25 @@ const plugin = pluginZod({
 ```
 :::
 
+### typedSchema
+
+Return Zod generated schema as type with z.infer<TYPE>
+
+::: info
+
+Type: `boolean` <br/>
+
+```typescript twoslash
+import { pluginZod } from '@kubb/swagger-zod'
+
+const plugin = pluginZod({
+  typedSchema: true,
+})
+```
+:::
+
+
+
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
