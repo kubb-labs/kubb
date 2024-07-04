@@ -175,7 +175,7 @@ const plugin = pluginZod({
 
 ### typedSchema
 
-Return Zod generated schema as type with z.infer<TYPE>
+Return Zod generated schema as type with z.infer.
 
 ::: info
 
@@ -189,8 +189,6 @@ const plugin = pluginZod({
 })
 ```
 :::
-
-
 
 ### dateType
 
