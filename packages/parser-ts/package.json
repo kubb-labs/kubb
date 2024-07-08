@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "2.22.1",
+  "version": "2.23.0",
   "description": "TypeScript parser",
   "keywords": [
     "typescript",
