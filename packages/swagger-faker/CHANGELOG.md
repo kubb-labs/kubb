@@ -1,5 +1,22 @@
 # @kubb/swagger-faker
 
+## 2.23.0
+
+### Minor Changes
+
+- [#1070](https://github.com/kubb-labs/kubb/pull/1070) [`d636806`](https://github.com/kubb-labs/kubb/commit/d63680600b1219115f12ea2d9932cfb4cac82bbe) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for RandExp generator when format is a regex(default: 'faker')
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.0
+  - @kubb/fs@2.23.0
+  - @kubb/oas@2.23.0
+  - @kubb/parser-ts@2.23.0
+  - @kubb/plugin-oas@2.23.0
+  - @kubb/react@2.23.0
+  - @kubb/swagger-ts@2.23.0
+
 ## 2.22.1
 
 ### Patch Changes
