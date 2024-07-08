@@ -96,7 +96,12 @@ export const fakerKeywordMapper = {
   and: (items: string[] = []) => `Object.assign({}, ${items.join(', ')})`,
   object: () => 'object',
   ref: () => 'ref',
-  matches: (value = '') => `faker.helpers.fromRegExp(${value})`,
+  matches: (value = '', regexGenerator: 'faker' | 'randexp' = 'faker') => {
+    if (regexGenerator === 'randexp') {
+      return `${transformers.toRegExpString(value, 'RandExp')}.gen()`
+    }
+    return `faker.helpers.fromRegExp(${transformers.toRegExpString(value)})`
+  },
   email: () => 'faker.internet.email()',
   firstName: () => 'faker.person.firstName()',
   lastName: () => 'faker.person.lastName()',
@@ -149,6 +154,7 @@ type ParserOptions = {
   description?: string
 
   seed?: number | number[]
+  regexGenerator?: 'faker' | 'randexp'
   withData?: boolean
   dateParser?: Options['dateParser']
   mapper?: Record<string, string>
@@ -238,10 +244,8 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
     return fakerKeywordMapper.const(transformers.stringify(current.args.value))
   }
 
-  if (isKeyword(current, schemaKeywords.matches)) {
-    if (current.args) {
-      return fakerKeywordMapper.matches(transformers.toRegExpString(current.args))
-    }
+  if (isKeyword(current, schemaKeywords.matches) && current.args) {
+    return fakerKeywordMapper.matches(current.args, options.regexGenerator)
   }
 
   if (isKeyword(current, schemaKeywords.null) || isKeyword(current, schemaKeywords.undefined) || isKeyword(current, schemaKeywords.any)) {

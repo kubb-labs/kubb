@@ -37,7 +37,14 @@ describe('Faker SchemaGenerator', async () => {
       path: 'Pets',
       options: {},
     },
-
+    {
+      name: 'PetWithRandExp',
+      input: '../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        regexGenerator: 'randexp',
+      },
+    },
     {
       name: 'enumVarNames',
       input: '../mocks/petStore.yaml',
@@ -65,6 +72,7 @@ describe('Faker SchemaGenerator', async () => {
       mapper: {},
       override: [],
       dateParser: undefined,
+      regexGenerator: 'faker',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
