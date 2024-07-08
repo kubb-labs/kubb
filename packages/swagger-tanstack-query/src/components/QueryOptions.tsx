@@ -110,7 +110,12 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
     ? `
    const formData = new FormData()
    if(data) {
-     Object.keys(data).forEach(key => formData.append(key, data[key]))
+    Object.keys(data).forEach((key) => {
+      const value = data[key];
+      if (typeof key === "string" && (typeof value === "string" || value instanceof Blob)) {
+        formData.append(key, value);
+      }
+    })
    }
   `
     : undefined
