@@ -113,6 +113,9 @@ components:
           type: string
         tag:
           type: string
+        code:
+          type: string
+          pattern: \b[1-9]\b
         shipDate:
             type: string
             format: date

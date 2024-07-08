@@ -21,7 +21,7 @@ export function Schema(props: Props): ReactNode {
   const {
     pluginManager,
     plugin: {
-      options: { dateParser, unknownType, mapper, seed },
+      options: { dateParser, regexGenerator, mapper, seed },
     },
   } = useApp<PluginFaker>()
 
@@ -39,7 +39,9 @@ export function Schema(props: Props): ReactNode {
   })
 
   const fakerText = parserFaker.joinItems(
-    tree.map((schema) => parserFaker.parse(undefined, schema, { name: resolvedName, typeName, seed, mapper, withData, dateParser })).filter(Boolean),
+    tree
+      .map((schema) => parserFaker.parse(undefined, schema, { name: resolvedName, typeName, seed, regexGenerator, mapper, withData, dateParser }))
+      .filter(Boolean),
   )
 
   let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
@@ -109,7 +111,7 @@ Schema.Imports = (): ReactNode => {
   const {
     pluginManager,
     plugin: {
-      options: { dateParser },
+      options: { dateParser, regexGenerator },
     },
   } = useApp<PluginFaker>()
   const { path: root } = useFile()
@@ -136,6 +138,7 @@ Schema.Imports = (): ReactNode => {
   return (
     <>
       <File.Import name={['faker']} path="@faker-js/faker" />
+      {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
       {dateParser && <File.Import path={dateParser} name={dateParser} />}
       {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
     </>

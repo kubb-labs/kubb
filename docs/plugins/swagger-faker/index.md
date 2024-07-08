@@ -276,6 +276,37 @@ const plugin = pluginFaker({
 ```
 :::
 
+### regexGenerator
+
+Choose which generator to use when using Regexp.
+
+::: info TYPE
+
+::: code-group
+
+```typescript ['faker']
+faker.helpers.fromRegExp(new RegExp(/test/))
+```
+
+```typescript ['randexp']
+new RandExp(/test/).gen()
+```
+
+:::
+
+::: info
+Type: `'faker' | 'randexp'` <br/>
+Default: `'faker'`
+
+```typescript twoslash
+import { pluginFaker } from '@kubb/swagger-faker'
+
+const plugin = pluginFaker({
+  regexGenerator: 'randexp',
+})
+```
+:::
+
 ### seed
 
 The use of Seed is intended to allow for consistent values in a test.

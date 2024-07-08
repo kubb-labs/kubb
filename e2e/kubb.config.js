@@ -92,7 +92,7 @@ const baseConfig = {
       },
       group: { type: 'tag' },
       typed: false,
-      typedSchema: true
+      typedSchema: true,
     }),
     pluginZodios({
       output: {

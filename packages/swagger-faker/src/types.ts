@@ -94,6 +94,15 @@ export type Options = {
      */
     schema?: (props: { schema?: SchemaObject; name?: string; parentName?: string }, defaultSchemas: Schema[]) => Schema[] | undefined
   }
+  /**
+   * Choose which generator to use when using Regexp.
+   *
+   * `'faker'` will use `faker.helpers.fromRegExp(new RegExp(/test/))`
+   * `'randexp'` will use `new RandExp(/test/).gen()`
+   * @default 'faker'
+   */
+  regexGenerator?: 'faker' | 'randexp'
+
   mapper?: Record<string, string>
   /**
    * The use of Seed is intended to allow for consistent values in a test.
@@ -109,6 +118,7 @@ type ResolvedOptions = {
   override: NonNullable<Options['override']>
   seed: NonNullable<Options['seed']> | undefined
   mapper: Record<string, string>
+  regexGenerator: NonNullable<Options['regexGenerator']>
 }
 
 export type FileMeta = {
