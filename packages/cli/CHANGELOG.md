@@ -1,5 +1,13 @@
 # @kubb/cli
 
+## 2.22.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.22.1
+  - @kubb/fs@2.22.1
+
 ## 2.22.0
 
 ### Patch Changes

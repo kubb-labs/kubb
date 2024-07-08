@@ -1,5 +1,20 @@
 # @kubb/swagger-client
 
+## 2.22.1
+
+### Patch Changes
+
+- [`cce21cc`](https://github.com/kubb-labs/kubb/commit/cce21ccaf00bdbceda2b9f78daad2cfa4273c1bb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - FormData for upload with extra checks
+
+- Updated dependencies []:
+  - @kubb/core@2.22.1
+  - @kubb/fs@2.22.1
+  - @kubb/oas@2.22.1
+  - @kubb/parser-ts@2.22.1
+  - @kubb/plugin-oas@2.22.1
+  - @kubb/react@2.22.1
+  - @kubb/swagger-ts@2.22.1
+
 ## 2.22.0
 
 ### Patch Changes
