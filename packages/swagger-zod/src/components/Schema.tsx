@@ -1,5 +1,5 @@
 import { Oas } from '@kubb/plugin-oas/components'
-import { Const, File, useApp, useFile } from '@kubb/react'
+import { Const, File, Type, useApp, useFile } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
 
 import transformers from '@kubb/core/transformers'
@@ -22,7 +22,7 @@ export function Schema(props: Props): ReactNode {
   const {
     pluginManager,
     plugin: {
-      options: { mapper, coercion },
+      options: { mapper, typedSchema, coercion },
     },
   } = useApp<PluginZod>()
 
@@ -31,6 +31,11 @@ export function Schema(props: Props): ReactNode {
     name,
     pluginKey: [pluginZodName],
     type: 'function',
+  })
+  const resolvedTypeName = pluginManager.resolveName({
+    name,
+    pluginKey: [pluginZodName],
+    type: 'type',
   })
 
   const typeName = pluginManager.resolveName({
@@ -71,21 +76,28 @@ export function Schema(props: Props): ReactNode {
   const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
 
   return (
-    <Const
-      export
-      name={resolvedName}
-      JSDoc={{
-        comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
-      }}
-    >
-      {[
-        output,
-        keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-        withTypeAnnotation && typeName ? ` as z.ZodType<${typeName}>` : '',
-      ]
-        .filter(Boolean)
-        .join('') || ''}
-    </Const>
+    <>
+      <Const
+        export
+        name={resolvedName}
+        JSDoc={{
+          comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
+        }}
+      >
+        {[
+          output,
+          keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
+          withTypeAnnotation && typeName ? ` as z.ZodType<${typeName}>` : '',
+        ]
+          .filter(Boolean)
+          .join('') || ''}
+      </Const>
+      {typedSchema && (
+        <Type export name={resolvedTypeName}>
+          {`z.infer<typeof ${resolvedName}>`}
+        </Type>
+      )}
+    </>
   )
 }
 

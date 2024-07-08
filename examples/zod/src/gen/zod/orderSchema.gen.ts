@@ -12,3 +12,4 @@ export const orderSchema = z.object({
     .optional(),
   complete: z.boolean().optional(),
 })
+export type OrderSchema = z.infer<typeof orderSchema>

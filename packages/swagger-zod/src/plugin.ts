@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginOasName } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
@@ -28,6 +28,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     dateType = 'string',
     unknownType = 'any',
     typed = false,
+    typedSchema = false,
     mapper = {},
     templates,
     importPath = 'zod',
@@ -43,6 +44,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       exclude,
       override,
       typed,
+      typedSchema,
       dateType,
       unknownType,
       mapper,
@@ -75,10 +77,14 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = camelCase(name, {
+      let resolvedName = camelCase(name, {
         suffix: type ? 'schema' : undefined,
         isFile: type === 'file',
       })
+
+      if (type === 'type') {
+        resolvedName = pascalCase(resolvedName)
+      }
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
