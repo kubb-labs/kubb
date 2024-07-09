@@ -117,7 +117,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>
-  mapper: NonNullable<Options['mapper']>
+  mapper:Record<string, any>
 }
 
 export type FileMeta = {
