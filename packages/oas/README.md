@@ -29,15 +29,15 @@
 </div>
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/oas?flat&colorA=18181B&colorB=f58517
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/oas?flat&colorA=#18181B&colorB=#f58517
 [npm-version-href]: https://npmjs.com/package/@kubb/oas
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/oas?flat&colorA=18181B&colorB=f58517
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/oas?flat&colorA=#18181B&colorB=#f58517
 [npm-downloads-href]: https://npmjs.com/package/@kubb/oas
-[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
+[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=#18181B&colorB=#f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
-[build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
+[build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=#18181B&colorB=#f58517
 [build-href]: https://www.npmjs.com/package/@kubb/oas
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/oas?style=flat&colorA=18181B&colorB=f58517
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/oas?style=flat&colorA=#18181B&colorB=#f58517
 [minified-href]: https://www.npmjs.com/package/@kubb/oas
-[coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
+[coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=#18181B&colorB=#f58517
 [coverage-href]: https://www.npmjs.com/package/@kubb/oas
