@@ -123,7 +123,7 @@ type ParserOptions = {
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   keysToOmit?: string[]
-  mapper?: SchemaMapper
+  mapper?: Record<string, ts.PropertySignature>
 }
 
 export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): ts.Node | null | undefined {
@@ -171,12 +171,13 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
         const schemas = item[1]
         return schemas && typeof schemas.map === 'function'
       })
-      .map(([_name, schemas]) => {
-        let name = _name
+      .map(([name, schemas]) => {
         const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+        const mappedName = nameSchema?.args || name
 
-        if (nameSchema) {
-          name = nameSchema.args
+        // custom mapper(pluginOptions)
+        if (options.mapper?.[mappedName]) {
+          return options.mapper?.[mappedName]
         }
 
         const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
@@ -211,7 +212,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
         const propertySignature = factory.createPropertySignature({
           questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
-          name,
+          name: mappedName,
           type,
           readOnly: isReadonly,
         })

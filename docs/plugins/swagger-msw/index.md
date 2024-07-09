@@ -134,6 +134,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped MSW mocks.
@@ -161,6 +164,9 @@ Default: `'{{tag}}Handlers'`
 import { pluginMsw } from '@kubb/swagger-msw'
 
 const plugin = pluginMsw({
+  output: {
+    path: './mocks'
+  },
   group: { type: 'tag', output: './mocks/{{tag}}Handlers' },
 })
 ```

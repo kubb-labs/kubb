@@ -117,7 +117,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   override: NonNullable<Options['override']>
   seed: NonNullable<Options['seed']> | undefined
-  mapper: Record<string, string>
+  mapper: NonNullable<Options['mapper']>
   regexGenerator: NonNullable<Options['regexGenerator']>
 }
 

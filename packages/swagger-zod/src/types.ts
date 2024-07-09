@@ -131,7 +131,7 @@ type ResolvedOptions = {
   typed: NonNullable<Options['typed']>
   typedSchema: NonNullable<Options['typedSchema']>
   templates: NonNullable<Templates>
-  mapper: Record<string, string>
+  mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
 }

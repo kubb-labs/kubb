@@ -20,6 +20,7 @@ describe('<Schema/> ', () => {
     enumSuffix: '',
     oasType: false,
     usedEnumNames: {},
+    mapper: {},
   }
 
   const plugin = { options } as Plugin<PluginTs>

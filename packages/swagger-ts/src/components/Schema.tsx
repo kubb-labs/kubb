@@ -22,7 +22,7 @@ export function Schema(props: Props): ReactNode {
   const {
     pluginManager,
     plugin: {
-      options: { enumType, optionalType },
+      options: { mapper, enumType, optionalType },
     },
   } = useApp<PluginTs>()
 
@@ -52,7 +52,7 @@ export function Schema(props: Props): ReactNode {
 
   let type =
     (tree
-      .map((schema) => parse(undefined, schema, { name: resolvedName, typeName, description, keysToOmit, optionalType, enumType }))
+      .map((schema) => parse(undefined, schema, { name: resolvedName, typeName, description, keysToOmit, optionalType, enumType, mapper }))
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
