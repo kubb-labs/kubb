@@ -444,7 +444,12 @@ export const flyMachineServiceConcurrencySchema = z.object({
 
 export const flyProxyProtoOptionsSchema = z.object({ version: z.string().optional() })
 
-export const flyStaticSchema = z.object({ guest_path: z.string(), tigris_bucket: z.string().optional(), url_prefix: z.string() })
+export const flyStaticSchema = z.object({
+  guest_path: z.string(),
+  index_document: z.string().optional(),
+  tigris_bucket: z.string().optional(),
+  url_prefix: z.string(),
+})
 
 export const flyStopConfigSchema = z.object({ signal: z.string().optional(), timeout: z.lazy(() => flyDurationSchema).optional() })
 
