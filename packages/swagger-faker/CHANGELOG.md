@@ -1,5 +1,20 @@
 # @kubb/swagger-faker
 
+## 2.23.1
+
+### Patch Changes
+
+- [`b540b72`](https://github.com/kubb-labs/kubb/commit/b540b729aec5e2c74cc506966a15236085ebad76) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - randexp import for operations
+
+- Updated dependencies []:
+  - @kubb/core@2.23.1
+  - @kubb/fs@2.23.1
+  - @kubb/oas@2.23.1
+  - @kubb/parser-ts@2.23.1
+  - @kubb/plugin-oas@2.23.1
+  - @kubb/react@2.23.1
+  - @kubb/swagger-ts@2.23.1
+
 ## 2.23.0
 
 ### Minor Changes
