@@ -129,6 +129,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped SWR hooks.
@@ -158,6 +161,9 @@ Default: `'{{tag}}SWRHooks'`
 import { pluginSwr } from '@kubb/swagger-swr'
 
 const plugin = pluginSwr({
+  output: {
+    path: './hooks'
+  },
   group: { type: 'tag', output: './hooks/{{tag}}Controller' },
 })
 ```

@@ -1,6 +1,7 @@
 import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { ts } from '@kubb/parser-ts'
 
 export type Options = {
   output?: {
@@ -93,6 +94,17 @@ export type Options = {
    * Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'`
    */
   oasType?: 'infer' | false
+  /**
+   * @example
+   * Use https://ts-ast-viewer.com to generate factory code(see createPropertySignature)
+   * category: factory.createPropertySignature(
+   *   undefined,
+   *   factory.createIdentifier("category"),
+   *   factory.createToken(ts.SyntaxKind.QuestionToken),
+   *   factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
+   * )
+   */
+  mapper?: Record<string, ts.PropertySignature>
 }
 
 type ResolvedOptions = {
@@ -105,6 +117,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>
+  mapper:Record<string, any>
 }
 
 export type FileMeta = {

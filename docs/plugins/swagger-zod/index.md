@@ -122,6 +122,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped Zod schemas.
@@ -151,6 +154,9 @@ Default: `'{{tag}}Schemas'`
 import { pluginZod } from '@kubb/swagger-zod'
 
 const plugin = pluginZod({
+  output: {
+    path: './schemas'
+  },
   group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
 })
 ```

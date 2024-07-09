@@ -1,4 +1,3 @@
-import type { Category } from './Category'
 import type { Tag } from './Tag'
 
 export const addPetRequestStatus = {
@@ -16,7 +15,7 @@ export type AddPetRequest = {
    * @type string
    */
   name: string
-  category?: Category
+  category?: string
   /**
    * @type array
    */
