@@ -35,7 +35,7 @@
   "dependencies": {
     "@microsoft/api-extractor": "^7.47.0",
     "fast-glob": "^3.3.2",
-    "tinyrainbow": "^1.1.1"
+    "tinyrainbow": "^1.2.0"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
