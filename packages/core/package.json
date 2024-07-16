@@ -93,7 +93,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/types": "workspace:*",
     "change-case": "^5.4.4",
-    "directory-tree": "^3.5.1",
+    "directory-tree": "^3.5.2",
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
@@ -111,7 +111,7 @@
     "@types/semver": "^7.5.8",
     "consola": "^3.2.3",
     "ora": "^8.0.1",
-    "prettier": "^3.3.2",
+    "prettier": "^3.3.3",
     "tinyrainbow": "^1.2.0",
     "tsup": "^8.1.0",
     "typescript": "^5.5.3"

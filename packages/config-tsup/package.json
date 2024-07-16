@@ -33,7 +33,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@microsoft/api-extractor": "^7.47.0",
+    "@microsoft/api-extractor": "^7.47.1",
     "fast-glob": "^3.3.2",
     "tinyrainbow": "^1.2.0"
   },
