@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/swagger-client/client'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'

@@ -86,7 +86,7 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
       }
 
       if (entries.some(([_key, item]) => item?.type)) {
-        types.push(...parseItem(camelCase(key), { ...entryItem, default: undefined }))
+        types.push(...parseItem(key, { ...entryItem, default: undefined }))
       }
     }
   })

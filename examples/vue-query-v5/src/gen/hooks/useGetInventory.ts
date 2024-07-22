@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/swagger-client/client'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'

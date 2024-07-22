@@ -266,7 +266,7 @@ describe('OperationGenerator', async () => {
     for (const file of files) {
       const source = await FileManager.getSource(file)
 
-      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file}`)
+      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file.baseName}`)
     }
   })
 })
