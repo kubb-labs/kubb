@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-client",
+  "name": "@kubb/plugin-client",
   "version": "2.23.3",
-  "description": "Generator swagger-client",
+  "description": "Generator plugin-client",
   "keywords": [
     "typescript",
     "plugins",
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-client"
+    "directory": "packages/plugin-client"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -35,11 +35,6 @@
       "import": "./dist/client.js",
       "require": "./dist/client.cjs",
       "default": "./dist/client.cjs"
-    },
-    "./ts-client": {
-      "import": "./client.ts",
-      "require": "./client.ts",
-      "default": "./client.ts"
     },
     "./package.json": "./package.json",
     "./*": "./*"

@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet'
 
 /**
@@ -14,7 +14,7 @@ export async function updatePet(
   const res = await client<UpdatePetMutationResponse, UpdatePetMutationRequest>({
     method: 'put',
     url: '/pet',
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...options,
   })

@@ -23,7 +23,7 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/swagger-swr": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",

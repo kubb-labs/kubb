@@ -28,19 +28,19 @@ With the Swagger Tanstack Query plugin you can create:
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas @kubb/swagger-client
+bun add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas @kubb/plugin
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/swagger-client
+pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/plugin
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/swagger-client
+npm install @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/plugin
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/swagger-client
+yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/plugin
 ```
 
 :::
@@ -192,7 +192,7 @@ file being generated.
 
 ::: info
 Type: `string` <br/>
-Default: `'@kubb/swagger-client/client'`
+Default: `'@kubb/plugin/client'`
 
 ```typescript twoslash
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'

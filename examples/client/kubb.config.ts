@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 import { pluginTs } from '@kubb/swagger-ts'
 
 import * as client from './templates/client/index'

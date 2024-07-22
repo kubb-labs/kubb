@@ -72,7 +72,7 @@ export type Options = {
      * It will be used as `import client from '${client.importPath}'`.
      * It allow both relative and absolute path.
      * the path will be applied as is, so relative path shoule be based on the file being generated.
-     * @default '@kubb/swagger-client/client'
+     * @default '@kubb/plugin-client/client'
      */
     importPath?: string
   }

@@ -220,19 +220,9 @@ const pluginsSidebar = [
         ],
       },
       {
-        text: '@kubb/swagger-client',
-        link: '/plugins/swagger-client/',
+        text: '@kubb/plugin-client',
+        link: '/plugins/plugin-client/',
         collapsed: true,
-        items: [
-          // {
-          //   text: 'globals.d.ts',
-          //   link: '/plugins/swagger-client/globals',
-          // },
-          // {
-          //   text: 'Client',
-          //   link: '/plugins/swagger-client/client',
-          // },
-        ],
       },
       {
         text: '@kubb/swagger-ts',
@@ -421,8 +411,8 @@ const pluginsMenu = [
         link: '/plugins/plugin-oas/',
       },
       {
-        text: '@kubb/swagger-client',
-        link: '/plugins/swagger-client/',
+        text: '@kubb/plugin-client',
+        link: '/plugins/plugin-client/',
       },
       {
         text: '@kubb/swagger-ts',
@@ -555,10 +545,9 @@ export default defineConfig({
       //         '@kubb/swagger': ['../packages/swagger/src/index.ts'],
       //         '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
       //         '@kubb/plugin-oas/hooks': ['../packages/plugin-oas/src/hooks/index.ts'],
-      //         '@kubb/swagger-client': ['../packages/swagger-client/src/index.ts'],
-      //         '@kubb/swagger-client/client': ['../packages/swagger-client/client.ts'],
-      //         '@kubb/swagger-client/components': ['../packages/swagger-client/src/components/index.ts'],
-      //         '@kubb/swagger-client/ts-client': ['../packages/swagger-client/client.ts'],
+      //         '@kubb/plugin-client': ['../packages/plugin-client/src/index.ts'],
+      //         '@kubb/plugin-client/client': ['../packages/plugin-client/client.ts'],
+      //         '@kubb/plugin-client/components': ['../packages/plugin-client/src/components/index.ts'],
       //         '@kubb/swagger-faker': ['../packages/swagger-faker/src/index.ts'],
       //         '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
       //         '@kubb/swagger-swr': ['../packages/swagger-swr/src/index.ts'],

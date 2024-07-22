@@ -26,7 +26,7 @@ export default defineConfig({
         '**/packages/config-tsup/**',
         '**/packages/kubb/**',
         '**/packages/swagger-ts/src/oas/**',
-        '**/packages/swagger-client/client.ts',
+        '**/packages/plugin-client/client.ts',
         '**/e2e/**',
         '**/coverage/**',
         '**/__snapshots__/**',

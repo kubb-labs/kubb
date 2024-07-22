@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'

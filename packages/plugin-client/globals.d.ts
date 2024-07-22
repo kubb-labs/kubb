@@ -12,7 +12,7 @@ declare module 'global' {
  * `tsconfig.json`
  * @example
 "compilerOptions": {
-___ "types": ["@kubb/swagger-client/globals"]
+___ "types": ["@kubb/plugin-client/globals"]
 }
  * @example implementation
 {

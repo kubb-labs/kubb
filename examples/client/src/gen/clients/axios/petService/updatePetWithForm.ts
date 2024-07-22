@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -18,7 +18,7 @@ export async function updatePetWithForm(
   const res = await client<UpdatePetWithFormMutationResponse>({
     method: 'post',
     url: `/pet/${petId}`,
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     ...options,
   })

@@ -15,15 +15,15 @@ outline: deep
 See [FileManager#getEnvSource](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts) for more information about how this works in the background.
 
 ::: code-group
-<<< @/../packages/swagger-client/src/types.ts{12-15}
+<<< @/../packages/plugin/src/types.ts{12-15}
 
-<<< @/../packages/swagger-client/globals.d.ts{22-24}
+<<< @/../packages/plugin/globals.d.ts{22-24}
 
 :::
 
 ### TypeScript
 
-To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env` type being set), add `@kubb/swagger-client/globals` to your tsconfig.json:
+To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env` type being set), add `@kubb/plugin/globals` to your tsconfig.json:
 
 ::: code-group
 
@@ -31,7 +31,7 @@ To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env`
 {
   "compilerOptions": {
     "types": [
-      "@kubb/swagger-client/globals" // [!code ++]
+      "@kubb/plugin-client/globals" // [!code ++]
     ]
   }
 }

@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/swagger-client</h1>
+<h1>@kubb/plugin-client</h1>
 
 <p>
    Swagger integration for Axios to generate all the different clients based on an OpenAPI specification.
@@ -30,15 +30,15 @@
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/swagger-client?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/swagger-client
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/swagger-client?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/swagger-client
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-client?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-client
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-client?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-client
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/swagger-client
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/swagger-client?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/swagger-client
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-client
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-client?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-client
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/swagger-client
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-client

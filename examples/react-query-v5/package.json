@@ -26,7 +26,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@tanstack/react-query": "^5.51.11",

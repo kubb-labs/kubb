@@ -5,7 +5,7 @@
     "packages/swagger",
     "packages/plugin-oas",
     "packages/plugin-redoc",
-    "packages/swagger-client",
+    "packages/plugin-client",
     "packages/swagger-faker",
     "packages/swagger-msw",
     "packages/swagger-swr",

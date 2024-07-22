@@ -9,10 +9,10 @@
       "path": "../core"
     },
     {
-      "path": "../swagger"
+      "path": "../plugin-oas"
     },
     {
-      "path": "../swagger-client"
+      "path": "../plugin-client"
     },
     {
       "path": "../swagger-faker"

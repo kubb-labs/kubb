@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`07aa132`](https://github.com/kubb-labs/kubb/commit/07aa132a165e6ead09bfcdd81ee686ed3e0ff3c9)]:
-  - @kubb/swagger-client@2.23.3
+  - @kubb/plugin@2.23.3
   - @kubb/core@2.23.3
   - @kubb/fs@2.23.3
   - @kubb/oas@2.23.3
@@ -21,7 +21,7 @@
 
 - Updated dependencies [[`da3cb26`](https://github.com/kubb-labs/kubb/commit/da3cb26148fde6205ef7773e78c88c1d92ffbd37)]:
   - @kubb/swagger-ts@2.23.2
-  - @kubb/swagger-client@2.23.2
+  - @kubb/plugin@2.23.2
   - @kubb/swagger-zod@2.23.2
   - @kubb/core@2.23.2
   - @kubb/fs@2.23.2
@@ -41,7 +41,7 @@
   - @kubb/parser-ts@2.23.1
   - @kubb/plugin-oas@2.23.1
   - @kubb/react@2.23.1
-  - @kubb/swagger-client@2.23.1
+  - @kubb/plugin@2.23.1
   - @kubb/swagger-ts@2.23.1
   - @kubb/swagger-zod@2.23.1
 
@@ -56,7 +56,7 @@
   - @kubb/parser-ts@2.23.0
   - @kubb/plugin-oas@2.23.0
   - @kubb/react@2.23.0
-  - @kubb/swagger-client@2.23.0
+  - @kubb/plugin@2.23.0
   - @kubb/swagger-ts@2.23.0
   - @kubb/swagger-zod@2.23.0
 
@@ -67,7 +67,7 @@
 - [`cce21cc`](https://github.com/kubb-labs/kubb/commit/cce21ccaf00bdbceda2b9f78daad2cfa4273c1bb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - FormData for upload with extra checks
 
 - Updated dependencies [[`cce21cc`](https://github.com/kubb-labs/kubb/commit/cce21ccaf00bdbceda2b9f78daad2cfa4273c1bb)]:
-  - @kubb/swagger-client@2.22.1
+  - @kubb/plugin@2.22.1
   - @kubb/core@2.22.1
   - @kubb/fs@2.22.1
   - @kubb/oas@2.22.1
@@ -89,7 +89,7 @@
   - @kubb/parser-ts@2.22.0
   - @kubb/plugin-oas@2.22.0
   - @kubb/react@2.22.0
-  - @kubb/swagger-client@2.22.0
+  - @kubb/plugin@2.22.0
   - @kubb/swagger-ts@2.22.0
 
 ## 2.21.2
@@ -97,7 +97,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`d6dc9a3`](https://github.com/kubb-labs/kubb/commit/d6dc9a3033c9b948b5cbcab4baaf787382c694b8)]:
-  - @kubb/swagger-client@2.21.2
+  - @kubb/plugin@2.21.2
   - @kubb/core@2.21.2
   - @kubb/fs@2.21.2
   - @kubb/oas@2.21.2
@@ -113,7 +113,7 @@
 
 - Updated dependencies [[`72a6a18`](https://github.com/kubb-labs/kubb/commit/72a6a18d20c984c8b54b6f685c8f13395253a05e)]:
   - @kubb/swagger-ts@2.21.1
-  - @kubb/swagger-client@2.21.1
+  - @kubb/plugin@2.21.1
   - @kubb/swagger-zod@2.21.1
   - @kubb/core@2.21.1
   - @kubb/fs@2.21.1
@@ -134,7 +134,7 @@
   - @kubb/parser-ts@2.21.0
   - @kubb/plugin-oas@2.21.0
   - @kubb/react@2.21.0
-  - @kubb/swagger-client@2.21.0
+  - @kubb/plugin@2.21.0
   - @kubb/swagger-ts@2.21.0
 
 ## 2.20.0
@@ -144,7 +144,7 @@
 - [#1045](https://github.com/kubb-labs/kubb/pull/1045) [`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Issue with Incorrect Imported Names in Generated Hooks(use of pluginKey and type for getSchemas)
 
 - Updated dependencies [[`9d100d6`](https://github.com/kubb-labs/kubb/commit/9d100d6f5157af03d051fc389eec182a92651902), [`18250ca`](https://github.com/kubb-labs/kubb/commit/18250cab70bd7d9b8816475a76c5bdbb630f75c4)]:
-  - @kubb/swagger-client@2.20.0
+  - @kubb/plugin@2.20.0
   - @kubb/swagger-zod@2.20.0
   - @kubb/plugin-oas@2.20.0
   - @kubb/parser-ts@2.20.0
@@ -162,7 +162,7 @@
   - @kubb/swagger-zod@2.19.6
   - @kubb/plugin-oas@2.19.6
   - @kubb/core@2.19.6
-  - @kubb/swagger-client@2.19.6
+  - @kubb/plugin@2.19.6
   - @kubb/swagger-ts@2.19.6
   - @kubb/react@2.19.6
   - @kubb/fs@2.19.6
@@ -178,7 +178,7 @@
   - @kubb/parser-ts@2.19.5
   - @kubb/core@2.19.5
   - @kubb/oas@2.19.5
-  - @kubb/swagger-client@2.19.5
+  - @kubb/plugin@2.19.5
   - @kubb/swagger-ts@2.19.5
   - @kubb/swagger-zod@2.19.5
   - @kubb/react@2.19.5
@@ -191,7 +191,7 @@
 - Updated dependencies [[`d91fd08`](https://github.com/kubb-labs/kubb/commit/d91fd08bf139cfbf96b687d2ed926a16ce1e1e15)]:
   - @kubb/oas@2.19.4
   - @kubb/plugin-oas@2.19.4
-  - @kubb/swagger-client@2.19.4
+  - @kubb/plugin@2.19.4
   - @kubb/swagger-ts@2.19.4
   - @kubb/swagger-zod@2.19.4
   - @kubb/core@2.19.4
@@ -207,7 +207,7 @@
   - @kubb/swagger-zod@2.19.3
   - @kubb/plugin-oas@2.19.3
   - @kubb/swagger-ts@2.19.3
-  - @kubb/swagger-client@2.19.3
+  - @kubb/plugin@2.19.3
   - @kubb/core@2.19.3
   - @kubb/fs@2.19.3
   - @kubb/oas@2.19.3
@@ -226,7 +226,7 @@
   - @kubb/parser-ts@2.19.2
   - @kubb/plugin-oas@2.19.2
   - @kubb/react@2.19.2
-  - @kubb/swagger-client@2.19.2
+  - @kubb/plugin@2.19.2
   - @kubb/swagger-ts@2.19.2
 
 ## 2.19.1
@@ -242,7 +242,7 @@
   - @kubb/parser-ts@2.19.1
   - @kubb/plugin-oas@2.19.1
   - @kubb/react@2.19.1
-  - @kubb/swagger-client@2.19.1
+  - @kubb/plugin@2.19.1
   - @kubb/swagger-ts@2.19.1
   - @kubb/swagger-zod@2.19.1
 
@@ -257,7 +257,7 @@
   - @kubb/parser-ts@2.19.0
   - @kubb/plugin-oas@2.19.0
   - @kubb/react@2.19.0
-  - @kubb/swagger-client@2.19.0
+  - @kubb/plugin@2.19.0
   - @kubb/swagger-ts@2.19.0
   - @kubb/swagger-zod@2.19.0
 
@@ -268,7 +268,7 @@
 - [`8be5a22`](https://github.com/kubb-labs/kubb/commit/8be5a223c3167e372763d80335336144ebd98b60) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of packageManager
 
 - Updated dependencies [[`8be5a22`](https://github.com/kubb-labs/kubb/commit/8be5a223c3167e372763d80335336144ebd98b60)]:
-  - @kubb/swagger-client@2.18.9
+  - @kubb/plugin@2.18.9
   - @kubb/swagger-zod@2.18.9
   - @kubb/plugin-oas@2.18.9
   - @kubb/swagger-ts@2.18.9
@@ -284,7 +284,7 @@
 
 - Updated dependencies [[`200fe5d`](https://github.com/kubb-labs/kubb/commit/200fe5d2b6e9a871250b4193b24634a16fe1decf)]:
   - @kubb/plugin-oas@2.18.8
-  - @kubb/swagger-client@2.18.8
+  - @kubb/plugin@2.18.8
   - @kubb/swagger-ts@2.18.8
   - @kubb/swagger-zod@2.18.8
   - @kubb/core@2.18.8
@@ -299,7 +299,7 @@
 
 - Updated dependencies [[`f6a50b7`](https://github.com/kubb-labs/kubb/commit/f6a50b76210f338a1874bd6eafe2e8a392dbcbc2)]:
   - @kubb/plugin-oas@2.18.7
-  - @kubb/swagger-client@2.18.7
+  - @kubb/plugin@2.18.7
   - @kubb/swagger-ts@2.18.7
   - @kubb/swagger-zod@2.18.7
   - @kubb/core@2.18.7
@@ -314,7 +314,7 @@
 
 - Updated dependencies [[`4b4c762`](https://github.com/kubb-labs/kubb/commit/4b4c7620ab7be718a386292d965d8335cad6c1ec)]:
   - @kubb/swagger-ts@2.18.6
-  - @kubb/swagger-client@2.18.6
+  - @kubb/plugin@2.18.6
   - @kubb/swagger-zod@2.18.6
   - @kubb/core@2.18.6
   - @kubb/fs@2.18.6
@@ -329,7 +329,7 @@
 
 - Updated dependencies [[`d4581fd`](https://github.com/kubb-labs/kubb/commit/d4581fd006d8ecca026512c7b1f63229bec88b21)]:
   - @kubb/swagger-ts@2.18.5
-  - @kubb/swagger-client@2.18.5
+  - @kubb/plugin@2.18.5
   - @kubb/swagger-zod@2.18.5
   - @kubb/core@2.18.5
   - @kubb/fs@2.18.5
@@ -348,7 +348,7 @@
   - @kubb/parser-ts@2.18.4
   - @kubb/plugin-oas@2.18.4
   - @kubb/react@2.18.4
-  - @kubb/swagger-client@2.18.4
+  - @kubb/plugin@2.18.4
   - @kubb/swagger-ts@2.18.4
   - @kubb/swagger-zod@2.18.4
 
@@ -358,7 +358,7 @@
 
 - Updated dependencies [[`a4cead3`](https://github.com/kubb-labs/kubb/commit/a4cead3979d39543f92b3d3babaeee7d31857d4d)]:
   - @kubb/plugin-oas@2.18.3
-  - @kubb/swagger-client@2.18.3
+  - @kubb/plugin@2.18.3
   - @kubb/swagger-ts@2.18.3
   - @kubb/swagger-zod@2.18.3
   - @kubb/core@2.18.3
@@ -373,7 +373,7 @@
 - Updated dependencies [[`815faaa`](https://github.com/kubb-labs/kubb/commit/815faaa849c1b62a07865aefab8c86763c1d36ac)]:
   - @kubb/oas@2.18.2
   - @kubb/swagger@2.18.2
-  - @kubb/swagger-client@2.18.2
+  - @kubb/plugin@2.18.2
   - @kubb/swagger-ts@2.18.2
   - @kubb/swagger-zod@2.18.2
   - @kubb/core@2.18.2
@@ -387,7 +387,7 @@
 - [#986](https://github.com/kubb-labs/kubb/pull/986) [`4b52765`](https://github.com/kubb-labs/kubb/commit/4b5276572bd0b5c59b85ec4eddebc3d7c331c0fa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Better naming for plugins
 
 - Updated dependencies [[`4b52765`](https://github.com/kubb-labs/kubb/commit/4b5276572bd0b5c59b85ec4eddebc3d7c331c0fa)]:
-  - @kubb/swagger-client@2.18.1
+  - @kubb/plugin@2.18.1
   - @kubb/swagger-zod@2.18.1
   - @kubb/swagger-ts@2.18.1
   - @kubb/swagger@2.18.1
@@ -406,7 +406,7 @@
 
 - Updated dependencies [[`bd78381`](https://github.com/kubb-labs/kubb/commit/bd78381ce4bb1bfd83017b7f8b559119de12880a)]:
   - @kubb/swagger@2.18.0
-  - @kubb/swagger-client@2.18.0
+  - @kubb/plugin@2.18.0
   - @kubb/swagger-ts@2.18.0
   - @kubb/swagger-zod@2.18.0
   - @kubb/core@2.18.0
@@ -421,7 +421,7 @@
 - Updated dependencies [[`5349115`](https://github.com/kubb-labs/kubb/commit/5349115aa59abc83c7211804f21c952b62a58415), [`e4d5b66`](https://github.com/kubb-labs/kubb/commit/e4d5b66ecaba34f19ae7426e945692f6ce848d81)]:
   - @kubb/swagger@2.17.0
   - @kubb/react@2.17.0
-  - @kubb/swagger-client@2.17.0
+  - @kubb/plugin@2.17.0
   - @kubb/swagger-ts@2.17.0
   - @kubb/core@2.17.0
   - @kubb/oas@2.17.0
@@ -434,7 +434,7 @@
 - Updated dependencies [[`605d121`](https://github.com/kubb-labs/kubb/commit/605d121d4d261ed9463989348a3f9668cd3302fc)]:
   - @kubb/oas@2.16.3
   - @kubb/swagger@2.16.3
-  - @kubb/swagger-client@2.16.3
+  - @kubb/plugin@2.16.3
   - @kubb/swagger-ts@2.16.3
   - @kubb/core@2.16.3
   - @kubb/parser@2.16.3
@@ -446,7 +446,7 @@
 
 - Updated dependencies [[`c8e5753`](https://github.com/kubb-labs/kubb/commit/c8e575310815307bf9282779932d51a59f3ab2a0)]:
   - @kubb/swagger-ts@2.16.2
-  - @kubb/swagger-client@2.16.2
+  - @kubb/plugin@2.16.2
   - @kubb/core@2.16.2
   - @kubb/oas@2.16.2
   - @kubb/parser@2.16.2
@@ -460,7 +460,7 @@
 - Updated dependencies [[`319e721`](https://github.com/kubb-labs/kubb/commit/319e7218ccf7eab2cfbd5d9c202066634681f793)]:
   - @kubb/swagger@2.16.1
   - @kubb/oas@2.16.1
-  - @kubb/swagger-client@2.16.1
+  - @kubb/plugin@2.16.1
   - @kubb/swagger-ts@2.16.1
   - @kubb/core@2.16.1
   - @kubb/parser@2.16.1
@@ -473,7 +473,7 @@
 - Updated dependencies [[`d620eb0`](https://github.com/kubb-labs/kubb/commit/d620eb09c92c1381f740f21d8e7afb7621d9193e), [`d620eb0`](https://github.com/kubb-labs/kubb/commit/d620eb09c92c1381f740f21d8e7afb7621d9193e)]:
   - @kubb/swagger@2.16.0
   - @kubb/oas@2.16.0
-  - @kubb/swagger-client@2.16.0
+  - @kubb/plugin@2.16.0
   - @kubb/swagger-ts@2.16.0
   - @kubb/core@2.16.0
   - @kubb/parser@2.16.0
@@ -486,7 +486,7 @@
 - Updated dependencies [[`bb9f51f`](https://github.com/kubb-labs/kubb/commit/bb9f51f03f533c79b63036d787b39f044f7fccd5)]:
   - @kubb/swagger@2.15.0
   - @kubb/oas@2.15.0
-  - @kubb/swagger-client@2.15.0
+  - @kubb/plugin@2.15.0
   - @kubb/swagger-ts@2.15.0
   - @kubb/core@2.15.0
   - @kubb/parser@2.15.0
@@ -498,7 +498,7 @@
 
 - Updated dependencies [[`f58269f`](https://github.com/kubb-labs/kubb/commit/f58269f776e459c9bae21e8122a8f60fde8702e1)]:
   - @kubb/swagger@2.14.0
-  - @kubb/swagger-client@2.14.0
+  - @kubb/plugin@2.14.0
   - @kubb/swagger-ts@2.14.0
   - @kubb/core@2.14.0
   - @kubb/parser@2.14.0
@@ -510,7 +510,7 @@
 
 - Updated dependencies [[`eac4bb5`](https://github.com/kubb-labs/kubb/commit/eac4bb525a6857b3a0e4c04d52e3de5d2f568d4f)]:
   - @kubb/swagger@2.13.3
-  - @kubb/swagger-client@2.13.3
+  - @kubb/plugin@2.13.3
   - @kubb/swagger-ts@2.13.3
   - @kubb/core@2.13.3
   - @kubb/parser@2.13.3
@@ -522,7 +522,7 @@
 
 - Updated dependencies []:
   - @kubb/swagger@2.13.2
-  - @kubb/swagger-client@2.13.2
+  - @kubb/plugin@2.13.2
   - @kubb/swagger-ts@2.13.2
   - @kubb/core@2.13.2
   - @kubb/parser@2.13.2
@@ -537,7 +537,7 @@
   - @kubb/parser@2.13.1
   - @kubb/react@2.13.1
   - @kubb/swagger@2.13.1
-  - @kubb/swagger-client@2.13.1
+  - @kubb/plugin@2.13.1
   - @kubb/swagger-ts@2.13.1
 
 ## 2.13.0
@@ -547,7 +547,7 @@
 - Updated dependencies [[`316d067`](https://github.com/kubb-labs/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd)]:
   - @kubb/swagger-ts@2.13.0
   - @kubb/swagger@2.13.0
-  - @kubb/swagger-client@2.13.0
+  - @kubb/plugin@2.13.0
   - @kubb/core@2.13.0
   - @kubb/parser@2.13.0
   - @kubb/react@2.13.0
@@ -559,7 +559,7 @@
 - Updated dependencies [[`e32b6bd`](https://github.com/kubb-labs/kubb/commit/e32b6bda3d676b099dd28c6ab380cf22abb44895), [`e32b6bd`](https://github.com/kubb-labs/kubb/commit/e32b6bda3d676b099dd28c6ab380cf22abb44895)]:
   - @kubb/swagger-ts@2.12.6
   - @kubb/swagger@2.12.6
-  - @kubb/swagger-client@2.12.6
+  - @kubb/plugin@2.12.6
   - @kubb/core@2.12.6
   - @kubb/parser@2.12.6
   - @kubb/react@2.12.6
@@ -570,7 +570,7 @@
 
 - Updated dependencies [[`95c37c6`](https://github.com/kubb-labs/kubb/commit/95c37c6793344022bbb8129bc570fb200c700800)]:
   - @kubb/swagger@2.12.5
-  - @kubb/swagger-client@2.12.5
+  - @kubb/plugin@2.12.5
   - @kubb/swagger-ts@2.12.5
   - @kubb/core@2.12.5
   - @kubb/parser@2.12.5
@@ -585,7 +585,7 @@
   - @kubb/parser@2.12.4
   - @kubb/react@2.12.4
   - @kubb/swagger@2.12.4
-  - @kubb/swagger-client@2.12.4
+  - @kubb/plugin@2.12.4
   - @kubb/swagger-ts@2.12.4
 
 ## 2.12.3
@@ -596,7 +596,7 @@
   - @kubb/core@2.12.3
   - @kubb/react@2.12.3
   - @kubb/swagger@2.12.3
-  - @kubb/swagger-client@2.12.3
+  - @kubb/plugin@2.12.3
   - @kubb/swagger-ts@2.12.3
   - @kubb/parser@2.12.3
 
@@ -608,7 +608,7 @@
   - @kubb/core@2.12.2
   - @kubb/react@2.12.2
   - @kubb/swagger@2.12.2
-  - @kubb/swagger-client@2.12.2
+  - @kubb/plugin@2.12.2
   - @kubb/swagger-ts@2.12.2
   - @kubb/parser@2.12.2
 
@@ -621,7 +621,7 @@
   - @kubb/parser@2.12.1
   - @kubb/react@2.12.1
   - @kubb/swagger@2.12.1
-  - @kubb/swagger-client@2.12.1
+  - @kubb/plugin@2.12.1
   - @kubb/swagger-ts@2.12.1
 
 ## 2.12.0
@@ -632,7 +632,7 @@
   - @kubb/core@2.12.0
   - @kubb/react@2.12.0
   - @kubb/swagger@2.12.0
-  - @kubb/swagger-client@2.12.0
+  - @kubb/plugin@2.12.0
   - @kubb/swagger-ts@2.12.0
   - @kubb/parser@2.12.0
 
@@ -645,7 +645,7 @@
   - @kubb/parser@2.11.1
   - @kubb/react@2.11.1
   - @kubb/swagger@2.11.1
-  - @kubb/swagger-client@2.11.1
+  - @kubb/plugin@2.11.1
   - @kubb/swagger-ts@2.11.1
 
 ## 2.11.0
@@ -656,7 +656,7 @@
   - @kubb/swagger-ts@2.11.0
   - @kubb/swagger@2.11.0
   - @kubb/react@2.11.0
-  - @kubb/swagger-client@2.11.0
+  - @kubb/plugin@2.11.0
   - @kubb/core@2.11.0
   - @kubb/parser@2.11.0
 
@@ -667,7 +667,7 @@
 - Updated dependencies [[`a80cc2d`](https://github.com/kubb-labs/kubb/commit/a80cc2d2a4f109ff1e814707e5dd104bd730fb64)]:
   - @kubb/swagger@2.10.0
   - @kubb/core@2.10.0
-  - @kubb/swagger-client@2.10.0
+  - @kubb/plugin@2.10.0
   - @kubb/swagger-ts@2.10.0
   - @kubb/react@2.10.0
   - @kubb/parser@2.10.0
@@ -680,7 +680,7 @@
   - @kubb/core@2.9.1
   - @kubb/react@2.9.1
   - @kubb/swagger@2.9.1
-  - @kubb/swagger-client@2.9.1
+  - @kubb/plugin@2.9.1
   - @kubb/swagger-ts@2.9.1
   - @kubb/parser@2.9.1
 
@@ -693,7 +693,7 @@
   - @kubb/parser@2.9.0
   - @kubb/react@2.9.0
   - @kubb/swagger@2.9.0
-  - @kubb/swagger-client@2.9.0
+  - @kubb/plugin@2.9.0
   - @kubb/swagger-ts@2.9.0
 
 ## 2.8.2
@@ -704,7 +704,7 @@
   - @kubb/parser@2.8.2
   - @kubb/core@2.8.2
   - @kubb/react@2.8.2
-  - @kubb/swagger-client@2.8.2
+  - @kubb/plugin@2.8.2
   - @kubb/swagger-ts@2.8.2
   - @kubb/swagger@2.8.2
 
@@ -717,7 +717,7 @@
   - @kubb/parser@2.8.1
   - @kubb/react@2.8.1
   - @kubb/swagger@2.8.1
-  - @kubb/swagger-client@2.8.1
+  - @kubb/plugin@2.8.1
   - @kubb/swagger-ts@2.8.1
 
 ## 2.8.0
@@ -727,7 +727,7 @@
 - [#852](https://github.com/kubb-labs/kubb/pull/852) [`752f9a0`](https://github.com/kubb-labs/kubb/commit/752f9a02f642f2c5e948b96622fdc73c33d571b8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - useOperation and useSchema with a component Oas and Oas.Operation
 
 - Updated dependencies [[`752f9a0`](https://github.com/kubb-labs/kubb/commit/752f9a02f642f2c5e948b96622fdc73c33d571b8), [`e2eed44`](https://github.com/kubb-labs/kubb/commit/e2eed4482e2e49d41c87e64eb484ebedbeb3ccc8)]:
-  - @kubb/swagger-client@2.8.0
+  - @kubb/plugin@2.8.0
   - @kubb/swagger-ts@2.8.0
   - @kubb/swagger@2.8.0
   - @kubb/react@2.8.0
@@ -740,7 +740,7 @@
 
 - Updated dependencies [[`5857667`](https://github.com/kubb-labs/kubb/commit/5857667ca41cbc8fb983d335691fa8c8047e1f48)]:
   - @kubb/swagger-ts@2.7.2
-  - @kubb/swagger-client@2.7.2
+  - @kubb/plugin@2.7.2
   - @kubb/core@2.7.2
   - @kubb/parser@2.7.2
   - @kubb/react@2.7.2
@@ -755,7 +755,7 @@
   - @kubb/parser@2.7.1
   - @kubb/react@2.7.1
   - @kubb/swagger@2.7.1
-  - @kubb/swagger-client@2.7.1
+  - @kubb/plugin@2.7.1
   - @kubb/swagger-ts@2.7.1
 
 ## 2.7.0
@@ -763,7 +763,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`26dcce7`](https://github.com/kubb-labs/kubb/commit/26dcce7c21ecc81e03943f80a60178f5456caeef)]:
-  - @kubb/swagger-client@2.7.0
+  - @kubb/plugin@2.7.0
   - @kubb/react@2.7.0
   - @kubb/swagger@2.7.0
   - @kubb/swagger-ts@2.7.0
@@ -778,7 +778,7 @@
   - @kubb/core@2.6.7
   - @kubb/react@2.6.7
   - @kubb/swagger@2.6.7
-  - @kubb/swagger-client@2.6.7
+  - @kubb/plugin@2.6.7
   - @kubb/swagger-ts@2.6.7
   - @kubb/parser@2.6.7
 
@@ -791,7 +791,7 @@
   - @kubb/parser@2.6.6
   - @kubb/react@2.6.6
   - @kubb/swagger@2.6.6
-  - @kubb/swagger-client@2.6.6
+  - @kubb/plugin@2.6.6
   - @kubb/swagger-ts@2.6.6
 
 ## 2.6.5
@@ -805,7 +805,7 @@
   - @kubb/parser@2.6.5
   - @kubb/react@2.6.5
   - @kubb/swagger@2.6.5
-  - @kubb/swagger-client@2.6.5
+  - @kubb/plugin@2.6.5
   - @kubb/swagger-ts@2.6.5
 
 ## 2.6.4
@@ -814,7 +814,7 @@
 
 - Updated dependencies [[`ee1dd8e`](https://github.com/kubb-labs/kubb/commit/ee1dd8ebf6cd7331176670af7bbb2c9cf98b4ce9)]:
   - @kubb/swagger@2.6.4
-  - @kubb/swagger-client@2.6.4
+  - @kubb/plugin@2.6.4
   - @kubb/swagger-ts@2.6.4
   - @kubb/core@2.6.4
   - @kubb/parser@2.6.4
@@ -826,7 +826,7 @@
 
 - Updated dependencies [[`52e802a`](https://github.com/kubb-labs/kubb/commit/52e802ac61a5c1820020ad1ec80ddcf930a647f1)]:
   - @kubb/swagger@2.6.3
-  - @kubb/swagger-client@2.6.3
+  - @kubb/plugin@2.6.3
   - @kubb/swagger-ts@2.6.3
   - @kubb/core@2.6.3
   - @kubb/parser@2.6.3
@@ -841,7 +841,7 @@
   - @kubb/parser@2.6.2
   - @kubb/react@2.6.2
   - @kubb/swagger@2.6.2
-  - @kubb/swagger-client@2.6.2
+  - @kubb/plugin@2.6.2
   - @kubb/swagger-ts@2.6.2
 
 ## 2.6.1
@@ -851,7 +851,7 @@
 - Updated dependencies [[`69897f5`](https://github.com/kubb-labs/kubb/commit/69897f5ab4097ec1970b874d724319fb1e1e7f30)]:
   - @kubb/swagger-ts@2.6.1
   - @kubb/swagger@2.6.1
-  - @kubb/swagger-client@2.6.1
+  - @kubb/plugin@2.6.1
   - @kubb/core@2.6.1
   - @kubb/parser@2.6.1
   - @kubb/react@2.6.1
@@ -865,7 +865,7 @@
   - @kubb/parser@2.6.0
   - @kubb/react@2.6.0
   - @kubb/swagger@2.6.0
-  - @kubb/swagger-client@2.6.0
+  - @kubb/plugin@2.6.0
   - @kubb/swagger-ts@2.6.0
 
 ## 2.5.3
@@ -877,7 +877,7 @@
   - @kubb/parser@2.5.3
   - @kubb/react@2.5.3
   - @kubb/swagger@2.5.3
-  - @kubb/swagger-client@2.5.3
+  - @kubb/plugin@2.5.3
   - @kubb/swagger-ts@2.5.3
 
 ## 2.5.2
@@ -889,7 +889,7 @@
   - @kubb/parser@2.5.2
   - @kubb/react@2.5.2
   - @kubb/swagger@2.5.2
-  - @kubb/swagger-client@2.5.2
+  - @kubb/plugin@2.5.2
   - @kubb/swagger-ts@2.5.2
 
 ## 2.5.1
@@ -898,7 +898,7 @@
 
 - Updated dependencies [[`96461a6`](https://github.com/kubb-labs/kubb/commit/96461a6028d5be9cf0903d3729fd6153185092c2)]:
   - @kubb/swagger-ts@2.5.1
-  - @kubb/swagger-client@2.5.1
+  - @kubb/plugin@2.5.1
   - @kubb/core@2.5.1
   - @kubb/parser@2.5.1
   - @kubb/react@2.5.1
@@ -910,7 +910,7 @@
 
 - Updated dependencies [[`457ee7f`](https://github.com/kubb-labs/kubb/commit/457ee7fc6c6b6e37f7bf499e8a2182cd8f56fa97)]:
   - @kubb/swagger-ts@2.5.0
-  - @kubb/swagger-client@2.5.0
+  - @kubb/plugin@2.5.0
   - @kubb/core@2.5.0
   - @kubb/parser@2.5.0
   - @kubb/react@2.5.0
@@ -924,7 +924,7 @@
   - @kubb/swagger-ts@2.4.1
   - @kubb/core@2.4.1
   - @kubb/swagger@2.4.1
-  - @kubb/swagger-client@2.4.1
+  - @kubb/plugin@2.4.1
   - @kubb/react@2.4.1
   - @kubb/parser@2.4.1
 
@@ -937,7 +937,7 @@
   - @kubb/parser@2.4.0
   - @kubb/react@2.4.0
   - @kubb/swagger@2.4.0
-  - @kubb/swagger-client@2.4.0
+  - @kubb/plugin@2.4.0
   - @kubb/swagger-ts@2.4.0
 
 ## 2.3.0
@@ -947,7 +947,7 @@
 - Updated dependencies [[`ec9c07d`](https://github.com/kubb-labs/kubb/commit/ec9c07d90eb3472f5d0030a1cbb746e0055b8ab8)]:
   - @kubb/swagger-ts@2.3.0
   - @kubb/parser@2.3.0
-  - @kubb/swagger-client@2.3.0
+  - @kubb/plugin@2.3.0
   - @kubb/core@2.3.0
   - @kubb/react@2.3.0
   - @kubb/swagger@2.3.0
@@ -961,7 +961,7 @@
   - @kubb/parser@2.2.1
   - @kubb/react@2.2.1
   - @kubb/swagger@2.2.1
-  - @kubb/swagger-client@2.2.1
+  - @kubb/plugin@2.2.1
   - @kubb/swagger-ts@2.2.1
 
 ## 2.2.0
@@ -971,7 +971,7 @@
 - Updated dependencies [[`2c20339`](https://github.com/kubb-labs/kubb/commit/2c20339cfac5c0789f6bf9086b6106feba4cbbde), [`9c17a9e`](https://github.com/kubb-labs/kubb/commit/9c17a9e1538961fe07f21e6999d4be2aedb896ea)]:
   - @kubb/swagger-ts@2.2.0
   - @kubb/swagger@2.2.0
-  - @kubb/swagger-client@2.2.0
+  - @kubb/plugin@2.2.0
   - @kubb/core@2.2.0
   - @kubb/parser@2.2.0
   - @kubb/react@2.2.0
@@ -985,7 +985,7 @@
   - @kubb/parser@2.1.6
   - @kubb/react@2.1.6
   - @kubb/swagger@2.1.6
-  - @kubb/swagger-client@2.1.6
+  - @kubb/plugin@2.1.6
   - @kubb/swagger-ts@2.1.6
 
 ## 2.1.5
@@ -997,7 +997,7 @@
   - @kubb/parser@2.1.5
   - @kubb/react@2.1.5
   - @kubb/swagger@2.1.5
-  - @kubb/swagger-client@2.1.5
+  - @kubb/plugin@2.1.5
   - @kubb/swagger-ts@2.1.5
 
 ## 2.1.4
@@ -1009,7 +1009,7 @@
   - @kubb/parser@2.1.4
   - @kubb/react@2.1.4
   - @kubb/swagger@2.1.4
-  - @kubb/swagger-client@2.1.4
+  - @kubb/plugin@2.1.4
   - @kubb/swagger-ts@2.1.4
 
 ## 2.1.3
@@ -1020,7 +1020,7 @@
   - @kubb/core@2.1.3
   - @kubb/react@2.1.3
   - @kubb/swagger@2.1.3
-  - @kubb/swagger-client@2.1.3
+  - @kubb/plugin@2.1.3
   - @kubb/swagger-ts@2.1.3
   - @kubb/parser@2.1.3
 
@@ -1033,7 +1033,7 @@
   - @kubb/parser@2.1.2
   - @kubb/react@2.1.2
   - @kubb/swagger@2.1.2
-  - @kubb/swagger-client@2.1.2
+  - @kubb/plugin@2.1.2
   - @kubb/swagger-ts@2.1.2
 
 ## 2.1.1
@@ -1045,7 +1045,7 @@
   - @kubb/parser@2.1.1
   - @kubb/react@2.1.1
   - @kubb/swagger@2.1.1
-  - @kubb/swagger-client@2.1.1
+  - @kubb/plugin@2.1.1
   - @kubb/swagger-ts@2.1.1
 
 ## 2.1.0
@@ -1057,7 +1057,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`c22433e`](https://github.com/kubb-labs/kubb/commit/c22433ec2c1b04527d72a6de44e524e580e2d876)]:
-  - @kubb/swagger-client@2.1.0
+  - @kubb/plugin@2.1.0
   - @kubb/swagger-ts@2.1.0
   - @kubb/parser@2.1.0
   - @kubb/core@2.1.0
@@ -1073,7 +1073,7 @@
   - @kubb/parser@2.0.6
   - @kubb/react@2.0.6
   - @kubb/swagger@2.0.6
-  - @kubb/swagger-client@2.0.6
+  - @kubb/plugin@2.0.6
   - @kubb/swagger-ts@2.0.6
 
 ## 2.0.5
@@ -1085,7 +1085,7 @@
   - @kubb/parser@2.0.5
   - @kubb/react@2.0.5
   - @kubb/swagger@2.0.5
-  - @kubb/swagger-client@2.0.5
+  - @kubb/plugin@2.0.5
   - @kubb/swagger-ts@2.0.5
 
 ## 2.0.4
@@ -1099,7 +1099,7 @@
   - @kubb/parser@2.0.3
   - @kubb/react@2.0.3
   - @kubb/swagger@2.0.3
-  - @kubb/swagger-client@2.0.3
+  - @kubb/plugin@2.0.3
   - @kubb/swagger-ts@2.0.3
 
 ## 2.0.2
@@ -1109,7 +1109,7 @@
 - [#720](https://github.com/kubb-labs/kubb/pull/720) [`787365b`](https://github.com/kubb-labs/kubb/commit/787365b32d1c48fb270445ce2d4d438213e7b0e4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `dataReturnType` to set res.data or res
 
 - Updated dependencies [[`787365b`](https://github.com/kubb-labs/kubb/commit/787365b32d1c48fb270445ce2d4d438213e7b0e4)]:
-  - @kubb/swagger-client@2.0.2
+  - @kubb/plugin@2.0.2
   - @kubb/core@2.0.2
   - @kubb/parser@2.0.2
   - @kubb/react@2.0.2
@@ -1122,7 +1122,7 @@
 
 - Updated dependencies [[`37bd469`](https://github.com/kubb-labs/kubb/commit/37bd469acbe1b80b9602621c8c128b1b0d456d21)]:
   - @kubb/swagger-ts@2.0.1
-  - @kubb/swagger-client@2.0.1
+  - @kubb/plugin@2.0.1
   - @kubb/core@2.0.1
   - @kubb/parser@2.0.1
   - @kubb/react@2.0.1
@@ -1153,7 +1153,7 @@
 - [#707](https://github.com/kubb-labs/kubb/pull/707) [`9607c78`](https://github.com/kubb-labs/kubb/commit/9607c7816c275e246bd1f4b2208655eb9b9c9db8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - disable a specific template with passing `false`
 
 - Updated dependencies [[`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354), [`955f8ed`](https://github.com/kubb-labs/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b), [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51), [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51), [`48b7ff2`](https://github.com/kubb-labs/kubb/commit/48b7ff246a3459bb7a9be6d430407c2538d3b2eb), [`8044907`](https://github.com/kubb-labs/kubb/commit/8044907f560f1e9a6120df259568b9213a4f1e4a), [`6348057`](https://github.com/kubb-labs/kubb/commit/634805723409381eace8e68fd5f2eab6f737dd7a), [`210d58f`](https://github.com/kubb-labs/kubb/commit/210d58fd1fcc1e8d84f38fdfabbb59630a7394b5), [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354), [`48b7ff2`](https://github.com/kubb-labs/kubb/commit/48b7ff246a3459bb7a9be6d430407c2538d3b2eb), [`955f8ed`](https://github.com/kubb-labs/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b), [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51), [`955f8ed`](https://github.com/kubb-labs/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b), [`e17bc7c`](https://github.com/kubb-labs/kubb/commit/e17bc7ccfb91aeab52488e847356890464aa6166), [`9607c78`](https://github.com/kubb-labs/kubb/commit/9607c7816c275e246bd1f4b2208655eb9b9c9db8)]:
-  - @kubb/swagger-client@2.0.0
+  - @kubb/plugin@2.0.0
   - @kubb/swagger@2.0.0
   - @kubb/core@2.0.0
   - @kubb/parser@2.0.0

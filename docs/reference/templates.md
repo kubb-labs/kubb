@@ -13,7 +13,7 @@ You need version `2.x.x` or higher to use templates.
 
 ## What are templates?
 
-With templates, you can easily override/change the generated output of a specific plugin. Let's say you want to use `fetch` instead of `axios`, instead of forking the `@kubb/swagger-client` you can use templates. <br/>
+With templates, you can easily override/change the generated output of a specific plugin. Let's say you want to use `fetch` instead of `axios`, instead of forking the `@kubb/plugin-client` you can use templates. <br/>
 
 In the background, templates will use `React/JSX` as the template engine. See [@kubb/react](/plugins/react/) to find out which intern components and hooks we provide.
 

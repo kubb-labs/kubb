@@ -68,9 +68,9 @@ export type Options = {
     /**
      * Path to the client import path that will be used to do the API calls.
      * It will be used as `import client from '${client.importPath}'`.
-     * It allow both relative and absolute path.
-     * the path will be applied as is, so relative path shoule be based on the file being generated.
-     * @default '@kubb/swagger-client/client'
+     * It allows both relative and absolute path.
+     * the path will be applied as is, so relative path should be based on the file being generated.
+     * @default '@kubb/plugin-client/client'
      */
     importPath?: string
   }
@@ -123,6 +123,6 @@ export type PluginClient = PluginFactoryOptions<'plugin-client', Options, Resolv
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-client']: PluginClient
+    ['@kubb/plugin-client']: PluginClient
   }
 }

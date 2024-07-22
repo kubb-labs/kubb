@@ -42,7 +42,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: {
@@ -71,7 +71,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: {
@@ -100,7 +100,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: false,
@@ -126,7 +126,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: {
@@ -153,7 +153,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: false,
@@ -180,7 +180,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: {
@@ -207,7 +207,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         query: {
@@ -234,7 +234,7 @@ describe('OperationGenerator', async () => {
           queryOptions: QueryOptions.templates,
         },
         client: {
-          importPath: '@kubb/swagger-client/client',
+          importPath: '@kubb/plugin-client/client',
         },
         parser: undefined,
         mutate: {

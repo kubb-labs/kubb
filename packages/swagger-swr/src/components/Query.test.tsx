@@ -37,7 +37,7 @@ describe('<Query/>', async () => {
       queryOptions: QueryOptions.templates,
     },
     client: {
-      importPath: '@kubb/swagger-client/client',
+      importPath: '@kubb/plugin-client/client',
     },
     parser: undefined,
   }

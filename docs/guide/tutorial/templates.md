@@ -7,7 +7,7 @@ outline: deep
 
 # Templates tutorial
 
-This tutorial will describe how you can setup Kubb and use our `Swagger-client` plugin to generate a client based on Swagger/OpenAPI file.
+This tutorial will describe how you can setup Kubb and use our `plugin-client` plugin to generate a client based on Swagger/OpenAPI file.
 More info about how templates are working behind the scenes can be found [here](/reference/templates).
 
 <hr/>
@@ -23,8 +23,8 @@ The setup will contain from the beginning the following folder structure:
 
 ::: code-group
 
-```typescript twoslash [@kubb/swagger-client/types]
-import { Client, Operations } from '@kubb/swagger-client/components'
+```typescript twoslash [@kubb/plugin-client/types]
+import { Client, Operations } from '@kubb/plugin-client/components'
 
 type Templates = {
   operations: typeof Operations.templates
@@ -44,7 +44,7 @@ export type Options = {
 
 ## Step one
 
-Create a React component that will be used to override the default behavior of the generated client(`@kubb/swagger-client`).<br/>
+Create a React component that will be used to override the default behavior of the generated client(`@kubb/plugin`).<br/>
 In this React component we want to return a function `export function addPet()` that will call Axios. To do that we add a `Function` component and as children we provide the following snippet:
 ```typescript
  {`return axios.${client.method}(${clientParams}`}
@@ -58,7 +58,7 @@ We also want to import `axios`, to do that we can use `File.Import`. Next to tha
 import React from 'react'
 
 import { File, Function } from '@kubb/react'
-import { Client } from '@kubb/swagger-client/components'
+import { Client } from '@kubb/plugin-client/components'
 
 function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
   const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
@@ -91,10 +91,10 @@ See [examples/python](/examples/python) for an example on how you can do that.
 import React from 'react'
 
 import { File, Function } from '@kubb/react'
-import { Client } from '@kubb/swagger-client/components'
+import { Client } from '@kubb/plugin-client/components'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
   const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
@@ -182,9 +182,9 @@ The end result of a generated client based on the custom template.
 See [examples/react-query-v5](/examples/tanstack-query/react-query-v5) or [examples/python](/examples/python) for are more in depth example.
 :::
 ```typescript
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import axios from 'axios'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/plugin/client'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
 
 /**

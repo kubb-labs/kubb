@@ -43,7 +43,7 @@ features:
   - icon:
       src: ./feature/axios.svg
     title: Axios
-    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/swagger-client/">Learn more</a></div>
+    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/plugin/">Learn more</a></div>
   - icon:
       src: ./feature/msw.svg
     title: MSW <span class="new">v2 support</span>

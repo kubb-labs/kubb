@@ -220,7 +220,7 @@ export function Client({ baseURL, Template = defaultTemplates.default }: ClientP
       }}
       client={{
         // only set baseURL from serverIndex(swagger) when no custom client(default) is used
-        baseURL: client.importPath === '@kubb/swagger-client/client' ? baseURL : undefined,
+        baseURL: client.importPath === '@kubb/plugin-client/client' ? baseURL : undefined,
         generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
         dataReturnType,
         withQueryParams: !!schemas.queryParams?.name,

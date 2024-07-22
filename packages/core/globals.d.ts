@@ -30,7 +30,7 @@ declare namespace Kubb {
   type Plugins = {
     ['@kubb/plugin-oas']: import('@kubb/plugin-Oas').PluginOas
     ['@kubb/plugin-redoc']: import('@kubb/plugin-redoc').PluginRedoc
-    ['@kubb/swagger-client']: import('@kubb/swagger-client').PluginClient
+    ['@kubb/plugin-client']: import('@kubb/plugin-client').PluginClient
     ['@kubb/swagger-faker']: import('@kubb/swagger-faker').PluginFaker
     ['@kubb/swagger-swr']: import('@kubb/swagger-swr').PluginSwr
     ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginTanstackQuery

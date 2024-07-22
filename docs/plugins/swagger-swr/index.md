@@ -182,7 +182,7 @@ so relative path shoule be based on the file being generated.
 ::: info
 
 Type: `string` <br/>
-Default: `'@kubb/swagger-client/client'`
+Default: `'@kubb/plugin/client'`
 
 ```typescript twoslash
 import { pluginSwr } from '@kubb/swagger-swr'

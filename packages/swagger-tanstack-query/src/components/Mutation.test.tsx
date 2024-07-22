@@ -46,7 +46,7 @@ describe('<Mutation/>', async () => {
         mutation: Mutation.templates,
       },
       client: {
-        importPath: '@kubb/swagger-client/client',
+        importPath: '@kubb/plugin-client/client',
       },
       parser: undefined,
       query: false,
@@ -99,7 +99,7 @@ describe('<Mutation/>', async () => {
         mutation: Mutation.templates,
       },
       client: {
-        importPath: '@kubb/swagger-client/client',
+        importPath: '@kubb/plugin-client/client',
       },
       parser: undefined,
       query: false,

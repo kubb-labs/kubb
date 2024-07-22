@@ -1,5 +1,5 @@
 import { Parser, File } from '@kubb/react'
-import type { Client } from '@kubb/swagger-client/components'
+import type { Client } from '@kubb/plugin/components'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
 

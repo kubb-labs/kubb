@@ -34,7 +34,7 @@
     "@kubb/plugin-redoc": "2.23.3",
     "@kubb/react": "2.23.3",
     "@kubb/swagger": "2.23.3",
-    "@kubb/swagger-client": "2.23.3",
+    "@kubb/plugin-client": "2.23.3",
     "@kubb/swagger-faker": "2.23.3",
     "@kubb/swagger-msw": "2.23.3",
     "@kubb/swagger-swr": "2.23.3",

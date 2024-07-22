@@ -46,7 +46,7 @@ describe('<Query/>', async () => {
       queryImports: QueryImports.templates,
     },
     client: {
-      importPath: '@kubb/swagger-client/client',
+      importPath: '@kubb/plugin-client/client',
     },
     parser: undefined,
     query: {

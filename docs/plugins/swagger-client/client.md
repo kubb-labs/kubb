@@ -14,14 +14,14 @@ outline: deep
 
 ### Default `client`
 
-By default, `@kubb/swagger-client/client` is getting used as the [`client`](/plugins/swagger-client/client#default-client).
+By default, `@kubb/plugin-client/client` is getting used as the [`client`](/plugins/plugin/client#default-client).
 
 ::: code-group
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig(() => {
   return {
@@ -105,14 +105,14 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 Create your own implementation of the `client`.
 Handy when you want for example to use `fetch` instead of `axios`.
 
-You can start by using a copy-paste of `@kubb/swagger-client/client`.
+You can start by using a copy-paste of `@kubb/plugin-client/client`.
 
 ::: code-group
 
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig(() => {
   return {
@@ -133,7 +133,7 @@ export default defineConfig(() => {
           path: './clients/axios', // [!code ++]
         }, // [!code ++]
         client: { // [!code ++]
-          importPath: '@kubb/swagger-client/client', // [!code ++]
+          importPath: '@kubb/plugin-client/client', // [!code ++]
         }, // [!code ++]
       }),
     ],
@@ -199,7 +199,7 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 
 ### Default `client` with `process.env`
 
-Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger-client/client.ts)
+Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin/client.ts)
 
 ```typescript
 import axios from 'axios'
@@ -237,7 +237,7 @@ export default axiosClient
 
 ### Default `client` with `declare const`
 
-Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger-client/client.ts)
+Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin/client.ts)
 
 ```typescript
 import axios from 'axios'

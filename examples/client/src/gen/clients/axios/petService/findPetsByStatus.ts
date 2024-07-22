@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
 
 /**
@@ -14,7 +14,7 @@ export async function findPetsByStatus(
   const res = await client<FindPetsByStatusQueryResponse>({
     method: 'get',
     url: '/pet/findByStatus',
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     ...options,
   })

@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type {

@@ -35,7 +35,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     options: {
       dataReturnType,
       client: {
-        importPath: '@kubb/swagger-client/client',
+        importPath: '@kubb/plugin-client/client',
         ...options.client,
       },
       pathParamsType,

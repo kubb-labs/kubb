@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -29,7 +29,7 @@ export async function uploadFile(
   const res = await client<UploadFileMutationResponse, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data', ...options.headers },

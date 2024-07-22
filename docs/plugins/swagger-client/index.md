@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-client
+title: \@kubb/plugin-client
 outline: deep
 ---
 
-# @kubb/swagger-client <a href="https://paka.dev/npm/@kubb/swagger-client@latest/api">🦙</a>
+# @kubb/plugin-client <a href="https://paka.dev/npm/@kubb/plugin-client@latest/api">🦙</a>
 
 With the Swagger client plugin you can create [Axios](https://axios-http.com/docs/intro) API calls.
 
@@ -14,19 +14,19 @@ With the Swagger client plugin you can create [Axios](https://axios-http.com/doc
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
 ```
 
 :::
@@ -43,7 +43,7 @@ Type: `string` <br/>
 Default: `'clients'`
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   output: {
@@ -61,7 +61,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   output: {
@@ -80,7 +80,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   output: {
@@ -99,7 +99,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   output: {
@@ -153,7 +153,7 @@ Default: `'{{tag}}Service'`
 ::: code-group
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   output: {
@@ -175,10 +175,10 @@ so relative path shoule be based on the file being generated.
 
 ::: info
 Type: `string` <br/>
-Default: `'@kubb/swagger-client/client'`
+Default: `'@kubb/plugin-client/client'`
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   client: {
@@ -223,7 +223,7 @@ Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   dataReturnType: 'data'
@@ -266,7 +266,7 @@ Type: `'object' | 'inline'` <br/>
 Default: `'data'`
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   pathParamsType: 'object',
@@ -294,7 +294,7 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   include: [
@@ -327,7 +327,7 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   exclude: [
@@ -361,7 +361,7 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   override: [
@@ -388,7 +388,7 @@ Override the name of the client that is getting generated, this will also overri
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   transformers: {
@@ -412,7 +412,7 @@ Set `false` to disable a template.
 ::: info TYPE
 
 ```typescript [Templates]
-import type { Client, Operations } from '@kubb/swagger-client/components'
+import type { Client, Operations } from '@kubb/plugin/components'
 
 export type Templates = {
   operations?: typeof Operations.templates | false
@@ -427,9 +427,9 @@ export type Templates = {
 Type: `Templates` <br/>
 
 ```tsx twoslash
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 import { Parser, File, Function } from '@kubb/react'
-import { Client } from '@kubb/swagger-client/components'
+import { Client } from '@kubb/plugin/components'
 import React from 'react'
 
 export const templates = {
@@ -462,7 +462,7 @@ const plugin = pluginClient({
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
-import { pluginClient } from '@kubb/swagger-client'
+import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
   input: {

@@ -1,6 +1,6 @@
-import type client from '@kubb/swagger-client/client'
+import type client from '@kubb/plugin-client/client'
 import axios from 'axios'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
 
 /**

@@ -11,7 +11,7 @@
 "@kubb/plugin-oas": major
 "@kubb/plugin-redoc": major
 "@kubb/react": major
-"@kubb/swagger-client": major
+"@kubb/plugin": major
 "@kubb/swagger-faker": major
 "@kubb/swagger-msw": major
 "@kubb/swagger-swr": major

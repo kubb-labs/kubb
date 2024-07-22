@@ -1,4 +1,4 @@
-# @kubb/swagger-client
+# @kubb/plugin-client
 
 ## 2.23.3
 

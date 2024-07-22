@@ -29,7 +29,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:^",
-    "@kubb/swagger-client": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-msw": "workspace:*",
     "@kubb/swagger-swr": "workspace:*",

@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser'
 

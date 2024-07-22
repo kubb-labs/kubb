@@ -15,7 +15,7 @@ describe('OperationGenerator', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-client/mocks/petStore.yaml' },
   })
 
   test('[GET] should generate with pathParamsType `inline`', async () => {
@@ -27,9 +27,9 @@ describe('OperationGenerator', async () => {
         client: Client.templates,
       },
       client: {
-        importPath: '@kubb/swagger-client/client',
+        importPath: '@kubb/plugin-client/client',
       },
-      baseURL: ''
+      baseURL: '',
     }
 
     const og = await new OperationGenerator(options, {
@@ -57,9 +57,9 @@ describe('OperationGenerator', async () => {
         client: Client.templates,
       },
       client: {
-        importPath: '@kubb/swagger-client/client',
+        importPath: '@kubb/plugin-client/client',
       },
-      baseURL: ''
+      baseURL: '',
     }
 
     const og = await new OperationGenerator(options, {
@@ -90,9 +90,9 @@ describe('OperationGenerator', async () => {
         },
       },
       client: {
-        importPath: '@kubb/swagger-client/client',
+        importPath: '@kubb/plugin-client/client',
       },
-      baseURL: ''
+      baseURL: '',
     }
 
     const og = await new OperationGenerator(options, {
