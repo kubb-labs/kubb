@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/swagger-client/client'
 import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type {
   UpdatePetWithFormMutationResponse,
