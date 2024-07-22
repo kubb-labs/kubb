@@ -1,5 +1,24 @@
 # @kubb/swagger-swr
 
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- [`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of swagger package in favour of @kubb/plugin-oas
+
+### Patch Changes
+
+- Updated dependencies [[`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4)]:
+  - @kubb/core@3.0.0-alpha.0
+  - @kubb/fs@3.0.0-alpha.0
+  - @kubb/oas@3.0.0-alpha.0
+  - @kubb/parser-ts@3.0.0-alpha.0
+  - @kubb/plugin-oas@3.0.0-alpha.0
+  - @kubb/react@3.0.0-alpha.0
+  - @kubb/swagger-client@3.0.0-alpha.0
+  - @kubb/swagger-ts@3.0.0-alpha.0
+  - @kubb/swagger-zod@3.0.0-alpha.0
+
 ## 2.23.3
 
 ### Patch Changes

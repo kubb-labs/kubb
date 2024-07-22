@@ -1,5 +1,11 @@
 # @kubb/fs
 
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- [`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of swagger package in favour of @kubb/plugin-oas
+
 ## 2.23.3
 
 ## 2.23.2

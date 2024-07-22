@@ -45,5 +45,7 @@
     "@kubb/types": "2.23.3",
     "unplugin-kubb": "0.1.68"
   },
-  "changesets": []
+  "changesets": [
+    "unlucky-rockets-own"
+  ]
 }
