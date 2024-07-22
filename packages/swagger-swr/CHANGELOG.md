@@ -1,5 +1,20 @@
 # @kubb/swagger-swr
 
+## 2.23.3
+
+### Patch Changes
+
+- Updated dependencies [[`07aa132`](https://github.com/kubb-labs/kubb/commit/07aa132a165e6ead09bfcdd81ee686ed3e0ff3c9)]:
+  - @kubb/swagger-client@2.23.3
+  - @kubb/core@2.23.3
+  - @kubb/fs@2.23.3
+  - @kubb/oas@2.23.3
+  - @kubb/parser-ts@2.23.3
+  - @kubb/plugin-oas@2.23.3
+  - @kubb/react@2.23.3
+  - @kubb/swagger-ts@2.23.3
+  - @kubb/swagger-zod@2.23.3
+
 ## 2.23.2
 
 ### Patch Changes
