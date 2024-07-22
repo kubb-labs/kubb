@@ -16,7 +16,6 @@
       "@kubb/plugin-oas/utils": ["packages/plugin-oas/src/utils/index.ts"],
       "@kubb/plugin-oas/components": ["packages/plugin-oas/src/components/index.ts"],
       "@kubb/plugin-oas": ["packages/plugin-oas/src/index.ts"],
-      "@kubb/swagger": ["packages/swagger/src/index.ts"],
       "@kubb/swagger-ts/hooks": ["packages/swagger-ts/src/hooks/index.ts"],
       "@kubb/swagger-ts": ["packages/swagger-ts/src/index.ts"],
       "@kubb/react/jsx-runtime": ["packages/react/src/jsx-runtime.ts"],

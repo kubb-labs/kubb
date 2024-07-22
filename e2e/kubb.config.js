@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import pluginSwagger from '@kubb/swagger'
+import pluginSwagger from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/swagger-client'
 import { pluginFaker } from '@kubb/swagger-faker'
 import { pluginMsw } from '@kubb/swagger-msw'
