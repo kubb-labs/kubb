@@ -252,6 +252,8 @@ export const flyHttpOptionsSchema = z.object({
 
 export const flyHttpResponseOptionsSchema = z.object({ headers: z.object({}).catchall(z.object({})).optional(), pristine: z.boolean().optional() })
 
+export const flyMachineAutostopSchema = z.union([z.literal(0), z.literal(1), z.literal(2)])
+
 /**
  * @description An optional object that defines one or more named checks. The key for each check is the check name.
  */
@@ -425,7 +427,7 @@ export const flyMachineSecretSchema = z
 
 export const flyMachineServiceSchema = z.object({
   autostart: z.boolean().optional(),
-  autostop: z.boolean().optional(),
+  autostop: z.lazy(() => flyMachineAutostopSchema).optional(),
   checks: z.array(z.lazy(() => flyMachineCheckSchema)).optional(),
   concurrency: z.lazy(() => flyMachineServiceConcurrencySchema).optional(),
   force_instance_description: z.string().optional(),
@@ -800,7 +802,7 @@ export const machinesWaitPathParamsSchema = z.object({ app_name: z.string().desc
 
 export const machinesWaitQueryParamsSchema = z
   .object({
-    instance_id: z.string().describe('instance? version? TODO').optional(),
+    instance_id: z.string().describe('26-character Machine version ID').optional(),
     timeout: z.number().describe('wait timeout. default 60s').optional(),
     state: z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state').optional(),
   })

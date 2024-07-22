@@ -47,11 +47,12 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
+      const baseURL = await swaggerPlugin.api.getBaseURL()
 
       const operationGenerator = new OperationGenerator(
         {
           name: trimExtName(output.path),
-          baseURL: await swaggerPlugin.api.getBaseURL(),
+          baseURL,
         },
         {
           oas,

@@ -29,6 +29,7 @@ describe('OperationGenerator', async () => {
       client: {
         importPath: '@kubb/swagger-client/client',
       },
+      baseURL: ''
     }
 
     const og = await new OperationGenerator(options, {
@@ -58,6 +59,7 @@ describe('OperationGenerator', async () => {
       client: {
         importPath: '@kubb/swagger-client/client',
       },
+      baseURL: ''
     }
 
     const og = await new OperationGenerator(options, {
@@ -90,6 +92,7 @@ describe('OperationGenerator', async () => {
       client: {
         importPath: '@kubb/swagger-client/client',
       },
+      baseURL: ''
     }
 
     const og = await new OperationGenerator(options, {

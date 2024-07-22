@@ -25,7 +25,7 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas} operations={operations} generator={this}>
-          {templates.operations && <Operations.File templates={templates.operations} />}
+          {templates.operations && <Operations.File baseURL={this.options.baseURL} templates={templates.operations} />}
         </Oas>
       </App>,
     )
@@ -54,7 +54,7 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
         <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
-            <Client.File templates={templates.client} />
+            <Client.File baseURL={this.options.baseURL} templates={templates.client} />
           </Oas.Operation>
         </Oas>
       </App>,

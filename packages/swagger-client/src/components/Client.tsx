@@ -34,6 +34,7 @@ type TemplateProps = {
     comments: string[]
   }
   client: {
+    baseURL: string | undefined
     generics: string | string[]
     method: HttpMethod
     path: URLPath
@@ -65,6 +66,12 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
           type: 'string',
           value: client.path.template,
         },
+        baseURL: client.baseURL
+          ? {
+              type: 'string',
+              value: JSON.stringify(client.baseURL),
+            }
+          : undefined,
         params: client.withQueryParams
           ? {
               type: 'any',
@@ -155,16 +162,17 @@ const defaultTemplates = { default: Template, root: RootTemplate } as const
 type Templates = Partial<typeof defaultTemplates>
 
 type ClientProps = {
+  baseURL: string | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Client({ Template = defaultTemplates.default }: ClientProps): KubbNode {
+export function Client({ baseURL, Template = defaultTemplates.default }: ClientProps): KubbNode {
   const {
     plugin: {
-      options: { dataReturnType, pathParamsType },
+      options: { client, dataReturnType, pathParamsType },
     },
   } = useApp<PluginClient>()
 
@@ -211,6 +219,8 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
         comments: getComments(operation),
       }}
       client={{
+        // only set baseURL from serverIndex(swagger) when no custom client(default) is used
+        baseURL: client.importPath === '@kubb/swagger-client/client' ? baseURL : undefined,
         generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
         dataReturnType,
         withQueryParams: !!schemas.queryParams?.name,
@@ -225,13 +235,14 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
 }
 
 type FileProps = {
+  baseURL: string | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: Templates
 }
 
-Client.File = function (props: FileProps): KubbNode {
+Client.File = function ({ baseURL, ...props }: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
@@ -239,7 +250,7 @@ Client.File = function (props: FileProps): KubbNode {
 
   return (
     <RootTemplate>
-      <Client Template={Template} />
+      <Client baseURL={baseURL} Template={Template} />
     </RootTemplate>
   )
 }

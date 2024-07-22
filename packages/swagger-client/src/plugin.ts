@@ -44,6 +44,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         client: Client.templates,
         ...templates,
       },
+      baseURL: undefined,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
@@ -88,17 +89,24 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
+      const baseURL = await swaggerPlugin.api.getBaseURL()
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
-        oas,
-        pluginManager: this.pluginManager,
-        plugin: this.plugin,
-        contentType: swaggerPlugin.api.contentType,
-        exclude,
-        include,
-        override,
-        mode,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          ...this.plugin.options,
+          baseURL,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          plugin: this.plugin,
+          contentType: swaggerPlugin.api.contentType,
+          exclude,
+          include,
+          override,
+          mode,
+        },
+      )
 
       const files = await operationGenerator.build()
 

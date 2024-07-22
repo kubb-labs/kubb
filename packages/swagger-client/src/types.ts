@@ -107,6 +107,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  baseURL: string | undefined
   client: Required<NonNullable<Options['client']>>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
