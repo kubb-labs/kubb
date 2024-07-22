@@ -74,10 +74,10 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
   entries.forEach(([key, entryItem]) => {
     if (entryItem) {
       if (options.type === 'call') {
-        names.push(...parseItem(camelCase(key), { ...entryItem, type: undefined }))
+        names.push(...parseItem(key, { ...entryItem, type: undefined }))
       } else {
         names.push(
-          ...parseItem(camelCase(key), {
+          ...parseItem(key, {
             ...entryItem,
             type: undefined,
             value: undefined,
@@ -86,7 +86,7 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
       }
 
       if (entries.some(([_key, item]) => item?.type)) {
-        types.push(...parseItem(camelCase(key), { ...entryItem, default: undefined }))
+        types.push(...parseItem(key, { ...entryItem, default: undefined }))
       }
     }
   })

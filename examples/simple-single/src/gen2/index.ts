@@ -202,6 +202,8 @@ export const volumeSnapshotSchema = z.object({
 
 export const flyDnsConfigSchema = z.object({
   dns_forward_rules: z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(),
+  hostname: z.string().optional(),
+  hostname_fqdn: z.string().optional(),
   nameservers: z.array(z.string()).optional(),
   options: z.array(z.lazy(() => flyDnsOptionSchema)).optional(),
   searches: z.array(z.string()).optional(),

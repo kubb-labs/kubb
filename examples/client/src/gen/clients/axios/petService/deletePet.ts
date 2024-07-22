@@ -15,7 +15,7 @@ export async function deletePet(
   const res = await client<DeletePetMutationResponse>({
     method: 'delete',
     url: `/pet/${petId}`,
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     headers: { ...headers, ...options.headers },
     ...options,
   })

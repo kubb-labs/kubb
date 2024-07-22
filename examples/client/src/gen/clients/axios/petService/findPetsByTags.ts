@@ -14,7 +14,7 @@ export async function findPetsByTags(
   const res = await client<FindPetsByTagsQueryResponse>({
     method: 'get',
     url: '/pet/findByTags',
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     ...options,
   })

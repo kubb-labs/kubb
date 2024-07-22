@@ -14,7 +14,7 @@ export async function addPet(
   const res = await client<AddPetMutationResponse, AddPetMutationRequest>({
     method: 'post',
     url: '/pet',
-    baseUrl: 'https://petstore3.swagger.io/api/v3',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...options,
   })

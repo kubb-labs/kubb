@@ -4,6 +4,7 @@ import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '@kubb/oas'
 import type { Params } from '@kubb/react'
 import type { OperationSchema } from '../types.ts'
+import { camelCase } from '@kubb/core/transformers'
 /**
  *
  * @deprecated
@@ -45,7 +46,7 @@ export function getPathParams(
 ) {
   return getASTParams(operationSchema, options).reduce((acc, curr) => {
     if (curr.name && curr.enabled) {
-      acc[curr.name] = {
+      acc[camelCase(curr.name)] = {
         default: curr.default,
         type: curr.type,
         optional: !curr.required,
