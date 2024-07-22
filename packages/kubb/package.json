@@ -49,8 +49,8 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/node": "^20.14.10",
-    "tsup": "^8.1.0",
+    "@types/node": "^20.14.11",
+    "tsup": "^8.2.2",
     "typescript": "^5.5.3"
   },
   "engines": {

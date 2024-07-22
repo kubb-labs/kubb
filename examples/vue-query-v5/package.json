@@ -29,15 +29,15 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.51.1",
+    "@tanstack/vue-query": "^5.51.9",
     "axios": "^1.7.2",
     "unplugin-kubb": "workspace:*",
-    "vue": "^3.4.31"
+    "vue": "^3.4.33"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.6.2",
     "msw": "^1.3.3",
-    "tsup": "^8.1.0",
+    "tsup": "^8.2.2",
     "typescript": "~5.2.2",
     "vite": "^5.3.4"
   },

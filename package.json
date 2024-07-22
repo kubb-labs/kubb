@@ -55,16 +55,16 @@
     "@changesets/cli": "^2.27.7",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.14.10",
-    "@vitest/coverage-v8": "^2.0.3",
-    "@vitest/ui": "^2.0.3",
+    "@types/node": "^20.14.11",
+    "@vitest/coverage-v8": "^2.0.4",
+    "@vitest/ui": "^2.0.4",
     "bun-types": "^1.1.20",
     "rimraf": "^5.0.9",
     "ts-node": "^10.9.2",
-    "turbo": "^2.0.6",
+    "turbo": "^2.0.9",
     "typescript": "^5.5.3",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.4"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
