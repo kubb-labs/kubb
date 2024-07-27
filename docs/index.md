@@ -52,7 +52,7 @@ features:
       src: ./feature/zod.svg
       height: 24
     title: Zod
-    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/swagger-zod">Learn more</a></div>
+    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/plugin-zod">Learn more</a></div>
   - icon:
       src: ./feature/zodios.svg
     title: Zodios

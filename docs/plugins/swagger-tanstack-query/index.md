@@ -254,7 +254,7 @@ const plugin = pluginTanstackQuery({
 
 Which parser can be used before returning the data to `@tanstack/query`.
 
-`'zod'` will use `@kubb/swagger-zod` to parse the data. <br/>
+`'zod'` will use `@kubb/plugin-zod` to parse the data. <br/>
 
 ::: info TYPE
 

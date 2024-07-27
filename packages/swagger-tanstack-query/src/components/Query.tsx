@@ -3,7 +3,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
-import { pluginZodName } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/plugin-zod'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
 

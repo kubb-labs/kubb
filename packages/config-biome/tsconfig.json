@@ -27,7 +27,7 @@
       "path": "../swagger-ts"
     },
     {
-      "path": "../swagger-zod"
+      "path": "../plugin-zod"
     },
     {
       "path": "../plugin-zodios"

@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas, schemaKeywords } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig(async () => {
   await setTimeout(() => {

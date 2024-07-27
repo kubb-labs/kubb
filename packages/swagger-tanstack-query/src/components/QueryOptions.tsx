@@ -4,7 +4,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
 import { Function, useApp } from '@kubb/react'
-import { pluginZodName } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/plugin-zod'
 
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'

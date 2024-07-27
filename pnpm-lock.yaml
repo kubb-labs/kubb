@@ -107,9 +107,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../packages/swagger-zod
+        version: link:../packages/plugin-zod
       '@kubb/plugin-zodios':
         specifier: workspace:*
         version: link:../packages/plugin-zodios
@@ -164,9 +164,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../packages/swagger-zod
+        version: link:../packages/plugin-zod
       '@kubb/plugin-zodios':
         specifier: workspace:*
         version: link:../packages/plugin-zodios
@@ -255,9 +255,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@kubb/plugin-zodios':
         specifier: workspace:*
         version: link:../../packages/plugin-zodios
@@ -674,9 +674,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@tanstack/react-query':
         specifier: ^4.36.1
         version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -713,9 +713,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
         specifier: ^4.36.1
         version: 4.36.1(solid-js@1.8.19)
@@ -753,9 +753,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@tanstack/svelte-query':
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
@@ -793,9 +793,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -854,9 +854,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
         specifier: ^4.37.1
         version: 4.37.1(vue@3.4.34(typescript@5.2.2))
@@ -903,9 +903,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
         specifier: ^5.51.15
         version: 5.51.15(vue@3.4.34(typescript@5.2.2))
@@ -952,9 +952,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -986,9 +986,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../../packages/swagger-zod
+        version: link:../../packages/plugin-zod
       '@kubb/plugin-zodios':
         specifier: workspace:*
         version: link:../../packages/plugin-zodios
@@ -1665,9 +1665,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../swagger-zod
+        version: link:../plugin-zod
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*
@@ -1717,9 +1717,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../swagger-zod
+        version: link:../plugin-zod
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*
@@ -1789,7 +1789,7 @@ importers:
         specifier: ^8.2.3
         version: 8.2.3(@microsoft/api-extractor@7.47.4(@types/node@20.14.12))(jiti@1.21.6)(postcss@8.4.39)(typescript@5.5.4)(yaml@2.4.5)
 
-  packages/swagger-zod:
+  packages/plugin-zod:
     dependencies:
       '@kubb/core':
         specifier: workspace:*
@@ -1858,9 +1858,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/swagger-zod':
+      '@kubb/plugin-zod':
         specifier: workspace:*
-        version: link:../swagger-zod
+        version: link:../plugin-zod
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*

@@ -145,6 +145,6 @@ export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOpti
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-zod']: PluginZod
+    ['@kubb/plugin-zod']: PluginZod
   }
 }

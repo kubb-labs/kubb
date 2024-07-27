@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-zod
+title: \@kubb/plugin-zod
 outline: deep
 ---
 
-# @kubb/swagger-zod <a href="https://paka.dev/npm/@kubb/swagger-zod@latest/api">🦙</a>
+# @kubb/plugin-zod <a href="https://paka.dev/npm/@kubb/plugin-zod@latest/api">🦙</a>
 
 With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's based on a Swagger file.
 
@@ -14,19 +14,19 @@ With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-zod @kubb/swagger
+bun add @kubb/plugin-zod @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-zod @kubb/swagger
+pnpm add @kubb/plugin-zod @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-zod @kubb/swagger
+npm install @kubb/plugin-zod @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-zod @kubb/swagger
+yarn add @kubb/plugin-zod @kubb/swagger
 ```
 
 :::
@@ -43,7 +43,7 @@ Type: `string` <br/>
 Default: `'zod'`
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   output: {
@@ -60,7 +60,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   output: {
@@ -79,7 +79,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   output: {
@@ -98,7 +98,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   output: {
@@ -151,7 +151,7 @@ Default: `'{{tag}}Schemas'`
 ::: info
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   output: {
@@ -171,7 +171,7 @@ Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
 Type: `boolean` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   typed: true,
@@ -188,7 +188,7 @@ Return Zod generated schema as type with z.infer.
 Type: `boolean` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   typedSchema: true,
@@ -232,7 +232,7 @@ Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
 Default: `'string'`
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   dateType: 'string',
@@ -287,7 +287,7 @@ Type: `boolean` <br/>
 Default: `false`
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   coercion: true
@@ -315,7 +315,7 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   include: [
@@ -348,7 +348,7 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   exclude: [
@@ -382,7 +382,7 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   override: [
@@ -410,7 +410,7 @@ Override the name of the Zod schema that is getting generated, this will also ov
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
   transformers: {
@@ -433,7 +433,7 @@ Type: `string` <br/>
 Default: `'zod'`
 
 ```typescript twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
  importPath: 'zod'
@@ -455,7 +455,7 @@ Set `false` to disable a template.
 ::: info TYPE
 
 ```typescript [Templates]
-import type { Operations } from '@kubb/swagger-zod/components'
+import type { Operations } from '@kubb/plugin-zod/components'
 
 export type Templates = {
   operations: typeof Operations.templates | false
@@ -469,9 +469,9 @@ export type Templates = {
 Type: `Templates` <br/>
 
 ```tsx twoslash
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 import { Parser, File, Function } from '@kubb/react'
-import { Operations } from '@kubb/swagger-zod/components'
+import { Operations } from '@kubb/plugin-zod/components'
 import React from 'react'
 
 export const templates = {
@@ -491,7 +491,7 @@ const plugin = pluginZod({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {

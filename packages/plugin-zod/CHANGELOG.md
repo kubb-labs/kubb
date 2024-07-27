@@ -1,4 +1,4 @@
-# @kubb/swagger-zod
+# @kubb/plugin-zod
 
 ## 2.23.3
 

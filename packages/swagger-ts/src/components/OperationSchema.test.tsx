@@ -16,7 +16,7 @@ describe('<OperationSchema/>', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-zod/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-zod/mocks/petStore.yaml' },
   })
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {

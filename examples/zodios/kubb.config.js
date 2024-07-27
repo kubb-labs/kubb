@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 import { pluginZodios } from '@kubb/plugin-zodios'
 
 export default defineConfig(() => {

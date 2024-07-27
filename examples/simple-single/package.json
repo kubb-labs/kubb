@@ -30,7 +30,7 @@
     "@kubb/plugin-redoc": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
     "@tanstack/react-query": "^4.36.1",
     "axios": "^1.7.2",
     "react": "^18.3.1",

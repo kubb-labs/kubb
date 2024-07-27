@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 import { Parser, File, useApp } from '@kubb/react'
-import { pluginZodName } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/plugin-zod'
 
 import { getDefinitions, getDefinitionsImports } from './utils.ts'
 

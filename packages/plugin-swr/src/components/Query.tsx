@@ -3,7 +3,7 @@ import { Parser, File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
-import { pluginZodName } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/plugin-zod'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'

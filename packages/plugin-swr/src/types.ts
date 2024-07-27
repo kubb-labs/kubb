@@ -94,7 +94,7 @@ export type Options = {
   }
   /**
    * Which parser can be used before returning the data to `@tanstack/query`.
-   * `'zod'` will use `@kubb/swagger-zod` to parse the data.
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
   parser?: 'zod'
   /**

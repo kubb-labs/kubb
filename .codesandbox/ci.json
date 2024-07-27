@@ -11,7 +11,7 @@
     "packages/plugin-swr",
     "packages/swagger-tanstack-query",
     "packages/swagger-ts",
-    "packages/swagger-zod",
+    "packages/plugin-zod",
     "packages/plugin-zodios",
     "packages/parser-ts",
     "packages/react"

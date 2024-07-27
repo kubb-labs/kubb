@@ -28,7 +28,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
     "@tanstack/vue-query": "^5.51.15",
     "axios": "^1.7.2",
     "unplugin-kubb": "workspace:*",

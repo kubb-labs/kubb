@@ -15,19 +15,19 @@ a Swagger file.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
+bun add @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
+pnpm add @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
+npm install @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
+yarn add @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
 ```
 
 :::
@@ -123,7 +123,7 @@ const plugin = pluginZodios({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginZod } from '@kubb/plugin-zod'
 import { pluginZodios } from '@kubb/plugin-zodios'
 
 export default defineConfig({

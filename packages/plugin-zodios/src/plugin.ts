@@ -3,13 +3,13 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, trimExtName } from '@kubb/core/transformers'
 import { pluginOasName } from '@kubb/plugin-oas'
-import { pluginZodName } from '@kubb/swagger-zod'
+import { pluginZodName } from '@kubb/plugin-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { Override, PluginOas } from '@kubb/plugin-oas'
-import type { PluginZod } from '@kubb/swagger-zod'
+import type { PluginZod } from '@kubb/plugin-zod'
 import type { PluginZodios } from './types.ts'
 
 export const pluginZodiosName = 'plugin-zodios' satisfies PluginZodios['name']

@@ -68,7 +68,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*"
+    "@kubb/plugin-zod": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
