@@ -12,7 +12,7 @@
 "@kubb/plugin-redoc": major
 "@kubb/react": major
 "@kubb/plugin": major
-"@kubb/swagger-faker": major
+"@kubb/plugin-faker": major
 "@kubb/swagger-msw": major
 "@kubb/swagger-swr": major
 "@kubb/swagger-tanstack-query": major

@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/swagger-faker</h1>
+<h1>@kubb/plugin-faker</h1>
 
 <p>
    Swagger integration to create mock data based on Faker.js
@@ -30,15 +30,15 @@
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/swagger-faker?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/swagger-faker
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/swagger-faker?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/swagger-faker
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-faker?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-faker
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-faker?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-faker
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/swagger-faker
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/swagger-faker?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/swagger-faker
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-faker
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-faker?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-faker
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/swagger-faker
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-faker

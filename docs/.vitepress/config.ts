@@ -245,7 +245,7 @@ const pluginsSidebar = [
         link: '/plugins/swagger-swr/',
       },
       {
-        text: '@kubb/swagger-faker',
+        text: '@kubb/plugin-faker',
         link: '/plugins/swagger-faker/',
       },
       {
@@ -435,7 +435,7 @@ const pluginsMenu = [
         link: '/plugins/swagger-swr/',
       },
       {
-        text: '@kubb/swagger-faker',
+        text: '@kubb/plugin-faker',
         link: '/plugins/swagger-faker/',
       },
       {
@@ -548,7 +548,7 @@ export default defineConfig({
       //         '@kubb/plugin-client': ['../packages/plugin-client/src/index.ts'],
       //         '@kubb/plugin-client/client': ['../packages/plugin-client/client.ts'],
       //         '@kubb/plugin-client/components': ['../packages/plugin-client/src/components/index.ts'],
-      //         '@kubb/swagger-faker': ['../packages/swagger-faker/src/index.ts'],
+      //         '@kubb/plugin-faker': ['../packages/swagger-faker/src/index.ts'],
       //         '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
       //         '@kubb/swagger-swr': ['../packages/swagger-swr/src/index.ts'],
       //         '@kubb/plugin-redoc': ['../packages/plugin-redoc/src/index.ts'],

@@ -5,7 +5,7 @@ import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginOasName } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
-import { pluginFakerName } from '@kubb/swagger-faker'
+import { pluginFakerName } from '@kubb/plugin-faker'
 import { pluginTsName } from '@kubb/swagger-ts'
 
 import { OperationGenerator } from './OperationGenerator.tsx'

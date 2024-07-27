@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-faker
+title: \@kubb/plugin-faker
 outline: deep
 ---
 
-# @kubb/swagger-faker <a href="https://paka.dev/npm/@kubb/swagger-faker@latest/api">🦙</a>
+# @kubb/plugin-faker <a href="https://paka.dev/npm/@kubb/plugin-faker@latest/api">🦙</a>
 
 With the Swagger Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
 
@@ -14,19 +14,19 @@ With the Swagger Faker plugin, you can use [Faker](https://fakerjs.dev/) to crea
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-faker @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-faker @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-faker @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-faker @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
 ```
 
 :::
@@ -45,7 +45,7 @@ Type: `string` <br/>
 Default: `'mocks'`
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   output: {
@@ -63,7 +63,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   output: {
@@ -82,7 +82,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   output: {
@@ -101,7 +101,7 @@ Define what needs to be exported, you can also disable the export of barrel file
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   output: {
@@ -151,7 +151,7 @@ Default: `'{{tag}}Mocks'`
 ::: info
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   output: {
@@ -188,7 +188,7 @@ Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   dateType: 'string',
@@ -243,7 +243,7 @@ Type: `'dayjs' | 'moment' | string` <br/>
 Default: `undefined`
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   dateParser: 'dayjs',
@@ -274,7 +274,7 @@ Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   unknownType: 'any',
@@ -305,7 +305,7 @@ Type: `'faker' | 'randexp'` <br/>
 Default: `'faker'`
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   regexGenerator: 'randexp',
@@ -321,7 +321,7 @@ The use of Seed is intended to allow for consistent values in a test.
 Type: `'number' | 'number[]'` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   seed: [222],
@@ -349,7 +349,7 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   include: [
@@ -382,7 +382,7 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   exclude: [
@@ -417,7 +417,7 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   override: [
@@ -444,7 +444,7 @@ Override the name of the faker data that is getting generated, this will also ov
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript twoslash
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
   transformers: {
@@ -462,7 +462,7 @@ const plugin = pluginFaker({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginFaker} from '@kubb/swagger-faker'
+import { pluginFaker} from '@kubb/plugin-faker'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({

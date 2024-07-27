@@ -25,7 +25,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/swagger-faker": "workspace:*",
+    "@kubb/plugin-faker": "workspace:*",
     "@kubb/swagger-msw": "workspace:*",
     "@kubb/swagger-swr": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",

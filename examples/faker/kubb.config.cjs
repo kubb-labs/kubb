@@ -1,7 +1,7 @@
 const { defineConfig } = require('@kubb/core')
 
 const { pluginOas, schemaKeywords } = require('@kubb/plugin-oas')
-const { pluginFaker } = require('@kubb/swagger-faker')
+const { pluginFaker } = require('@kubb/plugin-faker')
 const { pluginTs } = require('@kubb/swagger-ts')
 
 module.exports = defineConfig(() => {

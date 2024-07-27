@@ -22,19 +22,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks bas
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
+bun add @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
+pnpm add @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
+npm install @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
+yarn add @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 :::
@@ -348,7 +348,7 @@ const plugin = pluginMsw({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginFaker} from '@kubb/swagger-faker'
+import { pluginFaker} from '@kubb/plugin-faker'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({

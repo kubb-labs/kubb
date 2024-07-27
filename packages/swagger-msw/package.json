@@ -71,7 +71,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-faker": "workspace:*",
+    "@kubb/plugin-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {

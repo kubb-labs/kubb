@@ -1,4 +1,4 @@
-# @kubb/swagger-faker
+# @kubb/plugin-faker
 
 ## 2.23.3
 

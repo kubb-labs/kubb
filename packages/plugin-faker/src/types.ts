@@ -130,6 +130,6 @@ export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, Resolved
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-faker']: PluginFaker
+    ['@kubb/plugin-faker']: PluginFaker
   }
 }

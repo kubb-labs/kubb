@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginFaker } from '@kubb/swagger-faker'
+import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/swagger-msw'
 import { pluginSwr } from '@kubb/swagger-swr'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
