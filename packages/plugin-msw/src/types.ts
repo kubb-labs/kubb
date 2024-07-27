@@ -89,6 +89,6 @@ export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOpti
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-msw']: PluginMsw
+    ['@kubb/plugin-msw']: PluginMsw
   }
 }

@@ -89,15 +89,15 @@ importers:
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../packages/plugin-faker
+      '@kubb/plugin-msw':
+        specifier: workspace:*
+        version: link:../packages/plugin-msw
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../packages/plugin-oas
       '@kubb/react':
         specifier: workspace:^
         version: link:../packages/react
-      '@kubb/swagger-msw':
-        specifier: workspace:*
-        version: link:../packages/swagger-msw
       '@kubb/swagger-swr':
         specifier: workspace:*
         version: link:../packages/swagger-swr
@@ -149,12 +149,12 @@ importers:
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../packages/plugin-faker
+      '@kubb/plugin-msw':
+        specifier: workspace:*
+        version: link:../packages/plugin-msw
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../packages/plugin-oas
-      '@kubb/swagger-msw':
-        specifier: workspace:*
-        version: link:../packages/swagger-msw
       '@kubb/swagger-swr':
         specifier: workspace:*
         version: link:../packages/swagger-swr
@@ -240,12 +240,12 @@ importers:
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../../packages/plugin-faker
+      '@kubb/plugin-msw':
+        specifier: workspace:*
+        version: link:../../packages/plugin-msw
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/swagger-msw':
-        specifier: workspace:*
-        version: link:../../packages/swagger-msw
       '@kubb/swagger-swr':
         specifier: workspace:*
         version: link:../../packages/swagger-swr
@@ -405,12 +405,12 @@ importers:
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../../packages/plugin-faker
+      '@kubb/plugin-msw':
+        specifier: workspace:*
+        version: link:../../packages/plugin-msw
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/swagger-msw':
-        specifier: workspace:*
-        version: link:../../packages/swagger-msw
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
@@ -451,12 +451,12 @@ importers:
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../../packages/plugin-faker
+      '@kubb/plugin-msw':
+        specifier: workspace:*
+        version: link:../../packages/plugin-msw
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/swagger-msw':
-        specifier: workspace:*
-        version: link:../../packages/swagger-msw
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
@@ -1443,6 +1443,55 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4
 
+  packages/plugin-msw:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/fs':
+        specifier: workspace:*
+        version: link:../fs
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
+      '@kubb/plugin-faker':
+        specifier: workspace:*
+        version: link:../plugin-faker
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
+      '@kubb/swagger-ts':
+        specifier: workspace:*
+        version: link:../swagger-ts
+    devDependencies:
+      '@kubb/config-biome':
+        specifier: workspace:*
+        version: link:../config-biome
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
+      '@types/react':
+        specifier: ^18.3.3
+        version: 18.3.3
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      tsup:
+        specifier: ^8.2.3
+        version: 8.2.3(@microsoft/api-extractor@7.47.4(@types/node@20.14.12))(jiti@1.21.6)(postcss@8.4.39)(typescript@5.5.4)(yaml@2.4.5)
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+
   packages/plugin-oas:
     dependencies:
       '@kubb/core':
@@ -1583,55 +1632,6 @@ importers:
       react-reconciler:
         specifier: ^0.29.2
         version: 0.29.2(react@18.3.1)
-      tsup:
-        specifier: ^8.2.3
-        version: 8.2.3(@microsoft/api-extractor@7.47.4(@types/node@20.14.12))(jiti@1.21.6)(postcss@8.4.39)(typescript@5.5.4)(yaml@2.4.5)
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-
-  packages/swagger-msw:
-    dependencies:
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
-      '@kubb/fs':
-        specifier: workspace:*
-        version: link:../fs
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
-      '@kubb/plugin-faker':
-        specifier: workspace:*
-        version: link:../plugin-faker
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
-      '@kubb/react':
-        specifier: workspace:*
-        version: link:../react
-      '@kubb/swagger-ts':
-        specifier: workspace:*
-        version: link:../swagger-ts
-    devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
-      '@kubb/config-ts':
-        specifier: workspace:*
-        version: link:../config-ts
-      '@kubb/config-tsup':
-        specifier: workspace:*
-        version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.3
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
       tsup:
         specifier: ^8.2.3
         version: 8.2.3(@microsoft/api-extractor@7.47.4(@types/node@20.14.12))(jiti@1.21.6)(postcss@8.4.39)(typescript@5.5.4)(yaml@2.4.5)

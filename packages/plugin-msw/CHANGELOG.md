@@ -1,4 +1,4 @@
-# @kubb/swagger-msw
+# @kubb/plugin-msw
 
 ## 2.23.3
 

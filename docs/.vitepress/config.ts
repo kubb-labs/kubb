@@ -249,7 +249,7 @@ const pluginsSidebar = [
         link: '/plugins/swagger-faker/',
       },
       {
-        text: '@kubb/swagger-msw',
+        text: '@kubb/plugin-msw',
         link: '/plugins/swagger-msw/',
       },
       {
@@ -439,7 +439,7 @@ const pluginsMenu = [
         link: '/plugins/swagger-faker/',
       },
       {
-        text: '@kubb/swagger-msw',
+        text: '@kubb/plugin-msw',
         link: '/plugins/swagger-msw/',
       },
       {
@@ -549,11 +549,11 @@ export default defineConfig({
       //         '@kubb/plugin-client/client': ['../packages/plugin-client/client.ts'],
       //         '@kubb/plugin-client/components': ['../packages/plugin-client/src/components/index.ts'],
       //         '@kubb/plugin-faker': ['../packages/swagger-faker/src/index.ts'],
-      //         '@kubb/swagger-msw': ['../packages/swagger-msw/src/index.ts'],
+      //         '@kubb/plugin-msw': ['../packages/swagger-msw/src/index.ts'],
       //         '@kubb/swagger-swr': ['../packages/swagger-swr/src/index.ts'],
       //         '@kubb/plugin-redoc': ['../packages/plugin-redoc/src/index.ts'],
       //         '@kubb/swagger-swr/components': ['../packages/swagger-swr/src/components/index.ts'],
-      //         '@kubb/swagger-msw/components': ['../packages/swagger-msw/src/components/index.ts'],
+      //         '@kubb/plugin-msw/components': ['../packages/swagger-msw/src/components/index.ts'],
       //         '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
       //         '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
       //         '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],

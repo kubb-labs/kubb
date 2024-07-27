@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/swagger-msw</h1>
+<h1>@kubb/plugin-msw</h1>
 
 <p>
    Swagger integration to create mock data based on MSW
@@ -30,15 +30,15 @@
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/swagger-msw?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/swagger-msw
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/swagger-msw?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/swagger-msw
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-msw?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-msw
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-msw?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-msw
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/swagger-msw
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/swagger-msw?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/swagger-msw
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-msw
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-msw?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-msw
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/swagger-msw
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-msw

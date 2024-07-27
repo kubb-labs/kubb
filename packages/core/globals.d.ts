@@ -37,7 +37,7 @@ declare namespace Kubb {
     ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginTs
     ['@kubb/swagger-zod']: import('@kubb/swagger-zod').PluginZod
     ['@kubb/swagger-zodios']: import('@kubb/swagger-zodios').PluginZodios
-    ['@kubb/swagger-msw']: import('@kubb/swagger-msw').PluginMsw
+    ['@kubb/plugin-msw']: import('@kubb/plugin-msw').PluginMsw
   }
   type OptionsPlugins = { [K in keyof Plugins]: Plugins[K]['options'] }
 

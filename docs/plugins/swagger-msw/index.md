@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-msw
+title: \@kubb/plugin-msw
 outline: deep
 ---
 
-# @kubb/swagger-msw <a href="https://paka.dev/npm/@kubb/swagger-mws@latest/api">🦙</a>
+# @kubb/plugin-msw <a href="https://paka.dev/npm/@kubb/swagger-mws@latest/api">🦙</a>
 
 ::: tip
 <img src="https://pbs.twimg.com/media/F9HHE4jXkAA_zm7?format=jpg&name=medium" style="max-width: 30vw"/><br/>
@@ -22,19 +22,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks bas
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
+bun add @kubb/plugin-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
+pnpm add @kubb/plugin-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
+npm install @kubb/plugin-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
+yarn add @kubb/plugin-msw @kubb/swagger-ts @kubb/plugin-faker @kubb/swagger
 ```
 
 :::
@@ -54,7 +54,7 @@ Type: `string` <br/>
 Default: `'mocks'`
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   output: {
@@ -72,7 +72,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   output: {
@@ -91,7 +91,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   output: {
@@ -110,7 +110,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   output: {
@@ -161,7 +161,7 @@ Default: `'{{tag}}Handlers'`
 ::: info
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   output: {
@@ -192,7 +192,7 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   include: [
@@ -226,7 +226,7 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   exclude: [
@@ -260,7 +260,7 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   override: [
@@ -287,7 +287,7 @@ Override the name of the MSW data that is getting generated, this will also over
 Type: `(name: string) => string` <br/>
 
 ```typescript twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
   transformers: {
@@ -311,7 +311,7 @@ Set `false` to disable a template.
 ::: info TYPE
 
 ```typescript [Templates]
-import type { Handlers, Mock } from '@kubb/swagger-msw/components'
+import type { Handlers, Mock } from '@kubb/plugin-msw/components'
 
 export type Templates = {
   handlers?: typeof Handlers.templates | false
@@ -326,9 +326,9 @@ export type Templates = {
 Type: `Templates` <br/>
 
 ```tsx twoslash
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 import { Parser, File, Function } from '@kubb/react'
-import { Mock } from '@kubb/swagger-msw/components'
+import { Mock } from '@kubb/plugin-msw/components'
 import React from 'react'
 
 export const templates = {

@@ -36,7 +36,7 @@
     "@kubb/swagger": "2.23.3",
     "@kubb/plugin-client": "2.23.3",
     "@kubb/plugin-faker": "2.23.3",
-    "@kubb/swagger-msw": "2.23.3",
+    "@kubb/plugin-msw": "2.23.3",
     "@kubb/swagger-swr": "2.23.3",
     "@kubb/swagger-tanstack-query": "2.23.3",
     "@kubb/swagger-ts": "2.23.3",

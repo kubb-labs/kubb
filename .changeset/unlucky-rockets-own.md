@@ -13,7 +13,7 @@
 "@kubb/react": major
 "@kubb/plugin": major
 "@kubb/plugin-faker": major
-"@kubb/swagger-msw": major
+"@kubb/plugin-msw": major
 "@kubb/swagger-swr": major
 "@kubb/swagger-tanstack-query": major
 "@kubb/swagger-ts": major

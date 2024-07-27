@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginFaker } from '@kubb/plugin-faker'
-import { pluginMsw } from '@kubb/swagger-msw'
+import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig(() => {

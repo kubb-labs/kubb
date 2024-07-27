@@ -30,7 +30,7 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
-    "@kubb/swagger-msw": "workspace:*",
+    "@kubb/plugin-msw": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@mswjs/http-middleware": "^0.9.2",
     "msw": "^2.3.4",

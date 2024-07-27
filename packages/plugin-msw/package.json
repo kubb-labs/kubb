@@ -1,5 +1,5 @@
 {
-  "name": "@kubb/swagger-msw",
+  "name": "@kubb/plugin-msw",
   "version": "2.23.3",
   "description": "Generator swagger-msw",
   "keywords": [
