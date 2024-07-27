@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/swagger-swr</h1>
+<h1>@kubb/plugin-swr</h1>
 
 <p>
    Swagger integration for SWR to generate all the different SWR hooks based on an OpenAPI specification.
@@ -30,15 +30,15 @@
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/swagger-swr?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/swagger-swr
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/swagger-swr?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/swagger-swr
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-swr?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-swr
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-swr?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-swr
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/swagger-swr
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/swagger-swr?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/swagger-swr
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-swr
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-swr?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-swr
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/swagger-swr
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-swr

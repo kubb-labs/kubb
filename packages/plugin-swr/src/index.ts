@@ -4,11 +4,11 @@ export { pluginSwr, pluginSwrName } from './plugin.ts'
 export type { PluginSwr } from './types.ts'
 
 /**
- * @deprecated Use `import { pluginSwr } from '@kubb/swagger-swr'` instead
+ * @deprecated Use `import { pluginSwr } from '@kubb/plugin-swr'` instead
  */
 const definePluginDefault = pluginSwr
 /**
- * @deprecated Use `import { pluginSwr } from '@kubb/swagger-swr'` instead
+ * @deprecated Use `import { pluginSwr } from '@kubb/plugin-swr'` instead
  */
 export const definePlugin = pluginSwr
 

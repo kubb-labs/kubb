@@ -16,7 +16,7 @@ describe('<Mutation/>', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-swr/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-swr/mocks/petStore.yaml' },
   })
   mockedPluginManager.resolveName = ({ type, name }: ResolveNameParams) => {
     if (type === 'file' || type === 'function') {

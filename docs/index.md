@@ -39,7 +39,7 @@ features:
       light: ./feature/swr-light.svg
       height: 24
     title: SWR
-    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>. <div class="learn-more"><a href="/plugins/swagger-swr">Learn more</a></div>
+    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>. <div class="learn-more"><a href="/plugins/plugin-swr">Learn more</a></div>
   - icon:
       src: ./feature/axios.svg
     title: Axios

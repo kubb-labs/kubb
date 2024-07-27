@@ -1,4 +1,4 @@
-# @kubb/swagger-swr
+# @kubb/plugin-swr
 
 ## 2.23.3
 

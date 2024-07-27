@@ -98,9 +98,9 @@ importers:
       '@kubb/react':
         specifier: workspace:^
         version: link:../packages/react
-      '@kubb/swagger-swr':
+      '@kubb/plugin-swr':
         specifier: workspace:*
-        version: link:../packages/swagger-swr
+        version: link:../packages/plugin-swr
       '@kubb/swagger-tanstack-query':
         specifier: workspace:*
         version: link:../packages/swagger-tanstack-query
@@ -155,9 +155,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../packages/plugin-oas
-      '@kubb/swagger-swr':
+      '@kubb/plugin-swr':
         specifier: workspace:*
-        version: link:../packages/swagger-swr
+        version: link:../packages/plugin-swr
       '@kubb/swagger-tanstack-query':
         specifier: workspace:*
         version: link:../packages/swagger-tanstack-query
@@ -246,9 +246,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/swagger-swr':
+      '@kubb/plugin-swr':
         specifier: workspace:*
-        version: link:../../packages/swagger-swr
+        version: link:../../packages/plugin-swr
       '@kubb/swagger-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
@@ -787,9 +787,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/swagger-swr':
+      '@kubb/plugin-swr':
         specifier: workspace:*
-        version: link:../../packages/swagger-swr
+        version: link:../../packages/plugin-swr
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
@@ -1639,7 +1639,7 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4
 
-  packages/swagger-swr:
+  packages/plugin-swr:
     dependencies:
       '@kubb/core':
         specifier: workspace:*

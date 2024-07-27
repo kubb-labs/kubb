@@ -8,7 +8,7 @@
     "packages/plugin-client",
     "packages/swagger-faker",
     "packages/swagger-msw",
-    "packages/swagger-swr",
+    "packages/plugin-swr",
     "packages/swagger-tanstack-query",
     "packages/swagger-ts",
     "packages/swagger-zod",

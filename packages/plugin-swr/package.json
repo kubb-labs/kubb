@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-swr",
+  "name": "@kubb/plugin-swr",
   "version": "2.23.3",
-  "description": "Generator swagger-swr",
+  "description": "Generator plugin-swr",
   "keywords": [
     "typescript",
     "plugins",
@@ -18,7 +18,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-swr"
+    "directory": "packages/plugin-swr"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

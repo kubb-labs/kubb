@@ -14,7 +14,7 @@
 "@kubb/plugin": major
 "@kubb/plugin-faker": major
 "@kubb/plugin-msw": major
-"@kubb/swagger-swr": major
+"@kubb/plugin-swr": major
 "@kubb/swagger-tanstack-query": major
 "@kubb/swagger-ts": major
 "@kubb/swagger-zod": major

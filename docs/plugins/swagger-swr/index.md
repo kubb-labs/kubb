@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-swr
+title: \@kubb/plugin-swr
 outline: deep
 ---
 
-# @kubb/swagger-swr <a href="https://paka.dev/npm/@kubb/swagger-swr@latest/api">🦙</a>
+# @kubb/plugin-swr <a href="https://paka.dev/npm/@kubb/plugin-swr@latest/api">🦙</a>
 
 With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger
 file.
@@ -15,19 +15,19 @@ file.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 :::
@@ -46,7 +46,7 @@ Type: `string` <br/>
 Default: `'hooks'`
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   output: {
@@ -65,7 +65,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   output: {
@@ -85,7 +85,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   output: {
@@ -105,7 +105,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   output: {
@@ -158,7 +158,7 @@ Default: `'{{tag}}SWRHooks'`
 ::: info
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   output: {
@@ -185,7 +185,7 @@ Type: `string` <br/>
 Default: `'@kubb/plugin/client'`
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   client: {
@@ -229,7 +229,7 @@ Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   dataReturnType: 'data',
@@ -258,7 +258,7 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   include: [
@@ -292,7 +292,7 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   exclude: [
@@ -327,7 +327,7 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   override: [
@@ -355,7 +355,7 @@ Override the name of the hook that is getting generated, this will also override
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
   transformers: {
@@ -380,7 +380,7 @@ Set `false` to disable a template.
 ::: info TYPE
 
 ```typescript [Templates]
-import type { Mutation, Query, QueryOptions } from '@kubb/swagger-swr/components'
+import type { Mutation, Query, QueryOptions } from '@kubb/plugin-swr/components'
 
 export type Templates = {
   mutation: typeof Mutation.templates | false
@@ -396,8 +396,8 @@ export type Templates = {
 Type: `Templates` <br/>
 
 ```tsx twoslash
-import { pluginSwr } from '@kubb/swagger-swr'
-import { Query } from '@kubb/swagger-swr/components'
+import { pluginSwr } from '@kubb/plugin-swr'
+import { Query } from '@kubb/plugin-swr/components'
 import React from 'react'
 
 export const templates = {
@@ -418,7 +418,7 @@ const plugin = pluginSwr({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginSwr } from '@kubb/swagger-swr'
+import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/swagger-ts'
 
 export default defineConfig({

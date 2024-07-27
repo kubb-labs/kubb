@@ -32,7 +32,7 @@ declare namespace Kubb {
     ['@kubb/plugin-redoc']: import('@kubb/plugin-redoc').PluginRedoc
     ['@kubb/plugin-client']: import('@kubb/plugin-client').PluginClient
     ['@kubb/plugin-faker']: import('@kubb/plugin-faker').PluginFaker
-    ['@kubb/swagger-swr']: import('@kubb/swagger-swr').PluginSwr
+    ['@kubb/plugin-swr']: import('@kubb/plugin-swr').PluginSwr
     ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginTanstackQuery
     ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginTs
     ['@kubb/swagger-zod']: import('@kubb/swagger-zod').PluginZod
