@@ -7,7 +7,7 @@ import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginZod } from '@kubb/swagger-zod'
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 const schemas = [
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],

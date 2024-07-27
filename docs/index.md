@@ -56,7 +56,7 @@ features:
   - icon:
       src: ./feature/zodios.svg
     title: Zodios
-    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin. <div class="learn-more"><a href="/plugins/swagger-zodios">Learn more</a></div>
+    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin. <div class="learn-more"><a href="/plugins/plugin-zodios">Learn more</a></div>
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker

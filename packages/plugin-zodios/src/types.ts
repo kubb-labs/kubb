@@ -39,6 +39,6 @@ export type PluginZodios = PluginFactoryOptions<'plugin-zodios', Options, Resolv
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-zodios']: PluginZodios
+    ['@kubb/plugin-zodios']: PluginZodios
   }
 }

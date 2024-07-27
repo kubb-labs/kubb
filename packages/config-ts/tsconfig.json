@@ -30,7 +30,7 @@
       "path": "../swagger-zod"
     },
     {
-      "path": "../swagger-zodios"
+      "path": "../plugin-zodios"
     },
     {
       "path": "../parser-ts"

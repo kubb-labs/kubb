@@ -36,7 +36,7 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@kubb/swagger-zodios": "workspace:*",
+    "@kubb/plugin-zodios": "workspace:*",
     "@types/node": "^20.14.12",
     "@types/react": "^18.3.3",
     "axios": "^1.7.2",

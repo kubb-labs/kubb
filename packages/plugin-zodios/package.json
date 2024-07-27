@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-zodios",
+  "name": "@kubb/plugin-zodios",
   "version": "2.23.3",
-  "description": "Generator swagger-zodios",
+  "description": "Generator plugin-zodios",
   "keywords": [
     "zod",
     "zodios",
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-zodios"
+    "directory": "packages/plugin-zodios"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

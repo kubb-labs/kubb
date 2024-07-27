@@ -110,9 +110,9 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../packages/swagger-zod
-      '@kubb/swagger-zodios':
+      '@kubb/plugin-zodios':
         specifier: workspace:*
-        version: link:../packages/swagger-zodios
+        version: link:../packages/plugin-zodios
       '@types/node':
         specifier: ^20.14.12
         version: 20.14.12
@@ -167,9 +167,9 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../packages/swagger-zod
-      '@kubb/swagger-zodios':
+      '@kubb/plugin-zodios':
         specifier: workspace:*
-        version: link:../packages/swagger-zodios
+        version: link:../packages/plugin-zodios
       '@tanstack/react-query':
         specifier: ^5.51.15
         version: 5.51.15(react@18.3.1)
@@ -258,9 +258,9 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../../packages/swagger-zod
-      '@kubb/swagger-zodios':
+      '@kubb/plugin-zodios':
         specifier: workspace:*
-        version: link:../../packages/swagger-zodios
+        version: link:../../packages/plugin-zodios
       '@tanstack/react-query':
         specifier: ^4.36.1
         version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -989,9 +989,9 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../../packages/swagger-zod
-      '@kubb/swagger-zodios':
+      '@kubb/plugin-zodios':
         specifier: workspace:*
-        version: link:../../packages/swagger-zodios
+        version: link:../../packages/plugin-zodios
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.7.2)(zod@3.23.8)
@@ -1838,7 +1838,7 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4
 
-  packages/swagger-zodios:
+  packages/plugin-zodios:
     dependencies:
       '@kubb/core':
         specifier: workspace:*

@@ -27,7 +27,7 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@kubb/swagger-zodios": "workspace:*",
+    "@kubb/plugin-zodios": "workspace:*",
     "@zodios/core": "^10.9.6",
     "@zodios/express": "^10.6.1",
     "axios": "^1.7.2",

@@ -31,7 +31,7 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@kubb/swagger-zodios": "workspace:*",
+    "@kubb/plugin-zodios": "workspace:*",
     "@tanstack/react-query": "^5.51.15",
     "@tanstack/solid-query": "^5.51.15",
     "@tanstack/svelte-query": "^5.51.15",

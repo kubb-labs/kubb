@@ -7,7 +7,7 @@ import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { pluginTs } from '@kubb/swagger-ts'
 import { pluginZod } from '@kubb/swagger-zod'
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 export default defineConfig({
   root: '.',

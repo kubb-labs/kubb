@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-zodios
+title: \@kubb/plugin-zodios
 outline: deep
 ---
 
-# @kubb/swagger-zodios <a href="https://paka.dev/npm/@kubb/swagger-zodios@latest/api">🦙</a>
+# @kubb/plugin-zodios <a href="https://paka.dev/npm/@kubb/plugin-zodios@latest/api">🦙</a>
 
 With the Swagger zodios plugin you can use [zodios](https://github.com/ecyrbe/zodios) to validate your schema's based on
 a Swagger file.
@@ -15,19 +15,19 @@ a Swagger file.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-zodios @kubb/swagger-zod @kubb/swagger
+bun add @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-zodios @kubb/swagger-zod @kubb/swagger
+pnpm add @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-zodios @kubb/swagger-zod @kubb/swagger
+npm install @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-zodios @kubb/swagger-zod @kubb/swagger
+yarn add @kubb/plugin-zodios @kubb/swagger-zod @kubb/swagger
 ```
 
 :::
@@ -47,7 +47,7 @@ Type: `string` <br/>
 Default: `'zodios.ts'`
 
 ```typescript twoslash
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 const plugin = pluginZodios({
   output: {
@@ -66,7 +66,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 const plugin = pluginZodios({
   output: {
@@ -86,7 +86,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 const plugin = pluginZodios({
   output: {
@@ -106,7 +106,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 const plugin = pluginZodios({
   output: {
@@ -124,7 +124,7 @@ const plugin = pluginZodios({
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginZod } from '@kubb/swagger-zod'
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 export default defineConfig({
   input: {

@@ -1,4 +1,4 @@
-# @kubb/swagger-zodios
+# @kubb/plugin-zodios
 
 ## 2.23.3
 

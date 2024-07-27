@@ -18,7 +18,7 @@
 "@kubb/swagger-tanstack-query": major
 "@kubb/swagger-ts": major
 "@kubb/swagger-zod": major
-"@kubb/swagger-zodios": major
+"@kubb/plugin-zodios": major
 "@kubb/types": major
 "unplugin-kubb": major
 ---

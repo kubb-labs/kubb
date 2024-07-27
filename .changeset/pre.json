@@ -41,7 +41,7 @@
     "@kubb/swagger-tanstack-query": "2.23.3",
     "@kubb/swagger-ts": "2.23.3",
     "@kubb/swagger-zod": "2.23.3",
-    "@kubb/swagger-zodios": "2.23.3",
+    "@kubb/plugin-zodios": "2.23.3",
     "@kubb/types": "2.23.3",
     "unplugin-kubb": "0.1.68"
   },
