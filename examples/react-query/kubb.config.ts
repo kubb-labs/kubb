@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
 import * as mutation from './templates/mutate/index'
@@ -24,7 +24,7 @@ export const config = {
         path: 'models',
       },
     }),
-    pluginTanstackQuery({
+    pluginReactQuery({
       transformers: {
         name: (name, type) => {
           if (type === 'file' || type === 'function') {
@@ -36,7 +36,6 @@ export const config = {
       output: {
         path: './hooks',
       },
-      framework: 'react',
       query: {
         queryKey: (keys) => ['"v5"', ...keys],
       },

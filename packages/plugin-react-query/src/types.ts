@@ -175,11 +175,6 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
-   * Framework to be generated for
-   * @default 'react'
-   */
-  framework?: Framework
-  /**
    * When set, an infiniteQuery hooks will be added.
    */
   infinite?: Partial<Infinite> | false
@@ -208,14 +203,11 @@ export type Options = {
   templates?: Partial<Templates>
 }
 
-export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
-
 type ResolvedOptions = {
-  framework: NonNullable<PluginTanstackQuery['options']['framework']>
-  client: Required<NonNullable<PluginTanstackQuery['options']['client']>>
-  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
-  pathParamsType: NonNullable<PluginTanstackQuery['options']['pathParamsType']>
-  parser: PluginTanstackQuery['options']['parser']
+  client: Required<NonNullable<PluginReactQuery['options']['client']>>
+  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
+  pathParamsType: NonNullable<PluginReactQuery['options']['pathParamsType']>
+  parser: PluginReactQuery['options']['parser']
   /**
    * Only used of infinite
    */
@@ -232,10 +224,10 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginTanstackQuery = PluginFactoryOptions<'plugin-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-tanstack-query']: PluginTanstackQuery
+    ['@kubb/plugin-react-query']: PluginReactQuery
   }
 }

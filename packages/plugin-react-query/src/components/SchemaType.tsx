@@ -2,7 +2,7 @@ import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { Type, useApp } from '@kubb/react'
 
 import type { ReactNode } from 'react'
-import type { PluginTanstackQuery } from '../types.ts'
+import type { PluginReactQuery } from '../types.ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 
 type Props = {
@@ -16,7 +16,7 @@ export function SchemaType({ factory }: Props): ReactNode {
     plugin: {
       options: { dataReturnType },
     },
-  } = useApp<PluginTanstackQuery>()
+  } = useApp<PluginReactQuery>()
   const { getSchemas } = useOperationManager()
   const operation = useOperation()
 

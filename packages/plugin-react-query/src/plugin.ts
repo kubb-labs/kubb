@@ -12,20 +12,19 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import { Mutation, Operations, Query, QueryKey, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import type { PluginOas } from '@kubb/plugin-oas'
 import { QueryImports } from './components/QueryImports.tsx'
-import type { PluginTanstackQuery } from './types.ts'
+import type { PluginReactQuery } from './types.ts'
 
-export const pluginTanstackQueryName = 'plugin-tanstack-query' satisfies PluginTanstackQuery['name']
+export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
-export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) => {
+export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
   const {
     output = { path: 'hooks' },
     group,
     exclude = [],
     include,
     override = [],
-    framework = 'react',
     parser,
     suspense = {},
     infinite,
@@ -40,9 +39,8 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
-    name: pluginTanstackQueryName,
+    name: pluginReactQueryName,
     options: {
-      framework,
       client: {
         importPath: '@kubb/plugin-client/client',
         ...options.client,
@@ -108,21 +106,6 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
     resolveName(name, type) {
       let resolvedName = camelCase(name)
 
-      if (type === 'file' || type === 'function') {
-        if (framework === 'react' || framework === 'vue') {
-          resolvedName = camelCase(name, {
-            prefix: 'use',
-            isFile: type === 'file',
-          })
-        }
-
-        if (framework === 'svelte' || framework === 'solid') {
-          resolvedName = camelCase(name, {
-            suffix: 'query',
-            isFile: type === 'file',
-          })
-        }
-      }
       if (type === 'type') {
         resolvedName = pascalCase(name)
       }
@@ -134,7 +117,7 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
       return resolvedName
     },
     async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
+      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
 
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

@@ -147,7 +147,6 @@
     "tsup": "^8.2.3",
     "typescript": "^5.5.4",
     "vite": "^5.3.5",
-    "vitest": "^1.6.0",
     "webpack": "^5.93.0"
   },
   "engines": {

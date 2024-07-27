@@ -9,7 +9,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
+import type { Infinite, PluginReactQuery, Suspense } from '../types.ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { reactQueryDepRegex } from '../utils.ts'
 
@@ -51,7 +51,7 @@ type TemplateProps = {
     contentType: string
   }
   infinite: Infinite | false
-  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
   parser: string | undefined
 }
 
@@ -252,7 +252,7 @@ const defaultTemplates = {
         plugin: {
           options: { pathParamsType },
         },
-      } = useApp<PluginTanstackQuery>()
+      } = useApp<PluginReactQuery>()
 
       const { getSchemas } = useOperationManager()
       const operation = useOperation()
@@ -362,7 +362,7 @@ type Props = {
    * This will make it possible to override the default behaviour.
    */
   Template?: React.ComponentType<FrameworkProps>
-  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
 }
 
 export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
@@ -372,7 +372,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
       key: pluginKey,
       options: { parser, pathParamsType, queryOptions },
     },
-  } = useApp<PluginTanstackQuery>()
+  } = useApp<PluginReactQuery>()
 
   const { getSchemas } = useOperationManager()
   const operation = useOperation()

@@ -16,7 +16,7 @@ import { SchemaType } from './SchemaType.tsx'
 import { isRequired } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { QueryOptions as QueryOptionsPluginOptions, Query as QueryPluginOptions } from '../types.ts'
-import type { FileMeta, Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
+import type { FileMeta, Infinite, PluginReactQuery, Suspense } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -136,7 +136,7 @@ const defaultTemplates = {
           key: pluginKey,
           options: { pathParamsType },
         },
-      } = useApp<PluginTanstackQuery>()
+      } = useApp<PluginReactQuery>()
       const operation = useOperation()
       const { getSchemas } = useOperationManager()
 
@@ -327,7 +327,7 @@ export function Query({
       key: pluginKey,
       options: { dataReturnType, pathParamsType },
     },
-  } = useApp<PluginTanstackQuery>()
+  } = useApp<PluginReactQuery>()
 
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
@@ -510,11 +510,9 @@ type FileProps = {
 
 Query.File = function ({ templates }: FileProps): ReactNode {
   const {
-    pluginManager,
     plugin: {
       options: {
         client: { importPath },
-        framework,
         infinite,
         suspense,
         query,
@@ -522,7 +520,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
         parser,
       },
     },
-  } = useApp<PluginTanstackQuery>()
+  } = useApp<PluginReactQuery>()
 
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
@@ -539,10 +537,10 @@ Query.File = function ({ templates }: FileProps): ReactNode {
 
   const importNames = getImportNames()
   const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
-  const Template = templates?.query[framework] || defaultTemplates[framework]
-  const QueryOptionsTemplate = templates?.queryOptions[framework] || QueryOptions.templates[framework]
-  const QueryKeyTemplate = templates?.queryKey[framework] || QueryKey.templates[framework]
-  const Import = templates?.queryImports[framework] || QueryImports.templates[framework]
+  const Template = templates?.query["react"] || defaultTemplates["react"]
+  const QueryOptionsTemplate = templates?.queryOptions["react"] || QueryOptions.templates["react"]
+  const QueryKeyTemplate = templates?.queryKey["react"] || QueryKey.templates["react"]
+  const Import = templates?.queryImports["react"] || QueryImports.templates["react"]
 
   const factory = {
     name: factoryName,
@@ -572,7 +570,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
         {!!infinite && (
           <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={true} isSuspense={false} />
         )}
-        {!!suspense && isV5 && framework === 'react' && (
+        {!!suspense && isV5 && "react" === 'react' && (
           <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={true} />
         )}
         <File.Source>
@@ -586,9 +584,9 @@ Query.File = function ({ templates }: FileProps): ReactNode {
             suspense={false}
             query={query}
             queryOptions={queryOptions}
-            hookName={importNames.query[framework].hookName}
-            resultType={importNames.query[framework].resultType}
-            optionsType={importNames.query[framework].optionsType}
+            hookName={importNames.query["react"].hookName}
+            resultType={importNames.query["react"].resultType}
+            optionsType={importNames.query["react"].optionsType}
           />
           {!!infinite && (
             <Query
@@ -600,12 +598,12 @@ Query.File = function ({ templates }: FileProps): ReactNode {
               suspense={false}
               query={query}
               queryOptions={queryOptions}
-              hookName={importNames.queryInfinite[framework].hookName}
-              resultType={importNames.queryInfinite[framework].resultType}
-              optionsType={importNames.queryInfinite[framework].optionsType}
+              hookName={importNames.queryInfinite["react"].hookName}
+              resultType={importNames.queryInfinite["react"].resultType}
+              optionsType={importNames.queryInfinite["react"].optionsType}
             />
           )}
-          {!!suspense && isV5 && framework === 'react' && (
+          {!!suspense && isV5 && "react" === 'react' && (
             <Query
               factory={factory}
               Template={Template}
@@ -615,9 +613,9 @@ Query.File = function ({ templates }: FileProps): ReactNode {
               suspense={suspense}
               query={query}
               queryOptions={queryOptions}
-              hookName={importNames.querySuspense[framework].hookName}
-              resultType={importNames.querySuspense[framework].resultType}
-              optionsType={importNames.querySuspense[framework].optionsType}
+              hookName={importNames.querySuspense["react"].hookName}
+              resultType={importNames.querySuspense["react"].resultType}
+              optionsType={importNames.querySuspense["react"].optionsType}
             />
           )}
         </File.Source>

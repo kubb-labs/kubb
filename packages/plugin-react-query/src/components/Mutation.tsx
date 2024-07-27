@@ -13,7 +13,7 @@ import { SchemaType } from './SchemaType.tsx'
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginTanstackQuery } from '../types.ts'
+import type { FileMeta, PluginReactQuery } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -54,7 +54,7 @@ type TemplateProps = {
     withHeaders: boolean
     contentType: string
   }
-  dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>
+  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
 }
 
 function Template({ name, generics, returnType, params, mutateParams, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
@@ -258,7 +258,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
     plugin: {
       options: { dataReturnType, mutate },
     },
-  } = useApp<PluginTanstackQuery>()
+  } = useApp<PluginReactQuery>()
 
   const operation = useOperation()
   const { getSchemas, getName } = useOperationManager()
@@ -422,10 +422,9 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
     plugin: {
       options: {
         client: { importPath },
-        framework,
       },
     },
-  } = useApp<PluginTanstackQuery>()
+  } = useApp<PluginReactQuery>()
 
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
@@ -436,8 +435,8 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
   const factoryName = getName(operation, { type: 'type' })
 
   const importNames = getImportNames()
-  const Template = templates[framework]
-  const Import = imports[framework]
+  const Template = templates["react"]
+  const Import = imports["react"]
   const factory = {
     name: factoryName,
   }
@@ -466,9 +465,9 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
           <Mutation
             factory={factory}
             Template={Template}
-            hookName={importNames.mutation[framework].hookName}
-            resultType={importNames.mutation[framework].resultType}
-            optionsType={importNames.mutation[framework].optionsType}
+            hookName={importNames.mutation["react"].hookName}
+            resultType={importNames.mutation["react"].resultType}
+            optionsType={importNames.mutation["react"].optionsType}
           />
         </File.Source>
       </File>
