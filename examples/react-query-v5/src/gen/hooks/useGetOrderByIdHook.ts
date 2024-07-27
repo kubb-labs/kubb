@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'

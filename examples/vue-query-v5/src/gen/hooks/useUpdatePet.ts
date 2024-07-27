@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
 import type { UseMutationOptions } from '@tanstack/vue-query'

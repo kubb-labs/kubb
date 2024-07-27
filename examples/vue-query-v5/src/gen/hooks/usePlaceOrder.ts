@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 import type { UseMutationOptions } from '@tanstack/vue-query'

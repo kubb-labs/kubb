@@ -111,7 +111,7 @@ Definitions.File = function ({ name, baseURL, operationsByMethod, templates = de
         return null
       }
 
-      return <File.Import key={index} name={[name]} root={file.path} path={path} />
+      return <File.Import key={`${name}-${file.path}`} name={[name]} root={file.path} path={path} />
     })
     .filter(Boolean)
 

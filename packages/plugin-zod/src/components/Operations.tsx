@@ -73,10 +73,10 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
   const imports = Object.entries(transformedOperations)
-    .map(([_key, { data, operation }], index) => {
+    .map(([key, { data, operation }], index) => {
       const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean)
 
-      return <File.Import key={index} name={names} root={file.path} path={getFile(operation).path} />
+      return <File.Import key={key} name={names} root={file.path} path={getFile(operation).path} />
     })
     .filter(Boolean)
 

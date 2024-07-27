@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'

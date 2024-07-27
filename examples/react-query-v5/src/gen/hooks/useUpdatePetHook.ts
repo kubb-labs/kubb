@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
 import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
