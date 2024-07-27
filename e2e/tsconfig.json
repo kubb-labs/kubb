@@ -25,7 +25,7 @@
       "@kubb/plugin-client": ["../packages/plugin-client/src/index.ts"],
       "@kubb/plugin-client/client": ["../packages/plguin-client/client.ts"],
       "@kubb/plugin-faker": ["../packages/swagger-faker/src/index.ts"],
-      "@kubb/plugin-msw": ["../packages/swagger-msw/src/index.ts"],
+      "@kubb/plugin-msw": ["../packages/plugin-msw/src/index.ts"],
       "@kubb/swagger-tanstack-query": ["../packages/swagger-tanstack-query/src/index.ts"],
       "@kubb/plugin-ts": ["../packages/plugin-ts/src/index.ts"],
       "@kubb/plugin-zod": ["../packages/plugin-zod/src/index.ts"],

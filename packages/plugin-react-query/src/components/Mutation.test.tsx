@@ -13,7 +13,7 @@ import type { Plugin, ResolveNameParams } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
-import type { PluginTanstackQuery } from '../types.ts'
+import type { PluginReactQuery } from '../types.ts'
 
 describe('<Mutation/>', async () => {
   const oas = await parseFromConfig({
@@ -34,7 +34,6 @@ describe('<Mutation/>', async () => {
 
   test('pets with veriableType `hook`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      framework: 'react',
       infinite: false,
       suspense: false,
       dataReturnType: 'data',
@@ -54,7 +53,7 @@ describe('<Mutation/>', async () => {
       mutate: { variablesType: 'hook', methods: ['post'] },
     }
 
-    const plugin = { options } as Plugin<PluginTanstackQuery>
+    const plugin = { options } as Plugin<PluginReactQuery>
     const og = await new OperationGenerator(options, {
       oas,
       exclude: [],
@@ -87,7 +86,6 @@ describe('<Mutation/>', async () => {
 
   test('pets with veriableType `mutate`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      framework: 'react',
       infinite: false,
       suspense: false,
       dataReturnType: 'data',
@@ -107,7 +105,7 @@ describe('<Mutation/>', async () => {
       mutate: { variablesType: 'mutate', methods: ['post'] },
     }
 
-    const plugin = { options } as Plugin<PluginTanstackQuery>
+    const plugin = { options } as Plugin<PluginReactQuery>
     const og = await new OperationGenerator(options, {
       oas,
       exclude: [],

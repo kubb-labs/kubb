@@ -15,7 +15,7 @@ describe('<Mock/>', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-msw/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-msw/mocks/petStore.yaml' },
   })
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {

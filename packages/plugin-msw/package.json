@@ -1,7 +1,7 @@
 {
   "name": "@kubb/plugin-msw",
   "version": "2.23.3",
-  "description": "Generator swagger-msw",
+  "description": "Generator plugin-msw",
   "keywords": [
     "faker",
     "faker.js",
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-msw"
+    "directory": "packages/plugin-msw"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

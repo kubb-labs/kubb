@@ -47,7 +47,7 @@ features:
   - icon:
       src: ./feature/msw.svg
     title: MSW <span class="new">v2 support</span>
-    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/swagger-msw">Learn more</a></div>
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/plugin-msw">Learn more</a></div>
   - icon:
       src: ./feature/zod.svg
       height: 24

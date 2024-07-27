@@ -11,7 +11,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
-import type { PluginTanstackQuery } from './types.ts'
+import type { PluginReactQuery } from './types.ts'
 
 describe('OperationGenerator', async () => {
   const oas = await parseFromConfig({
@@ -31,7 +31,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'pathParamsTypeInline',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -60,7 +59,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'pathParamsTypeObject',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -89,7 +87,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'queryOptions',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -115,7 +112,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'queryWithoutQueryOptions',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -142,7 +138,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'variablesTypeMutate',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -169,7 +164,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'mutateAsQuery',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -196,7 +190,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'upload',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -223,7 +216,6 @@ describe('OperationGenerator', async () => {
     {
       name: 'uploadMutation',
       options: {
-        framework: 'react',
         infinite: false,
         suspense: false,
         dataReturnType: 'data',
@@ -255,7 +247,7 @@ describe('OperationGenerator', async () => {
       exclude: [],
       include: undefined,
       pluginManager: mockedPluginManager,
-      plugin: { options } as Plugin<PluginTanstackQuery>,
+      plugin: { options } as Plugin<PluginReactQuery>,
       contentType: undefined,
       override: undefined,
       mode: 'split',

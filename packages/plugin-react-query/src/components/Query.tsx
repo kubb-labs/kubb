@@ -574,7 +574,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
           <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={true} />
         )}
         <File.Source>
-          <SchemaType factory={factory} />
+          <SchemaType  />
           <Query
             factory={factory}
             Template={Template}
