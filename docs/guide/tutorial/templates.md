@@ -179,7 +179,7 @@ yarn run generate
 The end result of a generated client based on the custom template.
 
 ::: tip
-See [examples/react-query-v5](/examples/tanstack-query/react-query-v5) or [examples/python](/examples/python) for are more in depth example.
+See [examples/react-query](/examples/tanstack-query/react-query) or [examples/python](/examples/python) for are more in depth example.
 :::
 ```typescript
 import client from '@kubb/plugin-client/client'

@@ -1,7 +1,8 @@
 import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 type UploadFile = {
@@ -28,19 +29,23 @@ export function useUploadFileHook(
     mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
     client?: UploadFile['client']['parameters']
   } = {},
-): UseMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
+  const invalidationOnSuccess = useInvalidationForMutation('useUploadFileHook')
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         params,
         data,
-        headers: { 'Content-Type': 'application/octet-stream', ...clientOptions.headers },
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

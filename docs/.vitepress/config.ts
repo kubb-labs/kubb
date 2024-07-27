@@ -298,10 +298,6 @@ const examplesSidebar = [
         link: '/examples/tanstack-query/react-query',
       },
       {
-        text: 'React-Query v5>',
-        link: '/examples/tanstack-query/react-query-v5',
-      },
-      {
         text: 'Vue-Query',
         link: '/examples/tanstack-query/vue-query',
       },

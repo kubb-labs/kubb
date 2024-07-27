@@ -1,7 +1,8 @@
 import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
 type PlaceOrder = {
@@ -27,9 +28,10 @@ export function usePlaceOrderHook(
     mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
     client?: PlaceOrder['client']['parameters']
   } = {},
-): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>({
+  const invalidationOnSuccess = useInvalidationForMutation('usePlaceOrderHook')
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
@@ -38,6 +40,10 @@ export function usePlaceOrderHook(
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) invalidationOnSuccess(...args)
+      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })
