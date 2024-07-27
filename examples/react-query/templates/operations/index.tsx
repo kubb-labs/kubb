@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { Parser, File, Type, useApp } from '@kubb/react'
-import type { PluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { Operations } from '@kubb/swagger-tanstack-query/components'
+import type { PluginReactQuery } from '@kubb/plugin-react-query'
+import { Operations } from '@kubb/plugin-react-query/components'
 import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -12,7 +12,7 @@ export const templates = {
     const {
       plugin: { key: pluginKey },
       pluginManager,
-    } = useApp<PluginTanstackQuery>()
+    } = useApp<PluginReactQuery>()
     const operations = useOperations()
     const { getName, getSchemas } = useOperationManager()
 

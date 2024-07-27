@@ -16,7 +16,6 @@ type Templates = {
   query?: typeof QueryTemplate.templates | false
   queryOptions?: typeof QueryOptionsTemplate.templates | false
   queryKey?: typeof QueryKey.templates | false
-  queryImports?: typeof QueryImports.templates | false
 }
 
 export type Suspense = object
@@ -36,7 +35,7 @@ export type Query = {
    * It will be used as `import { useQuery } from '${importPath}'`.
    * It allows both relative and absolute path.
    * the path will be applied as is, so relative path should be based on the file being generated.
-   * @default '@tanstack/react-query' if 'framework' is set to 'react'
+   * @default '@tanstack/react-query'
    */
   importPath?: string
 }
@@ -54,6 +53,14 @@ export type Mutate = {
    * @default ['post', 'put', 'delete']
    */
   methods: Array<HttpMethod>
+  /**
+   * Path to the useQuery that will be used to do the useQuery functionality.
+   * It will be used as `import { useQuery } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default '@tanstack/react-query'
+   */
+  importPath?: string
 }
 
 export type Infinite = {

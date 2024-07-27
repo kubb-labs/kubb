@@ -5,7 +5,6 @@ import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
 import { File, Function, Parser, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
 
-
 import { SchemaType } from './SchemaType.tsx'
 
 import { isRequired } from '@kubb/oas'
@@ -47,34 +46,26 @@ type TemplateProps = {
   dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
 }
 
-function Template({
-                    name,
-                    params,
-                    mutateParams,
-                    JSDoc,
-                    client,
-                    hook,
-                    dataReturnType,
-                  }: TemplateProps): ReactNode {
+function Template({ name, params, mutateParams, JSDoc, client, hook, dataReturnType }: TemplateProps): ReactNode {
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
-    client.contentType !== 'application/json' ? `'Content-Type': '${ client.contentType }'` : undefined,
+    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
     client.withHeaders ? '...headers' : undefined,
   ]
     .filter(Boolean)
     .join(', ')
 
   const clientOptions = [
-    `method: "${ client.method }"`,
-    `url: ${ client.path.template }`,
+    `method: "${client.method}"`,
+    `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
     client.withData && !isFormData ? 'data' : undefined,
     client.withData && isFormData ? 'data: formData' : undefined,
-    headers.length ? `headers: { ${ headers }, ...clientOptions.headers }` : undefined,
+    headers.length ? `headers: { ${headers}, ...clientOptions.headers }` : undefined,
     '...clientOptions',
   ].filter(Boolean)
 
-  const resolvedClientOptions = `${ transformers.createIndent(4) }${ clientOptions.join(`,\n${ transformers.createIndent(4) }`) }`
+  const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   const formData = isFormData
     ? `
@@ -91,22 +82,22 @@ function Template({
     : undefined
 
   return (
-    <Function export name={ name } params={ params } JSDoc={ JSDoc }>
-      { `
+    <Function export name={name} params={params} JSDoc={JSDoc}>
+      {`
          const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-         return ${ hook.name }({
-           mutationFn: async(${ mutateParams }) => {
-             ${ hook.children || '' }
-             ${ formData || '' }
-             const res = await client<${ client.generics }>({
-              ${ resolvedClientOptions }
+         return ${hook.name}({
+           mutationFn: async(${mutateParams}) => {
+             ${hook.children || ''}
+             ${formData || ''}
+             const res = await client<${client.generics}>({
+              ${resolvedClientOptions}
              })
 
-             return ${ dataReturnType === 'data' ? 'res.data' : 'res' }
+             return ${dataReturnType === 'data' ? 'res.data' : 'res'}
            },
            ...mutationOptions
-         })` }
+         })`}
     </Function>
   )
 }
@@ -120,6 +111,7 @@ function RootTemplate({ children }: RootTemplateProps) {
     plugin: {
       options: {
         client: { importPath },
+        mutate,
       },
     },
   } = useApp<PluginReactQuery>()
@@ -127,32 +119,35 @@ function RootTemplate({ children }: RootTemplateProps) {
   const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation, { pluginKey: [ pluginTsName ], type: 'type' })
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: [ pluginTsName ] })
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
   return (
     <Parser language="typescript">
-      <File<FileMeta> baseName={ file.baseName } path={ file.path } meta={ file.meta }>
-        <File.Import name={ 'client' } path={ importPath }/>
-        <File.Import name={ [ 'ResponseConfig' ] } path={ importPath } isTypeOnly/>
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
-          name={ [
+          name={[
             schemas.request?.name,
             schemas.response.name,
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
             ...(schemas.errors?.map((error) => error.name) || []),
-          ].filter(Boolean) }
-          root={ file.path }
-          path={ fileType.path }
+          ].filter(Boolean)}
+          root={file.path}
+          path={fileType.path}
           isTypeOnly
         />
-        <File.Import name={ [ 'UseMutationOptions', 'UseMutationResult' ] } path={ '@tanstack/react-query' }
-                     isTypeOnly/>
-        <File.Import name={ [ 'useMutation' ] } path={ '@tanstack/react-query' }/>
-        <File.Source>{ children }</File.Source>
+        <File.Import
+          name={['UseMutationOptions', 'UseMutationResult']}
+          path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'}
+          isTypeOnly
+        />
+        <File.Import name={['useMutation']} path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'} />
+        <File.Source>{children}</File.Source>
       </File>
     </Parser>
   )
@@ -162,7 +157,6 @@ const defaultTemplates = { default: Template, root: RootTemplate } as const
 
 type Templates = Partial<typeof defaultTemplates>
 
-
 type MutationProps = {
   /**
    * This will make it possible to override the default behaviour.
@@ -170,9 +164,7 @@ type MutationProps = {
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Mutation({
-                           Template = defaultTemplates.default,
-                         }: MutationProps): ReactNode {
+export function Mutation({ Template = defaultTemplates.default }: MutationProps): ReactNode {
   // TODO do checks on pathParamsType
 
   const {
@@ -185,7 +177,7 @@ export function Mutation({
   const { getSchemas, getName } = useOperationManager()
 
   const name = getName(operation, { type: 'function' })
-  const schemas = getSchemas(operation, { pluginKey: [ pluginTsName ], type: 'type' })
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const contentType = operation.getContentType()
 
   const params = new FunctionParams()
@@ -195,34 +187,34 @@ export function Mutation({
   const requestType =
     mutate && mutate.variablesType === 'mutate'
       ? FunctionParams.toObject([
-        ...getASTParams(schemas.pathParams, { typed: true }),
-        {
-          name: 'params',
-          type: `${ factoryName }['queryParams']`,
-          enabled: !!schemas.queryParams?.name,
-          required: isRequired(schemas.queryParams?.schema),
-        },
-        {
-          name: 'headers',
-          type: `${ factoryName }['headerParams']`,
-          enabled: !!schemas.headerParams?.name,
-          required: isRequired(schemas.headerParams?.schema),
-        },
-        {
-          name: 'data',
-          type: `${ factoryName }['request']`,
-          enabled: !!schemas.request?.name,
-          required: isRequired(schemas.request?.schema),
-        },
-      ])?.type
+          ...getASTParams(schemas.pathParams, { typed: true }),
+          {
+            name: 'params',
+            type: `${factoryName}['queryParams']`,
+            enabled: !!schemas.queryParams?.name,
+            required: isRequired(schemas.queryParams?.schema),
+          },
+          {
+            name: 'headers',
+            type: `${factoryName}['headerParams']`,
+            enabled: !!schemas.headerParams?.name,
+            required: isRequired(schemas.headerParams?.schema),
+          },
+          {
+            name: 'data',
+            type: `${factoryName}['request']`,
+            enabled: !!schemas.request?.name,
+            required: isRequired(schemas.request?.schema),
+          },
+        ])?.type
       : schemas.request?.name
-        ? `${ factoryName }['request']`
+        ? `${factoryName}['request']`
         : 'never'
 
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
-    generics: [ `${ factoryName }["data"]`, `${ factoryName }["error"]`, requestType ? `${ factoryName }["request"]` : 'void' ].join(', '),
+    generics: [`${factoryName}["data"]`, `${factoryName}["error"]`, requestType ? `${factoryName}["request"]` : 'void'].join(', '),
     withQueryParams: !!schemas.queryParams?.name,
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
@@ -231,13 +223,13 @@ export function Mutation({
   }
   const hook = {
     name: 'useMutation',
-    generics: [ `${ factoryName }['response']`, `${ factoryName }["error"]`, requestType ? `${ requestType }` : 'void' ].join(', '),
+    generics: [`${factoryName}['response']`, `${factoryName}["error"]`, requestType ? `${requestType}` : 'void'].join(', '),
   }
 
   const resultGenerics = [
-    `${ factoryName }["response"]`,
-    `${ factoryName }["error"]`,
-    mutate && mutate?.variablesType === 'mutate' ? requestType : `${ factoryName }["request"]`,
+    `${factoryName}["response"]`,
+    `${factoryName}["error"]`,
+    mutate && mutate?.variablesType === 'mutate' ? requestType : `${factoryName}["request"]`,
   ]
 
   if (mutate && mutate?.variablesType === 'mutate') {
@@ -245,8 +237,8 @@ export function Mutation({
       {
         name: 'options',
         type: `{
-      mutation?: UseMutationOptions<${ resultGenerics.join(', ') }>,
-      client?: ${ factoryName }['client']['parameters']
+      mutation?: UseMutationOptions<${resultGenerics.join(', ')}>,
+      client?: ${factoryName}['client']['parameters']
   }`,
         default: '{}',
       },
@@ -277,21 +269,21 @@ export function Mutation({
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
-        type: `${ factoryName }['queryParams']`,
+        type: `${factoryName}['queryParams']`,
         enabled: client.withQueryParams,
         required: isRequired(schemas.queryParams?.schema),
       },
       {
         name: 'headers',
-        type: `${ factoryName }['headerParams']`,
+        type: `${factoryName}['headerParams']`,
         enabled: client.withHeaders,
         required: isRequired(schemas.headerParams?.schema),
       },
       {
         name: 'options',
         type: `{
-      mutation?: UseMutationOptions<${ resultGenerics.join(', ') }>,
-      client?: ${ factoryName }['client']['parameters']
+      mutation?: UseMutationOptions<${resultGenerics.join(', ')}>,
+      client?: ${factoryName}['client']['parameters']
   }`,
         default: '{}',
       },
@@ -313,13 +305,13 @@ export function Mutation({
   return (
     <>
       <Template
-        name={ name }
-        JSDoc={ { comments: getComments(operation) } }
-        client={ client }
-        hook={ hook }
-        params={ params.toString() }
-        mutateParams={ mutateParams.toString() }
-        dataReturnType={ dataReturnType }
+        name={name}
+        JSDoc={{ comments: getComments(operation) }}
+        client={client}
+        hook={hook}
+        params={params.toString()}
+        mutateParams={mutateParams.toString()}
+        dataReturnType={dataReturnType}
       />
     </>
   )
@@ -340,12 +332,10 @@ Mutation.File = function ({ ...props }: FileProps): ReactNode {
 
   return (
     <RootTemplate>
-      <SchemaType/>
-      <Mutation Template={ Template } />
+      <SchemaType />
+      <Mutation Template={Template} />
     </RootTemplate>
   )
-
-
 }
 
 Mutation.templates = defaultTemplates

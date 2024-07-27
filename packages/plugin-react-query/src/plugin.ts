@@ -60,6 +60,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         ? {
             queryKey: (key: unknown[]) => key,
             methods: ['get'],
+            importPath: '@tanstack/react-query',
             ...query,
           }
         : false,
@@ -106,6 +107,12 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     resolveName(name, type) {
       let resolvedName = camelCase(name)
 
+      if (type === 'file' || type === 'function') {
+        resolvedName = camelCase(name, {
+          prefix: 'use',
+          isFile: type === 'file',
+        })
+      }
       if (type === 'type') {
         resolvedName = pascalCase(name)
       }
