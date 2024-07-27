@@ -93,8 +93,8 @@
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "react-reconciler": "^0.29.2",
-    "tsup": "^8.2.2",
-    "typescript": "^5.5.3"
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4"
   },
   "engines": {
     "node": ">=18"

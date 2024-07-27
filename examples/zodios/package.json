@@ -24,8 +24,8 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
     "@zodios/core": "^10.9.6",
@@ -40,8 +40,8 @@
     "@kubb/config-ts": "workspace:*",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "tsup": "^8.2.2",
-    "typescript": "^5.5.3"
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

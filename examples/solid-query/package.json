@@ -22,18 +22,18 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/solid-query": "^4.36.1",
     "axios": "^1.7.2",
-    "solid-js": "^1.8.18",
-    "tsup": "^8.2.2"
+    "solid-js": "^1.8.19",
+    "tsup": "^8.2.3"
   },
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

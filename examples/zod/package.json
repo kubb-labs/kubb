@@ -22,17 +22,17 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.2.2",
+    "tsup": "^8.2.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

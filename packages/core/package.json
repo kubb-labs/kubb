@@ -113,8 +113,8 @@
     "ora": "^8.0.1",
     "prettier": "^3.3.3",
     "tinyrainbow": "^1.2.0",
-    "tsup": "^8.2.2",
-    "typescript": "^5.5.3"
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4"
   },
   "engines": {
     "node": ">=18"
