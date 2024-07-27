@@ -59,7 +59,7 @@ export type Options = {
  * `originalName` is the original name used(in PascalCase), only used to remove duplicates
  *
  * `pluginKey` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
- * @example import a type(swagger-ts) for a mock file(swagger-faker)
+ * @example import a type(plugin-ts) for a mock file(swagger-faker)
  */
 
 export type Ref = {

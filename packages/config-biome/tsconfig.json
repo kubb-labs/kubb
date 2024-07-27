@@ -24,7 +24,7 @@
       "path": "../swagger-tanstack-query"
     },
     {
-      "path": "../swagger-ts"
+      "path": "../plugin-ts"
     },
     {
       "path": "../plugin-zod"

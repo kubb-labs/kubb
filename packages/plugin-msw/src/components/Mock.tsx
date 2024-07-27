@@ -7,7 +7,7 @@ import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginMsw } from '../types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 type TemplateProps = {
   /**

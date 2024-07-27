@@ -180,7 +180,7 @@
 
 ### Major Changes
 
-- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger-ts with output object
+- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - plugin-ts with output object
 
 - [#678](https://github.com/kubb-labs/kubb/pull/678) [`48b7ff2`](https://github.com/kubb-labs/kubb/commit/48b7ff246a3459bb7a9be6d430407c2538d3b2eb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger `Infer<typeof oas>` type
 

@@ -6,7 +6,7 @@ import { getASTParams } from '@kubb/plugin-oas/utils'
 import { isRequired } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 type TemplateProps = {
   /**

@@ -10,7 +10,7 @@
     "packages/swagger-msw",
     "packages/plugin-swr",
     "packages/swagger-tanstack-query",
-    "packages/swagger-ts",
+    "packages/plugin-ts",
     "packages/plugin-zod",
     "packages/plugin-zodios",
     "packages/parser-ts",

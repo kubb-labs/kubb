@@ -91,7 +91,7 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'`
+   * Export an Oas object as Oas type with `import type { Infer } from '@kubb/plugin-ts/oas'`
    */
   oasType?: 'infer' | false
   /**
@@ -130,7 +130,7 @@ export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOption
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-ts']: PluginTs
+    ['@kubb/plugin-ts']: PluginTs
   }
 }
 // external packages

@@ -34,7 +34,7 @@ declare namespace Kubb {
     ['@kubb/plugin-faker']: import('@kubb/plugin-faker').PluginFaker
     ['@kubb/plugin-swr']: import('@kubb/plugin-swr').PluginSwr
     ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginTanstackQuery
-    ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginTs
+    ['@kubb/plugin-ts']: import('@kubb/plugin-ts').PluginTs
     ['@kubb/plugin-zod']: import('@kubb/plugin-zod').PluginZod
     ['@kubb/plugin-zodios']: import('@kubb/plugin-zodios').PluginZodios
     ['@kubb/plugin-msw']: import('@kubb/plugin-msw').PluginMsw

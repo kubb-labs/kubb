@@ -1,4 +1,4 @@
-import type { Infer, Model, RequestParams, Response } from '@kubb/swagger-ts/oas'
+import type { Infer, Model, RequestParams, Response } from '@kubb/plugin-ts/oas'
 
 import type { Oas as GeneratedOas } from './gen/index.ts'
 

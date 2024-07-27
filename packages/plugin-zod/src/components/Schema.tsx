@@ -1,6 +1,6 @@
 import { Oas } from '@kubb/plugin-oas/components'
 import { Const, File, Type, useApp, useFile } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 import transformers from '@kubb/core/transformers'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'

@@ -1,7 +1,7 @@
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File, Parser, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 

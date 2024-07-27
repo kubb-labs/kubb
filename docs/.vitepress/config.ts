@@ -225,8 +225,8 @@ const pluginsSidebar = [
         collapsed: true,
       },
       {
-        text: '@kubb/swagger-ts',
-        link: '/plugins/swagger-ts/',
+        text: '@kubb/plugin-ts',
+        link: '/plugins/plugin-ts/',
       },
       {
         text: '@kubb/plugin-zod',
@@ -415,8 +415,8 @@ const pluginsMenu = [
         link: '/plugins/plugin-client/',
       },
       {
-        text: '@kubb/swagger-ts',
-        link: '/plugins/swagger-ts/',
+        text: '@kubb/plugin-ts',
+        link: '/plugins/plugin-ts/',
       },
       {
         text: '@kubb/plugin-zod',
@@ -556,7 +556,7 @@ export default defineConfig({
       //         '@kubb/plugin-msw/components': ['../packages/swagger-msw/src/components/index.ts'],
       //         '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
       //         '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
-      //         '@kubb/swagger-ts': ['../packages/swagger-ts/src/index.ts'],
+      //         '@kubb/plugin-ts': ['../packages/plugin-ts/src/index.ts'],
       //         '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
       //         '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],
       //         '@kubb/plugin-zodios': ['../packages/plugin-zodios/src/index.ts'],

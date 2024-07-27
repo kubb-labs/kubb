@@ -23,7 +23,7 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
     "axios": "^1.7.2",
     "tsup": "^8.2.3"
   },

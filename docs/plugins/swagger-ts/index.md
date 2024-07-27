@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/swagger-ts
+title: \@kubb/plugin-ts
 outline: deep
 ---
 
-# @kubb/swagger-ts <a href="https://paka.dev/npm/@kubb/swagger-ts@latest/api">🦙</a>
+# @kubb/plugin-ts <a href="https://paka.dev/npm/@kubb/plugin-ts@latest/api">🦙</a>
 
 With the Swagger TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types based on a Swagger file.
 
@@ -14,19 +14,19 @@ With the Swagger TypeScript plugin you can create [TypeScript](https://www.types
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-ts @kubb/swagger
 ```
 
 :::
@@ -45,7 +45,7 @@ Type: `string` <br/>
 Default: `'types'`
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   output: {
@@ -63,7 +63,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   output: {
@@ -82,7 +82,7 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   output: {
@@ -101,7 +101,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   output: {
@@ -143,7 +143,7 @@ Default: `'${output}/{{tag}}Controller'`
 ::: info
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   output: {
@@ -204,7 +204,7 @@ Type: `'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'` <br/>
 Default: `'asConst'`
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   enumType: 'enum',
@@ -224,7 +224,7 @@ Type: `string` <br/>
 Default: `''`
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   enumSuffix: 'Enum',
@@ -260,7 +260,7 @@ Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   dateType: 'string',
@@ -295,7 +295,7 @@ Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   unknownType: 'any',
@@ -336,7 +336,7 @@ Type: `'questionToken' | 'undefined' | 'questionTokenAndUndefined'` <br/>
 Default: `'questionToken'`
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   optionalType: 'questionToken',
@@ -346,14 +346,14 @@ const plugin = pluginTs({
 
 ### oasType
 
-Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'` <br/>
-See [infer](/plugins/swagger-ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
+Export an Oas object as Oas type with `import type { Infer } from '@kubb/plugin-ts/oas'` <br/>
+See [infer](/plugins/plugin-ts/infer) in how to use the types with `@kubb/plugin-ts/oas`.<br/>
 
 ::: info
 Type: `'infer' | false` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   oasType: 'infer',
@@ -382,7 +382,7 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   include: [
@@ -415,7 +415,7 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   exclude: [
@@ -449,7 +449,7 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   override: [
@@ -476,7 +476,7 @@ Override the name of the TypeScript type that is getting generated, this will al
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript twoslash
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
   transformers: {
@@ -493,7 +493,7 @@ const plugin = pluginTs({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {

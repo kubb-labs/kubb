@@ -14,19 +14,19 @@ With the Swagger Faker plugin, you can use [Faker](https://fakerjs.dev/) to crea
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-faker @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
 ```
 
 :::
@@ -463,7 +463,7 @@ const plugin = pluginFaker({
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginFaker} from '@kubb/plugin-faker'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {

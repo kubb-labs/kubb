@@ -3,7 +3,7 @@ import { Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 type Props = {
   factory: {

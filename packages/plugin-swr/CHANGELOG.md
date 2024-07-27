@@ -12,7 +12,7 @@
   - @kubb/parser-ts@2.23.3
   - @kubb/plugin-oas@2.23.3
   - @kubb/react@2.23.3
-  - @kubb/swagger-ts@2.23.3
+  - @kubb/plugin-ts@2.23.3
   - @kubb/plugin-zod@2.23.3
 
 ## 2.23.2
@@ -20,7 +20,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`da3cb26`](https://github.com/kubb-labs/kubb/commit/da3cb26148fde6205ef7773e78c88c1d92ffbd37)]:
-  - @kubb/swagger-ts@2.23.2
+  - @kubb/plugin-ts@2.23.2
   - @kubb/plugin@2.23.2
   - @kubb/plugin-zod@2.23.2
   - @kubb/core@2.23.2
@@ -42,7 +42,7 @@
   - @kubb/plugin-oas@2.23.1
   - @kubb/react@2.23.1
   - @kubb/plugin@2.23.1
-  - @kubb/swagger-ts@2.23.1
+  - @kubb/plugin-ts@2.23.1
   - @kubb/plugin-zod@2.23.1
 
 ## 2.23.0
@@ -57,7 +57,7 @@
   - @kubb/plugin-oas@2.23.0
   - @kubb/react@2.23.0
   - @kubb/plugin@2.23.0
-  - @kubb/swagger-ts@2.23.0
+  - @kubb/plugin-ts@2.23.0
   - @kubb/plugin-zod@2.23.0
 
 ## 2.22.1
@@ -74,7 +74,7 @@
   - @kubb/parser-ts@2.22.1
   - @kubb/plugin-oas@2.22.1
   - @kubb/react@2.22.1
-  - @kubb/swagger-ts@2.22.1
+  - @kubb/plugin-ts@2.22.1
   - @kubb/plugin-zod@2.22.1
 
 ## 2.22.0
@@ -90,7 +90,7 @@
   - @kubb/plugin-oas@2.22.0
   - @kubb/react@2.22.0
   - @kubb/plugin@2.22.0
-  - @kubb/swagger-ts@2.22.0
+  - @kubb/plugin-ts@2.22.0
 
 ## 2.21.2
 
@@ -104,7 +104,7 @@
   - @kubb/parser-ts@2.21.2
   - @kubb/plugin-oas@2.21.2
   - @kubb/react@2.21.2
-  - @kubb/swagger-ts@2.21.2
+  - @kubb/plugin-ts@2.21.2
   - @kubb/plugin-zod@2.21.2
 
 ## 2.21.1
@@ -112,7 +112,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`72a6a18`](https://github.com/kubb-labs/kubb/commit/72a6a18d20c984c8b54b6f685c8f13395253a05e)]:
-  - @kubb/swagger-ts@2.21.1
+  - @kubb/plugin-ts@2.21.1
   - @kubb/plugin@2.21.1
   - @kubb/plugin-zod@2.21.1
   - @kubb/core@2.21.1
@@ -135,7 +135,7 @@
   - @kubb/plugin-oas@2.21.0
   - @kubb/react@2.21.0
   - @kubb/plugin@2.21.0
-  - @kubb/swagger-ts@2.21.0
+  - @kubb/plugin-ts@2.21.0
 
 ## 2.20.0
 
@@ -152,7 +152,7 @@
   - @kubb/oas@2.20.0
   - @kubb/fs@2.20.0
   - @kubb/react@2.20.0
-  - @kubb/swagger-ts@2.20.0
+  - @kubb/plugin-ts@2.20.0
 
 ## 2.19.6
 
@@ -163,7 +163,7 @@
   - @kubb/plugin-oas@2.19.6
   - @kubb/core@2.19.6
   - @kubb/plugin@2.19.6
-  - @kubb/swagger-ts@2.19.6
+  - @kubb/plugin-ts@2.19.6
   - @kubb/react@2.19.6
   - @kubb/fs@2.19.6
   - @kubb/oas@2.19.6
@@ -179,7 +179,7 @@
   - @kubb/core@2.19.5
   - @kubb/oas@2.19.5
   - @kubb/plugin@2.19.5
-  - @kubb/swagger-ts@2.19.5
+  - @kubb/plugin-ts@2.19.5
   - @kubb/plugin-zod@2.19.5
   - @kubb/react@2.19.5
   - @kubb/fs@2.19.5
@@ -192,7 +192,7 @@
   - @kubb/oas@2.19.4
   - @kubb/plugin-oas@2.19.4
   - @kubb/plugin@2.19.4
-  - @kubb/swagger-ts@2.19.4
+  - @kubb/plugin-ts@2.19.4
   - @kubb/plugin-zod@2.19.4
   - @kubb/core@2.19.4
   - @kubb/fs@2.19.4
@@ -206,7 +206,7 @@
 - Updated dependencies [[`35b7a0a`](https://github.com/kubb-labs/kubb/commit/35b7a0a7822716b9625c0c96a904ec0c7b9ebe4a)]:
   - @kubb/plugin-zod@2.19.3
   - @kubb/plugin-oas@2.19.3
-  - @kubb/swagger-ts@2.19.3
+  - @kubb/plugin-ts@2.19.3
   - @kubb/plugin@2.19.3
   - @kubb/core@2.19.3
   - @kubb/fs@2.19.3
@@ -227,7 +227,7 @@
   - @kubb/plugin-oas@2.19.2
   - @kubb/react@2.19.2
   - @kubb/plugin@2.19.2
-  - @kubb/swagger-ts@2.19.2
+  - @kubb/plugin-ts@2.19.2
 
 ## 2.19.1
 
@@ -243,7 +243,7 @@
   - @kubb/plugin-oas@2.19.1
   - @kubb/react@2.19.1
   - @kubb/plugin@2.19.1
-  - @kubb/swagger-ts@2.19.1
+  - @kubb/plugin-ts@2.19.1
   - @kubb/plugin-zod@2.19.1
 
 ## 2.19.0
@@ -258,7 +258,7 @@
   - @kubb/plugin-oas@2.19.0
   - @kubb/react@2.19.0
   - @kubb/plugin@2.19.0
-  - @kubb/swagger-ts@2.19.0
+  - @kubb/plugin-ts@2.19.0
   - @kubb/plugin-zod@2.19.0
 
 ## 2.18.9
@@ -271,7 +271,7 @@
   - @kubb/plugin@2.18.9
   - @kubb/plugin-zod@2.18.9
   - @kubb/plugin-oas@2.18.9
-  - @kubb/swagger-ts@2.18.9
+  - @kubb/plugin-ts@2.18.9
   - @kubb/parser-ts@2.18.9
   - @kubb/react@2.18.9
   - @kubb/core@2.18.9
@@ -285,7 +285,7 @@
 - Updated dependencies [[`200fe5d`](https://github.com/kubb-labs/kubb/commit/200fe5d2b6e9a871250b4193b24634a16fe1decf)]:
   - @kubb/plugin-oas@2.18.8
   - @kubb/plugin@2.18.8
-  - @kubb/swagger-ts@2.18.8
+  - @kubb/plugin-ts@2.18.8
   - @kubb/plugin-zod@2.18.8
   - @kubb/core@2.18.8
   - @kubb/fs@2.18.8
@@ -300,7 +300,7 @@
 - Updated dependencies [[`f6a50b7`](https://github.com/kubb-labs/kubb/commit/f6a50b76210f338a1874bd6eafe2e8a392dbcbc2)]:
   - @kubb/plugin-oas@2.18.7
   - @kubb/plugin@2.18.7
-  - @kubb/swagger-ts@2.18.7
+  - @kubb/plugin-ts@2.18.7
   - @kubb/plugin-zod@2.18.7
   - @kubb/core@2.18.7
   - @kubb/fs@2.18.7
@@ -313,7 +313,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`4b4c762`](https://github.com/kubb-labs/kubb/commit/4b4c7620ab7be718a386292d965d8335cad6c1ec)]:
-  - @kubb/swagger-ts@2.18.6
+  - @kubb/plugin-ts@2.18.6
   - @kubb/plugin@2.18.6
   - @kubb/plugin-zod@2.18.6
   - @kubb/core@2.18.6
@@ -328,7 +328,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`d4581fd`](https://github.com/kubb-labs/kubb/commit/d4581fd006d8ecca026512c7b1f63229bec88b21)]:
-  - @kubb/swagger-ts@2.18.5
+  - @kubb/plugin-ts@2.18.5
   - @kubb/plugin@2.18.5
   - @kubb/plugin-zod@2.18.5
   - @kubb/core@2.18.5
@@ -349,7 +349,7 @@
   - @kubb/plugin-oas@2.18.4
   - @kubb/react@2.18.4
   - @kubb/plugin@2.18.4
-  - @kubb/swagger-ts@2.18.4
+  - @kubb/plugin-ts@2.18.4
   - @kubb/plugin-zod@2.18.4
 
 ## 2.18.3
@@ -359,7 +359,7 @@
 - Updated dependencies [[`a4cead3`](https://github.com/kubb-labs/kubb/commit/a4cead3979d39543f92b3d3babaeee7d31857d4d)]:
   - @kubb/plugin-oas@2.18.3
   - @kubb/plugin@2.18.3
-  - @kubb/swagger-ts@2.18.3
+  - @kubb/plugin-ts@2.18.3
   - @kubb/plugin-zod@2.18.3
   - @kubb/core@2.18.3
   - @kubb/oas@2.18.3
@@ -374,7 +374,7 @@
   - @kubb/oas@2.18.2
   - @kubb/swagger@2.18.2
   - @kubb/plugin@2.18.2
-  - @kubb/swagger-ts@2.18.2
+  - @kubb/plugin-ts@2.18.2
   - @kubb/plugin-zod@2.18.2
   - @kubb/core@2.18.2
   - @kubb/parser-ts@2.18.2
@@ -389,7 +389,7 @@
 - Updated dependencies [[`4b52765`](https://github.com/kubb-labs/kubb/commit/4b5276572bd0b5c59b85ec4eddebc3d7c331c0fa)]:
   - @kubb/plugin@2.18.1
   - @kubb/plugin-zod@2.18.1
-  - @kubb/swagger-ts@2.18.1
+  - @kubb/plugin-ts@2.18.1
   - @kubb/swagger@2.18.1
   - @kubb/core@2.18.1
   - @kubb/react@2.18.1
@@ -407,7 +407,7 @@
 - Updated dependencies [[`bd78381`](https://github.com/kubb-labs/kubb/commit/bd78381ce4bb1bfd83017b7f8b559119de12880a)]:
   - @kubb/swagger@2.18.0
   - @kubb/plugin@2.18.0
-  - @kubb/swagger-ts@2.18.0
+  - @kubb/plugin-ts@2.18.0
   - @kubb/plugin-zod@2.18.0
   - @kubb/core@2.18.0
   - @kubb/oas@2.18.0
@@ -422,7 +422,7 @@
   - @kubb/swagger@2.17.0
   - @kubb/react@2.17.0
   - @kubb/plugin@2.17.0
-  - @kubb/swagger-ts@2.17.0
+  - @kubb/plugin-ts@2.17.0
   - @kubb/core@2.17.0
   - @kubb/oas@2.17.0
   - @kubb/parser@2.17.0
@@ -435,7 +435,7 @@
   - @kubb/oas@2.16.3
   - @kubb/swagger@2.16.3
   - @kubb/plugin@2.16.3
-  - @kubb/swagger-ts@2.16.3
+  - @kubb/plugin-ts@2.16.3
   - @kubb/core@2.16.3
   - @kubb/parser@2.16.3
   - @kubb/react@2.16.3
@@ -445,7 +445,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`c8e5753`](https://github.com/kubb-labs/kubb/commit/c8e575310815307bf9282779932d51a59f3ab2a0)]:
-  - @kubb/swagger-ts@2.16.2
+  - @kubb/plugin-ts@2.16.2
   - @kubb/plugin@2.16.2
   - @kubb/core@2.16.2
   - @kubb/oas@2.16.2
@@ -461,7 +461,7 @@
   - @kubb/swagger@2.16.1
   - @kubb/oas@2.16.1
   - @kubb/plugin@2.16.1
-  - @kubb/swagger-ts@2.16.1
+  - @kubb/plugin-ts@2.16.1
   - @kubb/core@2.16.1
   - @kubb/parser@2.16.1
   - @kubb/react@2.16.1
@@ -474,7 +474,7 @@
   - @kubb/swagger@2.16.0
   - @kubb/oas@2.16.0
   - @kubb/plugin@2.16.0
-  - @kubb/swagger-ts@2.16.0
+  - @kubb/plugin-ts@2.16.0
   - @kubb/core@2.16.0
   - @kubb/parser@2.16.0
   - @kubb/react@2.16.0
@@ -487,7 +487,7 @@
   - @kubb/swagger@2.15.0
   - @kubb/oas@2.15.0
   - @kubb/plugin@2.15.0
-  - @kubb/swagger-ts@2.15.0
+  - @kubb/plugin-ts@2.15.0
   - @kubb/core@2.15.0
   - @kubb/parser@2.15.0
   - @kubb/react@2.15.0
@@ -499,7 +499,7 @@
 - Updated dependencies [[`f58269f`](https://github.com/kubb-labs/kubb/commit/f58269f776e459c9bae21e8122a8f60fde8702e1)]:
   - @kubb/swagger@2.14.0
   - @kubb/plugin@2.14.0
-  - @kubb/swagger-ts@2.14.0
+  - @kubb/plugin-ts@2.14.0
   - @kubb/core@2.14.0
   - @kubb/parser@2.14.0
   - @kubb/react@2.14.0
@@ -511,7 +511,7 @@
 - Updated dependencies [[`eac4bb5`](https://github.com/kubb-labs/kubb/commit/eac4bb525a6857b3a0e4c04d52e3de5d2f568d4f)]:
   - @kubb/swagger@2.13.3
   - @kubb/plugin@2.13.3
-  - @kubb/swagger-ts@2.13.3
+  - @kubb/plugin-ts@2.13.3
   - @kubb/core@2.13.3
   - @kubb/parser@2.13.3
   - @kubb/react@2.13.3
@@ -523,7 +523,7 @@
 - Updated dependencies []:
   - @kubb/swagger@2.13.2
   - @kubb/plugin@2.13.2
-  - @kubb/swagger-ts@2.13.2
+  - @kubb/plugin-ts@2.13.2
   - @kubb/core@2.13.2
   - @kubb/parser@2.13.2
   - @kubb/react@2.13.2
@@ -538,14 +538,14 @@
   - @kubb/react@2.13.1
   - @kubb/swagger@2.13.1
   - @kubb/plugin@2.13.1
-  - @kubb/swagger-ts@2.13.1
+  - @kubb/plugin-ts@2.13.1
 
 ## 2.13.0
 
 ### Patch Changes
 
 - Updated dependencies [[`316d067`](https://github.com/kubb-labs/kubb/commit/316d0678558e8d631f839d859971c7f6a66390dd)]:
-  - @kubb/swagger-ts@2.13.0
+  - @kubb/plugin-ts@2.13.0
   - @kubb/swagger@2.13.0
   - @kubb/plugin@2.13.0
   - @kubb/core@2.13.0
@@ -557,7 +557,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`e32b6bd`](https://github.com/kubb-labs/kubb/commit/e32b6bda3d676b099dd28c6ab380cf22abb44895), [`e32b6bd`](https://github.com/kubb-labs/kubb/commit/e32b6bda3d676b099dd28c6ab380cf22abb44895)]:
-  - @kubb/swagger-ts@2.12.6
+  - @kubb/plugin-ts@2.12.6
   - @kubb/swagger@2.12.6
   - @kubb/plugin@2.12.6
   - @kubb/core@2.12.6
@@ -571,7 +571,7 @@
 - Updated dependencies [[`95c37c6`](https://github.com/kubb-labs/kubb/commit/95c37c6793344022bbb8129bc570fb200c700800)]:
   - @kubb/swagger@2.12.5
   - @kubb/plugin@2.12.5
-  - @kubb/swagger-ts@2.12.5
+  - @kubb/plugin-ts@2.12.5
   - @kubb/core@2.12.5
   - @kubb/parser@2.12.5
   - @kubb/react@2.12.5
@@ -586,7 +586,7 @@
   - @kubb/react@2.12.4
   - @kubb/swagger@2.12.4
   - @kubb/plugin@2.12.4
-  - @kubb/swagger-ts@2.12.4
+  - @kubb/plugin-ts@2.12.4
 
 ## 2.12.3
 
@@ -597,7 +597,7 @@
   - @kubb/react@2.12.3
   - @kubb/swagger@2.12.3
   - @kubb/plugin@2.12.3
-  - @kubb/swagger-ts@2.12.3
+  - @kubb/plugin-ts@2.12.3
   - @kubb/parser@2.12.3
 
 ## 2.12.2
@@ -609,7 +609,7 @@
   - @kubb/react@2.12.2
   - @kubb/swagger@2.12.2
   - @kubb/plugin@2.12.2
-  - @kubb/swagger-ts@2.12.2
+  - @kubb/plugin-ts@2.12.2
   - @kubb/parser@2.12.2
 
 ## 2.12.1
@@ -622,7 +622,7 @@
   - @kubb/react@2.12.1
   - @kubb/swagger@2.12.1
   - @kubb/plugin@2.12.1
-  - @kubb/swagger-ts@2.12.1
+  - @kubb/plugin-ts@2.12.1
 
 ## 2.12.0
 
@@ -633,7 +633,7 @@
   - @kubb/react@2.12.0
   - @kubb/swagger@2.12.0
   - @kubb/plugin@2.12.0
-  - @kubb/swagger-ts@2.12.0
+  - @kubb/plugin-ts@2.12.0
   - @kubb/parser@2.12.0
 
 ## 2.11.1
@@ -646,14 +646,14 @@
   - @kubb/react@2.11.1
   - @kubb/swagger@2.11.1
   - @kubb/plugin@2.11.1
-  - @kubb/swagger-ts@2.11.1
+  - @kubb/plugin-ts@2.11.1
 
 ## 2.11.0
 
 ### Patch Changes
 
 - Updated dependencies [[`b97c061`](https://github.com/kubb-labs/kubb/commit/b97c0616c231f8aa51e4551e5558573ad43ada98), [`b97c061`](https://github.com/kubb-labs/kubb/commit/b97c0616c231f8aa51e4551e5558573ad43ada98)]:
-  - @kubb/swagger-ts@2.11.0
+  - @kubb/plugin-ts@2.11.0
   - @kubb/swagger@2.11.0
   - @kubb/react@2.11.0
   - @kubb/plugin@2.11.0
@@ -668,7 +668,7 @@
   - @kubb/swagger@2.10.0
   - @kubb/core@2.10.0
   - @kubb/plugin@2.10.0
-  - @kubb/swagger-ts@2.10.0
+  - @kubb/plugin-ts@2.10.0
   - @kubb/react@2.10.0
   - @kubb/parser@2.10.0
 
@@ -681,7 +681,7 @@
   - @kubb/react@2.9.1
   - @kubb/swagger@2.9.1
   - @kubb/plugin@2.9.1
-  - @kubb/swagger-ts@2.9.1
+  - @kubb/plugin-ts@2.9.1
   - @kubb/parser@2.9.1
 
 ## 2.9.0
@@ -694,7 +694,7 @@
   - @kubb/react@2.9.0
   - @kubb/swagger@2.9.0
   - @kubb/plugin@2.9.0
-  - @kubb/swagger-ts@2.9.0
+  - @kubb/plugin-ts@2.9.0
 
 ## 2.8.2
 
@@ -705,7 +705,7 @@
   - @kubb/core@2.8.2
   - @kubb/react@2.8.2
   - @kubb/plugin@2.8.2
-  - @kubb/swagger-ts@2.8.2
+  - @kubb/plugin-ts@2.8.2
   - @kubb/swagger@2.8.2
 
 ## 2.8.1
@@ -718,7 +718,7 @@
   - @kubb/react@2.8.1
   - @kubb/swagger@2.8.1
   - @kubb/plugin@2.8.1
-  - @kubb/swagger-ts@2.8.1
+  - @kubb/plugin-ts@2.8.1
 
 ## 2.8.0
 
@@ -728,7 +728,7 @@
 
 - Updated dependencies [[`752f9a0`](https://github.com/kubb-labs/kubb/commit/752f9a02f642f2c5e948b96622fdc73c33d571b8), [`e2eed44`](https://github.com/kubb-labs/kubb/commit/e2eed4482e2e49d41c87e64eb484ebedbeb3ccc8)]:
   - @kubb/plugin@2.8.0
-  - @kubb/swagger-ts@2.8.0
+  - @kubb/plugin-ts@2.8.0
   - @kubb/swagger@2.8.0
   - @kubb/react@2.8.0
   - @kubb/core@2.8.0
@@ -739,7 +739,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`5857667`](https://github.com/kubb-labs/kubb/commit/5857667ca41cbc8fb983d335691fa8c8047e1f48)]:
-  - @kubb/swagger-ts@2.7.2
+  - @kubb/plugin-ts@2.7.2
   - @kubb/plugin@2.7.2
   - @kubb/core@2.7.2
   - @kubb/parser@2.7.2
@@ -756,7 +756,7 @@
   - @kubb/react@2.7.1
   - @kubb/swagger@2.7.1
   - @kubb/plugin@2.7.1
-  - @kubb/swagger-ts@2.7.1
+  - @kubb/plugin-ts@2.7.1
 
 ## 2.7.0
 
@@ -766,7 +766,7 @@
   - @kubb/plugin@2.7.0
   - @kubb/react@2.7.0
   - @kubb/swagger@2.7.0
-  - @kubb/swagger-ts@2.7.0
+  - @kubb/plugin-ts@2.7.0
   - @kubb/core@2.7.0
   - @kubb/parser@2.7.0
 
@@ -779,7 +779,7 @@
   - @kubb/react@2.6.7
   - @kubb/swagger@2.6.7
   - @kubb/plugin@2.6.7
-  - @kubb/swagger-ts@2.6.7
+  - @kubb/plugin-ts@2.6.7
   - @kubb/parser@2.6.7
 
 ## 2.6.6
@@ -792,7 +792,7 @@
   - @kubb/react@2.6.6
   - @kubb/swagger@2.6.6
   - @kubb/plugin@2.6.6
-  - @kubb/swagger-ts@2.6.6
+  - @kubb/plugin-ts@2.6.6
 
 ## 2.6.5
 
@@ -806,7 +806,7 @@
   - @kubb/react@2.6.5
   - @kubb/swagger@2.6.5
   - @kubb/plugin@2.6.5
-  - @kubb/swagger-ts@2.6.5
+  - @kubb/plugin-ts@2.6.5
 
 ## 2.6.4
 
@@ -815,7 +815,7 @@
 - Updated dependencies [[`ee1dd8e`](https://github.com/kubb-labs/kubb/commit/ee1dd8ebf6cd7331176670af7bbb2c9cf98b4ce9)]:
   - @kubb/swagger@2.6.4
   - @kubb/plugin@2.6.4
-  - @kubb/swagger-ts@2.6.4
+  - @kubb/plugin-ts@2.6.4
   - @kubb/core@2.6.4
   - @kubb/parser@2.6.4
   - @kubb/react@2.6.4
@@ -827,7 +827,7 @@
 - Updated dependencies [[`52e802a`](https://github.com/kubb-labs/kubb/commit/52e802ac61a5c1820020ad1ec80ddcf930a647f1)]:
   - @kubb/swagger@2.6.3
   - @kubb/plugin@2.6.3
-  - @kubb/swagger-ts@2.6.3
+  - @kubb/plugin-ts@2.6.3
   - @kubb/core@2.6.3
   - @kubb/parser@2.6.3
   - @kubb/react@2.6.3
@@ -842,14 +842,14 @@
   - @kubb/react@2.6.2
   - @kubb/swagger@2.6.2
   - @kubb/plugin@2.6.2
-  - @kubb/swagger-ts@2.6.2
+  - @kubb/plugin-ts@2.6.2
 
 ## 2.6.1
 
 ### Patch Changes
 
 - Updated dependencies [[`69897f5`](https://github.com/kubb-labs/kubb/commit/69897f5ab4097ec1970b874d724319fb1e1e7f30)]:
-  - @kubb/swagger-ts@2.6.1
+  - @kubb/plugin-ts@2.6.1
   - @kubb/swagger@2.6.1
   - @kubb/plugin@2.6.1
   - @kubb/core@2.6.1
@@ -866,7 +866,7 @@
   - @kubb/react@2.6.0
   - @kubb/swagger@2.6.0
   - @kubb/plugin@2.6.0
-  - @kubb/swagger-ts@2.6.0
+  - @kubb/plugin-ts@2.6.0
 
 ## 2.5.3
 
@@ -878,7 +878,7 @@
   - @kubb/react@2.5.3
   - @kubb/swagger@2.5.3
   - @kubb/plugin@2.5.3
-  - @kubb/swagger-ts@2.5.3
+  - @kubb/plugin-ts@2.5.3
 
 ## 2.5.2
 
@@ -890,14 +890,14 @@
   - @kubb/react@2.5.2
   - @kubb/swagger@2.5.2
   - @kubb/plugin@2.5.2
-  - @kubb/swagger-ts@2.5.2
+  - @kubb/plugin-ts@2.5.2
 
 ## 2.5.1
 
 ### Patch Changes
 
 - Updated dependencies [[`96461a6`](https://github.com/kubb-labs/kubb/commit/96461a6028d5be9cf0903d3729fd6153185092c2)]:
-  - @kubb/swagger-ts@2.5.1
+  - @kubb/plugin-ts@2.5.1
   - @kubb/plugin@2.5.1
   - @kubb/core@2.5.1
   - @kubb/parser@2.5.1
@@ -909,7 +909,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`457ee7f`](https://github.com/kubb-labs/kubb/commit/457ee7fc6c6b6e37f7bf499e8a2182cd8f56fa97)]:
-  - @kubb/swagger-ts@2.5.0
+  - @kubb/plugin-ts@2.5.0
   - @kubb/plugin@2.5.0
   - @kubb/core@2.5.0
   - @kubb/parser@2.5.0
@@ -921,7 +921,7 @@
 ### Patch Changes
 
 - Updated dependencies [[`bf1e521`](https://github.com/kubb-labs/kubb/commit/bf1e52182b636cef8c2cd54bcb123baf47d2d624), [`e9aaa92`](https://github.com/kubb-labs/kubb/commit/e9aaa92b891971d22cbb19f4a1bd37edbdc8bd7d), [`3e46f03`](https://github.com/kubb-labs/kubb/commit/3e46f031e4d54ea2cb197446c5922280b09326d5)]:
-  - @kubb/swagger-ts@2.4.1
+  - @kubb/plugin-ts@2.4.1
   - @kubb/core@2.4.1
   - @kubb/swagger@2.4.1
   - @kubb/plugin@2.4.1
@@ -938,14 +938,14 @@
   - @kubb/react@2.4.0
   - @kubb/swagger@2.4.0
   - @kubb/plugin@2.4.0
-  - @kubb/swagger-ts@2.4.0
+  - @kubb/plugin-ts@2.4.0
 
 ## 2.3.0
 
 ### Patch Changes
 
 - Updated dependencies [[`ec9c07d`](https://github.com/kubb-labs/kubb/commit/ec9c07d90eb3472f5d0030a1cbb746e0055b8ab8)]:
-  - @kubb/swagger-ts@2.3.0
+  - @kubb/plugin-ts@2.3.0
   - @kubb/parser@2.3.0
   - @kubb/plugin@2.3.0
   - @kubb/core@2.3.0
@@ -962,14 +962,14 @@
   - @kubb/react@2.2.1
   - @kubb/swagger@2.2.1
   - @kubb/plugin@2.2.1
-  - @kubb/swagger-ts@2.2.1
+  - @kubb/plugin-ts@2.2.1
 
 ## 2.2.0
 
 ### Patch Changes
 
 - Updated dependencies [[`2c20339`](https://github.com/kubb-labs/kubb/commit/2c20339cfac5c0789f6bf9086b6106feba4cbbde), [`9c17a9e`](https://github.com/kubb-labs/kubb/commit/9c17a9e1538961fe07f21e6999d4be2aedb896ea)]:
-  - @kubb/swagger-ts@2.2.0
+  - @kubb/plugin-ts@2.2.0
   - @kubb/swagger@2.2.0
   - @kubb/plugin@2.2.0
   - @kubb/core@2.2.0
@@ -986,7 +986,7 @@
   - @kubb/react@2.1.6
   - @kubb/swagger@2.1.6
   - @kubb/plugin@2.1.6
-  - @kubb/swagger-ts@2.1.6
+  - @kubb/plugin-ts@2.1.6
 
 ## 2.1.5
 
@@ -998,7 +998,7 @@
   - @kubb/react@2.1.5
   - @kubb/swagger@2.1.5
   - @kubb/plugin@2.1.5
-  - @kubb/swagger-ts@2.1.5
+  - @kubb/plugin-ts@2.1.5
 
 ## 2.1.4
 
@@ -1010,7 +1010,7 @@
   - @kubb/react@2.1.4
   - @kubb/swagger@2.1.4
   - @kubb/plugin@2.1.4
-  - @kubb/swagger-ts@2.1.4
+  - @kubb/plugin-ts@2.1.4
 
 ## 2.1.3
 
@@ -1021,7 +1021,7 @@
   - @kubb/react@2.1.3
   - @kubb/swagger@2.1.3
   - @kubb/plugin@2.1.3
-  - @kubb/swagger-ts@2.1.3
+  - @kubb/plugin-ts@2.1.3
   - @kubb/parser@2.1.3
 
 ## 2.1.2
@@ -1034,7 +1034,7 @@
   - @kubb/react@2.1.2
   - @kubb/swagger@2.1.2
   - @kubb/plugin@2.1.2
-  - @kubb/swagger-ts@2.1.2
+  - @kubb/plugin-ts@2.1.2
 
 ## 2.1.1
 
@@ -1046,7 +1046,7 @@
   - @kubb/react@2.1.1
   - @kubb/swagger@2.1.1
   - @kubb/plugin@2.1.1
-  - @kubb/swagger-ts@2.1.1
+  - @kubb/plugin-ts@2.1.1
 
 ## 2.1.0
 
@@ -1058,7 +1058,7 @@
 
 - Updated dependencies [[`c22433e`](https://github.com/kubb-labs/kubb/commit/c22433ec2c1b04527d72a6de44e524e580e2d876)]:
   - @kubb/plugin@2.1.0
-  - @kubb/swagger-ts@2.1.0
+  - @kubb/plugin-ts@2.1.0
   - @kubb/parser@2.1.0
   - @kubb/core@2.1.0
   - @kubb/react@2.1.0
@@ -1074,7 +1074,7 @@
   - @kubb/react@2.0.6
   - @kubb/swagger@2.0.6
   - @kubb/plugin@2.0.6
-  - @kubb/swagger-ts@2.0.6
+  - @kubb/plugin-ts@2.0.6
 
 ## 2.0.5
 
@@ -1086,7 +1086,7 @@
   - @kubb/react@2.0.5
   - @kubb/swagger@2.0.5
   - @kubb/plugin@2.0.5
-  - @kubb/swagger-ts@2.0.5
+  - @kubb/plugin-ts@2.0.5
 
 ## 2.0.4
 
@@ -1100,7 +1100,7 @@
   - @kubb/react@2.0.3
   - @kubb/swagger@2.0.3
   - @kubb/plugin@2.0.3
-  - @kubb/swagger-ts@2.0.3
+  - @kubb/plugin-ts@2.0.3
 
 ## 2.0.2
 
@@ -1114,14 +1114,14 @@
   - @kubb/parser@2.0.2
   - @kubb/react@2.0.2
   - @kubb/swagger@2.0.2
-  - @kubb/swagger-ts@2.0.2
+  - @kubb/plugin-ts@2.0.2
 
 ## 2.0.1
 
 ### Patch Changes
 
 - Updated dependencies [[`37bd469`](https://github.com/kubb-labs/kubb/commit/37bd469acbe1b80b9602621c8c128b1b0d456d21)]:
-  - @kubb/swagger-ts@2.0.1
+  - @kubb/plugin-ts@2.0.1
   - @kubb/plugin@2.0.1
   - @kubb/core@2.0.1
   - @kubb/parser@2.0.1
@@ -1132,7 +1132,7 @@
 
 ### Major Changes
 
-- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger-ts with output object
+- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - plugin-ts with output object
 
 - [#678](https://github.com/kubb-labs/kubb/pull/678) [`48b7ff2`](https://github.com/kubb-labs/kubb/commit/48b7ff246a3459bb7a9be6d430407c2538d3b2eb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger `Infer<typeof oas>` type
 
@@ -1158,4 +1158,4 @@
   - @kubb/core@2.0.0
   - @kubb/parser@2.0.0
   - @kubb/react@2.0.0
-  - @kubb/swagger-ts@2.0.0
+  - @kubb/plugin-ts@2.0.0

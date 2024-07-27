@@ -70,7 +70,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*"
+    "@kubb/plugin-ts": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

@@ -16,7 +16,7 @@
 "@kubb/plugin-msw": major
 "@kubb/plugin-swr": major
 "@kubb/swagger-tanstack-query": major
-"@kubb/swagger-ts": major
+"@kubb/plugin-ts": major
 "@kubb/plugin-zod": major
 "@kubb/plugin-zodios": major
 "@kubb/types": major

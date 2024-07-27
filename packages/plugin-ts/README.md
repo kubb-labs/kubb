@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/swagger-ts</h1>
+<h1>@kubb/plugin-ts</h1>
 
 <p>
    Swagger integration for TypeScript to generate all the different types based on an OpenAPI specification.
@@ -31,15 +31,15 @@
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/swagger-ts?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/swagger-ts
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/swagger-ts?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/swagger-ts
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-ts?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-ts
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-ts?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-ts
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/swagger-ts
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/swagger-ts?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/swagger-ts
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-ts
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-ts?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-ts
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/swagger-ts
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-ts

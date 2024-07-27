@@ -164,7 +164,7 @@ const plugin = pluginZod({
 
 ### typed
 
-Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
+Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
 ::: info
 

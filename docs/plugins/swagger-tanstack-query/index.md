@@ -28,19 +28,19 @@ With the Swagger Tanstack Query plugin you can create:
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas @kubb/plugin
+bun add @kubb/swagger-tanstack-query @kubb/plugin-ts @kubb/plugin-oas @kubb/plugin
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/plugin
+pnpm add @kubb/swagger-tanstack-query @kubb/plugin-ts @kubb/plugin-oas  @kubb/plugin
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/plugin
+npm install @kubb/swagger-tanstack-query @kubb/plugin-ts @kubb/plugin-oas  @kubb/plugin
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts @kubb/plugin-oas  @kubb/plugin
+yarn add @kubb/swagger-tanstack-query @kubb/plugin-ts @kubb/plugin-oas  @kubb/plugin
 ```
 
 :::
@@ -848,7 +848,7 @@ const plugin = pluginTanstackQuery({
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {

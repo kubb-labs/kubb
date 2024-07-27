@@ -64,7 +64,7 @@ OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileP
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['Infer']} path="@kubb/swagger-ts/oas" isTypeOnly />
+        <File.Import name={['Infer']} path="@kubb/plugin-ts/oas" isTypeOnly />
         <File.Source>
           <OasType Template={Template} name={name} typeName={typeName} />
         </File.Source>

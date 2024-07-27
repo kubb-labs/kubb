@@ -29,7 +29,7 @@
     "@kubb/plugin-msw": "workspace:*",
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/plugin-zodios": "workspace:*",
     "@tanstack/react-query": "^5.51.15",

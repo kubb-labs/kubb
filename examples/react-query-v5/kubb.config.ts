@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 import * as mutation from './templates/mutate/index'
 import * as operations from './templates/operations/index'

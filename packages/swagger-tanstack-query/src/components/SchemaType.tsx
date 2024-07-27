@@ -3,7 +3,7 @@ import { Type, useApp } from '@kubb/react'
 
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 type Props = {
   factory: {

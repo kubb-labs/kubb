@@ -15,19 +15,19 @@ file.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-swr @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
 ```
 
 :::
@@ -419,7 +419,7 @@ const plugin = pluginSwr({
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {

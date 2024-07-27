@@ -4,7 +4,7 @@ import type { PluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 export const templates = {
   ...Operations.templates,

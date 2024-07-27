@@ -28,7 +28,7 @@ features:
       src: ./feature/typescript.svg
       height: 24
     title: TypeScript
-    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support. <div class="learn-more"><a href="/plugins/swagger-ts">Learn more</a></div>
+    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support. <div class="learn-more"><a href="/plugins/plugin-ts">Learn more</a></div>
   - icon:
       src: ./feature/tanstack.svg
       height: 24

@@ -10,7 +10,7 @@ import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 import { reactQueryDepRegex } from '../utils.ts'
 
 type TemplateProps = {

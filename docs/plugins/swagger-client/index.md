@@ -14,19 +14,19 @@ With the Swagger client plugin you can create [Axios](https://axios-http.com/doc
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
+bun add @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
+pnpm add @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
+npm install @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-client @kubb/swagger-ts @kubb/swagger
+yarn add @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
 ```
 
 :::
@@ -461,7 +461,7 @@ const plugin = pluginClient({
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({

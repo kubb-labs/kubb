@@ -3,7 +3,7 @@ import { Function, Type } from '@kubb/react'
 import { QueryKey } from '@kubb/swagger-tanstack-query/components'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type React from 'react'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 export const templates = {
   ...QueryKey.templates,

@@ -7,7 +7,7 @@ outline: deep
 
 # Basic tutorial
 
-This tutorial will describe how you can set up Kubb and use the [`@kubb/swagger-ts`](/plugins/swagger-ts/) plugin to generate types based on the `petStore.yaml` file.
+This tutorial will describe how you can set up Kubb and use the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin to generate types based on the `petStore.yaml` file.
 
 The setup will contain from the beginning the following folder structure:
 
@@ -23,18 +23,18 @@ The setup will contain from the beginning the following folder structure:
 
 Set up your `kubb.config.ts` file based on the [Quick start](/guide/quick-start).
 
-We will add the plugins [`@kubb/swagger`](/plugins/swagger) and [`@kubb/swagger-ts`](/plugins/swagger-ts)(which is dependent on the [`@kubb/swagger`](/plugins/swagger) plugin). Together these two plugins will generate the TypeScript types.
+We will add the plugins [`@kubb/swagger`](/plugins/swagger) and [`@kubb/plugin-ts`](/plugins/plugin-ts)(which is dependent on the [`@kubb/swagger`](/plugins/swagger) plugin). Together these two plugins will generate the TypeScript types.
 
 Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plugins/swagger) plugin because we do not need the plugin to generate the JSON schemas for us.
 
-- For the [`@kubb/swagger-ts`](/plugins/swagger-ts/) plugin, we will set the `output` to the `models` folder.
+- For the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin, we will set the `output` to the `models` folder.
 
 ::: code-group
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig(() => {
   return {
@@ -97,7 +97,7 @@ Your `package.json` will look like this:
     "@kubb/cli": "latest",
     "@kubb/core": "latest",
     "@kubb/swagger": "latest",
-    "@kubb/swagger-ts": "latest"
+    "@kubb/plugin-ts": "latest"
   }
 }
 ```

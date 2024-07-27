@@ -4,7 +4,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
 import { File, Function, Parser, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginTsName } from '@kubb/plugin-ts'
 
 import { getImportNames, reactQueryDepRegex } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'

@@ -72,7 +72,7 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*"
   },
   "devDependencies": {

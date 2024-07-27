@@ -100,7 +100,7 @@ export type Options = {
    */
   unknownType?: 'any' | 'unknown'
   /**
-   * Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
+   * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
   typed?: boolean
   /**

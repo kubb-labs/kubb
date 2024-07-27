@@ -25,7 +25,7 @@ export default defineConfig({
         '**/packages/config-ts/**',
         '**/packages/config-tsup/**',
         '**/packages/kubb/**',
-        '**/packages/swagger-ts/src/oas/**',
+        '**/packages/plugin-ts/src/oas/**',
         '**/packages/plugin-client/client.ts',
         '**/e2e/**',
         '**/coverage/**',
