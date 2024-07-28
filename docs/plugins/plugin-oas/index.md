@@ -48,7 +48,7 @@ yarn add @kubb/plugin-oas
 
 ### validate
 
-Validate your [`input`](/config/input) based on `@apidevtools/swagger-parser`
+Validate your [`input`](/config/input) based on `@readme/openapi-parser`
 ::: info
 Type: `boolean` <br/>
 Default: `true`

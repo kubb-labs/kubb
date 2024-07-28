@@ -21,7 +21,7 @@ export type API = {
 
 export type Options = {
   /**
-   * Validate your input(see kubb.config) based on '@apidevtools/swagger-parser'.
+   * Validate your input(see kubb.config) based on '@readme/openapi-parser'.
    * @default true
    */
   validate?: boolean
