@@ -61,14 +61,14 @@
   "dependencies": {
     "remeda": "^2.6.0",
     "ts-morph": "^23.0.0",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "prettier": "^3.3.3",
-    "tsup": "^8.2.2"
+    "tsup": "^8.2.3"
   },
   "engines": {
     "node": ">=18"
