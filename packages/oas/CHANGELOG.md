@@ -1,5 +1,15 @@
 # @kubb/oas
 
+## 2.24.0
+
+### Minor Changes
+
+- [#1092](https://github.com/kubb-labs/kubb/pull/1092) [`cb0b748`](https://github.com/kubb-labs/kubb/commit/cb0b7485646a9448cbdc55b77e2c02c5b7a4900c) Thanks [@rajp33](https://github.com/rajp33)! - Allow overriding of oas class as Plugin Option
+
+### Patch Changes
+
+- [`4970e0d`](https://github.com/kubb-labs/kubb/commit/4970e0dd0288028b03d18719e4c68b435fd5e74c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - validation for oas 3.1
+
 ## 2.23.3
 
 ## 2.23.2

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-faker",
-  "version": "2.23.3",
+  "version": "2.24.0",
   "description": "Generator swagger-faker",
   "keywords": [
     "faker",
