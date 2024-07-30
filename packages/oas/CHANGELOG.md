@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.23.4
+
+### Patch Changes
+
+- [`4970e0d`](https://github.com/kubb-labs/kubb/commit/4970e0dd0288028b03d18719e4c68b435fd5e74c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - validation for oas 3.1
+
 ## 2.23.3
 
 ## 2.23.2
