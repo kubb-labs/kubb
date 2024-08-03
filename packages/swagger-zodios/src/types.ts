@@ -28,7 +28,7 @@ export type Options = {
      * Defaults to the `operationId` in the OpenAPI file document for a given route. If no `operationId` is defined, it will be generated.
      * @default `false`
      */
-    includeOperationIdAsAlias: boolean | undefined
+    includeOperationIdAsAlias?: boolean | undefined
   }
 }
 
