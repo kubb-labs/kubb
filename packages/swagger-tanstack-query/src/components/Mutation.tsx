@@ -296,11 +296,11 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
       : schemas.request?.name
         ? `${factory.name}['request']`
         : 'never'
-
+  const clientRequestType = (contentType === 'multipart/form-data' ? 'FormData' : (requestType ? `${factory.name}["request"]` : 'void'))
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
-    generics: [`${factory.name}["data"]`, `${factory.name}["error"]`, requestType ? `${factory.name}["request"]` : 'void'].join(', '),
+    generics: [`${factory.name}["data"]`, `${factory.name}["error"]`, clientRequestType].join(', '),
     withQueryParams: !!schemas.queryParams?.name,
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
