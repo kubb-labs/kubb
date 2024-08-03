@@ -22,18 +22,19 @@ export type Options = {
      * @default `'barrel'`
      */
     exportType?: 'barrel' | 'barrelNamed' | false
+    /**
+     * Include `alias` in the generated endpoints, allowing for usage such as `apiClient.getUserById()`
+     *
+     * Defaults to the `operationId` in the OpenAPI file document for a given route. If no `operationId` is defined, it will be generated.
+     * @default `false`
+     */
+    includeOperationIdAsAlias: boolean | undefined
   }
 }
 
 type ResolveOptions = {
   baseURL: string | undefined
   name: string
-  /**
-   * Include `alias` in the generated endpoints, allowing for usage such as `apiClient.getUserById()`
-   *
-   * Defaults to the `operationId` in the OpenAPI file document for a given route. If no `operationId` is defined, it will be generated.
-   * @default `false`
-   */
   includeOperationIdAsAlias: boolean | undefined
 }
 

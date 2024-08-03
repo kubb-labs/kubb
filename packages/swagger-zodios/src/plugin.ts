@@ -54,7 +54,7 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
         {
           name: trimExtName(output.path),
           baseURL,
-          includeOperationIdAsAlias: this.plugin.options.includeOperationIdAsAlias ?? false,
+          includeOperationIdAsAlias: options.output?.includeOperationIdAsAlias ?? false,
         },
         {
           oas,
