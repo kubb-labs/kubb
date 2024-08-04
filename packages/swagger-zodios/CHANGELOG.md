@@ -1,5 +1,22 @@
 # @kubb/swagger-zodios
 
+## 2.25.0
+
+### Minor Changes
+
+- [#1101](https://github.com/kubb-labs/kubb/pull/1101) [`765a13a`](https://github.com/kubb-labs/kubb/commit/765a13a5d27d907be859bc9acde2a3be6a8139bc) Thanks [@msutkowski](https://github.com/msutkowski)! - Add includeOperationIdAsAlias option to swagger-zodios plugin
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.0
+  - @kubb/fs@2.25.0
+  - @kubb/oas@2.25.0
+  - @kubb/parser-ts@2.25.0
+  - @kubb/plugin-oas@2.25.0
+  - @kubb/react@2.25.0
+  - @kubb/swagger-zod@2.25.0
+
 ## 2.24.0
 
 ### Patch Changes
