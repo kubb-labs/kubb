@@ -351,16 +351,18 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file:
       return path !== trimExtName(file.path)
     })
     .map((item) => {
+      const path = item.root ? getRelativePath(item.root, item.path) : item.path
+
       return parser.factory.createImportDeclaration({
         name: item.name,
-        path: item.root ? getRelativePath(item.root, item.path) : item.path,
+        path: item.extName ? `${path}${item.extName}` : path,
         isTypeOnly: item.isTypeOnly,
       })
     })
   const exportNodes = exports.map((item) =>
     parser.factory.createExportDeclaration({
       name: item.name,
-      path: item.path,
+      path: item.extName ? `${item.path}${item.extName}` : item.path,
       isTypeOnly: item.isTypeOnly,
       asAlias: item.asAlias,
     }),

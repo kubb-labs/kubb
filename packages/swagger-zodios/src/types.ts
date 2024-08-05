@@ -33,6 +33,7 @@ export type Options = {
 }
 
 type ResolveOptions = {
+  extName: KubbFile.Extname | undefined
   baseURL: string | undefined
   name: string
   includeOperationIdAsAlias: boolean | undefined

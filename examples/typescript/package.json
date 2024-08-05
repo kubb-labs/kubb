@@ -24,8 +24,8 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "axios": "^1.7.2",
-    "tsup": "^8.2.3"
+    "axios": "^1.7.3",
+    "tsup": "^8.2.4"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

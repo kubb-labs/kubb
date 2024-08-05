@@ -20,6 +20,7 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
   return {
     name: pluginZodiosName,
     options: {
+      extName: output.extName,
       name: trimExtName(output.path),
       baseURL: undefined,
       includeOperationIdAsAlias: false,
@@ -52,6 +53,7 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
 
       const operationGenerator = new OperationGenerator(
         {
+          extName: output.extName,
           name: trimExtName(output.path),
           baseURL,
           includeOperationIdAsAlias: options.output?.includeOperationIdAsAlias ?? false,

@@ -24,6 +24,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
   return {
     name: pluginSwrName,
     options: {
+      extName: output.extName,
       templates: {
         mutation: Mutation.templates,
         query: Query.templates,
