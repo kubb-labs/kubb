@@ -29,6 +29,7 @@ describe('<Operations/>', async () => {
     mapper: {},
     importPath: 'zod',
     coercion: false,
+    extName: undefined
   }
   const plugin = { options } as Plugin<PluginZod>
   const generator = new OperationGenerator(options, {

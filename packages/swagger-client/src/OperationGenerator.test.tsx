@@ -30,6 +30,7 @@ describe('OperationGenerator', async () => {
         importPath: '@kubb/swagger-client/client',
       },
       baseURL: '',
+      extName: undefined
     }
 
     const og = await new OperationGenerator(options, {
@@ -41,6 +42,7 @@ describe('OperationGenerator', async () => {
       contentType: undefined,
       override: undefined,
       mode: 'split',
+
     })
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const files = (await og.operation(operation, options)) as KubbFile.File[]
@@ -60,6 +62,7 @@ describe('OperationGenerator', async () => {
         importPath: '@kubb/swagger-client/client',
       },
       baseURL: '',
+      extName: undefined
     }
 
     const og = await new OperationGenerator(options, {
@@ -93,6 +96,7 @@ describe('OperationGenerator', async () => {
         importPath: '@kubb/swagger-client/client',
       },
       baseURL: '',
+      extName: undefined
     }
 
     const og = await new OperationGenerator(options, {

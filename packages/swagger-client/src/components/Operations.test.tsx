@@ -28,6 +28,7 @@ describe('<Operations/>', async () => {
       importPath: '@kubb/swagger-client/client',
     },
     baseURL: '',
+    extName: undefined
   }
   const plugin = { options } as Plugin<PluginClient>
   const og = await new OperationGenerator(options, {
