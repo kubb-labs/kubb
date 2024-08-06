@@ -73,6 +73,7 @@ describe('Faker SchemaGenerator', async () => {
       override: [],
       dateParser: undefined,
       regexGenerator: 'faker',
+      extName: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>

@@ -254,8 +254,6 @@ export const flyHttpOptionsSchema = z.object({
 
 export const flyHttpResponseOptionsSchema = z.object({ headers: z.object({}).catchall(z.object({})).optional(), pristine: z.boolean().optional() })
 
-export const flyMachineAutostopSchema = z.union([z.literal(0), z.literal(1), z.literal(2)])
-
 /**
  * @description An optional object that defines one or more named checks. The key for each check is the check name.
  */
@@ -429,7 +427,12 @@ export const flyMachineSecretSchema = z
 
 export const flyMachineServiceSchema = z.object({
   autostart: z.boolean().optional(),
-  autostop: z.lazy(() => flyMachineAutostopSchema).optional(),
+  autostop: z
+    .enum(['off', 'stop', 'suspend'])
+    .describe(
+      'Accepts a string (new format) or a boolean (old format). For backward compatibility with older clients, the API continues to use booleans for "off" and "stop" in responses.\n* "off" or false - Do not autostop the Machine.\n* "stop" or true - Automatically stop the Machine.\n* "suspend" - Automatically suspend the Machine, falling back to a full stop if this is not possible.',
+    )
+    .optional(),
   checks: z.array(z.lazy(() => flyMachineCheckSchema)).optional(),
   concurrency: z.lazy(() => flyMachineServiceConcurrencySchema).optional(),
   force_instance_description: z.string().optional(),

@@ -64,7 +64,10 @@ function RootTemplate({ children }: RootTemplateProps) {
   const {
     mode,
     pluginManager,
-    plugin: { key: pluginKey },
+    plugin: {
+      key: pluginKey,
+      options: { extName },
+    },
   } = useApp<PluginZod>()
   const { getFile } = useOperationManager()
   const operations = useOperations()
@@ -76,7 +79,7 @@ function RootTemplate({ children }: RootTemplateProps) {
     .map(([_key, { data, operation }], index) => {
       const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean)
 
-      return <File.Import key={index} name={names} root={file.path} path={getFile(operation).path} />
+      return <File.Import key={index} extName={extName} name={names} root={file.path} path={getFile(operation).path} />
     })
     .filter(Boolean)
 

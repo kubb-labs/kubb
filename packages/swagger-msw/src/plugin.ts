@@ -24,6 +24,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
   return {
     name: pluginMswName,
     options: {
+      extName: output.extName,
       templates: {
         operations: Operations.templates,
         mock: Mock.templates,

@@ -7,7 +7,6 @@ import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginMsw } from '../types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
 
 type TemplateProps = {
   /**
@@ -99,7 +98,12 @@ type FileProps = {
 }
 
 Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { pluginManager } = useApp<PluginMsw>()
+  const {
+    pluginManager,
+    plugin: {
+      options: { extName },
+    },
+  } = useApp<PluginMsw>()
   const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
 
@@ -121,7 +125,7 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         {!isV2 && <File.Import name={['rest']} path={'msw'} />}
         {isV2 && <File.Import name={['http']} path={'msw'} />}
-        {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
+        {fileFaker && responseName && <File.Import extName={extName} name={[responseName]} root={file.path} path={fileFaker.path} />}
         <File.Source>
           <Mock Template={Template} />
         </File.Source>

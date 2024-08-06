@@ -99,7 +99,7 @@ type FileProps = {
 Definitions.File = function ({ name, baseURL, operationsByMethod, templates = defaultTemplates, includeOperationIdAsAlias = false }: FileProps): ReactNode {
   const {
     pluginManager,
-    plugin: { key: pluginKey },
+    plugin: { key: pluginKey, options },
   } = useApp<PluginZodios>()
   const file = pluginManager.getFile({ name, extName: '.ts', pluginKey })
 
@@ -115,7 +115,7 @@ Definitions.File = function ({ name, baseURL, operationsByMethod, templates = de
         return null
       }
 
-      return <File.Import key={index} name={[name]} root={file.path} path={path} />
+      return <File.Import extName={options.extName} key={index} name={[name]} root={file.path} path={path} />
     })
     .filter(Boolean)
 

@@ -108,6 +108,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   enumType: NonNullable<Options['enumType']>
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>

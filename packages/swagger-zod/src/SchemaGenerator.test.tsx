@@ -202,6 +202,7 @@ describe('Zod SchemaGenerator', async () => {
       mapper: {},
       importPath: 'zod',
       coercion: false,
+      extName: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
