@@ -1,5 +1,11 @@
 # @kubb/parser-ts
 
+## 2.25.1
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
 ## 2.25.0
 
 ## 2.24.0
