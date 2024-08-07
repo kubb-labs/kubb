@@ -43,7 +43,7 @@ export function SchemaType({ factory }: Props): ReactNode {
         {
           data: ${TData}
           error: ${TError}
-          request: ${isFormData ? 'FormData' : TRequest}
+          request: ${TRequest}
           pathParams: ${TPathParams}
           queryParams: ${TQueryParams}
           headerParams: ${THeaderParams}
