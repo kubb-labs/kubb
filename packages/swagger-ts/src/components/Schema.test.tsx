@@ -21,7 +21,7 @@ describe('<Schema/> ', () => {
     oasType: false,
     usedEnumNames: {},
     mapper: {},
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginTs>

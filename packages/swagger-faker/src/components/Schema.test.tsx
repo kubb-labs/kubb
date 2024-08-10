@@ -19,7 +19,7 @@ describe('<Schema/> ', () => {
     override: [],
     dateParser: undefined,
     regexGenerator: 'faker',
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginFaker>

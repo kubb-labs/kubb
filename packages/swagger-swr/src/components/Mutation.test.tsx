@@ -38,7 +38,7 @@ describe('<Mutation/>', async () => {
       importPath: '@kubb/swagger-client/client',
     },
     parser: undefined,
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginSwr>

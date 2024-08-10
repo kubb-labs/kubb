@@ -175,6 +175,12 @@ describe('Zod SchemaGenerator', async () => {
       options: {},
     },
     {
+      name: 'oneof',
+      input: '../mocks/oneof.yaml',
+      path: 'test',
+      options: {},
+    },
+    {
       name: 'lazy',
       input: '../mocks/lazy.yaml',
       path: 'Example',

@@ -26,7 +26,7 @@ describe('<Schema/> ', () => {
     mapper: {},
     importPath: 'zod',
     coercion: false,
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginZod>

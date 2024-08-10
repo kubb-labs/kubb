@@ -30,7 +30,7 @@ describe('<OperationSchema/>', async () => {
     usedEnumNames: {},
     override: [],
     mapper: {},
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginTs>

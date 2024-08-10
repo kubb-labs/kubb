@@ -26,7 +26,7 @@ describe('OperationGenerator', async () => {
       baseURL: '',
       includeOperationIdAsAlias: true,
       name: 'example',
-      extName: undefined
+      extName: undefined,
     }
     const plugin = { options } as Plugin<PluginZodios>
 
@@ -68,7 +68,7 @@ describe('OperationGenerator', async () => {
       baseURL: '',
       includeOperationIdAsAlias: false,
       name: 'example',
-      extName: undefined
+      extName: undefined,
     }
     const plugin = { options } as Plugin<PluginZodios>
 

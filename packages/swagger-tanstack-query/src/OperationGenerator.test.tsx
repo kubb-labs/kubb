@@ -53,7 +53,7 @@ describe('OperationGenerator', async () => {
           methods: ['get'],
         },
         mutate: false,
-        extName: undefined
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -83,7 +83,7 @@ describe('OperationGenerator', async () => {
           methods: ['get'],
         },
         mutate: false,
-        extName: undefined
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -110,7 +110,7 @@ describe('OperationGenerator', async () => {
           methods: ['get'],
         },
         mutate: false,
-        extName: undefined
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -138,7 +138,7 @@ describe('OperationGenerator', async () => {
         },
         queryOptions: false,
         mutate: false,
-        extName: undefined
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -166,7 +166,7 @@ describe('OperationGenerator', async () => {
           variablesType: 'mutate',
           methods: ['delete'],
         },
-        extName: undefined
+        extName: undefined,
       },
       method: 'delete',
       operation: oas.operation('/pet/{petId}', 'delete'),
@@ -194,7 +194,7 @@ describe('OperationGenerator', async () => {
         },
         queryOptions: {},
         mutate: false,
-        extName: undefined
+        extName: undefined,
       },
       method: 'post',
       operation: oas.operation('/pet/{petId}', 'post'),
@@ -222,7 +222,7 @@ describe('OperationGenerator', async () => {
         },
         queryOptions: {},
         mutate: false,
-        extName: undefined
+        extName: undefined,
       },
       method: 'post',
       operation: oas.operation('/upload', 'post'),

@@ -57,7 +57,7 @@ describe('<Query/>', async () => {
       methods: ['get'],
     },
     mutate: false,
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginTanstackQuery>

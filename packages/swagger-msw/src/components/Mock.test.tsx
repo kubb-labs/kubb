@@ -22,7 +22,7 @@ describe('<Mock/>', async () => {
     templates: {
       mock: Mock.templates,
     },
-    extName: undefined
+    extName: undefined,
   }
 
   const plugin = { options } as Plugin<PluginMsw>
