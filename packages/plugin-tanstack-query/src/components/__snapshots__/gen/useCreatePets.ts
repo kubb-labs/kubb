@@ -25,10 +25,10 @@ export function useCreatePets(
     mutation?: UseMutationOptions<CreatePets['response'], CreatePets['error'], CreatePets['request']>
     client?: CreatePets['client']['parameters']
   } = {},
-): UseMutationResult<CreatePets['response'], CreatePets['error'], CreatePets['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useMutation<CreatePets['response'], CreatePets['error'], CreatePets['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({
         method: 'post',

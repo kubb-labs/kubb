@@ -1,3 +1,7 @@
-export const showPetById = rest.get('*/pets/:petId', function handler(req, res, ctx) {
-  return res(ctx.json(ShowPetByIdQueryResponse()))
+export const showPetById = http.get('*/pets/:petId', function handler(info) {
+  return new Response(JSON.stringify(ShowPetByIdQueryResponse()), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 })

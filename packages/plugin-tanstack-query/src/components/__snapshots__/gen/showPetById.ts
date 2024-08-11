@@ -15,12 +15,10 @@ type GetPetsUuid = {
 
 export const GetPetsUuidQueryKey = () => [{ url: '/pets/:uuid', params: { uuid: uuid } }] as const
 export type GetPetsUuidQueryKey = ReturnType<typeof GetPetsUuidQueryKey>
-export function GetPetsUuidQueryOptions<TData = GetPetsUuid['response'], TQueryData = GetPetsUuid['response']>(
-  options: GetPetsUuid['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetPetsUuid['response'], GetPetsUuid['error'], TData, TQueryData>, 'queryKey'> {
+export function GetPetsUuidQueryOptions(options: GetPetsUuid['client']['parameters'] = {}) {
   const queryKey = GetPetsUuidQueryKey()
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetPetsUuid['data'], GetPetsUuid['error']>({
@@ -31,24 +29,24 @@ export function GetPetsUuidQueryOptions<TData = GetPetsUuid['response'], TQueryD
 
       return res.data
     },
-  }
+  })
 }
 /**
  * @link /pets/:uuid
  */
 export function useGetPetsUuid<TData = GetPetsUuid['response'], TQueryData = GetPetsUuid['response'], TQueryKey extends QueryKey = GetPetsUuidQueryKey>(
   options: {
-    query?: Partial<UseBaseQueryOptions<GetPetsUuid['response'], GetPetsUuid['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetPetsUuid['response'], GetPetsUuid['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetsUuid['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetsUuid['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? GetPetsUuidQueryKey()
 
-  const query = useQuery<GetPetsUuid['data'], GetPetsUuid['error'], TData, any>({
-    ...GetPetsUuidQueryOptions<TData, TQueryData>(clientOptions),
+  const query = useQuery({
+    ...(GetPetsUuidQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetPetsUuid['error']> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey

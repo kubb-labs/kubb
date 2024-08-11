@@ -60,7 +60,7 @@ features:
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker
-    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. <div class="learn-more"><a href="/plugins/swagger-faker">Learn more</a></div>
+    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. <div class="learn-more"><a href="/plugins/plugin-faker">Learn more</a></div>
   - icon:
       src: ./feature/json.svg
     title: JSON Schemas

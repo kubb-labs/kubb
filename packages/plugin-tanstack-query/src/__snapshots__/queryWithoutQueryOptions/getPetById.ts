@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
-import { useQuery } from "@tanstack/react-query";
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey } from "@tanstack/react-query";
+import { useQuery, queryOptions } from "@tanstack/react-query";
+import type { QueryObserverOptions, UseQueryResult, QueryKey } from "@tanstack/react-query";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
 type GetPetById = {
@@ -28,17 +28,17 @@ export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
 export function getPetById<TData = GetPetById["response"], TQueryData = GetPetById["response"], TQueryKey extends QueryKey = GetPetByIdQueryKey>({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }, options: {
-    query?: Partial<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData, TQueryKey>>;
+    query?: Partial<QueryObserverOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData, TQueryKey>>;
     client?: GetPetById["client"]["parameters"];
 } = {}): UseQueryResult<TData, GetPetById["error"]> & {
     queryKey: TQueryKey;
 } {
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
     const queryKey = queryOptions?.queryKey ?? GetPetByIdQueryKey({ petId });
-    const query = useQuery<GetPetById["data"], GetPetById["error"], TData, any>({
-        ...GetPetByIdQueryOptions<TData, TQueryData>({ petId }, clientOptions),
+    const query = useQuery({
+        ...GetPetByIdQueryOptions({ petId }, clientOptions) as unknown as QueryObserverOptions,
         queryKey,
-        ...queryOptions
+        ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
     }) as UseQueryResult<TData, GetPetById["error"]> & {
         queryKey: TQueryKey;
     };
