@@ -1,6 +1,10 @@
-import { rest } from 'msw'
+import { http } from 'msw'
 import { createGetInventoryQueryResponse } from '../../mocks/storeMocks/createGetInventory'
 
-export const getInventoryHandler = rest.get('*/store/inventory', function handler(req, res, ctx) {
-  return res(ctx.json(createGetInventoryQueryResponse()))
+export const getInventoryHandler = http.get('*/store/inventory', function handler(info) {
+  return new Response(JSON.stringify(createGetInventoryQueryResponse()), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 })

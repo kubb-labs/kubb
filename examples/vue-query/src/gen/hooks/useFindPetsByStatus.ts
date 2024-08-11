@@ -1,9 +1,8 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
-import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
@@ -23,12 +22,9 @@ type FindPetsByStatus = {
 export const findPetsByStatusQueryKey = (params?: MaybeRef<FindPetsByStatus['queryParams']>) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'], TQueryData = FindPetsByStatus['response']>(
-  refParams?: MaybeRef<FindPetsByStatusQueryParams>,
-  options: FindPetsByStatus['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStatusQueryParams>, options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(refParams)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const params = unref(refParams)
@@ -40,7 +36,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple status values can be provided with comma separated strings
@@ -54,7 +50,7 @@ export function useFindPetsByStatus<
 >(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
-    query?: Partial<VueQueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, FindPetsByStatus['error']> & {
@@ -62,10 +58,10 @@ export function useFindPetsByStatus<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
-  const query = useQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
-    ...findPetsByStatusQueryOptions<TData, TQueryData>(refParams, clientOptions),
+  const query = useQuery({
+    ...(findPetsByStatusQueryOptions(refParams, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }

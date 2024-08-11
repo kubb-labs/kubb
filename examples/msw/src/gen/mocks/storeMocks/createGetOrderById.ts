@@ -3,6 +3,7 @@ import { createOrder } from '../createOrder'
 import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 
 export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
+  faker.seed([220])
   return { orderId: faker.number.int() }
 }
 
@@ -10,6 +11,7 @@ export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathPara
  * @description successful operation
  */
 export function createGetOrderById200(): NonNullable<GetOrderById200> {
+  faker.seed([220])
   return createOrder()
 }
 
@@ -17,6 +19,7 @@ export function createGetOrderById200(): NonNullable<GetOrderById200> {
  * @description Invalid ID supplied
  */
 export function createGetOrderById400(): NonNullable<GetOrderById400> {
+  faker.seed([220])
   return undefined
 }
 
@@ -24,6 +27,7 @@ export function createGetOrderById400(): NonNullable<GetOrderById400> {
  * @description Order not found
  */
 export function createGetOrderById404(): NonNullable<GetOrderById404> {
+  faker.seed([220])
   return undefined
 }
 
@@ -31,5 +35,6 @@ export function createGetOrderById404(): NonNullable<GetOrderById404> {
  * @description successful operation
  */
 export function createGetOrderByIdQueryResponse(): NonNullable<GetOrderByIdQueryResponse> {
+  faker.seed([220])
   return createOrder()
 }

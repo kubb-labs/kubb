@@ -1,6 +1,10 @@
-import { rest } from 'msw'
+import { http } from 'msw'
 import { createGetOrderByIdQueryResponse } from '../../mocks/storeMocks/createGetOrderById'
 
-export const getOrderByIdHandler = rest.get('*/store/order/:orderId', function handler(req, res, ctx) {
-  return res(ctx.json(createGetOrderByIdQueryResponse()))
+export const getOrderByIdHandler = http.get('*/store/order/:orderId', function handler(info) {
+  return new Response(JSON.stringify(createGetOrderByIdQueryResponse()), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 })

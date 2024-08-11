@@ -14,11 +14,6 @@ type TemplateProps = {
    */
   name: string
   /**
-   * If false, MSW 1.x.x
-   * If true, MSW 2.x.x
-   */
-  isV2: boolean
-  /**
    * Method of the current operation, see useOperation.
    */
   method: HttpMethod
@@ -33,8 +28,8 @@ type TemplateProps = {
   responseName: string
 }
 
-function Template({ name, method, path, isV2, responseName }: TemplateProps): ReactNode {
-  if (isV2) {
+function Template({ name, method, path, responseName }: TemplateProps): ReactNode {
+
     return (
       <>
         {`
@@ -48,19 +43,7 @@ function Template({ name, method, path, isV2, responseName }: TemplateProps): Re
   `}
       </>
     )
-  }
 
-  return (
-    <>
-      {`
-export const ${name} = rest.${method}('*${path.toURLPath()}', function handler(req, res, ctx) {
-  return res(
-    ctx.json(${responseName}()),
-  )
-})
-`}
-    </>
-  )
 }
 
 const defaultTemplates = { default: Template } as const
@@ -85,9 +68,8 @@ export function Mock({ Template = defaultTemplates.default }: Props): ReactNode 
     type: 'type',
   })
 
-  const isV2 = new PackageManager().isValidSync('msw', '>=2')
 
-  return <Template isV2={isV2} name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
+  return <Template  name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
 }
 
 type FileProps = {
@@ -116,15 +98,13 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
     type: 'function',
   })
 
-  const isV2 = new PackageManager().isValidSync('msw', '>=2')
 
   const Template = templates.default
 
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {!isV2 && <File.Import name={['rest']} path={'msw'} />}
-        {isV2 && <File.Import name={['http']} path={'msw'} />}
+        <File.Import name={['http']} path={'msw'} />
         {fileFaker && responseName && <File.Import extName={extName} name={[responseName]} root={file.path} path={fileFaker.path} />}
         <File.Source>
           <Mock Template={Template} />

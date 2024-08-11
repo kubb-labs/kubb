@@ -1,9 +1,8 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
-import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
@@ -23,12 +22,9 @@ type GetOrderById = {
 export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
-export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
-  refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
-  options: GetOrderById['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
+export function getOrderByIdQueryOptions(refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>, options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(refOrderId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const orderId = unref(refOrderId)
@@ -39,7 +35,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -49,7 +45,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   refOrderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: Partial<VueQueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetOrderById['error']> & {
@@ -57,10 +53,10 @@ export function useGetOrderById<TData = GetOrderById['response'], TQueryData = G
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(refOrderId)
-  const query = useQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
-    ...getOrderByIdQueryOptions<TData, TQueryData>(refOrderId, clientOptions),
+  const query = useQuery({
+    ...(getOrderByIdQueryOptions(refOrderId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }

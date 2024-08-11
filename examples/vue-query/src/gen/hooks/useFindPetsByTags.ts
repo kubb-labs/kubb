@@ -1,9 +1,8 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
-import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
@@ -22,12 +21,9 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTags['queryParams']>) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
-  refParams?: MaybeRef<FindPetsByTagsQueryParams>,
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByTagsQueryOptions(refParams?: MaybeRef<FindPetsByTagsQueryParams>, options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(refParams)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const params = unref(refParams)
@@ -39,7 +35,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -53,7 +49,7 @@ export function useFindPetsByTags<
 >(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
-    query?: Partial<VueQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, FindPetsByTags['error']> & {
@@ -61,10 +57,10 @@ export function useFindPetsByTags<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(refParams)
-  const query = useQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
-    ...findPetsByTagsQueryOptions<TData, TQueryData>(refParams, clientOptions),
+  const query = useQuery({
+    ...(findPetsByTagsQueryOptions(refParams, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }

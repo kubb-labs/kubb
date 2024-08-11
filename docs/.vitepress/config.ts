@@ -302,8 +302,8 @@ const examplesSidebar = [
         link: '/examples/tanstack-query/vue-query',
       },
       {
-        text: 'Vue-Query v5',
-        link: '/examples/tanstack-query/vue-query-v5',
+        text: 'Vue-Query',
+        link: '/examples/tanstack-query/vue-query',
       },
       {
         text: 'Svelte-Query',

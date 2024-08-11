@@ -24,15 +24,21 @@ export default defineConfig(() => {
       pluginFaker({
         output: {
           path: './mocks',
-          exportType: false,
         },
-        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+        group: {
+          type: 'tag',
+          output: './mocks/{{tag}}Mocks',
+        },
+        seed: [220],
       }),
       pluginMsw({
         output: {
           path: './msw',
         },
-        group: { type: 'tag', output: './msw/{{tag}}Handlers' },
+        group: {
+          type: 'tag',
+          output: './msw/{{tag}}Handlers',
+        },
       }),
     ],
   }

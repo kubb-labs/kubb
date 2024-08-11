@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    /* If NOT transpiling with TypeScript: */
-    "module": "ES2020",
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
@@ -16,7 +15,8 @@
     "esModuleInterop": true,
     "allowJs": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {}
   },
   "include": ["./src/**/*", "vite.config.ts", "shims-vue.d.ts"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
