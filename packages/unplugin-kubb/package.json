@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "0.1.68",
+  "version": "0.1.72",
   "description": "Unplugin for Kubb",
   "keywords": [
     "unplugin",
@@ -132,7 +132,7 @@
     }
   },
   "dependencies": {
-    "unplugin": "^1.12.0"
+    "unplugin": "^1.12.1"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -141,12 +141,13 @@
     "@kubb/core": "workspace:*",
     "@nuxt/kit": "^3.12.4",
     "@nuxt/schema": "^3.12.4",
-    "@types/node": "^20.14.12",
-    "rimraf": "^5.0.9",
-    "rollup": "^4.19.1",
-    "tsup": "^8.2.3",
+    "@types/node": "^20.14.15",
+    "rimraf": "^5.0.10",
+    "rollup": "^4.20.0",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5",
+    "vite": "^5.4.0",
+    "vitest": "^1.6.0",
     "webpack": "^5.93.0"
   },
   "engines": {

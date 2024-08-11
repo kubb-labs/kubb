@@ -1,6 +1,6 @@
 {
-  "name": "@kubb/plugin-faker",
-  "version": "2.23.3",
+  "name": "@kubb/swagger-faker",
+  "version": "2.25.1",
   "description": "Generator swagger-faker",
   "keywords": [
     "faker",
@@ -70,7 +70,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*"
+    "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -78,7 +78,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.3",
     "react": "^18.3.1",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {

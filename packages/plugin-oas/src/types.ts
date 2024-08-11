@@ -50,6 +50,7 @@ export type Options = {
   contentType?: contentType
   experimentalFilter?: FormatOptions['filterSet']
   experimentalSort?: FormatOptions['sortSet']
+  oasClass?: typeof Oas
 }
 
 /**

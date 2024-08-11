@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/plugin-client",
-  "version": "2.23.3",
-  "description": "Generator plugin-client",
+  "name": "@kubb/swagger-client",
+  "version": "2.25.1",
+  "description": "Generator swagger-client",
   "keywords": [
     "typescript",
     "plugins",
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/plugin-client"
+    "directory": "packages/swagger-client"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -35,6 +35,11 @@
       "import": "./dist/client.js",
       "require": "./dist/client.cjs",
       "default": "./dist/client.cjs"
+    },
+    "./ts-client": {
+      "import": "./client.ts",
+      "require": "./client.ts",
+      "default": "./client.ts"
     },
     "./package.json": "./package.json",
     "./*": "./*"
@@ -76,16 +81,16 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*"
+    "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.3",
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "react": "^18.3.1",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {

@@ -141,7 +141,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-        {mode === 'split' && <Oas.Schema.Imports isTypeOnly />}
+        {mode === 'split' && <Oas.Schema.Imports extName={plugin.options.extName} isTypeOnly />}
         <File.Source>
           <OperationSchema description={description} keysToOmit={keysToOmit} />
         </File.Source>

@@ -230,6 +230,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
     pluginManager,
     plugin: {
       options: {
+        extName,
         client: { importPath },
         parser,
       },
@@ -257,12 +258,13 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {parser === 'zod' && <File.Import name={[zodSchemas.response.name]} root={file.path} path={fileZodSchemas.path} />}
+        {parser === 'zod' && <File.Import extName={extName} name={[zodSchemas.response.name]} root={file.path} path={fileZodSchemas.path} />}
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
+          extName={extName}
           name={[
             schemas.request?.name,
             schemas.response.name,

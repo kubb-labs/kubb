@@ -1,5 +1,39 @@
 # kubb
 
+## 2.18.30
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
+  - @kubb/core@2.25.1
+  - @kubb/cli@2.25.1
+
+## 2.18.29
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.25.0
+  - @kubb/core@2.25.0
+
+## 2.18.28
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.24.0
+  - @kubb/core@2.24.0
+
+## 2.18.27
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.23.4
+  - @kubb/core@2.23.4
+
 ## 2.18.26
 
 ### Patch Changes

@@ -1,5 +1,59 @@
 # @kubb/plugin-faker
 
+## 2.25.1
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
+  - @kubb/plugin-oas@2.25.1
+  - @kubb/swagger-ts@2.25.1
+  - @kubb/parser-ts@2.25.1
+  - @kubb/react@2.25.1
+  - @kubb/core@2.25.1
+  - @kubb/oas@2.25.1
+  - @kubb/fs@2.25.1
+
+## 2.25.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.0
+  - @kubb/fs@2.25.0
+  - @kubb/oas@2.25.0
+  - @kubb/parser-ts@2.25.0
+  - @kubb/plugin-oas@2.25.0
+  - @kubb/react@2.25.0
+  - @kubb/swagger-ts@2.25.0
+
+## 2.24.0
+
+### Patch Changes
+
+- Updated dependencies [[`cb0b748`](https://github.com/kubb-labs/kubb/commit/cb0b7485646a9448cbdc55b77e2c02c5b7a4900c)]:
+  - @kubb/plugin-oas@2.24.0
+  - @kubb/oas@2.24.0
+  - @kubb/swagger-ts@2.24.0
+  - @kubb/core@2.24.0
+  - @kubb/fs@2.24.0
+  - @kubb/parser-ts@2.24.0
+  - @kubb/react@2.24.0
+
+## 2.23.4
+
+### Patch Changes
+
+- Updated dependencies [[`4970e0d`](https://github.com/kubb-labs/kubb/commit/4970e0dd0288028b03d18719e4c68b435fd5e74c)]:
+  - @kubb/oas@2.23.4
+  - @kubb/plugin-oas@2.23.4
+  - @kubb/swagger-ts@2.23.4
+  - @kubb/core@2.23.4
+  - @kubb/fs@2.23.4
+  - @kubb/parser-ts@2.23.4
+  - @kubb/react@2.23.4
+
 ## 2.23.3
 
 ### Patch Changes

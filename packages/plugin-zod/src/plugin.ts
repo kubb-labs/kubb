@@ -39,6 +39,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
   return {
     name: pluginZodName,
     options: {
+      extName: output.extName,
       transformers,
       include,
       exclude,

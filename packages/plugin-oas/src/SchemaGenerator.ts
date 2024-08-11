@@ -85,7 +85,7 @@ export abstract class SchemaGenerator<
     const defaultSchemas = this.#parseSchemaObject(props)
     const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
 
-    return uniqueWith<Schema>(schemas, isDeepEqual)
+    return uniqueWith(schemas, isDeepEqual)
   }
 
   deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
@@ -807,6 +807,10 @@ export abstract class SchemaGenerator<
           }),
           ...baseItems,
         ].filter(Boolean)
+      }
+
+      if (!['boolean', 'object', 'number', 'string', 'integer'].includes(schema.type)) {
+        this.context.pluginManager.logger.emit('warning', `Schema type '${schema.type}' is not valid for schema ${parentName}.${name}`)
       }
 
       // 'string' | 'number' | 'integer' | 'boolean'

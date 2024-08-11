@@ -111,7 +111,7 @@ Schema.Imports = (): ReactNode => {
   const {
     pluginManager,
     plugin: {
-      options: { dateParser, regexGenerator },
+      options: { extName, dateParser, regexGenerator },
     },
   } = useApp<PluginFaker>()
   const { path: root } = useFile()
@@ -140,7 +140,7 @@ Schema.Imports = (): ReactNode => {
       <File.Import name={['faker']} path="@faker-js/faker" />
       {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
       {dateParser && <File.Import path={dateParser} name={dateParser} />}
-      {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
+      {typeName && typePath && <File.Import extName={extName} isTypeOnly root={root} path={typePath} name={[typeName]} />}
     </>
   )
 }

@@ -36,6 +36,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
   return {
     name: pluginFakerName,
     options: {
+      extName: output.extName,
       transformers,
       dateType,
       seed,

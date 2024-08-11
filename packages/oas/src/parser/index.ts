@@ -50,7 +50,7 @@ export type FormatOptions = {
   casingSet?: {}
 }
 
-export async function parse(pathOrApi: string | OASDocument, options: FormatOptions = {}): Promise<Oas> {
+export async function parse(pathOrApi: string | OASDocument, options: FormatOptions = {}, oasClass: typeof Oas = Oas): Promise<Oas> {
   if (typeof pathOrApi === 'string') {
     // resolve external refs
     const config = await loadConfig()
@@ -72,10 +72,10 @@ export async function parse(pathOrApi: string | OASDocument, options: FormatOpti
 
     const oas = await filterAndSort(openapi as OASDocument, options)
 
-    return new Oas({ oas: oas as OASDocument })
+    return new oasClass({ oas: oas as OASDocument })
   }
 
   const oas = await filterAndSort(document as OASDocument, options)
 
-  return new Oas({ oas })
+  return new oasClass({ oas })
 }

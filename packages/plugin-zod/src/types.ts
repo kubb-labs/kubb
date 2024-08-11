@@ -122,6 +122,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   transformers: NonNullable<Options['transformers']>
   exclude: Options['exclude']
   include: Options['include']

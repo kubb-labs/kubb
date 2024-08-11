@@ -175,6 +175,12 @@ describe('Zod SchemaGenerator', async () => {
       options: {},
     },
     {
+      name: 'oneof',
+      input: '../mocks/oneof.yaml',
+      path: 'test',
+      options: {},
+    },
+    {
       name: 'lazy',
       input: '../mocks/lazy.yaml',
       path: 'Example',
@@ -202,6 +208,7 @@ describe('Zod SchemaGenerator', async () => {
       mapper: {},
       importPath: 'zod',
       coercion: false,
+      extName: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>

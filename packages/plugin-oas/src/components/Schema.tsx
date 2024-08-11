@@ -101,9 +101,10 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
 
 type SchemaImportsProps = {
   isTypeOnly?: boolean
+  extName?: KubbFile.Extname
 }
 
-Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
+Schema.Imports = ({ isTypeOnly, extName }: SchemaImportsProps): ReactNode => {
   const { tree } = useSchema()
   const { path: root } = useFile()
 
@@ -118,13 +119,7 @@ Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
           }
 
           return (
-            <File.Import
-              key={`${item.args.name}-${item.args.path}`}
-              root={root}
-              name={[item.args.name]}
-              path={item.args.path}
-              isTypeOnly={item.args.isTypeOnly ?? isTypeOnly}
-            />
+            <File.Import key={i} extName={extName} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
           )
         })
         .filter(Boolean)}

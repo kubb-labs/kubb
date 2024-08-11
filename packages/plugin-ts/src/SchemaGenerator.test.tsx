@@ -330,6 +330,7 @@ describe('TypeScript SchemaGenerator', async () => {
       unknownType: 'any',
       override: [],
       mapper: {},
+      extName: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>

@@ -211,6 +211,7 @@ export type Options = {
 export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   framework: NonNullable<PluginTanstackQuery['options']['framework']>
   client: Required<NonNullable<PluginTanstackQuery['options']['client']>>
   dataReturnType: NonNullable<PluginTanstackQuery['options']['dataReturnType']>

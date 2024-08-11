@@ -193,6 +193,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       colorizeErrors: true,
     })
 
-    await oasNormalize.validate()
+    await oasNormalize.validate({
+      parser: {
+        validate: {
+          colorizeErrors: true,
+          schema: false,
+          spec: false,
+        },
+      },
+    })
   }
 }

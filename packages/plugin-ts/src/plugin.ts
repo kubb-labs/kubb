@@ -35,6 +35,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   return {
     name: pluginTsName,
     options: {
+      extName: output.extName,
       transformers,
       dateType,
       optionalType,

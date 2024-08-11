@@ -26,13 +26,13 @@
     "@faker-js/faker": "^8.4.1",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-faker": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
+    "@kubb/swagger-faker": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
     "dayjs": "^1.11.12",
     "react": "^18.3.1",
-    "tsup": "^8.2.3"
+    "tsup": "^8.2.4"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

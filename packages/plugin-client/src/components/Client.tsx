@@ -129,6 +129,7 @@ function RootTemplate({ children }: RootTemplateProps) {
     plugin: {
       options: {
         client: { importPath },
+        extName,
       },
     },
   } = useApp<PluginClient>()
@@ -146,6 +147,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
+          extName={extName}
           name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean)}
           root={file.path}
           path={fileType.path}

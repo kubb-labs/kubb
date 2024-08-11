@@ -1,9 +1,9 @@
 {
-  "name": "@kubb/plugin-ts",
-  "version": "2.23.3",
-  "description": "Generator plugin-ts",
+  "name": "@kubb/swagger-zod",
+  "version": "2.25.1",
+  "description": "Generator swagger-zod",
   "keywords": [
-    "typescript",
+    "zod",
     "plugins",
     "kubb",
     "codegen",
@@ -13,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/plugin-ts"
+    "directory": "packages/swagger-zod"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -30,9 +30,6 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
-    "./oas": {
-      "types": "./dist/oas.d.ts"
-    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -43,9 +40,6 @@
     "*": {
       "components": [
         "./dist/components.d.ts"
-      ],
-      "oas": [
-        "./dist/oas.d.ts"
       ]
     }
   },
@@ -73,7 +67,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/types": "workspace:*"
+    "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -82,7 +76,8 @@
     "@types/react": "^18.3.3",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
-    "tsup": "^8.2.3"
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*"

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "2.23.3",
+  "version": "2.25.1",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -68,7 +68,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {

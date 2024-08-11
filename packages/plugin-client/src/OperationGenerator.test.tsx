@@ -30,6 +30,7 @@ describe('OperationGenerator', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       baseURL: '',
+      extName: undefined,
     }
 
     const og = await new OperationGenerator(options, {
@@ -60,6 +61,7 @@ describe('OperationGenerator', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       baseURL: '',
+      extName: undefined,
     }
 
     const og = await new OperationGenerator(options, {
@@ -93,6 +95,7 @@ describe('OperationGenerator', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       baseURL: '',
+      extName: undefined,
     }
 
     const og = await new OperationGenerator(options, {

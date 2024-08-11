@@ -33,6 +33,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
   return {
     name: pluginClientName,
     options: {
+      extName: output.extName,
       dataReturnType,
       client: {
         importPath: '@kubb/plugin-client/client',

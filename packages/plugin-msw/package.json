@@ -1,13 +1,9 @@
 {
-  "name": "@kubb/plugin-msw",
-  "version": "2.23.3",
-  "description": "Generator plugin-msw",
+  "name": "@kubb/swagger",
+  "version": "2.25.1",
+  "description": "Generator swagger",
   "keywords": [
-    "faker",
-    "faker.js",
-    "msw",
-    "mock",
-    "mocking",
+    "typescript",
     "plugins",
     "kubb",
     "codegen",
@@ -17,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/plugin-msw"
+    "directory": "packages/swagger"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -28,6 +24,16 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
+    },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.cjs"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs",
+      "default": "./dist/hooks.cjs"
     },
     "./components": {
       "import": "./dist/components.js",
@@ -42,6 +48,12 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
+      "hooks": [
+        "./dist/hooks.d.ts"
+      ],
       "components": [
         "./dist/components.d.ts"
       ]
@@ -65,22 +77,16 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@kubb/plugin-faker": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*"
+    "@kubb/plugin-oas": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "react": "^18.3.1",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {

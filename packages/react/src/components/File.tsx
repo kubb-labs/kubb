@@ -121,8 +121,8 @@ type FileExportProps = KubbFile.Export & {
   print?: boolean
 }
 
-function FileExport({ name, path, isTypeOnly, asAlias, print }: FileExportProps): KubbNode {
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} print={print} />
+function FileExport({ name, path, isTypeOnly, asAlias, print, extName }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} extName={extName} asAlias={asAlias} print={print} />
 }
 
 type FileImportProps = KubbFile.Import & {
@@ -133,8 +133,8 @@ type FileImportProps = KubbFile.Import & {
   print?: boolean
 }
 
-export function FileImport({ name, root, path, isTypeOnly, isNameSpace, print }: FileImportProps): KubbNode {
-  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} print={print} />
+export function FileImport({ name, root, path, isTypeOnly, isNameSpace, extName, print }: FileImportProps): KubbNode {
+  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} extName={extName} isTypeOnly={isTypeOnly || false} print={print} />
 }
 
 File.Export = FileExport
