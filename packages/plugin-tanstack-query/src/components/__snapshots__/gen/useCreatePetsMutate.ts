@@ -26,18 +26,10 @@ export function useCreatePets(
     >
     client?: CreatePets['client']['parameters']
   } = {},
-): UseMutationResult<
-  CreatePets['response'],
-  CreatePets['error'],
-  { uuid: CreatePetsPathParams['uuid']; params?: CreatePets['queryParams']; headers: CreatePets['headerParams']; data: CreatePets['request'] }
-> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useMutation<
-    CreatePets['response'],
-    CreatePets['error'],
-    { uuid: CreatePetsPathParams['uuid']; params?: CreatePets['queryParams']; headers: CreatePets['headerParams']; data: CreatePets['request'] }
-  >({
+  return useMutation({
     mutationFn: async ({ uuid, headers, data, params }) => {
       const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({
         method: 'post',
