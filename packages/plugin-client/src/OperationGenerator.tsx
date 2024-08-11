@@ -18,10 +18,7 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas} operations={operations} generator={this}>
           {this.options.parsers.map((parser) => {
-            const Component = parser.templates?.Operations
-            if (!Component) {
-              return null
-            }
+            const Component = parser.templates.Operations
 
             return <Component key={parser.name} operations={operations} options={this.options} />
           })}
@@ -44,10 +41,7 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
         <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
             {options.parsers.map((parser) => {
-              const Component = parser.templates?.Operation
-              if (!Component) {
-                return null
-              }
+              const Component = parser.templates.Operation
 
               return <Component key={parser.name} operation={operation} options={this.options} />
             })}

@@ -20,5 +20,5 @@ export type {
 } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
-export { createParser } from './parser.ts'
-export type { Parser } from './parser.ts'
+export { createParser } from './parser.tsx'
+export type { Parser } from './parser.tsx'

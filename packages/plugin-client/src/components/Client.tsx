@@ -1,7 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 import { File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 
 import { isOptional } from '@kubb/oas'
@@ -119,37 +118,29 @@ export function Client({ name, generics, returnType, params, JSDoc, client }: Cl
     </Function>
   )
 }
+// TOOD move to ts plugin
+const typeParser = createParser({
+  name: 'types',
+  pluginName: pluginTsName,
+})
 
 export const clientParser = createParser<PluginClient>({
   name: 'client',
+  pluginName: 'plugin-client',
   templates: {
-    Operation({ operation, options }) {
-      const {
-        plugin: {
-          options: {
-            client: { importPath },
-            dataReturnType,
-            pathParamsType,
-            extName,
-          },
-        },
-      } = useApp<PluginClient>()
-
-      const { getSchemas, getFile, getName } = useOperationManager()
-
+    Operation({ operation, options, getName, getFile, getSchemas }) {
       const contentType = operation.getContentType()
-      const name = getName(operation, { type: 'function' })
-      const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-
-      const file = getFile(operation)
-      const fileType = getFile(operation, { pluginKey: [pluginTsName] })
+      const name = getName({ type: 'function' })
+      const schemas = getSchemas({ parser: typeParser })
+      const file = getFile()
+      const fileType = getFile({ parser: typeParser })
 
       return (
-        <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-          <File.Import name={'client'} path={importPath} />
-          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File baseName={file.baseName} path={file.path} meta={file.meta}>
+          <File.Import name={'client'} path={options.client.importPath} />
+          <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
           <File.Import
-            extName={extName}
+            extName={options.extName}
             name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
               Boolean,
             )}
@@ -162,7 +153,7 @@ export const clientParser = createParser<PluginClient>({
               name={name}
               params={{
                 pathParams: {
-                  mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+                  mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
                   children: getPathParams(schemas.pathParams, { typed: true }),
                 },
                 data: schemas.request?.name
@@ -188,15 +179,15 @@ export const clientParser = createParser<PluginClient>({
                   default: '{}',
                 },
               }}
-              returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
+              returnType={options.dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
               JSDoc={{
                 comments: getComments(operation),
               }}
               client={{
                 // only set baseURL from serverIndex(swagger) when no custom client(default) is used
-                baseURL: importPath === '@kubb/plugin-client/client' ? options.baseURL : undefined,
+                baseURL: options.client.importPath === '@kubb/plugin-client/client' ? options.baseURL : undefined,
                 generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
-                dataReturnType,
+                dataReturnType: options.dataReturnType,
                 withQueryParams: !!schemas.queryParams?.name,
                 withData: !!schemas.request?.name,
                 withHeaders: !!schemas.headerParams?.name,

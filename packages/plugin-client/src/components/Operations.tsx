@@ -4,6 +4,8 @@ import { Const, File, useApp } from '@kubb/react'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { FileMeta, PluginClient } from '../types.ts'
 import { createParser } from '@kubb/plugin-oas'
+import { camelCase } from '@kubb/core/transformers'
+import { pluginClientName } from '../plugin.ts'
 
 type OperationsProps = {
   operations: Array<Operation>
@@ -28,17 +30,17 @@ export function Operations({ operations }: OperationsProps) {
 
 export const operationsParser = createParser<PluginClient>({
   name: 'operations',
+  pluginName: 'plugin-client',
   templates: {
     Operations({ operations }) {
       const {
         pluginManager,
-        plugin: { key: pluginKey },
       } = useApp<PluginClient>()
 
-      const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
+      const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey: ['plugin-client'] })
 
       return (
-        <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
+        <File baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
           <File.Source>
             <Operations operations={operations} />
           </File.Source>

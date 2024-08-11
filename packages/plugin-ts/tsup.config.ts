@@ -7,7 +7,6 @@ export default defineConfig([
     ...optionsCJS,
     entry: {
       index: 'src/index.ts',
-      oas: 'src/oas/index.ts',
       components: 'src/components/index.ts',
     },
   },
@@ -15,7 +14,6 @@ export default defineConfig([
     ...optionsESM,
     entry: {
       index: 'src/index.ts',
-      oas: 'src/oas/index.ts',
       components: 'src/components/index.ts',
     },
   },

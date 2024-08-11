@@ -88,12 +88,6 @@ export type Options = {
    * @private
    */
   pathParamsType?: 'object' | 'inline'
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
   parsers?: Array<Parser<PluginClient>>
 }
 

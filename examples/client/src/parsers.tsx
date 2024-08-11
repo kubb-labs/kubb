@@ -1,45 +1,36 @@
 import { File, Function } from '@kubb/react'
 import { isOptional } from '@kubb/oas'
-import type { PluginClient } from '@kubb/plugin-client'
+import { PluginClient, pluginClientName } from '@kubb/plugin-client'
 import React from 'react'
 import { createParser } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { URLPath } from '@kubb/core/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { useApp } from '@kubb/react'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { FileMeta } from '@kubb/plugin-client/src/types.ts'
+
+// TOOD move to ts plugin
+const typeParser = createParser({
+  name: 'types',
+  pluginName: pluginTsName,
+})
 
 const axiosParser = createParser<PluginClient>({
   name: 'axios',
+  pluginName: pluginClientName,
   templates: {
-    Operation({ operation }) {
-      const {
-        plugin: {
-          options: {
-            client: { importPath },
-            dataReturnType,
-            pathParamsType,
-            extName,
-          },
-        },
-      } = useApp<PluginClient>()
-      const { getSchemas, getFile, getName } = useOperationManager()
-
-      const file = getFile(operation)
-      const fileType = getFile(operation, { pluginKey: [pluginTsName] })
-      const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-      const name = getName(operation, { type: 'function' })
+    Operation({ operation, options, getName, getFile, getSchemas }) {
+      const file = getFile()
+      const fileType = getFile({ parser: typeParser })
+      const schemas = getSchemas({ parser: typeParser })
+      const name = getName({ type: 'function' })
 
       const clientParams = [new URLPath(operation.path).toTemplateString(), schemas.request?.name ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
 
-
       return (
-        <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-          <File.Import name={'client'} path={importPath} />
-          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File baseName={file.baseName} path={file.path} meta={file.meta}>
+          <File.Import name={'client'} path={options.client.importPath} />
+          <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
           <File.Import
-            extName={extName}
+            extName={options.extName}
             name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
               Boolean,
             )}
@@ -52,10 +43,10 @@ const axiosParser = createParser<PluginClient>({
             name={name}
             async
             export
-            returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
+            returnType={options.dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
             params={{
               pathParams: {
-                mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+                mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
                 children: getPathParams(schemas.pathParams, { typed: true }),
               },
               data: schemas.request?.name

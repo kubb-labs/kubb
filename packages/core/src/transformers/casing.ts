@@ -5,7 +5,13 @@ type Options = {
    * When set it will replace all `.` with `/`.
    */
   isFile?: boolean
+  /**
+   * @deprecated
+   */
   prefix?: string
+  /**
+   * @deprecated
+   */
   suffix?: string
 }
 

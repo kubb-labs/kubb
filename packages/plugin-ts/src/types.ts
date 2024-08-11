@@ -134,5 +134,3 @@ declare module '@kubb/core' {
     ['@kubb/plugin-ts']: PluginTs
   }
 }
-// external packages
-export * as Oas from './oas/index.ts'

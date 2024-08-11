@@ -23,7 +23,6 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     exclude = [],
     include,
     override = [],
-    transformers = {},
     dataReturnType = 'data',
     pathParamsType = 'inline',
     parsers = [operationsParser, clientParser],
@@ -67,10 +66,6 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     },
     resolveName(name, type) {
       const resolvedName = camelCase(name, { isFile: type === 'file' })
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
-      }
 
       return resolvedName
     },

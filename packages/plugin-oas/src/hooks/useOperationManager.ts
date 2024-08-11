@@ -26,7 +26,7 @@ type SchemaNames = {
 
 type UseOperationManagerResult = {
   getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getFile: (operation: OperationType, params?: { pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
+  getFile: (operation: OperationType, params?: { name?: string; pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
   groupSchemasByName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => SchemaNames
   getSchemas: (
     operation: Operation,
@@ -54,10 +54,10 @@ export function useOperationManager(): UseOperationManagerResult {
     })
   }
 
-  const getFile: UseOperationManagerResult['getFile'] = (operation, { pluginKey = plugin.key, extName = '.ts' } = {}) => {
+  const getFile: UseOperationManagerResult['getFile'] = (operation, { name: _name, pluginKey = plugin.key, extName = '.ts' } = {}) => {
     // needed for the `output.group`
     const tag = operation.getTags().at(0)?.name
-    const name = getName(operation, { type: 'file', pluginKey })
+    const name = _name || getName(operation, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({
       name,
