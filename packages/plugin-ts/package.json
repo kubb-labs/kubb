@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-zod",
+  "name": "@kubb/plugin-ts",
   "version": "2.25.1",
-  "description": "Generator swagger-zod",
+  "description": "Generator plugin-ts",
   "keywords": [
     "zod",
     "plugins",
@@ -13,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-zod"
+    "directory": "packages/plugin-ts"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -66,8 +66,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*"
+    "@kubb/react": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

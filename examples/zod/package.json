@@ -23,9 +23,9 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
     "tsup": "^8.2.4",
     "zod": "^3.23.8"

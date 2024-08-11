@@ -5,7 +5,7 @@
 ___ "types": ["@kubb/core/globals"]
 }
 * @example implementation
-type SwaggerPlugin = Kubb.Plugins["@kubb/swagger"]
+type SwaggerPlugin = Kubb.Plugins["@kubb/plugin-oas"]
 const swaggerPlugin: SwaggerPlugin={
 ___ validate: true
 }
@@ -33,7 +33,7 @@ declare namespace Kubb {
     ['@kubb/plugin-client']: import('@kubb/plugin-client').PluginClient
     ['@kubb/plugin-faker']: import('@kubb/plugin-faker').PluginFaker
     ['@kubb/plugin-swr']: import('@kubb/plugin-swr').PluginSwr
-    ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginTanstackQuery
+    ['@kubb/plugin-tanstack-query']: import('@kubb/plugin-tanstack-query').PluginTanstackQuery
     ['@kubb/plugin-ts']: import('@kubb/plugin-ts').PluginTs
     ['@kubb/plugin-zod']: import('@kubb/plugin-zod').PluginZod
     ['@kubb/plugin-zodios']: import('@kubb/plugin-zodios').PluginZodios

@@ -18,7 +18,7 @@ describe('OperationGenerator', async () => {
       path: 'test',
       clean: true,
     },
-    input: { path: 'packages/swagger-zodios/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-zodios/mocks/petStore.yaml' },
   })
 
   test('includes an alias property when includeOperationIdAsAlias is true', async () => {

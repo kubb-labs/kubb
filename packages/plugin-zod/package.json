@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-ts",
+  "name": "@kubb/plugin-zod",
   "version": "2.25.1",
-  "description": "Generator swagger-ts",
+  "description": "Generator plugin-zod",
   "keywords": [
     "typescript",
     "plugins",
@@ -13,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-ts"
+    "directory": "packages/plugin-zod"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

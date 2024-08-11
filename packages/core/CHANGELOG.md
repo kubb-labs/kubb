@@ -1,43 +1,5 @@
 # @kubb/core
 
-## 2.25.1
-
-### Patch Changes
-
-- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
-
-- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
-  - @kubb/parser-ts@2.25.1
-  - @kubb/types@2.25.1
-  - @kubb/fs@2.25.1
-
-## 2.25.0
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/fs@2.25.0
-  - @kubb/parser-ts@2.25.0
-  - @kubb/types@2.25.0
-
-## 2.24.0
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/fs@2.24.0
-  - @kubb/parser-ts@2.24.0
-  - @kubb/types@2.24.0
-
-## 2.23.4
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/fs@2.23.4
-  - @kubb/parser-ts@2.23.4
-  - @kubb/types@2.23.4
-
 ## 2.23.3
 
 ### Patch Changes

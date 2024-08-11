@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-msw",
+  "name": "@kubb/plugin-react-query",
   "version": "2.25.1",
-  "description": "Generator swagger-msw",
+  "description": "Generator react-query hooks",
   "keywords": [
     "faker",
     "faker.js",
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-msw"
+    "directory": "packages/plugin-react-query"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -71,8 +71,9 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-faker": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*"
+    "@kubb/plugin-faker": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

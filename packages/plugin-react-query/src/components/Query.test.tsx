@@ -42,7 +42,6 @@ describe('<Query/>', async () => {
       query: Query.templates,
       queryKey: QueryKey.templates,
       queryOptions: QueryOptions.templates,
-      queryImports: QueryImports.templates,
     },
     client: {
       importPath: '@kubb/plugin-client/client',
