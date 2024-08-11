@@ -20,7 +20,7 @@ describe('<Query/>', async () => {
   const oas = await parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-tanstack-query/mocks/petStore.yaml' },
+    input: { path: 'packages/plugin-tanstack-query/mocks/petStore.yaml' },
   })
   mockedPluginManager.resolveName = ({ type, name }: ResolveNameParams) => {
     if (type === 'file' || type === 'function') {
