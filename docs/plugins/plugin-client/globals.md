@@ -15,9 +15,9 @@ outline: deep
 See [FileManager#getEnvSource](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts) for more information about how this works in the background.
 
 ::: code-group
-<<< @/../packages/plugin/src/types.ts{12-15}
+<<< @/../packages/plugin-client/src/types.ts{12-15}
 
-<<< @/../packages/plugin/globals.d.ts{22-24}
+<<< @/../packages/plugin-client/globals.d.ts{22-24}
 
 :::
 

@@ -31,7 +31,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/plugin-zodios": "workspace:*",
-    "@kubb/swagger-tanstack-query": "workspace:*",
+    "@kubb/plugin-tanstack-query": "workspace:*",
     "@tanstack/react-query": "^5.51.23",
     "@tanstack/solid-query": "^5.51.21",
     "@tanstack/svelte-query": "^5.51.21",
@@ -55,7 +55,7 @@
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=8.3.0"
   }
 }

@@ -54,7 +54,7 @@
     "typescript": "^5.5.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "preferGlobal": true,
   "publishConfig": {

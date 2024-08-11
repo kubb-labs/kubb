@@ -5,15 +5,8 @@ title: \@kubb/plugin-msw
 outline: deep
 ---
 
-# @kubb/plugin-msw <a href="https://paka.dev/npm/@kubb/swagger-mws@latest/api">🦙</a>
+# @kubb/plugin-msw
 
-::: tip
-<img src="https://pbs.twimg.com/media/F9HHE4jXkAA_zm7?format=jpg&name=medium" style="max-width: 30vw"/><br/>
-MSW v2 is fully supported, see [Migrating to MSW 2.0.0](https://mswjs.io/docs/migrations/1.x-to-2.x).<br/>
-
-Just install v2 in your project and `Kubb` will check the `package.json` to see if you are using v1 or v2.
-
-:::
 
 With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks based on a Swagger file.
 
@@ -22,19 +15,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks bas
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-msw @kubb/plugin-ts @kubb/plugin-faker @kubb/swagger
+bun add @kubb/plugin-msw
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-msw @kubb/plugin-ts @kubb/plugin-faker @kubb/swagger
+pnpm add @kubb/plugin-msw
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-msw @kubb/plugin-ts @kubb/plugin-faker @kubb/swagger
+npm install @kubb/plugin-msw
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-msw @kubb/plugin-ts @kubb/plugin-faker @kubb/swagger
+yarn add @kubb/plugin-msw
 ```
 
 :::

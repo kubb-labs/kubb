@@ -36,7 +36,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/plugin-zodios": "workspace:*",
     "@kubb/react": "workspace:^",
-    "@kubb/swagger-tanstack-query": "workspace:*",
+    "@kubb/plugin-tanstack-query": "workspace:*",
     "@types/node": "^20.14.15",
     "@types/react": "^18.3.3",
     "axios": "^1.7.3",
@@ -46,7 +46,7 @@
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=8.15.0"
   }
 }

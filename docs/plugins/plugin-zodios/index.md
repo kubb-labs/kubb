@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-zodios <a href="https://paka.dev/npm/@kubb/plugin-zodios@latest/api">🦙</a>
 
-With the Swagger zodios plugin you can use [zodios](https://github.com/ecyrbe/zodios) to validate your schema's based on
+With the Zodios plugin you can use [zodios](https://github.com/ecyrbe/zodios) to validate your schema's based on
 a Swagger file.
 
 ## Installation
@@ -15,19 +15,19 @@ a Swagger file.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
+bun add @kubb/plugin-zodios
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
+pnpm add @kubb/plugin-zodios
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
+npm install @kubb/plugin-zodios
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-zodios @kubb/plugin-zod @kubb/swagger
+yarn add @kubb/plugin-zodios
 ```
 
 :::

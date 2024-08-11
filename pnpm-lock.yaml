@@ -110,7 +110,7 @@ importers:
       '@kubb/react':
         specifier: workspace:^
         version: link:../packages/react
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../packages/swagger-tanstack-query
       '@types/node':
@@ -167,7 +167,7 @@ importers:
       '@kubb/plugin-zodios':
         specifier: workspace:*
         version: link:../packages/plugin-zodios
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../packages/swagger-tanstack-query
       '@tanstack/react-query':
@@ -258,7 +258,7 @@ importers:
       '@kubb/plugin-zodios':
         specifier: workspace:*
         version: link:../../packages/plugin-zodios
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
       '@tanstack/react-query':
@@ -616,7 +616,7 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
       '@tanstack/react-query':
@@ -655,7 +655,7 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
       '@tanstack/solid-query':
@@ -695,7 +695,7 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
       '@tanstack/svelte-query':
@@ -799,7 +799,7 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
       '@tanstack/vue-query':
@@ -848,7 +848,7 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
-      '@kubb/swagger-tanstack-query':
+      '@kubb/plugin-tanstack-query':
         specifier: workspace:*
         version: link:../../packages/swagger-tanstack-query
       '@tanstack/vue-query':

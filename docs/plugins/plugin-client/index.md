@@ -5,28 +5,28 @@ title: \@kubb/plugin-client
 outline: deep
 ---
 
-# @kubb/plugin-client <a href="https://paka.dev/npm/@kubb/plugin-client@latest/api">🦙</a>
+# @kubb/plugin-client
 
-With the Swagger client plugin you can create [Axios](https://axios-http.com/docs/intro) API calls.
+With the Client plugin you can create [Axios](https://axios-http.com/docs/intro) API calls.
 
 ## Installation
 
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
+bun add @kubb/plugin-client
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
+pnpm add @kubb/plugin-client
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
+npm install @kubb/plugin-client
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-client @kubb/plugin-ts @kubb/swagger
+yarn add @kubb/plugin-client
 ```
 
 :::

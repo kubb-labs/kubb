@@ -5,28 +5,28 @@ title: \@kubb/plugin-ts
 outline: deep
 ---
 
-# @kubb/plugin-ts <a href="https://paka.dev/npm/@kubb/plugin-ts@latest/api">🦙</a>
+# @kubb/plugin-ts
 
-With the Swagger TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types based on a Swagger file.
+With the TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types based on a Swagger file.
 
 ## Installation
 
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-ts @kubb/swagger
+bun add @kubb/plugin-ts
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-ts @kubb/swagger
+pnpm add @kubb/plugin-ts
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-ts @kubb/swagger
+npm install @kubb/plugin-ts
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-ts @kubb/swagger
+yarn add @kubb/plugin-ts
 ```
 
 :::

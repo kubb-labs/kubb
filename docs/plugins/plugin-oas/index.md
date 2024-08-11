@@ -5,9 +5,9 @@ title: \@kubb/plugin-oas
 outline: deep
 ---
 
-# @kubb/plugin-oas <a href="https://paka.dev/npm/@kubb/plugin-oas@latest/api">🦙</a>
+# @kubb/plugin-oas
 
-With the Swagger plugin, you can create a JSON schema out of a Swagger file.
+With the Oas plugin, you can create a JSON schema out of a Swagger file.
 Inside this package, you can also use some utils to create your own Swagger plugin.
 We already provide a [react-query plugin](/plugins/swagger-tanstack-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, validate the schema, generate a OAS object, ...).
 

@@ -5,7 +5,7 @@ title: \@kubb/plugin-redoc
 outline: deep
 ---
 
-# @kubb/plugin-redoc <a href="https://paka.dev/npm/@kubb/swagger@latest/api">🦙</a>
+# @kubb/plugin-redoc
 
 With the Redoc plugin you can create beautiful documentation pages.
 <hr/>

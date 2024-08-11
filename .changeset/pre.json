@@ -38,7 +38,7 @@
     "@kubb/plugin-faker": "2.25.1",
     "@kubb/plugin-msw": "2.25.1",
     "@kubb/plugin-swr": "2.25.1",
-    "@kubb/swagger-tanstack-query": "2.25.1",
+    "@kubb/plugin-tanstack-query": "2.25.1",
     "@kubb/plugin-ts": "2.25.1",
     "@kubb/plugin-zod": "2.25.1",
     "@kubb/plugin-zodios": "2.25.1",

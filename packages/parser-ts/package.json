@@ -71,7 +71,7 @@
     "tsup": "^8.2.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",

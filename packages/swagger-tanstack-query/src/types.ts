@@ -237,6 +237,6 @@ export type PluginTanstackQuery = PluginFactoryOptions<'plugin-tanstack-query', 
 
 declare module '@kubb/core' {
   export interface _Register {
-    ['@kubb/swagger-tanstack-query']: PluginTanstackQuery
+    ['@kubb/plugin-tanstack-query']: PluginTanstackQuery
   }
 }

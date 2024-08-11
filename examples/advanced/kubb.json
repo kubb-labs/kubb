@@ -23,7 +23,7 @@
       }
     ],
     [
-      "@kubb/swagger-tanstack-query",
+      "@kubb/plugin-tanstack-query",
       {
         "output": "hooks"
       }

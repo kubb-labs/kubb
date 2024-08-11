@@ -5,28 +5,28 @@ title: \@kubb/plugin-faker
 outline: deep
 ---
 
-# @kubb/plugin-faker <a href="https://paka.dev/npm/@kubb/plugin-faker@latest/api">🦙</a>
+# @kubb/plugin-faker
 
-With the Swagger Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
+With the Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
 
 ## Installation
 
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
+bun add @kubb/plugin-faker
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
+pnpm add @kubb/plugin-faker
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
+npm install @kubb/plugin-faker
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-faker @kubb/plugin-ts @kubb/swagger
+yarn add @kubb/plugin-faker
 ```
 
 :::

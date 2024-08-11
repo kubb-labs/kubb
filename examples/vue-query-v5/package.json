@@ -28,7 +28,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/swagger-tanstack-query": "workspace:*",
+    "@kubb/plugin-tanstack-query": "workspace:*",
     "@tanstack/vue-query": "^5.51.21",
     "axios": "^1.7.3",
     "unplugin-kubb": "workspace:*",
@@ -43,7 +43,7 @@
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=8.15.0"
   }
 }

@@ -7,26 +7,26 @@ outline: deep
 
 # @kubb/plugin-zod <a href="https://paka.dev/npm/@kubb/plugin-zod@latest/api">🦙</a>
 
-With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's based on a Swagger file.
+With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's based on a Swagger file.
 
 ## Installation
 
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-zod @kubb/swagger
+bun add @kubb/plugin-zod
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-zod @kubb/swagger
+pnpm add @kubb/plugin-zod
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-zod @kubb/swagger
+npm install @kubb/plugin-zod
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-zod @kubb/swagger
+yarn add @kubb/plugin-zod
 ```
 
 :::

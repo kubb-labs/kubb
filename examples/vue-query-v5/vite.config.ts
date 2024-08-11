@@ -1,5 +1,5 @@
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import vue from '@vitejs/plugin-vue'
 import kubb from 'unplugin-kubb/vite'

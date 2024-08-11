@@ -75,7 +75,7 @@
     "@kubb/react": "workspace:*"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",

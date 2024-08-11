@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/swagger-tanstack-query",
+  "name": "@kubb/plugin-tanstack-query",
   "version": "2.25.1",
-  "description": "Generator swagger-tanstack-query",
+  "description": "Generator plugin-tanstack-query",
   "keywords": [
     "typescript",
     "plugins",
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/swagger-tanstack-query"
+    "directory": "packages/plugin-tanstack-query"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -88,7 +88,7 @@
     "@kubb/react": "workspace:*"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",

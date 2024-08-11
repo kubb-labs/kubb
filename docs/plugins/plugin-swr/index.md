@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-swr <a href="https://paka.dev/npm/@kubb/plugin-swr@latest/api">🦙</a>
 
-With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger
+With the SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger
 file.
 
 ## Installation
@@ -15,19 +15,19 @@ file.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
+bun add @kubb/plugin-swr
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
+pnpm add @kubb/plugin-swr
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
+npm install @kubb/plugin-swr
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-swr @kubb/plugin-ts @kubb/swagger
+yarn add @kubb/plugin-swr
 ```
 
 :::

@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/swagger-tanstack-query</h1>
+<h1>@kubb/plugin-tanstack-query</h1>
 
 <p>
    Swagger integration for React-Query to generate all the different hooks based on an OpenAPI specification.
@@ -30,18 +30,18 @@
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/swagger-tanstack-query?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/swagger-tanstack-query
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/swagger-tanstack-query?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/swagger-tanstack-query
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-tanstack-query?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-tanstack-query
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-tanstack-query?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-tanstack-query
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/swagger-tanstack-query
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/swagger-tanstack-query?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/swagger-tanstack-query
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-tanstack-query
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-tanstack-query?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-tanstack-query
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/swagger-tanstack-query
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-tanstack-query
 
 ## options query
 

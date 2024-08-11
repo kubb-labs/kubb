@@ -1,4 +1,4 @@
-# @kubb/swagger-tanstack-query
+# @kubb/plugin-tanstack-query
 
 ## 2.25.1
 

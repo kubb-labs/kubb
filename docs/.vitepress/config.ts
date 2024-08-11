@@ -237,8 +237,8 @@ const pluginsSidebar = [
         link: '/plugins/plugin-zodios/',
       },
       {
-        text: '@kubb/swagger-tanstack-query',
-        link: '/plugins/swagger-tanstack-query/',
+        text: '@kubb/plugin-tanstack-query',
+        link: '/plugins/plugin-tanstack-query/',
       },
       {
         text: '@kubb/plugin-swr',
@@ -246,7 +246,7 @@ const pluginsSidebar = [
       },
       {
         text: '@kubb/plugin-faker',
-        link: '/plugins/swagger-faker/',
+        link: '/plugins/plugin-faker/',
       },
       {
         text: '@kubb/plugin-msw',
@@ -355,6 +355,10 @@ const examplesSidebar = [
 
 const blogSidebar = [
   {
+    text: 'Release of Kubb 3.0',
+    link: '/blog/v3',
+  },
+  {
     text: 'Release of Kubb 2.0',
     link: '/blog/v2',
   },
@@ -423,8 +427,8 @@ const pluginsMenu = [
         link: '/plugins/plugin-zodios/',
       },
       {
-        text: '@kubb/swagger-tanstack-query',
-        link: '/plugins/swagger-tanstack-query/',
+        text: '@kubb/plugin-tanstack-query',
+        link: '/plugins/plugin-tanstack-query/',
       },
       {
         text: '@kubb/plugin-swr',
@@ -432,7 +436,7 @@ const pluginsMenu = [
       },
       {
         text: '@kubb/plugin-faker',
-        link: '/plugins/swagger-faker/',
+        link: '/plugins/plugin-faker/',
       },
       {
         text: '@kubb/plugin-msw',
@@ -538,20 +542,19 @@ export default defineConfig({
       //         '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
       //         '@kubb/fs': ['../packages/fs/src/index.ts'],
       //         '@kubb/fs/types': ['../packages/fs/src/types.ts'],
-      //         '@kubb/swagger': ['../packages/swagger/src/index.ts'],
       //         '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
       //         '@kubb/plugin-oas/hooks': ['../packages/plugin-oas/src/hooks/index.ts'],
       //         '@kubb/plugin-client': ['../packages/plugin-client/src/index.ts'],
       //         '@kubb/plugin-client/client': ['../packages/plugin-client/client.ts'],
       //         '@kubb/plugin-client/components': ['../packages/plugin-client/src/components/index.ts'],
-      //         '@kubb/plugin-faker': ['../packages/swagger-faker/src/index.ts'],
+      //         '@kubb/plugin-faker': ['../packages/plugin-faker/src/index.ts'],
       //         '@kubb/plugin-msw': ['../packages/plugin-msw/src/index.ts'],
       //         '@kubb/plugin-swr': ['../packages/plugin-swr/src/index.ts'],
       //         '@kubb/plugin-redoc': ['../packages/plugin-redoc/src/index.ts'],
       //         '@kubb/plugin-swr/components': ['../packages/plugin-swr/src/components/index.ts'],
       //         '@kubb/plugin-msw/components': ['../packages/plugin-msw/src/components/index.ts'],
-      //         '@kubb/swagger-tanstack-query': ['../packages/swagger-tanstack-query/src/index.ts'],
-      //         '@kubb/swagger-tanstack-query/components': ['../packages/swagger-tanstack-query/src/components/index.ts'],
+      //         '@kubb/plugin-tanstack-query': ['../packages/plugin-tanstack-query/src/index.ts'],
+      //         '@kubb/plugin-tanstack-query/components': ['../packages/plugin-tanstack-query/src/components/index.ts'],
       //         '@kubb/plugin-ts': ['../packages/plugin-ts/src/index.ts'],
       //         '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
       //         '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],
@@ -608,8 +611,13 @@ export default defineConfig({
             target: '_blank',
           },
           {
+            text: 'v2',
+            link: 'https://v2.kubb.dev',
+            target: '_blank',
+          },
+          {
             text: 'Blog',
-            link: '/blog/v2',
+            link: '/blog/v3',
           },
           {
             text: 'Releases',
