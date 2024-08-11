@@ -1,11 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
   QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
   InfiniteData,
@@ -27,12 +26,9 @@ type LoginUser = {
 }
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
-export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
-  params?: LoginUser['queryParams'],
-  options: LoginUser['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
+export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
@@ -43,7 +39,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs user into the system
@@ -60,10 +56,10 @@ export function loginUserQuery<TData = LoginUser['response'], TQueryData = Login
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-  const query = createQuery<LoginUser['data'], LoginUser['error'], TData, any>({
-    ...loginUserQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = createQuery({
+    ...(loginUserQueryOptions(params, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
   }) as CreateQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
@@ -72,12 +68,9 @@ export function loginUserQuery<TData = LoginUser['response'], TQueryData = Login
 }
 export const loginUserInfiniteQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
-export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
-  params?: LoginUser['queryParams'],
-  options: LoginUser['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
+export function loginUserInfiniteQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserInfiniteQueryKey(params)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
@@ -92,7 +85,10 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
       })
       return res.data
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @summary Logs user into the system
@@ -113,10 +109,10 @@ export function loginUserQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserInfiniteQueryKey(params)
-  const query = createInfiniteQuery<LoginUser['data'], LoginUser['error'], TData, any>({
-    ...loginUserInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = createInfiniteQuery({
+    ...(loginUserInfiniteQueryOptions(params, clientOptions) as unknown as CreateInfiniteQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateInfiniteQueryOptions, 'queryKey'>),
   }) as CreateInfiniteQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }

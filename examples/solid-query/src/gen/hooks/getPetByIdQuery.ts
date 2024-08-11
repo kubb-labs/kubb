@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery } from '@tanstack/solid-query'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -19,12 +19,9 @@ type GetPetById = {
 }
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
-export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
-  petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetPetById['data'], GetPetById['error']>({
@@ -34,7 +31,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a single pet
@@ -52,11 +49,12 @@ export function getPetByIdQuery<TData = GetPetById['response'], TQueryData = Get
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-  const query = createQuery<GetPetById['data'], GetPetById['error'], TData, any>({
-    ...getPetByIdQueryOptions<TData, TQueryData>(petId, clientOptions),
+  const query = createQuery(() => ({
+    ...(getPetByIdQueryOptions(petId, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
-  }) as CreateQueryResult<TData, GetPetById['error']> & {
+    initialData: undefined,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+  })) as CreateQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

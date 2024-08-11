@@ -35,6 +35,7 @@ type TemplateProps = {
    * ReturnType(see async for adding Promise type)
    */
   returnType?: string
+  optionsType: string
   /**
    * Options for JSdocs
    */
@@ -50,20 +51,19 @@ type TemplateProps = {
   infinite: Infinite | false
 }
 
-function Template({ name, generics, returnType, params, JSDoc, hook, infinite }: TemplateProps): ReactNode {
+function Template({ name, generics, returnType, params, JSDoc, hook, infinite, optionsType }: TemplateProps): ReactNode {
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   return (
-    <>
-      <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
-        {`
+    <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+      {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
          const query = ${hook.name}({
-          ...${hook.queryOptions} as unknown as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
+          ...${hook.queryOptions} as unknown as ${optionsType},
           queryKey,
-          ...queryOptions as unknown as ${infinite ? 'Omit<InfiniteQueryObserverOptions, "queryKey">' : 'Omit<QueryObserverOptions, "queryKey">'}
+          ...queryOptions as unknown as Omit<${optionsType}, "queryKey">
         }) as ${resolvedReturnType}
 
         query.queryKey = queryKey as TQueryKey
@@ -71,8 +71,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
         return query
 
          `}
-      </Function>
-    </>
+    </Function>
   )
 }
 
@@ -92,8 +91,29 @@ const defaultTemplates = {
     }
   },
   get solid() {
-    return function (props: FrameworkProps): ReactNode {
-      return <Template {...props} />
+    return function ({ name, generics, returnType, params, JSDoc, hook, optionsType }: FrameworkProps): ReactNode {
+      const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
+
+      return (
+        <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+          {`
+         const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+         const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
+
+         const query = ${hook.name}(() => ({
+          ...${hook.queryOptions} as unknown as ${optionsType},
+          queryKey,
+          initialData: undefined,
+          ...queryOptions as unknown as Omit<${optionsType}, "queryKey">
+        })) as ${resolvedReturnType}
+
+        query.queryKey = queryKey as TQueryKey
+
+        return query
+
+         `}
+        </Function>
+      )
     }
   },
   get svelte() {
@@ -241,18 +261,35 @@ const defaultTemplates = {
         },
       ])
 
+      const queryOptionsFunc = `${queryOptions}(${queryParams.toString()})`
+      const resolvedReturnType = `${resultType}<${resultGenerics.join(', ')}> & { queryKey: TQueryKey }`
+      const hookQueryKey = `${queryKey}(${queryKeyParams.toString()})`
+
       return (
-        <Template
-          {...rest}
-          params={params.toString()}
+        <Function
+          name={rest.name}
+          export
+          generics={rest.generics}
           returnType={`${resultType}<${resultGenerics.join(', ')}>`}
-          hook={{
-            ...hook,
-            name: hookName,
-            queryOptions: `${queryOptions}(${queryParams.toString()})`,
-            queryKey: `${queryKey}(${queryKeyParams.toString()})`,
-          }}
-        />
+          params={params.toString()}
+          JSDoc={rest.JSDoc}
+        >
+          {`
+         const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+         const queryKey = queryOptions?.queryKey ?? ${hookQueryKey}
+
+         const query = ${hookName}({
+          ...${queryOptionsFunc} as unknown as ${optionsType},
+          queryKey,
+          ...queryOptions as unknown as Omit<${optionsType}, "queryKey">
+        }) as ${resolvedReturnType}
+
+        query.queryKey = queryKey as TQueryKey
+
+        return query
+
+         `}
+        </Function>
       )
     }
   },
@@ -457,6 +494,7 @@ export function Query({
           returnType={`${resultType}<${resultGenerics.join(', ')}>`}
           hook={hook}
           infinite={props.infinite}
+          optionsType={optionsType}
           context={{
             factory,
             queryKey,

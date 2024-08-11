@@ -1,15 +1,17 @@
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 import type {
-  UseBaseQueryOptions,
+  QueryObserverOptions,
   UseQueryResult,
   QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
+  InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
   InfiniteData,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
 } from '@tanstack/react-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
@@ -28,12 +30,9 @@ type GetPetById = {
 }
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
-export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
-  petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetPetById['data'], GetPetById['error']>({
@@ -43,7 +42,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
       })
       return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
     },
-  }
+  })
 }
 /**
  * @description Returns a single pet
@@ -53,7 +52,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: Partial<UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetById['error']> & {
@@ -61,10 +60,10 @@ export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPe
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-  const query = useQuery<GetPetById['data'], GetPetById['error'], TData, any>({
-    ...getPetByIdQueryOptions<TData, TQueryData>(petId, clientOptions),
+  const query = useQuery({
+    ...(getPetByIdQueryOptions(petId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
@@ -73,12 +72,9 @@ export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPe
 }
 export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdInfiniteQueryKey = ReturnType<typeof getPetByIdInfiniteQueryKey>
-export function getPetByIdInfiniteQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
-  petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['parameters'] = {},
-): WithRequired<UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
+export function getPetByIdInfiniteQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdInfiniteQueryKey(petId)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<GetPetById['data'], GetPetById['error']>({
@@ -88,7 +84,10 @@ export function getPetByIdInfiniteQueryOptions<TData = GetPetById['response'], T
       })
       return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @description Returns a single pet
@@ -102,7 +101,7 @@ export function useGetPetByIdInfinite<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: Partial<UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<InfiniteQueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseInfiniteQueryResult<TData, GetPetById['error']> & {
@@ -110,11 +109,53 @@ export function useGetPetByIdInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdInfiniteQueryKey(petId)
-  const query = useInfiniteQuery<GetPetById['data'], GetPetById['error'], TData, any>({
-    ...getPetByIdInfiniteQueryOptions<TData, TQueryData>(petId, clientOptions),
+  const query = useInfiniteQuery({
+    ...(getPetByIdInfiniteQueryOptions(petId, clientOptions) as unknown as InfiniteQueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
   }) as UseInfiniteQueryResult<TData, GetPetById['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
+export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
+  const queryKey = getPetByIdSuspenseQueryKey(petId)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<GetPetById['data'], GetPetById['error']>({
+        method: 'get',
+        url: `/pet/${petId}`,
+        ...options,
+      })
+      return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
+    },
+  })
+}
+/**
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * @link /pet/:petId
+ */
+export function useGetPetByIdSuspense<TData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
+  petId: GetPetByIdPathParams['petId'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
+    client?: GetPetById['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetPetById['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
+  const query = useSuspenseQuery({
+    ...(getPetByIdSuspenseQueryOptions(petId, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

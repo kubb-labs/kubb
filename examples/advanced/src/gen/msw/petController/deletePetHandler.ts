@@ -1,6 +1,10 @@
-import { rest } from 'msw'
+import { http } from 'msw'
 import { createDeletePetMutationResponse } from '../../mocks/petController/createDeletePet'
 
-export const deletePetHandler = rest.delete('*/pet/:petId', function handler(req, res, ctx) {
-  return res(ctx.json(createDeletePetMutationResponse()))
+export const deletePetHandler = http.delete('*/pet/:petId', function handler(info) {
+  return new Response(JSON.stringify(createDeletePetMutationResponse()), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 })

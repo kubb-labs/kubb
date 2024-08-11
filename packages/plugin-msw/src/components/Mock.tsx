@@ -29,10 +29,9 @@ type TemplateProps = {
 }
 
 function Template({ name, method, path, responseName }: TemplateProps): ReactNode {
-
-    return (
-      <>
-        {`
+  return (
+    <>
+      {`
   export const ${name} = http.${method}('*${path.toURLPath()}', function handler(info) {
     return new Response(JSON.stringify(${responseName}()), {
       headers: {
@@ -41,9 +40,8 @@ function Template({ name, method, path, responseName }: TemplateProps): ReactNod
     })
   })
   `}
-      </>
-    )
-
+    </>
+  )
 }
 
 const defaultTemplates = { default: Template } as const
@@ -68,8 +66,7 @@ export function Mock({ Template = defaultTemplates.default }: Props): ReactNode 
     type: 'type',
   })
 
-
-  return <Template  name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
+  return <Template name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
 }
 
 type FileProps = {
@@ -97,7 +94,6 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
     name: schemas.response.name,
     type: 'function',
   })
-
 
   const Template = templates.default
 

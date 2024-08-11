@@ -47,9 +47,7 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
     query?: Partial<QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetUserByName['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetUserByName['error']> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
   const query = useQuery({

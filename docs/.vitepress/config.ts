@@ -302,10 +302,6 @@ const examplesSidebar = [
         link: '/examples/tanstack-query/vue-query',
       },
       {
-        text: 'Vue-Query',
-        link: '/examples/tanstack-query/vue-query',
-      },
-      {
         text: 'Svelte-Query',
         link: '/examples/tanstack-query/svelte-query',
       },

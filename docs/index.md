@@ -32,7 +32,7 @@ features:
   - icon:
       src: ./feature/tanstack.svg
       height: 24
-    title: Tanstack Query <span class="new">v5 support</span>
+    title: Tanstack Query
     details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue). <div class="learn-more"><a href="/plugins/swagger-tanstack-query">Learn more</a></div>
   - icon:
       dark: ./feature/swr-dark.svg
@@ -46,7 +46,7 @@ features:
     details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/plugin/">Learn more</a></div>
   - icon:
       src: ./feature/msw.svg
-    title: MSW <span class="new">v2 support</span>
+    title: MSW
     details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/plugin-msw">Learn more</a></div>
   - icon:
       src: ./feature/zod.svg

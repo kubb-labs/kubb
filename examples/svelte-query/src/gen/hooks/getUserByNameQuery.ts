@@ -1,11 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
   QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
   InfiniteData,
@@ -27,12 +26,9 @@ type GetUserByName = {
 }
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQueryData = GetUserByName['response']>(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetUserByName['data'], GetUserByName['error']>({
@@ -42,7 +38,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Get user by user name
@@ -63,10 +59,10 @@ export function getUserByNameQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = createQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
-    ...getUserByNameQueryOptions<TData, TQueryData>(username, clientOptions),
+  const query = createQuery({
+    ...(getUserByNameQueryOptions(username, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
   }) as CreateQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
@@ -76,12 +72,9 @@ export function getUserByNameQuery<
 export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
-export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['response'], TQueryData = GetUserByName['response']>(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
+export function getUserByNameInfiniteQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameInfiniteQueryKey(username)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<GetUserByName['data'], GetUserByName['error']>({
@@ -91,7 +84,10 @@ export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['respons
       })
       return res.data
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @summary Get user by user name
@@ -112,10 +108,10 @@ export function getUserByNameQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameInfiniteQueryKey(username)
-  const query = createInfiniteQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
-    ...getUserByNameInfiniteQueryOptions<TData, TQueryData>(username, clientOptions),
+  const query = createInfiniteQuery({
+    ...(getUserByNameInfiniteQueryOptions(username, clientOptions) as unknown as CreateInfiniteQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateInfiniteQueryOptions, 'queryKey'>),
   }) as CreateInfiniteQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }

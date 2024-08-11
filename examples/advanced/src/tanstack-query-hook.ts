@@ -1,1 +1,1 @@
-export { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+export * from '@tanstack/react-query'

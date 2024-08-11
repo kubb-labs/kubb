@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery } from '@tanstack/solid-query'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -19,12 +19,9 @@ type GetUserByName = {
 }
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQueryData = GetUserByName['response']>(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetUserByName['data'], GetUserByName['error']>({
@@ -34,7 +31,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Get user by user name
@@ -55,11 +52,12 @@ export function getUserByNameQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = createQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
-    ...getUserByNameQueryOptions<TData, TQueryData>(username, clientOptions),
+  const query = createQuery(() => ({
+    ...(getUserByNameQueryOptions(username, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
-  }) as CreateQueryResult<TData, GetUserByName['error']> & {
+    initialData: undefined,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+  })) as CreateQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery } from '@tanstack/solid-query'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -19,11 +19,9 @@ type GetInventory = {
 }
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
-export function getInventoryQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
-  options: GetInventory['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
+export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
@@ -33,7 +31,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a map of status codes to quantities
@@ -50,11 +48,12 @@ export function getInventoryQuery<TData = GetInventory['response'], TQueryData =
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-  const query = createQuery<GetInventory['data'], GetInventory['error'], TData, any>({
-    ...getInventoryQueryOptions<TData, TQueryData>(clientOptions),
+  const query = createQuery(() => ({
+    ...(getInventoryQueryOptions(clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
-  }) as CreateQueryResult<TData, GetInventory['error']> & {
+    initialData: undefined,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+  })) as CreateQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

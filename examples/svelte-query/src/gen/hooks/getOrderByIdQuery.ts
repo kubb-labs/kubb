@@ -1,11 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
   QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
   InfiniteData,
@@ -27,12 +26,9 @@ type GetOrderById = {
 }
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
-export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
+export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetOrderById['data'], GetOrderById['error']>({
@@ -42,7 +38,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -60,10 +56,10 @@ export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData =
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-  const query = createQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
-    ...getOrderByIdQueryOptions<TData, TQueryData>(orderId, clientOptions),
+  const query = createQuery({
+    ...(getOrderByIdQueryOptions(orderId, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
   }) as CreateQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
@@ -73,12 +69,9 @@ export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData =
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdInfiniteQueryKey = ReturnType<typeof getOrderByIdInfiniteQueryKey>
-export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
+export function getOrderByIdInfiniteQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<GetOrderById['data'], GetOrderById['error']>({
@@ -88,7 +81,10 @@ export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'
       })
       return res.data
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -110,10 +106,10 @@ export function getOrderByIdQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdInfiniteQueryKey(orderId)
-  const query = createInfiniteQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
-    ...getOrderByIdInfiniteQueryOptions<TData, TQueryData>(orderId, clientOptions),
+  const query = createInfiniteQuery({
+    ...(getOrderByIdInfiniteQueryOptions(orderId, clientOptions) as unknown as CreateInfiniteQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateInfiniteQueryOptions, 'queryKey'>),
   }) as CreateInfiniteQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }

@@ -47,9 +47,7 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
     query?: Partial<QueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, LoginUser['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, LoginUser['error']> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
   const query = useQuery({

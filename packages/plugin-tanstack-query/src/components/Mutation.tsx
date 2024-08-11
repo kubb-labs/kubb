@@ -420,6 +420,11 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
     name: factoryName,
   }
 
+  if (framework === 'solid') {
+    // Solid does not have createMutation
+    return null
+  }
+
   return (
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>

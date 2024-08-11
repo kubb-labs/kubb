@@ -1,11 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
   QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
   InfiniteData,
@@ -27,11 +26,9 @@ type LogoutUser = {
 }
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
+export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
@@ -41,7 +38,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs out current logged in user session
@@ -57,10 +54,10 @@ export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = Log
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = createQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
-    ...logoutUserQueryOptions<TData, TQueryData>(clientOptions),
+  const query = createQuery({
+    ...(logoutUserQueryOptions(clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
   }) as CreateQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
@@ -69,11 +66,9 @@ export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = Log
 }
 export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
-export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
+export function logoutUserInfiniteQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserInfiniteQueryKey()
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
@@ -83,7 +78,10 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
       })
       return res.data
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @summary Logs out current logged in user session
@@ -103,10 +101,10 @@ export function logoutUserQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserInfiniteQueryKey()
-  const query = createInfiniteQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
-    ...logoutUserInfiniteQueryOptions<TData, TQueryData>(clientOptions),
+  const query = createInfiniteQuery({
+    ...(logoutUserInfiniteQueryOptions(clientOptions) as unknown as CreateInfiniteQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateInfiniteQueryOptions, 'queryKey'>),
   }) as CreateInfiniteQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }

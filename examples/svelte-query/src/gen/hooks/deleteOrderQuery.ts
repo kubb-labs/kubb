@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import { createMutation } from '@tanstack/svelte-query'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
 type DeleteOrder = {
@@ -28,9 +28,9 @@ export function deleteOrderQuery(
     mutation?: CreateMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
     client?: DeleteOrder['client']['parameters']
   } = {},
-): CreateMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
+  return createMutation({
     mutationFn: async () => {
       const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',

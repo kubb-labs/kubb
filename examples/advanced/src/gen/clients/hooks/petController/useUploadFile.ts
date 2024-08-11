@@ -6,7 +6,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 type UploadFile = {
@@ -39,25 +39,9 @@ export function useUploadFile(
     >
     client?: UploadFile['client']['parameters']
   } = {},
-): UseMutationResult<
-  UploadFile['response'],
-  UploadFile['error'],
-  {
-    petId: UploadFilePathParams['petId']
-    params?: UploadFile['queryParams']
-    data?: UploadFile['request']
-  }
-> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<
-    UploadFile['response'],
-    UploadFile['error'],
-    {
-      petId: UploadFilePathParams['petId']
-      params?: UploadFile['queryParams']
-      data?: UploadFile['request']
-    }
-  >({
+  return useMutation({
     mutationFn: async ({ petId, params, data }) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',

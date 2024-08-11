@@ -48,9 +48,7 @@ export function useGetOrderById<TData = GetOrderById['response'], TQueryData = G
     query?: Partial<QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetOrderById['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetOrderById['error']> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(refOrderId)
   const query = useQuery({
