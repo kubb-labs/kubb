@@ -97,7 +97,7 @@
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^2.6.0",
+    "remeda": "^2.10.1",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.3",
     "unraw": "^3.0.0"
@@ -113,7 +113,7 @@
     "ora": "^8.0.1",
     "prettier": "^3.3.3",
     "tinyrainbow": "^1.2.0",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "engines": {

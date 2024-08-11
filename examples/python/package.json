@@ -22,10 +22,10 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
+    "@kubb/react": "workspace:*",
     "axios": "^1.7.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

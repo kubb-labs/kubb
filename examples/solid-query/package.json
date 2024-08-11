@@ -22,11 +22,11 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
-    "@kubb/swagger-tanstack-query": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
+    "@kubb/swagger-tanstack-query": "workspace:*",
     "@tanstack/solid-query": "^4.36.1",
     "axios": "^1.7.3",
     "solid-js": "^1.8.20",

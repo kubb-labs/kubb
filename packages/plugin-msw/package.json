@@ -77,8 +77,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-faker": "workspace:*"
+    "@kubb/plugin-faker": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

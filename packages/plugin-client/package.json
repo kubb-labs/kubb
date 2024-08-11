@@ -80,8 +80,8 @@
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*"
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/react": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

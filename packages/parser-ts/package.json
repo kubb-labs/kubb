@@ -59,7 +59,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "^2.6.0",
+    "remeda": "^2.10.1",
     "ts-morph": "^23.0.0",
     "typescript": "^5.5.4"
   },
@@ -68,7 +68,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "prettier": "^3.3.3",
-    "tsup": "^8.2.3"
+    "tsup": "^8.2.4"
   },
   "engines": {
     "node": ">=18"
