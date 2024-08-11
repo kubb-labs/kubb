@@ -23,6 +23,7 @@
   },
   "scripts": {
     "build": "turbo run build --filter=./packages/*",
+    "build:docs": "cd docs && pnpm run build",
     "build:examples": "turbo run build --filter=./examples/*",
     "clean": "turbo run clean",
     "format": "bun run format:dprint",
