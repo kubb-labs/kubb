@@ -3,7 +3,7 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginTs } from '@kubb/plugin-ts'
 
-import * as client from './templates/client/index'
+import { parsers } from './src/parsers'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -51,9 +51,7 @@ export default defineConfig(async () => {
             type: 'tag',
             pattern: 'user',
             options: {
-              templates: {
-                client: client.templates,
-              },
+              parsers,
             },
           },
         ],

@@ -1,13 +1,7 @@
 import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
-
+import type { Parser } from '@kubb/plugin-oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Client, Operations } from './components/index.ts'
-
-type Templates = {
-  operations?: typeof Operations.templates | false
-  client?: typeof Client.templates | false
-}
 
 export type Options = {
   output?: {
@@ -100,10 +94,7 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
+  parsers?: Array<Parser<PluginClient>>
 }
 
 type ResolvedOptions = {
@@ -112,7 +103,7 @@ type ResolvedOptions = {
   client: Required<NonNullable<Options['client']>>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
-  templates: NonNullable<Templates>
+  parsers: NonNullable<Options['parsers']>
 }
 
 export type FileMeta = {

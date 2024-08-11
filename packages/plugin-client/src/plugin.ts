@@ -7,11 +7,12 @@ import { pluginOasName } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
-import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginClient } from './types.ts'
+import { operationsParser } from './components/Operations.tsx'
+import { clientParser } from './components/Client.tsx'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
@@ -25,7 +26,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     transformers = {},
     dataReturnType = 'data',
     pathParamsType = 'inline',
-    templates,
+    parsers = [operationsParser, clientParser],
   } = options
 
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -40,12 +41,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         ...options.client,
       },
       pathParamsType,
-      templates: {
-        operations: Operations.templates,
-        client: Client.templates,
-        ...templates,
-      },
       baseURL: undefined,
+      parsers,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {

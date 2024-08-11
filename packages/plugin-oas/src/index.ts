@@ -1,5 +1,3 @@
-import { pluginOas } from './plugin.ts'
-
 export type {
   GetOperationGeneratorOptions,
   OperationMethodResult,
@@ -22,10 +20,5 @@ export type {
 } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
-
-/**
- * @deprecated Use `import { pluginOas } from '@kubb/plugin-oas'` instead
- */
-const definePluginDefault = pluginOas
-
-export default definePluginDefault
+export { createParser } from './parser.ts'
+export type { Parser } from './parser.ts'
