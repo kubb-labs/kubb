@@ -1,4 +1,4 @@
-import type { Infer } from '@kubb/plugin-ts/oas'
+import type { Infer } from '@kubb/oas'
 
 export const oas = {
   openapi: '3.0.3',

@@ -1,6 +1,5 @@
 import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
-import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -31,7 +30,6 @@ export function useDeleteOrderHook(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  const invalidationOnSuccess = useInvalidationForMutation('useDeleteOrderHook')
   return useMutation({
     mutationFn: async () => {
       const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
@@ -40,10 +38,6 @@ export function useDeleteOrderHook(
         ...clientOptions,
       })
       return res.data
-    },
-    onSuccess: (...args) => {
-      if (invalidationOnSuccess) invalidationOnSuccess(...args)
-      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

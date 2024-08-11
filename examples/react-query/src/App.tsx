@@ -73,16 +73,16 @@ function Pets(): JSX.Element {
           const nextPage = pages.length + 1
           return nextPage <= (numPages ?? 0) ? nextPage : undefined
         },
-        select(data) {
-          return data.pages[0]?.data.at(0)
-        },
+        // select(data) {
+        //   return data.pages[0]?.data.at(0)
+        // },
       },
     },
   )
 
-  console.log(pagedPets?.pages.at(0)?.data.at(0)?.id)
+  // console.log(pagedPets?.pages.at(0)?.data.at(0)?.id)
   //            ^?
-  console.log(pagedPet?.id)
+  // console.log(pagedPet?.id)
   //            ^?
   console.log(firstPet)
   //            ^?

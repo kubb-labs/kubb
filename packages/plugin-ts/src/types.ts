@@ -91,7 +91,7 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * Export an Oas object as Oas type with `import type { Infer } from '@kubb/plugin-ts/oas'`
+   * Export an Oas object as Oas type with `import type { Infer } from '@kubb/oas'`
    */
   oasType?: 'infer' | false
   /**

@@ -543,79 +543,21 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/plugin-ts':
+      '@kubb/plugin-react-query':
         specifier: workspace:*
-        version: link:../../packages/plugin-ts
-      '@kubb/swagger-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/swagger-tanstack-query
-      '@tanstack/react-query':
-        specifier: ^4.36.1
-        version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query-devtools':
-        specifier: ^4.36.1
-        version: 4.36.1(@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      axios:
-        specifier: ^1.7.3
-        version: 1.7.3
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.3
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
-      '@vitejs/plugin-react':
-        specifier: ^4.3.1
-        version: 4.3.1(vite@4.5.3(@types/node@20.14.15)(terser@5.31.1))
-      msw:
-        specifier: ^1.3.3
-        version: 1.3.3(typescript@5.2.2)
-      tsup:
-        specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.5(@types/node@20.14.15))(jiti@1.21.6)(postcss@8.4.40)(typescript@5.2.2)(yaml@2.4.5)
-      typescript:
-        specifier: ~5.2.2
-        version: 5.2.2
-      vite:
-        specifier: ^4.5.3
-        version: 4.5.3(@types/node@20.14.15)(terser@5.31.1)
-
-  examples/react-query-v5:
-    dependencies:
-      '@kubb/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@kubb/plugin-client':
-        specifier: workspace:*
-        version: link:../../packages/plugin-client
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../../packages/plugin-oas
+        version: link:../../packages/plugin-react-query
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@kubb/swagger-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/swagger-tanstack-query
       '@tanstack/react-query':
         specifier: ^5.51.23
         version: 5.51.23(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.0.0
-        version: 5.0.0(@tanstack/react-query@5.51.23(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^5.51.23
+        version: 5.51.23(@tanstack/react-query@5.51.23(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.7.3
         version: 1.7.3
@@ -625,6 +567,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      unplugin-kubb:
+        specifier: workspace:*
+        version: link:../../packages/unplugin-kubb
     devDependencies:
       '@types/react':
         specifier: ^18.3.3
@@ -644,9 +589,6 @@ importers:
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
-      unplugin-kubb:
-        specifier: workspace:*
-        version: link:../../packages/unplugin-kubb
       vite:
         specifier: ^4.5.3
         version: 4.5.3(@types/node@20.14.15)(terser@5.31.1)
@@ -817,6 +759,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../../packages/oas
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
@@ -1445,12 +1390,27 @@ importers:
 
   packages/plugin-msw:
     dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/fs':
+        specifier: workspace:*
+        version: link:../fs
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../plugin-faker
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -3275,22 +3235,14 @@ packages:
   '@tanstack/query-core@5.51.21':
     resolution: {integrity: sha512-POQxm42IUp6n89kKWF4IZi18v3fxQWFRolvBA6phNVmA8psdfB1MvDnGacCJdS+EOX12w/CyHM62z//rHmYmvw==}
 
-  '@tanstack/query-devtools@5.0.0':
-    resolution: {integrity: sha512-WATg9+nreAmtTRHzxvCFN6j4ucUVbkJNd8ErcYmf7Y6GsJw/BGscd4rWS7cdAP7zfTcPjHjGaRB041pcv8dNvA==}
+  '@tanstack/query-devtools@5.51.16':
+    resolution: {integrity: sha512-ajwuq4WnkNCMj/Hy3KR8d3RtZ6PSKc1dD2vs2T408MdjgKzQ3klVoL6zDgVO7X+5jlb5zfgcO3thh4ojPhfIaw==}
 
-  '@tanstack/react-query-devtools@4.36.1':
-    resolution: {integrity: sha512-WYku83CKP3OevnYSG8Y/QO9g0rT75v1om5IvcWUwiUZJ4LanYGLVCZ8TdFG5jfsq4Ej/lu2wwDAULEUnRIMBSw==}
+  '@tanstack/react-query-devtools@5.51.23':
+    resolution: {integrity: sha512-XpHrdyfUPGULIyJ1K7UvhAcK+KjMJdw4NjmRjryoj3XEgfAU5qU1rz8gIFvGc3gTGT07yIseGo7GEll/ICfJfQ==}
     peerDependencies:
-      '@tanstack/react-query': ^4.36.1
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-
-  '@tanstack/react-query-devtools@5.0.0':
-    resolution: {integrity: sha512-4yw29d89eOqUmliRKGmEOjuq2AGSM3i4jjw/YFMrErg0neVITy2bkoU3fPXZ339czlupqq0b4e20uFVtqkEqGQ==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.0.0
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      '@tanstack/react-query': ^5.51.23
+      react: ^18 || ^19
 
   '@tanstack/react-query@4.36.1':
     resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
@@ -6560,10 +6512,6 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
-  superjson@1.13.3:
-    resolution: {integrity: sha512-mJiVjfd2vokfDxsQPOwJ/PtanO87LhpYY88ubI5dUB1Ab58Txbyje3+jpm+/83R/fevaq/107NNhtYBLuoTrFg==}
-    engines: {node: '>=10'}
-
   superjson@2.2.1:
     resolution: {integrity: sha512-8iGv75BYOa0xRJHK5vRLEjE2H/i4lulTjzpUXic3Eg8akftYjkmQDa8JARQ42rlczXyFR3IeRoeFCc7RxHsYZA==}
     engines: {node: '>=16'}
@@ -8610,23 +8558,13 @@ snapshots:
 
   '@tanstack/query-core@5.51.21': {}
 
-  '@tanstack/query-devtools@5.0.0': {}
+  '@tanstack/query-devtools@5.51.16': {}
 
-  '@tanstack/react-query-devtools@4.36.1(@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.51.23(@tanstack/react-query@5.51.23(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/match-sorter-utils': 8.15.1
-      '@tanstack/react-query': 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      superjson: 1.13.3
-      use-sync-external-store: 1.2.2(react@18.3.1)
-
-  '@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.51.23(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-devtools': 5.0.0
+      '@tanstack/query-devtools': 5.51.16
       '@tanstack/react-query': 5.51.23(react@18.3.1)
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   '@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -12408,10 +12346,6 @@ snapshots:
       mz: 2.7.0
       pirates: 4.0.6
       ts-interface-checker: 0.1.13
-
-  superjson@1.13.3:
-    dependencies:
-      copy-anything: 3.0.5
 
   superjson@2.2.1:
     dependencies:

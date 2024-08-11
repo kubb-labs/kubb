@@ -1,6 +1,5 @@
 import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
-import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -32,7 +31,6 @@ export function useDeletePetHook(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  const invalidationOnSuccess = useInvalidationForMutation('useDeletePetHook')
   return useMutation({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
@@ -42,10 +40,6 @@ export function useDeletePetHook(
         ...clientOptions,
       })
       return res.data
-    },
-    onSuccess: (...args) => {
-      if (invalidationOnSuccess) invalidationOnSuccess(...args)
-      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })

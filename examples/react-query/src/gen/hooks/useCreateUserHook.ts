@@ -1,6 +1,5 @@
 import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
-import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -30,7 +29,6 @@ export function useCreateUserHook(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  const invalidationOnSuccess = useInvalidationForMutation('useCreateUserHook')
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
@@ -40,10 +38,6 @@ export function useCreateUserHook(
         ...clientOptions,
       })
       return res.data
-    },
-    onSuccess: (...args) => {
-      if (invalidationOnSuccess) invalidationOnSuccess(...args)
-      if (mutationOptions?.onSuccess) mutationOptions.onSuccess(...args)
     },
     ...mutationOptions,
   })
