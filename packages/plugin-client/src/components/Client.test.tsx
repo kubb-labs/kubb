@@ -10,6 +10,7 @@ import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from '../types.ts'
+import { clientParser } from '../parsers/clientParser.tsx'
 
 describe('<Client/>', async () => {
   const oas = await parseFromConfig({
@@ -21,9 +22,7 @@ describe('<Client/>', async () => {
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
     dataReturnType: 'data',
     pathParamsType: 'object',
-    templates: {
-      client: Client.templates,
-    },
+    parsers:[],
     client: {
       importPath: '@kubb/plugin-client/client',
     },
@@ -44,13 +43,15 @@ describe('<Client/>', async () => {
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
+    const parser = clientParser
+
 
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
           <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
-              <Client.File baseURL="" />
+              <parser.templates.Operation operation={operation} options={options} />
             </Oas.Operation>
           </Oas>
         </App>

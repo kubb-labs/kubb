@@ -11,8 +11,6 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginClient } from './types.ts'
-import { operationsParser } from './components/Operations.tsx'
-import { clientParser } from './components/Client.tsx'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
@@ -25,7 +23,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     override = [],
     dataReturnType = 'data',
     pathParamsType = 'inline',
-    parsers = [operationsParser, clientParser],
+    parsers = ['operations', 'client'],
   } = options
 
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`

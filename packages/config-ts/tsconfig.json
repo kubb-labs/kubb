@@ -15,13 +15,13 @@
       "path": "../plugin-client"
     },
     {
-      "path": "../swagger-faker"
+      "path": "../plugin-faker"
     },
     {
       "path": "../plugin-msw"
     },
     {
-      "path": "../swagger-tanstack-query"
+      "path": "../plugin-tanstack-query"
     },
     {
       "path": "../plugin-ts"

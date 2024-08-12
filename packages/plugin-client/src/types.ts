@@ -88,7 +88,7 @@ export type Options = {
    * @private
    */
   pathParamsType?: 'object' | 'inline'
-  parsers?: Array<Parser<PluginClient>>
+  parsers?: Array<Parser<PluginClient> | 'client' | 'operations'>
 }
 
 type ResolvedOptions = {

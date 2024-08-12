@@ -3,8 +3,10 @@ import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 
 import type { Operation } from '@kubb/oas'
-import type { OperationMethodResult, OperationsByMethod } from '@kubb/plugin-oas'
+import type { OperationMethodResult, OperationsByMethod, Parser } from '@kubb/plugin-oas'
 import type { FileMeta, PluginClient } from './types.ts'
+import { clientParser } from './parsers/clientParser.tsx'
+import { operationsParser } from './parsers/operationsParser.tsx'
 
 export class OperationGenerator extends Generator<PluginClient['resolvedOptions'], PluginClient> {
   async all(operations: Operation[], _operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
@@ -18,9 +20,14 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas} operations={operations} generator={this}>
           {this.options.parsers.map((parser) => {
-            const Component = parser.templates.Operations
+            if (typeof parser === 'string' && parser === 'client') {
+              return null
+            }
+            if (typeof parser === 'string' && parser === 'operations') {
+              return <operationsParser.templates.Operations key="operations" operations={operations} options={this.options} />
+            }
 
-            return <Component key={parser.name} operations={operations} options={this.options} />
+            return <parser.templates.Operations key={parser.name} operations={operations} options={this.options} />
           })}
         </Oas>
       </App>,
@@ -41,9 +48,14 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
         <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
             {options.parsers.map((parser) => {
-              const Component = parser.templates.Operation
+              if (typeof parser === 'string' && parser === 'client') {
+                return <clientParser.templates.Operation key="client" operation={operation} options={options} />
+              }
+              if (typeof parser === 'string' && parser === 'operations') {
+                return null
+              }
 
-              return <Component key={parser.name} operation={operation} options={this.options} />
+              return <parser.templates.Operation key={parser.name} operation={operation} options={options} />
             })}
           </Oas.Operation>
         </Oas>
