@@ -1,9 +1,6 @@
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
-import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
-import { Client } from './components/Client.tsx'
-import { Operations } from './components/Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
@@ -22,10 +19,7 @@ describe('OperationGenerator', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'inline',
-      templates: {
-        operations: Operations.templates,
-        client: Client.templates,
-      },
+      parsers: ['client', 'operations'],
       client: {
         importPath: '@kubb/plugin-client/client',
       },
@@ -53,44 +47,7 @@ describe('OperationGenerator', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'object',
-      templates: {
-        operations: Operations.templates,
-        client: Client.templates,
-      },
-      client: {
-        importPath: '@kubb/plugin-client/client',
-      },
-      baseURL: '',
-      extName: undefined,
-    }
-
-    const og = await new OperationGenerator(options, {
-      oas,
-      exclude: [],
-      include: undefined,
-      pluginManager: mockedPluginManager,
-      plugin: { options } as Plugin<PluginClient>,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-    })
-    const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = (await og.operation(operation, options)) as KubbFile.File[]
-
-    await matchFiles(files)
-  })
-
-  test('[GET] should generate with templates', async () => {
-    const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      dataReturnType: 'data',
-      pathParamsType: 'object',
-      templates: {
-        operations: Operations.templates,
-        client: {
-          default: CustomClientTemplate,
-          root: Client.templates.root,
-        },
-      },
+      parsers: ['client', 'operations'],
       client: {
         importPath: '@kubb/plugin-client/client',
       },

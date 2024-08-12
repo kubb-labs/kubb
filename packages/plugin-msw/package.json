@@ -1,7 +1,7 @@
 {
   "name": "@kubb/plugin-msw",
   "version": "3.0.0-alpha.0",
-  "description": "Generator swagger",
+  "description": "Generator msw",
   "keywords": [
     "typescript",
     "plugins",
@@ -25,20 +25,15 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs",
-      "default": "./dist/utils.cjs"
-    },
-    "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs",
-      "default": "./dist/hooks.cjs"
-    },
     "./components": {
       "import": "./dist/components.js",
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
+    },
+    "./parsers": {
+      "import": "./dist/parsers.js",
+      "require": "./dist/parsers.cjs",
+      "default": "./dist/parsers.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*"
@@ -48,14 +43,11 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ],
       "components": [
         "./dist/components.d.ts"
+      ],
+      "parsers": [
+        "./dist/parsers.d.ts"
       ]
     }
   },

@@ -1,6 +1,6 @@
 import { File, Function } from '@kubb/react'
 import { isOptional } from '@kubb/oas'
-import { PluginClient, pluginClientName } from '@kubb/plugin-client'
+import { type PluginClient, pluginClientName } from '@kubb/plugin-client'
 import React from 'react'
 import { createParser } from '@kubb/plugin-oas'
 import { URLPath } from '@kubb/core/utils'

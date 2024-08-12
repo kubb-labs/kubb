@@ -1,13 +1,7 @@
-import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Mock, Operations } from './components/index.ts'
-
-type Templates = {
-  operations?: typeof Operations.templates | false
-  mock?: typeof Mock.templates | false
-}
+import type { Exclude, Include, Override, Parser, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
   output?: {
@@ -65,20 +59,11 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
+  parsers?: Array<Parser<PluginMsw> | 'mock' | 'operations'>
 }
 type ResolvedOptions = {
   extName: KubbFile.Extname | undefined
-  templates: NonNullable<Templates>
+  parsers: NonNullable<Options['parsers']>
 }
 
 export type FileMeta = {

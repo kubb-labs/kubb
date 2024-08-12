@@ -9,7 +9,6 @@ import { pluginFakerName } from '@kubb/plugin-faker'
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mock, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
@@ -18,18 +17,22 @@ import type { PluginMsw } from './types.ts'
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
 export const pluginMsw = createPlugin<PluginMsw>((options) => {
-  const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, templates } = options
+  const {
+    output = { path: 'handlers' },
+    group,
+    exclude = [],
+    include,
+    override = [],
+
+    parsers = ['mock', 'operations'],
+  } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginMswName,
     options: {
       extName: output.extName,
-      templates: {
-        operations: Operations.templates,
-        mock: Mock.templates,
-        ...templates,
-      },
+      parsers,
     },
     pre: [pluginOasName, pluginTsName, pluginFakerName],
     resolvePath(baseName, pathMode, options) {
@@ -57,9 +60,6 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         suffix: type ? 'handler' : undefined,
         isFile: type === 'file',
       })
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
-      }
 
       return resolvedName
     },

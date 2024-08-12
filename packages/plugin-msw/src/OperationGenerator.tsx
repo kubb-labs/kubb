@@ -2,12 +2,11 @@ import { OperationGenerator as Generator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 
-import { Mock } from './components/Mock.tsx'
-import { Operations } from './components/Operations.tsx'
-
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult, OperationsByMethod } from '@kubb/plugin-oas'
 import type { FileMeta, PluginMsw } from './types.ts'
+import { operationsParser } from './parsers/operationsParser.tsx'
+import { mockParser } from './parsers/mockParser.tsx'
 
 export class OperationGenerator extends Generator<PluginMsw['resolvedOptions'], PluginMsw> {
   async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
@@ -17,16 +16,19 @@ export class OperationGenerator extends Generator<PluginMsw['resolvedOptions'], 
       logger: pluginManager.logger,
     })
 
-    const templates = {
-      operations: Operations.templates,
-      mock: Mock.templates,
-      ...this.options.templates,
-    }
-
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas} operations={operations} generator={this}>
-          {templates?.operations && <Operations.File templates={templates.operations} />}
+          {this.options.parsers.map((parser) => {
+            if (typeof parser === 'string' && parser === 'mock') {
+              return null
+            }
+            if (typeof parser === 'string' && parser === 'operations') {
+              return <operationsParser.templates.Operations key="operations" operations={operations} options={this.options} />
+            }
+
+            return <parser.templates.Operations key={parser.name} operations={operations} options={this.options} />
+          })}
         </Oas>
       </App>,
     )
@@ -41,21 +43,20 @@ export class OperationGenerator extends Generator<PluginMsw['resolvedOptions'], 
       logger: pluginManager.logger,
     })
 
-    const templates = {
-      handlers: Operations.templates,
-      mock: Mock.templates,
-      ...options.templates,
-    }
-
-    if (!templates?.mock) {
-      return []
-    }
-
     root.render(
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
         <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
-            <Mock.File templates={templates.mock} />
+            {options.parsers.map((parser) => {
+              if (typeof parser === 'string' && parser === 'mock') {
+                return <mockParser.templates.Operation key="mock" operation={operation} options={options} />
+              }
+              if (typeof parser === 'string' && parser === 'operations') {
+                return null
+              }
+
+              return <parser.templates.Operation key={parser.name} operation={operation} options={options} />
+            })}
           </Oas.Operation>
         </Oas>
       </App>,

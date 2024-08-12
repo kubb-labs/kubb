@@ -3,13 +3,13 @@ import { createRootServer } from '@kubb/react/server'
 import { Oas } from '@kubb/plugin-oas/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Mock } from './Mock.tsx'
 
 import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginMsw } from '../types.ts'
+import { mockParser } from '../parsers'
 
 describe('<Mock/>', async () => {
   const oas = await parseFromConfig({
@@ -19,9 +19,7 @@ describe('<Mock/>', async () => {
   })
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
-    templates: {
-      mock: Mock.templates,
-    },
+    parsers: ['mock'],
     extName: undefined,
   }
 
@@ -39,13 +37,14 @@ describe('<Mock/>', async () => {
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
+    const parser = mockParser
 
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
           <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
-              <Mock.File />
+              <parser.templates.Operation operation={operation} options={options} />
             </Oas.Operation>
           </Oas>
         </App>
@@ -59,13 +58,14 @@ describe('<Mock/>', async () => {
 
   test('pets', async () => {
     const operation = oas.operation('/pets', 'post')
+    const parser = mockParser
 
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
           <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
-              <Mock.File />
+              <parser.templates.Operation operation={operation} options={options} />
             </Oas.Operation>
           </Oas>
         </App>

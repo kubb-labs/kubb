@@ -1,11 +1,9 @@
 import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import { type KubbNode, useContext } from '@kubb/react'
+import type { KubbNode } from '@kubb/react'
 import type * as KubbFile from '@kubb/fs/types'
 import type { OperationSchemas } from './types.ts'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { Oas } from '@kubb/plugin-oas/components'
-import type { PluginClient } from '@kubb/plugin-client'
 
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']

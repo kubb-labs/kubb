@@ -31,6 +31,11 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
+    "./parsers": {
+      "import": "./dist/parsers.js",
+      "require": "./dist/parsers.cjs",
+      "default": "./dist/parsers.cjs"
+    },
     "./client": {
       "import": "./dist/client.js",
       "require": "./dist/client.cjs",
@@ -51,6 +56,9 @@
     "*": {
       "components": [
         "./dist/components.d.ts"
+      ],
+      "parsers": [
+        "./dist/parsers.d.ts"
       ]
     }
   },

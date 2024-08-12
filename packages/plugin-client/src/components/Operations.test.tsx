@@ -3,7 +3,6 @@ import { createRootServer } from '@kubb/react/server'
 import { Oas } from '@kubb/plugin-oas/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Operations } from './Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
@@ -22,7 +21,7 @@ describe('<Operations/>', async () => {
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
     dataReturnType: 'data',
     pathParamsType: 'object',
-   parsers: [],
+    parsers: ['operations'],
     client: {
       importPath: '@kubb/plugin-client/client',
     },

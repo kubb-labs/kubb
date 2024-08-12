@@ -23,7 +23,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     override = [],
     dataReturnType = 'data',
     pathParamsType = 'inline',
-    parsers = ['operations', 'client'],
+    parsers = ['client', 'operations'],
   } = options
 
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
