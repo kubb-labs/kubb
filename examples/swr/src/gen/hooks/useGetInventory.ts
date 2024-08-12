@@ -18,15 +18,11 @@ type GetInventory = {
   }
 }
 export function getInventoryQueryOptions<TData = GetInventory['response']>(
-  options: GetInventory['client']['parameters'] = {},
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, GetInventory['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetInventory['error']>({
-        method: 'get',
-        url: '/store/inventory',
-        ...options,
-      })
+      const res = await client<TData, GetInventory['error']>({ method: 'get', url: '/store/inventory', ...options })
       return res.data
     },
   }

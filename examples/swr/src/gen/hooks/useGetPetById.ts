@@ -18,16 +18,16 @@ type GetPetById = {
   }
 }
 export function getPetByIdQueryOptions<TData = GetPetById['response']>(
-  petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['parameters'] = {},
+  {
+    petId,
+  }: {
+    petId: GetPetByIdPathParams['petId']
+  },
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, GetPetById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetPetById['error']>({
-        method: 'get',
-        url: `/pet/${petId}`,
-        ...options,
-      })
+      const res = await client<TData, GetPetById['error']>({ method: 'get', url: `/pet/${petId}`, ...options })
       return res.data
     },
   }

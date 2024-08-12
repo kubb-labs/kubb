@@ -25,9 +25,7 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
   const headers = [
     contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
     typedSchemas.headerParams?.name ? '...headers' : undefined,
-  ]
-    .filter(Boolean)
-    .join(', ')
+  ].filter(Boolean)
 
   const params: Params = {
     pathParams: {
@@ -90,7 +88,7 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
         headers: headers.length
           ? {
               type: 'any',
-              value: headers.length ? `{ ${headers}, ...options.headers }` : undefined,
+              value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
             }
           : undefined,
         options: {

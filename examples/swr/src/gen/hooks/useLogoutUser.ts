@@ -18,15 +18,11 @@ type LogoutUser = {
   }
 }
 export function logoutUserQueryOptions<TData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, LogoutUser['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LogoutUser['error']>({
-        method: 'get',
-        url: '/user/logout',
-        ...options,
-      })
+      const res = await client<TData, LogoutUser['error']>({ method: 'get', url: '/user/logout', ...options })
       return res.data
     },
   }

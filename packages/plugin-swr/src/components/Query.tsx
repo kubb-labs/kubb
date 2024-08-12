@@ -1,5 +1,5 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function } from '@kubb/react'
+import { Function, type Params } from '@kubb/react'
 
 import type { ReactNode } from 'react'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
