@@ -103,11 +103,11 @@ export type Options = {
   /**
    * Override some useQuery behaviours.
    */
-  query?: Partial<Query>
+  query?: Partial<Query> | false
   /**
    * Override some useMutation behaviours.
    */
-  mutate?: Mutate
+  mutate?: Mutate | false
 }
 
 type ResolvedOptions = {
@@ -116,8 +116,8 @@ type ResolvedOptions = {
   dataReturnType: NonNullable<Options['dataReturnType']>
   parser: Options['parser']
   parsers: NonNullable<Options['parsers']>
-  query: Query
-  mutate: Mutate
+  query: Query | false
+  mutate: Mutate | false
 }
 
 export type FileMeta = {

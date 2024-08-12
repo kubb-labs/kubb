@@ -27,7 +27,6 @@ type Props = {
     comments: string[]
   }
   hook: {
-    name: string
     generics?: string
     queryOptions: string
   }
@@ -46,7 +45,7 @@ export function Query({ name, generics, returnType, params, JSDoc, hook, client 
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
          const url = ${client.path.template}
-         const query = ${hook.name}<${hook.generics}>(
+         const query = useSWR<${hook.generics}>(
           shouldFetch ? [url, params]: null,
           {
             ...${hook.queryOptions},
@@ -68,7 +67,7 @@ export function Query({ name, generics, returnType, params, JSDoc, hook, client 
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
        const url = ${client.path.template}
-       const query = ${hook.name}<${hook.generics}>(
+       const query = useSWR<${hook.generics}>(
         shouldFetch ? url : null,
         {
           ...${hook.queryOptions},

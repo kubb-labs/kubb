@@ -65,7 +65,7 @@ export const mutationParser = createParser<PluginSwr>({
         },
       ])
 
-      const isMutate = options.mutate.methods.some((method) => operation.method === method)
+      const isMutate = typeof options.mutate === 'boolean' ? options.mutate : options.mutate.methods.some((method) => operation.method === method)
 
       if (!isMutate) {
         return null
@@ -98,7 +98,6 @@ export const mutationParser = createParser<PluginSwr>({
               JSDoc={{ comments: getComments(operation) }}
               client={client}
               hook={{
-                name: 'useSWRMutation',
                 generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
               }}
               params={params.toString()}

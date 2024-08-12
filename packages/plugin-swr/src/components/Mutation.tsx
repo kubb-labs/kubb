@@ -30,7 +30,6 @@ type Props = {
     comments: string[]
   }
   hook: {
-    name: string
     generics?: string
   }
   client: {
@@ -63,7 +62,7 @@ export function Mutation({ name, generics, returnType, params, JSDoc, client, ho
          const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
          const url = ${client.path.template} as const
-         return ${hook.name}<${hook.generics}>(
+         return useSWRMutation<${hook.generics}>(
           shouldFetch ? [url, params]: null,
           async (_url${client.withData ? ', { arg: data }' : ''}) => {
             const res = await client<${client.generics}>({
@@ -84,7 +83,7 @@ export function Mutation({ name, generics, returnType, params, JSDoc, client, ho
        const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
        const url = ${client.path.template} as const
-       return ${hook.name}<${hook.generics}>(
+       return useSWRMutation<${hook.generics}>(
         shouldFetch ? url : null,
         async (_url${client.withData ? ', { arg: data }' : ''}) => {
           const res = await client<${client.generics}>({

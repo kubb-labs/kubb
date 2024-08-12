@@ -11,7 +11,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 
 // TOOD move to zod plugin
 const zodParser = createParser({
-  name: 'faker',
+  name: 'zod',
   pluginName: pluginZodName,
 })
 
@@ -103,7 +103,7 @@ export const queryParser = createParser<PluginSwr>({
         },
       ])
 
-      const isQuery = options.query.methods.some((method) => operation.method === method)
+      const isQuery = typeof options.query === 'boolean' ? options.query : options.query.methods.some((method) => operation.method === method)
 
       if (!isQuery) {
         return null
@@ -139,7 +139,6 @@ export const queryParser = createParser<PluginSwr>({
               JSDoc={{ comments: getComments(operation) }}
               client={client}
               hook={{
-                name: 'useSWR',
                 generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
                 queryOptions: `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
               }}
