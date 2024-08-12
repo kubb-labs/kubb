@@ -1,22 +1,8 @@
-import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Mutation } from './components/Mutation.tsx'
-import type { Operations } from './components/Operations.tsx'
-import type { Query as QueryTemplate } from './components/Query.tsx'
-import type { QueryImports } from './components/QueryImports.tsx'
-import type { QueryKey } from './components/QueryKey.tsx'
-import type { QueryOptions as QueryOptionsTemplate } from './components/QueryOptions.tsx'
-
-type Templates = {
-  operations?: typeof Operations.templates | false
-  mutation?: typeof Mutation.templates | false
-  query?: typeof QueryTemplate.templates | false
-  queryOptions?: typeof QueryOptionsTemplate.templates | false
-  queryKey?: typeof QueryKey.templates | false
-}
+import type { Exclude, Include, Override, Parser, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Suspense = object
 
@@ -37,7 +23,7 @@ export type Query = {
    * the path will be applied as is, so relative path should be based on the file being generated.
    * @default '@tanstack/react-query'
    */
-  importPath?: string
+  importPath: string
 }
 
 export type QueryOptions = object
@@ -197,20 +183,12 @@ export type Options = {
   /**
    * Override some useMutation behaviours.
    */
-  mutate?: Mutate | false
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
+  mutate?: Mutate
+  parsers?: Array<Parser<PluginReactQuery> | 'query' | 'mutation'>
 }
 
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   client: Required<NonNullable<PluginReactQuery['options']['client']>>
   dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
   pathParamsType: NonNullable<PluginReactQuery['options']['pathParamsType']>
@@ -223,7 +201,7 @@ type ResolvedOptions = {
   query: Query | false
   queryOptions: QueryOptions | false
   mutate: Mutate | false
-  templates: NonNullable<Templates>
+  parsers: NonNullable<Options['parsers']>
 }
 
 export type FileMeta = {

@@ -332,7 +332,7 @@ Mutation.File = function ({ ...props }: FileProps): ReactNode {
 
   return (
     <RootTemplate>
-      <SchemaType />
+      {/*<SchemaType />*/}
       <Mutation Template={Template} />
     </RootTemplate>
   )

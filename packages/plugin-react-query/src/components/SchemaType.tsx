@@ -1,20 +1,18 @@
-import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { Type, useApp } from '@kubb/react'
+import { useOperation } from '@kubb/plugin-oas/hooks'
+import { Type } from '@kubb/react'
 
 import type { ReactNode } from 'react'
 import type { PluginReactQuery } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 
-export function SchemaType(): ReactNode {
-  const {
-    plugin: {
-      options: { dataReturnType },
-    },
-  } = useApp<PluginReactQuery>()
-  const { getSchemas, getName } = useOperationManager()
+type Props = {
+  name: string
+  schemas: OperationSchemas
+  dataReturnType: PluginReactQuery['options']['dataReturnType']
+}
+
+export function SchemaType({ name, schemas, dataReturnType }: Props): ReactNode {
   const operation = useOperation()
-
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,
@@ -25,15 +23,14 @@ export function SchemaType(): ReactNode {
     schemas.headerParams?.name || 'never',
     schemas.response.name,
   ]
-  const factoryName = getName(operation, { type: 'type' })
 
-  const clientType = `${factoryName}Client`
+  const clientType = `${name}Client`
   const isFormData = operation.getContentType() === 'multipart/form-data'
 
   return (
     <>
       <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
-      <Type name={factoryName}>
+      <Type name={name}>
         {`
         {
           data: ${TData}

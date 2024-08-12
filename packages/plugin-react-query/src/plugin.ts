@@ -9,11 +9,9 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mutation, Operations, Query, QueryKey, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { QueryImports } from './components/QueryImports.tsx'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -28,23 +26,24 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     parser,
     suspense = {},
     infinite,
-    transformers = {},
+    parsers = ['query', 'mutation'],
     dataReturnType = 'data',
     pathParamsType = 'inline',
     mutate = {},
     query = {},
     queryOptions = {},
-    templates,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginReactQueryName,
     options: {
+      extName: output.extName,
       client: {
         importPath: '@kubb/plugin-client/client',
         ...options.client,
       },
+      parsers,
       dataReturnType,
       pathParamsType,
       infinite: infinite
@@ -56,30 +55,17 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
           }
         : false,
       suspense,
-      query: query
-        ? {
-            queryKey: (key: unknown[]) => key,
-            methods: ['get'],
-            importPath: '@tanstack/react-query',
-            ...query,
-          }
-        : false,
+      query: {
+        queryKey: (key: unknown[]) => key,
+        methods: ['get'],
+        importPath: '@tanstack/react-query',
+        ...query,
+      },
       queryOptions,
-      mutate: mutate
-        ? {
-            variablesType: 'hook',
-            methods: ['post', 'put', 'patch', 'delete'],
-            ...mutate,
-          }
-        : false,
-      templates: {
-        mutation: Mutation.templates,
-        query: Query.templates,
-        queryOptions: QueryOptions.templates,
-        queryKey: QueryKey.templates,
-        queryImports: QueryImports.templates,
-        operations: Operations.templates,
-        ...templates,
+      mutate: {
+        variablesType: 'hook',
+        methods: ['post', 'put', 'patch', 'delete'],
+        ...mutate,
       },
       parser,
     },
@@ -115,10 +101,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       }
       if (type === 'type') {
         resolvedName = pascalCase(name)
-      }
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
       }
 
       return resolvedName

@@ -3,7 +3,7 @@ import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 
 import type { Operation } from '@kubb/oas'
-import type { OperationMethodResult, OperationsByMethod, Parser } from '@kubb/plugin-oas'
+import type { OperationMethodResult, OperationsByMethod } from '@kubb/plugin-oas'
 import type { FileMeta, PluginClient } from './types.ts'
 import { clientParser } from './parsers/clientParser.tsx'
 import { operationsParser } from './parsers/operationsParser.tsx'

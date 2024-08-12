@@ -1,11 +1,12 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
+
 import { pluginTs } from '@kubb/plugin-ts'
 
-import * as mutation from './templates/mutate/index'
-import * as operations from './templates/operations/index'
-import * as queryKey from './templates/queryKey/index'
+// import * as mutation from './templates/mutate/index'
+// import * as operations from './templates/operations/index'
+// import * as queryKey from './templates/queryKey/index'
 
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
@@ -25,14 +26,14 @@ export const config = {
       },
     }),
     pluginReactQuery({
-      transformers: {
-        name: (name, type) => {
-          if (type === 'file' || type === 'function') {
-            return `${name}Hook`
-          }
-          return name
-        },
-      },
+      // transformers: {
+      //   name: (name, type) => {
+      //     if (type === 'file' || type === 'function') {
+      //       return `${name}Hook`
+      //     }
+      //     return name
+      //   },
+      // },
       output: {
         path: './hooks',
       },
@@ -51,9 +52,9 @@ export const config = {
               initialPageParam: 0,
               cursorParam: undefined,
             },
-            templates: {
-              queryKey: queryKey.templates,
-            },
+            // templates: {
+            //   queryKey: queryKey.templates,
+            // },
           },
         },
         {
@@ -63,14 +64,15 @@ export const config = {
             query: {
               queryKey: (key: unknown[]) => key,
               methods: ['post'],
+              importPath: '@tanstack-react-query',
             },
           },
         },
       ],
-      templates: {
-        operations: operations.templates,
-        mutation: mutation.templates,
-      },
+      // templates: {
+      //   operations: operations.templates,
+      //   mutation: mutation.templates,
+      // },
     }),
   ],
 }
