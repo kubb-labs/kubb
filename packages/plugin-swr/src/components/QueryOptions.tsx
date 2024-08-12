@@ -8,29 +8,19 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
 import { pluginTsName } from '@kubb/plugin-ts'
+import type { Operation } from '@kubb/oas'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 
 type Props = {
   name: string
-  dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
+  typeName: string
+  options: PluginSwr['options']
+  typedSchemas: OperationSchemas
+  zodSchemas: OperationSchemas
+  operation: Operation
 }
 
-export function QueryOptions({ name: typeName, dataReturnType }: Props): ReactNode {
-  const {
-    pluginManager,
-    plugin: {
-      key: pluginKey,
-      options: { parser },
-    },
-  } = useApp<PluginSwr>()
-  const { getSchemas } = useOperationManager()
-  const operation = useOperation()
-
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
-  const name = pluginManager.resolveName({
-    name: `${typeName}QueryOptions`,
-    pluginKey,
-  })
+export function QueryOptions({ name, typeName, operation, typedSchemas, zodSchemas, options }: Props): ReactNode {
   const contentType = operation.getContentType()
 
   const generics = new FunctionParams()
@@ -42,17 +32,17 @@ export function QueryOptions({ name: typeName, dataReturnType }: Props): ReactNo
   generics.add([{ type: 'TData', default: `${typeName}['response']` }])
 
   params.add([
-    ...getASTParams(schemas.pathParams, { typed: true }),
+    ...getASTParams(typedSchemas.pathParams, { typed: true }),
     {
       name: 'params',
       type: `${typeName}['queryParams']`,
-      enabled: !!schemas.queryParams?.name,
+      enabled: !!typedSchemas.queryParams?.name,
       required: false,
     },
     {
       name: 'headers',
       type: `${typeName}['headerParams']`,
-      enabled: !!schemas.headerParams?.name,
+      enabled: !!typedSchemas.headerParams?.name,
       required: false,
     },
     {
@@ -63,10 +53,10 @@ export function QueryOptions({ name: typeName, dataReturnType }: Props): ReactNo
   ])
 
   const client = {
-    withQueryParams: !!schemas.queryParams?.name,
-    withData: !!schemas.request?.name,
-    withPathParams: !!schemas.pathParams?.name,
-    withHeaders: !!schemas.headerParams?.name,
+    withQueryParams: !!typedSchemas.queryParams?.name,
+    withData: !!typedSchemas.request?.name,
+    withPathParams: !!typedSchemas.pathParams?.name,
+    withHeaders: !!typedSchemas.headerParams?.name,
     method: operation.method,
     path: new URLPath(operation.path),
     generics: clientGenerics.join(', '),
@@ -93,10 +83,10 @@ export function QueryOptions({ name: typeName, dataReturnType }: Props): ReactNo
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
-  let returnRes = parser === 'zod' ? `return ${zodSchemas.response.name}.parse(res.data)` : 'return res.data'
+  let returnRes = options.parser === 'zod' ? `return ${zodSchemas.response.name}.parse(res.data)` : 'return res.data'
 
-  if (dataReturnType === 'full') {
-    returnRes = parser === 'zod' ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}` : 'return res'
+  if (options.dataReturnType === 'full') {
+    returnRes = options.parser === 'zod' ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}` : 'return res'
   }
 
   const formData = isFormData

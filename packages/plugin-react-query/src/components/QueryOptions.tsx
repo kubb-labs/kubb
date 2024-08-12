@@ -12,10 +12,10 @@ import { pluginTsName } from '@kubb/plugin-ts'
 type Props = {
   name: string
   typeName: string
-  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
+  options: PluginReactQuery['resolvedOptions']
 }
 
-export function QueryOptions({ name, typeName, dataReturnType }: Props): ReactNode {
+export function QueryOptions({ name, typeName, options }: Props): ReactNode {
   const {
     plugin: {
       options: { parser, pathParamsType },
@@ -111,7 +111,7 @@ export function QueryOptions({ name, typeName, dataReturnType }: Props): ReactNo
 
   let returnRes = parser === 'zod' ? `return ${parser}.parse(res.data)` : 'return res.data'
 
-  if (dataReturnType === 'full') {
+  if (options.dataReturnType === 'full') {
     returnRes = parser === 'zod' ? `return {...res, data: ${parser}.parse(res.data)}` : 'return res'
   }
 

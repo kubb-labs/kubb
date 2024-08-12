@@ -5,6 +5,7 @@ type OperationsProps = {
    * Name of the function
    */
   name: string
+  // custom
   handlers: string[]
 }
 

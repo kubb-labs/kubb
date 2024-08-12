@@ -9,7 +9,7 @@ export const operationsParser = createParser<PluginMsw>({
   name: 'operations',
   pluginName: 'plugin-msw',
   templates: {
-    Operations({ operations }) {
+    Operations({ operations, options }) {
       const { pluginManager } = useApp<PluginMsw>()
       const { getName, getFile } = useOperationManager()
 
@@ -24,11 +24,13 @@ export const operationsParser = createParser<PluginMsw>({
         })
         .filter(Boolean)
 
+      const handlers = operations.map((operation) => getName(operation, { type: 'function', pluginKey: ['plugin-msw'] }))
+
       return (
         <File baseName={file.baseName} path={file.path} meta={file.meta}>
           {imports}
           <File.Source>
-            <Operations name={'handlers'} handlers={operations.map((operation) => getName(operation, { type: 'function', pluginKey: ['plugin-msw'] }))} />
+            <Operations name={'handlers'} handlers={handlers} />
           </File.Source>
         </File>
       )

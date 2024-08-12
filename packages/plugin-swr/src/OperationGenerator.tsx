@@ -22,13 +22,13 @@ export class OperationGenerator extends Generator<PluginSwr['resolvedOptions'], 
           <Oas.Operation operation={operation}>
             {options.parsers.map((parser) => {
               if (typeof parser === 'string' && parser === 'query') {
-                return <queryParser.templates.Operation key="query" operation={operation} options={options} />
+                return <queryParser.templates.Operation key="query" />
               }
               if (typeof parser === 'string' && parser === 'mutation') {
-                return <mutationParser.templates.Operation key="mutation" operation={operation} options={options} />
+                return <mutationParser.templates.Operation key="mutation" />
               }
 
-              return <parser.templates.Operation key={parser.name} operation={operation} options={options} />
+              return <parser.templates.Operation key={parser.name} />
             })}
           </Oas.Operation>
         </Oas>

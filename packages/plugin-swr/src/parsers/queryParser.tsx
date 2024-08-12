@@ -6,8 +6,6 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import type { PluginSwr } from '../types.ts'
 import { SchemaType } from '../components/SchemaType.tsx'
 import { Query, QueryOptions } from '../components'
-import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
-import { FunctionParams, URLPath } from '@kubb/core/utils'
 
 // TOOD move to zod plugin
 const zodParser = createParser({
@@ -16,7 +14,7 @@ const zodParser = createParser({
 })
 
 // TOOD move to ts plugin
-const tsParser = createParser({
+const typeParser = createParser({
   name: 'ts',
   pluginName: pluginTsName,
 })
@@ -29,79 +27,17 @@ export const queryParser = createParser<PluginSwr>({
       const { pluginManager } = useApp<PluginSwr>()
 
       const file = getFile()
-      const schemas = getSchemas({ parser: tsParser })
+      const typedSchemas = getSchemas({ parser: typeParser })
       const zodSchemas = getSchemas({ parser: zodParser, type: 'function' })
       const fileZodSchemas = getFile({ parser: zodParser })
-      const fileType = getFile({ parser: tsParser })
+      const fileType = getFile({ parser: typeParser })
 
       const name = getName({ type: 'function' })
       const typeName = getName({ type: 'type' })
-
       const queryOptionsName = pluginManager.resolveName({
         name: `${typeName}QueryOptions`,
         pluginKey: ['plugin-swr'],
       })
-      const generics = new FunctionParams()
-      const params = new FunctionParams()
-      const queryParams = new FunctionParams()
-      const client = {
-        method: operation.method,
-        path: new URLPath(operation.path),
-        withQueryParams: !!schemas.queryParams?.name,
-        withData: !!schemas.request?.name,
-        withPathParams: !!schemas.pathParams?.name,
-        withHeaders: !!schemas.headerParams?.name,
-      }
-
-      const resultGenerics = ['TData', `${typeName}["error"]`]
-
-      generics.add([{ type: 'TData', default: `${typeName}["response"]` }])
-
-      const queryOptionsGenerics = ['TData']
-
-      params.add([
-        ...getASTParams(schemas.pathParams, { typed: true }),
-        {
-          name: 'params',
-          type: `${typeName}['queryParams']`,
-          enabled: client.withQueryParams,
-          required: false,
-        },
-        {
-          name: 'headers',
-          type: `${typeName}['headerParams']`,
-          enabled: client.withHeaders,
-          required: false,
-        },
-        {
-          name: 'options',
-          required: false,
-          type: `{
-        query?: SWRConfiguration<${resultGenerics.join(', ')}>,
-        client?: ${typeName}['client']['parameters'],
-        shouldFetch?: boolean,
-      }`,
-          default: '{}',
-        },
-      ])
-
-      queryParams.add([
-        ...getASTParams(schemas.pathParams, { typed: false }),
-        {
-          name: 'params',
-          enabled: client.withQueryParams,
-          required: false,
-        },
-        {
-          name: 'headers',
-          enabled: client.withHeaders,
-          required: false,
-        },
-        {
-          name: 'clientOptions',
-          required: false,
-        },
-      ])
 
       const isQuery = typeof options.query === 'boolean' ? options.query : options.query.methods.some((method) => operation.method === method)
 
@@ -119,32 +55,31 @@ export const queryParser = createParser<PluginSwr>({
           <File.Import
             extName={options.extName}
             name={[
-              schemas.request?.name,
-              schemas.response.name,
-              schemas.pathParams?.name,
-              schemas.queryParams?.name,
-              schemas.headerParams?.name,
-              ...(schemas.statusCodes?.map((item) => item.name) || []),
+              typedSchemas.request?.name,
+              typedSchemas.response.name,
+              typedSchemas.pathParams?.name,
+              typedSchemas.queryParams?.name,
+              typedSchemas.headerParams?.name,
+              ...(typedSchemas.statusCodes?.map((item) => item.name) || []),
             ].filter(Boolean)}
             root={file.path}
             path={fileType.path}
             isTypeOnly
           />
           <File.Source>
-            <SchemaType name={typeName} schemas={schemas} dataReturnType={options.dataReturnType} />
-            <QueryOptions name={typeName} dataReturnType={options.dataReturnType} />
-            <Query
-              name={name}
-              generics={generics.toString()}
-              JSDoc={{ comments: getComments(operation) }}
-              client={client}
-              hook={{
-                generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
-                queryOptions: `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
-              }}
-              params={params.toString()}
-              returnType={`SWRResponse<${resultGenerics.join(', ')}>`}
+            <SchemaType typeName={typeName} typedSchemas={typedSchemas} options={options} />
+            <QueryOptions
+              name={pluginManager.resolveName({
+                name: `${typeName}QueryOptions`,
+                pluginKey: ['plugin-swr'],
+              })}
+              typeName={typeName}
+              operation={operation}
+              typedSchemas={typedSchemas}
+              zodSchemas={zodSchemas}
+              options={options}
             />
+            <Query name={name} typeName={typeName} typedSchemas={typedSchemas} queryOptionsName={queryOptionsName} options={options} operation={operation} />
           </File.Source>
         </File>
       )

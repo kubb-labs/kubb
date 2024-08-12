@@ -47,9 +47,9 @@ describe('<Operations/>', async () => {
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
+          <Oas oas={oas} operations={[operation]} generator={og} operationsByMethod={{}}>
             <Oas.Operation operation={operation}>
-              <parser.templates.Operations operationsByMethod={{}} operations={[operation]} options={options} />
+              <parser.templates.Operations />
             </Oas.Operation>
           </Oas>
         </App>

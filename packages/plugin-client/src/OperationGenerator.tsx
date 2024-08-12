@@ -18,23 +18,16 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
 
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
-        <Oas oas={oas} operations={operations} generator={this}>
+        <Oas oas={oas} operations={operations} operationsByMethod={operationsByMethod} generator={this}>
           {this.options.parsers.map((parser) => {
             if (typeof parser === 'string' && parser === 'client') {
               return null
             }
             if (typeof parser === 'string' && parser === 'operations') {
-              return (
-                <operationsParser.templates.Operations
-                  key="operations"
-                  operationsByMethod={operationsByMethod}
-                  operations={operations}
-                  options={this.options}
-                />
-              )
+              return <operationsParser.templates.Operations key="operations" />
             }
 
-            return <parser.templates.Operations key={parser.name} operationsByMethod={operationsByMethod} operations={operations} options={this.options} />
+            return <parser.templates.Operations key={parser.name} />
           })}
         </Oas>
       </App>,
@@ -56,13 +49,13 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
           <Oas.Operation operation={operation}>
             {options.parsers.map((parser) => {
               if (typeof parser === 'string' && parser === 'client') {
-                return <clientParser.templates.Operation key="client" operation={operation} options={options} />
+                return <clientParser.templates.Operation key="client" />
               }
               if (typeof parser === 'string' && parser === 'operations') {
                 return null
               }
 
-              return <parser.templates.Operation key={parser.name} operation={operation} options={options} />
+              return <parser.templates.Operation key={parser.name} />
             })}
           </Oas.Operation>
         </Oas>

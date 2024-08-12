@@ -17,7 +17,7 @@ const zodParser = createParser({
 })
 
 // TOOD move to ts plugin
-const tsParser = createParser({
+const typeParser = createParser({
   name: 'ts',
   pluginName: pluginTsName,
 })
@@ -30,10 +30,10 @@ export const queryParser = createParser<PluginReactQuery>({
       const { pluginManager } = useApp<PluginReactQuery>()
 
       const file = getFile()
-      const schemas = getSchemas({ parser: tsParser })
+      const typedSchemas = getSchemas({ parser: typeParser })
       const zodSchemas = getSchemas({ parser: zodParser, type: 'function' })
       const fileZodSchemas = getFile({ parser: zodParser })
-      const fileType = getFile({ parser: tsParser })
+      const fileType = getFile({ parser: typeParser })
 
       const name = getName({ type: 'function' })
       const typeName = getName({ type: 'type' })
@@ -47,10 +47,10 @@ export const queryParser = createParser<PluginReactQuery>({
       const client = {
         method: operation.method,
         path: new URLPath(operation.path),
-        withQueryParams: !!schemas.queryParams?.name,
-        withData: !!schemas.request?.name,
-        withPathParams: !!schemas.pathParams?.name,
-        withHeaders: !!schemas.headerParams?.name,
+        withQueryParams: !!typedSchemas.queryParams?.name,
+        withData: !!typedSchemas.request?.name,
+        withPathParams: !!typedSchemas.pathParams?.name,
+        withHeaders: !!typedSchemas.headerParams?.name,
       }
 
       generics.add([
@@ -63,24 +63,26 @@ export const queryParser = createParser<PluginReactQuery>({
       ])
 
       params.add([
-        ...(options.pathParamsType === 'object' ? [getASTParams(schemas.pathParams, { typed: true })] : getASTParams(schemas.pathParams, { typed: true })),
+        ...(options.pathParamsType === 'object'
+          ? [getASTParams(typedSchemas.pathParams, { typed: true })]
+          : getASTParams(typedSchemas.pathParams, { typed: true })),
         {
           name: 'params',
           type: `${typeName}['queryParams']`,
           enabled: client.withQueryParams,
-          required: isRequired(schemas.queryParams?.schema),
+          required: isRequired(typedSchemas.queryParams?.schema),
         },
         {
           name: 'headers',
           type: `${typeName}['headerParams']`,
           enabled: client.withHeaders,
-          required: isRequired(schemas.headerParams?.schema),
+          required: isRequired(typedSchemas.headerParams?.schema),
         },
         {
           name: 'data',
           type: `${typeName}['request']`,
           enabled: client.withData,
-          required: isRequired(schemas.request?.schema),
+          required: isRequired(typedSchemas.request?.schema),
         },
         {
           name: 'options',
@@ -93,21 +95,21 @@ export const queryParser = createParser<PluginReactQuery>({
       ])
 
       queryParams.add([
-        ...(options.pathParamsType === 'object' ? [getASTParams(schemas.pathParams)] : getASTParams(schemas.pathParams)),
+        ...(options.pathParamsType === 'object' ? [getASTParams(typedSchemas.pathParams)] : getASTParams(typedSchemas.pathParams)),
         {
           name: 'params',
           enabled: client.withQueryParams,
-          required: isRequired(schemas.queryParams?.schema),
+          required: isRequired(typedSchemas.queryParams?.schema),
         },
         {
           name: 'headers',
           enabled: client.withHeaders,
-          required: isRequired(schemas.headerParams?.schema),
+          required: isRequired(typedSchemas.headerParams?.schema),
         },
         {
           name: 'data',
           enabled: client.withData,
-          required: isRequired(schemas.request?.schema),
+          required: isRequired(typedSchemas.request?.schema),
         },
         {
           name: 'clientOptions',
@@ -116,16 +118,16 @@ export const queryParser = createParser<PluginReactQuery>({
       ])
 
       queryKeyParams.add([
-        ...(options.pathParamsType === 'object' ? [getASTParams(schemas.pathParams)] : getASTParams(schemas.pathParams)),
+        ...(options.pathParamsType === 'object' ? [getASTParams(typedSchemas.pathParams)] : getASTParams(typedSchemas.pathParams)),
         {
           name: 'params',
           enabled: client.withQueryParams,
-          required: isRequired(schemas.queryParams?.schema),
+          required: isRequired(typedSchemas.queryParams?.schema),
         },
         {
           name: 'data',
           enabled: client.withData,
-          required: isRequired(schemas.request?.schema),
+          required: isRequired(typedSchemas.request?.schema),
         },
       ])
 
@@ -143,12 +145,12 @@ export const queryParser = createParser<PluginReactQuery>({
           <File.Import
             extName={options.extName}
             name={[
-              schemas.request?.name,
-              schemas.response.name,
-              schemas.pathParams?.name,
-              schemas.queryParams?.name,
-              schemas.headerParams?.name,
-              ...(schemas.statusCodes?.map((item) => item.name) || []),
+              typedSchemas.request?.name,
+              typedSchemas.response.name,
+              typedSchemas.pathParams?.name,
+              typedSchemas.queryParams?.name,
+              typedSchemas.headerParams?.name,
+              ...(typedSchemas.statusCodes?.map((item) => item.name) || []),
             ].filter(Boolean)}
             root={file.path}
             path={fileType.path}
@@ -159,8 +161,8 @@ export const queryParser = createParser<PluginReactQuery>({
           <File.Import name={['QueryObserverOptions', 'UseQueryResult']} path={options.query.importPath} isTypeOnly />
 
           <File.Source>
-            <SchemaType name={typeName} schemas={schemas} dataReturnType={options.dataReturnType} />
-            {options.queryOptions && <QueryOptions name={name} typeName={typeName} dataReturnType={options.dataReturnType} />}
+            <SchemaType typeName={typeName} typedSchemas={typedSchemas} options={options} />
+            {options.queryOptions && <QueryOptions name={name} typeName={typeName} options={options} />}
             <QueryKey name={name} typeName={typeName} keysFn={options.query ? options.query.queryKey : (keys: unknown[]) => keys} />
             <Query
               name={name}

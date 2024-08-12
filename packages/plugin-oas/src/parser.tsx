@@ -1,9 +1,10 @@
 import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
+import { type KubbNode, useApp, useContext } from '@kubb/react'
 import type * as KubbFile from '@kubb/fs/types'
 import type { OperationsByMethod, OperationSchemas } from './types.ts'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOperation, useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
+import { Oas } from '@kubb/plugin-oas/components'
 
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
@@ -88,9 +89,9 @@ export type Parser<TOptions extends PluginFactoryOptions> = {
    */
   postTransform?: PostTransform
   templates: {
-    Operations: (props: OperationsProps<TOptions>) => KubbNode
-    Operation: (props: OperationProps<TOptions>) => KubbNode
-    Schema: (props: SchemaProps<TOptions>) => KubbNode
+    Operations: (props: {}) => KubbNode
+    Operation: (props: {}) => KubbNode
+    Schema: (props: {}) => KubbNode
   }
 }
 
@@ -101,8 +102,11 @@ export function createParser<TOptions extends PluginFactoryOptions>(options: Par
       Operations(props) {
         const Component = options.templates?.Operations
 
+        const { operations = [], operationsByMethod = {} } = useContext(Oas.Context)
+        const { plugin } = useApp<TOptions>()
+
         if (Component) {
-          return <Component {...props} />
+          return <Component options={plugin.options} operations={operations} operationsByMethod={operationsByMethod} {...props} />
         }
 
         return null
@@ -111,14 +115,16 @@ export function createParser<TOptions extends PluginFactoryOptions>(options: Par
         const Component = options.templates?.Operation
 
         const operationManager = useOperationManager()
+        const operation = useOperation()
+        const { plugin } = useApp<TOptions>()
 
         const getName: OperationHelpers<TOptions>['getName'] = ({ parser, type }) => {
-          return operationManager.getName(props.operation, { type, pluginKey: [parser?.pluginName || options.pluginName] })
+          return operationManager.getName(operation, { type, pluginKey: [parser?.pluginName || options.pluginName] })
         }
 
         const getFile: OperationHelpers<TOptions>['getFile'] = ({ parser, extName } = {}) => {
-          return operationManager.getFile(props.operation, {
-            name: operationManager.getName(props.operation, { type: 'file', pluginKey: [parser?.pluginName || options.pluginName] }),
+          return operationManager.getFile(operation, {
+            name: operationManager.getName(operation, { type: 'file', pluginKey: [parser?.pluginName || options.pluginName] }),
             pluginKey: [parser?.pluginName || options.pluginName],
             extName,
           })
@@ -126,7 +132,7 @@ export function createParser<TOptions extends PluginFactoryOptions>(options: Par
 
         const getSchemas: OperationHelpers<TOptions>['getSchemas'] = ({ parser, type, forStatusCode } = {}) => {
           return operationManager.getSchemas(
-            props.operation,
+            operation,
             {
               type,
               pluginKey: [parser?.pluginName || options.pluginName],
@@ -136,7 +142,7 @@ export function createParser<TOptions extends PluginFactoryOptions>(options: Par
         }
 
         if (Component) {
-          return <Component getName={getName} getFile={getFile} getSchemas={getSchemas} {...props} />
+          return <Component options={plugin.options} operation={operation} getName={getName} getFile={getFile} getSchemas={getSchemas} {...props} />
         }
 
         return null

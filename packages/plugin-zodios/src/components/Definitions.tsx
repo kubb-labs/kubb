@@ -5,6 +5,7 @@ type Props = {
    * Name of the function
    */
   name: string
+  // custom
   definitions: string[]
   baseURL: string | undefined
 }

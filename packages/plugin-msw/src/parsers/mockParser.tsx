@@ -4,7 +4,6 @@ import type { PluginMsw } from '../types.ts'
 import { createParser } from '@kubb/plugin-oas'
 import { Mock } from '../components/Mock.tsx'
 import { pluginFakerName } from '@kubb/plugin-faker'
-import { URLPath } from '@kubb/core/utils'
 
 // TOOD move to faker plugin
 const fakerParser = createParser({
@@ -36,7 +35,7 @@ export const mockParser = createParser<PluginMsw>({
           {fileFaker && responseName && <File.Import extName={options.extName} name={[responseName]} root={file.path} path={fileFaker.path} />}
 
           <File.Source>
-            <Mock name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
+            <Mock name={name} responseName={responseName} operation={operation} />
           </File.Source>
         </File>
       )

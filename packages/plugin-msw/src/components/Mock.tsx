@@ -1,6 +1,6 @@
-import type { URLPath } from '@kubb/core/utils'
+import { URLPath } from '@kubb/core/utils'
 
-import type { HttpMethod } from '@kubb/oas'
+import type { Operation } from '@kubb/oas'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -8,26 +8,18 @@ type Props = {
    * Name of the function
    */
   name: string
-  /**
-   * Method of the current operation, see useOperation.
-   */
-  method: HttpMethod
-  /**
-   * Path of the mock
-   */
-  path: URLPath
-  /**
-   * Name of the import for the mock(this is a function).
-   * @example createPet
-   */
+  operation: Operation
+  // custom
   responseName: string
 }
 
-export function Mock({ name, method, path, responseName }: Props): ReactNode {
+export function Mock({ name, responseName, operation }: Props): ReactNode {
+  const path = new URLPath(operation.path)
+
   return (
     <>
       {`
-  export const ${name} = http.${method}('*${path.toURLPath()}', function handler(info) {
+  export const ${name} = http.${operation.method}('*${path.toURLPath()}', function handler(info) {
     return new Response(JSON.stringify(${responseName}()), {
       headers: {
         'Content-Type': 'application/json',

@@ -49,7 +49,7 @@ describe('<Client/>', async () => {
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
           <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
-              <parser.templates.Operation operation={operation} options={options} />
+              <parser.templates.Operation />
             </Oas.Operation>
           </Oas>
         </App>
