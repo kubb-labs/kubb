@@ -7,6 +7,7 @@ import { Definitions } from './components/Definitions.tsx'
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult, OperationsByMethod } from '@kubb/plugin-oas'
 import type { FileMeta, PluginZodios } from './types.ts'
+import { definitionsParser } from './parsers/definitionsParser.tsx'
 
 export class OperationGenerator extends Generator<PluginZodios['resolvedOptions'], PluginZodios> {
   async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
@@ -19,12 +20,20 @@ export class OperationGenerator extends Generator<PluginZodios['resolvedOptions'
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas} operations={operations} generator={this}>
-          <Definitions.File
-            name={this.options.name}
-            baseURL={this.options.baseURL}
-            operationsByMethod={operationsByMethod}
-            includeOperationIdAsAlias={this.options.includeOperationIdAsAlias}
-          />
+          {this.options.parsers.map((parser) => {
+            if (typeof parser === 'string' && parser === 'definitions') {
+              return (
+                <definitionsParser.templates.Operations
+                  key="operations"
+                  operationsByMethod={operationsByMethod}
+                  operations={operations}
+                  options={this.options}
+                />
+              )
+            }
+
+            return <parser.templates.Operations key={parser.name} operationsByMethod={operationsByMethod} operations={operations} options={this.options} />
+          })}
         </Oas>
       </App>,
     )

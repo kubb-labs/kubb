@@ -1,52 +1,54 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > does not include an alias property when includeOperationIdAsAlias is false 1`] = `
-"export const endpoints = makeApi([
-  {
-    method: 'get',
-    path: '/pets',
-    description: \`\`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'limit',
-        description: \`How many items to return at one time (max 100)\`,
-        type: 'Query',
-        schema: ListPetsQueryParams.unwrap().shape['limit'],
-      },
-    ],
-    response: ListPetsQueryResponse,
-    errors: [],
-  },
-])
-export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)
-export const api = new Zodios(endpoints)
-export default api
+"import { makeApi, Zodios } from "@zodios/core";
+import { ListPetsQueryResponse, ListPetsQueryParams } from "./listPets";
+
+ export const endpoints = makeApi([{
+        method: "get",
+        path: "/pets",
+        description: \`\`,
+        requestFormat: "json",
+        parameters: [
+            {
+                name: "limit",
+                description: \`How many items to return at one time (max 100)\`,
+                type: "Query",
+                schema: ListPetsQueryParams.unwrap().shape["limit"]
+            }
+        ],
+        response: ListPetsQueryResponse,
+        errors: [],
+    }]);
+export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints);
+export const api = new Zodios(endpoints);
+export default api;
 "
 `;
 
 exports[`OperationGenerator > includes an alias property when includeOperationIdAsAlias is true 1`] = `
-"export const endpoints = makeApi([
-  {
-    method: 'get',
-    path: '/pets',
-    alias: 'listPets',
-    description: \`\`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'limit',
-        description: \`How many items to return at one time (max 100)\`,
-        type: 'Query',
-        schema: ListPetsQueryParams.unwrap().shape['limit'],
-      },
-    ],
-    response: ListPetsQueryResponse,
-    errors: [],
-  },
-])
-export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)
-export const api = new Zodios(endpoints)
-export default api
+"import { makeApi, Zodios } from "@zodios/core";
+import { ListPetsQueryResponse, ListPetsQueryParams } from "./listPets";
+
+ export const endpoints = makeApi([{
+        method: "get",
+        path: "/pets",
+        alias: "listPets",
+        description: \`\`,
+        requestFormat: "json",
+        parameters: [
+            {
+                name: "limit",
+                description: \`How many items to return at one time (max 100)\`,
+                type: "Query",
+                schema: ListPetsQueryParams.unwrap().shape["limit"]
+            }
+        ],
+        response: ListPetsQueryResponse,
+        errors: [],
+    }]);
+export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints);
+export const api = new Zodios(endpoints);
+export default api;
 "
 `;

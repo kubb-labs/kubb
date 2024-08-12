@@ -9,7 +9,7 @@ import { clientParser } from './parsers/clientParser.tsx'
 import { operationsParser } from './parsers/operationsParser.tsx'
 
 export class OperationGenerator extends Generator<PluginClient['resolvedOptions'], PluginClient> {
-  async all(operations: Operation[], _operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
+  async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin, mode } = this.context
 
     const root = createRoot({
@@ -24,10 +24,17 @@ export class OperationGenerator extends Generator<PluginClient['resolvedOptions'
               return null
             }
             if (typeof parser === 'string' && parser === 'operations') {
-              return <operationsParser.templates.Operations key="operations" operations={operations} options={this.options} />
+              return (
+                <operationsParser.templates.Operations
+                  key="operations"
+                  operationsByMethod={operationsByMethod}
+                  operations={operations}
+                  options={this.options}
+                />
+              )
             }
 
-            return <parser.templates.Operations key={parser.name} operations={operations} options={this.options} />
+            return <parser.templates.Operations key={parser.name} operationsByMethod={operationsByMethod} operations={operations} options={this.options} />
           })}
         </Oas>
       </App>,

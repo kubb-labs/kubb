@@ -2,7 +2,7 @@ import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } fr
 import type { Operation, SchemaObject } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react'
 import type * as KubbFile from '@kubb/fs/types'
-import type { OperationSchemas } from './types.ts'
+import type { OperationsByMethod, OperationSchemas } from './types.ts'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 
 type FileMeta = FileMetaBase & {
@@ -39,6 +39,7 @@ type OperationHelpers<TOptions extends PluginFactoryOptions> = {
 type OperationsProps<TOptions extends PluginFactoryOptions> = {
   options: TOptions['resolvedOptions']
   operations: Array<Operation>
+  operationsByMethod: OperationsByMethod
 }
 
 type OperationProps<TOptions extends PluginFactoryOptions> = {

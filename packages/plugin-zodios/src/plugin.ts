@@ -15,7 +15,7 @@ import type { PluginZodios } from './types.ts'
 export const pluginZodiosName = 'plugin-zodios' satisfies PluginZodios['name']
 
 export const pluginZodios = createPlugin<PluginZodios>((options) => {
-  const { output = { path: 'zodios.ts' } } = options
+  const { output = { path: 'zodios.ts' }, parsers = ['definitions'] } = options
 
   return {
     name: pluginZodiosName,
@@ -23,7 +23,8 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
       extName: output.extName,
       name: trimExtName(output.path),
       baseURL: undefined,
-      includeOperationIdAsAlias: false,
+      includeOperationIdAsAlias: options.output?.includeOperationIdAsAlias ?? false,
+      parsers,
     },
     pre: [pluginOasName, pluginZodName],
     resolvePath(baseName) {
@@ -53,10 +54,8 @@ export const pluginZodios = createPlugin<PluginZodios>((options) => {
 
       const operationGenerator = new OperationGenerator(
         {
-          extName: output.extName,
-          name: trimExtName(output.path),
+          ...this.plugin.options,
           baseURL,
-          includeOperationIdAsAlias: options.output?.includeOperationIdAsAlias ?? false,
         },
         {
           oas,

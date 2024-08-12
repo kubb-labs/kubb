@@ -55,7 +55,7 @@ describe('OperationGenerator', async () => {
       extName: undefined,
     }
 
-    const og = await new OperationGenerator(options, {
+    const og = new OperationGenerator(options, {
       oas,
       exclude: [],
       include: undefined,

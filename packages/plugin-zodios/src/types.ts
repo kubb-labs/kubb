@@ -1,5 +1,7 @@
 import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
+import type { Parser } from '@kubb/plugin-oas'
+import type { PluginClient } from '@kubb/plugin-client'
 
 export type Options = {
   output?: {
@@ -30,13 +32,15 @@ export type Options = {
      */
     includeOperationIdAsAlias?: boolean | undefined
   }
+  parsers?: Array<Parser<PluginZodios> | 'definitions'>
 }
 
 type ResolveOptions = {
   extName: KubbFile.Extname | undefined
   baseURL: string | undefined
   name: string
-  includeOperationIdAsAlias: boolean | undefined
+  includeOperationIdAsAlias: boolean
+  parsers: NonNullable<Options['parsers']>
 }
 
 export type FileMeta = {
