@@ -9,7 +9,6 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mutation, Query, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
@@ -18,22 +17,36 @@ import type { PluginSwr } from './types.ts'
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = createPlugin<PluginSwr>((options) => {
-  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, templates, dataReturnType = 'data' } = options
+  const {
+    output = { path: 'hooks' },
+    group,
+    query,
+    mutate,
+    exclude = [],
+    include,
+    override = [],
+    parser,
+    parsers = ['query', 'mutation'],
+    dataReturnType = 'data',
+  } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
     name: pluginSwrName,
     options: {
       extName: output.extName,
-      templates: {
-        mutation: Mutation.templates,
-        query: Query.templates,
-        queryOptions: QueryOptions.templates,
-        ...templates,
-      },
+      parsers,
       client: {
         importPath: '@kubb/plugin-client/client',
         ...options.client,
+      },
+      query: {
+        methods: ['get'],
+        ...query,
+      },
+      mutate: {
+        methods: ['post', 'put', 'patch', 'delete'],
+        // ...mutate,
       },
       dataReturnType,
       parser,
@@ -71,10 +84,6 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
 
       if (type === 'type') {
         resolvedName = pascalCase(name)
-      }
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
       }
 
       return resolvedName

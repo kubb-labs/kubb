@@ -4,13 +4,13 @@ import { createRootServer } from '@kubb/react/server'
 import { Oas } from '@kubb/plugin-oas/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Mutation } from './Mutation.tsx'
 
 import type { Plugin, ResolveNameParams } from '@kubb/core'
 import { App } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginSwr } from '../types.ts'
+import { mutationParser } from '../parsers'
 
 describe('<Mutation/>', async () => {
   const oas = await parseFromConfig({
@@ -31,8 +31,12 @@ describe('<Mutation/>', async () => {
 
   const options: GetOperationGeneratorOptions<OperationGenerator> = {
     dataReturnType: 'data',
-    templates: {
-      mutation: Mutation.templates,
+    parsers: ['mutation'],
+    mutate: {
+      methods: ['post'],
+    },
+    query: {
+      methods: [],
     },
     client: {
       importPath: '@kubb/plugin-client/client',
@@ -55,13 +59,14 @@ describe('<Mutation/>', async () => {
 
   test('pets', async () => {
     const operation = oas.operation('/pets', 'post')
+    const parser = mutationParser
 
     const Component = () => {
       return (
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
           <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
-              <Mutation.File />
+              <parser.templates.Operation operation={operation} options={options} />
             </Oas.Operation>
           </Oas>
         </App>

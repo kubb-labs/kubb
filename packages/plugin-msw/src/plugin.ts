@@ -17,15 +17,7 @@ import type { PluginMsw } from './types.ts'
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
 export const pluginMsw = createPlugin<PluginMsw>((options) => {
-  const {
-    output = { path: 'handlers' },
-    group,
-    exclude = [],
-    include,
-    override = [],
-
-    parsers = ['mock', 'operations'],
-  } = options
+  const { output = { path: 'handlers' }, group, exclude = [], include, override = [], parsers = ['mock', 'operations'] } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {

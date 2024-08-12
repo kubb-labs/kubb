@@ -5,49 +5,74 @@ import { getASTParams } from '@kubb/plugin-oas/utils'
 import { Function, useApp } from '@kubb/react'
 import { pluginZodName } from '@kubb/plugin-zod'
 
-import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 
-type TemplateProps = {
-  /**
-   * Name of the function
-   */
+type Props = {
   name: string
-  /**
-   * Parameters/options/props that need to be used
-   */
-  params: string
-  /**
-   * Generics that needs to be added for TypeScript
-   */
-  generics?: string
-  /**
-   * ReturnType(see async for adding Promise type)
-   */
-  returnType?: string
-  /**
-   * Options for JSdocs
-   */
-  JSDoc?: {
-    comments: string[]
-  }
-  client: {
-    generics: string
-    method: HttpMethod
-    path: URLPath
-    withQueryParams: boolean
-    withPathParams: boolean
-    withData: boolean
-    withHeaders: boolean
-    contentType: string
-  }
   dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
-  parser: string | undefined
 }
 
-function Template({ name, params, generics, returnType, JSDoc, client, dataReturnType, parser }: TemplateProps): ReactNode {
+export function QueryOptions({ name: typeName, dataReturnType }: Props): ReactNode {
+  const {
+    pluginManager,
+    plugin: {
+      key: pluginKey,
+      options: { parser },
+    },
+  } = useApp<PluginSwr>()
+  const { getSchemas } = useOperationManager()
+  const operation = useOperation()
+
+  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
+  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
+  const name = pluginManager.resolveName({
+    name: `${typeName}QueryOptions`,
+    pluginKey,
+  })
+  const contentType = operation.getContentType()
+
+  const generics = new FunctionParams()
+  const params = new FunctionParams()
+
+  const clientGenerics = ['TData', `${typeName}['error']`]
+  const resultGenerics = ['TData', `${typeName}['error']`]
+
+  generics.add([{ type: 'TData', default: `${typeName}['response']` }])
+
+  params.add([
+    ...getASTParams(schemas.pathParams, { typed: true }),
+    {
+      name: 'params',
+      type: `${typeName}['queryParams']`,
+      enabled: !!schemas.queryParams?.name,
+      required: false,
+    },
+    {
+      name: 'headers',
+      type: `${typeName}['headerParams']`,
+      enabled: !!schemas.headerParams?.name,
+      required: false,
+    },
+    {
+      name: 'options',
+      type: `${typeName}['client']['parameters']`,
+      default: '{}',
+    },
+  ])
+
+  const client = {
+    withQueryParams: !!schemas.queryParams?.name,
+    withData: !!schemas.request?.name,
+    withPathParams: !!schemas.pathParams?.name,
+    withHeaders: !!schemas.headerParams?.name,
+    method: operation.method,
+    path: new URLPath(operation.path),
+    generics: clientGenerics.join(', '),
+    contentType,
+  }
+
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
@@ -68,10 +93,10 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
-  let returnRes = parser ? `return ${parser}(res.data)` : 'return res.data'
+  let returnRes = parser === 'zod' ? `return ${zodSchemas.response.name}.parse(res.data)` : 'return res.data'
 
   if (dataReturnType === 'full') {
-    returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : 'return res'
+    returnRes = parser === 'zod' ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}` : 'return res'
   }
 
   const formData = isFormData
@@ -89,7 +114,7 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     : undefined
 
   return (
-    <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+    <Function name={name} export generics={generics.toString()} returnType={`SWRConfiguration<${resultGenerics.join(', ')}>`} params={params.toString()}>
       {`
       return {
         fetcher: async () => {
@@ -106,92 +131,3 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     </Function>
   )
 }
-
-const defaultTemplates = {
-  default: Template,
-} as const
-
-type Props = {
-  factory: {
-    name: string
-  }
-  dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<TemplateProps>
-}
-
-export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
-  const {
-    pluginManager,
-    plugin: {
-      key: pluginKey,
-      options: { parser },
-    },
-  } = useApp<PluginSwr>()
-  const { getSchemas } = useOperationManager()
-  const operation = useOperation()
-
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
-  const name = pluginManager.resolveName({
-    name: `${factory.name}QueryOptions`,
-    pluginKey,
-  })
-  const contentType = operation.getContentType()
-
-  const generics = new FunctionParams()
-  const params = new FunctionParams()
-
-  const clientGenerics = ['TData', `${factory.name}['error']`]
-  const resultGenerics = ['TData', `${factory.name}['error']`]
-
-  generics.add([{ type: 'TData', default: `${factory.name}['response']` }])
-
-  params.add([
-    ...getASTParams(schemas.pathParams, { typed: true }),
-    {
-      name: 'params',
-      type: `${factory.name}['queryParams']`,
-      enabled: !!schemas.queryParams?.name,
-      required: false,
-    },
-    {
-      name: 'headers',
-      type: `${factory.name}['headerParams']`,
-      enabled: !!schemas.headerParams?.name,
-      required: false,
-    },
-    {
-      name: 'options',
-      type: `${factory.name}['client']['parameters']`,
-      default: '{}',
-    },
-  ])
-
-  const client = {
-    withQueryParams: !!schemas.queryParams?.name,
-    withData: !!schemas.request?.name,
-    withPathParams: !!schemas.pathParams?.name,
-    withHeaders: !!schemas.headerParams?.name,
-    method: operation.method,
-    path: new URLPath(operation.path),
-    generics: clientGenerics.join(', '),
-    contentType,
-  }
-
-  return (
-    <Template
-      name={name}
-      params={params.toString()}
-      generics={generics.toString()}
-      returnType={`SWRConfiguration<${resultGenerics.join(', ')}>`}
-      client={client}
-      dataReturnType={dataReturnType}
-      parser={parser === 'zod' ? `${zodSchemas.response.name}.parse` : undefined}
-    />
-  )
-}
-
-QueryOptions.templates = defaultTemplates

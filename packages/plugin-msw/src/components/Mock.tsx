@@ -3,7 +3,7 @@ import type { URLPath } from '@kubb/core/utils'
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 
-type MockProps = {
+type Props = {
   /**
    * Name of the function
    */
@@ -23,7 +23,7 @@ type MockProps = {
   responseName: string
 }
 
-export function Mock({ name, method, path, responseName }: MockProps): ReactNode {
+export function Mock({ name, method, path, responseName }: Props): ReactNode {
   return (
     <>
       {`

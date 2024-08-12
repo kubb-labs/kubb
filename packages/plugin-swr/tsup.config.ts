@@ -8,6 +8,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       components: 'src/components/index.ts',
+      parsers: 'src/parsers/index.ts',
     },
   },
   {
@@ -15,6 +16,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       components: 'src/components/index.ts',
+      parsers: 'src/parsers/index.ts',
     },
   },
 ])

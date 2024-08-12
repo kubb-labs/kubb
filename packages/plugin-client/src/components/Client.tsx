@@ -5,7 +5,7 @@ import type { HttpMethod } from '@kubb/oas'
 import type { KubbNode, Params } from '@kubb/react'
 import type { PluginClient } from '../types.ts'
 
-type ClientProps = {
+type Props = {
   /**
    * Name of the function
    */
@@ -41,7 +41,7 @@ type ClientProps = {
   }
 }
 
-export function Client({ name, generics, returnType, params, JSDoc, client }: ClientProps): KubbNode {
+export function Client({ name, generics, returnType, params, JSDoc, client }: Props): KubbNode {
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,

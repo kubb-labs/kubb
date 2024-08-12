@@ -1,27 +1,16 @@
-import { Type, useApp } from '@kubb/react'
+import { Type } from '@kubb/react'
 
-import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 
 type Props = {
-  factory: {
-    name: string
-  }
+  name: string
+  schemas: OperationSchemas
+  dataReturnType: PluginSwr['options']['dataReturnType']
 }
 
-export function SchemaType({ factory }: Props): ReactNode {
-  const {
-    plugin: {
-      options: { dataReturnType },
-    },
-  } = useApp<PluginSwr>()
-  const { getSchemas } = useOperationManager()
-  const operation = useOperation()
-
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-
+export function SchemaType({ name, schemas, dataReturnType }: Props): ReactNode {
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,
     schemas.errors?.map((item) => item.name).join(' | ') || 'never',
@@ -32,12 +21,12 @@ export function SchemaType({ factory }: Props): ReactNode {
     schemas.response.name,
   ]
 
-  const clientType = `${factory.name}Client`
+  const clientType = `${name}Client`
 
   return (
     <>
       <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
-      <Type name={factory.name}>
+      <Type name={name}>
         {`
         {
           data: ${TData}

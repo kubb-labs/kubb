@@ -2,74 +2,39 @@ import { OperationGenerator as Generator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 
-import { Mutation } from './components/Mutation.tsx'
-import { Query } from './components/Query.tsx'
-
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/plugin-oas'
 import type { FileMeta, PluginSwr } from './types.ts'
+import { queryParser } from './parsers/queryParser.tsx'
+import { mutationParser } from './parsers/mutationParser.tsx'
 
 export class OperationGenerator extends Generator<PluginSwr['resolvedOptions'], PluginSwr, FileMeta> {
-  async get(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async operation(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 
     const root = createRoot({
       logger: pluginManager.logger,
     })
 
-    if (!options.templates?.query || !options.templates?.queryOptions) {
-      return []
-    }
-
     root.render(
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
         <Oas oas={oas} operations={[operation]} generator={this}>
           <Oas.Operation operation={operation}>
-            <Query.File
-              templates={{
-                query: options.templates.query,
-                queryOptions: options.templates.queryOptions,
-              }}
-            />
+            {options.parsers.map((parser) => {
+              if (typeof parser === 'string' && parser === 'query') {
+                return <queryParser.templates.Operation key="query" operation={operation} options={options} />
+              }
+              if (typeof parser === 'string' && parser === 'mutation') {
+                return <mutationParser.templates.Operation key="mutation" operation={operation} options={options} />
+              }
+
+              return <parser.templates.Operation key={parser.name} operation={operation} options={options} />
+            })}
           </Oas.Operation>
         </Oas>
       </App>,
     )
 
     return root.files
-  }
-
-  async post(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin, mode } = this.context
-
-    const root = createRoot({
-      logger: pluginManager.logger,
-    })
-
-    if (!options.templates?.mutation) {
-      return []
-    }
-
-    root.render(
-      <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-        <Oas oas={oas} operations={[operation]} generator={this}>
-          <Oas.Operation operation={operation}>
-            <Mutation.File templates={options.templates.mutation} />
-          </Oas.Operation>
-        </Oas>
-      </App>,
-    )
-
-    return root.files
-  }
-
-  async put(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, options)
-  }
-  async patch(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, options)
-  }
-  async delete(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, options)
   }
 }

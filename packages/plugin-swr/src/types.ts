@@ -1,14 +1,22 @@
-import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Mutation } from './components/Mutation.tsx'
-import type { Query } from './components/Query.tsx'
-import type { QueryOptions } from './components/QueryOptions.tsx'
+import type { Exclude, Include, Override, Parser, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { HttpMethod } from '@kubb/oas'
 
-type Templates = {
-  mutation?: typeof Mutation.templates | false
-  query?: typeof Query.templates | false
-  queryOptions?: typeof QueryOptions.templates | false
+export type Query = {
+  /**
+   * Define which HttpMethods can be used for queries
+   * @default ['get']
+   */
+  methods: Array<HttpMethod>
+}
+
+export type Mutate = {
+  /**
+   * Define which HttpMethods can be used for mutations
+   * @default ['post', 'put', 'delete']
+   */
+  methods: Array<HttpMethod>
 }
 
 export type Options = {
@@ -86,29 +94,30 @@ export type Options = {
    * @private
    */
   dataReturnType?: 'data' | 'full'
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
   /**
-   * Which parser can be used before returning the data to `@tanstack/query`.
+   * Which parser can be used before returning the data to `swr`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
   parser?: 'zod'
+  parsers?: Array<Parser<PluginSwr> | 'query' | 'mutation'>
   /**
-   * Make it possible to override one of the templates
+   * Override some useQuery behaviours.
    */
-  templates?: Partial<Templates>
+  query?: Partial<Query>
+  /**
+   * Override some useMutation behaviours.
+   */
+  mutate?: Mutate
 }
 
 type ResolvedOptions = {
   extName: KubbFile.Extname | undefined
   client: Required<NonNullable<Options['client']>>
   dataReturnType: NonNullable<Options['dataReturnType']>
-  templates: NonNullable<Templates>
   parser: Options['parser']
+  parsers: NonNullable<Options['parsers']>
+  query: Query
+  mutate: Mutate
 }
 
 export type FileMeta = {
