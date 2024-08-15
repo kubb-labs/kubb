@@ -295,7 +295,7 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
         ])?.type
       : schemas.request?.name
         ? `${factory.name}['request']`
-        : 'never'
+        : 'void'
 
   const client = {
     method: operation.method,
