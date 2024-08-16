@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "2.24.0",
+  "version": "2.25.1",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -71,10 +71,10 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@types/node": "^20.14.13",
+    "@types/node": "^20.14.15",
     "@types/semver": "^7.5.8",
     "source-map-support": "^0.5.21",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "engines": {

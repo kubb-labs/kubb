@@ -295,8 +295,8 @@ export function Mutation({ factory, resultType, hookName, optionsType, Template 
         ])?.type
       : schemas.request?.name
         ? `${factory.name}['request']`
-        : 'never'
-  const clientRequestType = (contentType === 'multipart/form-data' ? 'FormData' : (requestType ? `${factory.name}["request"]` : 'void'))
+        : 'void'
+
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
@@ -423,6 +423,7 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
       options: {
         client: { importPath },
         framework,
+        extName,
       },
     },
   } = useApp<PluginTanstackQuery>()
@@ -446,8 +447,9 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import extName={extName} name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
+          extName={extName}
           name={[
             schemas.request?.name,
             schemas.response.name,

@@ -42,6 +42,7 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
   return {
     name: pluginTanstackQueryName,
     options: {
+      extName: output.extName,
       framework,
       client: {
         importPath: '@kubb/swagger-client/client',

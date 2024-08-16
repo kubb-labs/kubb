@@ -151,6 +151,11 @@ exports[`Zod SchemaGenerator > 'lazy' 1`] = `
 "
 `;
 
+exports[`Zod SchemaGenerator > 'oneof' 1`] = `
+"export const oneof = z.union([z.object({ propertyA: z.string().optional() }), z.object({ propertyA: z.string().optional() })])
+"
+`;
+
 exports[`Zod SchemaGenerator > 'recursive' 1`] = `
 "export const recursive = z.object({ name: z.string(), children: z.array(z.lazy(() => Example)) })
 "

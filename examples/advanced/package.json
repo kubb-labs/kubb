@@ -41,18 +41,18 @@
     "@tanstack/svelte-query": "^4.36.1",
     "@tanstack/vue-query": "^4.37.1",
     "@zodios/core": "^10.9.6",
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "msw": "^1.3.3",
     "react": "^18.3.1",
-    "solid-js": "^1.8.19",
+    "solid-js": "^1.8.20",
     "svelte": "^3.59.2",
     "swr": "^2.2.5",
-    "vue": "^3.4.34",
+    "vue": "^3.4.37",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "~5.2.2"
   },
   "packageManager": "pnpm@9.4.0",

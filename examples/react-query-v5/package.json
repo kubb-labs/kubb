@@ -29,9 +29,9 @@
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@tanstack/react-query": "^5.51.15",
+    "@tanstack/react-query": "^5.51.23",
     "@tanstack/react-query-devtools": "5.0.0",
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -40,7 +40,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "msw": "^1.3.3",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "~5.2.2",
     "unplugin-kubb": "workspace:*",
     "vite": "^4.5.3"

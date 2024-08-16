@@ -77,6 +77,7 @@ export type Options = {
   templates?: Partial<Templates>
 }
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   templates: NonNullable<Templates>
 }
 

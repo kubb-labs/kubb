@@ -1,5 +1,21 @@
 # unplugin-kubb
 
+## 0.1.72
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
+  - @kubb/core@2.25.1
+
+## 0.1.71
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.0
+
 ## 0.1.70
 
 ### Patch Changes
