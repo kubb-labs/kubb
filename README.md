@@ -1,4 +1,4 @@
-> **`Kubb` is searching for maintainers.
+> **`Kubb` is searching for maintainers.**
 
 
 <div style="text-align: center;">
