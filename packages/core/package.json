@@ -44,9 +44,6 @@
       "default": "./dist/mocks.cjs"
     },
     "./package.json": "./package.json",
-    "./globals": {
-      "types": "./globals.d.ts"
-    },
     "./*": "./*"
   },
   "main": "dist/index.cjs",

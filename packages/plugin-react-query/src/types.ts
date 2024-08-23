@@ -232,9 +232,3 @@ export type FileMeta = {
 }
 
 export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-react-query']: PluginReactQuery
-  }
-}

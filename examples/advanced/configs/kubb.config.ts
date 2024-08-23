@@ -7,7 +7,6 @@ import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { pluginZodios } from '@kubb/plugin-zodios'
 
 export default defineConfig(() => {
   return {
@@ -140,12 +139,6 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         typed: true,
-      }),
-      pluginZodios({
-        output: {
-          path: 'zodios.ts',
-          exportAs: 'zodios',
-        },
       }),
       pluginFaker({
         output: {

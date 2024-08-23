@@ -234,9 +234,3 @@ export type FileMeta = {
 }
 
 export type PluginTanstackQuery = PluginFactoryOptions<'plugin-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-tanstack-query']: PluginTanstackQuery
-  }
-}

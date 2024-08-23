@@ -156,30 +156,4 @@ describe('getConfig', () => {
       expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginOas().name)
     }
   })
-
-  test('return object when config is set with defineConfig and plugins is an object', async () => {
-    const config: CosmiconfigResult['config'] = defineConfig(() => {
-      return {
-        input: {
-          path: './',
-        },
-        output: {
-          path: './dist',
-        },
-        plugins: [['@kubb/plugin-oas']] as any,
-      }
-    })
-    const kubbUserConfig = await getConfig(
-      {
-        config,
-        filepath: './',
-        isEmpty: false,
-      },
-      {} as any,
-    )
-
-    if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginOas().name)
-    }
-  })
 })

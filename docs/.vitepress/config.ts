@@ -41,7 +41,6 @@ const gettingStartedSidebar = [
   },
 ]
 
-
 const knowledgeBaseSidebar = [
   {
     text: 'Overview',
@@ -160,21 +159,12 @@ const documentationSidebar = [
   {
     text: 'Plugins',
     collapsed: false,
+    link: '/documentation/plugins',
     items: [
-      {
-        text: 'Documentation',
-        link: '/documentation/plugins/overview',
-      },
       {
         text: '@kubb/core',
         collapsed: true,
         link: '/documentation/plugins/core/',
-        items: [
-          {
-            text: 'globals.d.ts',
-            link: '/documentation/plugins/core/globals',
-          },
-        ],
       },
       {
         text: '@kubb/plugin-oas',
@@ -355,10 +345,6 @@ const documentationMenu = [
   {
     text: 'Plugins',
     items: [
-      {
-        text: 'Overview',
-        link: '/documentation/plugins/overview',
-      },
       {
         text: '@kubb/core',
         link: '/documentation/plugins/core/',
@@ -606,7 +592,7 @@ export default defineConfig({
       '/knowledge-base': knowledgeBaseSidebar,
       '/examples': examplesSidebar,
       '/blog': blogSidebar,
-      '/tutorials': tutorialsSidebar
+      '/tutorials': tutorialsSidebar,
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/kubb-labs/kubb' },

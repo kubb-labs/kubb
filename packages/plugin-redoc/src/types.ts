@@ -18,9 +18,3 @@ export type FileMeta = {
 }
 
 export type PluginRedoc = PluginFactoryOptions<'plugin-redoc', Options, ResolveOptions, never>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-redoc']: PluginRedoc
-  }
-}

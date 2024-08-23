@@ -104,6 +104,7 @@ export const machineSchema = z.object({
   host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
   id: z.string().optional(),
   image_ref: z.lazy(() => imageRefSchema).optional(),
+  incomplete_config: z.lazy(() => flyMachineConfigSchema).optional(),
   instance_id: z.string().describe('InstanceID is unique for each version of the machine').optional(),
   name: z.string().optional(),
   nonce: z.string().describe('Nonce is only every returned on machine creation if a lease_duration was provided.').optional(),
@@ -918,6 +919,15 @@ export const createVolumeSnapshot200Schema = z.any()
 export const createVolumeSnapshotMutationResponseSchema = z.any()
 
 /**
+ * @description KMS token
+ */
+export const tokensRequestKms200Schema = z.string()
+/**
+ * @description KMS token
+ */
+export const tokensRequestKmsMutationResponseSchema = z.string()
+
+/**
  * @description OIDC token
  */
 export const tokensRequestOidc200Schema = z.string()
@@ -1420,6 +1430,19 @@ export const operations = {
     },
     errors: {},
   },
+  Tokens_request_Kms: {
+    request: undefined,
+    parameters: {
+      path: undefined,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      200: tokensRequestKmsMutationResponseSchema,
+      default: tokensRequestKmsMutationResponseSchema,
+    },
+    errors: {},
+  },
   Tokens_request_OIDC: {
     request: tokensRequestOidcMutationRequestSchema,
     parameters: {
@@ -1509,7 +1532,7 @@ export const paths = {
   },
   '/apps/{app_name}/volumes/{volume_id}': {
     get: operations['Volumes_get_by_id'],
-    post: operations['Volumes_update'],
+    put: operations['Volumes_update'],
     delete: operations['Volume_delete'],
   },
   '/apps/{app_name}/volumes/{volume_id}/extend': {
@@ -1518,6 +1541,9 @@ export const paths = {
   '/apps/{app_name}/volumes/{volume_id}/snapshots': {
     get: operations['Volumes_list_snapshots'],
     post: operations['createVolumeSnapshot'],
+  },
+  '/tokens/kms': {
+    post: operations['Tokens_request_Kms'],
   },
   '/tokens/oidc': {
     post: operations['Tokens_request_OIDC'],

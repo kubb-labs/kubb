@@ -46,10 +46,5 @@
     "unplugin-kubb": "0.1.68",
     "@kubb/plugin-react-query": "2.25.1"
   },
-  "changesets": [
-    "fifty-rockets-remember",
-    "large-meals-count",
-    "slimy-lamps-develop",
-    "unlucky-rockets-own"
-  ]
+  "changesets": ["fifty-rockets-remember", "large-meals-count", "slimy-lamps-develop", "unlucky-rockets-own"]
 }
