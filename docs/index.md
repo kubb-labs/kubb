@@ -15,7 +15,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /guide/introduction
+      link: /getting-started/introduction
     - theme: alt
       text: Playground
       link: /playground
@@ -78,7 +78,7 @@ features:
       src: ./feature/react.svg
       height: 24
     title: Templates
-    details: Customize the generated files/output based on a custom-defined JSX(React) template. <div class="learn-more"><a href="/reference/templates">Learn more</a></div>
+    details: Customize the generated files/output based on a custom-defined JSX(React) template. <div class="learn-more"><a href="/knowledge-base/templates">Learn more</a></div>
 
 ---
 <!--

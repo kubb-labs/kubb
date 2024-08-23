@@ -26,7 +26,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "axios": "^1.7.3"
+    "axios": "^1.7.5"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

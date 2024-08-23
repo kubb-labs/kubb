@@ -21,7 +21,7 @@ The core contains the building blocks for all plugins.
   - [`Generator`](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/Generator.ts) which contains the base with a getter for `options` and a `build` function.
 - Managers classes as the base for all logic
   - [`FileManager`](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts) which is used to store all files before those are saved to the file system.
-  - [`PluginManager`](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/PluginManager.ts) which contains the logic of when which plugin can be triggered, see [pluginManager](/reference/pluginManager/).
+  - [`PluginManager`](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/PluginManager.ts) which contains the logic of when which plugin can be triggered, see [pluginManager](/knowledge-base/pluginManager/).
 
 ## Installation
 

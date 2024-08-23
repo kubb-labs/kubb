@@ -97,7 +97,7 @@
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^2.10.1",
+    "remeda": "^2.11.0",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.3",
     "unraw": "^3.0.0"
@@ -106,7 +106,7 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.4",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "consola": "^3.2.3",

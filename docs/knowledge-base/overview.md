@@ -1,7 +1,7 @@
 ---
 layout: doc
 
-title: Reference
+title: Knowledge base
 outline: deep
 ---
 

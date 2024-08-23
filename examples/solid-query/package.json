@@ -24,12 +24,12 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-tanstack-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/plugin-tanstack-query": "workspace:*",
-    "@tanstack/solid-query": "^5.51.21",
-    "axios": "^1.7.3",
-    "solid-js": "^1.8.20",
+    "@tanstack/solid-query": "^5.52.0",
+    "axios": "^1.7.5",
+    "solid-js": "^1.8.21",
     "tsup": "^8.2.4"
   },
   "devDependencies": {

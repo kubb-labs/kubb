@@ -13,116 +13,80 @@ const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, 
 
 const links: Array<{ url: string; lastmod: number | undefined }> = []
 
-const guideSidebar = [
+const gettingStartedSidebar = [
   {
     text: 'Getting Started',
     items: [
       {
         text: 'Introduction',
-        link: '/guide/introduction',
+        link: '/getting-started/introduction',
       },
       {
         text: 'Installation',
-        link: '/guide/installation',
+        link: '/getting-started/installation',
       },
       {
         text: 'Configure',
-        link: '/guide/configure',
+        link: '/getting-started/configure',
       },
       {
         text: 'CLI',
-        link: '/guide/cli',
+        link: '/getting-started/cli',
       },
       {
         text: 'Quick start',
-        link: '/guide/quick-start',
-      },
-    ],
-  },
-
-  {
-    text: 'Tutorials',
-    collapsed: false,
-    items: [
-      {
-        text: 'Basic',
-        link: '/guide/tutorial/basic',
-      },
-      {
-        text: 'Templates <span class="new">new</span>',
-        link: '/guide/tutorial/templates',
+        link: '/getting-started/quick-start',
       },
     ],
   },
 ]
 
-const configSidebar = [
+
+const knowledgeBaseSidebar = [
   {
     text: 'Overview',
-    link: '/config/overview',
+    link: '/knowledge-base/overview',
   },
   {
-    text: 'Options',
+    text: 'Plugins',
     collapsed: false,
     items: [
       {
-        text: 'name <span class="new">new</span>',
-        link: '/config/name',
+        text: 'Plugin system',
+        link: '/knowledge-base/plugins/system',
       },
       {
-        text: 'root',
-        link: '/config/root',
-      },
-      {
-        text: 'input',
-        link: '/config/input',
-      },
-      {
-        text: 'output',
-        link: '/config/output',
-      },
-      {
-        text: 'plugins',
-        link: '/config/plugins',
-      },
-      {
-        text: 'hooks',
-        link: '/config/hooks',
+        text: 'Plugin core',
+        link: '/knowledge-base/plugins/core',
       },
     ],
-  },
-]
-
-const referenceSidebar = [
-  {
-    text: 'Overview',
-    link: '/reference/overview',
   },
   {
     text: 'FileManager',
-    link: '/reference/fileManager',
+    link: '/knowledge-base/fileManager',
   },
   {
     text: 'PluginManager',
-    link: '/reference/pluginManager/',
+    link: '/knowledge-base/pluginManager/',
     collapsed: false,
     items: [
       {
         text: 'Lifecycle',
-        link: '/reference/pluginManager/lifecycle',
+        link: '/knowledge-base/pluginManager/lifecycle',
       },
     ],
   },
   {
-    text: 'Templates <span class="new">new</span><img src="/icons/experimental.svg"/>',
-    link: '/reference/templates',
+    text: 'Templates <img src="/icons/experimental.svg"/>',
+    link: '/knowledge-base/templates',
   },
 ]
 
-const pluginsSidebar = [
+const documentationSidebar = [
   {
-    text: 'Overview',
-    link: '/plugins/overview',
+    text: 'Config',
+    collapsed: true,
+    link: '/documentation/config',
   },
   {
     text: 'Parsers',
@@ -130,7 +94,7 @@ const pluginsSidebar = [
     items: [
       {
         text: '@kubb/parser-ts',
-        link: '/plugins/parser-ts/',
+        link: '/documentation/plugins/parser-ts/',
       },
     ],
   },
@@ -140,53 +104,53 @@ const pluginsSidebar = [
     items: [
       {
         text: '@kubb/cli',
-        link: '/plugins/cli/',
+        link: '/documentation/plugins/cli/',
       },
       {
         text: '@kubb/oas',
-        link: '/plugins/oas/',
+        link: '/documentation/plugins/oas/',
         collapsed: true,
         items: [
           {
             text: 'Infer <img src="/icons/experimental.svg"/> <span class="new">new</span>',
-            link: '/plugins/oas/infer',
+            link: '/documentation/plugins/oas/infer',
           },
         ],
       },
       {
         text: '@kubb/react',
-        link: '/plugins/react/',
+        link: '/documentation/plugins/react/',
         collapsed: true,
         items: [
           {
             text: 'Components',
-            link: '/plugins/react/components/',
+            link: '/documentation/plugins/react/components/',
             items: [
               {
                 text: 'Text',
-                link: '/plugins/react/components/text',
+                link: '/documentation/plugins/react/components/text',
               },
               {
                 text: 'Function',
-                link: '/plugins/react/components/function',
+                link: '/documentation/plugins/react/components/function',
               },
               {
                 text: 'Parser',
-                link: '/plugins/react/components/parser',
+                link: '/documentation/plugins/react/components/parser',
               },
               {
                 text: 'Type',
-                link: '/plugins/react/components/type',
+                link: '/documentation/plugins/react/components/type',
               },
               {
                 text: 'File',
-                link: '/plugins/react/components/file',
+                link: '/documentation/plugins/react/components/file',
               },
             ],
           },
           {
             text: 'Hooks',
-            link: '/plugins/react/hooks/',
+            link: '/documentation/plugins/react/hooks/',
             items: [],
           },
         ],
@@ -198,63 +162,67 @@ const pluginsSidebar = [
     collapsed: false,
     items: [
       {
+        text: 'Documentation',
+        link: '/documentation/plugins/overview',
+      },
+      {
         text: '@kubb/core',
         collapsed: true,
-        link: '/plugins/core/',
+        link: '/documentation/plugins/core/',
         items: [
           {
             text: 'globals.d.ts',
-            link: '/plugins/core/globals',
+            link: '/documentation/plugins/core/globals',
           },
         ],
       },
       {
         text: '@kubb/plugin-oas',
-        link: '/plugins/plugin-oas/',
+        link: '/documentation/plugins/plugin-oas/',
         collapsed: true,
         items: [
           {
             text: 'Hooks',
-            link: '/plugins/plugin-oas/hooks/',
+            link: '/documentation/plugins/plugin-oas/hooks/',
           },
         ],
       },
       {
         text: '@kubb/plugin-client',
-        link: '/plugins/plugin-client/',
+        link: '/documentation/plugins/plugin-client/',
         collapsed: true,
       },
       {
         text: '@kubb/plugin-ts',
-        link: '/plugins/plugin-ts/',
+        link: '/documentation/plugins/plugin-ts/',
       },
       {
         text: '@kubb/plugin-zod',
-        link: '/plugins/plugin-zod/',
+        link: '/documentation/plugins/plugin-zod/',
       },
       {
         text: '@kubb/plugin-zodios',
-        link: '/plugins/plugin-zodios/',
+        link: '/documentation/plugins/plugin-zodios/',
       },
       {
         text: '@kubb/plugin-tanstack-query',
-        link: '/plugins/plugin-tanstack-query/',
+        link: '/documentation/plugins/plugin-tanstack-query/',
       },
       {
         text: '@kubb/plugin-swr',
-        link: '/plugins/plugin-swr/',
+        link: '/documentation/plugins/plugin-swr/',
       },
       {
         text: '@kubb/plugin-faker',
-        link: '/plugins/plugin-faker/',
+        link: '/documentation/plugins/plugin-faker/',
       },
       {
         text: '@kubb/plugin-msw',
-        link: '/plugins/plugin-msw/',
+        link: '/documentation/plugins/plugin-msw/',
       },
       {
         text: '@kubb/plugin-redoc',
-        link: '/plugins/plugin-redoc/',
+        link: '/documentation/plugins/plugin-redoc/',
       },
     ],
   },
@@ -265,21 +233,7 @@ const pluginsSidebar = [
       {
         text: 'unplugin-kubb <span class="new">new</span>',
         collapsed: false,
-        link: '/plugins/unplugin/',
-      },
-    ],
-  },
-  {
-    text: 'Development',
-    collapsed: false,
-    items: [
-      {
-        text: 'Plugin system <img src="/icons/experimental.svg"/>',
-        link: '/plugins/development/system',
-      },
-      {
-        text: 'Plugin core <img src="/icons/experimental.svg"/>',
-        link: '/plugins/development/core',
+        link: '/documentation/plugins/unplugin/',
       },
     ],
   },
@@ -360,17 +314,28 @@ const blogSidebar = [
   },
 ]
 
-const pluginsMenu = [
+const tutorialsSidebar = [
   {
-    text: 'Overview',
-    link: '/plugins/overview',
+    text: 'Basic',
+    link: '/tutorials/basic',
+  },
+  {
+    text: 'Templates',
+    link: '/tutorials/templates',
+  },
+]
+
+const documentationMenu = [
+  {
+    text: 'Config',
+    link: '/documentation/config',
   },
   {
     text: 'Parsers',
     items: [
       {
         text: '@kubb/parser-ts',
-        link: '/plugins/parser-ts/',
+        link: '/documentation/plugins/parser-ts/',
       },
     ],
   },
@@ -379,15 +344,15 @@ const pluginsMenu = [
     items: [
       {
         text: '@kubb/cli',
-        link: '/plugins/cli/',
+        link: '/documentation/plugins/cli/',
       },
       {
         text: '@kubb/oas',
-        link: '/plugins/oas/',
+        link: '/documentation/plugins/oas/',
       },
       {
         text: '@kubb/react',
-        link: '/plugins/react/',
+        link: '/documentation/plugins/react/',
       },
     ],
   },
@@ -395,48 +360,52 @@ const pluginsMenu = [
     text: 'Plugins',
     items: [
       {
+        text: 'Overview',
+        link: '/documentation/plugins/overview',
+      },
+      {
         text: '@kubb/core',
-        link: '/plugins/core/',
+        link: '/documentation/plugins/core/',
       },
       {
         text: '@kubb/plugin-oas',
-        link: '/plugins/plugin-oas/',
+        link: '/documentation/plugins/plugin-oas/',
       },
       {
         text: '@kubb/plugin-client',
-        link: '/plugins/plugin-client/',
+        link: '/documentation/plugins/plugin-client/',
       },
       {
         text: '@kubb/plugin-ts',
-        link: '/plugins/plugin-ts/',
+        link: '/documentation/plugins/plugin-ts/',
       },
       {
         text: '@kubb/plugin-zod',
-        link: '/plugins/plugin-zod/',
+        link: '/documentation/plugins/plugin-zod/',
       },
       {
         text: '@kubb/plugin-zodios',
-        link: '/plugins/plugin-zodios/',
+        link: '/documentation/plugins/plugin-zodios/',
       },
       {
         text: '@kubb/plugin-tanstack-query',
-        link: '/plugins/plugin-tanstack-query/',
+        link: '/documentation/plugins/plugin-tanstack-query/',
       },
       {
         text: '@kubb/plugin-swr',
-        link: '/plugins/plugin-swr/',
+        link: '/documentation/plugins/plugin-swr/',
       },
       {
         text: '@kubb/plugin-faker',
-        link: '/plugins/plugin-faker/',
+        link: '/documentation/plugins/plugin-faker/',
       },
       {
         text: '@kubb/plugin-msw',
-        link: '/plugins/plugin-msw/',
+        link: '/documentation/plugins/plugin-msw/',
       },
       {
         text: '@kubb/plugin-redoc',
-        link: '/plugins/plugin-redoc/',
+        link: '/documentation/plugins/plugin-redoc/',
       },
     ],
   },
@@ -445,26 +414,13 @@ const pluginsMenu = [
     items: [
       {
         text: 'unplugin-kubb',
-        link: '/plugins/unplugin/',
-      },
-    ],
-  },
-  {
-    text: 'Development',
-    items: [
-      {
-        text: 'Plugin system',
-        link: '/plugins/development/system',
-      },
-      {
-        text: 'Plugin core',
-        link: '/plugins/development/core',
+        link: '/documentation/plugins/unplugin/',
       },
     ],
   },
 ]
 
-// https://vitepress.dev/reference/site-config
+// https://vitepress.dev/knowledge-base/site-config
 export default defineConfig({
   lang: 'en-UK',
   title: 'Kubb',
@@ -563,7 +519,7 @@ export default defineConfig({
     ],
   },
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
+    // https://vitepress.dev/knowledge-base/default-theme-config
     logo: {
       src: '/logo.png',
     },
@@ -571,17 +527,16 @@ export default defineConfig({
       provider: 'local',
     },
     nav: [
-      { text: 'Guide', link: '/guide/introduction', activeMatch: 'guide' },
-      { text: 'Config', link: '/config/overview', activeMatch: 'config' },
+      { text: 'Getting started', link: '/getting-started/introduction', activeMatch: 'getting-started' },
       {
-        text: 'Plugins',
-        activeMatch: 'plugins',
-        items: [...(pluginsMenu as any)],
+        text: 'Documentation',
+        activeMatch: 'documentation',
+        items: [...(documentationMenu as any)],
       },
       {
-        text: 'Reference',
-        link: '/reference/overview',
-        activeMatch: 'reference',
+        text: 'Knowledge base',
+        link: '/knowledge-base/overview',
+        activeMatch: 'knowledge-base',
       },
       {
         text: 'Try Out',
@@ -590,6 +545,19 @@ export default defineConfig({
             text: 'Examples',
             link: '/examples/typescript',
             activeMatch: 'examples',
+          },
+          {
+            text: 'Tutorials',
+            items: [
+              {
+                text: 'Basic',
+                link: '/tutorials/basic',
+              },
+              {
+                text: 'Templates',
+                link: '/tutorials/templates',
+              },
+            ],
           },
           { text: 'Playground', link: '/playground' },
         ],
@@ -642,12 +610,12 @@ export default defineConfig({
       pattern: 'https://github.com/kubb-labs/kubb/edit/main/docs/:path',
     },
     sidebar: {
-      '/config': configSidebar,
-      '/guide': guideSidebar,
-      '/plugins': pluginsSidebar,
-      '/reference': referenceSidebar,
+      '/getting-started': gettingStartedSidebar,
+      '/documentation': documentationSidebar,
+      '/knowledge-base': knowledgeBaseSidebar,
       '/examples': examplesSidebar,
       '/blog': blogSidebar,
+      '/tutorials': tutorialsSidebar
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/kubb-labs/kubb' },
