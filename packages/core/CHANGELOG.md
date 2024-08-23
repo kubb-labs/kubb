@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.0.0-alpha.1
+
+### Patch Changes
+
+- [#1127](https://github.com/kubb-labs/kubb/pull/1127) [`9ef278a`](https://github.com/kubb-labs/kubb/commit/9ef278acc3550b96d9477ef3770e5e68fead2cba) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove declare module(not being used)
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.0-alpha.1
+  - @kubb/parser-ts@3.0.0-alpha.1
+  - @kubb/types@3.0.0-alpha.1
+
 ## 3.0.0-alpha.0
 
 ### Major Changes
