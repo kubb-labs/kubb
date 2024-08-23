@@ -1,4 +1,4 @@
-> **`Kubb` is deprecated**. I recommend [Orval](https://github.com/orval-labs/orval) as an alternative. [View the announcement](https://github.com/kubb-labs/kubb/issues/1124).
+> **`Kubb` is searching for maintainers.**
 
 
 <div style="text-align: center;">
