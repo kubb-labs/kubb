@@ -2,7 +2,6 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { PossiblePromise } from '@kubb/types'
 import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
-import type { OptionsPlugins, PluginUnion } from './kubb.ts'
 import type { Logger } from './logger.ts'
 import type { Cache } from './utils/cache.ts'
 
@@ -28,7 +27,7 @@ export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
    * Example: ['@kubb/plugin-oas', { output: false }]
    * Or: pluginOas({ output: false })
    */
-  plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
+  plugins?: Array<Omit<UnknownUserPlugin, 'api'>>
 }
 
 export type InputPath = {
@@ -98,10 +97,6 @@ export type Config<TInput = Input> = {
 }
 
 // plugin
-
-export type UnionPlugins = PluginUnion
-
-export type ObjectPlugin = keyof OptionsPlugins
 
 export type PluginFactoryOptions<
   /**

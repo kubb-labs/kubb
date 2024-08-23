@@ -129,10 +129,5 @@ export type FileMeta = {
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
 
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-ts']: PluginTs
-  }
-}
 // external packages
 export * as Oas from './oas/index.ts'

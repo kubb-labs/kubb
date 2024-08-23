@@ -121,9 +121,3 @@ export type FileMeta = {
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-client']: PluginClient
-  }
-}

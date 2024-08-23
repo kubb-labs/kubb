@@ -142,9 +142,3 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
 }
 
 export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, Options, API, never>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-oas']: PluginOas
-  }
-}

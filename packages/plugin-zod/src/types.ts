@@ -143,9 +143,3 @@ export type FileMeta = {
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-zod']: PluginZod
-  }
-}

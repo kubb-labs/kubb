@@ -87,9 +87,3 @@ export type FileMeta = {
 }
 
 export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOptions, never, ResolvePathOptions>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-msw']: PluginMsw
-  }
-}

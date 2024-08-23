@@ -9,6 +9,3 @@ export { createPlugin } from './plugin.ts'
 export { PluginManager } from './PluginManager.ts'
 export { PromiseManager } from './PromiseManager.ts'
 export type * from './types.ts'
-
-// biome-ignore lint/suspicious/noEmptyInterface: <explanation>
-export interface _Register {}

@@ -128,9 +128,3 @@ export type FileMeta = {
 }
 
 export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, ResolvedOptions, never, ResolvePathOptions>
-
-declare module '@kubb/core' {
-  export interface _Register {
-    ['@kubb/plugin-faker']: PluginFaker
-  }
-}
