@@ -2,8 +2,8 @@ import { PackageManager } from '@kubb/core'
 
 import type { UserConfig } from '@kubb/core'
 
-function isJSONPlugins(plugins: UserConfig['plugins']): plugins is Array<[name: string, options: object]> {
-  return !!(plugins as Array<[name: string, options: object]>[])?.some((plugin) => {
+function isJSONPlugins(plugins: UserConfig['plugins']) {
+  return !!(plugins as any)?.some((plugin: any) => {
     return Array.isArray(plugin) && typeof plugin?.at(0) === 'string'
   })
 }
@@ -22,16 +22,11 @@ async function importPlugin(name: string, options: object): Promise<UserConfig['
 
 export function getPlugins(plugins: UserConfig['plugins']): Promise<UserConfig['plugins']> {
   if (isObjectPlugins(plugins)) {
-    throw new Error('Object plugins are not supported anymore, best to use http://kubb.dev/guide/configure#json')
+    throw new Error('Object plugins are not supported anymore, best to use http://kubb.dev/getting-started/configure#json')
   }
 
   if (isJSONPlugins(plugins)) {
-    const jsonPlugins = plugins as Array<[name: string, options: object]>
-    const promises = jsonPlugins.map((plugin) => {
-      const [name, options = {}] = plugin
-      return importPlugin(name, options)
-    })
-    return Promise.all(promises) as Promise<UserConfig['plugins']>
+    throw new Error('JSON plugins are not supported anymore, best to use http://kubb.dev/getting-started/configure#json')
   }
 
   return Promise.resolve(plugins)
