@@ -7,7 +7,6 @@ import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { pluginZodios } from '@kubb/plugin-zodios'
 
 const schemas = [
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
@@ -93,11 +92,6 @@ const baseConfig = {
       group: { type: 'tag' },
       typed: false,
       typedSchema: true,
-    }),
-    pluginZodios({
-      output: {
-        path: 'zodios.ts',
-      },
     }),
     pluginFaker({
       output: {

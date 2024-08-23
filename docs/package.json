@@ -35,7 +35,6 @@
     "@kubb/plugin-tanstack-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/plugin-zodios": "workspace:*",
     "@kubb/react": "workspace:^",
     "@types/node": "^20.16.1",
     "@types/react": "^18.3.4",

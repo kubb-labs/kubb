@@ -9,7 +9,7 @@ import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
-const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios. '
+const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW and Axios. '
 
 const links: Array<{ url: string; lastmod: number | undefined }> = []
 
@@ -201,10 +201,6 @@ const documentationSidebar = [
         link: '/documentation/plugins/plugin-zod/',
       },
       {
-        text: '@kubb/plugin-zodios',
-        link: '/documentation/plugins/plugin-zodios/',
-      },
-      {
         text: '@kubb/plugin-tanstack-query',
         link: '/documentation/plugins/plugin-tanstack-query/',
       },
@@ -384,10 +380,6 @@ const documentationMenu = [
         link: '/documentation/plugins/plugin-zod/',
       },
       {
-        text: '@kubb/plugin-zodios',
-        link: '/documentation/plugins/plugin-zodios/',
-      },
-      {
         text: '@kubb/plugin-tanstack-query',
         link: '/documentation/plugins/plugin-tanstack-query/',
       },
@@ -506,7 +498,6 @@ export default defineConfig({
       //         '@kubb/plugin-ts': ['../packages/plugin-ts/src/index.ts'],
       //         '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
       //         '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],
-      //         '@kubb/plugin-zodios': ['../packages/plugin-zodios/src/index.ts'],
       //         '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
       //         '@kubb/oas': ['../packages/oas/src/index.ts'],
       //         '@kubb/react': ['../packages/react/src/index.ts'],

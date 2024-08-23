@@ -8,7 +8,7 @@ titleTemplate: Generate SDKs for all your APIs
 hero:
   name: Kubb
   text: Generate SDKs for all your APIs
-  tagline: OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios.
+  tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW and Axios.
   image:
     src: /logo.png
     alt: Kubbb
@@ -53,10 +53,6 @@ features:
       height: 24
     title: Zod
     details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/plugin-zod">Learn more</a></div>
-  - icon:
-      src: ./feature/zodios.svg
-    title: Zodios
-    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin. <div class="learn-more"><a href="/plugins/plugin-zodios">Learn more</a></div>
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker

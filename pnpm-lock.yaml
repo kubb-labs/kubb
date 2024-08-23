@@ -107,9 +107,6 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../packages/plugin-zod
-      '@kubb/plugin-zodios':
-        specifier: workspace:*
-        version: link:../packages/plugin-zodios
       '@kubb/react':
         specifier: workspace:^
         version: link:../packages/react
@@ -167,9 +164,6 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../packages/plugin-zod
-      '@kubb/plugin-zodios':
-        specifier: workspace:*
-        version: link:../packages/plugin-zodios
       '@tanstack/react-query':
         specifier: ^5.52.1
         version: 5.52.1(react@18.3.1)
@@ -182,9 +176,6 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.52.0
         version: 5.52.0(vue@3.4.38(typescript@5.2.2))
-      '@zodios/core':
-        specifier: ^10.9.6
-        version: 10.9.6(axios@1.7.5)(zod@3.23.8)
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -258,9 +249,6 @@ importers:
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
-      '@kubb/plugin-zodios':
-        specifier: workspace:*
-        version: link:../../packages/plugin-zodios
       '@tanstack/query-core':
         specifier: ^5.52.0
         version: 5.52.0
@@ -276,9 +264,6 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.52.0
         version: 5.52.0(vue@3.4.38(typescript@5.2.2))
-      '@zodios/core':
-        specifier: ^10.9.6
-        version: 10.9.6(axios@1.7.5)(zod@3.23.8)
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -775,64 +760,6 @@ importers:
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../../packages/config-ts
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-
-  examples/zodios:
-    dependencies:
-      '@kubb/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@kubb/plugin-client':
-        specifier: workspace:*
-        version: link:../../packages/plugin-client
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../../packages/plugin-oas
-      '@kubb/plugin-zod':
-        specifier: workspace:*
-        version: link:../../packages/plugin-zod
-      '@kubb/plugin-zodios':
-        specifier: workspace:*
-        version: link:../../packages/plugin-zodios
-      '@zodios/core':
-        specifier: ^10.9.6
-        version: 10.9.6(axios@1.7.5)(zod@3.23.8)
-      '@zodios/express':
-        specifier: ^10.6.1
-        version: 10.6.1(@zodios/core@10.9.6(axios@1.7.5)(zod@3.23.8))(express@4.19.2)(zod@3.23.8)
-      axios:
-        specifier: ^1.7.5
-        version: 1.7.5
-      cors:
-        specifier: ^2.8.5
-        version: 2.8.5
-      express:
-        specifier: ^4.19.2
-        version: 4.19.2
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
-    devDependencies:
-      '@kubb/config-ts':
-        specifier: workspace:*
-        version: link:../../packages/config-ts
-      '@types/cors':
-        specifier: ^2.8.17
-        version: 2.8.17
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
-      tsup:
-        specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@20.16.1))(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)(yaml@2.4.5)
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1650,55 +1577,6 @@ importers:
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@20.16.1))(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)(yaml@2.4.5)
-
-  packages/plugin-zodios:
-    dependencies:
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
-      '@kubb/fs':
-        specifier: workspace:*
-        version: link:../fs
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
-      '@kubb/plugin-zod':
-        specifier: workspace:*
-        version: link:../plugin-zod
-      '@kubb/react':
-        specifier: workspace:*
-        version: link:../react
-    devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
-      '@kubb/config-ts':
-        specifier: workspace:*
-        version: link:../config-ts
-      '@kubb/config-tsup':
-        specifier: workspace:*
-        version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.4
-        version: 18.3.4
-      prettier:
-        specifier: ^3.3.3
-        version: 3.3.3
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      tsup:
-        specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@20.16.1))(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)(yaml@2.4.5)
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
 
   packages/react:
     dependencies:
@@ -3384,9 +3262,6 @@ packages:
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
-  '@types/cors@2.8.17':
-    resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
-
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -3732,19 +3607,6 @@ packages:
 
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
-
-  '@zodios/core@10.9.6':
-    resolution: {integrity: sha512-aH4rOdb3AcezN7ws8vDgBfGboZMk2JGGzEq/DtW65MhnRxyTGRuLJRWVQ/2KxDgWvV2F5oTkAS+5pnjKbl0n+A==}
-    peerDependencies:
-      axios: ^0.x || ^1.0.0
-      zod: ^3.x
-
-  '@zodios/express@10.6.1':
-    resolution: {integrity: sha512-FNgOq8mvwvWP5B2howMKGm6EPp6i/0XFAsQnX5Ov3MLbanzD1oE4WJtBkTL3cmJYvD0nyykbWSeHOh51bCmhUA==}
-    peerDependencies:
-      '@zodios/core': '>=10.4.4 <11.0.0'
-      express: 4.x
-      zod: ^3.x
 
   '@zxing/text-encoding@0.9.0':
     resolution: {integrity: sha512-U/4aVJ2mxI0aDNI8Uq0wEhMgY+u4CNtEb0om3+y3+niDAsoTCOB33UF0sxpzqzdqXLqmvc+vZyAt4O8pPdfkwA==}
@@ -4197,10 +4059,6 @@ packages:
 
   core-js@3.37.1:
     resolution: {integrity: sha512-Xn6qmxrQZyB0FFY8E3bgRXei3lWDJHhvI+u0q9TKIYM49G8pAr0FgnnrFRAmsbptZL1yxRADVXn+x5AGsbBfyw==}
-
-  cors@2.8.5:
-    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
-    engines: {node: '>= 0.10'}
 
   cosmiconfig@9.0.0:
     resolution: {integrity: sha512-itvL5h8RETACmOTFc4UfIyB2RfEHi71Ax6E/PivVxq9NseKbOWpeyHEOIbmAw1rs8Ak0VursQNww7lf7YtUwzg==}
@@ -8771,10 +8629,6 @@ snapshots:
 
   '@types/cookie@0.6.0': {}
 
-  '@types/cors@2.8.17':
-    dependencies:
-      '@types/node': 20.16.1
-
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 0.7.34
@@ -9228,17 +9082,6 @@ snapshots:
   '@xtuc/ieee754@1.2.0': {}
 
   '@xtuc/long@4.2.2': {}
-
-  '@zodios/core@10.9.6(axios@1.7.5)(zod@3.23.8)':
-    dependencies:
-      axios: 1.7.5
-      zod: 3.23.8
-
-  '@zodios/express@10.6.1(@zodios/core@10.9.6(axios@1.7.5)(zod@3.23.8))(express@4.19.2)(zod@3.23.8)':
-    dependencies:
-      '@zodios/core': 10.9.6(axios@1.7.5)(zod@3.23.8)
-      express: 4.19.2
-      zod: 3.23.8
 
   '@zxing/text-encoding@0.9.0':
     optional: true
@@ -9730,11 +9573,6 @@ snapshots:
       is-what: 4.1.16
 
   core-js@3.37.1: {}
-
-  cors@2.8.5:
-    dependencies:
-      object-assign: 4.1.1
-      vary: 1.1.2
 
   cosmiconfig@9.0.0(typescript@5.5.4):
     dependencies:

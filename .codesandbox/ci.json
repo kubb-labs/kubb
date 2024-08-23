@@ -13,7 +13,6 @@
     "packages/swagger-tanstack-query",
     "packages/plugin-ts",
     "packages/plugin-zod",
-    "packages/plugin-zodios",
     "packages/parser-ts",
     "packages/react"
   ],
@@ -32,7 +31,6 @@
     "/examples/vue-query",
     "/examples/vue-query-v5",
     "/examples/zod",
-    "/examples/zodios",
     "/examples/client"
   ],
   "node": "18",
