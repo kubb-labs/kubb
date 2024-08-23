@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 

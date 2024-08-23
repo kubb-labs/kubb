@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
 type DeletePet = {
@@ -29,9 +29,9 @@ export function useDeletePetHook(
     mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
     client?: DeletePet['client']['parameters']
   } = {},
-): UseMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeletePet['response'], DeletePet['error'], never>({
+  return useMutation({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',

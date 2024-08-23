@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginClient } from '@kubb/swagger-client'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginSwr } from '@kubb/swagger-swr'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
-import { pluginZod } from '@kubb/swagger-zod'
-import { pluginZodios } from '@kubb/swagger-zodios'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginSwr } from '@kubb/plugin-swr'
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { pluginZodios } from '@kubb/plugin-zodios'
 
 export default defineConfig(() => {
   return {

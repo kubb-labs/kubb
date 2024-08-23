@@ -5,7 +5,7 @@
 ___ "types": ["@kubb/core/globals"]
 }
 * @example implementation
-type SwaggerPlugin = Kubb.Plugins["@kubb/swagger"]
+type SwaggerPlugin = Kubb.Plugins["@kubb/plugin-oas"]
 const swaggerPlugin: SwaggerPlugin={
 ___ validate: true
 }
@@ -30,14 +30,14 @@ declare namespace Kubb {
   type Plugins = {
     ['@kubb/plugin-oas']: import('@kubb/plugin-Oas').PluginOas
     ['@kubb/plugin-redoc']: import('@kubb/plugin-redoc').PluginRedoc
-    ['@kubb/swagger-client']: import('@kubb/swagger-client').PluginClient
-    ['@kubb/swagger-faker']: import('@kubb/swagger-faker').PluginFaker
-    ['@kubb/swagger-swr']: import('@kubb/swagger-swr').PluginSwr
-    ['@kubb/swagger-tanstack-query']: import('@kubb/swagger-tanstack-query').PluginTanstackQuery
-    ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginTs
-    ['@kubb/swagger-zod']: import('@kubb/swagger-zod').PluginZod
-    ['@kubb/swagger-zodios']: import('@kubb/swagger-zodios').PluginZodios
-    ['@kubb/swagger-msw']: import('@kubb/swagger-msw').PluginMsw
+    ['@kubb/plugin-client']: import('@kubb/plugin-client').PluginClient
+    ['@kubb/plugin-faker']: import('@kubb/plugin-faker').PluginFaker
+    ['@kubb/plugin-swr']: import('@kubb/plugin-swr').PluginSwr
+    ['@kubb/plugin-tanstack-query']: import('@kubb/plugin-tanstack-query').PluginTanstackQuery
+    ['@kubb/plugin-ts']: import('@kubb/plugin-ts').PluginTs
+    ['@kubb/plugin-zod']: import('@kubb/plugin-zod').PluginZod
+    ['@kubb/plugin-zodios']: import('@kubb/plugin-zodios').PluginZodios
+    ['@kubb/plugin-msw']: import('@kubb/plugin-msw').PluginMsw
   }
   type OptionsPlugins = { [K in keyof Plugins]: Plugins[K]['options'] }
 

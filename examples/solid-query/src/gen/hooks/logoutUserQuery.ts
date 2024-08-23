@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
-import { createQuery } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
@@ -19,11 +19,9 @@ type LogoutUser = {
 }
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
+export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
@@ -33,7 +31,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs out current logged in user session
@@ -49,11 +47,12 @@ export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = Log
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = createQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
-    ...logoutUserQueryOptions<TData, TQueryData>(clientOptions),
+  const query = createQuery(() => ({
+    ...(logoutUserQueryOptions(clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
-  }) as CreateQueryResult<TData, LogoutUser['error']> & {
+    initialData: undefined,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+  })) as CreateQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

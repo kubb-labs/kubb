@@ -1,11 +1,10 @@
-import client from '@kubb/swagger-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
   QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
   InfiniteData,
@@ -27,12 +26,9 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
-  params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
@@ -43,7 +39,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -65,10 +61,10 @@ export function findPetsByTagsQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = createQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
-    ...findPetsByTagsQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = createQuery({
+    ...(findPetsByTagsQueryOptions(params, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
   }) as CreateQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
@@ -77,12 +73,9 @@ export function findPetsByTagsQuery<
 }
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
-export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
-  params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
@@ -97,7 +90,10 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
       })
       return res.data
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -119,10 +115,10 @@ export function findPetsByTagsQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
-  const query = createInfiniteQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
-    ...findPetsByTagsInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = createInfiniteQuery({
+    ...(findPetsByTagsInfiniteQueryOptions(params, clientOptions) as unknown as CreateInfiniteQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateInfiniteQueryOptions, 'queryKey'>),
   }) as CreateInfiniteQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }

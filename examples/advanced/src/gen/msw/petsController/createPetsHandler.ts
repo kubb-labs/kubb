@@ -1,6 +1,10 @@
-import { rest } from 'msw'
+import { http } from 'msw'
 import { createCreatePetsMutationResponse } from '../../mocks/petsController/createCreatePets'
 
-export const createPetsHandler = rest.post('*/pets/:uuid', function handler(req, res, ctx) {
-  return res(ctx.json(createCreatePetsMutationResponse()))
+export const createPetsHandler = http.post('*/pets/:uuid', function handler(info) {
+  return new Response(JSON.stringify(createCreatePetsMutationResponse()), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 })

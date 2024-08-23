@@ -1,6 +1,10 @@
-import { rest } from 'msw'
+import { http } from 'msw'
 import { createCreateUserMutationResponse } from '../../mocks/userMocks/createCreateUser'
 
-export const createUserHandler = rest.post('*/user', function handler(req, res, ctx) {
-  return res(ctx.json(createCreateUserMutationResponse()))
+export const createUserHandler = http.post('*/user', function handler(info) {
+  return new Response(JSON.stringify(createCreateUserMutationResponse()), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 })

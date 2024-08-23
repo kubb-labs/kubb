@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker'
 import type { Order } from '../models/Order'
 
 export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
+  faker.seed([220])
   return {
     ...{
       id: faker.number.int(),

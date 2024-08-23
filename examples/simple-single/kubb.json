@@ -17,13 +17,13 @@
       }
     ],
     [
-      "@kubb/swagger-ts",
+      "@kubb/plugin-ts",
       {
         "output": "models"
       }
     ],
     [
-      "@kubb/swagger-tanstack-query",
+      "@kubb/plugin-tanstack-query",
       {
         "output": "hooks"
       }

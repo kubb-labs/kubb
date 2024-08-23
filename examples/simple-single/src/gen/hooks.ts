@@ -1,5 +1,5 @@
-import client from '@kubb/swagger-client/client'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation, useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -66,7 +66,7 @@ import type {
   DeleteUser400,
   DeleteUser404,
 } from './models'
-import type { UseMutationOptions, UseMutationResult, UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from '@tanstack/react-query'
+import type { UseMutationOptions, QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
 type UpdatePet = {
@@ -92,9 +92,9 @@ export function useUpdatePet(
     mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
     client?: UpdatePet['client']['parameters']
   } = {},
-): UseMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
@@ -132,9 +132,9 @@ export function useAddPet(
     mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
     client?: AddPet['client']['parameters']
   } = {},
-): UseMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
@@ -164,12 +164,9 @@ type FindPetsByStatus = {
 }
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'], TQueryData = FindPetsByStatus['response']>(
-  params?: FindPetsByStatus['queryParams'],
-  options: FindPetsByStatus['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
@@ -180,7 +177,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple status values can be provided with comma separated strings
@@ -194,7 +191,7 @@ export function useFindPetsByStatus<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: {
-    query?: Partial<UseBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
 ): UseQueryResult<TData, FindPetsByStatus['error']> & {
@@ -202,11 +199,55 @@ export function useFindPetsByStatus<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-  const query = useQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
-    ...findPetsByStatusQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = useQuery({
+    ...(findPetsByStatusQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatus['queryParams']) =>
+  [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatusSuspenseQueryKey>
+export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
+  const queryKey = findPetsByStatusSuspenseQueryKey(params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
+        method: 'get',
+        url: '/pet/findByStatus',
+        params,
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @description Multiple status values can be provided with comma separated strings
+ * @summary Finds Pets by status
+ * @link /pet/findByStatus
+ */
+export function useFindPetsByStatusSuspense<TData = FindPetsByStatus['response'], TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey>(
+  params?: FindPetsByStatus['queryParams'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>>
+    client?: FindPetsByStatus['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
+  const query = useSuspenseQuery({
+    ...(findPetsByStatusSuspenseQueryOptions(params, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -229,12 +270,9 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
-  params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
@@ -245,7 +283,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -259,7 +297,7 @@ export function useFindPetsByTags<
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: Partial<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): UseQueryResult<TData, FindPetsByTags['error']> & {
@@ -267,11 +305,54 @@ export function useFindPetsByTags<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = useQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
-    ...findPetsByTagsQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = useQuery({
+    ...(findPetsByTagsQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByTags['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
+export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
+  const queryKey = findPetsByTagsSuspenseQueryKey(params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
+        method: 'get',
+        url: '/pet/findByTags',
+        params,
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+ * @summary Finds Pets by tags
+ * @link /pet/findByTags
+ */
+export function useFindPetsByTagsSuspense<TData = FindPetsByTags['response'], TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
+  params?: FindPetsByTags['queryParams'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>>
+    client?: FindPetsByTags['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+  const query = useSuspenseQuery({
+    ...(findPetsByTagsSuspenseQueryOptions(params, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -294,12 +375,9 @@ type GetPetById = {
 }
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
-export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
-  petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetPetById['data'], GetPetById['error']>({
@@ -309,7 +387,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a single pet
@@ -319,7 +397,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: Partial<UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetById['error']> & {
@@ -327,11 +405,53 @@ export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPe
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-  const query = useQuery<GetPetById['data'], GetPetById['error'], TData, any>({
-    ...getPetByIdQueryOptions<TData, TQueryData>(petId, clientOptions),
+  const query = useQuery({
+    ...(getPetByIdQueryOptions(petId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetPetById['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
+export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
+  const queryKey = getPetByIdSuspenseQueryKey(petId)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<GetPetById['data'], GetPetById['error']>({
+        method: 'get',
+        url: `/pet/${petId}`,
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * @link /pet/:petId
+ */
+export function useGetPetByIdSuspense<TData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
+  petId: GetPetByIdPathParams['petId'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
+    client?: GetPetById['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetPetById['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
+  const query = useSuspenseQuery({
+    ...(getPetByIdSuspenseQueryOptions(petId, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -363,9 +483,9 @@ export function useUpdatePetWithForm(
     mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
     client?: UpdatePetWithForm['client']['parameters']
   } = {},
-): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], never>({
+  return useMutation({
     mutationFn: async () => {
       const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
         method: 'post',
@@ -405,9 +525,9 @@ export function useDeletePet(
     mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
     client?: DeletePet['client']['parameters']
   } = {},
-): UseMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeletePet['response'], DeletePet['error'], never>({
+  return useMutation({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
@@ -446,9 +566,9 @@ export function useUploadFile(
     mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
     client?: UploadFile['client']['parameters']
   } = {},
-): UseMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
@@ -480,11 +600,9 @@ type GetInventory = {
 }
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
-export function getInventoryQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
-  options: GetInventory['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
+export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
@@ -494,7 +612,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a map of status codes to quantities
@@ -503,7 +621,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: Partial<UseBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetInventory['error']> & {
@@ -511,11 +629,52 @@ export function useGetInventory<TData = GetInventory['response'], TQueryData = G
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-  const query = useQuery<GetInventory['data'], GetInventory['error'], TData, any>({
-    ...getInventoryQueryOptions<TData, TQueryData>(clientOptions),
+  const query = useQuery({
+    ...(getInventoryQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetInventory['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const getInventorySuspenseQueryKey = () => [{ url: '/store/inventory' }] as const
+export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspenseQueryKey>
+export function getInventorySuspenseQueryOptions(options: GetInventory['client']['parameters'] = {}) {
+  const queryKey = getInventorySuspenseQueryKey()
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<GetInventory['data'], GetInventory['error']>({
+        method: 'get',
+        url: '/store/inventory',
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @description Returns a map of status codes to quantities
+ * @summary Returns pet inventories by status
+ * @link /store/inventory
+ */
+export function useGetInventorySuspense<TData = GetInventory['response'], TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
+    client?: GetInventory['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetInventory['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
+  const query = useSuspenseQuery({
+    ...(getInventorySuspenseQueryOptions(clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -546,9 +705,9 @@ export function usePlaceOrder(
     mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
     client?: PlaceOrder['client']['parameters']
   } = {},
-): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
@@ -586,9 +745,9 @@ export function usePlaceOrderPatch(
     mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
     client?: PlaceOrderPatch['client']['parameters']
   } = {},
-): UseMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
@@ -618,12 +777,9 @@ type GetOrderById = {
 }
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
-export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
+export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetOrderById['data'], GetOrderById['error']>({
@@ -633,7 +789,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -643,7 +799,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: Partial<UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetOrderById['error']> & {
@@ -651,11 +807,54 @@ export function useGetOrderById<TData = GetOrderById['response'], TQueryData = G
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-  const query = useQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
-    ...getOrderByIdQueryOptions<TData, TQueryData>(orderId, clientOptions),
+  const query = useQuery({
+    ...(getOrderByIdQueryOptions(orderId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetOrderById['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
+  [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
+export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
+  const queryKey = getOrderByIdSuspenseQueryKey(orderId)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<GetOrderById['data'], GetOrderById['error']>({
+        method: 'get',
+        url: `/store/order/${orderId}`,
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
+ * @summary Find purchase order by ID
+ * @link /store/order/:orderId
+ */
+export function useGetOrderByIdSuspense<TData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
+  orderId: GetOrderByIdPathParams['orderId'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
+    client?: GetOrderById['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetOrderById['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey(orderId)
+  const query = useSuspenseQuery({
+    ...(getOrderByIdSuspenseQueryOptions(orderId, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -687,9 +886,9 @@ export function useDeleteOrder(
     mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
     client?: DeleteOrder['client']['parameters']
   } = {},
-): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
+  return useMutation({
     mutationFn: async () => {
       const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',
@@ -726,9 +925,9 @@ export function useCreateUser(
     mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
     client?: CreateUser['client']['parameters']
   } = {},
-): UseMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
@@ -766,9 +965,9 @@ export function useCreateUsersWithListInput(
     mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
     client?: CreateUsersWithListInput['client']['parameters']
   } = {},
-): UseMutationResult<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
@@ -798,12 +997,9 @@ type LoginUser = {
 }
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
-export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
-  params?: LoginUser['queryParams'],
-  options: LoginUser['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
+export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
@@ -814,7 +1010,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs user into the system
@@ -823,7 +1019,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
-    query?: Partial<UseBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LoginUser['error']> & {
@@ -831,11 +1027,53 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-  const query = useQuery<LoginUser['data'], LoginUser['error'], TData, any>({
-    ...loginUserQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = useQuery({
+    ...(loginUserQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LoginUser['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
+export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
+  const queryKey = loginUserSuspenseQueryKey(params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<LoginUser['data'], LoginUser['error']>({
+        method: 'get',
+        url: '/user/login',
+        params,
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @summary Logs user into the system
+ * @link /user/login
+ */
+export function useLoginUserSuspense<TData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
+  params?: LoginUser['queryParams'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>>
+    client?: LoginUser['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, LoginUser['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
+  const query = useSuspenseQuery({
+    ...(loginUserSuspenseQueryOptions(params, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -858,11 +1096,9 @@ type LogoutUser = {
 }
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
+export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
@@ -872,7 +1108,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs out current logged in user session
@@ -880,7 +1116,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  */
 export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LogoutUser['error']> & {
@@ -888,11 +1124,51 @@ export function useLogoutUser<TData = LogoutUser['response'], TQueryData = Logou
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = useQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
-    ...logoutUserQueryOptions<TData, TQueryData>(clientOptions),
+  const query = useQuery({
+    ...(logoutUserQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LogoutUser['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const logoutUserSuspenseQueryKey = () => [{ url: '/user/logout' }] as const
+export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQueryKey>
+export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
+  const queryKey = logoutUserSuspenseQueryKey()
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<LogoutUser['data'], LogoutUser['error']>({
+        method: 'get',
+        url: '/user/logout',
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @summary Logs out current logged in user session
+ * @link /user/logout
+ */
+export function useLogoutUserSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
+    client?: LogoutUser['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, LogoutUser['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
+  const query = useSuspenseQuery({
+    ...(logoutUserSuspenseQueryOptions(clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -915,12 +1191,9 @@ type GetUserByName = {
 }
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQueryData = GetUserByName['response']>(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetUserByName['data'], GetUserByName['error']>({
@@ -930,7 +1203,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Get user by user name
@@ -939,7 +1212,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: Partial<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetUserByName['error']> & {
@@ -947,11 +1220,53 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = useQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
-    ...getUserByNameQueryOptions<TData, TQueryData>(username, clientOptions),
+  const query = useQuery({
+    ...(getUserByNameQueryOptions(username, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetUserByName['error']> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
+  [{ url: '/user/:username', params: { username: username } }] as const
+export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
+export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
+  const queryKey = getUserByNameSuspenseQueryKey(username)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const res = await client<GetUserByName['data'], GetUserByName['error']>({
+        method: 'get',
+        url: `/user/${username}`,
+        ...options,
+      })
+      return res.data
+    },
+  })
+}
+/**
+ * @summary Get user by user name
+ * @link /user/:username
+ */
+export function useGetUserByNameSuspense<TData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: Partial<UseSuspenseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetUserByName['error']> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
+  const query = useSuspenseQuery({
+    ...(getUserByNameSuspenseQueryOptions(username, clientOptions) as unknown as UseSuspenseQueryOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -983,9 +1298,9 @@ export function useUpdateUser(
     mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
     client?: UpdateUser['client']['parameters']
   } = {},
-): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
@@ -1024,9 +1339,9 @@ export function useDeleteUser(
     mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
     client?: DeleteUser['client']['parameters']
   } = {},
-): UseMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteUser['response'], DeleteUser['error'], never>({
+  return useMutation({
     mutationFn: async () => {
       const res = await client<DeleteUser['data'], DeleteUser['error'], DeleteUser['request']>({
         method: 'delete',

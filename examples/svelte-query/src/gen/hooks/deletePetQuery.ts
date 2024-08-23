@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { createMutation } from '@tanstack/svelte-query'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
 type DeletePet = {
@@ -29,9 +29,9 @@ export function deletePetQuery(
     mutation?: CreateMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
     client?: DeletePet['client']['parameters']
   } = {},
-): CreateMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<DeletePet['response'], DeletePet['error'], never>({
+  return createMutation({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',

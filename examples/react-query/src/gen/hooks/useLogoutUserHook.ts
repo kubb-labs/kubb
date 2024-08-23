@@ -1,15 +1,7 @@
-import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
@@ -25,13 +17,11 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
-export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
+export const logoutUserQueryKey = () => ['v5', { url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
+export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
@@ -41,7 +31,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs out current logged in user session
@@ -49,7 +39,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  */
 export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LogoutUser['error']> & {
@@ -57,25 +47,23 @@ export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = L
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = useQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
-    ...logoutUserQueryOptions<TData, TQueryData>(clientOptions),
+  const query = useQuery({
+    ...(logoutUserQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
-export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
-export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
-  options: LogoutUser['client']['parameters'] = {},
-): WithRequired<UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
-  const queryKey = logoutUserInfiniteQueryKey()
-  return {
+export const logoutUserSuspenseQueryKey = () => ['v5', { url: '/user/logout' }] as const
+export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQueryKey>
+export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
+  const queryKey = logoutUserSuspenseQueryKey()
+  return queryOptions({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async () => {
       const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
         url: '/user/logout',
@@ -83,31 +71,27 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function useLogoutUserHookInfinite<
-  TData = InfiniteData<LogoutUser['response']>,
-  TQueryData = LogoutUser['response'],
-  TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
->(
+export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
   options: {
-    query?: Partial<UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
     client?: LogoutUser['client']['parameters']
   } = {},
-): UseInfiniteQueryResult<TData, LogoutUser['error']> & {
+): UseSuspenseQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? logoutUserInfiniteQueryKey()
-  const query = useInfiniteQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
-    ...logoutUserInfiniteQueryOptions<TData, TQueryData>(clientOptions),
+  const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
+  const query = useSuspenseQuery({
+    ...(logoutUserSuspenseQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, LogoutUser['error']> & {
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+  }) as UseSuspenseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

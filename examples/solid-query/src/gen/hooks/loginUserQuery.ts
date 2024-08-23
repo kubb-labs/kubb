@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
-import { createQuery } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -19,12 +19,9 @@ type LoginUser = {
 }
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
-export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
-  params?: LoginUser['queryParams'],
-  options: LoginUser['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
+export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<LoginUser['data'], LoginUser['error']>({
@@ -35,7 +32,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs user into the system
@@ -52,11 +49,12 @@ export function loginUserQuery<TData = LoginUser['response'], TQueryData = Login
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-  const query = createQuery<LoginUser['data'], LoginUser['error'], TData, any>({
-    ...loginUserQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = createQuery(() => ({
+    ...(loginUserQueryOptions(params, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
-  }) as CreateQueryResult<TData, LoginUser['error']> & {
+    initialData: undefined,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+  })) as CreateQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

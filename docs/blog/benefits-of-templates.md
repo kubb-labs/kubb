@@ -71,7 +71,7 @@ We saw a lot of opportunities in this approach, so we started with a small POC f
 
 ## Examples
 
-### @kubb/swagger-client
+### @kubb/plugin
 
 Below you can find an example of our previous templates. The code is not easy to read. An improvement could be to split the code up, but this will have to be paired with prop drilling, which is something we wish to avoid.<br/>
 

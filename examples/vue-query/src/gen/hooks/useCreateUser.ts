@@ -1,8 +1,7 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {
@@ -25,12 +24,12 @@ type CreateUser = {
  */
 export function useCreateUser(
   options: {
-    mutation?: VueMutationObserverOptions<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>
+    mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>
     client?: CreateUser['client']['parameters']
   } = {},
-): UseMutationReturnType<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',

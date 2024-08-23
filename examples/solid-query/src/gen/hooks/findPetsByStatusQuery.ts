@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
-import { createQuery } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, WithRequired } from '@tanstack/solid-query'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {
@@ -19,12 +19,9 @@ type FindPetsByStatus = {
 }
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'], TQueryData = FindPetsByStatus['response']>(
-  params?: FindPetsByStatus['queryParams'],
-  options: FindPetsByStatus['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
+export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
@@ -35,7 +32,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple status values can be provided with comma separated strings
@@ -57,11 +54,12 @@ export function findPetsByStatusQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-  const query = createQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
-    ...findPetsByStatusQueryOptions<TData, TQueryData>(params, clientOptions),
+  const query = createQuery(() => ({
+    ...(findPetsByStatusQueryOptions(params, clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
-  }) as CreateQueryResult<TData, FindPetsByStatus['error']> & {
+    initialData: undefined,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+  })) as CreateQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

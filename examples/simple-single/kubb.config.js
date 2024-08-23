@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
-import { pluginTs } from '@kubb/swagger-ts'
-import { pluginZod } from '@kubb/swagger-zod'
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 import { pluginRedoc } from '@kubb/plugin-redoc'
 
 export default defineConfig([

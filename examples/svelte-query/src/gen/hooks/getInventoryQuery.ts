@@ -1,11 +1,10 @@
-import client from '@kubb/swagger-client/client'
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
   QueryKey,
-  WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
   InfiniteData,
@@ -27,11 +26,9 @@ type GetInventory = {
 }
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
-export function getInventoryQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
-  options: GetInventory['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
+export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
@@ -41,7 +38,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a map of status codes to quantities
@@ -58,10 +55,10 @@ export function getInventoryQuery<TData = GetInventory['response'], TQueryData =
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-  const query = createQuery<GetInventory['data'], GetInventory['error'], TData, any>({
-    ...getInventoryQueryOptions<TData, TQueryData>(clientOptions),
+  const query = createQuery({
+    ...(getInventoryQueryOptions(clientOptions) as unknown as CreateBaseQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
   }) as CreateQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
@@ -70,11 +67,9 @@ export function getInventoryQuery<TData = GetInventory['response'], TQueryData =
 }
 export const getInventoryInfiniteQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryInfiniteQueryKey = ReturnType<typeof getInventoryInfiniteQueryKey>
-export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
-  options: GetInventory['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
+export function getInventoryInfiniteQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryInfiniteQueryKey()
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
@@ -84,7 +79,10 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
       })
       return res.data
     },
-  }
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+  })
 }
 /**
  * @description Returns a map of status codes to quantities
@@ -105,10 +103,10 @@ export function getInventoryQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryInfiniteQueryKey()
-  const query = createInfiniteQuery<GetInventory['data'], GetInventory['error'], TData, any>({
-    ...getInventoryInfiniteQueryOptions<TData, TQueryData>(clientOptions),
+  const query = createInfiniteQuery({
+    ...(getInventoryInfiniteQueryOptions(clientOptions) as unknown as CreateInfiniteQueryOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<CreateInfiniteQueryOptions, 'queryKey'>),
   }) as CreateInfiniteQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }

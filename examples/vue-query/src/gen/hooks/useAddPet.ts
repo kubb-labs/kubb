@@ -1,8 +1,7 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {
@@ -25,12 +24,12 @@ type AddPet = {
  */
 export function useAddPet(
   options: {
-    mutation?: VueMutationObserverOptions<AddPet['response'], AddPet['error'], AddPet['request'], unknown>
+    mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request'], unknown>
     client?: AddPet['client']['parameters']
   } = {},
-): UseMutationReturnType<AddPet['response'], AddPet['error'], AddPet['request'], unknown> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<AddPet['response'], AddPet['error'], AddPet['request'], unknown>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',

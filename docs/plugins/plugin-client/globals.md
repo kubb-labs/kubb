@@ -1,0 +1,59 @@
+---
+layout: doc
+
+title: Globals.d.ts
+outline: deep
+---
+
+# Globals.d.ts
+
+## Features
+
+- `AXIOS_BASE` for Axios's `baseURL`
+- `AXIOS_HEADERS` for Axios's `headers`
+
+See [FileManager#getEnvSource](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts) for more information about how this works in the background.
+
+::: code-group
+<<< @/../packages/plugin-client/src/types.ts{12-15}
+
+<<< @/../packages/plugin-client/globals.d.ts{22-24}
+
+:::
+
+### TypeScript
+
+To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env` type being set), add `@kubb/plugin/globals` to your tsconfig.json:
+
+::: code-group
+
+```typescript [tsconfig.json]
+{
+  "compilerOptions": {
+    "types": [
+      "@kubb/plugin-client/globals" // [!code ++]
+    ]
+  }
+}
+```
+
+:::
+
+### Usage
+
+::: code-group
+
+<<< @/../packages/core/src/FileManager.ts{56-97}
+
+:::
+
+## Notes
+
+This feature could be useful for:
+
+- Types support for 'axios' options
+- Prototyping
+
+## Links
+
+- [FileManager#getEnvSource](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/FileManager.ts)

@@ -1,4 +1,4 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type {
@@ -7,8 +7,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
@@ -33,12 +32,12 @@ export function useUpdatePetWithForm(
   refPetId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   refParams?: MaybeRef<UpdatePetWithFormQueryParams>,
   options: {
-    mutation?: VueMutationObserverOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown>
+    mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown>
     client?: UpdatePetWithForm['client']['parameters']
   } = {},
-): UseMutationReturnType<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown>({
+  return useMutation({
     mutationFn: async (data) => {
       const petId = unref(refPetId)
       const params = unref(refParams)

@@ -1,9 +1,8 @@
-import client from '@kubb/swagger-client/client'
-import { useQuery } from '@tanstack/vue-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
-import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
@@ -22,12 +21,9 @@ type GetPetById = {
 }
 export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
-export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
-  refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
-  options: GetPetById['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
+export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['petId']>, options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(refPetId)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const petId = unref(refPetId)
@@ -38,7 +34,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a single pet
@@ -48,18 +44,16 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   refPetId: GetPetByIdPathParams['petId'],
   options: {
-    query?: Partial<VueQueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetPetById['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetPetById['error']> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(refPetId)
-  const query = useQuery<GetPetById['data'], GetPetById['error'], TData, any>({
-    ...getPetByIdQueryOptions<TData, TQueryData>(refPetId, clientOptions),
+  const query = useQuery({
+    ...(getPetByIdQueryOptions(refPetId, clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }

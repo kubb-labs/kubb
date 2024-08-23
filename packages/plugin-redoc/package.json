@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "2.25.1",
+  "version": "3.0.0-alpha.0",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -75,7 +75,7 @@
     "@kubb/react": "workspace:*"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",

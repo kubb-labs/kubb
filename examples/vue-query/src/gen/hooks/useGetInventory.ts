@@ -1,8 +1,7 @@
-import client from '@kubb/swagger-client/client'
-import { useQuery } from '@tanstack/vue-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
-import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -20,11 +19,9 @@ type GetInventory = {
 }
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
-export function getInventoryQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
-  options: GetInventory['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
+export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
       const res = await client<GetInventory['data'], GetInventory['error']>({
@@ -34,7 +31,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Returns a map of status codes to quantities
@@ -43,18 +40,16 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: Partial<VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetInventory['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetInventory['error']> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-  const query = useQuery<GetInventory['data'], GetInventory['error'], TData, any>({
-    ...getInventoryQueryOptions<TData, TQueryData>(clientOptions),
+  const query = useQuery({
+    ...(getInventoryQueryOptions(clientOptions) as unknown as QueryObserverOptions),
     queryKey,
-    ...queryOptions,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }

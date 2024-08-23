@@ -22,8 +22,9 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
     "axios": "^1.7.3",
     "tsup": "^8.2.4"
   },
@@ -32,7 +33,7 @@
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=8.15.0"
   },
   "msw": {

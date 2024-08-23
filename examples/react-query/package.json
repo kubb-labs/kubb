@@ -24,15 +24,17 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-tanstack-query": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
-    "@tanstack/react-query": "^4.36.1",
-    "@tanstack/react-query-devtools": "^4.36.1",
+    "@kubb/plugin-react-query": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/react": "workspace:*",
+    "@tanstack/react-query": "^5.51.23",
+    "@tanstack/react-query-devtools": "^5.51.23",
     "axios": "^1.7.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "unplugin-kubb": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
@@ -45,7 +47,7 @@
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=8.15.0"
   }
 }

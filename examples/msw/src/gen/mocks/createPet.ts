@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker'
 import type { Pet } from '../models/Pet'
 
 export function createPet(data: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
+  faker.seed([220])
   return {
     ...{
       id: faker.number.int(),

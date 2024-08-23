@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "2.25.1",
+  "version": "3.0.0-alpha.0",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -78,7 +78,7 @@
     "typescript": "^5.5.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "preferGlobal": true,
   "publishConfig": {

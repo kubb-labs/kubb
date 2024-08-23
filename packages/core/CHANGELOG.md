@@ -1,42 +1,19 @@
 # @kubb/core
 
-## 2.25.1
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- [`73d008c`](https://github.com/kubb-labs/kubb/commit/73d008c72521cc7f7f367b1951758da3919d5c67) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Minimal support of node 20
+
+- [`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of swagger prefix packages in favour of @kubb/plugin-x
 
 ### Patch Changes
 
-- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
-
-- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
-  - @kubb/parser-ts@2.25.1
-  - @kubb/types@2.25.1
-  - @kubb/fs@2.25.1
-
-## 2.25.0
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/fs@2.25.0
-  - @kubb/parser-ts@2.25.0
-  - @kubb/types@2.25.0
-
-## 2.24.0
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/fs@2.24.0
-  - @kubb/parser-ts@2.24.0
-  - @kubb/types@2.24.0
-
-## 2.23.4
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/fs@2.23.4
-  - @kubb/parser-ts@2.23.4
-  - @kubb/types@2.23.4
+- Updated dependencies [[`73d008c`](https://github.com/kubb-labs/kubb/commit/73d008c72521cc7f7f367b1951758da3919d5c67), [`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4)]:
+  - @kubb/fs@3.0.0-alpha.0
+  - @kubb/parser-ts@3.0.0-alpha.0
+  - @kubb/types@3.0.0-alpha.0
 
 ## 2.23.3
 
@@ -780,7 +757,7 @@
 
 ### Major Changes
 
-- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger-ts with output object
+- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - plugin-ts with output object
 
 - [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - transformers subpackage
 

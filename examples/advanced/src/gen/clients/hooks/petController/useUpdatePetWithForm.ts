@@ -6,7 +6,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 type UpdatePetWithForm = {
@@ -38,23 +38,9 @@ export function useUpdatePetWithForm(
     >
     client?: UpdatePetWithForm['client']['parameters']
   } = {},
-): UseMutationResult<
-  UpdatePetWithForm['response'],
-  UpdatePetWithForm['error'],
-  {
-    petId: UpdatePetWithFormPathParams['petId']
-    params?: UpdatePetWithForm['queryParams']
-  }
-> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<
-    UpdatePetWithForm['response'],
-    UpdatePetWithForm['error'],
-    {
-      petId: UpdatePetWithFormPathParams['petId']
-      params?: UpdatePetWithForm['queryParams']
-    }
-  >({
+  return useMutation({
     mutationFn: async ({ petId, params }) => {
       const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
         method: 'post',

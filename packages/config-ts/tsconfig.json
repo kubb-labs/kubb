@@ -9,28 +9,28 @@
       "path": "../core"
     },
     {
-      "path": "../swagger"
+      "path": "../plugin-oas"
     },
     {
-      "path": "../swagger-client"
+      "path": "../plugin-client"
     },
     {
       "path": "../swagger-faker"
     },
     {
-      "path": "../swagger-msw"
+      "path": "../plugin-msw"
     },
     {
       "path": "../swagger-tanstack-query"
     },
     {
-      "path": "../swagger-ts"
+      "path": "../plugin-ts"
     },
     {
-      "path": "../swagger-zod"
+      "path": "../plugin-zod"
     },
     {
-      "path": "../swagger-zodios"
+      "path": "../plugin-zodios"
     },
     {
       "path": "../parser-ts"

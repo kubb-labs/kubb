@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginFaker } from '@kubb/swagger-faker'
-import { pluginMsw } from '@kubb/swagger-msw'
-import { pluginTs } from '@kubb/swagger-ts'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig(() => {
   return {
@@ -24,15 +24,21 @@ export default defineConfig(() => {
       pluginFaker({
         output: {
           path: './mocks',
-          exportType: false,
         },
-        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+        group: {
+          type: 'tag',
+          output: './mocks/{{tag}}Mocks',
+        },
+        seed: [220],
       }),
       pluginMsw({
         output: {
           path: './msw',
         },
-        group: { type: 'tag', output: './msw/{{tag}}Handlers' },
+        group: {
+          type: 'tag',
+          output: './msw/{{tag}}Handlers',
+        },
       }),
     ],
   }

@@ -11,6 +11,7 @@ import type {
  * @description Successful operation
  */
 export function createCreateUsersWithListInput200(): NonNullable<CreateUsersWithListInput200> {
+  faker.seed([220])
   return createUser()
 }
 
@@ -18,10 +19,12 @@ export function createCreateUsersWithListInput200(): NonNullable<CreateUsersWith
  * @description successful operation
  */
 export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWithListInputError> {
+  faker.seed([220])
   return undefined
 }
 
 export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
+  faker.seed([220])
   return faker.helpers.arrayElements([createUser()]) as any
 }
 
@@ -29,5 +32,6 @@ export function createCreateUsersWithListInputMutationRequest(): NonNullable<Cre
  * @description Successful operation
  */
 export function createCreateUsersWithListInputMutationResponse(): NonNullable<CreateUsersWithListInputMutationResponse> {
+  faker.seed([220])
   return createUser()
 }

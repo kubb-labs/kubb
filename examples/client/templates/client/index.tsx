@@ -1,5 +1,5 @@
-import { Parser, File, Function } from '@kubb/react'
-import { Client } from '@kubb/swagger-client/components'
+import { File, Function } from '@kubb/react'
+import { Client } from '@kubb/plugin-client/components'
 import type React from 'react'
 
 export const templates = {

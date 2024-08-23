@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider, useQueries } from '@tanstack/react-qu
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 
-import { findPetsByStatusQueryOptions, useFindPetsByStatusHook, useUpdatePetWithFormHook } from './gen'
+import { findPetsByStatusQueryOptions, useFindPetsByStatusHook, useFindPetsByTagsHookInfinite, useUpdatePetWithFormHook } from './gen'
 
 import type { FindPetsByStatusQueryParamsStatus } from './gen'
 
@@ -10,8 +10,8 @@ const queryClient = new QueryClient()
 
 function Pets(): JSX.Element {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatus>('available')
-  const { mutateAsync } = useUpdatePetWithFormHook(2)
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
+  const { data } = useUpdatePetWithFormHook(2)
   const { queryKey: _queryKey, initialData } = findPetsByStatusQueryOptions()
   const statuses: FindPetsByStatusQueryParamsStatus[] = ['available', 'pending']
 
@@ -19,7 +19,7 @@ function Pets(): JSX.Element {
     queries: statuses.map((status) => findPetsByStatusQueryOptions({ status })),
   })
 
-  console.log(mutateAsync)
+  console.log(data)
   //            ^?
 
   console.log(pets)
@@ -51,7 +51,39 @@ function Pets(): JSX.Element {
       },
     },
   )
+  const { data: pagedPets } = useFindPetsByTagsHookInfinite(
+    {},
+    {
+      query: {
+        getNextPageParam: (lastPage, pages) => {
+          const numPages: number | undefined = lastPage.headers?.['x-pages']
+          const nextPage = pages.length + 1
+          return nextPage <= (numPages ?? 0) ? nextPage : undefined
+        },
+      },
+    },
+  )
 
+  const { data: pagedPet } = useFindPetsByTagsHookInfinite(
+    {},
+    {
+      query: {
+        getNextPageParam: (lastPage, pages) => {
+          const numPages: number | undefined = lastPage.headers?.['x-pages']
+          const nextPage = pages.length + 1
+          return nextPage <= (numPages ?? 0) ? nextPage : undefined
+        },
+        // select(data) {
+        //   return data.pages[0]?.data.at(0)
+        // },
+      },
+    },
+  )
+
+  // console.log(pagedPets?.pages.at(0)?.data.at(0)?.id)
+  //            ^?
+  // console.log(pagedPet?.id)
+  //            ^?
   console.log(firstPet)
   //            ^?
 

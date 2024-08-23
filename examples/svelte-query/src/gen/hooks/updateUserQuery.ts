@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { createMutation } from '@tanstack/svelte-query'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
 type UpdateUser = {
@@ -28,9 +28,9 @@ export function updateUserQuery(
     mutation?: CreateMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
     client?: UpdateUser['client']['parameters']
   } = {},
-): CreateMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
+  return createMutation({
     mutationFn: async (data) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',

@@ -1,5 +1,21 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- [`73d008c`](https://github.com/kubb-labs/kubb/commit/73d008c72521cc7f7f367b1951758da3919d5c67) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Minimal support of node 20
+
+- [`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of swagger prefix packages in favour of @kubb/plugin-x
+
+### Patch Changes
+
+- Updated dependencies [[`73d008c`](https://github.com/kubb-labs/kubb/commit/73d008c72521cc7f7f367b1951758da3919d5c67), [`c105cf1`](https://github.com/kubb-labs/kubb/commit/c105cf1a9ecc572d053daa794ceaba69e227dda4)]:
+  - @kubb/core@3.0.0-alpha.0
+  - @kubb/fs@3.0.0-alpha.0
+  - @kubb/oas@3.0.0-alpha.0
+  - @kubb/react@3.0.0-alpha.0
+
 ## 2.25.1
 
 ### Patch Changes
@@ -860,7 +876,7 @@
 
 ### Major Changes
 
-- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger-ts with output object
+- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - plugin-ts with output object
 
 - [#678](https://github.com/kubb-labs/kubb/pull/678) [`48b7ff2`](https://github.com/kubb-labs/kubb/commit/48b7ff246a3459bb7a9be6d430407c2538d3b2eb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - oas update to v24
 
@@ -870,7 +886,7 @@
 
 - [#689](https://github.com/kubb-labs/kubb/pull/689) [`8044907`](https://github.com/kubb-labs/kubb/commit/8044907f560f1e9a6120df259568b9213a4f1e4a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - path.extName to set `.ts` or `.js` to the barrel files
 
-- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Move `Infer` to `swagger-ts`
+- [#686](https://github.com/kubb-labs/kubb/pull/686) [`0c894ca`](https://github.com/kubb-labs/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Move `Infer` to `plugin-ts`
 
 - [#707](https://github.com/kubb-labs/kubb/pull/707) [`955f8ed`](https://github.com/kubb-labs/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of combineFiles
 

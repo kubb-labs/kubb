@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 

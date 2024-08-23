@@ -7,6 +7,7 @@ import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationRespons
  * @description Successful operation
  */
 export function createAddPet200(): NonNullable<AddPet200> {
+  faker.seed([220])
   return createPet()
 }
 
@@ -14,6 +15,7 @@ export function createAddPet200(): NonNullable<AddPet200> {
  * @description Pet not found
  */
 export function createAddPet405(): NonNullable<AddPet405> {
+  faker.seed([220])
   return { code: faker.number.int(), message: faker.string.alpha() }
 }
 
@@ -21,6 +23,7 @@ export function createAddPet405(): NonNullable<AddPet405> {
  * @description Create a new pet in the store
  */
 export function createAddPetMutationRequest(): NonNullable<AddPetMutationRequest> {
+  faker.seed([220])
   return createAddPetRequest()
 }
 
@@ -28,5 +31,6 @@ export function createAddPetMutationRequest(): NonNullable<AddPetMutationRequest
  * @description Successful operation
  */
 export function createAddPetMutationResponse(): NonNullable<AddPetMutationResponse> {
+  faker.seed([220])
   return createPet()
 }

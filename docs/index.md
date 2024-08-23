@@ -28,39 +28,39 @@ features:
       src: ./feature/typescript.svg
       height: 24
     title: TypeScript
-    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support. <div class="learn-more"><a href="/plugins/swagger-ts">Learn more</a></div>
+    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support. <div class="learn-more"><a href="/plugins/plugin-ts">Learn more</a></div>
   - icon:
       src: ./feature/tanstack.svg
       height: 24
-    title: Tanstack Query <span class="new">v5 support</span>
+    title: Tanstack Query
     details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue). <div class="learn-more"><a href="/plugins/swagger-tanstack-query">Learn more</a></div>
   - icon:
       dark: ./feature/swr-dark.svg
       light: ./feature/swr-light.svg
       height: 24
     title: SWR
-    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>. <div class="learn-more"><a href="/plugins/swagger-swr">Learn more</a></div>
+    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>. <div class="learn-more"><a href="/plugins/plugin-swr">Learn more</a></div>
   - icon:
       src: ./feature/axios.svg
     title: Axios
-    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/swagger-client/">Learn more</a></div>
+    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/plugin/">Learn more</a></div>
   - icon:
       src: ./feature/msw.svg
-    title: MSW <span class="new">v2 support</span>
-    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/swagger-msw">Learn more</a></div>
+    title: MSW
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/plugin-msw">Learn more</a></div>
   - icon:
       src: ./feature/zod.svg
       height: 24
     title: Zod
-    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/swagger-zod">Learn more</a></div>
+    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/plugin-zod">Learn more</a></div>
   - icon:
       src: ./feature/zodios.svg
     title: Zodios
-    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin. <div class="learn-more"><a href="/plugins/swagger-zodios">Learn more</a></div>
+    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin. <div class="learn-more"><a href="/plugins/plugin-zodios">Learn more</a></div>
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker
-    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. <div class="learn-more"><a href="/plugins/swagger-faker">Learn more</a></div>
+    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. <div class="learn-more"><a href="/plugins/plugin-faker">Learn more</a></div>
   - icon:
       src: ./feature/json.svg
     title: JSON Schemas

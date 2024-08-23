@@ -1,7 +1,7 @@
-import client from '@kubb/swagger-client/client'
+import client from '@kubb/plugin-client/client'
 import { createMutation } from '@tanstack/svelte-query'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 type UploadFile = {
@@ -28,9 +28,9 @@ export function uploadFileQuery(
     mutation?: CreateMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
     client?: UploadFile['client']['parameters']
   } = {},
-): CreateMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
+  return createMutation({
     mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',

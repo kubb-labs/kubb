@@ -22,10 +22,10 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
     "axios": "^1.7.3"
   },
   "devDependencies": {
@@ -36,7 +36,7 @@
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=8.15.0"
   }
 }

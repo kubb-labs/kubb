@@ -15,9 +15,8 @@
     "esModuleInterop": true,
     "allowJs": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "types": ["vitest/globals", "bun-types", "../../packages/core/globals.d.ts", "../../packages/config-ts/reset.d.ts"]
+    "noEmit": true
   },
-  "include": ["./src/**/*", "configs/kubb.config.ts"],
+  "include": ["./src/**/*", "./templates/**/*"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }

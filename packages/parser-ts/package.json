@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "2.25.1",
+  "version": "3.0.0-alpha.0",
   "description": "TypeScript parser",
   "keywords": [
     "typescript",
@@ -71,7 +71,7 @@
     "tsup": "^8.2.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",
