@@ -1,5 +1,22 @@
 # @kubb/plugin-react-query
 
+## 3.0.0-alpha.2
+
+### Patch Changes
+
+- [#1129](https://github.com/kubb-labs/kubb/pull/1129) [`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove load, transform and writeFile in the plugin context
+
+- Updated dependencies [[`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94)]:
+  - @kubb/plugin-faker@3.0.0-alpha.2
+  - @kubb/plugin-oas@3.0.0-alpha.2
+  - @kubb/plugin-zod@3.0.0-alpha.2
+  - @kubb/plugin-ts@3.0.0-alpha.2
+  - @kubb/core@3.0.0-alpha.2
+  - @kubb/react@3.0.0-alpha.2
+  - @kubb/fs@3.0.0-alpha.2
+  - @kubb/oas@3.0.0-alpha.2
+  - @kubb/parser-ts@3.0.0-alpha.2
+
 ## 3.0.0-alpha.1
 
 ### Patch Changes
