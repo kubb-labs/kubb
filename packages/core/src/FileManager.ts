@@ -1,5 +1,5 @@
 import crypto from 'node:crypto'
-import { extname, resolve } from 'node:path'
+import path, { extname, resolve } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
 import { isDeepEqual } from 'remeda'
@@ -144,7 +144,6 @@ export class FileManager {
 
   async getIndexFiles({ root, output, meta, logger, options = {} }: AddIndexesProps): Promise<ResolvedFile[]> {
     const { exportType = 'barrel' } = output
-    //        ^?
     if (exportType === false) {
       return []
     }
@@ -168,18 +167,6 @@ export class FileManager {
       return []
     }
 
-    if (exportType === 'barrelNamed') {
-      files = files.map((file) => {
-        if (file.exports) {
-          return {
-            ...file,
-            exports: barrelManager.getNamedExports(pathToBuildFrom, file.exports),
-          }
-        }
-        return file
-      })
-    }
-
     const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
     const rootFile: FileWithMeta = {
       path: resolve(root, 'index.ts'),
@@ -201,8 +188,33 @@ export class FileManager {
       exportable: true,
     }
 
-    if (exportType === 'barrelNamed' && !output.exportAs && rootFile.exports?.[0]) {
-      rootFile.exports = barrelManager.getNamedExport(root, rootFile.exports[0])
+    if (exportType === 'barrelNamed') {
+      files = files.map((file) => {
+        if (file.exports) {
+          return {
+            ...file,
+            exports: barrelManager.getNamedExports(pathToBuildFrom, file.exports),
+          }
+        }
+        return file
+      })
+
+      const barrelExportRoot = rootFile.exports?.[0]
+
+      if (!output.exportAs && barrelExportRoot) {
+        const exportFile = files.find((file) => {
+          return trimExtName(file.path) === path.resolve(root, barrelExportRoot.path)
+        })
+
+        if (exportFile?.exports) {
+          rootFile.exports = exportFile.exports.map((exportItem) => {
+            return {
+              ...exportItem,
+              path: getRelativePath(rootFile.path, exportFile.path),
+            }
+          })
+        }
+      }
     }
 
     return [
@@ -513,6 +525,7 @@ type WriteFilesProps = {
 /**
  * Global queue
  */
+
 const queue = new PQueue({ concurrency: 1 })
 
 export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
@@ -526,14 +539,14 @@ export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
   if (!dryRun) {
     logger.consola?.pauseLogs()
 
-    const filePromises = mergedFiles.map(async (file, index) => {
-      await queue.add(() => {
+    mergedFiles.map((file, index) => {
+      queue.add(async () => {
         logger.emit('progress', index, mergedFiles.length)
-        return write(file.path, file.source, { sanity: false })
+        await write(file.path, file.source, { sanity: false })
       })
     })
 
-    await Promise.all(filePromises)
+    await queue.onEmpty()
 
     logger.consola?.resumeLogs()
   }

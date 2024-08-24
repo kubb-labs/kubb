@@ -10,7 +10,7 @@ type ExportsResult = {
 /**
  * @link https://github.com/microsoft/TypeScript/issues/15840
  */
-export function getExports(filePath: string): undefined | Array<ExportsResult> {
+export function getExports(filePath: string, source?: string): undefined | Array<ExportsResult> {
   const rootName = path.extname(filePath) ? filePath : `${filePath}.ts`
 
   if (!rootName) {
@@ -24,7 +24,9 @@ export function getExports(filePath: string): undefined | Array<ExportsResult> {
 
   const checker = program.getTypeChecker()
   const sources = program.getSourceFiles()
-  const sourceFile = sources.find((sourceFile) => sourceFile.fileName === rootName)
+  const sourceFile = source
+    ? ts.createSourceFile(rootName, source, ts.ScriptTarget.ES2022, false, ts.ScriptKind.TS)
+    : sources.find((sourceFile) => sourceFile.fileName === rootName)
 
   if (!sourceFile) {
     return undefined

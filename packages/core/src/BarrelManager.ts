@@ -17,6 +17,9 @@ export type BarrelManagerOptions = {
   extName?: KubbFile.Extname
 }
 
+/**
+ * Replace with the use of the FileManager exports/imports
+ */
 export class BarrelManager {
   #options: BarrelManagerOptions
 
@@ -26,6 +29,10 @@ export class BarrelManager {
     return this
   }
 
+  /**
+   * Loop through the file and find all exports(with the help of the ts printer)
+   * Important: a real file is needed(cannot work from memory/FileManager)
+   */
   getNamedExport(root: string, item: KubbFile.Export): KubbFile.Export[] {
     const exportedNames = getExports(path.resolve(root, item.path))
 
@@ -33,7 +40,7 @@ export class BarrelManager {
       return [item]
     }
 
-    return exportedNames.reduce(
+    const exports = exportedNames.reduce(
       (prev, curr) => {
         if (!prev[0]?.name || !prev[1]?.name) {
           return prev
@@ -60,6 +67,8 @@ export class BarrelManager {
         },
       ] as KubbFile.Export[],
     )
+
+    return exports
   }
 
   getNamedExports(root: string, exports: KubbFile.Export[]): KubbFile.Export[] {
