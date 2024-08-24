@@ -10,7 +10,7 @@ import { startWatcher } from '../utils/watcher.ts'
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { generate } from '../generate.ts'
 import path from 'node:path'
-import { createLogger } from '@kubb/core/logger'
+import { createLogger, LogMapper } from '@kubb/core/logger'
 
 const args = {
   config: {
@@ -60,7 +60,6 @@ const command = defineCommand({
   },
   args,
   async run({ args }) {
-    const logger = createLogger()
     const input = args._[0]
 
     if (args.help) {
@@ -78,6 +77,11 @@ const command = defineCommand({
       await execa('bkubb', command, { stdout: process.stdout, stderr: process.stderr })
       return
     }
+
+    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+    const logger = createLogger({
+      logLevel,
+    })
 
     logger.emit('start', '🔍 Loading config')
 

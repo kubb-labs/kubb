@@ -10,10 +10,25 @@ import { getSummary } from './utils/getSummary.ts'
 import { writeLog } from './utils/writeLog.ts'
 import { LogMapper } from '@kubb/core/logger'
 
+import { MultiBar, Presets } from 'cli-progress'
+
 type GenerateProps = {
   input?: string
   config: Config
   args: Args
+}
+
+export function createMultiProgressBar() {
+  return new MultiBar(
+    {
+      format: 'progress [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
+      barsize: 40,
+      fps: 5,
+      stream: process.stderr,
+      clearOnComplete: true,
+    },
+    Presets.shades_grey,
+  )
 }
 
 export async function generate({ input, config, args }: GenerateProps): Promise<void> {
@@ -23,11 +38,22 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     name: config.name,
   })
 
+  // const progress = createMultiProgressBar()
+  // let progressFiles: any
+  //
+  // logger.on('progress', (count, size) => {
+  //   if (count === 0) {
+  //     progressFiles = progress.create(size, 0)
+  //   }
+  //   progressFiles.update(count)
+  //   if (count === size) {
+  //     progressFiles.stop()
+  //   }
+  // })
+
   logger.on('debug', async (messages: string[]) => {
     await writeLog(messages.join('\n'))
   })
-
-  logger.consola?.wrapConsole()
 
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)

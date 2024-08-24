@@ -781,9 +781,9 @@ importers:
       citty:
         specifier: ^0.1.6
         version: 0.1.6
-      cli-progress-footer:
-        specifier: ^2.3.3
-        version: 2.3.3
+      cli-progress:
+        specifier: ^3.12.0
+        version: 3.12.0
       consola:
         specifier: ^3.2.3
         version: 3.2.3
@@ -821,6 +821,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
+      '@types/cli-progress':
+        specifier: ^3.11.6
+        version: 3.11.6
       '@types/node':
         specifier: ^20.16.1
         version: 20.16.1
@@ -3250,6 +3253,9 @@ packages:
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
+  '@types/cli-progress@3.11.6':
+    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
+
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -3914,17 +3920,13 @@ packages:
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
-  cli-color@2.0.4:
-    resolution: {integrity: sha512-zlnpg0jNcibNrO7GG9IeHH7maWFeCz+Ja1wx/7tZNU5ASSSSZ+/qZciM0/LHCYxSdqv5h2sdbQ/PXYdOuetXvA==}
-    engines: {node: '>=0.10'}
-
   cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
     engines: {node: '>=8'}
 
-  cli-progress-footer@2.3.3:
-    resolution: {integrity: sha512-p+hyTPxSZWG1c3Qy1DLBoGZhpeA3Y6AMlKrtbGpMMSKpezbSLel8gW4e5You4FNlHb3wS/M1JU594OAWe/Totg==}
-    engines: {node: '>=10.0'}
+  cli-progress@3.12.0:
+    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
+    engines: {node: '>=4'}
 
   cli-spinners@2.9.2:
     resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
@@ -4151,9 +4153,6 @@ packages:
 
   defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
-
-  deferred@0.7.11:
-    resolution: {integrity: sha512-8eluCl/Blx4YOGwMapBvXRKxHXhA8ejDXYzEaK8+/gtcm8hRMhSLmXSqDmNUKNc/C8HNSmuyyp/hflhqDAvK2A==}
 
   define-data-property@1.1.4:
     resolution: {integrity: sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==}
@@ -4560,10 +4559,6 @@ packages:
   fs-minipass@2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
     engines: {node: '>= 8'}
-
-  fs2@0.3.9:
-    resolution: {integrity: sha512-WsOqncODWRlkjwll+73bAxVW3JPChDgaPX3DT4iTTm73UmG4VgALa7LaFblP232/DN60itkOrPZ8kaP1feksGQ==}
-    engines: {node: '>=6'}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -5879,10 +5874,6 @@ packages:
   prismjs@1.29.0:
     resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
     engines: {node: '>=6'}
-
-  process-utils@4.0.0:
-    resolution: {integrity: sha512-fMyMQbKCxX51YxR7YGCzPjLsU3yDzXFkP4oi1/Mt5Ixnk7GO/7uUTj8mrCHUwuvozWzI+V7QSJR9cZYnwNOZPg==}
-    engines: {node: '>=10.0'}
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -8594,6 +8585,10 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 20.16.1
 
+  '@types/cli-progress@3.11.6':
+    dependencies:
+      '@types/node': 20.16.1
+
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 20.16.1
@@ -9427,27 +9422,13 @@ snapshots:
 
   classnames@2.5.1: {}
 
-  cli-color@2.0.4:
-    dependencies:
-      d: 1.0.2
-      es5-ext: 0.10.64
-      es6-iterator: 2.0.3
-      memoizee: 0.4.17
-      timers-ext: 0.1.8
-
   cli-cursor@3.1.0:
     dependencies:
       restore-cursor: 3.1.0
 
-  cli-progress-footer@2.3.3:
+  cli-progress@3.12.0:
     dependencies:
-      cli-color: 2.0.4
-      d: 1.0.2
-      es5-ext: 0.10.64
-      mute-stream: 0.0.8
-      process-utils: 4.0.0
-      timers-ext: 0.1.8
-      type: 2.7.3
+      string-width: 4.2.3
 
   cli-spinners@2.9.2: {}
 
@@ -9652,14 +9633,6 @@ snapshots:
   defaults@1.0.4:
     dependencies:
       clone: 1.0.4
-
-  deferred@0.7.11:
-    dependencies:
-      d: 1.0.2
-      es5-ext: 0.10.64
-      event-emitter: 0.3.5
-      next-tick: 1.1.0
-      timers-ext: 0.1.8
 
   define-data-property@1.1.4:
     dependencies:
@@ -10290,16 +10263,6 @@ snapshots:
   fs-minipass@2.1.0:
     dependencies:
       minipass: 3.3.6
-
-  fs2@0.3.9:
-    dependencies:
-      d: 1.0.2
-      deferred: 0.7.11
-      es5-ext: 0.10.64
-      event-emitter: 0.3.5
-      ignore: 5.3.2
-      memoizee: 0.4.17
-      type: 2.7.3
 
   fsevents@2.3.3:
     optional: true
@@ -11703,13 +11666,6 @@ snapshots:
       parse-ms: 4.0.0
 
   prismjs@1.29.0: {}
-
-  process-utils@4.0.0:
-    dependencies:
-      ext: 1.7.0
-      fs2: 0.3.9
-      memoizee: 0.4.17
-      type: 2.7.3
 
   prop-types@15.8.1:
     dependencies:

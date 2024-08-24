@@ -13,6 +13,7 @@ type Events = {
   warning: [message: string]
   debug: [logs: string[]]
   info: [message: string]
+  progress: [count: number, size: number]
 }
 
 export const LogMapper = {
@@ -51,36 +52,28 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
         columns: 120,
         compact: logLevel !== LogMapper.debug,
       },
-    }).withTag(randomCliColour(name))
+    }).withTag(name ? randomCliColour(name) : '')
+
+  consola?.wrapConsole()
 
   events.on('start', (message) => {
-    if (consola) {
-      consola.start(message)
-    }
+    consola.start(message)
   })
 
   events.on('success', (message) => {
-    if (consola) {
-      consola.success(message)
-    }
+    consola.success(message)
   })
 
   events.on('warning', (message) => {
-    if (consola) {
-      consola.warn(c.yellow(message))
-    }
+    consola.warn(c.yellow(message))
   })
 
   events.on('info', (message) => {
-    if (consola) {
-      consola.info(c.yellow(message))
-    }
+    consola.info(c.yellow(message))
   })
 
   events.on('debug', (message) => {
-    if (consola) {
-      consola.debug(c.yellow(message))
-    }
+    consola.debug(c.yellow(message))
   })
 
   events.on('error', (message, cause) => {

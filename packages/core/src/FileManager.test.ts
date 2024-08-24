@@ -129,23 +129,8 @@ describe('FileManager', () => {
     }
   })
 
-  test('fileManager queue', async () => {
-    const taskMock = vi.fn()
-
-    const fileManager = new FileManager({ task: taskMock })
-    await fileManager.add({
-      path: path.resolve('./src/file1.ts'),
-      baseName: 'file1.ts',
-      source: '',
-    })
-
-    expect(taskMock).toHaveBeenCalled()
-  })
-
   test('fileManager.remove', async () => {
-    const taskMock = vi.fn()
-
-    const fileManager = new FileManager({ task: taskMock })
+    const fileManager = new FileManager()
     const filePath = path.resolve('./src/file1.ts')
     await fileManager.add({
       path: filePath,
@@ -158,7 +143,6 @@ describe('FileManager', () => {
     const expectedRemovedFile = fileManager.files.find((f) => f.path === filePath)
 
     expect(expectedRemovedFile).toBeUndefined()
-    expect(taskMock).toHaveBeenCalled()
   })
 
   test('if getMode returns correct mode (single or split)', () => {

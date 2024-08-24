@@ -1,5 +1,3 @@
-import PQueue from 'p-queue'
-
 import { readSync } from '@kubb/fs'
 import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
@@ -58,11 +56,6 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 
 type Options = {
   logger: Logger
-
-  /**
-   * Task for the FileManager
-   */
-  task: (file: ResolvedFile) => Promise<ResolvedFile>
 }
 
 type Events = {
@@ -93,16 +86,10 @@ export class PluginManager {
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
 
-  readonly queue: PQueue
-
   constructor(config: Config, options: Options) {
     this.config = config
     this.logger = options.logger
-    this.queue = new PQueue({ concurrency: 1 })
-    this.fileManager = new FileManager({
-      task: options.task,
-      queue: this.queue,
-    })
+    this.fileManager = new FileManager()
     this.#promiseManager = new PromiseManager({
       nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
     })

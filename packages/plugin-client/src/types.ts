@@ -78,7 +78,7 @@ export type Options = {
      * Define which HttpMethods can be used for queries
      * @default ['get', 'post', 'put', 'delete']
      */
-    methods: Array<HttpMethod>
+    methods?: Array<HttpMethod>
   }
   /**
    * ReturnType that needs to be used when calling client().
