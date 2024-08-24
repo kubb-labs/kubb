@@ -14,6 +14,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
+import type { Parser } from './parser.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -63,7 +64,7 @@ type SchemaProps = {
   parentName?: string
 }
 
-export abstract class SchemaGenerator<
+export class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
@@ -820,7 +821,7 @@ export abstract class SchemaGenerator<
     return [{ keyword: unknownReturn }]
   }
 
-  async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...parsers: Array<Parser<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     const schemas = getSchemas({ oas, contentType, includes: include })
@@ -836,6 +837,22 @@ export abstract class SchemaGenerator<
         acc.push(promiseOperation)
       }
 
+      parsers?.forEach((parser) => {
+        const promise = parser.schema?.({
+          generator: this,
+          name,
+          schema,
+          options: {
+            ...this.options,
+            ...options,
+          },
+        } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
+
+        if (promise) {
+          acc.push(promise)
+        }
+      })
+
       return acc
     }, [] as SchemaMethodResult<TFileMeta>[])
 
@@ -848,5 +865,7 @@ export abstract class SchemaGenerator<
   /**
    * Schema
    */
-  abstract schema(name: string, object: SchemaObject, options: TOptions): SchemaMethodResult<TFileMeta>
+  async schema(name: string, object: SchemaObject, options: TOptions): SchemaMethodResult<TFileMeta> {
+    return null
+  }
 }
