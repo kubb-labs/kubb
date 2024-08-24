@@ -1,5 +1,3 @@
-import { PackageManager } from '@kubb/core'
-
 import type { UserConfig } from '@kubb/core'
 
 function isJSONPlugins(plugins: UserConfig['plugins']) {
@@ -10,14 +8,6 @@ function isJSONPlugins(plugins: UserConfig['plugins']) {
 
 function isObjectPlugins(plugins: UserConfig['plugins']): plugins is any {
   return plugins instanceof Object && !Array.isArray(plugins)
-}
-
-async function importPlugin(name: string, options: object): Promise<UserConfig['plugins']> {
-  const packageManager = new PackageManager(process.cwd())
-
-  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await packageManager.import(name)
-
-  return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
 }
 
 export function getPlugins(plugins: UserConfig['plugins']): Promise<UserConfig['plugins']> {

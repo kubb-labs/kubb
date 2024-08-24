@@ -3,16 +3,18 @@ import c, { createColors } from 'tinyrainbow'
 
 import { EventEmitter } from './utils/EventEmitter.ts'
 
-import type { ConsolaInstance } from 'consola'
-import type { Ora } from 'ora'
+import { type ConsolaInstance, createConsola, type LogLevel } from 'consola'
 import type { Formatter } from 'tinyrainbow'
 
-//TODO replace with verbose flag and debug flag
-export const LogLevel = {
-  silent: 'silent',
-  info: 'info',
-  debug: 'debug',
-} as const
+type Events = {
+  start: [message: string]
+  success: [message: string]
+  error: [message: string, cause: Error]
+  warning: [message: string]
+  debug: [logs: string[]]
+  info: [message: string]
+  progress: [count: number, size: number]
+}
 
 export const LogMapper = {
   silent: Number.NEGATIVE_INFINITY,
@@ -20,22 +22,12 @@ export const LogMapper = {
   debug: 4,
 } as const
 
-export type LogLevel = keyof typeof LogLevel
-
-type Events = {
-  start: [message: string]
-  end: [message: string]
-  error: [message: string, cause: Error]
-  warning: [message: string]
-  debug: [logs: string[]]
-}
 export type Logger = {
   /**
    * Optional config name to show in CLI output
    */
   name?: string
   logLevel: LogLevel
-  spinner?: Ora
   consola?: ConsolaInstance
   on: EventEmitter<Events>['on']
   emit: EventEmitter<Events>['emit']
@@ -43,31 +35,45 @@ export type Logger = {
 
 type Props = {
   name?: string
-  logLevel: LogLevel
-  spinner?: Ora
+  logLevel?: LogLevel
   consola?: ConsolaInstance
 }
 
-export function createLogger({ logLevel, name, spinner, consola }: Props): Logger {
+export function createLogger({ logLevel = 3, name, consola: _consola }: Props = {}): Logger {
   const events = new EventEmitter<Events>()
 
+  const consola =
+    _consola ||
+    createConsola({
+      level: logLevel,
+      formatOptions: {
+        colors: true,
+        date: true,
+        columns: 120,
+        compact: logLevel !== LogMapper.debug,
+      },
+    }).withTag(name ? randomCliColour(name) : '')
+
+  consola?.wrapConsole()
+
   events.on('start', (message) => {
-    if (spinner) {
-      spinner.start(message)
-    }
+    consola.start(message)
   })
 
-  events.on('end', (message) => {
-    if (spinner) {
-      spinner.suffixText = ''
-      spinner.succeed(message)
-    }
+  events.on('success', (message) => {
+    consola.success(message)
   })
 
   events.on('warning', (message) => {
-    if (spinner) {
-      spinner.warn(c.yellow(message))
-    }
+    consola.warn(c.yellow(message))
+  })
+
+  events.on('info', (message) => {
+    consola.info(c.yellow(message))
+  })
+
+  events.on('debug', (message) => {
+    consola.debug(c.yellow(message))
   })
 
   events.on('error', (message, cause) => {
@@ -77,10 +83,13 @@ export function createLogger({ logLevel, name, spinner, consola }: Props): Logge
     throw error
   })
 
+  if (consola) {
+    consola.level = logLevel
+  }
+
   const logger: Logger = {
     name,
     logLevel,
-    spinner,
     consola,
     on: (...args) => {
       return events.on(...args)

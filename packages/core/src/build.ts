@@ -1,15 +1,14 @@
 import c from 'tinyrainbow'
 
-import { clean, read } from '@kubb/fs'
-import { FileManager, type ResolvedFile } from './FileManager.ts'
+import { clean, read, write } from '@kubb/fs'
+import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
-import { LogLevel, createLogger, randomCliColour, LogMapper } from './logger.ts'
+import { createLogger, randomCliColour } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 import type { Logger } from './logger.ts'
 import type { PluginContext } from './types.ts'
-import { createConsola } from 'consola'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -29,16 +28,7 @@ type BuildOutput = {
 }
 
 async function setup(options: BuildOptions): Promise<PluginManager> {
-  const {
-    config,
-    logger = createLogger({
-      logLevel: LogLevel.silent,
-      consola: createConsola({
-        level: 3,
-      }),
-    }),
-  } = options
-  let count = 0
+  const { config, logger = createLogger() } = options
 
   try {
     if (isInputPath(config) && !new URLPath(config.input.path).isURL) {
@@ -59,59 +49,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     await clean(config.output.path)
   }
 
-  const task = async (file: ResolvedFile): Promise<ResolvedFile> => {
-    const { path } = file
-
-    const source: string | null = await FileManager.getSource(file)
-
-    if (source) {
-      if (config.output.write || config.output.write === undefined) {
-        await pluginManager.fileManager.write(path, source, { sanity: false })
-      }
-    }
-
-    return {
-      ...file,
-      source: source || '',
-    }
-  }
-
-  const pluginManager = new PluginManager(config, { logger, task })
-
-  pluginManager.queue.on('add', () => {
-    if (logger.logLevel !== LogLevel.info) {
-      return
-    }
-
-    if (count === 0) {
-      logger.emit('start', '💾 Writing')
-    }
-  })
-
-  pluginManager.queue.on('active', () => {
-    if (logger.logLevel !== LogLevel.info) {
-      return
-    }
-
-    if (logger.spinner && pluginManager.queue.size > 0) {
-      const text = `Item: ${count} Size: ${pluginManager.queue.size}  Pending: ${pluginManager.queue.pending}`
-
-      logger.spinner.suffixText = c.dim(text)
-    }
-    ++count
-  })
-
-  pluginManager.queue.on('completed', () => {
-    if (logger.logLevel !== LogLevel.info) {
-      return
-    }
-
-    if (logger.spinner) {
-      const text = `Item: ${count} Size: ${pluginManager.queue.size}  Pending: ${pluginManager.queue.pending}`
-
-      logger.spinner.suffixText = c.dim(text)
-    }
-  })
+  const pluginManager = new PluginManager(config, { logger })
 
   pluginManager.on('executed', (executer) => {
     const { hookName, plugin, output, parameters } = executer
@@ -133,25 +71,18 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 export async function build(options: BuildOptions): Promise<BuildOutput> {
   const pluginManager = await setup(options)
 
-  const { fileManager, logger } = pluginManager
-
   await pluginManager.hookParallel({
     hookName: 'buildStart',
     parameters: [options.config],
   })
 
+  const files = await processFiles({
+    dryRun: !options.config.output.write,
+    files: pluginManager.fileManager.files,
+    logger: pluginManager.logger,
+  })
+
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
-
-  if (logger.logLevel === LogLevel.info) {
-    logger.emit('end', '💾 Writing completed')
-  }
-
-  const files = await Promise.all(
-    fileManager.files.map(async (file) => ({
-      ...file,
-      source: await FileManager.getSource(file),
-    })),
-  )
 
   return {
     files,
@@ -161,8 +92,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   const pluginManager = await setup(options)
-
-  const { fileManager, logger } = pluginManager
+  let files = []
 
   try {
     await pluginManager.hookParallel({
@@ -170,18 +100,19 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       parameters: [options.config],
     })
 
-    await pluginManager.hookParallel({ hookName: 'buildEnd' })
+    files = await processFiles({
+      dryRun: !options.config.output.write,
+      files: pluginManager.fileManager.files,
+      logger: pluginManager.logger,
+    })
 
-    if (logger.logLevel === LogLevel.info) {
-      logger.emit('end', '💾 Writing completed')
-    }
+    await pluginManager.hookParallel({ hookName: 'buildEnd' })
   } catch (e) {
-    const files = await Promise.all(
-      fileManager.files.map(async (file) => ({
-        ...file,
-        source: await FileManager.getSource(file),
-      })),
-    )
+    const files = await processFiles({
+      dryRun: true,
+      files: pluginManager.fileManager.files,
+      logger: pluginManager.logger,
+    })
 
     return {
       files,
@@ -189,13 +120,6 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       error: e as Error,
     }
   }
-
-  const files = await Promise.all(
-    fileManager.files.map(async (file) => ({
-      ...file,
-      source: await FileManager.getSource(file),
-    })),
-  )
 
   return {
     files,

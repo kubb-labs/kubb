@@ -113,15 +113,8 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      if (group?.type === 'tag') {
+      if (this.config.output.write && group?.type === 'tag') {
         const rootFiles = await getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
@@ -134,12 +127,23 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
         await this.addFile(...rootFiles)
       }
+    },
+    async buildEnd() {
+      if (this.config.output.write === false) {
+        return
+      }
 
-      await this.fileManager.addIndexes({
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const files = await this.fileManager.getIndexFiles({
         root,
         output,
         meta: { pluginKey: this.plugin.key },
         logger: this.logger,
+      })
+
+      await this.fileManager.processFiles({
+        logger: this.logger,
+        files,
       })
     },
   }

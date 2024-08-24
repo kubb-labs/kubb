@@ -2,7 +2,6 @@ import crypto from 'node:crypto'
 import { extname, resolve } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
-import PQueue from 'p-queue'
 import { isDeepEqual } from 'remeda'
 
 import { getRelativePath, read, write } from '@kubb/fs'
@@ -19,6 +18,7 @@ import type { Logger } from './logger.ts'
 import transformers from './transformers/index.ts'
 import type { Plugin } from './types.ts'
 import { getParser } from './utils'
+import PQueue from 'p-queue'
 
 export type ResolvedFile<TMeta extends FileMetaBase = FileMetaBase, TBaseName extends BaseName = BaseName> = File<TMeta, TBaseName> & {
   /**
@@ -64,21 +64,9 @@ type AddIndexesProps = {
   meta?: FileWithMeta['meta']
 }
 
-type Options = {
-  queue?: PQueue
-  task?: (file: ResolvedFile) => Promise<ResolvedFile>
-}
-
 export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
-
-  #task: Options['task']
-  #queue: PQueue
-
-  constructor({ task = async (file) => file, queue = new PQueue() }: Options = {}) {
-    this.#task = task
-    this.#queue = queue
-
+  constructor() {
     return this
   }
 
@@ -89,9 +77,6 @@ export class FileManager {
     })
 
     return files
-  }
-  get isExecuting(): boolean {
-    return this.#queue.size !== 0 && this.#queue.pending !== 0
   }
 
   async add<T extends Array<FileWithMeta> = Array<FileWithMeta>>(...files: T): AddResult<T> {
@@ -136,12 +121,7 @@ export class FileManager {
 
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
-    return this.#queue.add(
-      async () => {
-        return this.#task?.(resolvedFile)
-      },
-      { signal: controller.signal },
-    ) as Promise<ResolvedFile>
+    return resolvedFile
   }
 
   async #addOrAppend(file: FileWithMeta): Promise<ResolvedFile> {
@@ -162,18 +142,18 @@ export class FileManager {
     return this.#add(file)
   }
 
-  async addIndexes({ root, output, meta, logger, options = {} }: AddIndexesProps): Promise<void> {
+  async getIndexFiles({ root, output, meta, logger, options = {} }: AddIndexesProps): Promise<ResolvedFile[]> {
     const { exportType = 'barrel' } = output
     //        ^?
     if (exportType === false) {
-      return undefined
+      return []
     }
 
     const pathToBuildFrom = resolve(root, output.path)
 
     if (transformers.trimExtName(pathToBuildFrom).endsWith('index')) {
       logger.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
-      return
+      return []
     }
 
     const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
@@ -185,7 +165,7 @@ export class FileManager {
     let files = barrelManager.getIndexes(pathToBuildFrom)
 
     if (!files) {
-      return undefined
+      return []
     }
 
     if (exportType === 'barrelNamed') {
@@ -199,15 +179,6 @@ export class FileManager {
         return file
       })
     }
-
-    await Promise.all(
-      files.map((file) => {
-        return this.#addOrAppend({
-          ...file,
-          meta: meta ? meta : file.meta,
-        })
-      }),
-    )
 
     const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
     const rootFile: FileWithMeta = {
@@ -234,10 +205,20 @@ export class FileManager {
       rootFile.exports = barrelManager.getNamedExport(root, rootFile.exports[0])
     }
 
-    await this.#addOrAppend({
-      ...rootFile,
-      meta: meta ? meta : rootFile.meta,
-    })
+    return [
+      ...(await Promise.all(
+        files.map((file) => {
+          return this.#addOrAppend({
+            ...file,
+            meta: meta ? meta : file.meta,
+          })
+        }),
+      )),
+      await this.#addOrAppend({
+        ...rootFile,
+        meta: meta ? meta : rootFile.meta,
+      }),
+    ]
   }
 
   getCacheByUUID(UUID: KubbFile.UUID): FileWithMeta | undefined {
@@ -262,12 +243,15 @@ export class FileManager {
     this.#cache.delete(path)
   }
 
-  async write(...params: Parameters<typeof write>): Promise<string | undefined> {
+  async write(...params: Parameters<typeof write>): ReturnType<typeof write> {
     return write(...params)
   }
 
-  async read(...params: Parameters<typeof read>): Promise<string> {
+  async read(...params: Parameters<typeof read>): ReturnType<typeof read> {
     return read(...params)
+  }
+  async processFiles(...params: Parameters<typeof processFiles>): ReturnType<typeof processFiles> {
+    return processFiles(...params)
   }
 
   // statics
@@ -519,4 +503,40 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
 
     return prev
   }, source)
+}
+
+type WriteFilesProps = {
+  files: KubbFile.File[]
+  logger: Logger
+  dryRun?: boolean
+}
+/**
+ * Global queue
+ */
+const queue = new PQueue({ concurrency: 1 })
+
+export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
+  const mergedFiles = await Promise.all(
+    files.map(async (file) => ({
+      ...file,
+      source: await FileManager.getSource(file),
+    })),
+  )
+
+  if (!dryRun) {
+    logger.consola?.pauseLogs()
+
+    const filePromises = mergedFiles.map(async (file, index) => {
+      await queue.add(() => {
+        logger.emit('progress', index, mergedFiles.length)
+        return write(file.path, file.source, { sanity: false })
+      })
+    })
+
+    await Promise.all(filePromises)
+
+    logger.consola?.resumeLogs()
+  }
+
+  return mergedFiles
 }

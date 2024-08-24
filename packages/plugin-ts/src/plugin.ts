@@ -119,12 +119,16 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       }
 
       const root = path.resolve(this.config.root, this.config.output.path)
-
-      await this.fileManager.addIndexes({
+      const files = await this.fileManager.getIndexFiles({
         root,
         output,
         meta: { pluginKey: this.plugin.key },
         logger: this.logger,
+      })
+
+      await this.fileManager.processFiles({
+        logger: this.logger,
+        files,
       })
     },
   }

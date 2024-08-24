@@ -107,7 +107,6 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "consola": "^3.2.3",
-    "ora": "^8.0.1",
     "prettier": "^3.3.3",
     "tinyrainbow": "^1.2.0",
     "tsup": "^8.2.4",

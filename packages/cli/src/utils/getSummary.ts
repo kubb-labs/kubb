@@ -12,15 +12,14 @@ import type { Logger } from '@kubb/core/logger'
 type SummaryProps = {
   pluginManager: PluginManager
   status: 'success' | 'failed'
-  hrstart: [number, number]
+  hrStart: [number, number]
   config: Config
   logger: Logger
 }
 
-export function getSummary({ pluginManager, status, hrstart, config, logger }: SummaryProps): string[] {
-  const { logLevel } = logger
+export function getSummary({ pluginManager, status, hrStart, config, logger }: SummaryProps): string[] {
   const logs: string[] = []
-  const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
+  const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
   const buildStartPlugins = pluginManager.executed
     .filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core')
@@ -44,15 +43,13 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
   })
 
   const meta = {
-    name: config.name,
     plugins:
       status === 'success'
         ? `${c.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
         : `${c.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
-    time: c.yellow(`${elapsedSeconds}s`),
-    endTime: c.yellow(Date()),
+    time: `${c.yellow(`${elapsedSeconds}s`)} - finished at ${c.yellow(new Date().toLocaleString('en-GB', { timeZone: 'UTC' }))}`,
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
@@ -64,14 +61,11 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
 
   logs.push(
     [
-      ['\n', true],
-      [`     ${c.bold('Name:')}      ${meta.name}`, !!meta.name],
-      [`  ${c.bold('Plugins:')}      ${meta.plugins}`, true],
-      [`   ${c.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+      [`${c.bold('Plugins:')}        ${meta.plugins}`, true],
+      [`${c.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
       [`${c.bold('Generated:')}      ${meta.filesCreated} files`, true],
-      [`     ${c.bold('Time:')}      ${meta.time}`, true],
-      [`    ${c.bold('Ended:')}      ${meta.endTime}`, true],
-      [`   ${c.bold('Output:')}      ${meta.output}`, true],
+      [`${c.bold('Time:')}           ${meta.time}`, true],
+      [`${c.bold('Output:')}         ${meta.output}`, true],
     ]
       .map((item) => {
         if (item.at(1)) {
