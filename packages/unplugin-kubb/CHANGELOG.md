@@ -1,5 +1,19 @@
 # unplugin-kubb
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.3
+
+## 1.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [[`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94)]:
+  - @kubb/core@3.0.0-alpha.2
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes

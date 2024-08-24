@@ -1,5 +1,31 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.3
+
+### Minor Changes
+
+- [#1130](https://github.com/kubb-labs/kubb/pull/1130) [`8ad561d`](https://github.com/kubb-labs/kubb/commit/8ad561d3ff79b0e3dac21bc970106049a2338fba) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - createReactParser and createParser helper(for oas)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.3
+  - @kubb/fs@3.0.0-alpha.3
+  - @kubb/oas@3.0.0-alpha.3
+  - @kubb/react@3.0.0-alpha.3
+
+## 3.0.0-alpha.2
+
+### Patch Changes
+
+- [#1129](https://github.com/kubb-labs/kubb/pull/1129) [`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove load, transform and writeFile in the plugin context
+
+- Updated dependencies [[`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94)]:
+  - @kubb/core@3.0.0-alpha.2
+  - @kubb/react@3.0.0-alpha.2
+  - @kubb/fs@3.0.0-alpha.2
+  - @kubb/oas@3.0.0-alpha.2
+
 ## 3.0.0-alpha.1
 
 ### Patch Changes
