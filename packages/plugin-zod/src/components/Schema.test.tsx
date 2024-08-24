@@ -2,7 +2,7 @@ import { schemas } from '../../../plugin-oas/mocks/schemas.ts'
 
 import type { Plugin } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
+import type { GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 import type { PluginZod } from '../types.ts'

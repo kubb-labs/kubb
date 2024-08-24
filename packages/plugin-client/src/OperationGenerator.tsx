@@ -17,8 +17,10 @@ export const clientParser = createReactParser<PluginClient>({
 
     return <Operations.File baseURL={options.baseURL} templates={options.templates.operations} />
   },
-  Operation({ options }) {
-    if (!options.templates.client) {
+  Operation({ options, operation }) {
+    const isEnabled = options.client.methods.some((method) => operation.method === method)
+
+    if (!options.templates.client || !isEnabled) {
       return null
     }
 

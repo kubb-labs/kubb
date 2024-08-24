@@ -226,8 +226,6 @@ export class OperationGenerator<
     }
   }
 
-  #methods = ['get', 'post', 'patch', 'put', 'delete']
-
   async build(...parsers: Array<Parser<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
@@ -237,7 +235,7 @@ export class OperationGenerator<
 
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
-        if (operation && [this.#methods].some((methods) => method === operation.method)) {
+        if (operation) {
           const isExcluded = this.#isExcluded(operation, method)
           const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
 

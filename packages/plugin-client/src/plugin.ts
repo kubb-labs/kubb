@@ -37,6 +37,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       dataReturnType,
       client: {
         importPath: '@kubb/plugin-client/client',
+        methods: ['get', 'post', 'delete', 'put'],
         ...options.client,
       },
       pathParamsType,
