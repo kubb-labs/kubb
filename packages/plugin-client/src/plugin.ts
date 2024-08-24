@@ -3,10 +3,10 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
+import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
@@ -87,6 +87,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     async buildStart() {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
 
+      //simplify this context in buildStart, options, ...
+
       const oas = await swaggerPlugin.api.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
@@ -109,7 +111,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build()
+      const files = await operationGenerator.build(clientParser)
 
       await this.addFile(...files)
     },

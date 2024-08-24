@@ -9,6 +9,9 @@ import type { OperationMethodResult, OperationsByMethod } from '@kubb/plugin-oas
 import { Operations } from './components/Operations.tsx'
 import type { FileMeta, PluginZod } from './types.ts'
 
+/**
+ * @deprecated replaced by zodParser
+ */
 export class OperationGenerator extends Generator<PluginZod['resolvedOptions'], PluginZod> {
   async all(operations: Operation[], _operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin, mode } = this.context
