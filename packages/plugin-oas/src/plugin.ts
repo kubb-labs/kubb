@@ -78,13 +78,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     resolveName(name, type) {
       return camelCase(name, { isFile: type === 'file' })
     },
-    async writeFile(path, source) {
-      if (!path.endsWith('.json') || !source) {
-        return
-      }
-
-      return this.fileManager.write(path, source, { sanity: false })
-    },
     async buildStart() {
       if (!output) {
         return

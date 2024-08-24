@@ -79,13 +79,6 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
       return resolvedName
     },
-    async writeFile(path, source) {
-      if (!path.endsWith('.ts') || !source) {
-        return
-      }
-
-      return this.fileManager.write(path, source, { sanity: false })
-    },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
 

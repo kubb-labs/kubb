@@ -9,10 +9,6 @@ describe('build', () => {
     buildStart: vi.fn(),
     buildEnd: vi.fn(),
     resolvePath: vi.fn(),
-    transform: vi.fn(),
-    validate: vi.fn(),
-    writeFile: vi.fn(),
-    load: vi.fn(),
   } as const
 
   const file: KubbFile.File = {
@@ -34,19 +30,6 @@ describe('build', () => {
       },
       buildEnd(...params) {
         pluginMocks.buildEnd(...params)
-      },
-      load(...params) {
-        pluginMocks.load(...params)
-
-        return 'id'
-      },
-      transform(...params) {
-        pluginMocks.transform(...params)
-
-        return `${params[0]} plugin`
-      },
-      async writeFile(...params) {
-        pluginMocks.writeFile(...params)
       },
     }
   })
@@ -93,18 +76,6 @@ describe('build', () => {
     ])
 
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
-
-    expect(pluginMocks.load).toHaveBeenCalledTimes(1)
-    // expect(pluginMocks.load).toHaveBeenCalledWith('hello/world.json')
-    expect(pluginMocks.load.mock.lastCall).toEqual(['hello/world.json'])
-
-    // expect(pluginMocks.transform).toHaveBeenCalledWith('id', 'hello/world.json')
-    expect(pluginMocks.transform.mock.lastCall).toEqual(['hello/world.json', 'id'])
-
-    expect(pluginMocks.writeFile).toHaveBeenCalledTimes(1)
-    // expect(pluginMocks.writeFile).toHaveBeenCalledWith('id plugin', 'hello/world.json')
-    expect(pluginMocks.writeFile.mock.lastCall).toEqual(['hello/world.json', 'hello/world.json plugin'])
-
     expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
   })
 })

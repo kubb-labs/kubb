@@ -2,18 +2,16 @@ import { PluginManager } from './PluginManager.ts'
 import { createLogger } from './logger.ts'
 import { createPlugin } from './plugin.ts'
 
-import type { Config, Plugin, TransformResult } from './types.ts'
+import type { Config, Plugin } from './types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
     buildStart: vi.fn(),
     resolvePath: vi.fn(),
-    transform: vi.fn(),
   } as const
   const pluginBMocks = {
     buildStart: vi.fn(),
     resolvePath: vi.fn(),
-    transform: vi.fn(),
   } as const
   const pluginA = createPlugin(() => {
     return {
@@ -29,14 +27,6 @@ describe('PluginManager', () => {
         pluginAMocks.resolvePath()
 
         return 'pluginA/gen'
-      },
-      load() {
-        return 'id'
-      },
-      transform(code) {
-        pluginAMocks.transform()
-
-        return `${code} pluginA`
       },
     }
   })
@@ -59,11 +49,6 @@ describe('PluginManager', () => {
       resolveName() {
         return 'pluginBName'
       },
-      transform(code) {
-        pluginBMocks.transform()
-
-        return `${code} pluginB`
-      },
     }
   })
 
@@ -84,11 +69,6 @@ describe('PluginManager', () => {
       },
       resolveName() {
         return 'pluginBBisName'
-      },
-      transform(code) {
-        pluginBMocks.transform()
-
-        return `${code} pluginBBis`
       },
     }
   })
@@ -118,7 +98,7 @@ describe('PluginManager', () => {
     expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
-    expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
+    expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName', 'buildEnd'])
     expect(pluginManager.getPluginsByKey('buildStart', ['pluginB'])?.[0]?.name).toBe('pluginB')
   })
 
@@ -157,37 +137,6 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.resolvePath).toHaveBeenCalled()
     expect(pluginBMocks.resolvePath).toHaveBeenCalled()
-  })
-
-  test('hookReduceArg0', async () => {
-    const transformReducerMocks = vi.fn((_previousCode: string, result: TransformResult | Promise<TransformResult>) => {
-      return result
-    })
-
-    await pluginManager.hookReduceArg0({
-      hookName: 'transform',
-      parameters: ['code', 'path'],
-      reduce: transformReducerMocks,
-    })
-
-    expect(transformReducerMocks).toHaveBeenCalledTimes(3)
-    // expect(transformReducerMocks).toHaveBeenNthCalledWith(1, 'code', 'code pluginA', expect.anything())
-    expect(transformReducerMocks.mock.calls[0]).toEqual(['code', 'code pluginA', expect.anything()])
-    // expect(transformReducerMocks).toHaveBeenNthCalledWith(2, 'code', 'code pluginA pluginB', expect.anything())
-    expect(transformReducerMocks.mock.calls[1]).toEqual(['code', 'code pluginA pluginB', expect.anything()])
-
-    expect(pluginAMocks.transform).toHaveBeenCalled()
-    expect(pluginBMocks.transform).toHaveBeenCalled()
-  })
-
-  test('hookSeq', async () => {
-    await pluginManager.hookSeq({
-      hookName: 'resolvePath',
-      parameters: ['path'],
-    })
-
-    expect(pluginAMocks.transform).toHaveBeenCalled()
-    expect(pluginBMocks.transform).toHaveBeenCalled()
   })
 
   test('resolvePath without `pluginKey`', () => {
@@ -248,8 +197,8 @@ describe('PluginManager', () => {
       parameters: ['path'],
     })
 
-    expect(pluginAMocks.transform).toHaveBeenCalled()
-    expect(pluginBMocks.transform).toHaveBeenCalled()
+    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
+    expect(pluginBMocks.resolvePath).toHaveBeenCalled()
   })
 
   test('if validatePlugins works with 2 plugins', () => {

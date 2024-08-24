@@ -632,13 +632,6 @@ export class PluginManager {
 
     const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
 
-    // default transform
-    if (!plugin.transform) {
-      plugin.transform = function transform(_path, code) {
-        return code
-      }
-    }
-
     if (plugin.api && typeof plugin.api === 'function') {
       const api = (plugin.api as Function).call(context) as typeof plugin.api
 
@@ -678,6 +671,6 @@ export class PluginManager {
   }
 
   static get hooks() {
-    return ['buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'] as const
+    return ['buildStart', 'resolvePath', 'resolveName', 'buildEnd'] as const
   }
 }

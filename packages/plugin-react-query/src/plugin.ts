@@ -144,13 +144,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       const files = await operationGenerator.build()
       await this.addFile(...files)
     },
-    async writeFile(path, source) {
-      if (!path.endsWith('.ts') || !source) {
-        return
-      }
-
-      return this.fileManager.write(path, source, { sanity: false })
-    },
     async buildEnd() {
       if (this.config.output.write === false) {
         return

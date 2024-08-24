@@ -23,9 +23,7 @@ export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
    */
   root?: string
   /**
-   * Plugin type can be KubbJSONPlugin or Plugin
-   * Example: ['@kubb/plugin-oas', { output: false }]
-   * Or: pluginOas({ output: false })
+   * Plugin type should be a Kubb plugin
    */
   plugins?: Array<Omit<UnknownUserPlugin, 'api'>>
 }
@@ -225,21 +223,6 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    */
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   /**
-   * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
-   * @type hookFirst
-   */
-  load?: (this: Omit<PluginContext<TOptions>, 'addFile'>, path: KubbFile.Path) => PossiblePromise<TransformResult | null>
-  /**
-   * Transform the source-code.
-   * @type hookReduceArg0
-   */
-  transform?: (this: Omit<PluginContext<TOptions>, 'addFile'>, source: string, path: KubbFile.Path) => PossiblePromise<TransformResult>
-  /**
-   * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
-   * @type hookParallel
-   */
-  writeFile?: (this: Omit<PluginContext<TOptions>, 'addFile'>, path: KubbFile.Path, source: string | undefined) => PossiblePromise<string | void>
-  /**
    * End of the plugin lifecycle.
    * @type hookParallel
    */
@@ -291,6 +274,3 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   plugin: Plugin<TOptions>
 }
-
-// null will mean clear the watcher for this key
-export type TransformResult = string | null
