@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import pluginSwagger from '@kubb/plugin-oas'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
@@ -42,12 +42,12 @@ const baseConfig = {
     done: ['pnpm typecheck'],
   },
   plugins: [
-    pluginSwagger({
+    pluginOas({
       output: false,
       validate: true,
       docs: false,
     }),
-    pluginSwagger({
+    pluginOas({
       output: {
         path: 'schemas2',
       },
