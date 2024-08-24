@@ -30,9 +30,9 @@ jobs:
           # experimental: [false]
 
           ## comment for support of node 19,20
-          exclude:
-            - os: ubuntu-latest
-              node-version: 20
+#          exclude:
+#            - os: ubuntu-latest
+#              node-version: 20
           include:
             - os: windows-latest
               node-version: 20

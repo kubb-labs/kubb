@@ -20,8 +20,7 @@ describe('build', () => {
     return {
       name: 'plugin',
       options: undefined as any,
-      api: undefined as never,
-
+      context: undefined as never,
       key: ['plugin'],
       async buildStart(...params) {
         pluginMocks.buildStart(...params)

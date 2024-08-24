@@ -10,14 +10,20 @@ import type { OperationGenerator } from '../OperationGenerator.ts'
 type Props = {
   oas: OasType
   operations?: OperationType[]
-  generator?: OperationGenerator
+  /**
+   * @deprecated
+   */
+  generator?: Omit<OperationGenerator, 'build'>
   children?: KubbNode
 }
 
 type OasContextProps = {
   oas?: OasType
   operations?: OperationType[]
-  generator?: OperationGenerator
+  /**
+   * @deprecated
+   */
+  generator?: Omit<OperationGenerator, 'build'>
 }
 
 const OasContext = createContext<OasContextProps>({})

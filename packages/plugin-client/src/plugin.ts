@@ -3,10 +3,10 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
+import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
@@ -37,6 +37,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       dataReturnType,
       client: {
         importPath: '@kubb/plugin-client/client',
+        methods: ['get', 'post', 'delete', 'put'],
         ...options.client,
       },
       pathParamsType,
@@ -102,7 +103,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build()
+      const files = await operationGenerator.build(clientParser)
 
       await this.addFile(...files)
     },

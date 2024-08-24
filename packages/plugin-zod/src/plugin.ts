@@ -3,17 +3,15 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
+import { zodParser } from './SchemaGenerator.tsx'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
@@ -111,7 +109,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build()
+      const schemaFiles = await schemaGenerator.build(zodParser)
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -125,7 +123,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build()
+      const operationFiles = await operationGenerator.build(zodParser)
       await this.addFile(...operationFiles)
     },
     async buildEnd() {

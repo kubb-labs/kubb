@@ -17,7 +17,7 @@ describe('PluginManager', () => {
     return {
       name: 'pluginA',
       options: undefined as any,
-      api: undefined as never,
+      context: undefined as never,
 
       key: ['pluginA'],
       buildStart() {
@@ -35,8 +35,7 @@ describe('PluginManager', () => {
     return {
       name: 'pluginB',
       options: undefined as any,
-      api: undefined as never,
-
+      context: undefined as never,
       key: ['pluginB', 1],
       buildStart() {
         pluginBMocks.buildStart()
@@ -56,8 +55,7 @@ describe('PluginManager', () => {
     return {
       name: 'pluginB',
       options: undefined as any,
-      api: undefined as never,
-
+      context: undefined as never,
       key: ['pluginB', 2],
       buildStart() {
         pluginBMocks.buildStart()

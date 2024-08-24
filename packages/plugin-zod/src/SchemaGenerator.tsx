@@ -1,31 +1,22 @@
-import type { SchemaObject } from '@kubb/oas'
-import { SchemaGenerator as Generator } from '@kubb/plugin-oas'
-import type { SchemaMethodResult } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components'
-import { App, createRoot } from '@kubb/react'
+import { createReactParser } from '@kubb/plugin-oas'
 import { Schema } from './components/Schema.tsx'
-import type { FileMeta, PluginZod } from './types.ts'
+import type { PluginZod } from './types.ts'
+import { Operations } from './components/Operations.tsx'
+import { OperationSchema } from './components/OperationSchema.tsx'
 
-export class SchemaGenerator extends Generator<PluginZod['resolvedOptions'], PluginZod> {
-  async schema(name: string, schema: SchemaObject, options: PluginZod['resolvedOptions']): SchemaMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin, mode, output } = this.context
+export const zodParser = createReactParser<PluginZod>({
+  name: 'plugin-zod',
+  Operations({ options }) {
+    if (!options.templates.operations) {
+      return null
+    }
 
-    const root = createRoot({
-      logger: pluginManager.logger,
-    })
-
-    const tree = this.parse({ schema, name })
-
-    root.render(
-      <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-        <Oas oas={oas}>
-          <Oas.Schema name={name} value={schema} tree={tree}>
-            <Schema.File />
-          </Oas.Schema>
-        </Oas>
-      </App>,
-    )
-
-    return root.files
-  }
-}
+    return <Operations.File templates={options.templates.operations} />
+  },
+  Operation() {
+    return <OperationSchema.File />
+  },
+  Schema({ schema, name }) {
+    return <Schema.File />
+  },
+})

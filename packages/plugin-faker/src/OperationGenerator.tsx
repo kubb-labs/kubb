@@ -15,6 +15,7 @@ export class OperationGenerator extends Generator<PluginFaker['resolvedOptions']
     const root = createRoot({
       logger: pluginManager.logger,
     })
+
     root.render(
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
         <Oas oas={oas} operations={[operation]} generator={this}>

@@ -7,6 +7,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod, Oas, OasTypes, Operation, contentType } from '@kubb/oas'
 import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
+import type { Parser } from './parser.tsx'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -26,7 +27,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   mode: KubbFile.Mode
 }
 
-export abstract class OperationGenerator<
+export class OperationGenerator<
   TOptions = unknown,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
@@ -65,6 +66,7 @@ export abstract class OperationGenerator<
       })?.options || {}
     )
   }
+
   /**
    *
    * @deprecated
@@ -93,6 +95,7 @@ export abstract class OperationGenerator<
 
     return matched
   }
+
   /**
    *
    * @deprecated
@@ -124,7 +127,13 @@ export abstract class OperationGenerator<
 
   getSchemas(
     operation: Operation,
-    { forStatusCode, resolveName = (name) => name }: { forStatusCode?: string | number; resolveName?: (name: string) => string } = {},
+    {
+      forStatusCode,
+      resolveName = (name) => name,
+    }: {
+      forStatusCode?: string | number
+      resolveName?: (name: string) => string
+    } = {},
   ): OperationSchemas {
     const pathParamsSchema = this.context.oas.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
@@ -217,20 +226,7 @@ export abstract class OperationGenerator<
     }
   }
 
-  get #methods() {
-    return {
-      get: this.get,
-      post: this.post,
-      patch: this.patch,
-      put: this.put,
-      delete: this.delete,
-      head: undefined,
-      options: undefined,
-      trace: undefined,
-    } as const
-  }
-
-  async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...parsers: Array<Parser<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
     const paths = oas.getPaths()
@@ -239,7 +235,7 @@ export abstract class OperationGenerator<
 
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
-        if (operation && this.#methods[method]) {
+        if (operation) {
           const isExcluded = this.#isExcluded(operation, method)
           const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
 
@@ -267,21 +263,43 @@ export abstract class OperationGenerator<
       methods.forEach((method) => {
         const { operation } = this.operationsByMethod[path]?.[method]!
         const options = this.#getOptions(operation, method)
-        const promiseMethod = this.#methods[method]?.call(this, operation, {
-          ...this.options,
-          ...options,
-        })
+
+        const methodToCall = this[method as keyof typeof this] as any
+
+        if (typeof methodToCall === 'function') {
+          const promiseMethod = methodToCall?.call(this, operation, {
+            ...this.options,
+            ...options,
+          })
+
+          if (promiseMethod) {
+            acc.push(promiseMethod)
+          }
+        }
+
         const promiseOperation = this.operation.call(this, operation, {
           ...this.options,
           ...options,
         })
 
-        if (promiseMethod) {
-          acc.push(promiseMethod)
-        }
         if (promiseOperation) {
           acc.push(promiseOperation)
         }
+
+        parsers?.forEach((parser) => {
+          const promise = parser.operation?.({
+            instance: this,
+            operation,
+            options: {
+              ...this.options,
+              ...options,
+            },
+          } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
+
+          if (promise) {
+            acc.push(promise)
+          }
+        })
       })
 
       return acc
@@ -290,6 +308,19 @@ export abstract class OperationGenerator<
     const operations = Object.values(this.operationsByMethod).map((item) => Object.values(item).map((item) => item.operation))
 
     promises.push(this.all(operations.flat().filter(Boolean), this.operationsByMethod))
+
+    parsers?.forEach((parser) => {
+      const promise = parser.operations?.({
+        instance: this,
+        operations: operations.flat().filter(Boolean),
+        operationsByMethod: this.operationsByMethod,
+        options: this.options,
+      } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
+
+      if (promise) {
+        promises.push(promise)
+      }
+    })
 
     const files = await Promise.all(promises)
 
@@ -301,47 +332,47 @@ export abstract class OperationGenerator<
    * Operation
    */
   async operation(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * GET
    */
   async get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * POST
    */
   async post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
   /**
    * PATCH
    */
   async patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * PUT
    */
   async put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * DELETE
    */
   async delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
   async all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 }

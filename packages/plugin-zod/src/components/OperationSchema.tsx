@@ -1,9 +1,7 @@
-import { schemaKeywords } from '@kubb/plugin-oas'
+import { SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File, Parser, useApp } from '@kubb/react'
-
-import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
