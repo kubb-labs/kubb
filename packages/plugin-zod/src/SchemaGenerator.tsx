@@ -17,7 +17,7 @@ export const zodParser = createReactParser<PluginZod>({
 
     return <Operations.File templates={options.templates.operations} />
   },
-  Operation({ options }) {
+  Operation() {
     return <OperationSchema.File />
   },
   Schema() {

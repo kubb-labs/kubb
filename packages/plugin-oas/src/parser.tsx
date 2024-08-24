@@ -8,20 +8,20 @@ import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
 
 type OperationsProps<TOptions extends PluginFactoryOptions> = {
-  generator: OperationGenerator<TOptions>
+  instance: Omit<OperationGenerator<TOptions>, 'build'>
   options: TOptions['resolvedOptions']
   operations: Array<Operation>
   operationsByMethod: OperationsByMethod
 }
 
 type OperationProps<TOptions extends PluginFactoryOptions> = {
-  generator: OperationGenerator<TOptions>
+  instance: Omit<OperationGenerator<TOptions>, 'build'>
   options: TOptions['resolvedOptions']
   operation: Operation
 }
 
 type SchemaProps<TOptions extends PluginFactoryOptions> = {
-  generator: SchemaGenerator<SchemaGeneratorOptions, TOptions>
+  instance: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
   name: string
   schema: SchemaObject
   options: TOptions['resolvedOptions']
@@ -50,41 +50,41 @@ export type ParserReactOptions<TOptions extends PluginFactoryOptions> = {
 export function createReactParser<TOptions extends PluginFactoryOptions>(parseOptions: ParserReactOptions<TOptions>): Parser<TOptions> {
   return {
     ...parseOptions,
-    async operations({ generator, options, operations, operationsByMethod }) {
+    async operations({ instance, options, operations, operationsByMethod }) {
       if (!parseOptions.Operations) {
         return []
       }
 
-      const { pluginManager, oas, plugin, mode } = generator.context
+      const { pluginManager, oas, plugin, mode } = instance.context
       const root = createRoot({
         logger: pluginManager.logger,
       })
 
       root.render(
         <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
-          <Oas oas={oas} operations={operations} generator={generator}>
-            <parseOptions.Operations operations={operations} generator={generator} operationsByMethod={operationsByMethod} options={options} />
+          <Oas oas={oas} operations={operations} generator={instance}>
+            <parseOptions.Operations operations={operations} instance={instance} operationsByMethod={operationsByMethod} options={options} />
           </Oas>
         </App>,
       )
 
       return root.files
     },
-    async operation({ generator, operation, options }) {
+    async operation({ instance, operation, options }) {
       if (!parseOptions.Operation) {
         return []
       }
 
-      const { pluginManager, oas, plugin, mode } = generator.context
+      const { pluginManager, oas, plugin, mode } = instance.context
       const root = createRoot({
         logger: pluginManager.logger,
       })
 
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-          <Oas oas={oas} operations={[operation]} generator={generator}>
+          <Oas oas={oas} operations={[operation]} generator={instance}>
             <Oas.Operation operation={operation}>
-              <parseOptions.Operation operation={operation} options={options} generator={generator} />
+              <parseOptions.Operation operation={operation} options={options} instance={instance} />
             </Oas.Operation>
           </Oas>
         </App>,
@@ -92,23 +92,23 @@ export function createReactParser<TOptions extends PluginFactoryOptions>(parseOp
 
       return root.files
     },
-    async schema({ generator, schema, name, options }) {
+    async schema({ instance, schema, name, options }) {
       if (!parseOptions.Schema) {
         return []
       }
 
-      const { pluginManager, oas, plugin, mode } = generator.context
+      const { pluginManager, oas, plugin, mode } = instance.context
       const root = createRoot({
         logger: pluginManager.logger,
       })
 
-      const tree = generator.parse({ schema, name })
+      const tree = instance.parse({ schema, name })
 
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
             <Oas.Schema name={name} value={schema} tree={tree}>
-              <parseOptions.Schema schema={schema} options={options} generator={generator} name={name} />
+              <parseOptions.Schema schema={schema} options={options} instance={instance} name={name} />
             </Oas.Schema>
           </Oas>
         </App>,
