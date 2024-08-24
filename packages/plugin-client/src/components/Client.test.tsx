@@ -2,12 +2,11 @@ import { mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
 import { Oas } from '@kubb/plugin-oas/components'
 
-import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Client } from './Client.tsx'
 
 import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
-import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from '../types.ts'
 
@@ -31,7 +30,7 @@ describe('<Client/>', async () => {
     extName: undefined,
   }
   const plugin = { options } as Plugin<PluginClient>
-  const og = await new OperationGenerator(options, {
+  const og = new OperationGenerator(options, {
     oas,
     exclude: [],
     include: undefined,

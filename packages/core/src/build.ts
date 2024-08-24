@@ -4,11 +4,12 @@ import { clean, read } from '@kubb/fs'
 import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
-import { LogLevel, createLogger, randomCliColour } from './logger.ts'
+import { LogLevel, createLogger, randomCliColour, LogMapper } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 import type { Logger } from './logger.ts'
-import type { PluginContext, PluginParameter } from './types.ts'
+import type { PluginContext } from './types.ts'
+import { createConsola } from 'consola'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -28,7 +29,15 @@ type BuildOutput = {
 }
 
 async function setup(options: BuildOptions): Promise<PluginManager> {
-  const { config, logger = createLogger({ logLevel: LogLevel.silent }) } = options
+  const {
+    config,
+    logger = createLogger({
+      logLevel: LogLevel.silent,
+      consola: createConsola({
+        level: 3,
+      }),
+    }),
+  } = options
   let count = 0
 
   try {

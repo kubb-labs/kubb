@@ -226,6 +226,8 @@ export class OperationGenerator<
     }
   }
 
+  #methods = ['get', 'post', 'patch', 'put', 'delete']
+
   async build(...parsers: Array<Parser<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
@@ -235,7 +237,7 @@ export class OperationGenerator<
 
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
-        if (operation) {
+        if (operation && [this.#methods].some((methods) => method === operation.method)) {
           const isExcluded = this.#isExcluded(operation, method)
           const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
 
@@ -264,25 +266,31 @@ export class OperationGenerator<
         const { operation } = this.operationsByMethod[path]?.[method]!
         const options = this.#getOptions(operation, method)
 
-        const promiseMethod = (this[method as keyof typeof this] as any)?.call(this, operation, {
-          ...this.options,
-          ...options,
-        })
+        const methodToCall = this[method as keyof typeof this] as any
+
+        if (typeof methodToCall === 'function') {
+          const promiseMethod = methodToCall?.call(this, operation, {
+            ...this.options,
+            ...options,
+          })
+
+          if (promiseMethod) {
+            acc.push(promiseMethod)
+          }
+        }
+
         const promiseOperation = this.operation.call(this, operation, {
           ...this.options,
           ...options,
         })
 
-        if (promiseMethod) {
-          acc.push(promiseMethod)
-        }
         if (promiseOperation) {
           acc.push(promiseOperation)
         }
 
         parsers?.forEach((parser) => {
           const promise = parser.operation?.({
-            generator: this,
+            instance: this,
             operation,
             options: {
               ...this.options,
@@ -305,7 +313,7 @@ export class OperationGenerator<
 
     parsers?.forEach((parser) => {
       const promise = parser.operations?.({
-        generator: this,
+        instance: this,
         operations: operations.flat().filter(Boolean),
         operationsByMethod: this.operationsByMethod,
         options: this.options,
@@ -326,47 +334,47 @@ export class OperationGenerator<
    * Operation
    */
   async operation(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * GET
    */
   async get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * POST
    */
   async post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
   /**
    * PATCH
    */
   async patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * PUT
    */
   async put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * DELETE
    */
   async delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
   async all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
-    return null
+    return []
   }
 }

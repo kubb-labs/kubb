@@ -110,16 +110,7 @@ Schema.File = function ({}: FileProps): ReactNode {
       options: { typed },
     },
   } = useApp<PluginZod>()
-  const { tree, schema } = useSchema()
-
-  const withData = tree.some(
-    (schema) =>
-      schema.keyword === schemaKeywords.array ||
-      schema.keyword === schemaKeywords.and ||
-      schema.keyword === schemaKeywords.object ||
-      schema.keyword === schemaKeywords.union ||
-      schema.keyword === schemaKeywords.tuple,
-  )
+  const { schema } = useSchema()
 
   const withTypeAnnotation = !!typed
 

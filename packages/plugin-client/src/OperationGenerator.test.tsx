@@ -1,13 +1,12 @@
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
-import { OperationGenerator } from './OperationGenerator.tsx'
 import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
-import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from './types.ts'
 
@@ -33,7 +32,7 @@ describe('OperationGenerator', async () => {
       extName: undefined,
     }
 
-    const og = await new OperationGenerator(options, {
+    const og = new OperationGenerator(options, {
       oas,
       exclude: [],
       include: undefined,
@@ -64,7 +63,7 @@ describe('OperationGenerator', async () => {
       extName: undefined,
     }
 
-    const og = await new OperationGenerator(options, {
+    const og = new OperationGenerator(options, {
       oas,
       exclude: [],
       include: undefined,
@@ -98,7 +97,7 @@ describe('OperationGenerator', async () => {
       extName: undefined,
     }
 
-    const og = await new OperationGenerator(options, {
+    const og = new OperationGenerator(options, {
       oas,
       exclude: [],
       include: undefined,

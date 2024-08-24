@@ -839,7 +839,7 @@ export class SchemaGenerator<
 
       parsers?.forEach((parser) => {
         const promise = parser.schema?.({
-          generator: this,
+          instance: this,
           name,
           schema,
           options: {
@@ -858,7 +858,7 @@ export class SchemaGenerator<
 
     const files = await Promise.all(promises)
 
-    // using .flat because schemaGenerator[method] can return a array of files or just one file
+    // using .flat because schemaGenerator[method] can return an array of files or just one file
     return files.flat().filter(Boolean)
   }
 
@@ -866,6 +866,6 @@ export class SchemaGenerator<
    * Schema
    */
   async schema(name: string, object: SchemaObject, options: TOptions): SchemaMethodResult<TFileMeta> {
-    return null
+    return []
   }
 }

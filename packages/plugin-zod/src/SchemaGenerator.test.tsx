@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { SchemaGenerator } from './SchemaGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
@@ -9,7 +8,7 @@ import type { PluginZod } from './types'
 
 import { mockedPluginManager } from '@kubb/core/mocks'
 
-import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
+import { type GetSchemaGeneratorOptions, SchemaGenerator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { createRootServer } from '@kubb/react/server'
 import { Operations } from './components'
@@ -186,14 +185,19 @@ describe('Zod SchemaGenerator', async () => {
       path: 'Example',
       options: {},
     },
-  ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    options: Partial<GetSchemaGeneratorOptions<SchemaGenerator<PluginZod['resolvedOptions'], PluginZod>>>
+  }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
     const schemas = oas.getDefinition().components?.schemas
     const schema = schemas?.[props.path]
 
-    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+    const options: GetSchemaGeneratorOptions<SchemaGenerator<PluginZod['resolvedOptions'], PluginZod>> = {
       dateType: 'date',
       transformers: {},
       typed: false,
