@@ -47,10 +47,12 @@
     "@kubb/plugin-react-query": "2.25.1"
   },
   "changesets": [
+    "clever-donkeys-drive",
     "curly-snails-film",
     "fifty-rockets-remember",
     "green-sloths-invent",
     "large-meals-count",
+    "plenty-icons-rest",
     "slimy-lamps-develop",
     "unlucky-rockets-own"
   ]
