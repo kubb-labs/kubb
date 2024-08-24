@@ -1,5 +1,18 @@
 # @kubb/core
 
+## 3.0.0-alpha.4
+
+### Minor Changes
+
+- [#1136](https://github.com/kubb-labs/kubb/pull/1136) [`0fc2205`](https://github.com/kubb-labs/kubb/commit/0fc22058bf79cf8ad543428fbd938cccd604d15c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of ora in favour of consola
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.0-alpha.4
+  - @kubb/parser-ts@3.0.0-alpha.4
+  - @kubb/types@3.0.0-alpha.4
+
 ## 3.0.0-alpha.3
 
 ### Patch Changes
