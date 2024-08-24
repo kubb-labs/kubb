@@ -126,7 +126,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     async buildStart() {
       const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
 
-      const oas = await swaggerPlugin.api.getOas()
+      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
 
@@ -134,7 +134,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.api.contentType,
+        contentType: swaggerPlugin.context.contentType,
         exclude,
         include,
         override,
@@ -143,13 +143,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       const files = await operationGenerator.build()
       await this.addFile(...files)
-    },
-    async writeFile(path, source) {
-      if (!path.endsWith('.ts') || !source) {
-        return
-      }
-
-      return this.fileManager.write(path, source, { sanity: false })
     },
     async buildEnd() {
       if (this.config.output.write === false) {

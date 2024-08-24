@@ -93,17 +93,10 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
 
       return resolvedName
     },
-    async writeFile(path, source) {
-      if (!path.endsWith('.ts') || !source) {
-        return
-      }
-
-      return this.fileManager.write(path, source, { sanity: false })
-    },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
 
-      const oas = await swaggerPlugin.api.getOas()
+      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
 
@@ -111,7 +104,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.api.contentType,
+        contentType: swaggerPlugin.context.contentType,
         include: undefined,
         override,
         mode,
@@ -125,7 +118,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.api.contentType,
+        contentType: swaggerPlugin.context.contentType,
         exclude,
         include,
         override,
