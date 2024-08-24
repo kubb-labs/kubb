@@ -29,16 +29,9 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
     resolveName(name, type) {
       return camelCase(name, { isFile: type === 'file' })
     },
-    async writeFile(path, source) {
-      if (!path.endsWith('.ts') || !source) {
-        return
-      }
-
-      return this.fileManager.write(path, source, { sanity: false })
-    },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
-      const oas = await swaggerPlugin.api.getOas()
+      const oas = await swaggerPlugin.context.getOas()
 
       await oas.dereference()
 

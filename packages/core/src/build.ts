@@ -3,13 +3,12 @@ import c from 'tinyrainbow'
 import { clean, read } from '@kubb/fs'
 import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
-import { isPromise } from './PromiseManager.ts'
 import { isInputPath } from './config.ts'
 import { LogLevel, createLogger, randomCliColour } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 import type { Logger } from './logger.ts'
-import type { Plugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
+import type { PluginContext, PluginParameter } from './types.ts'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -26,15 +25,6 @@ type BuildOutput = {
    * Only for safeBuild
    */
   error?: Error
-}
-
-async function transformReducer(
-  this: PluginContext,
-  _previousCode: string,
-  result: TransformResult | Promise<TransformResult>,
-  _plugin: Plugin,
-): Promise<string | null> {
-  return result
 }
 
 async function setup(options: BuildOptions): Promise<PluginManager> {
@@ -63,40 +53,11 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   const task = async (file: ResolvedFile): Promise<ResolvedFile> => {
     const { path } = file
 
-    let source: string | null = await FileManager.getSource(file)
-
-    const { result: loadedResult } = await pluginManager.hookFirst({
-      hookName: 'load',
-      parameters: [path],
-    })
-    if (loadedResult && isPromise(loadedResult)) {
-      source = await loadedResult
-    }
-    if (loadedResult && !isPromise(loadedResult)) {
-      source = loadedResult
-    }
+    const source: string | null = await FileManager.getSource(file)
 
     if (source) {
-      source = await pluginManager.hookReduceArg0({
-        hookName: 'transform',
-        parameters: [path, source],
-        reduce: transformReducer,
-      })
-
       if (config.output.write || config.output.write === undefined) {
-        if (file.meta?.pluginKey) {
-          // run only for pluginKey defined in the meta of the file
-          await pluginManager.hookForPlugin({
-            pluginKey: file.meta?.pluginKey,
-            hookName: 'writeFile',
-            parameters: [path, source],
-          })
-        }
-
-        await pluginManager.hookFirst({
-          hookName: 'writeFile',
-          parameters: [path, source],
-        })
+        await pluginManager.fileManager.write(path, source, { sanity: false })
       }
     }
 
@@ -107,16 +68,6 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   }
 
   const pluginManager = new PluginManager(config, { logger, task })
-
-  pluginManager.on('execute', (executer) => {
-    const { hookName, parameters, plugin } = executer
-
-    if (hookName === 'writeFile') {
-      const [code] = parameters as PluginParameter<'writeFile'>
-
-      logger.emit('debug', [`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`])
-    }
-  })
 
   pluginManager.queue.on('add', () => {
     if (logger.logLevel !== LogLevel.info) {

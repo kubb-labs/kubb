@@ -23,11 +23,9 @@ export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
    */
   root?: string
   /**
-   * Plugin type can be KubbJSONPlugin or Plugin
-   * Example: ['@kubb/plugin-oas', { output: false }]
-   * Or: pluginOas({ output: false })
+   * Plugin type should be a Kubb plugin
    */
-  plugins?: Array<Omit<UnknownUserPlugin, 'api'>>
+  plugins?: Array<Omit<UnknownUserPlugin, 'context'>>
 }
 
 export type InputPath = {
@@ -112,9 +110,9 @@ export type PluginFactoryOptions<
    */
   TResolvedOptions extends object = TOptions,
   /**
-   * API that you want to expose to other plugins.
+   * Context that you want to expose to other plugins.
    */
-  TAPI = any,
+  TContext = any,
   /**
    * When calling `resolvePath` you can specify better types.
    */
@@ -127,7 +125,7 @@ export type PluginFactoryOptions<
   key: PluginKey<TName | string>
   options: TOptions
   resolvedOptions: TResolvedOptions
-  api: TAPI
+  context: TContext
   resolvePathOptions: TResolvePathOptions
 }
 
@@ -155,12 +153,12 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
    */
   post?: Array<string>
-} & (TOptions['api'] extends never
+} & (TOptions['context'] extends never
   ? {
-      api?: never
+      context?: never
     }
   : {
-      api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['api']
+      context: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['context']
     })
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
@@ -192,14 +190,14 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options: TOptions['resolvedOptions']
   /**
-   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
+   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
    */
-} & (TOptions['api'] extends never
+} & (TOptions['context'] extends never
   ? {
-      api?: never
+      context?: never
     }
   : {
-      api: TOptions['api']
+      context: TOptions['context']
     })
 
 export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
@@ -224,21 +222,6 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @example ('pet') => 'Pet'
    */
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  /**
-   * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
-   * @type hookFirst
-   */
-  load?: (this: Omit<PluginContext<TOptions>, 'addFile'>, path: KubbFile.Path) => PossiblePromise<TransformResult | null>
-  /**
-   * Transform the source-code.
-   * @type hookReduceArg0
-   */
-  transform?: (this: Omit<PluginContext<TOptions>, 'addFile'>, source: string, path: KubbFile.Path) => PossiblePromise<TransformResult>
-  /**
-   * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
-   * @type hookParallel
-   */
-  writeFile?: (this: Omit<PluginContext<TOptions>, 'addFile'>, path: KubbFile.Path, source: string | undefined) => PossiblePromise<string | void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel
@@ -291,6 +274,3 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   plugin: Plugin<TOptions>
 }
-
-// null will mean clear the watcher for this key
-export type TransformResult = string | null
