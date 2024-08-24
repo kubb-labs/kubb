@@ -31,7 +31,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
     },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
-      const oas = await swaggerPlugin.api.getOas()
+      const oas = await swaggerPlugin.context.getOas()
 
       await oas.dereference()
 

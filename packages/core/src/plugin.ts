@@ -37,7 +37,7 @@ export const pluginCore = createPlugin<PluginCore>((options) => {
     name: 'core',
     options,
     key: ['core'],
-    api() {
+    context() {
       return {
         get config() {
           return options.config

@@ -82,7 +82,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     async buildStart() {
       const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
 
-      const oas = await swaggerPlugin.api.getOas()
+      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
 
@@ -90,7 +90,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.api.contentType,
+        contentType: swaggerPlugin.context.contentType,
         exclude,
         include,
         override,

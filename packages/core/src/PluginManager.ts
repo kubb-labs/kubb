@@ -120,11 +120,11 @@ export class PluginManager {
       getPlugins: this.#getSortedPlugins.bind(this),
     })
 
-    // call core.api.call with empty context so we can transform `api()` to `api: {}`
-    this.#core = this.#parse(core as unknown as UserPlugin, this as any, core.api.call(null as any)) as Plugin<PluginCore>
+    // call core.context.call with empty context so we can transform `context()` to `context: {}`
+    this.#core = this.#parse(core as unknown as UserPlugin, this as any, core.context.call(null as any)) as Plugin<PluginCore>
 
     this.plugins = [this.#core, ...plugins].map((plugin) => {
-      return this.#parse(plugin as UserPlugin, this, this.#core.api)
+      return this.#parse(plugin as UserPlugin, this, this.#core.context)
     })
 
     return this
@@ -396,7 +396,7 @@ export class PluginManager {
           })
           return value
         })
-        .then((result) => reduce.call(this.#core.api, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
+        .then((result) => reduce.call(this.#core.context, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
     }
 
     return promise
@@ -529,7 +529,7 @@ export class PluginManager {
     const task = Promise.resolve()
       .then(() => {
         if (typeof hook === 'function') {
-          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.api, plugin }, parameters) as Promise<ReturnType<ParseResult<H>>>
+          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as Promise<ReturnType<ParseResult<H>>>
 
           if (isPromise(possiblePromiseResult)) {
             return Promise.resolve(possiblePromiseResult)
@@ -590,7 +590,7 @@ export class PluginManager {
 
     try {
       if (typeof hook === 'function') {
-        const fn = (hook as Function).apply({ ...this.#core.api, plugin }, parameters) as ReturnType<ParseResult<H>>
+        const fn = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
         return fn
@@ -624,7 +624,7 @@ export class PluginManager {
   #parse<TPlugin extends UserPluginWithLifeCycle>(
     plugin: TPlugin,
     pluginManager: PluginManager,
-    context: PluginCore['api'] | undefined,
+    context: PluginCore['context'] | undefined,
   ): Plugin<GetPluginFactoryOptions<TPlugin>> {
     const usedPluginNames = pluginManager.#usedPluginNames
 
@@ -632,13 +632,11 @@ export class PluginManager {
 
     const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
 
-    if (plugin.api && typeof plugin.api === 'function') {
-      const api = (plugin.api as Function).call(context) as typeof plugin.api
-
+    if (plugin.context && typeof plugin.context === 'function') {
       return {
         ...plugin,
         key,
-        api,
+        context: (plugin.context as Function).call(context) as typeof plugin.context,
       } as unknown as Plugin<GetPluginFactoryOptions<TPlugin>>
     }
 
