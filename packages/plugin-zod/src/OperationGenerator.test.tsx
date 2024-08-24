@@ -1,6 +1,5 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'

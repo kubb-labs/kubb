@@ -9,6 +9,9 @@ import type { HttpMethod, Oas, OasTypes, Operation, contentType } from '@kubb/oa
 import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
 import type { Parser } from './parser.tsx'
 
+/**
+ * @deprecated
+ */
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>

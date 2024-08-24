@@ -26,6 +26,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./parsers": {
+      "import": "./dist/parsers.js",
+      "require": "./dist/parsers.cjs",
+      "default": "./dist/parsers.cjs"
+    },
     "./components": {
       "import": "./dist/components.js",
       "require": "./dist/components.cjs",
@@ -51,6 +56,9 @@
     "*": {
       "components": [
         "./dist/components.d.ts"
+      ],
+      "parsers": [
+        "./dist/parsers.d.ts"
       ]
     }
   },

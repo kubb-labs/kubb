@@ -45,6 +45,10 @@ export type ParserReactOptions<TOptions extends PluginFactoryOptions> = {
   Operations?: (props: OperationsProps<TOptions>) => KubbNode
   Operation?: (props: OperationProps<TOptions>) => KubbNode
   Schema?: (props: SchemaProps<TOptions>) => KubbNode
+  /**
+   * Combine all react nodes and only render ones(to string or render)
+   */
+  render?: ()=> any
 }
 
 export function createReactParser<TOptions extends PluginFactoryOptions>(parseOptions: ParserReactOptions<TOptions>): Parser<TOptions> {

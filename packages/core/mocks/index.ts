@@ -47,9 +47,11 @@ export const mockedPluginManager = {
   },
 } as PluginManager
 
-export async function matchFiles(files: KubbFile.File[]) {
-  for (const file of files) {
-    const source = await FileManager.getSource(file)
-    expect(source).toMatchSnapshot()
+export async function matchFiles(files?: KubbFile.File[]) {
+  if(files){
+    for (const file of files) {
+      const source = await FileManager.getSource(file)
+      expect(source).toMatchSnapshot()
+    }
   }
 }

@@ -22,8 +22,8 @@ describe('OperationGenerator', async () => {
       dataReturnType: 'data',
       pathParamsType: 'inline',
       templates: {
-        operations: Operations.templates,
-        client: Client.templates,
+        operations: Operations,
+        client: Client,
       },
       client: {
         importPath: '@kubb/plugin-client/client',
@@ -53,8 +53,8 @@ describe('OperationGenerator', async () => {
       dataReturnType: 'data',
       pathParamsType: 'object',
       templates: {
-        operations: Operations.templates,
-        client: Client.templates,
+        operations: Operations,
+        client: Client,
       },
       client: {
         importPath: '@kubb/plugin-client/client',
@@ -84,11 +84,8 @@ describe('OperationGenerator', async () => {
       dataReturnType: 'data',
       pathParamsType: 'object',
       templates: {
-        operations: Operations.templates,
-        client: {
-          default: CustomClientTemplate,
-          root: Client.templates.root,
-        },
+        operations: Operations,
+        client: Client
       },
       client: {
         importPath: '@kubb/plugin-client/client',

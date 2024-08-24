@@ -9,6 +9,7 @@ export default defineConfig([
       index: 'src/index.ts',
       client: 'client.ts',
       components: 'src/components/index.ts',
+      parsers: 'src/parsers/index.ts',
     },
   },
   {
@@ -17,6 +18,7 @@ export default defineConfig([
       index: 'src/index.ts',
       client: 'client.ts',
       components: 'src/components/index.ts',
+      parsers: 'src/parsers/index.ts',
     },
   },
 ])

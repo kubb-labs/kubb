@@ -6,12 +6,12 @@ import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
-import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginClient } from './types.ts'
+import { axiosParser } from './parsers/axiosParser.tsx';
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
@@ -41,8 +41,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       },
       pathParamsType,
       templates: {
-        operations: Operations.templates,
-        client: Client.templates,
+        operations: Operations,
+        client: Client,
         ...templates,
       },
       baseURL: undefined,
@@ -102,7 +102,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(clientParser)
+      const files = await operationGenerator.build(axiosParser)
 
       await this.addFile(...files)
     },
