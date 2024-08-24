@@ -4,12 +4,11 @@ import { clean, read } from '@kubb/fs'
 import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
-import { LogLevel, createLogger, randomCliColour, LogMapper } from './logger.ts'
+import { createLogger, randomCliColour } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 import type { Logger } from './logger.ts'
 import type { PluginContext } from './types.ts'
-import { createConsola } from 'consola'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -29,15 +28,7 @@ type BuildOutput = {
 }
 
 async function setup(options: BuildOptions): Promise<PluginManager> {
-  const {
-    config,
-    logger = createLogger({
-      logLevel: LogLevel.silent,
-      consola: createConsola({
-        level: 3,
-      }),
-    }),
-  } = options
+  const { config, logger = createLogger() } = options
   let count = 0
 
   try {
@@ -79,37 +70,25 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   const pluginManager = new PluginManager(config, { logger, task })
 
   pluginManager.queue.on('add', () => {
-    if (logger.logLevel !== LogLevel.info) {
-      return
-    }
-
     if (count === 0) {
-      logger.emit('start', '💾 Writing')
+      logger.emit('info', '💾 Writing')
     }
   })
 
   pluginManager.queue.on('active', () => {
-    if (logger.logLevel !== LogLevel.info) {
-      return
-    }
-
-    if (logger.spinner && pluginManager.queue.size > 0) {
+    if (logger.consola && pluginManager.queue.size > 0) {
       const text = `Item: ${count} Size: ${pluginManager.queue.size}  Pending: ${pluginManager.queue.pending}`
 
-      logger.spinner.suffixText = c.dim(text)
+      logger.consola.debug(c.dim(text))
     }
     ++count
   })
 
   pluginManager.queue.on('completed', () => {
-    if (logger.logLevel !== LogLevel.info) {
-      return
-    }
-
-    if (logger.spinner) {
+    if (logger.consola) {
       const text = `Item: ${count} Size: ${pluginManager.queue.size}  Pending: ${pluginManager.queue.pending}`
 
-      logger.spinner.suffixText = c.dim(text)
+      logger.consola.debug(c.dim(text))
     }
   })
 
@@ -142,9 +121,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
-  if (logger.logLevel === LogLevel.info) {
-    logger.emit('end', '💾 Writing completed')
-  }
+  logger.emit('info', '💾 Writing completed')
 
   const files = await Promise.all(
     fileManager.files.map(async (file) => ({
@@ -172,9 +149,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
 
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
-    if (logger.logLevel === LogLevel.info) {
-      logger.emit('end', '💾 Writing completed')
-    }
+    logger.emit('info', '💾 Writing completed')
   } catch (e) {
     const files = await Promise.all(
       fileManager.files.map(async (file) => ({

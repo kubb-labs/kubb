@@ -84,7 +84,7 @@ describe('PluginManager', () => {
   } satisfies Config
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
-    logger: createLogger({ logLevel: 'silent' }),
+    logger: createLogger({ logLevel: 3 }),
     task: queueTaskMock,
   })
 

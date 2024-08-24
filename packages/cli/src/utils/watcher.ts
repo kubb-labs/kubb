@@ -1,25 +1,23 @@
 import c from 'tinyrainbow'
-
-import { spinner } from './spinner.ts'
+import { createLogger } from '@kubb/core/logger'
 
 export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
   const { watch } = await import('chokidar')
 
   const ignored = ['**/{.git,node_modules}/**']
+  const logger = createLogger()
 
   const watcher = watch(path, {
     ignorePermissionErrors: true,
     ignored,
   })
   watcher.on('all', (type, file) => {
-    spinner.succeed(c.yellow(c.bold(`Change detected: ${type} ${file}`)))
-    // revert back
-    spinner.spinner = 'clock'
+    logger.emit('info', c.yellow(c.bold(`Change detected: ${type} ${file}`)))
 
     try {
       cb(path)
     } catch (e) {
-      spinner.warn(c.red('Watcher failed'))
+      logger?.emit('warning', c.red('Watcher failed'))
     }
   })
 

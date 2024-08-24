@@ -1,17 +1,16 @@
-import { LogLevel } from '@kubb/core/logger'
 import { defineCommand, showUsage } from 'citty'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { execa } from 'execa'
 import c from 'tinyrainbow'
 
-import path from 'node:path'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { spinner } from '../utils/spinner.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { generate } from '../generate.ts'
+import path from 'node:path'
+import { createLogger } from '@kubb/core/logger'
 
 const args = {
   config: {
@@ -23,8 +22,8 @@ const args = {
     type: 'string',
     description: 'Info, silent or debug',
     alias: 'l',
-    default: LogLevel.info,
-    valueHint: `${LogLevel.silent}|${LogLevel.info}|${LogLevel.debug}`,
+    default: 'info',
+    valueHint: 'silent|info|debug',
   },
   watch: {
     type: 'boolean',
@@ -60,10 +59,8 @@ const command = defineCommand({
     description: "[input] Generate files based on a 'kubb.config.ts' file",
   },
   args,
-  setup() {
-    spinner.start('🔍 Loading config')
-  },
   async run({ args }) {
+    const logger = createLogger()
     const input = args._[0]
 
     if (args.help) {
@@ -72,7 +69,7 @@ const command = defineCommand({
     }
 
     if (args.debug) {
-      args.logLevel = LogLevel.debug
+      args.logLevel = 'debug'
     }
 
     if (args.bun) {
@@ -82,8 +79,10 @@ const command = defineCommand({
       return
     }
 
+    logger.emit('start', '🔍 Loading config')
+
     const result = await getCosmiConfig('kubb', args.config)
-    spinner.succeed(`🔍 Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
+    logger.emit('success', `🔍 Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
 
     const config = await getConfig(result, args)
 
@@ -95,8 +94,7 @@ const command = defineCommand({
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
           await generate({ config, args })
-          spinner.spinner = 'simpleDotsScrolling'
-          spinner.start(c.yellow(c.bold(`Watching for changes in ${paths.join(' and ')}`)))
+          logger.emit('start', c.yellow(c.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }
     }

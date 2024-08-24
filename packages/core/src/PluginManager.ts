@@ -5,7 +5,6 @@ import { FileManager, type ResolvedFile } from './FileManager.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 import { ValidationPluginError } from './errors.ts'
-import { LogLevel } from './logger.ts'
 import { pluginCore } from './plugin.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
@@ -423,11 +422,9 @@ export class PluginManager {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     if (hookName) {
-      if (this.logger.logLevel === LogLevel.info) {
-        const containsHookName = plugins.some((item) => item[hookName])
-        if (!containsHookName) {
-          this.logger.emit('warning', `No hook ${hookName} found`)
-        }
+      const containsHookName = plugins.some((item) => item[hookName])
+      if (!containsHookName) {
+        this.logger.emit('info', `No hook ${hookName} found`)
       }
 
       return plugins.filter((item) => item[hookName])

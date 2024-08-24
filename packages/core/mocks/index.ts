@@ -24,7 +24,7 @@ export const mockedPluginManager = {
       console.log(message)
     },
     on(eventName, args) {},
-    logLevel: 'info',
+    logLevel: 3,
   },
   getFile: ({ name, extName, pluginKey }) => {
     const baseName = `${name}${extName}`
