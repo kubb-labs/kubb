@@ -2,9 +2,9 @@ import { createReactParser } from '@kubb/plugin-oas'
 import { Operations } from '../components/Operations'
 import { Client } from '../components/Client'
 import type { PluginClient } from '../types'
-import { useOperationManager } from '@kubb/plugin-oas/hooks';
-import { pluginTsName } from '@kubb/plugin-ts';
-import { File, useApp } from '@kubb/react';
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { File, useApp } from '@kubb/react'
 
 export const axiosParser = createReactParser<PluginClient>({
   name: 'plugin-client',
@@ -15,22 +15,24 @@ export const axiosParser = createReactParser<PluginClient>({
       return null
     }
 
+    const Template = options.templates.operations || Operations
+
     const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey: ['plugin-client'] })
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
         <File.Source>
-          <Operations operations={operations} />
+          <Template operations={operations} />
         </File.Source>
-      </File>)
-
+      </File>
+    )
   },
-  Operation({ options, operation, }) {
+  Operation({ options, operation }) {
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const name = getName(operation, { type: 'function' })
     const typedSchemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-    const file =getFile(operation)
+    const file = getFile(operation)
     const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
     if (!options.templates.client) {

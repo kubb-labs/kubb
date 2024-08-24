@@ -11,7 +11,7 @@ import { Client, Operations } from './components/index.ts'
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginClient } from './types.ts'
-import { axiosParser } from './parsers/axiosParser.tsx';
+import { axiosParser } from './parsers/axiosParser.tsx'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 

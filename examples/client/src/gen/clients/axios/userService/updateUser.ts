@@ -1,7 +1,7 @@
 import type client from '@kubb/plugin-client/client'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 import axios from 'axios'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
 /**
  * @description This can only be done by the logged in user.

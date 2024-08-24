@@ -48,7 +48,7 @@ export type ParserReactOptions<TOptions extends PluginFactoryOptions> = {
   /**
    * Combine all react nodes and only render ones(to string or render)
    */
-  render?: ()=> any
+  render?: () => any
 }
 
 export function createReactParser<TOptions extends PluginFactoryOptions>(parseOptions: ParserReactOptions<TOptions>): Parser<TOptions> {

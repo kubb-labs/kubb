@@ -1,10 +1,7 @@
 import type client from '@kubb/plugin-client/client'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../../models/ts/userController/CreateUsersWithListInput'
 import axios from 'axios'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type {
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput'
 
 /**
  * @description Creates list of users with given input array

@@ -2,15 +2,14 @@ import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
 import { Oas } from '@kubb/plugin-oas/components'
 
-
 import type { Plugin } from '@kubb/core'
 import { App } from '@kubb/react'
 import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from '../types.ts'
-import { axiosParser } from '../parsers/axiosParser.tsx';
-import { Client } from './Client.tsx';
-import { Operations } from './Operations.tsx';
+import { axiosParser } from '../parsers/axiosParser.tsx'
+import { Client } from './Client.tsx'
+import { Operations } from './Operations.tsx'
 
 describe('<Operations/>', async () => {
   const oas = await parseFromConfig({
@@ -19,7 +18,7 @@ describe('<Operations/>', async () => {
     input: { path: 'packages/plugin-client/mocks/petStore.yaml' },
   })
 
-  const options: PluginClient["resolvedOptions"] = {
+  const options: PluginClient['resolvedOptions'] = {
     dataReturnType: 'data',
     pathParamsType: 'object',
     templates: {
@@ -48,9 +47,9 @@ describe('<Operations/>', async () => {
 
     const files = await axiosParser.operations?.({
       operations: [operation],
-      operationsByMethod: {  },
+      operationsByMethod: {},
       options,
-      instance: og
+      instance: og,
     })
 
     await matchFiles(files)

@@ -85,7 +85,7 @@ describe('OperationGenerator', async () => {
       pathParamsType: 'object',
       templates: {
         operations: Operations,
-        client: Client
+        client: Client,
       },
       client: {
         importPath: '@kubb/plugin-client/client',

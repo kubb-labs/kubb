@@ -34,21 +34,21 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
     },
     data: typedSchemas.request?.name
       ? {
-        type: typedSchemas.request?.name,
-        optional: isOptional(typedSchemas.request?.schema),
-      }
+          type: typedSchemas.request?.name,
+          optional: isOptional(typedSchemas.request?.schema),
+        }
       : undefined,
     params: typedSchemas.queryParams?.name
       ? {
-        type: typedSchemas.queryParams?.name,
-        optional: isOptional(typedSchemas.queryParams?.schema),
-      }
+          type: typedSchemas.queryParams?.name,
+          optional: isOptional(typedSchemas.queryParams?.schema),
+        }
       : undefined,
     headers: typedSchemas.headerParams?.name
       ? {
-        type: typedSchemas.headerParams?.name,
-        optional: isOptional(typedSchemas.headerParams?.schema),
-      }
+          type: typedSchemas.headerParams?.name,
+          optional: isOptional(typedSchemas.headerParams?.schema),
+        }
       : undefined,
     options: {
       type: 'Partial<Parameters<typeof client>[0]>',
@@ -70,26 +70,26 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
         },
         baseURL: baseURL
           ? {
-            type: 'string',
-            value: JSON.stringify(baseURL),
-          }
+              type: 'string',
+              value: JSON.stringify(baseURL),
+            }
           : undefined,
         params: typedSchemas.queryParams?.name
           ? {
-            type: 'any',
-          }
+              type: 'any',
+            }
           : undefined,
         data: typedSchemas.request?.name
           ? {
-            type: 'any',
-            value: isFormData ? 'formData' : undefined,
-          }
+              type: 'any',
+              value: isFormData ? 'formData' : undefined,
+            }
           : undefined,
         headers: headers.length
           ? {
-            type: 'any',
-            value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
-          }
+              type: 'any',
+              value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
+            }
           : undefined,
         options: {
           type: 'any',

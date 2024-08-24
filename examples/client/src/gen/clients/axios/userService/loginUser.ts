@@ -1,7 +1,7 @@
 import type client from '@kubb/plugin-client/client'
+import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 import axios from 'axios'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 
 /**
  * @summary Logs user into the system
