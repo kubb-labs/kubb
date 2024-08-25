@@ -1,4 +1,3 @@
-import client from '@kubb/plugin-client/client'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type {
   UploadFileMutationRequest,
@@ -6,6 +5,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
+import client from '@kubb/plugin-client/client'
 
 /**
  * @summary uploads an image

@@ -1,6 +1,3 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -9,6 +6,9 @@ import type {
 } from '../models/UpdatePetWithForm'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 type UpdatePetWithForm = {

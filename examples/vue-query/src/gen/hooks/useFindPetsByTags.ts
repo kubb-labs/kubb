@@ -1,9 +1,9 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {

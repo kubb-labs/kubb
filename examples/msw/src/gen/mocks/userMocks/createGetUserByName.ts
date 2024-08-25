@@ -1,6 +1,6 @@
+import type { GetUserByNamePathParams, GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNameQueryResponse } from '../../models/GetUserByName'
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type { GetUserByNamePathParams, GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNameQueryResponse } from '../../models/GetUserByName'
 
 export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
   faker.seed([220])

@@ -1,5 +1,3 @@
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type {
   UpdatePetWithFormMutationResponse,
@@ -7,6 +5,8 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm'
+import useSWRMutation from 'swr/mutation'
+import client from '../../../../swr-client.ts'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 type UpdatePetWithForm = {

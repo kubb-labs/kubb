@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { GetInventory200, GetInventoryQueryResponse } from '../../models/GetInventory'
+import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation

@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {

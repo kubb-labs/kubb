@@ -57,7 +57,6 @@ export default defineConfig([
       pluginOas({ validate: false, output: false }),
       pluginZod({
         output: {
-          // exportType: false,
           path: 'index.ts',
         },
       }),

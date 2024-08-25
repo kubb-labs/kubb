@@ -1,7 +1,3 @@
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 import type {
   QueryObserverOptions,
@@ -13,6 +9,10 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {

@@ -1,5 +1,3 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type {
   CreateBaseQueryOptions,
@@ -9,6 +7,8 @@ import type {
   CreateInfiniteQueryResult,
   InfiniteData,
 } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {

@@ -122,11 +122,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           logger: this.logger,
         })
 
-        // await this.addFile(...indexFiles)
+        await this.addFile(...indexFiles)
       }
-    },
-    async buildEnd() {
-      console.log('DONE')
     },
   }
 })

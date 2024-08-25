@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {

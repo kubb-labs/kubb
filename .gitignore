@@ -47,5 +47,6 @@ test.json
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
 !__snapshots__
-kubb-log.log
+kubb-files.log
+kubb.log
 hello

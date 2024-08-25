@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet'
+import useSWRMutation from 'swr/mutation'
+import client from '../../../../swr-client.ts'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {

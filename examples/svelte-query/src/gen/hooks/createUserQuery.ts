@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { createMutation } from '@tanstack/svelte-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createMutation } from '@tanstack/svelte-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {

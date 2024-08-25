@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 import type { UseMutationOptions } from '@tanstack/vue-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/vue-query'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {

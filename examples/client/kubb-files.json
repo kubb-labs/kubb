@@ -1,0 +1,2186 @@
+{
+  "files": [
+    {
+      "id": "1add58bcf0c0529a778533e8c9a9a163d0a62352",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./models/ts/index\";\nexport * from \"./clients/axios/index\";\n\n \n",
+      "exports": [
+        {
+          "path": "./models/ts/index"
+        },
+        {
+          "path": "./clients/axios/index"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      },
+      "imports": [],
+      "env": {}
+    },
+    {
+      "id": "85966f723bb1c03906c1516c741d77bce54b1cbb",
+      "name": "tag/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/Tag.json",
+      "baseName": "tag/json",
+      "source": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"name\":{\"type\":\"string\"}},\"xml\":{\"name\":\"tag\"},\"x-readme-ref-name\":\"Tag\"}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "id": "1c03f9b4ef4dc5d8a0a1feb94a67ec5496ae780d",
+      "name": "pet/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/Pet.json",
+      "baseName": "pet/json",
+      "source": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\",\"example\":10},\"name\":{\"type\":\"string\",\"example\":\"doggie\"},\"category\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\",\"example\":1},\"name\":{\"type\":\"string\",\"example\":\"Dogs\"}},\"xml\":{\"name\":\"category\"},\"x-readme-ref-name\":\"Category\"},\"photoUrls\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"xml\":{\"name\":\"photoUrl\"}},\"xml\":{\"wrapped\":true}},\"tags\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"name\":{\"type\":\"string\"}},\"xml\":{\"name\":\"tag\"},\"x-readme-ref-name\":\"Tag\"},\"xml\":{\"wrapped\":true}},\"status\":{\"description\":\"pet status in the store\",\"type\":\"string\",\"enum\":[\"available\",\"pending\",\"sold\"]}},\"required\":[\"name\",\"photoUrls\"],\"xml\":{\"name\":\"pet\"},\"x-readme-ref-name\":\"Pet\"}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "name": "Tag",
+      "baseName": "Tag.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Tag.ts",
+      "source": "export type Tag = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type string | undefined\n    */\n    name?: string;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "Pet",
+      "baseName": "Pet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+      "source": "import { Category } from \"./Category\";\nimport { Tag } from \"./Tag\";\n\n export const PetStatus = {\n    \"available\": \"available\",\n    \"pending\": \"pending\",\n    \"sold\": \"sold\"\n} as const;\nexport type PetStatus = (typeof PetStatus)[keyof typeof PetStatus];\nexport type Pet = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type string\n    */\n    name: string;\n    category?: Category;\n    /**\n     * @type array\n    */\n    photoUrls: string[];\n    /**\n     * @type array | undefined\n    */\n    tags?: Tag[];\n    /**\n     * @description pet status in the store\n     * @type string | undefined\n    */\n    status?: PetStatus;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Category"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Category.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Tag"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Tag.ts",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "b06b9c5a167aa399ca2d9c2cd6d8f2ed7183a5d3",
+      "name": "user/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/User.json",
+      "baseName": "user/json",
+      "source": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\",\"example\":10},\"username\":{\"type\":\"string\",\"example\":\"theUser\"},\"firstName\":{\"type\":\"string\",\"example\":\"John\"},\"lastName\":{\"type\":\"string\",\"example\":\"James\"},\"email\":{\"type\":\"string\",\"example\":\"john@email.com\"},\"password\":{\"type\":\"string\",\"example\":\"12345\"},\"phone\":{\"type\":\"string\",\"example\":\"12345\"},\"userStatus\":{\"description\":\"User Status\",\"type\":\"integer\",\"format\":\"int32\",\"example\":1}},\"xml\":{\"name\":\"user\"},\"x-readme-ref-name\":\"User\"}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "name": "User",
+      "baseName": "User.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+      "source": "export type User = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type string | undefined\n    */\n    username?: string;\n    /**\n     * @type string | undefined\n    */\n    firstName?: string;\n    /**\n     * @type string | undefined\n    */\n    lastName?: string;\n    /**\n     * @type string | undefined\n    */\n    email?: string;\n    /**\n     * @type string | undefined\n    */\n    password?: string;\n    /**\n     * @type string | undefined\n    */\n    phone?: string;\n    /**\n     * @description User Status\n     * @type integer | undefined, int32\n    */\n    userStatus?: number;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "Order",
+      "baseName": "Order.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+      "source": "export const OrderStatus = {\n    \"placed\": \"placed\",\n    \"approved\": \"approved\",\n    \"delivered\": \"delivered\"\n} as const;\nexport type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];\nexport const OrderHttpStatus = {\n    \"200\": 200,\n    \"400\": 400,\n    \"500\": 500\n} as const;\nexport type OrderHttpStatus = (typeof OrderHttpStatus)[keyof typeof OrderHttpStatus];\nexport type Order = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type integer | undefined, int64\n    */\n    petId?: number;\n    /**\n     * @type integer | undefined, int32\n    */\n    quantity?: number;\n    /**\n     * @type string | undefined, date-time\n    */\n    shipDate?: Date;\n    /**\n     * @description Order Status\n     * @type string | undefined\n    */\n    status?: OrderStatus;\n    /**\n     * @description HTTP Status\n     * @type number | undefined\n    */\n    http_status?: OrderHttpStatus;\n    /**\n     * @type boolean | undefined\n    */\n    complete?: boolean;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "7a1bb764e8cc0cdfb9a9e4d314c2291917181b55",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./Order\";\nexport * from \"./Customer\";\nexport * from \"./Address\";\nexport * from \"./Category\";\nexport * from \"./User\";\nexport * from \"./Tag\";\nexport * from \"./Pet\";\nexport * from \"./AddPetRequest\";\nexport * from \"./ApiResponse\";\nexport * from \"./PetNotFound\";\nexport * from \"./UserArray\";\nexport * from \"./petController/index\";\nexport * from \"./storeController/index\";\nexport * from \"./userController/index\";\n\n \n",
+      "exports": [
+        {
+          "path": "./Order"
+        },
+        {
+          "path": "./Customer"
+        },
+        {
+          "path": "./Address"
+        },
+        {
+          "path": "./Category"
+        },
+        {
+          "path": "./User"
+        },
+        {
+          "path": "./Tag"
+        },
+        {
+          "path": "./Pet"
+        },
+        {
+          "path": "./AddPetRequest"
+        },
+        {
+          "path": "./ApiResponse"
+        },
+        {
+          "path": "./PetNotFound"
+        },
+        {
+          "path": "./UserArray"
+        },
+        {
+          "path": "./petController/index"
+        },
+        {
+          "path": "./storeController/index"
+        },
+        {
+          "path": "./userController/index"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "imports": [],
+      "env": {}
+    },
+    {
+      "name": "Address",
+      "baseName": "Address.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Address.ts",
+      "source": "export type Address = {\n    /**\n     * @type string | undefined\n    */\n    street?: string;\n    /**\n     * @type string | undefined\n    */\n    city?: string;\n    /**\n     * @type string | undefined\n    */\n    state?: string;\n    /**\n     * @type string | undefined\n    */\n    zip?: string;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "1e10d4b8ee21d698ab10fc1054c3d0c5aad7b72e",
+      "name": "category/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/Category.json",
+      "baseName": "category/json",
+      "source": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\",\"example\":1},\"name\":{\"type\":\"string\",\"example\":\"Dogs\"}},\"xml\":{\"name\":\"category\"},\"x-readme-ref-name\":\"Category\"}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "name": "Customer",
+      "baseName": "Customer.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Customer.ts",
+      "source": "import { Address } from \"./Address\";\n\n export type Customer = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type string | undefined\n    */\n    username?: string;\n    /**\n     * @type array | undefined\n    */\n    address?: Address[];\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Address"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Customer.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Address.ts",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "Category",
+      "baseName": "Category.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Category.ts",
+      "source": "export type Category = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type string | undefined\n    */\n    name?: string;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "UserArray",
+      "baseName": "UserArray.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/UserArray.ts",
+      "source": "import { User } from \"./User\";\n\n export type UserArray = User[];\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/UserArray.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "db67c985aa794719bde5d8af79522dacbd12e3c9",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./petService/index\";\nexport * from \"./userService/index\";\n\n \n",
+      "exports": [
+        {
+          "path": "./petService/index"
+        },
+        {
+          "path": "./userService/index"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      },
+      "imports": [],
+      "env": {}
+    },
+    {
+      "id": "ce5c7ceb036271c4df6b90ba72aae16f73489396",
+      "name": "apiResponse/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/ApiResponse.json",
+      "baseName": "apiResponse/json",
+      "source": "{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"integer\",\"format\":\"int32\"},\"type\":{\"type\":\"string\"},\"message\":{\"type\":\"string\"}},\"xml\":{\"name\":\"##default\"},\"x-readme-ref-name\":\"ApiResponse\"}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "id": "5468e29fc3061b4ab3a03aae59866ce24308b980",
+      "name": "petNotFound/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/PetNotFound.json",
+      "baseName": "petNotFound/json",
+      "source": "{\"properties\":{\"code\":{\"type\":\"integer\",\"format\":\"int32\"},\"message\":{\"type\":\"string\"}}}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "name": "ApiResponse",
+      "baseName": "ApiResponse.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/ApiResponse.ts",
+      "source": "export type ApiResponse = {\n    /**\n     * @type integer | undefined, int32\n    */\n    code?: number;\n    /**\n     * @type string | undefined\n    */\n    type?: string;\n    /**\n     * @type string | undefined\n    */\n    message?: string;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "PetNotFound",
+      "baseName": "PetNotFound.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/PetNotFound.ts",
+      "source": "export type PetNotFound = {\n    /**\n     * @type integer | undefined, int32\n    */\n    code?: number;\n    /**\n     * @type string | undefined\n    */\n    message?: string;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "e0084ced383acbc873937884817f3165ee9e602c",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "bd2db4ba14d7915e87f88f24f755b16dd723a2ee",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Tag.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "9cd4f7dcdbb828b76ed99cdff960c38b875d6995",
+      "name": "addPetRequest/json",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/schemas/AddPetRequest.json",
+      "baseName": "addPetRequest/json",
+      "source": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\",\"example\":10},\"name\":{\"type\":\"string\",\"example\":\"doggie\"},\"category\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\",\"example\":1},\"name\":{\"type\":\"string\",\"example\":\"Dogs\"}},\"xml\":{\"name\":\"category\"},\"x-readme-ref-name\":\"Category\"},\"photoUrls\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"xml\":{\"name\":\"photoUrl\"}},\"xml\":{\"wrapped\":true}},\"tags\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"name\":{\"type\":\"string\"}},\"xml\":{\"name\":\"tag\"},\"x-readme-ref-name\":\"Tag\"},\"xml\":{\"wrapped\":true}},\"status\":{\"description\":\"pet status in the store\",\"type\":\"string\",\"enum\":[\"available\",\"pending\",\"sold\"]}},\"required\":[\"name\",\"photoUrls\"],\"xml\":{\"name\":\"pet\"},\"x-readme-ref-name\":\"AddPetRequest\"}",
+      "meta": {
+        "pluginKey": ["plugin-oas", 1]
+      }
+    },
+    {
+      "name": "AddPetRequest",
+      "baseName": "AddPetRequest.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/AddPetRequest.ts",
+      "source": "import { Category } from \"./Category\";\nimport { Tag } from \"./Tag\";\n\n export const AddPetRequestStatus = {\n    \"available\": \"available\",\n    \"pending\": \"pending\",\n    \"sold\": \"sold\"\n} as const;\nexport type AddPetRequestStatus = (typeof AddPetRequestStatus)[keyof typeof AddPetRequestStatus];\nexport type AddPetRequest = {\n    /**\n     * @type integer | undefined, int64\n    */\n    id?: number;\n    /**\n     * @type string\n    */\n    name: string;\n    category?: Category;\n    /**\n     * @type array\n    */\n    photoUrls: string[];\n    /**\n     * @type array | undefined\n    */\n    tags?: Tag[];\n    /**\n     * @description pet status in the store\n     * @type string | undefined\n    */\n    status?: AddPetRequestStatus;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Category"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/AddPetRequest.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Category.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Tag"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/AddPetRequest.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Tag.ts",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "a3c607ef1af75993cf20adcabf149617f27b6ace",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "name": "operations",
+      "baseName": "operations.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/operations.ts",
+      "source": "export const operations = {\n    \"updatePet\": {\n        \"path\": \"/pet\",\n        \"method\": \"put\"\n    },\n    \"addPet\": {\n        \"path\": \"/pet\",\n        \"method\": \"post\"\n    },\n    \"findPetsByStatus\": {\n        \"path\": \"/pet/findByStatus\",\n        \"method\": \"get\"\n    },\n    \"findPetsByTags\": {\n        \"path\": \"/pet/findByTags\",\n        \"method\": \"get\"\n    },\n    \"getPetById\": {\n        \"path\": \"/pet/:petId\",\n        \"method\": \"get\"\n    },\n    \"updatePetWithForm\": {\n        \"path\": \"/pet/:petId\",\n        \"method\": \"post\"\n    },\n    \"deletePet\": {\n        \"path\": \"/pet/:petId\",\n        \"method\": \"delete\"\n    },\n    \"uploadFile\": {\n        \"path\": \"/pet/:petId/uploadImage\",\n        \"method\": \"post\"\n    },\n    \"createUser\": {\n        \"path\": \"/user\",\n        \"method\": \"post\"\n    },\n    \"createUsersWithListInput\": {\n        \"path\": \"/user/createWithList\",\n        \"method\": \"post\"\n    },\n    \"loginUser\": {\n        \"path\": \"/user/login\",\n        \"method\": \"get\"\n    },\n    \"logoutUser\": {\n        \"path\": \"/user/logout\",\n        \"method\": \"get\"\n    },\n    \"getUserByName\": {\n        \"path\": \"/user/:username\",\n        \"method\": \"get\"\n    },\n    \"updateUser\": {\n        \"path\": \"/user/:username\",\n        \"method\": \"put\"\n    },\n    \"deleteUser\": {\n        \"path\": \"/user/:username\",\n        \"method\": \"delete\"\n    }\n} as const;\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      },
+      "exportable": false,
+      "language": "typescript"
+    },
+    {
+      "id": "e4f9a0b7ccf83e2178ac60136d4f9e71f9d64fc9",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "c0873426c02c3ca6e7002fd4fe999a474ce2b225",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Address.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "b4063e65af78cf50f0df3a8a935be86bb6849bef",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Category.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "94e4fc8fba997fd80e1e128045b8cc2f5c77fb7b",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Customer.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "b7d1a903938b8b881c60eddf8ef1195bdf6a3595",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/UserArray.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "77501054d922a5e63599d09f0e6bcfe6930dd19e",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./UpdatePet\";\nexport * from \"./AddPet\";\nexport * from \"./FindPetsByStatus\";\nexport * from \"./FindPetsByTags\";\nexport * from \"./GetPetById\";\nexport * from \"./UpdatePetWithForm\";\nexport * from \"./DeletePet\";\nexport * from \"./UploadFile\";\n\n \n",
+      "exports": [
+        {
+          "path": "./UpdatePet"
+        },
+        {
+          "path": "./AddPet"
+        },
+        {
+          "path": "./FindPetsByStatus"
+        },
+        {
+          "path": "./FindPetsByTags"
+        },
+        {
+          "path": "./GetPetById"
+        },
+        {
+          "path": "./UpdatePetWithForm"
+        },
+        {
+          "path": "./DeletePet"
+        },
+        {
+          "path": "./UploadFile"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "name": "AddPet",
+      "baseName": "AddPet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/AddPet.ts",
+      "source": "import type { Pet } from \"../Pet\";\nimport { AddPetRequest } from \"../AddPetRequest\";\n\n /**\n * @description Successful operation\n*/\nexport type AddPet200 = Pet;\n/**\n * @description Pet not found\n*/\nexport type AddPet405 = {\n    /**\n     * @type integer | undefined, int32\n    */\n    code?: number;\n    /**\n     * @type string | undefined\n    */\n    message?: string;\n};\n/**\n * @description Create a new pet in the store\n*/\nexport type AddPetMutationRequest = AddPetRequest;\n/**\n * @description Successful operation\n*/\nexport type AddPetMutationResponse = Pet;\nexport type AddPetMutation = {\n    Response: AddPetMutationResponse;\n    Request: AddPetMutationRequest;\n    Errors: AddPet405;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/AddPet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["AddPetRequest"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/AddPet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/AddPetRequest.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/AddPet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "AddPet",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "62cec8a23b745de0c00fdcb97db8158820b334e6",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./CreateUser\";\nexport * from \"./CreateUsersWithListInput\";\nexport * from \"./LoginUser\";\nexport * from \"./LogoutUser\";\nexport * from \"./GetUserByName\";\nexport * from \"./UpdateUser\";\nexport * from \"./DeleteUser\";\n\n \n",
+      "exports": [
+        {
+          "path": "./CreateUser"
+        },
+        {
+          "path": "./CreateUsersWithListInput"
+        },
+        {
+          "path": "./LoginUser"
+        },
+        {
+          "path": "./LogoutUser"
+        },
+        {
+          "path": "./GetUserByName"
+        },
+        {
+          "path": "./UpdateUser"
+        },
+        {
+          "path": "./DeleteUser"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "ff8659a8ab7c1f290298272b2c58a7edcd6047a7",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/PetNotFound.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "f49cc48734838e0a704f34726e26b6d2fefbf31f",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/ApiResponse.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "7d7122b6b0046e0e52490007e1cde97d175f273e",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./updatePet\";\nexport * from \"./addPet\";\nexport * from \"./findPetsByStatus\";\nexport * from \"./findPetsByTags\";\nexport * from \"./getPetById\";\nexport * from \"./updatePetWithForm\";\nexport * from \"./deletePet\";\nexport * from \"./uploadFile\";\n\n \n",
+      "exports": [
+        {
+          "path": "./updatePet"
+        },
+        {
+          "path": "./addPet"
+        },
+        {
+          "path": "./findPetsByStatus"
+        },
+        {
+          "path": "./findPetsByTags"
+        },
+        {
+          "path": "./getPetById"
+        },
+        {
+          "path": "./updatePetWithForm"
+        },
+        {
+          "path": "./deletePet"
+        },
+        {
+          "path": "./uploadFile"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "name": "addPet",
+      "baseName": "addPet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/addPet.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { AddPetMutationRequest, AddPetMutationResponse } from \"../../../models/ts/petController/AddPet\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @description Add a new pet to the store\n * @summary Add a new pet to the store\n * @link /pet\n */\nexport async function addPet(data: AddPetMutationRequest, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<AddPetMutationResponse>[\"data\"]> {\n    const res = await client<AddPetMutationResponse, AddPetMutationRequest>({ method: \"post\", url: `/pet`, baseURL: \"https://petstore3.swagger.io/api/v3\", data, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "addPet",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["AddPetMutationRequest", "AddPetMutationResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/addPet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/AddPet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "addPet",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "12023bb13b43e7b3e12c07c1ca1fb272af9b60b1",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./GetInventory\";\nexport * from \"./PlaceOrder\";\nexport * from \"./PlaceOrderPatch\";\nexport * from \"./GetOrderById\";\nexport * from \"./DeleteOrder\";\n\n \n",
+      "exports": [
+        {
+          "path": "./GetInventory"
+        },
+        {
+          "path": "./PlaceOrder"
+        },
+        {
+          "path": "./PlaceOrderPatch"
+        },
+        {
+          "path": "./GetOrderById"
+        },
+        {
+          "path": "./DeleteOrder"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "5fd118e32a681702471cd17cb6be3af4394ed956",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/index.ts",
+      "baseName": "index.ts",
+      "source": "export * from \"./createUser\";\nexport * from \"./createUsersWithListInput\";\nexport * from \"./loginUser\";\nexport * from \"./logoutUser\";\nexport * from \"./getUserByName\";\nexport * from \"./updateUser\";\nexport * from \"./deleteUser\";\n\n \n",
+      "exports": [
+        {
+          "path": "./createUser"
+        },
+        {
+          "path": "./createUsersWithListInput"
+        },
+        {
+          "path": "./loginUser"
+        },
+        {
+          "path": "./logoutUser"
+        },
+        {
+          "path": "./getUserByName"
+        },
+        {
+          "path": "./updateUser"
+        },
+        {
+          "path": "./deleteUser"
+        }
+      ],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "ab6d69bfd8746654249124b49130bdc3e279eefb",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/AddPetRequest.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "name": "UpdatePet",
+      "baseName": "UpdatePet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePet.ts",
+      "source": "import type { Pet } from \"../Pet\";\n\n /**\n * @description Successful operation\n*/\nexport type UpdatePet200 = Pet;\n/**\n * @description Invalid ID supplied\n*/\nexport type UpdatePet400 = any;\n/**\n * @description Pet not found\n*/\nexport type UpdatePet404 = any;\n/**\n * @description Validation exception\n*/\nexport type UpdatePet405 = any;\n/**\n * @description Update an existent pet in the store\n*/\nexport type UpdatePetMutationRequest = Pet;\n/**\n * @description Successful operation\n*/\nexport type UpdatePetMutationResponse = Pet;\nexport type UpdatePetMutation = {\n    Response: UpdatePetMutationResponse;\n    Request: UpdatePetMutationRequest;\n    Errors: UpdatePet400 | UpdatePet404 | UpdatePet405;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "UpdatePet",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "DeletePet",
+      "baseName": "DeletePet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/DeletePet.ts",
+      "source": "export type DeletePetPathParams = {\n    /**\n     * @description Pet id to delete\n     * @type integer, int64\n    */\n    petId: number;\n};\nexport type DeletePetHeaderParams = {\n    /**\n     * @type string | undefined\n    */\n    api_key?: string;\n};\n/**\n * @description Invalid pet value\n*/\nexport type DeletePet400 = any;\nexport type DeletePetMutationResponse = any;\nexport type DeletePetMutation = {\n    Response: DeletePetMutationResponse;\n    PathParams: DeletePetPathParams;\n    HeaderParams: DeletePetHeaderParams;\n    Errors: DeletePet400;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "DeletePet",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "5b0dcbb65736b578e65a42369ad99dfd2f1b5f8b",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/operations.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "name": "GetPetById",
+      "baseName": "GetPetById.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/GetPetById.ts",
+      "source": "import type { Pet } from \"../Pet\";\n\n export type GetPetByIdPathParams = {\n    /**\n     * @description ID of pet to return\n     * @type integer, int64\n    */\n    petId: number;\n};\n/**\n * @description successful operation\n*/\nexport type GetPetById200 = Pet;\n/**\n * @description Invalid ID supplied\n*/\nexport type GetPetById400 = any;\n/**\n * @description Pet not found\n*/\nexport type GetPetById404 = any;\n/**\n * @description successful operation\n*/\nexport type GetPetByIdQueryResponse = Pet;\nexport type GetPetByIdQuery = {\n    Response: GetPetByIdQueryResponse;\n    PathParams: GetPetByIdPathParams;\n    Errors: GetPetById400 | GetPetById404;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/GetPetById.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/GetPetById.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "GetPetById",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "UploadFile",
+      "baseName": "UploadFile.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UploadFile.ts",
+      "source": "import type { ApiResponse } from \"../ApiResponse\";\n\n export type UploadFilePathParams = {\n    /**\n     * @description ID of pet to update\n     * @type integer, int64\n    */\n    petId: number;\n};\nexport type UploadFileQueryParams = {\n    /**\n     * @description Additional Metadata\n     * @type string | undefined\n    */\n    additionalMetadata?: string;\n};\n/**\n * @description successful operation\n*/\nexport type UploadFile200 = ApiResponse;\nexport type UploadFileMutationRequest = {\n    /**\n     * @type string, binary\n    */\n    file: Blob;\n};\n/**\n * @description successful operation\n*/\nexport type UploadFileMutationResponse = ApiResponse;\nexport type UploadFileMutation = {\n    Response: UploadFileMutationResponse;\n    Request: UploadFileMutationRequest;\n    PathParams: UploadFilePathParams;\n    QueryParams: UploadFileQueryParams;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["ApiResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UploadFile.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/ApiResponse.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ApiResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UploadFile.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/ApiResponse.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "UploadFile",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "LoginUser",
+      "baseName": "LoginUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/LoginUser.ts",
+      "source": "export type LoginUserQueryParams = {\n    /**\n     * @description The user name for login\n     * @type string | undefined\n    */\n    username?: string;\n    /**\n     * @description The password for login in clear text\n     * @type string | undefined\n    */\n    password?: string;\n};\n/**\n * @description successful operation\n*/\nexport type LoginUser200 = string;\n/**\n * @description Invalid username/password supplied\n*/\nexport type LoginUser400 = any;\n/**\n * @description successful operation\n*/\nexport type LoginUserQueryResponse = string;\nexport type LoginUserQuery = {\n    Response: LoginUserQueryResponse;\n    QueryParams: LoginUserQueryParams;\n    Errors: LoginUser400;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "LoginUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "updatePet",
+      "baseName": "updatePet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/updatePet.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { UpdatePetMutationRequest, UpdatePetMutationResponse } from \"../../../models/ts/petController/UpdatePet\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @description Update an existing pet by Id\n * @summary Update an existing pet\n * @link /pet\n */\nexport async function updatePet(data: UpdatePetMutationRequest, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<UpdatePetMutationResponse>[\"data\"]> {\n    const res = await client<UpdatePetMutationResponse, UpdatePetMutationRequest>({ method: \"put\", url: `/pet`, baseURL: \"https://petstore3.swagger.io/api/v3\", data, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "updatePet",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["UpdatePetMutationRequest", "UpdatePetMutationResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/updatePet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "updatePet",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "deletePet",
+      "baseName": "deletePet.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/deletePet.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams } from \"../../../models/ts/petController/DeletePet\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @description delete a pet\n * @summary Deletes a pet\n * @link /pet/:petId\n */\nexport async function deletePet(petId: DeletePetPathParams[\"petId\"], headers?: DeletePetHeaderParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<DeletePetMutationResponse>[\"data\"]> {\n    const res = await client<DeletePetMutationResponse>({ method: \"delete\", url: `/pet/${petId}`, baseURL: \"https://petstore3.swagger.io/api/v3\", headers: { ...headers, ...options.headers }, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "deletePet",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["DeletePetMutationResponse", "DeletePetPathParams", "DeletePetHeaderParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/deletePet.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/DeletePet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "deletePet",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "CreateUser",
+      "baseName": "CreateUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUser.ts",
+      "source": "import type { User } from \"../User\";\n\n /**\n * @description successful operation\n*/\nexport type CreateUserError = User;\n/**\n * @description Created user object\n*/\nexport type CreateUserMutationRequest = User;\nexport type CreateUserMutationResponse = any;\nexport type CreateUserMutation = {\n    Response: CreateUserMutationResponse;\n    Request: CreateUserMutationRequest;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "CreateUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "LogoutUser",
+      "baseName": "LogoutUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/LogoutUser.ts",
+      "source": "/**\n * @description successful operation\n*/\nexport type LogoutUserError = any;\nexport type LogoutUserQueryResponse = any;\nexport type LogoutUserQuery = {\n    Response: LogoutUserQueryResponse;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "LogoutUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "UpdateUser",
+      "baseName": "UpdateUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/UpdateUser.ts",
+      "source": "import { User } from \"../User\";\n\n export type UpdateUserPathParams = {\n    /**\n     * @description name that need to be deleted\n     * @type string\n    */\n    username: string;\n};\n/**\n * @description successful operation\n*/\nexport type UpdateUserError = any;\n/**\n * @description Update an existent user in the store\n*/\nexport type UpdateUserMutationRequest = User;\nexport type UpdateUserMutationResponse = any;\nexport type UpdateUserMutation = {\n    Response: UpdateUserMutationResponse;\n    Request: UpdateUserMutationRequest;\n    PathParams: UpdateUserPathParams;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/UpdateUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "UpdateUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "DeleteUser",
+      "baseName": "DeleteUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/DeleteUser.ts",
+      "source": "export type DeleteUserPathParams = {\n    /**\n     * @description The name that needs to be deleted\n     * @type string\n    */\n    username: string;\n};\n/**\n * @description Invalid username supplied\n*/\nexport type DeleteUser400 = any;\n/**\n * @description User not found\n*/\nexport type DeleteUser404 = any;\nexport type DeleteUserMutationResponse = any;\nexport type DeleteUserMutation = {\n    Response: DeleteUserMutationResponse;\n    PathParams: DeleteUserPathParams;\n    Errors: DeleteUser400 | DeleteUser404;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "DeleteUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "getPetById",
+      "baseName": "getPetById.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/getPetById.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { GetPetByIdQueryResponse, GetPetByIdPathParams } from \"../../../models/ts/petController/GetPetById\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @description Returns a single pet\n * @summary Find pet by ID\n * @link /pet/:petId\n */\nexport async function getPetById(petId: GetPetByIdPathParams[\"petId\"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<GetPetByIdQueryResponse>[\"data\"]> {\n    const res = await client<GetPetByIdQueryResponse>({ method: \"get\", url: `/pet/${petId}`, baseURL: \"https://petstore3.swagger.io/api/v3\", ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "getPetById",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["GetPetByIdQueryResponse", "GetPetByIdPathParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/getPetById.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/GetPetById.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "getPetById",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "uploadFile",
+      "baseName": "uploadFile.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/uploadFile.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from \"../../../models/ts/petController/UploadFile\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @summary uploads an image\n * @link /pet/:petId/uploadImage\n */\nexport async function uploadFile(petId: UploadFilePathParams[\"petId\"], data: UploadFileMutationRequest, params?: UploadFileQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<UploadFileMutationResponse>[\"data\"]> {\n    const formData = new FormData();\n    if (data) {\n        Object.keys(data).forEach((key) => {\n            const value = data[key];\n            if (typeof key === \"string\" && (typeof value === \"string\" || value instanceof Blob)) {\n                formData.append(key, value);\n            }\n        });\n    }\n    const res = await client<UploadFileMutationResponse, UploadFileMutationRequest>({ method: \"post\", url: `/pet/${petId}/uploadImage`, baseURL: \"https://petstore3.swagger.io/api/v3\", params, data: formData, headers: { \"Content-Type\": \"multipart/form-data\", ...options.headers }, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "uploadFile",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["UploadFileMutationRequest", "UploadFileMutationResponse", "UploadFilePathParams", "UploadFileQueryParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/uploadFile.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UploadFile.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "uploadFile",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "loginUser",
+      "baseName": "loginUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/loginUser.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { LoginUserQueryResponse, LoginUserQueryParams } from \"../../../models/ts/userController/LoginUser\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @summary Logs user into the system\n * @link /user/login\n */\nexport async function loginUser(params?: LoginUserQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<LoginUserQueryResponse>[\"data\"]> {\n    return axios.get(`/user/login`, options);\n}\n",
+      "exports": [
+        {
+          "name": "loginUser",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["LoginUserQueryResponse", "LoginUserQueryParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/loginUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/LoginUser.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "loginUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "PlaceOrder",
+      "baseName": "PlaceOrder.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrder.ts",
+      "source": "import type { Order } from \"../Order\";\n\n /**\n * @description successful operation\n*/\nexport type PlaceOrder200 = Order;\n/**\n * @description Invalid input\n*/\nexport type PlaceOrder405 = any;\nexport type PlaceOrderMutationRequest = Order;\n/**\n * @description successful operation\n*/\nexport type PlaceOrderMutationResponse = Order;\nexport type PlaceOrderMutation = {\n    Response: PlaceOrderMutationResponse;\n    Request: PlaceOrderMutationRequest;\n    Errors: PlaceOrder405;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrder.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrder.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrder.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "PlaceOrder",
+        "tag": "store"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "createUser",
+      "baseName": "createUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/createUser.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { CreateUserMutationRequest, CreateUserMutationResponse } from \"../../../models/ts/userController/CreateUser\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @description This can only be done by the logged in user.\n * @summary Create user\n * @link /user\n */\nexport async function createUser(data?: CreateUserMutationRequest, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<CreateUserMutationResponse>[\"data\"]> {\n    return axios.post(`/user`, data, options);\n}\n",
+      "exports": [
+        {
+          "name": "createUser",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["CreateUserMutationRequest", "CreateUserMutationResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/createUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUser.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "createUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "logoutUser",
+      "baseName": "logoutUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/logoutUser.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { LogoutUserQueryResponse } from \"../../../models/ts/userController/LogoutUser\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @summary Logs out current logged in user session\n * @link /user/logout\n */\nexport async function logoutUser(options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<LogoutUserQueryResponse>[\"data\"]> {\n    return axios.get(`/user/logout`, options);\n}\n",
+      "exports": [
+        {
+          "name": "logoutUser",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["LogoutUserQueryResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/logoutUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/LogoutUser.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "logoutUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "updateUser",
+      "baseName": "updateUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/updateUser.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from \"../../../models/ts/userController/UpdateUser\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @description This can only be done by the logged in user.\n * @summary Update user\n * @link /user/:username\n */\nexport async function updateUser(username: UpdateUserPathParams[\"username\"], data?: UpdateUserMutationRequest, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<UpdateUserMutationResponse>[\"data\"]> {\n    return axios.put(`/user/${username}`, data, options);\n}\n",
+      "exports": [
+        {
+          "name": "updateUser",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["UpdateUserMutationRequest", "UpdateUserMutationResponse", "UpdateUserPathParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/updateUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/UpdateUser.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "updateUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "deleteUser",
+      "baseName": "deleteUser.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/deleteUser.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { DeleteUserMutationResponse, DeleteUserPathParams } from \"../../../models/ts/userController/DeleteUser\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @description This can only be done by the logged in user.\n * @summary Delete user\n * @link /user/:username\n */\nexport async function deleteUser(username: DeleteUserPathParams[\"username\"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<DeleteUserMutationResponse>[\"data\"]> {\n    return axios.delete(`/user/${username}`, options);\n}\n",
+      "exports": [
+        {
+          "name": "deleteUser",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["DeleteUserMutationResponse", "DeleteUserPathParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/deleteUser.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/DeleteUser.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "deleteUser",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "DeleteOrder",
+      "baseName": "DeleteOrder.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/DeleteOrder.ts",
+      "source": "export type DeleteOrderPathParams = {\n    /**\n     * @description ID of the order that needs to be deleted\n     * @type integer, int64\n    */\n    orderId: number;\n};\n/**\n * @description Invalid ID supplied\n*/\nexport type DeleteOrder400 = any;\n/**\n * @description Order not found\n*/\nexport type DeleteOrder404 = any;\nexport type DeleteOrderMutationResponse = any;\nexport type DeleteOrderMutation = {\n    Response: DeleteOrderMutationResponse;\n    PathParams: DeleteOrderPathParams;\n    Errors: DeleteOrder400 | DeleteOrder404;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "DeleteOrder",
+        "tag": "store"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "FindPetsByTags",
+      "baseName": "FindPetsByTags.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByTags.ts",
+      "source": "import type { Pet } from \"../Pet\";\n\n export type FindPetsByTagsQueryParams = {\n    /**\n     * @description Tags to filter by\n     * @type array | undefined\n    */\n    tags?: string[];\n    /**\n     * @description to request with required page number or pagination\n     * @type string | undefined\n    */\n    page?: string;\n    /**\n     * @description to request with required page size\n     * @type string | undefined\n    */\n    pageSize?: string;\n};\n/**\n * @description successful operation\n*/\nexport type FindPetsByTags200 = Pet[];\n/**\n * @description Invalid tag value\n*/\nexport type FindPetsByTags400 = any;\n/**\n * @description successful operation\n*/\nexport type FindPetsByTagsQueryResponse = Pet[];\nexport type FindPetsByTagsQuery = {\n    Response: FindPetsByTagsQueryResponse;\n    QueryParams: FindPetsByTagsQueryParams;\n    Errors: FindPetsByTags400;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByTags.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByTags.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "FindPetsByTags",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "GetInventory",
+      "baseName": "GetInventory.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/GetInventory.ts",
+      "source": "/**\n * @description successful operation\n*/\nexport type GetInventory200 = {\n    [key: string]: number;\n};\n/**\n * @description successful operation\n*/\nexport type GetInventoryQueryResponse = {\n    [key: string]: number;\n};\nexport type GetInventoryQuery = {\n    Response: GetInventoryQueryResponse;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "GetInventory",
+        "tag": "store"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "GetOrderById",
+      "baseName": "GetOrderById.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/GetOrderById.ts",
+      "source": "import type { Order } from \"../Order\";\n\n export type GetOrderByIdPathParams = {\n    /**\n     * @description ID of order that needs to be fetched\n     * @type integer, int64\n    */\n    orderId: number;\n};\n/**\n * @description successful operation\n*/\nexport type GetOrderById200 = Order;\n/**\n * @description Invalid ID supplied\n*/\nexport type GetOrderById400 = any;\n/**\n * @description Order not found\n*/\nexport type GetOrderById404 = any;\n/**\n * @description successful operation\n*/\nexport type GetOrderByIdQueryResponse = Order;\nexport type GetOrderByIdQuery = {\n    Response: GetOrderByIdQueryResponse;\n    PathParams: GetOrderByIdPathParams;\n    Errors: GetOrderById400 | GetOrderById404;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/GetOrderById.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/GetOrderById.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "GetOrderById",
+        "tag": "store"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "GetUserByName",
+      "baseName": "GetUserByName.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/GetUserByName.ts",
+      "source": "import type { User } from \"../User\";\n\n export type GetUserByNamePathParams = {\n    /**\n     * @description The name that needs to be fetched. Use user1 for testing.\n     * @type string\n    */\n    username: string;\n};\n/**\n * @description successful operation\n*/\nexport type GetUserByName200 = User;\n/**\n * @description Invalid username supplied\n*/\nexport type GetUserByName400 = any;\n/**\n * @description User not found\n*/\nexport type GetUserByName404 = any;\n/**\n * @description successful operation\n*/\nexport type GetUserByNameQueryResponse = User;\nexport type GetUserByNameQuery = {\n    Response: GetUserByNameQueryResponse;\n    PathParams: GetUserByNamePathParams;\n    Errors: GetUserByName400 | GetUserByName404;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/GetUserByName.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/GetUserByName.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "GetUserByName",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "findPetsByTags",
+      "baseName": "findPetsByTags.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/findPetsByTags.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from \"../../../models/ts/petController/FindPetsByTags\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.\n * @summary Finds Pets by tags\n * @link /pet/findByTags\n */\nexport async function findPetsByTags(params?: FindPetsByTagsQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<FindPetsByTagsQueryResponse>[\"data\"]> {\n    const res = await client<FindPetsByTagsQueryResponse>({ method: \"get\", url: `/pet/findByTags`, baseURL: \"https://petstore3.swagger.io/api/v3\", params, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "findPetsByTags",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["FindPetsByTagsQueryResponse", "FindPetsByTagsQueryParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/findPetsByTags.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByTags.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "findPetsByTags",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "getUserByName",
+      "baseName": "getUserByName.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/getUserByName.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { GetUserByNameQueryResponse, GetUserByNamePathParams } from \"../../../models/ts/userController/GetUserByName\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @summary Get user by user name\n * @link /user/:username\n */\nexport async function getUserByName(username: GetUserByNamePathParams[\"username\"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<GetUserByNameQueryResponse>[\"data\"]> {\n    return axios.get(`/user/${username}`, options);\n}\n",
+      "exports": [
+        {
+          "name": "getUserByName",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["GetUserByNameQueryResponse", "GetUserByNamePathParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/getUserByName.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/GetUserByName.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "getUserByName",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "c6251eb1d4f769d8c924f05bc8a1404c3d233bd8",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/AddPet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "name": "FindPetsByStatus",
+      "baseName": "FindPetsByStatus.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByStatus.ts",
+      "source": "import type { Pet } from \"../Pet\";\n\n export const FindPetsByStatusQueryParamsStatus = {\n    \"available\": \"available\",\n    \"pending\": \"pending\",\n    \"sold\": \"sold\"\n} as const;\nexport type FindPetsByStatusQueryParamsStatus = (typeof FindPetsByStatusQueryParamsStatus)[keyof typeof FindPetsByStatusQueryParamsStatus];\nexport type FindPetsByStatusQueryParams = {\n    /**\n     * @description Status values that need to be considered for filter\n     * @default \"available\"\n     * @type string | undefined\n    */\n    status?: FindPetsByStatusQueryParamsStatus;\n};\n/**\n * @description successful operation\n*/\nexport type FindPetsByStatus200 = Pet[];\n/**\n * @description Invalid status value\n*/\nexport type FindPetsByStatus400 = any;\n/**\n * @description successful operation\n*/\nexport type FindPetsByStatusQueryResponse = Pet[];\nexport type FindPetsByStatusQuery = {\n    Response: FindPetsByStatusQueryResponse;\n    QueryParams: FindPetsByStatusQueryParams;\n    Errors: FindPetsByStatus400;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByStatus.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Pet"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByStatus.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Pet.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "FindPetsByStatus",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "2456fb7fa2b6e97053b83dcd256324781e036444",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/addPet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "name": "UpdatePetWithForm",
+      "baseName": "UpdatePetWithForm.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePetWithForm.ts",
+      "source": "export type UpdatePetWithFormPathParams = {\n    /**\n     * @description ID of pet that needs to be updated\n     * @type integer, int64\n    */\n    petId: number;\n};\nexport type UpdatePetWithFormQueryParams = {\n    /**\n     * @description Name of pet that needs to be updated\n     * @type string | undefined\n    */\n    name?: string;\n    /**\n     * @description Status of pet that needs to be updated\n     * @type string | undefined\n    */\n    status?: string;\n};\n/**\n * @description Invalid input\n*/\nexport type UpdatePetWithForm405 = any;\nexport type UpdatePetWithFormMutationResponse = any;\nexport type UpdatePetWithFormMutation = {\n    Response: UpdatePetWithFormMutationResponse;\n    PathParams: UpdatePetWithFormPathParams;\n    QueryParams: UpdatePetWithFormQueryParams;\n    Errors: UpdatePetWithForm405;\n};\n",
+      "exports": [],
+      "imports": [],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "UpdatePetWithForm",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "PlaceOrderPatch",
+      "baseName": "PlaceOrderPatch.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrderPatch.ts",
+      "source": "import type { Order } from \"../Order\";\n\n /**\n * @description successful operation\n*/\nexport type PlaceOrderPatch200 = Order;\n/**\n * @description Invalid input\n*/\nexport type PlaceOrderPatch405 = any;\nexport type PlaceOrderPatchMutationRequest = Order;\n/**\n * @description successful operation\n*/\nexport type PlaceOrderPatchMutationResponse = Order;\nexport type PlaceOrderPatchMutation = {\n    Response: PlaceOrderPatchMutationResponse;\n    Request: PlaceOrderPatchMutationRequest;\n    Errors: PlaceOrderPatch405;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrderPatch.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrderPatch.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["Order"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrderPatch.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/Order.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "PlaceOrderPatch",
+        "tag": "store"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "findPetsByStatus",
+      "baseName": "findPetsByStatus.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/findPetsByStatus.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from \"../../../models/ts/petController/FindPetsByStatus\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @description Multiple status values can be provided with comma separated strings\n * @summary Finds Pets by status\n * @link /pet/findByStatus\n */\nexport async function findPetsByStatus(params?: FindPetsByStatusQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<FindPetsByStatusQueryResponse>[\"data\"]> {\n    const res = await client<FindPetsByStatusQueryResponse>({ method: \"get\", url: `/pet/findByStatus`, baseURL: \"https://petstore3.swagger.io/api/v3\", params, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "findPetsByStatus",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["FindPetsByStatusQueryResponse", "FindPetsByStatusQueryParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/findPetsByStatus.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByStatus.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "findPetsByStatus",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "name": "updatePetWithForm",
+      "baseName": "updatePetWithForm.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/updatePetWithForm.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from \"../../../models/ts/petController/UpdatePetWithForm\";\nimport client from \"@kubb/plugin-client/client\";\n\n /**\n * @summary Updates a pet in the store with form data\n * @link /pet/:petId\n */\nexport async function updatePetWithForm(petId: UpdatePetWithFormPathParams[\"petId\"], params?: UpdatePetWithFormQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>[\"data\"]> {\n    const res = await client<UpdatePetWithFormMutationResponse>({ method: \"post\", url: `/pet/${petId}`, baseURL: \"https://petstore3.swagger.io/api/v3\", params, ...options });\n    return res.data;\n}\n",
+      "exports": [
+        {
+          "name": "updatePetWithForm",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["UpdatePetWithFormMutationResponse", "UpdatePetWithFormPathParams", "UpdatePetWithFormQueryParams"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/updatePetWithForm.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePetWithForm.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "updatePetWithForm",
+        "tag": "pet"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "505acd43be891d63a6376cfd6584429c8981d384",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/DeletePet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "fea381f024d22504891aba7e240567ea117aa846",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "01083a03fc34d2e91fb4f255a172013e2d2a1de6",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/LoginUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "c50f65c0bc2ff76108171f4f01a4694bff8f5fe0",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UploadFile.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "fb822647363ef256ea5d3e726eb2b51643699063",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/GetPetById.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "8943615094d01215fa5f2bd9b42227cedd1c0d1e",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/deletePet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "81cbed195b73a4326138ea7d3f85959164c10640",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/updatePet.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "af21fe74305dd15935793f67bdc5ff941dc78314",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/DeleteUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "87933dcad5ccc4d32fbb5711e46cee7b02b59e69",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/UpdateUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "a6e3c5fa53a708524134a93f3e9b2e371d25ad1e",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/LogoutUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "8cdd74feceadf03294d650e7fa4bbf236343e8de",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "e64c5c11893d990df9907b84a84d7f5889c57294",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/loginUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "466902fbb0ffd01ab424ffaa90a72a882dad0261",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/uploadFile.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "c00e3f276655711bce1bdecb518bb8b9ffd9b448",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/getPetById.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "0c7f63a6ce07251082d1d7217f59a5065e8e0b36",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrder.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "2c6588d87ed6f76877f8eaffaa9b4be6b935eb76",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/deleteUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "0428e4fb1a2c7bafb6e6cd66ae884cbba8f711e1",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/updateUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "306e74d670bce73c885e997540a467d683d9fbd1",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/logoutUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "0a852f593a81beeb6d7891680983db9268ce3763",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/createUser.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "96d0b006bb786b8f0703b935eb01529b8c41d3ae",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/DeleteOrder.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "624b75aff675cadf5515f59b5a063463c5cbe2fe",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/GetUserByName.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "d84d389cdc9f35c6d052455537f3fcfbb2fd5305",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/GetOrderById.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "eaf5fccf13ad6a0ad9b6a94e0383c861f828ec6f",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/GetInventory.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "a8db6c4b19c1cb8a33f0abadbca848b180236477",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByTags.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "272c4df4f2cc581aca438eb58be6b4d3a06598d9",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/getUserByName.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "0b3a2a1cd42151c4fa56ee6a2308f4c8c5f3434c",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/findPetsByTags.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "name": "CreateUsersWithListInput",
+      "baseName": "CreateUsersWithListInput.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUsersWithListInput.ts",
+      "source": "import type { User } from \"../User\";\n\n /**\n * @description Successful operation\n*/\nexport type CreateUsersWithListInput200 = User;\n/**\n * @description successful operation\n*/\nexport type CreateUsersWithListInputError = any;\nexport type CreateUsersWithListInputMutationRequest = User[];\n/**\n * @description Successful operation\n*/\nexport type CreateUsersWithListInputMutationResponse = User;\nexport type CreateUsersWithListInputMutation = {\n    Response: CreateUsersWithListInputMutationResponse;\n    Request: CreateUsersWithListInputMutationRequest;\n};\n",
+      "exports": [],
+      "imports": [
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUsersWithListInput.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUsersWithListInput.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["User"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUsersWithListInput.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/User.ts",
+          "isTypeOnly": true
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-ts", 1],
+        "name": "CreateUsersWithListInput",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "8dbeffb544ecb03bb63156ff9d9711615f075f32",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/FindPetsByStatus.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "name": "createUsersWithListInput",
+      "baseName": "createUsersWithListInput.ts",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/createUsersWithListInput.ts",
+      "source": "import type { ResponseConfig } from \"@kubb/plugin-client/client\";\nimport type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from \"../../../models/ts/userController/CreateUsersWithListInput\";\nimport client from \"@kubb/plugin-client/client\";\nimport axios from \"axios\";\n\n /**\n * @description Creates list of users with given input array\n * @summary Creates list of users with given input array\n * @link /user/createWithList\n */\nexport async function createUsersWithListInput(data?: CreateUsersWithListInputMutationRequest, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>[\"data\"]> {\n    return axios.post(`/user/createWithList`, data, options);\n}\n",
+      "exports": [
+        {
+          "name": "createUsersWithListInput",
+          "isTypeOnly": false
+        }
+      ],
+      "imports": [
+        {
+          "name": "client",
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": false
+        },
+        {
+          "name": ["ResponseConfig"],
+          "path": "@kubb/plugin-client/client",
+          "isTypeOnly": true
+        },
+        {
+          "name": ["CreateUsersWithListInputMutationRequest", "CreateUsersWithListInputMutationResponse"],
+          "root": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/createUsersWithListInput.ts",
+          "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUsersWithListInput.ts",
+          "isTypeOnly": true
+        },
+        {
+          "name": "axios",
+          "path": "axios",
+          "isTypeOnly": false
+        }
+      ],
+      "meta": {
+        "pluginKey": ["plugin-client", 1],
+        "name": "createUsersWithListInput",
+        "tag": "user"
+      },
+      "exportable": true,
+      "language": "typescript"
+    },
+    {
+      "id": "e726a5e924f82fa7221652d591f23899974931ee",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/storeController/PlaceOrderPatch.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "379d6e63a7147970e2fb5d11367f07ce61940ac3",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/petController/UpdatePetWithForm.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "a89436e6391d64eb225e33f3f64ce8dacce62e82",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/findPetsByStatus.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "f95fa856dbf695abee7e8974e95247683fa2e679",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/petService/updatePetWithForm.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    },
+    {
+      "id": "aa418d54d0d3cbae15ecfd6f72118dcb1c05616c",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/models/ts/userController/CreateUsersWithListInput.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-ts", 1]
+      }
+    },
+    {
+      "id": "f4b833ffe1c5d98623a1fe04e273c8e4b417e7b5",
+      "name": "index",
+      "path": "/Users/stijnvanhulle/GitHub/kubb/examples/client/src/gen/clients/axios/userService/createUsersWithListInput.ts/index.ts",
+      "baseName": "index.ts",
+      "source": "",
+      "exports": [],
+      "exportable": true,
+      "meta": {
+        "pluginKey": ["plugin-client", 1]
+      }
+    }
+  ]
+}

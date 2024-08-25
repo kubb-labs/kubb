@@ -1,7 +1,7 @@
-import useSWR from 'swr'
-import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import useSWR from 'swr'
+import client from '@kubb/plugin-client/client'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {

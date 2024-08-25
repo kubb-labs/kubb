@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {

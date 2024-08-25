@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {

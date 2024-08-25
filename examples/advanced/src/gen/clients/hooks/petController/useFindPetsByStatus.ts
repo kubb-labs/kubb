@@ -1,7 +1,3 @@
-import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 import type {
   QueryObserverOptions,
@@ -13,6 +9,10 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {

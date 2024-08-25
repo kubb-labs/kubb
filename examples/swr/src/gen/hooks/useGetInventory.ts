@@ -1,7 +1,7 @@
-import useSWR from 'swr'
-import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import useSWR from 'swr'
+import client from '@kubb/plugin-client/client'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {

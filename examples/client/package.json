@@ -15,6 +15,8 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate --config kubb.config.ts",
+    "lint:fix": "biome lint --apply-unsafe ./src",
+    "format": "biome format --write ./",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

@@ -38,56 +38,31 @@ export class BarrelManager {
         return []
       }
 
-      if (treeNode.children.length > 1) {
-        const indexPath: KubbFile.Path = path.resolve(treeNode.data.path, 'index.ts')
+      const indexPath: KubbFile.Path = path.resolve(treeNode.data.path, 'index.ts')
 
-        const exports: Array<KubbFile.Export> = treeNode.children
-          .filter(Boolean)
-          .map((file) => {
-            const importPath: string = file.data.type === 'split' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
+      const exports: Array<KubbFile.Export> = treeNode.children
+        .filter((item) => !!item.data.name)
+        .map((treeNode) => {
+          const importPath: string = treeNode.data.file ? `./${trimExtName(treeNode.data.name)}` : `./${treeNode.data.name}/index`
 
-            if (importPath.endsWith('index') && file.data.type === 'single') {
-              return undefined
-            }
+          if (importPath.endsWith('index') && treeNode.data.file) {
+            return undefined
+          }
 
-            console.log(file.leaves.map(d=>d.data.file?.exports))
-
-            return {
-              name: ['test'],
-              path: extName ? `${importPath}${extName}` : importPath,
-              isTypeOnly,
-            } as KubbFile.Export
-          })
-          .filter(Boolean)
-
-        files.push({
-          path: indexPath,
-          baseName: 'index.ts',
-          source: '',
-          exports,
-          exportable: true,
-        })
-      } else if (treeNode.children.length === 1) {
-        const [treeNodeChild] = treeNode.children as [TreeNode]
-
-        const indexPath = path.resolve(treeNode.data.path, 'index.ts')
-        const importPath = treeNodeChild.data.type === 'split' ? `./${treeNodeChild.data.name}/index` : `./${trimExtName(treeNodeChild.data.name)}`
-
-        const exports = [
-          {
+          return {
             path: extName ? `${importPath}${extName}` : importPath,
             isTypeOnly,
-          },
-        ]
-
-        files.push({
-          path: indexPath,
-          baseName: 'index.ts',
-          source: '',
-          exports,
-          exportable: true,
+          } as KubbFile.Export
         })
-      }
+        .filter(Boolean)
+
+      files.push({
+        path: indexPath,
+        baseName: 'index.ts',
+        source: '',
+        exports,
+        exportable: true,
+      })
 
       treeNode.children.forEach((childItem) => {
         fileReducer(files, childItem)

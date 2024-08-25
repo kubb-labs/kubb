@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-import { createPet } from '../createPet'
 import type {
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
@@ -7,6 +5,8 @@ import type {
   FindPetsByTags400,
   FindPetsByTagsQueryResponse,
 } from '../../models/ts/petController/FindPetsByTags'
+import { faker } from '@faker-js/faker'
+import { createPet } from '../createPet'
 
 export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQueryParams> {
   return { tags: faker.helpers.arrayElements([faker.string.alpha()]) as any, page: faker.string.alpha(), pageSize: faker.string.alpha() }

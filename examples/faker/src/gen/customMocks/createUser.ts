@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { User } from '../models/User'
+import { faker } from '@faker-js/faker'
 
 export function createUser(data: NonNullable<Partial<User>> = {}): NonNullable<User> {
   return {

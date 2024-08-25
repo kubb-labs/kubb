@@ -186,7 +186,7 @@ export function Client({ baseURL, Template = defaultTemplates.default }: ClientP
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   return (
-    <File.Export name={name} path={'./'}>
+    <File.Export name={name}>
       <Template
         name={name}
         params={{
@@ -196,21 +196,21 @@ export function Client({ baseURL, Template = defaultTemplates.default }: ClientP
           },
           data: schemas.request?.name
             ? {
-              type: schemas.request?.name,
-              optional: isOptional(schemas.request?.schema),
-            }
+                type: schemas.request?.name,
+                optional: isOptional(schemas.request?.schema),
+              }
             : undefined,
           params: schemas.queryParams?.name
             ? {
-              type: schemas.queryParams?.name,
-              optional: isOptional(schemas.queryParams?.schema),
-            }
+                type: schemas.queryParams?.name,
+                optional: isOptional(schemas.queryParams?.schema),
+              }
             : undefined,
           headers: schemas.headerParams?.name
             ? {
-              type: schemas.headerParams?.name,
-              optional: isOptional(schemas.headerParams?.schema),
-            }
+                type: schemas.headerParams?.name,
+                optional: isOptional(schemas.headerParams?.schema),
+              }
             : undefined,
           options: {
             type: 'Partial<Parameters<typeof client>[0]>',
@@ -235,7 +235,6 @@ export function Client({ baseURL, Template = defaultTemplates.default }: ClientP
         }}
       />
     </File.Export>
-
   )
 }
 

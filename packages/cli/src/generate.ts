@@ -45,8 +45,8 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     }
   })
 
-  logger.on('debug', async (messages: string[]) => {
-    await writeLog(messages.join('\n'))
+  logger.on('debug', async ({ logs, override, fileName }) => {
+    await writeLog({ data: logs.join('\n'), fileName, override })
   })
 
   const { root = process.cwd(), ...userConfig } = config

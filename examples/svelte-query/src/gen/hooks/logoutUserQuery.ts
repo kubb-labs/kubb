@@ -1,5 +1,3 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type {
   CreateBaseQueryOptions,
@@ -9,6 +7,8 @@ import type {
   CreateInfiniteQueryResult,
   InfiniteData,
 } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {

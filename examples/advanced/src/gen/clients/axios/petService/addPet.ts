@@ -1,6 +1,6 @@
-import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
+import client from '../../../../axios-client.ts'
 
 /**
  * @description Add a new pet to the store

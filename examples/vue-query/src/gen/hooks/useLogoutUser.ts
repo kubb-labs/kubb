@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {

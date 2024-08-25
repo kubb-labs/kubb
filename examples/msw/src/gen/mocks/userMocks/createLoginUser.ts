@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse } from '../../models/LoginUser'
+import { faker } from '@faker-js/faker'
 
 export function createLoginUserQueryParams(): NonNullable<LoginUserQueryParams> {
   faker.seed([220])

@@ -1,6 +1,6 @@
+import type { OptionsFindPetsByStatus200, OptionsFindPetsByStatusMutationResponse } from '../../models/OptionsFindPetsByStatus'
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import type { OptionsFindPetsByStatus200, OptionsFindPetsByStatusMutationResponse } from '../../models/OptionsFindPetsByStatus'
 
 /**
  * @description successful operation

@@ -150,11 +150,13 @@ export class PluginManager {
       })
 
       if (paths && paths?.length > 1) {
-        this.logger.emit('debug', [
-          `Cannot return a path where the 'pluginKey' ${
-            params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
-          } is not unique enough\n\nPaths: ${JSON.stringify(paths, undefined, 2)}\n\nFalling back on the first item.\n`,
-        ])
+        this.logger.emit('debug', {
+          logs: [
+            `Cannot return a path where the 'pluginKey' ${
+              params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
+            } is not unique enough\n\nPaths: ${JSON.stringify(paths, undefined, 2)}\n\nFalling back on the first item.\n`,
+          ],
+        })
       }
 
       return paths?.at(0)
@@ -173,11 +175,13 @@ export class PluginManager {
       })
 
       if (names && names?.length > 1) {
-        this.logger.emit('debug', [
-          `Cannot return a name where the 'pluginKey' ${
-            params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
-          } is not unique enough\n\nNames: ${JSON.stringify(names, undefined, 2)}\n\nFalling back on the first item.\n`,
-        ])
+        this.logger.emit('debug', {
+          logs: [
+            `Cannot return a name where the 'pluginKey' ${
+              params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
+            } is not unique enough\n\nNames: ${JSON.stringify(names, undefined, 2)}\n\nFalling back on the first item.\n`,
+          ],
+        })
       }
 
       return transformReservedWord(names?.at(0) || params.name)
@@ -411,7 +415,7 @@ export class PluginManager {
     if (hookName) {
       const containsHookName = plugins.some((item) => item[hookName])
       if (!containsHookName) {
-        this.logger.emit('info', `No hook ${hookName} found`)
+        this.logger.emit('debug', { logs: [`No hook ${hookName} found`] })
       }
 
       return plugins.filter((item) => item[hookName])
@@ -466,9 +470,13 @@ export class PluginManager {
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && plugin[hookName])
 
       if (corePlugin) {
-        this.logger.emit('warning', `No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
+        this.logger.emit('debug', {
+          logs: [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`],
+        })
       } else {
-        this.logger.emit('warning', `No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`)
+        this.logger.emit('debug', {
+          logs: [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`],
+        })
       }
       return corePlugin ? [corePlugin] : []
     }

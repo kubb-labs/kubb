@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {

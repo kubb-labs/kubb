@@ -1,5 +1,5 @@
-export * from './deleteOrderHandler'
 export * from './getInventoryHandler'
-export * from './getOrderByIdHandler'
 export * from './placeOrderHandler'
 export * from './placeOrderPatchHandler'
+export * from './getOrderByIdHandler'
+export * from './deleteOrderHandler'

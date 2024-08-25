@@ -4,7 +4,6 @@ import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
 import * as mutation from './templates/mutate/index'
-import * as operations from './templates/operations/index'
 import * as queryKey from './templates/queryKey/index'
 
 /** @type {import('@kubb/core').UserConfig} */
@@ -68,7 +67,6 @@ export const config = {
         },
       ],
       templates: {
-        operations: operations.templates,
         mutation: mutation.templates,
       },
     }),

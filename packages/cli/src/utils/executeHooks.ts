@@ -38,7 +38,7 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
       logger.emit('success', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
 
       if (subProcess) {
-        logger.emit('debug', [subProcess.stdout])
+        logger.emit('debug', { logs: [subProcess.stdout] })
       }
     })
   })

@@ -3,7 +3,6 @@ import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 
 import { Mutation } from './components/Mutation.tsx'
-import { Operations } from './components/Operations.tsx'
 import { Query } from './components/Query.tsx'
 import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
@@ -14,34 +13,6 @@ import { QueryImports } from './components/QueryImports.tsx'
 import type { FileMeta, PluginTanstackQuery } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginTanstackQuery['resolvedOptions'], PluginTanstackQuery, FileMeta> {
-  async all(operations: Operation[]): OperationMethodResult<FileMeta> {
-    const { pluginManager, oas, plugin, mode } = this.context
-
-    const root = createRoot({
-      logger: pluginManager.logger,
-    })
-
-    const templates = {
-      mutation: Mutation.templates,
-      query: Query.templates,
-      queryOptions: QueryOptions.templates,
-      queryKey: QueryKey.templates,
-      queryImports: QueryImports.templates,
-      operations: Operations.templates,
-      ...this.options.templates,
-    }
-
-    root.render(
-      <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
-        <Oas oas={oas} operations={operations} generator={this}>
-          {templates.operations && <Operations.File templates={templates.operations} />}
-        </Oas>
-      </App>,
-    )
-
-    return root.files
-  }
-
   async operation(operation: Operation, options: PluginTanstackQuery['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 

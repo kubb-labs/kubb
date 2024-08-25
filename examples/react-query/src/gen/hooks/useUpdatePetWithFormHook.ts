@@ -1,5 +1,3 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -7,6 +5,8 @@ import type {
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 type UpdatePetWithForm = {

@@ -40,7 +40,7 @@ describe('TreeNode', () => {
                     "source": "",
                   },
                   "name": "test.ts",
-                  "path": "/src/test.ts",
+                  "path": "src/test.ts",
                   "type": "single",
                 },
                 "parent": [Circular],
@@ -56,7 +56,7 @@ describe('TreeNode', () => {
                         "source": "",
                       },
                       "name": "hello.ts",
-                      "path": "/src/sub/hello.ts",
+                      "path": "src/sub/hello.ts",
                       "type": "single",
                     },
                     "parent": [Circular],
@@ -70,7 +70,7 @@ describe('TreeNode', () => {
                         "source": "",
                       },
                       "name": "world.ts",
-                      "path": "/src/sub/world.ts",
+                      "path": "src/sub/world.ts",
                       "type": "single",
                     },
                     "parent": [Circular],
@@ -79,7 +79,7 @@ describe('TreeNode', () => {
                 "data": {
                   "file": undefined,
                   "name": "sub",
-                  "path": "/src/sub",
+                  "path": "src/sub",
                   "type": "split",
                 },
                 "parent": [Circular],
@@ -88,7 +88,7 @@ describe('TreeNode', () => {
             "data": {
               "file": undefined,
               "name": "src",
-              "path": "/src",
+              "path": "src",
               "type": "split",
             },
             "parent": [Circular],
@@ -96,8 +96,8 @@ describe('TreeNode', () => {
         ],
         "data": {
           "file": undefined,
-          "name": ".",
-          "path": ".",
+          "name": "",
+          "path": "",
           "type": "split",
         },
         "parent": undefined,
@@ -111,17 +111,17 @@ describe('TreeNode', () => {
     tree?.leaves.forEach((leave) => {
       if (leave.data.name === 'hello.ts') {
         expect(leave.data.type).toBe('single')
-        expect(leave.data.path).toBe(path.join('/src/sub', 'hello.ts'))
+        expect(leave.data.path).toBe(path.join('src/sub', 'hello.ts'))
       }
 
       if (leave.data.name === 'hello.ts') {
         expect(leave.data.type).toBe('single')
-        expect(leave.data.path).toBe(path.join('/src/sub', 'hello.ts'))
+        expect(leave.data.path).toBe(path.join('src/sub', 'hello.ts'))
       }
 
       if (leave.data.name === 'test.ts') {
         expect(leave.data.type).toBe('single')
-        expect(leave.data.path).toBe(path.join('/src/test.ts'))
+        expect(leave.data.path).toBe(path.join('src/test.ts'))
       }
     })
   })
@@ -143,7 +143,7 @@ describe('TreeNode', () => {
     expect(items.length).toBe(6)
     expect(names).toMatchInlineSnapshot(`
       [
-        ".",
+        "",
         "src",
         "test.ts",
         "sub",

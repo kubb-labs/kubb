@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
 type PlaceOrder = {

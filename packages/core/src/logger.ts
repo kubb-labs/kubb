@@ -12,7 +12,7 @@ type Events = {
   success: [message: string]
   error: [message: string, cause: Error]
   warning: [message: string]
-  debug: [logs: string[]]
+  debug: [{ logs: string[]; override?: boolean; fileName?: string }]
   info: [message: string]
   progress: [{ count: number; size: number; file: KubbFile.File }]
 }

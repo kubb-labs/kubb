@@ -29,28 +29,83 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.files.at(0)?.exports).toStrictEqual([
-      {
-        asAlias: true,
-        extName: undefined,
-        isTypeOnly: false,
-        name: undefined,
-        print: undefined,
-        path: './index.ts',
-      },
-    ])
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "env": undefined,
+          "exportable": true,
+          "exports": [
+            {
+              "asAlias": true,
+              "extName": undefined,
+              "isTypeOnly": false,
+              "name": undefined,
+              "path": "./index.ts",
+              "print": undefined,
+            },
+          ],
+          "id": undefined,
+          "imports": [
+            {
+              "extName": undefined,
+              "isNameSpace": undefined,
+              "isTypeOnly": false,
+              "name": "React",
+              "path": "react",
+              "print": undefined,
+              "root": undefined,
+            },
+          ],
+          "language": undefined,
+          "meta": undefined,
+          "override": undefined,
+          "path": "path",
+          "source": "",
+        },
+      ]
+    `)
+  })
 
-    expect(root.files.at(0)?.imports).toStrictEqual([
-      {
-        extName: undefined,
-        isNameSpace: undefined,
-        isTypeOnly: false,
-        name: 'React',
-        path: 'react',
-        root: undefined,
-        print: undefined,
-      },
-    ])
+  test('render File with Export inside Source', () => {
+    const Component = () => {
+      return (
+        <File baseName="test.ts" path="path">
+          <File.Source>
+            <File.Export name={'test'} />
+          </File.Source>
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "env": undefined,
+          "exportable": true,
+          "exports": [
+            {
+              "asAlias": undefined,
+              "extName": undefined,
+              "isTypeOnly": false,
+              "name": "test",
+              "path": undefined,
+              "print": undefined,
+            },
+          ],
+          "id": undefined,
+          "imports": [],
+          "language": undefined,
+          "meta": undefined,
+          "override": undefined,
+          "path": "path",
+          "source": "",
+        },
+      ]
+    `)
   })
 
   test('render File with Import and Export and print imports/exports', async () => {

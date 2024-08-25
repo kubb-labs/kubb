@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/react-query'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/react-query'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
 type DeletePet = {

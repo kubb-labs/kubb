@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 import type { UseMutationOptions } from '@tanstack/vue-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/vue-query'
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
 type PlaceOrder = {

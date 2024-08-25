@@ -39,14 +39,16 @@ export function squashTextNodes(node: DOMElement): string {
 
       if (childNode.nodeName === 'kubb-export') {
         const attributes = childNode.attributes as React.ComponentProps<typeof File.Export>
-        return print(
-          factory.createExportDeclaration({
-            name: attributes.name,
-            path: attributes.path,
-            isTypeOnly: attributes.isTypeOnly,
-            asAlias: attributes.asAlias,
-          }),
-        )
+        if (attributes.path) {
+          return print(
+            factory.createExportDeclaration({
+              name: attributes.name,
+              path: attributes.path,
+              isTypeOnly: attributes.isTypeOnly,
+              asAlias: attributes.asAlias,
+            }),
+          )
+        }
       }
 
       if (childNode.nodeName === 'kubb-source') {

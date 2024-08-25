@@ -12,7 +12,6 @@ export default defineConfig(() => {
   return {
     root: '.',
     input: {
-      // path: './test.json',
       path: './petStore.yaml',
     },
     output: {
@@ -34,6 +33,7 @@ export default defineConfig(() => {
         output: {
           path: 'models/ts',
           extName: '.js',
+          exportType: false,
         },
         group: {
           type: 'tag',
@@ -54,7 +54,7 @@ export default defineConfig(() => {
       pluginTanstackQuery({
         output: {
           path: './clients/hooks',
-          exportAs: 'hooks',
+          exportType: false,
         },
         exclude: [
           {
@@ -92,7 +92,7 @@ export default defineConfig(() => {
       pluginSwr({
         output: {
           path: './clients/swr',
-          exportAs: 'swrHooks',
+          exportType: false,
         },
         exclude: [
           {
@@ -110,7 +110,7 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './clients/axios',
-          exportAs: 'clients',
+          exportType: false,
         },
         exclude: [
           {
@@ -128,7 +128,7 @@ export default defineConfig(() => {
       pluginZod({
         output: {
           path: './zod',
-          exportAs: 'zod',
+          exportType: false,
         },
         exclude: [
           {
@@ -143,7 +143,7 @@ export default defineConfig(() => {
       pluginFaker({
         output: {
           path: 'mocks',
-          exportAs: 'faker',
+          exportType: false,
         },
         exclude: [
           {
@@ -160,7 +160,7 @@ export default defineConfig(() => {
       pluginMsw({
         output: {
           path: 'msw',
-          exportAs: 'msw',
+          exportType: false,
         },
         exclude: [
           {

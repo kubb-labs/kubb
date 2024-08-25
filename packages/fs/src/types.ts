@@ -25,10 +25,7 @@ export type Import = {
    * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
    */
   isTypeOnly?: boolean
-  /**
-   * Add `* as` prefix to the import, this will result in: `import * as path from './path'`.
-   */
-  print?:boolean
+
   isNameSpace?: boolean
   /**
    * When root is set it will get the path with relative getRelativePath(root, path).
@@ -45,10 +42,10 @@ export type Export = {
   name?: string | Array<string>
   /**
    * Path for the import.
+   * When not defined it will only be used in cache(fileManager will not add it and use it to create barrel files)
    * @example '@kubb/core'
    */
-  path: string
-  print?:boolean
+  path?: string
   extName?: Extname
   /**
    * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`.

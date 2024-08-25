@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/react-query'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/react-query'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {

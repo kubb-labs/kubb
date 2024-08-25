@@ -17,10 +17,9 @@ import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
 import transformers from './transformers/index.ts'
 import type { Plugin } from './types.ts'
-import { getParser } from './utils'
+import { getParser, renderTemplate } from './utils'
 import PQueue from 'p-queue'
 import { buildDirectoryTree, type DirectoryTree, TreeNode } from './utils/TreeNode.ts'
-import { getExports } from '@kubb/parser-ts'
 
 export type ResolvedFile<TMeta extends FileMetaBase = FileMetaBase, TBaseName extends BaseName = BaseName> = File<TMeta, TBaseName> & {
   /**
@@ -57,6 +56,10 @@ type AddIndexesProps = {
     extName?: KubbFile.Extname
     exportType?: 'barrel' | 'barrelNamed' | false
   }
+  group?: {
+    output: string
+    exportAs: string
+  }
   logger: Logger
   files: KubbFile.File[]
   options?: BarrelManagerOptions
@@ -84,7 +87,7 @@ export class FileManager {
   }
 
   get groupedFiles(): DirectoryTree | null {
-    return buildDirectoryTree(Array.from(this.#files).map((item) => item.path))
+    return buildDirectoryTree(Array.from(this.#files))
   }
 
   get treeNode(): TreeNode | null {
@@ -120,7 +123,7 @@ export class FileManager {
       const folder = resolvedFile.path.replace(resolvedFile.baseName, '')
 
       resolvedFile.exports = resolvedFile.exports.filter((exportItem) => {
-        const exportedFile = this.files.find((file) => file.path.includes(resolve(folder, exportItem.path)))
+        const exportedFile = this.files.find((file) => exportItem.path && file.path.includes(resolve(folder, exportItem.path)))
 
         if (exportedFile) {
           return exportedFile.exportable
@@ -154,13 +157,6 @@ export class FileManager {
     return this.#add(file)
   }
 
-  /**
-   * @deprecated
-   */
-  async getIndexFiles({ files: _files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<ResolvedFile[]> {
-    return []
-  }
-
   getCacheById(id: string): FileWithMeta | undefined {
     let cache: FileWithMeta | undefined
 
@@ -184,6 +180,92 @@ export class FileManager {
 
     this.#filesByPath.delete(path)
     this.#files.delete(cacheItem)
+  }
+
+  async getIndexFiles({ files, group, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
+    const { exportType = 'barrel' } = output
+    if (exportType === false) {
+      return []
+    }
+
+    const pathToBuildFrom = resolve(root, output.path)
+
+    if (transformers.trimExtName(pathToBuildFrom).endsWith('index')) {
+      logger.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
+      return []
+    }
+
+    const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
+    const mode = FileManager.getMode(output.path)
+    const barrelManager = new BarrelManager({
+      extName: output.extName,
+      ...options,
+    })
+
+    let indexFiles = barrelManager.getIndexes(files, pathToBuildFrom)
+
+    logger.emit('debug', { logs: [JSON.stringify({ indexFiles, pathToBuildFrom }, undefined, 2)], override: true, fileName: 'test' })
+
+    if (!indexFiles) {
+      return []
+    }
+
+    const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
+    const rootFile: FileWithMeta = {
+      path: resolve(root, 'index.ts'),
+      baseName: 'index.ts',
+      source: '',
+      exports: [
+        output.exportAs
+          ? {
+              name: output.exportAs,
+              asAlias: true,
+              path: rootPath,
+              isTypeOnly: options.isTypeOnly,
+            }
+          : {
+              path: rootPath,
+              isTypeOnly: options.isTypeOnly,
+            },
+      ],
+      exportable: true,
+      meta: {
+        pluginKey: plugin.key,
+      },
+    }
+
+    if (exportType === 'barrel') {
+      indexFiles = indexFiles.map((file) => {
+        return {
+          ...file,
+          exports: file.exports?.map((exportItem) => {
+            return {
+              ...exportItem,
+              name: undefined,
+            }
+          }),
+        }
+      })
+
+      rootFile.exports = rootFile.exports?.map((item) => {
+        return {
+          ...item,
+          name: undefined,
+        }
+      })
+    }
+
+    return [
+      ...indexFiles.map((indexFile) => {
+        return {
+          ...indexFile,
+          meta: {
+            pluginKey: plugin.key,
+          },
+        }
+      }),
+      rootFile,
+    ]
   }
 
   async write(...params: Parameters<typeof write>): ReturnType<typeof write> {
@@ -282,14 +364,18 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file:
         isTypeOnly: item.isTypeOnly,
       })
     })
-  const exportNodes = exports.filter(item=>item.print).map((item) =>
-    parser.factory.createExportDeclaration({
-      name: item.name,
-      path: item.extName ? `${item.path}${item.extName}` : item.path,
-      isTypeOnly: item.isTypeOnly,
-      asAlias: item.asAlias,
-    }),
-  )
+  const exportNodes = exports
+    .map((item) => {
+      if (item.path) {
+        return parser.factory.createExportDeclaration({
+          name: item.name,
+          path: item.extName ? `${item.path}${item.extName}` : item.path,
+          isTypeOnly: item.isTypeOnly,
+          asAlias: item.asAlias,
+        })
+      }
+    })
+    .filter(Boolean)
 
   const source = [parser.print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
 
@@ -444,88 +530,6 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
   }, source)
 }
 
-export async function getIndexFiles({ files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
-  const { exportType = 'barrel' } = output
-  if (exportType === false) {
-    return []
-  }
-
-  const pathToBuildFrom = resolve(root, output.path)
-
-  if (transformers.trimExtName(pathToBuildFrom).endsWith('index')) {
-    logger.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
-    return []
-  }
-
-  const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
-  const mode = FileManager.getMode(output.path)
-  const barrelManager = new BarrelManager({
-    extName: output.extName,
-    ...options,
-  })
-
-  let indexFiles = barrelManager.getIndexes(files, root)
-
-  if (!indexFiles) {
-    return []
-  }
-
-  const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
-  const rootFile: FileWithMeta = {
-    path: resolve(root, 'index.ts'),
-    baseName: 'index.ts',
-    source: '',
-    exports: [
-      output.exportAs
-        ? {
-            name: output.exportAs,
-            asAlias: true,
-            path: rootPath,
-            isTypeOnly: options.isTypeOnly,
-          }
-        : {
-            path: rootPath,
-            isTypeOnly: options.isTypeOnly,
-          },
-    ],
-    exportable: true,
-    meta: {
-      pluginKey: plugin.key,
-    },
-  }
-
-  if (exportType === 'barrel') {
-    indexFiles = indexFiles.map((file) => {
-        return {
-          ...file,
-          exports: file.exports?.map((exportItem) => {
-            return {
-              ...exportItem,
-              name: undefined,
-            }
-          }),
-        }
-    })
-
-    rootFile.exports = rootFile.exports?.map((item) => {
-      return {
-        ...item,
-        name: undefined,
-      }
-    })
-  }
-
-  return [
-    ...indexFiles.map((file) => ({
-      ...file,
-      meta: {
-        pluginKey: plugin.key,
-      },
-    })),
-    rootFile,
-  ]
-}
-
 type WriteFilesProps = {
   files: KubbFile.File[]
   logger: Logger
@@ -545,10 +549,11 @@ export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
   )
   const orderedFiles = orderBy(mergedFiles, [(v) => !v.meta?.pluginKey, (v) => v.path.length, (v) => trimExtName(v.path).endsWith('index')])
 
-  logger.emit(
-    'debug',
-    orderedFiles.map((item) => `[${item.meta?.pluginKey || 'unknown'}]${item.path}: \n${item.source}`),
-  )
+  logger.emit('debug', {
+    logs: [JSON.stringify({ files: combineFiles(orderedFiles) }, null, 2)],
+    fileName: 'kubb-files.json',
+    override: true,
+  })
 
   if (!dryRun) {
     logger.consola?.pauseLogs()
@@ -571,11 +576,4 @@ export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
   }
 
   return mergedFiles
-}
-
-function getExportFile(files: KubbFile.File[], exportPath: string): KubbFile.File[] | undefined {
-  return files.filter((file) => {
-    console.log(trimExtName(file.path), trimExtName(exportPath).replace('/index', ''))
-    return trimExtName(file.path).includes(trimExtName(exportPath).replace('/index', ''))
-  })
 }

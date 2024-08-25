@@ -1,7 +1,7 @@
-import useSWR from 'swr'
-import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
+import useSWR from 'swr'
+import client from '@kubb/plugin-client/client'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
 type GetOrderById = {

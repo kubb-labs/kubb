@@ -1,11 +1,11 @@
-import { faker } from '@faker-js/faker'
-import { createPet } from '../createPet'
 import type {
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQueryResponse,
 } from '../../models/ts/petController/FindPetsByStatus'
+import { faker } from '@faker-js/faker'
+import { createPet } from '../createPet'
 
 export function createFindPetsByStatusQueryParams(): NonNullable<FindPetsByStatusQueryParams> {
   return { status: faker.helpers.arrayElement(['working', 'idle']) as any }

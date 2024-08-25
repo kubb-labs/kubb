@@ -1,6 +1,6 @@
+import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 import { faker } from '@faker-js/faker'
 import { createOrder } from '../createOrder'
-import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 
 export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
   faker.seed([220])

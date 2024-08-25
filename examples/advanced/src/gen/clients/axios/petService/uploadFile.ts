@@ -1,4 +1,3 @@
-import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type {
   UploadFileMutationRequest,
@@ -6,6 +5,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
+import client from '../../../../axios-client.ts'
 
 /**
  * @summary uploads an image

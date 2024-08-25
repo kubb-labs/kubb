@@ -1,8 +1,8 @@
+import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
-import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {

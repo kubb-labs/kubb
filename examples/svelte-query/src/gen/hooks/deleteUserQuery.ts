@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { createMutation } from '@tanstack/svelte-query'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createMutation } from '@tanstack/svelte-query'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
 type DeleteUser = {

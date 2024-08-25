@@ -1,9 +1,9 @@
-import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput'
+import client from '../../../../axios-client.ts'
 
 /**
  * @description Creates list of users with given input array

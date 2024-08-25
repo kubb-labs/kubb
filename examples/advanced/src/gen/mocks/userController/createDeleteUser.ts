@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse } from '../../models/ts/userController/DeleteUser'
+import { faker } from '@faker-js/faker'
 
 export function createDeleteUserPathParams(): NonNullable<DeleteUserPathParams> {
   return { username: faker.string.alpha() }

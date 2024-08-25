@@ -4,14 +4,12 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Mutation } from './components/Mutation.tsx'
-import type { Operations } from './components/Operations.tsx'
 import type { Query as QueryTemplate } from './components/Query.tsx'
 import type { QueryImports } from './components/QueryImports.tsx'
 import type { QueryKey } from './components/QueryKey.tsx'
 import type { QueryOptions as QueryOptionsTemplate } from './components/QueryOptions.tsx'
 
 type Templates = {
-  operations?: typeof Operations.templates | false
   mutation?: typeof Mutation.templates | false
   query?: typeof QueryTemplate.templates | false
   queryOptions?: typeof QueryOptionsTemplate.templates | false

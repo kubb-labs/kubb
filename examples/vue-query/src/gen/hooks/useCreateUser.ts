@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { UseMutationOptions } from '@tanstack/vue-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/vue-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {

@@ -1,7 +1,3 @@
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 import type {
   QueryObserverOptions,
@@ -13,6 +9,10 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {

@@ -1,4 +1,3 @@
-import { createPet } from '../createPet'
 import type {
   UpdatePet200,
   UpdatePet400,
@@ -7,6 +6,7 @@ import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
 } from '../../models/ts/petController/UpdatePet'
+import { createPet } from '../createPet'
 
 /**
  * @description Successful operation

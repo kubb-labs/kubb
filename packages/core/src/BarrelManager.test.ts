@@ -32,7 +32,7 @@ describe('BarrelManager', () => {
 
     expect(indexFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
 
-    expect(rootIndex?.exports?.every((file) => !file.path.endsWith('.ts'))).toBeTruthy()
+    expect(rootIndex?.exports?.every((file) => !file.path?.endsWith('.ts'))).toBeTruthy()
   })
 
   test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
@@ -47,7 +47,7 @@ describe('BarrelManager', () => {
 
     expect(await format(code)).toMatchSnapshot()
 
-    expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
+    expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
   test('if getIndexes can return an export with treeNode options', () => {
     const barrelManager = new BarrelManager({
@@ -58,6 +58,6 @@ describe('BarrelManager', () => {
 
     expect(rootIndex).toBeDefined()
 
-    expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
+    expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
 })

@@ -1,7 +1,15 @@
 import type * as KubbFile from '@kubb/fs/types'
-import { FileManager } from '../FileManager.ts';
+import { FileManager } from '../FileManager.ts'
 
-type BarrelData = { file?: KubbFile.File, type: KubbFile.Mode; path: string; name: string }
+type BarrelData = {
+  file?: KubbFile.File
+  /**
+   * @deprecated use file instead
+   */
+  type: KubbFile.Mode
+  path: string
+  name: string
+}
 
 export class TreeNode {
   public data: BarrelData
@@ -89,12 +97,7 @@ export class TreeNode {
 
   public static build(files: KubbFile.File[], root?: string): TreeNode | null {
     try {
-      const filteredTree = buildDirectoryTree(
-        files,
-        root,
-      )
-
-      console.log(JSON.stringify(filteredTree, null, 2))
+      const filteredTree = buildDirectoryTree(files, root)
 
       if (!filteredTree) {
         return null
@@ -139,16 +142,16 @@ export type DirectoryTree = {
 }
 
 export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
-  const rootPrefix = rootFolder.endsWith('/') ? rootFolder : `${rootFolder}/`;
-  const filteredFiles = rootFolder ? files.filter((file) => file.path.startsWith(rootPrefix) && !file.path.endsWith('.json')) : files
+  const rootPrefix = rootFolder.endsWith('/') ? rootFolder : `${rootFolder}/`
+  const filteredFiles = files.filter((file) => (rootFolder ? file.path.startsWith(rootPrefix) && !file.path.endsWith('.json') : !file.path.endsWith('.json')))
 
   if (filteredFiles.length === 0) {
     return null // No files match the root folder
   }
 
   const root: DirectoryTree = {
-    name: rootFolder || '.',
-    path: rootFolder || '.',
+    name: rootFolder || '',
+    path: rootFolder || '',
     children: [],
   }
 
@@ -159,7 +162,12 @@ export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = '')
     let currentPath = rootFolder
 
     parts.forEach((part, index) => {
-      currentPath += `/${part}`
+      if (index !== 0) {
+        currentPath += `/${part}`
+      } else {
+        currentPath += `${part}`
+      }
+
       let existingNode = currentLevel.find((node) => node.name === part)
 
       if (!existingNode) {
