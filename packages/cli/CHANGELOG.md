@@ -1,5 +1,17 @@
 # @kubb/cli
 
+## 3.0.0-alpha.5
+
+### Minor Changes
+
+- [#1138](https://github.com/kubb-labs/kubb/pull/1138) [`3a9859a`](https://github.com/kubb-labs/kubb/commit/3a9859a5f383f6832a9f056136665f1f7ca6fb72) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - cli progressbar for writing files
+
+### Patch Changes
+
+- Updated dependencies [[`3a9859a`](https://github.com/kubb-labs/kubb/commit/3a9859a5f383f6832a9f056136665f1f7ca6fb72)]:
+  - @kubb/core@3.0.0-alpha.5
+  - @kubb/fs@3.0.0-alpha.5
+
 ## 3.0.0-alpha.4
 
 ### Minor Changes
