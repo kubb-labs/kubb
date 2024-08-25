@@ -11,7 +11,7 @@ import { searchAndReplace } from './searchAndReplace.ts'
 import { stringify, stringifyObject } from './stringify.ts'
 import { toRegExp, toRegExpString } from './toRegExp.ts'
 import { transformReservedWord } from './transformReservedWord.ts'
-import { trim, trimExtName, trimQuotes } from './trim.ts'
+import { trim, trimQuotes } from './trim.ts'
 
 export { camelCase, pascalCase, pathCase } from './casing.ts'
 export { combineCodes } from './combineCodes.ts'
@@ -23,7 +23,7 @@ export { searchAndReplace } from './searchAndReplace.ts'
 export { stringify, stringifyObject } from './stringify.ts'
 export { toRegExp, toRegExpString } from './toRegExp.ts'
 export { transformReservedWord } from './transformReservedWord.ts'
-export { trim, trimExtName, trimQuotes } from './trim.ts'
+export { trim, trimQuotes } from './trim.ts'
 export { merge } from 'remeda'
 export { orderBy } from 'natural-orderby'
 
@@ -41,7 +41,6 @@ export default {
   toRegExpString,
   trim,
   trimQuotes,
-  trimExtName,
   JSDoc: {
     createJSDocBlockText,
   },

@@ -51,20 +51,6 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 
   const pluginManager = new PluginManager(config, { logger })
 
-  pluginManager.on('executed', (executer) => {
-    const { hookName, plugin, output, parameters } = executer
-
-    const logs: string[] = [
-      `${randomCliColour(plugin.name)} Executing ${hookName}`,
-      parameters && `${c.bgWhite('Parameters')} ${randomCliColour(plugin.name)} ${hookName}`,
-      JSON.stringify(parameters, undefined, 2),
-      output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
-      output,
-    ].filter(Boolean) as string[]
-
-    logger.emit('debug', { logs })
-  })
-
   return pluginManager
 }
 

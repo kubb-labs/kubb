@@ -49,31 +49,22 @@ type Props<TMeta extends FileMetaBase = FileMetaBase> = BaseProps & {
    */
   id?: KubbFile.File['id']
   /**
-   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
-   */
-  env?: KubbFile.File['env']
-  /**
    * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists.
    * This will also ignore the combinefiles utils
    * @default `false`
    */
   override?: KubbFile.File['override']
-  /**
-   * Override if a file can be exported by the BarrelManager
-   * @default true
-   */
-  exportable?: boolean
   meta?: TMeta
   children?: KubbNode
 }
 
-export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, exportable = true, ...rest }: Props<TMeta>): KubbNode {
+export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, ...rest }: Props<TMeta>): KubbNode {
   if (!rest.baseName || !rest.path) {
     return children
   }
 
   return (
-    <kubb-file exportable={exportable} {...rest}>
+    <kubb-file {...rest}>
       <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>{children}</FileContext.Provider>
     </kubb-file>
   )

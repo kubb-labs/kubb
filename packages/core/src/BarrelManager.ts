@@ -1,16 +1,16 @@
 import path from 'node:path'
 
-import { trimExtName } from './transformers/trim.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
+import { trimExtName } from '@kubb/fs'
 
 export type BarrelManagerOptions = {
   isTypeOnly?: boolean
   /**
    * Add .ts or .js
    */
-  extName?: KubbFile.Extname
+  extName?: string
 }
 
 /**
@@ -61,7 +61,6 @@ export class BarrelManager {
         baseName: 'index.ts',
         source: '',
         exports,
-        exportable: true,
       })
 
       treeNode.children.forEach((childItem) => {

@@ -19,9 +19,7 @@ declare global {
         children?: ReactNode
         baseName: string
         path: string
-        env?: NodeJS.ProcessEnv
         override?: boolean
-        exportable?: boolean
         meta?: KubbFile.File['meta']
       }
 

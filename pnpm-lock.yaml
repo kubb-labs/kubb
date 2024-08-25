@@ -878,9 +878,6 @@ importers:
       '@kubb/fs':
         specifier: workspace:*
         version: link:../fs
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
@@ -896,9 +893,6 @@ importers:
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2
-      object-hash:
-        specifier: ^3.0.0
-        version: 3.0.0
       p-queue:
         specifier: ^8.0.1
         version: 8.0.1
@@ -951,12 +945,21 @@ importers:
 
   packages/fs:
     dependencies:
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
+      '@types/object-hash':
+        specifier: ^3.0.6
+        version: 3.0.6
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
       js-runtime:
         specifier: ^0.0.8
         version: 0.0.8
+      object-hash:
+        specifier: ^3.0.0
+        version: 3.0.0
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*

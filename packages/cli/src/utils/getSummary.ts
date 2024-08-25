@@ -29,7 +29,7 @@ export function getSummary({ pluginManager, status, hrStart, config, logger }: S
 
   const failedPlugins = config.plugins?.filter((plugin) => !buildEndPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
-  const files = pluginManager.fileManager.files.sort((a, b) => {
+  const files = pluginManager.fileManager.files.sort((a: any, b: any) => {
     if (!a.meta?.pluginKey?.[0] || !b.meta?.pluginKey?.[0]) {
       return 0
     }

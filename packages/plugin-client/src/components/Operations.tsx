@@ -45,7 +45,7 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   return (
     <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
+      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Source>{children}</File.Source>
       </File>
     </Parser>

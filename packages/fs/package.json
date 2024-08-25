@@ -57,8 +57,11 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@types/object-hash": "^3.0.6",
+    "@kubb/parser-ts": "workspace:*",
     "fs-extra": "^11.2.0",
-    "js-runtime": "^0.0.8"
+    "js-runtime": "^0.0.8",
+    "object-hash": "^3.0.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

@@ -1,5 +1,5 @@
 import { readSync } from '@kubb/fs'
-import { FileManager, type ResolvedFile } from './FileManager.ts'
+import { FileManager } from './FileManager.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 import { ValidationPluginError } from './errors.ts'

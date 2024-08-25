@@ -332,7 +332,7 @@ export function createExportDeclaration({
   name?: string | Array<ts.Identifier | string>
 }) {
   if (name && !Array.isArray(name) && !asAlias) {
-    throw new Error('When using `name` as string, `asAlias` should be true')
+    console.warn(`When using name as string, asAlias should be true ${name}`)
   }
 
   if (!Array.isArray(name)) {

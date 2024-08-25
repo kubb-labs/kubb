@@ -33,8 +33,6 @@ describe('<File/>', () => {
       [
         {
           "baseName": "test.ts",
-          "env": undefined,
-          "exportable": true,
           "exports": [
             {
               "asAlias": true,
@@ -45,6 +43,7 @@ describe('<File/>', () => {
               "print": undefined,
             },
           ],
+          "extName": "ts",
           "id": undefined,
           "imports": [
             {
@@ -57,14 +56,34 @@ describe('<File/>', () => {
               "root": undefined,
             },
           ],
-          "language": undefined,
           "meta": undefined,
+          "name": "test",
           "override": undefined,
           "path": "path",
           "source": "",
         },
       ]
     `)
+  })
+
+  test('do not render File', () => {
+    const enable = false
+    const Component = () => {
+      return (
+        <>
+          {enable && (
+            <File baseName="test.ts" path="path">
+              <File.Import name={'React'} path="react" />
+              <File.Export asAlias path="./index.ts" />
+            </File>
+          )}
+        </>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.files).toMatchInlineSnapshot('[]')
   })
 
   test('render File with Export inside Source', () => {
@@ -84,8 +103,6 @@ describe('<File/>', () => {
       [
         {
           "baseName": "test.ts",
-          "env": undefined,
-          "exportable": true,
           "exports": [
             {
               "asAlias": undefined,
@@ -96,10 +113,11 @@ describe('<File/>', () => {
               "print": undefined,
             },
           ],
+          "extName": "ts",
           "id": undefined,
           "imports": [],
-          "language": undefined,
           "meta": undefined,
+          "name": "test",
           "override": undefined,
           "path": "path",
           "source": "",

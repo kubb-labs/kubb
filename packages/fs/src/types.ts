@@ -20,7 +20,7 @@ export type Import = {
    * @example '@kubb/core'
    */
   path: string
-  extName?: Extname
+  extName?: string
   /**
    * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
    */
@@ -57,13 +57,9 @@ export type Export = {
   asAlias?: boolean
 }
 
-export declare const dataTagSymbol: unique symbol
-export type DataTag<Type, Value> = Type & {
-  [dataTagSymbol]: Value
-}
-
-export type Source = string
-
+/**
+ * @deprecated
+ */
 export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
 export type Mode = 'single' | 'split'
@@ -73,7 +69,7 @@ export type Mode = 'single' | 'split'
  * Based on UNIX basename
  * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
  */
-export type BaseName = `${string}${Extname}`
+export type BaseName = `${string}.${string}`
 
 /**
  * Path will be full qualified path to a specified file
@@ -84,23 +80,25 @@ export type AdvancedPath<T extends BaseName = BaseName> = `${BasePath}${T}`
 
 export type OptionalPath = Path | undefined | null
 
-export type File<TMeta extends object = object, TBaseName extends BaseName = BaseName> = {
+export type File<TMeta extends object = object> = {
   /**
    * Unique identifier to reuse later
    * @default object-hash
    */
   id?: string
+  name?: string
+  extName?: string
   /**
    * Name to be used to create the path
    * Based on UNIX basename, `${name}.extName`
    * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
    */
-  baseName: TBaseName
+  baseName: BaseName
   /**
    * Path will be full qualified path to a specified file
    */
-  path: AdvancedPath<TBaseName> | Path
-  source: Source
+  path: AdvancedPath<BaseName> | Path
+  source: string
   imports?: Import[]
   exports?: Export[]
   /**
@@ -113,17 +111,17 @@ export type File<TMeta extends object = object, TBaseName extends BaseName = Bas
    * Use extra meta, this is getting used to generate the barrel/index files.
    */
   meta?: TMeta
+}
+
+export type ResolvedFile<TMeta extends object = object> = File<TMeta> & {
   /**
-   * Override if a file can be exported by the BarrelManager
-   * @default true
+   * @default object-hash
    */
-  exportable?: boolean
+  id: string
   /**
-   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
+   * Contains the first part of the baseName, generated based on baseName
+   * @link  https://nodejs.org/api/path.html#pathformatpathobject
    */
-  env?: NodeJS.ProcessEnv
-  /**
-   * The name of the language being used. This can be TypeScript, JavaScript and still have another ext.
-   */
-  language?: string
+  name: string
+  extName: string
 }

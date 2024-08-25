@@ -87,13 +87,11 @@
   },
   "dependencies": {
     "@kubb/fs": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/types": "workspace:*",
     "@types/object-hash": "^3.0.6",
     "change-case": "^5.4.4",
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
-    "object-hash": "^3.0.0",
     "p-queue": "^8.0.1",
     "remeda": "^2.11.0",
     "seedrandom": "^3.0.5",

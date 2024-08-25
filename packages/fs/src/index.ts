@@ -1,3 +1,5 @@
 export { clean } from './clean.ts'
 export { getRelativePath, read, readSync } from './read.ts'
 export { write } from './write.ts'
+export { createFileParser, getFileParser, createFile, trimExtName } from './utils.ts'
+export type { ParserModule } from './utils.ts'

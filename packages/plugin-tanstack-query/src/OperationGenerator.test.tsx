@@ -1,4 +1,3 @@
-import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'

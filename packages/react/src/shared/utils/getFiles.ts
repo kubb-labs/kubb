@@ -8,9 +8,10 @@ import type React from 'react'
 import type { File } from '../../components/File.tsx'
 import type { Parser } from '../../components/Parser.tsx'
 import type { DOMElement } from '../../types.ts'
+import { createFile } from '@kubb/fs'
 
-export function getFiles(node: DOMElement, language?: string): KubbFile.File[] {
-  let files: KubbFile.File[] = []
+export function getFiles(node: DOMElement): KubbFile.ResolvedFile[] {
+  let files: KubbFile.ResolvedFile[] = []
 
   for (let index = 0; index < node.childNodes.length; index++) {
     const childNode = node.childNodes[index]
@@ -20,31 +21,23 @@ export function getFiles(node: DOMElement, language?: string): KubbFile.File[] {
     }
 
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      if (childNode.nodeName === 'kubb-parser') {
-        const attributes = childNode.attributes as React.ComponentProps<typeof Parser>
-        files = [...files, ...getFiles(childNode, attributes.language)]
-      } else {
-        files = [...files, ...getFiles(childNode)]
-      }
+      files = [...files, ...getFiles(childNode)]
     }
 
     if (childNode.nodeName === 'kubb-file') {
       const attributes = childNode.attributes as React.ComponentProps<typeof File>
 
       if (attributes.baseName && attributes.path) {
-        const file: KubbFile.File = {
+        const file = createFile({
           id: attributes.id,
           baseName: attributes.baseName,
           path: attributes.path,
           source: squashSourceNodes(childNode),
-          env: attributes.env,
           exports: squashExportNodes(childNode),
           imports: squashImportNodes(childNode),
           override: attributes.override,
           meta: attributes.meta,
-          exportable: attributes.exportable,
-          language,
-        }
+        })
 
         files.push(file)
       }
