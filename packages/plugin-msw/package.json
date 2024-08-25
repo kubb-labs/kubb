@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-msw",
-  "version": "3.0.0-alpha.4",
+  "version": "3.0.0-alpha.5",
   "description": "Generator swagger",
   "keywords": [
     "typescript",

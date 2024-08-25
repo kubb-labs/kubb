@@ -1,5 +1,7 @@
 # @kubb/parser-ts
 
+## 3.0.0-alpha.5
+
 ## 3.0.0-alpha.4
 
 ## 3.0.0-alpha.3
