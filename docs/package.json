@@ -21,7 +21,7 @@
   "dependencies": {
     "@shikijs/vitepress-twoslash": "^1.14.1",
     "sitemap": "^8.0.0",
-    "vitepress": "^1.3.3",
+    "vitepress": "^1.3.4",
     "vue": "^3.4.38"
   },
   "devDependencies": {

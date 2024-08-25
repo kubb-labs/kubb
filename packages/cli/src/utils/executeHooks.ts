@@ -7,6 +7,7 @@ import { ConsolaWritable } from './Writables.ts'
 
 import type { Config } from '@kubb/core'
 import { LogMapper } from '@kubb/core/logger'
+import PQueue from 'p-queue'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
@@ -15,37 +16,34 @@ type ExecutingHooksProps = {
 
 export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Promise<void> {
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
+  const queue = new PQueue({ concurrency: 1 })
 
-  const executors = commands
-    .map(async (command) => {
-      const consolaWritable = new ConsolaWritable(logger.consola!, command)
-      const abortController = new AbortController()
-      const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
+  const promises = commands.map(async (command) => {
+    const consolaWritable = new ConsolaWritable(logger.consola!, command)
+    const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
-      if (!cmd) {
-        return null
-      }
+    if (!cmd) {
+      return null
+    }
 
+    await queue.add(async () => {
       logger.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
 
       const subProcess = await execa(cmd, _args, {
         detached: true,
-        cancelSignal: abortController.signal,
         stdout: logger.logLevel === LogMapper.silent ? undefined : ['pipe', consolaWritable],
+        stripFinalNewline: true,
       })
 
       logger.emit('success', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
 
       if (subProcess) {
-        logger.emit('info', `Executing hooks\n ${subProcess.stdout}`)
+        logger.emit('debug', [subProcess.stdout])
       }
-
-      consolaWritable.destroy()
-      return { subProcess, abort: abortController.abort.bind(abortController) }
     })
-    .filter(Boolean)
+  })
 
-  await Promise.all(executors)
+  await Promise.all(promises)
 
   logger.emit('success', 'Executing hooks')
 }

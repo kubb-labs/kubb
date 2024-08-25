@@ -43,7 +43,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) =
 
       const { root: _root, ...userConfig } = options.config as Config
 
-      logger.emit('start', '🚀 Building')
+      logger.emit('start', 'Building')
 
       const { error } = await safeBuild({
         config: {

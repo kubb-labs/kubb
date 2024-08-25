@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { format } from '../mocks/format.ts'
 import { BarrelManager } from './BarrelManager.ts'
-import { FileManager } from './FileManager.ts'
+import { FileManager, getSource } from './FileManager.ts'
 
 describe('BarrelManager', () => {
   test(`if getIndexes returns 'index.ts' files`, () => {
@@ -30,7 +30,7 @@ describe('BarrelManager', () => {
 
     expect(rootIndex).toBeDefined()
 
-    const code = await FileManager.getSource(rootIndex)
+    const code = await getSource(rootIndex)
 
     expect(await format(code)).toMatchSnapshot()
 

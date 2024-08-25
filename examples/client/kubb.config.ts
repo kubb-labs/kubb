@@ -17,7 +17,7 @@ export default defineConfig(async () => {
       path: './petStore.yaml',
     },
     hooks: {
-      done: ['npm run typecheck', 'sleep 10', 'pnpm run build'],
+      done: ['pnpm run build'],
     },
     output: {
       path: './src/gen',

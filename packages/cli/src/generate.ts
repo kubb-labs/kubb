@@ -1,4 +1,4 @@
-import { createLogger } from '@kubb/core/logger'
+import { createLogger, LogMapper } from '@kubb/core/logger'
 
 import c from 'tinyrainbow'
 
@@ -8,27 +8,16 @@ import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 import { writeLog } from './utils/writeLog.ts'
-import { LogMapper } from '@kubb/core/logger'
+import type * as KubbFile from '@kubb/fs/types'
 
-import { MultiBar, Presets } from 'cli-progress'
+import { SingleBar, Presets } from 'cli-progress'
+import { getRelativePath } from '@kubb/fs'
+import { relative } from 'node:path'
 
 type GenerateProps = {
   input?: string
   config: Config
   args: Args
-}
-
-export function createMultiProgressBar() {
-  return new MultiBar(
-    {
-      format: 'progress [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
-      barsize: 40,
-      fps: 5,
-      stream: process.stderr,
-      clearOnComplete: true,
-    },
-    Presets.shades_grey,
-  )
 }
 
 export async function generate({ input, config, args }: GenerateProps): Promise<void> {
@@ -38,18 +27,25 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     name: config.name,
   })
 
-  // const progress = createMultiProgressBar()
-  // let progressFiles: any
-  //
-  // logger.on('progress', (count, size) => {
-  //   if (count === 0) {
-  //     progressFiles = progress.create(size, 0)
-  //   }
-  //   progressFiles.update(count)
-  //   if (count === size) {
-  //     progressFiles.stop()
-  //   }
-  // })
+  const progress = new SingleBar(
+    {
+      format: logLevel === LogMapper.info ? '{percentage}% {bar} {value}/{total} files | ETA: {eta}s | {filename}' : '{percentage}% {bar} ETA: {eta}s',
+      barsize: 40,
+      fps: 5,
+      clearOnComplete: true,
+    },
+    Presets.shades_grey,
+  )
+
+  logger.on('progress', ({ count, size, file }) => {
+    if (count === 0) {
+      progress.start(size, 0)
+    } else if (count === size) {
+      progress.stop()
+    } else {
+      progress.update(count, { filename: relative(config.root, file.path) || '' })
+    }
+  })
 
   logger.on('debug', async (messages: string[]) => {
     await writeLog(messages.join('\n'))
@@ -58,7 +54,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  logger.emit('start', `🚀 Building ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.emit('start', `Building ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
   const definedConfig: Config = {
     root,
@@ -89,7 +85,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   })
 
   if (error && logger.consola) {
-    logger.consola.error(`🚀 Build failed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+    logger.consola.error(`Build failed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
     logger.consola.box({
       title: `${config.name || ''}`,
@@ -117,7 +113,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.success(`🚀 Build completed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.consola?.log(`⚡️Build completed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
   logger.consola?.box({
     title: `${config.name || ''}`,

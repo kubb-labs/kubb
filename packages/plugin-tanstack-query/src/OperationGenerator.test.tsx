@@ -12,6 +12,7 @@ import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginTanstackQuery } from './types.ts'
+import { getSource } from '@kubb/core/src/FileManager.ts';
 
 describe('OperationGenerator', async () => {
   const oas = await parseFromConfig({
@@ -272,7 +273,7 @@ describe('OperationGenerator', async () => {
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
     for (const file of files) {
-      const source = await FileManager.getSource(file)
+      const source = await getSource(file)
 
       expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file.baseName}`)
     }

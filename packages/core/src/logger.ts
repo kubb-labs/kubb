@@ -5,6 +5,7 @@ import { EventEmitter } from './utils/EventEmitter.ts'
 
 import { type ConsolaInstance, createConsola, type LogLevel } from 'consola'
 import type { Formatter } from 'tinyrainbow'
+import type * as KubbFile from '@kubb/fs/src/types.ts'
 
 type Events = {
   start: [message: string]
@@ -13,7 +14,7 @@ type Events = {
   warning: [message: string]
   debug: [logs: string[]]
   info: [message: string]
-  progress: [count: number, size: number]
+  progress: [{ count: number; size: number; file: KubbFile.File }]
 }
 
 export const LogMapper = {
