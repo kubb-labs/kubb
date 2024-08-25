@@ -44,24 +44,24 @@ exports[`<File/> > render multiple Files 2`] = `
 "
 `;
 
-exports[`<File/> > render multiple Files 3`] = `
+exports[`<File/> > render multiple Files 4`] = `
 "const test2 = 2
 "
 `;
 
-exports[`<File/> > render multiple Files 4`] = `
+exports[`<File/> > render multiple Files 5`] = `
 "const test = 1
 
 const test2 = 2
 "
 `;
 
-exports[`<File/> > render multiple Files 5`] = `
+exports[`<File/> > render multiple Files 6`] = `
 "const test = 1
 "
 `;
 
-exports[`<File/> > render multiple Files 6`] = `
+exports[`<File/> > render multiple Files 8`] = `
 "const test2 = 2
 "
 `;

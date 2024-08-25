@@ -36,7 +36,6 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": true,
-              "extName": undefined,
               "isTypeOnly": false,
               "name": undefined,
               "path": "./index.ts",
@@ -47,7 +46,6 @@ describe('<File/>', () => {
           "id": undefined,
           "imports": [
             {
-              "extName": undefined,
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -106,7 +104,6 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": undefined,
-              "extName": undefined,
               "isTypeOnly": false,
               "name": "test",
               "path": undefined,
@@ -219,17 +216,18 @@ describe('<File/>', () => {
 
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
-    expect(root.files[0]?.imports).toStrictEqual([
-      {
-        extName: undefined,
-        isNameSpace: undefined,
-        isTypeOnly: false,
-        name: 'node',
-        path: 'node',
-        print: undefined,
-        root: undefined,
-      },
-    ])
+    expect(root.files[0]?.imports).toMatchInlineSnapshot(`
+      [
+        {
+          "isNameSpace": undefined,
+          "isTypeOnly": false,
+          "name": "node",
+          "path": "node",
+          "print": undefined,
+          "root": undefined,
+        },
+      ]
+    `)
 
     expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })
@@ -284,17 +282,18 @@ describe('<File/>', () => {
 
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
-    expect(root.files[0]?.imports).toStrictEqual([
-      {
-        extName: undefined,
-        isNameSpace: undefined,
-        isTypeOnly: false,
-        name: 'node',
-        path: 'node',
-        print: undefined,
-        root: undefined,
-      },
-    ])
+    expect(root.files[0]?.imports).toMatchInlineSnapshot(`
+      [
+        {
+          "isNameSpace": undefined,
+          "isTypeOnly": false,
+          "name": "node",
+          "path": "node",
+          "print": undefined,
+          "root": undefined,
+        },
+      ]
+    `)
 
     expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })

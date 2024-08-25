@@ -226,7 +226,6 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
-          extName={extName}
           name={[
             schemas.request?.name,
             schemas.response.name,

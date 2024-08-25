@@ -429,9 +429,8 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={'client'} path={importPath} />
-        <File.Import extName={extName} name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
-          extName={extName}
           name={[
             schemas.request?.name,
             schemas.response.name,

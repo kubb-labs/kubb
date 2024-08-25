@@ -6,7 +6,7 @@ import { print, type ts } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { useSchema } from '@kubb/plugin-oas/hooks'
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { parse, typeKeywordMapper } from '../parser/index.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types.ts'
@@ -87,6 +87,8 @@ export function Schema(props: Props): ReactNode {
   })
 
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
+  const enumNames = enumSchemas.map((enumSchema) => ({ name: transformers.camelCase(enumSchema.args.name), typeName: enumSchema.args.typeName }))
+
   if (enumSchemas) {
     enumSchemas.forEach((enumSchema) => {
       extraNodes.push(
@@ -116,7 +118,18 @@ export function Schema(props: Props): ReactNode {
       ),
   )
 
-  return print([...extraNodes, ...filterdNodes])
+  return (
+    <>
+      {enumNames.map(({ name, typeName }, index) => (
+        <Fragment key={index}>
+          <File.Export name={name} />
+          <File.Export name={typeName} isTypeOnly />
+        </Fragment>
+      ))}
+      <File.Export name={typeName} isTypeOnly />
+      {print([...extraNodes, ...filterdNodes])}
+    </>
+  )
 }
 
 type FileProps = {}
