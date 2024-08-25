@@ -37,6 +37,7 @@ declare global {
 
       'kubb-export': KubbFile.Export & {
         print?: boolean
+        children?: ReactNode
       }
 
       'kubb-parser': {

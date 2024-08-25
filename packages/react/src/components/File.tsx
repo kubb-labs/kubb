@@ -114,24 +114,16 @@ function FileSource({ path, print, children }: FileSourceProps): KubbNode {
 }
 
 type FileExportProps = KubbFile.Export & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager)
-   */
-  print?: boolean
+  children?: KubbNode
 }
 
-function FileExport({ name, path, isTypeOnly, asAlias, print, extName }: FileExportProps): KubbNode {
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} extName={extName} asAlias={asAlias} print={print} />
+function FileExport({ name, children, path, isTypeOnly, asAlias, print, extName }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} extName={extName} asAlias={asAlias} print={print}>
+    {children}
+  </kubb-export>
 }
 
-type FileImportProps = KubbFile.Import & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager).
-   */
-  print?: boolean
-}
+type FileImportProps = KubbFile.Import
 
 export function FileImport({ name, root, path, isTypeOnly, isNameSpace, extName, print }: FileImportProps): KubbNode {
   return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} extName={extName} isTypeOnly={isTypeOnly || false} print={print} />

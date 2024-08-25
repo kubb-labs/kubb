@@ -1,6 +1,6 @@
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey } from "@tanstack/react-query";
 import client from "@kubb/plugin-client/client";
 import { useQuery } from "@tanstack/react-query";
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey } from "@tanstack/react-query";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
 type GetPetById = {

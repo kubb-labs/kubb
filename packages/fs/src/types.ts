@@ -28,7 +28,7 @@ export type Import = {
   /**
    * Add `* as` prefix to the import, this will result in: `import * as path from './path'`.
    */
-
+  print?:boolean
   isNameSpace?: boolean
   /**
    * When root is set it will get the path with relative getRelativePath(root, path).
@@ -48,6 +48,7 @@ export type Export = {
    * @example '@kubb/core'
    */
   path: string
+  print?:boolean
   extName?: Extname
   /**
    * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`.
@@ -64,7 +65,6 @@ export type DataTag<Type, Value> = Type & {
   [dataTagSymbol]: Value
 }
 
-export type UUID = string
 export type Source = string
 
 export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
@@ -90,7 +90,7 @@ export type OptionalPath = Path | undefined | null
 export type File<TMeta extends object = object, TBaseName extends BaseName = BaseName> = {
   /**
    * Unique identifier to reuse later
-   * @default crypto.randomUUID()
+   * @default object-hash
    */
   id?: string
   /**

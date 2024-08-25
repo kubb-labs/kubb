@@ -113,7 +113,7 @@ describe('FileManager', () => {
     expect(fileManager.files.length).toBe(4)
   })
 
-  test('fileManager.getCacheByUUID', async () => {
+  test('fileManager.getCacheById', async () => {
     const fileManager = new FileManager()
     const file = await fileManager.add({
       path: path.resolve('./src/file1.ts'),
@@ -121,7 +121,7 @@ describe('FileManager', () => {
       source: '',
     })
 
-    const resolvedFile = fileManager.getCacheByUUID(file.id)
+    const resolvedFile = fileManager.getCacheById(file.id)
 
     if (resolvedFile) {
       expect(resolvedFile).toBeDefined()
@@ -138,7 +138,7 @@ describe('FileManager', () => {
       source: '',
     })
 
-    fileManager.remove(filePath)
+    fileManager.deleteByPath(filePath)
 
     const expectedRemovedFile = fileManager.files.find((f) => f.path === filePath)
 
@@ -152,6 +152,199 @@ describe('FileManager', () => {
     expect(FileManager.getMode(null)).toBe('split')
   })
   test.todo('fileManager.addIndexes')
+
+  test('fileManager.orderedFiles', async () => {
+    const fileManager = new FileManager()
+    await fileManager.add({
+      path: 'src/axios/file2.ts',
+      baseName: 'file2.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/controller/test.ts',
+      baseName: 'test.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/axios/file1.ts',
+      baseName: 'file2.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/test.ts',
+      baseName: 'test.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/axios/controller/pet.ts',
+      baseName: 'pet.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/axios/index.ts',
+      baseName: 'index.ts',
+      source: '',
+    })
+
+    expect(fileManager.orderedFiles).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "id": "bc7d8e8a7dbcd273eeefde16f0b49284c0a4fdf6",
+          "name": "test",
+          "path": "src/test.ts",
+          "source": "",
+        },
+        {
+          "baseName": "file2.ts",
+          "id": "cd0facba6e2fa54c91f40c32aa4646ed494e4586",
+          "name": "file2",
+          "path": "src/axios/file2.ts",
+          "source": "",
+        },
+        {
+          "baseName": "file2.ts",
+          "id": "18493e86c6800d1e05da320dd303b3ab172210e7",
+          "name": "file2",
+          "path": "src/axios/file1.ts",
+          "source": "",
+        },
+        {
+          "baseName": "index.ts",
+          "id": "fa692df3f230a8bb80390145ba87895e55d3e4c4",
+          "name": "index",
+          "path": "src/axios/index.ts",
+          "source": "",
+        },
+        {
+          "baseName": "test.ts",
+          "id": "e26573e3f3ca98fe1f254bebc2dff6ddd88f4552",
+          "name": "test",
+          "path": "src/controller/test.ts",
+          "source": "",
+        },
+        {
+          "baseName": "pet.ts",
+          "id": "924a8be2679c698847cac70eba758ef4928f8bc2",
+          "name": "pet",
+          "path": "src/axios/controller/pet.ts",
+          "source": "",
+        },
+      ]
+    `)
+  })
+
+  test('fileManager.groupedFiles', async () => {
+    const fileManager = new FileManager()
+    await fileManager.add({
+      path: 'src/axios/file2.ts',
+      baseName: 'file2.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/controller/test.ts',
+      baseName: 'test.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/axios/file1.ts',
+      baseName: 'file2.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/test.ts',
+      baseName: 'test.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/axios/controller/pet.ts',
+      baseName: 'pet.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: 'src/axios/index.ts',
+      baseName: 'index.ts',
+      source: '',
+    })
+
+    expect(fileManager.groupedFiles).toMatchInlineSnapshot(`
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "name": "file2.ts",
+                    "path": "/src/axios/file2.ts",
+                    "type": "file",
+                  },
+                  {
+                    "name": "file1.ts",
+                    "path": "/src/axios/file1.ts",
+                    "type": "file",
+                  },
+                  {
+                    "children": [
+                      {
+                        "name": "pet.ts",
+                        "path": "/src/axios/controller/pet.ts",
+                        "type": "file",
+                      },
+                    ],
+                    "name": "controller",
+                    "path": "/src/axios/controller",
+                    "type": "folder",
+                  },
+                  {
+                    "name": "index.ts",
+                    "path": "/src/axios/index.ts",
+                    "type": "file",
+                  },
+                ],
+                "name": "axios",
+                "path": "/src/axios",
+                "type": "folder",
+              },
+              {
+                "children": [
+                  {
+                    "name": "test.ts",
+                    "path": "/src/controller/test.ts",
+                    "type": "file",
+                  },
+                ],
+                "name": "controller",
+                "path": "/src/controller",
+                "type": "folder",
+              },
+              {
+                "name": "test.ts",
+                "path": "/src/test.ts",
+                "type": "file",
+              },
+            ],
+            "name": "src",
+            "path": "/src",
+            "type": "folder",
+          },
+        ],
+        "name": ".",
+        "path": ".",
+        "type": "folder",
+      }
+    `)
+  })
 })
 
 describe('FileManager utils', () => {
@@ -523,7 +716,21 @@ export const test2 = 3;`,
       },
     ]
 
-    expect(combineExports(exports)).toEqual([exports[2], exports[0]])
+    expect(combineExports(exports)).toMatchInlineSnapshot(`
+      [
+        {
+          "isTypeOnly": true,
+          "name": undefined,
+          "path": "./models",
+        },
+        {
+          "asAlias": true,
+          "isTypeOnly": false,
+          "name": "test",
+          "path": "./models",
+        },
+      ]
+    `)
   })
 
   test('if combineImports is filtering out duplicated imports', () => {

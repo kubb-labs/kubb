@@ -1,32 +1,45 @@
-import path from 'node:path'
+import type * as KubbFile from '@kubb/fs/types'
 
 import { format } from '../mocks/format.ts'
 import { BarrelManager } from './BarrelManager.ts'
-import { FileManager, getSource } from './FileManager.ts'
+import { getSource } from './FileManager.ts'
 
 describe('BarrelManager', () => {
+  const files: KubbFile.File[] = [
+    {
+      path: 'src/test.ts',
+      baseName: 'test.ts',
+      source: '',
+    },
+    {
+      path: 'src/sub/hello.ts',
+      baseName: 'hello.ts',
+      source: '',
+    },
+    {
+      path: 'src/sub/world.ts',
+      baseName: 'world.ts',
+      source: '',
+    },
+  ]
+
   test(`if getIndexes returns 'index.ts' files`, () => {
     const barrelManager = new BarrelManager()
-
-    const rootPath = path.resolve(__dirname, '../mocks/treeNode')
-    const files = barrelManager.getIndexes(rootPath) || []
-    const rootIndex = files[0]
+    const indexFiles = barrelManager.getIndexes(files, 'src') || []
+    const rootIndex = indexFiles[0]
 
     expect(rootIndex).toBeDefined()
 
-    expect(files?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
+    expect(indexFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
 
     expect(rootIndex?.exports?.every((file) => !file.path.endsWith('.ts'))).toBeTruthy()
   })
 
   test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
     const barrelManager = new BarrelManager()
+    const indexFiles = barrelManager.getIndexes(files, 'src') || []
 
-    // const exportAs = 'models'
-    const rootPath = path.resolve(__dirname, '../mocks/treeNode')
-
-    const files = barrelManager.getIndexes(rootPath) || []
-    const rootIndex = files[0]!
+    const rootIndex = indexFiles[0]!
 
     expect(rootIndex).toBeDefined()
 
@@ -38,16 +51,10 @@ describe('BarrelManager', () => {
   })
   test('if getIndexes can return an export with treeNode options', () => {
     const barrelManager = new BarrelManager({
-      treeNode: {
-        extensions: /\.ts/,
-        exclude: [/schemas/, /json/],
-      },
       extName: '.ts',
     })
-
-    const rootPath = path.resolve(__dirname, '../mocks/treeNode')
-    const files = barrelManager.getIndexes(rootPath) || []
-    const rootIndex = files[0]
+    const indexFiles = barrelManager.getIndexes(files, 'src') || []
+    const rootIndex = indexFiles[0]
 
     expect(rootIndex).toBeDefined()
 

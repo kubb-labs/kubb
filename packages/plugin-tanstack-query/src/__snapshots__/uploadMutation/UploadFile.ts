@@ -1,6 +1,6 @@
+import type { QueryKey } from "@tanstack/react-query";
 import client from "@kubb/plugin-client/client";
 import { queryOptions } from "@tanstack/react-query";
-import type { QueryKey } from "@tanstack/react-query";
 
  type UploadFileClient = typeof client<UploadFileMutationResponse, UploadFile400, FormData>;
 type UploadFile = {

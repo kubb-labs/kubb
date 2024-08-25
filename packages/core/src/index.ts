@@ -1,6 +1,6 @@
 export { build, build as default, safeBuild } from './build.ts'
 export { defineConfig, isInputPath } from './config.ts'
-export { FileManager } from './FileManager.ts'
+export { FileManager, getIndexFiles } from './FileManager.ts'
 export type { FileMetaBase } from './FileManager.ts'
 export { Generator } from './Generator.ts'
 export { PackageManager } from './PackageManager.ts'

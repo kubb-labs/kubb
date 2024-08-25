@@ -8,10 +8,8 @@ import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 import { writeLog } from './utils/writeLog.ts'
-import type * as KubbFile from '@kubb/fs/types'
 
 import { SingleBar, Presets } from 'cli-progress'
-import { getRelativePath } from '@kubb/fs'
 import { relative } from 'node:path'
 
 type GenerateProps = {

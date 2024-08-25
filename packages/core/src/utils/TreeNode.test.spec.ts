@@ -1,19 +1,108 @@
 import path from 'node:path'
 
 import { TreeNode } from './TreeNode.ts'
+import type * as KubbFile from '@kubb/fs/types'
 
 describe('TreeNode', () => {
-  const rootPath = path.resolve(__dirname, '../../mocks/treeNode')
-  const tree = TreeNode.build(rootPath, { extensions: /\.ts/ })
+  const files: KubbFile.File[] = [
+    {
+      path: 'src/test.ts',
+      baseName: 'test.ts',
+      source: '',
+    },
+    {
+      path: 'src/sub/hello.ts',
+      baseName: 'hello.ts',
+      source: '',
+    },
+    {
+      path: 'src/sub/world.ts',
+      baseName: 'world.ts',
+      source: '',
+    },
+  ]
+  const tree = TreeNode.build(files)
 
   test('if schemas folder contains x files and y folders', () => {
     expect(tree).toBeDefined()
 
-    expect(tree?.root.data).toEqual({
-      name: 'treeNode',
-      path: rootPath,
-      type: 'split',
-    })
+    expect(tree).toMatchInlineSnapshot(`
+      TreeNode {
+        "children": [
+          TreeNode {
+            "children": [
+              TreeNode {
+                "children": [],
+                "data": {
+                  "file": {
+                    "baseName": "test.ts",
+                    "path": "src/test.ts",
+                    "source": "",
+                  },
+                  "name": "test.ts",
+                  "path": "/src/test.ts",
+                  "type": "single",
+                },
+                "parent": [Circular],
+              },
+              TreeNode {
+                "children": [
+                  TreeNode {
+                    "children": [],
+                    "data": {
+                      "file": {
+                        "baseName": "hello.ts",
+                        "path": "src/sub/hello.ts",
+                        "source": "",
+                      },
+                      "name": "hello.ts",
+                      "path": "/src/sub/hello.ts",
+                      "type": "single",
+                    },
+                    "parent": [Circular],
+                  },
+                  TreeNode {
+                    "children": [],
+                    "data": {
+                      "file": {
+                        "baseName": "world.ts",
+                        "path": "src/sub/world.ts",
+                        "source": "",
+                      },
+                      "name": "world.ts",
+                      "path": "/src/sub/world.ts",
+                      "type": "single",
+                    },
+                    "parent": [Circular],
+                  },
+                ],
+                "data": {
+                  "file": undefined,
+                  "name": "sub",
+                  "path": "/src/sub",
+                  "type": "split",
+                },
+                "parent": [Circular],
+              },
+            ],
+            "data": {
+              "file": undefined,
+              "name": "src",
+              "path": "/src",
+              "type": "split",
+            },
+            "parent": [Circular],
+          },
+        ],
+        "data": {
+          "file": undefined,
+          "name": ".",
+          "path": ".",
+          "type": "split",
+        },
+        "parent": undefined,
+      }
+    `)
   })
 
   test('if leaves are rendered correctly', () => {
@@ -22,17 +111,17 @@ describe('TreeNode', () => {
     tree?.leaves.forEach((leave) => {
       if (leave.data.name === 'hello.ts') {
         expect(leave.data.type).toBe('single')
-        expect(leave.data.path).toBe(path.resolve(rootPath, 'sub', 'hello.ts'))
+        expect(leave.data.path).toBe(path.join('/src/sub', 'hello.ts'))
       }
 
       if (leave.data.name === 'hello.ts') {
         expect(leave.data.type).toBe('single')
-        expect(leave.data.path).toBe(path.resolve(rootPath, 'sub', 'hello.ts'))
+        expect(leave.data.path).toBe(path.join('/src/sub', 'hello.ts'))
       }
 
       if (leave.data.name === 'test.ts') {
         expect(leave.data.type).toBe('single')
-        expect(leave.data.path).toBe(path.resolve(rootPath, 'test.ts'))
+        expect(leave.data.path).toBe(path.join('/src/test.ts'))
       }
     })
   })
@@ -51,11 +140,16 @@ describe('TreeNode', () => {
     })
     const names = items.map((item) => item.name)
 
-    expect(items.length).toBe(5)
-    expect(names.includes('treeNode')).toBeTruthy()
-    expect(names.includes('sub')).toBeTruthy()
-    expect(names.includes('hello.ts')).toBeTruthy()
-    expect(names.includes('world.ts')).toBeTruthy()
-    expect(names.includes('test.ts')).toBeTruthy()
+    expect(items.length).toBe(6)
+    expect(names).toMatchInlineSnapshot(`
+      [
+        ".",
+        "src",
+        "test.ts",
+        "sub",
+        "hello.ts",
+        "world.ts",
+      ]
+    `)
   })
 })

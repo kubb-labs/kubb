@@ -34,7 +34,7 @@ type FileMeta = {
   pluginKey?: Plugin['key']
   tag?: string
 }
-
+//TODO replace by getIndexFIles?
 export async function getGroupedByTagFiles({ logger, files, plugin, template, exportAs, root, output }: Options): Promise<KubbFile.File<FileMeta>[]> {
   const { path, exportType = 'barrel' } = output
   const mode = FileManager.getMode(resolve(root, path))

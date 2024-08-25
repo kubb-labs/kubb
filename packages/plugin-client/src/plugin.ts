@@ -12,6 +12,7 @@ import { Client, Operations } from './components/index.ts'
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginClient } from './types.ts'
+import { getIndexFiles } from '@kubb/core'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
@@ -108,7 +109,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       await this.addFile(...files)
 
       if (this.config.output.write && group?.type === 'tag') {
-        const rootFiles = await getGroupedByTagFiles({
+        const groupedIndexFiles = await getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
           plugin: this.plugin,
@@ -118,26 +119,20 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
           output,
         })
 
-        await this.addFile(...rootFiles)
-      }
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
+        await this.addFile(...groupedIndexFiles)
       }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const files = await this.fileManager.getIndexFiles({
-        root,
-        output,
-        plugin: this.plugin,
-        logger: this.logger,
-      })
+      if (this.config.output.write) {
+        const indexFiles = await getIndexFiles({
+          root,
+          output,
+          files: this.fileManager.files,
+          plugin: this.plugin,
+          logger: this.logger,
+        })
 
-      await this.fileManager.processFiles({
-        logger: this.logger,
-        files,
-      })
+        await this.addFile(...indexFiles)
+      }
     },
   }
 })

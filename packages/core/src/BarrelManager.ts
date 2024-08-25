@@ -1,15 +1,11 @@
-import { getExports } from '@kubb/parser-ts'
-
 import path from 'node:path'
 
 import { trimExtName } from './transformers/trim.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
-import type { DirectoryTreeOptions } from 'directory-tree'
 
 export type BarrelManagerOptions = {
-  treeNode?: DirectoryTreeOptions
   isTypeOnly?: boolean
   /**
    * Add .ts or .js
@@ -29,57 +25,9 @@ export class BarrelManager {
     return this
   }
 
-  /**
-   * Loop through the file and find all exports(with the help of the ts printer)
-   * Important: a real file is needed(cannot work from memory/FileManager)
-   */
-  getNamedExport(root: string, item: KubbFile.Export): KubbFile.Export[] {
-    const exportedNames = getExports(path.resolve(root, item.path))
-
-    if (!exportedNames) {
-      return [item]
-    }
-
-    const exports = exportedNames.reduce(
-      (prev, curr) => {
-        if (!prev[0]?.name || !prev[1]?.name) {
-          return prev
-        }
-
-        if (curr.isTypeOnly) {
-          prev[1] = { ...prev[1], name: [...prev[1].name, curr.name] }
-        } else {
-          prev[0] = { ...prev[0], name: [...prev[0].name, curr.name] }
-        }
-
-        return prev
-      },
-      [
-        {
-          ...item,
-          name: [],
-          isTypeOnly: false,
-        },
-        {
-          ...item,
-          name: [],
-          isTypeOnly: true,
-        },
-      ] as KubbFile.Export[],
-    )
-
-    return exports
-  }
-
-  getNamedExports(root: string, exports: KubbFile.Export[]): KubbFile.Export[] {
-    return exports?.flatMap((item) => {
-      return this.getNamedExport(root, item)
-    })
-  }
-
-  getIndexes(root: string): Array<KubbFile.File> | null {
-    const { treeNode = {}, isTypeOnly, extName } = this.#options
-    const tree = TreeNode.build(root, treeNode)
+  getIndexes(generatedFiles: KubbFile.File[], root: string): Array<KubbFile.File> | null {
+    const { isTypeOnly, extName } = this.#options
+    const tree = TreeNode.build(generatedFiles, root)
 
     if (!tree) {
       return null
@@ -102,7 +50,10 @@ export class BarrelManager {
               return undefined
             }
 
+            console.log(file.leaves.map(d=>d.data.file?.exports))
+
             return {
+              name: ['test'],
               path: extName ? `${importPath}${extName}` : importPath,
               isTypeOnly,
             } as KubbFile.Export

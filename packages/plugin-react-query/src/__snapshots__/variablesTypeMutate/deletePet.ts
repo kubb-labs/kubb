@@ -1,5 +1,5 @@
-import client from "@kubb/plugin-client/client";
 import type { QueryKey } from "@tanstack/react-query";
+import client from "@kubb/plugin-client/client";
 
  type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;
 type DeletePet = {

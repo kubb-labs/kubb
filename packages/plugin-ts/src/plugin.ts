@@ -112,24 +112,21 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)
+
+      if (this.config.output.write) {
+        const indexFiles = await this.fileManager.getIndexFiles({
+          root,
+          output,
+          files: this.fileManager.files,
+          plugin: this.plugin,
+          logger: this.logger,
+        })
+
+        // await this.addFile(...indexFiles)
+      }
     },
     async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
-
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const files = await this.fileManager.getIndexFiles({
-        root,
-        output,
-        plugin: this.plugin,
-        logger: this.logger,
-      })
-
-      await this.fileManager.processFiles({
-        logger: this.logger,
-        files,
-      })
+      console.log('DONE')
     },
   }
 })

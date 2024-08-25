@@ -137,14 +137,15 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const files = await this.fileManager.getIndexFiles({
         root,
         output,
+        files: this.fileManager.files,
         plugin: this.plugin,
         logger: this.logger,
       })
 
-      await this.fileManager.processFiles({
-        logger: this.logger,
-        files,
-      })
+      // await this.fileManager.processFiles({
+      //   logger: this.logger,
+      //   files,
+      // })
     },
   }
 })
