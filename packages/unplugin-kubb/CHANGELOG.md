@@ -1,5 +1,14 @@
 # unplugin-kubb
 
+## 0.1.73
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/core@2.25.2
+
 ## 0.1.72
 
 ### Patch Changes
