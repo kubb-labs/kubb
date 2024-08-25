@@ -65,7 +65,6 @@ jobs:
             #   experimental: true
 
       runs-on: ${{ matrix.os }}
-      continue-on-error: ${{ matrix.experimental || false }}
 
       steps:
         - name: Check out code

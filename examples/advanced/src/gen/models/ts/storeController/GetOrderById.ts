@@ -1,4 +1,4 @@
-import type { Order } from '../Order.js'
+import type { Order } from '../Order'
 
 export type GetOrderByIdPathParams = {
   /**

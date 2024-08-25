@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet.js'
+import type { Pet } from '../Pet'
 
 export enum FindPetsByStatusQueryParamsStatusEnum {
   available = 'available',

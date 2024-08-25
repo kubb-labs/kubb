@@ -606,7 +606,7 @@ export const test2 = 3;`,
     const exportFiles: Array<KubbFile.File | null> = [
       null,
       {
-        path: path.resolve('./src/models/file1.ts'),
+        path: './src/models/file1.ts',
         baseName: 'file1.ts',
         source: 'export const test = 2;',
         exports: [
@@ -618,7 +618,7 @@ export const test2 = 3;`,
         ],
       },
       {
-        path: path.resolve('./src/models/file1.ts'),
+        path: './src/models/file1.ts',
         baseName: 'file2.ts',
         source: 'export const test2 = 3;',
         exports: [
@@ -671,7 +671,7 @@ export const test2 = 3;`,
             },
           ],
           "imports": [],
-          "path": "/Users/stijnvanhulle/GitHub/kubb/src/models/file1.ts",
+          "path": "./src/models/file1.ts",
           "source": "export const test = 2;
       export const test2 = 3;",
         },

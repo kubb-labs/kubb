@@ -1,10 +1,11 @@
-import type { File, ResolvedFile } from './types.ts'
+import type * as KubbFile from '@kubb/fs/types'
+
 import hash from 'object-hash'
 
 /**
  * Helper to create a file with name and id set
  */
-export function createFile<TMeta extends object = object>(file: File<TMeta>): ResolvedFile<TMeta> {
+export function createFile<TMeta extends object = object>(file: KubbFile.File<TMeta>): KubbFile.ResolvedFile<TMeta> {
   return {
     id: hash(file),
     name: trimExtName(file.baseName),

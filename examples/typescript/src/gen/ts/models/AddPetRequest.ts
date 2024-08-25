@@ -1,3 +1,4 @@
+import { Category } from './Category'
 import type { Tag } from './Tag'
 
 export const addPetRequestStatus = {

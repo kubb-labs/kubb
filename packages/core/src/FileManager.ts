@@ -16,8 +16,7 @@ import PQueue from 'p-queue'
 import { buildDirectoryTree, type DirectoryTree, TreeNode } from './utils/TreeNode.ts'
 import type { ResolvedFile } from '@kubb/fs/types'
 import { trimExtName } from '@kubb/fs'
-import { createFile } from '@kubb/fs'
-import { getFileParser } from '@kubb/fs'
+import { createFile, getFileParser } from './utils'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']
@@ -146,7 +145,7 @@ export class FileManager {
     this.#files.delete(cacheItem)
   }
 
-  async getIndexFiles({ files, group, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
+  async getIndexFiles({ files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
     const { exportType = 'barrel' } = output
     if (exportType === false) {
       return []
@@ -159,12 +158,9 @@ export class FileManager {
       return []
     }
 
-    const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
+    const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
     const mode = FileManager.getMode(output.path)
-    const barrelManager = new BarrelManager({
-      extName: output.extName,
-      ...options,
-    })
+    const barrelManager = new BarrelManager({ ...options, extName: output.extName })
 
     let indexFiles = barrelManager.getIndexes(files, pathToBuildFrom)
 

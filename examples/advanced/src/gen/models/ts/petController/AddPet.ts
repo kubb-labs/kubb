@@ -1,5 +1,5 @@
-import type { Pet } from '../Pet.js'
-import type { AddPetRequest } from '../AddPetRequest.js'
+import type { Pet } from '../Pet'
+import type { AddPetRequest } from '../AddPetRequest'
 
 /**
  * @description Successful operation

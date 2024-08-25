@@ -87,7 +87,8 @@ export function Schema(props: Props): ReactNode {
   })
 
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
-  const enumNames = enumSchemas.map((enumSchema) => ({ name: transformers.camelCase(enumSchema.args.name), typeName: enumSchema.args.typeName }))
+  const enumNames = enumSchemas.map((enumSchema) => transformers.camelCase(enumSchema.args.name))
+  const enumTypeNames = enumSchemas.map((enumSchema) => enumSchema.args.typeName)
 
   if (enumSchemas) {
     enumSchemas.forEach((enumSchema) => {
@@ -120,11 +121,11 @@ export function Schema(props: Props): ReactNode {
 
   return (
     <>
-      {enumNames.map(({ name, typeName }, index) => (
-        <Fragment key={index}>
-          <File.Export name={name} />
-          <File.Export name={typeName} isTypeOnly />
-        </Fragment>
+      {enumNames.map((name) => (
+        <File.Export key={name} name={name} />
+      ))}
+      {enumTypeNames.map((name) => (
+        <File.Export key={name} name={name} isTypeOnly />
       ))}
       <File.Export name={typeName} isTypeOnly />
       {print([...extraNodes, ...filterdNodes])}

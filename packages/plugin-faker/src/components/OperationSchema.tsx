@@ -61,10 +61,10 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-        {typeName && typePath && <File.Import extName={plugin.options.extName} isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
+        {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
         {plugin.options.dateParser && <File.Import path={plugin.options.dateParser} name={plugin.options.dateParser} />}
 
-        {mode === 'split' && <Oas.Schema.Imports extName={plugin.options.extName} />}
+        {mode === 'split' && <Oas.Schema.Imports />}
         <File.Source>
           <OperationSchema description={description} />
         </File.Source>

@@ -50,9 +50,7 @@ describe('BarrelManager', () => {
     expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
   test('if getIndexes can return an export with treeNode options', () => {
-    const barrelManager = new BarrelManager({
-      extName: '.ts',
-    })
+    const barrelManager = new BarrelManager()
     const indexFiles = barrelManager.getIndexes(files, 'src') || []
     const rootIndex = indexFiles[0]
 

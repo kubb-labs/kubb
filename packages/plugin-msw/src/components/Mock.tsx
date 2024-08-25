@@ -101,7 +101,7 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
     <Parser language="typescript">
       <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['http']} path={'msw'} />
-        {fileFaker && responseName && <File.Import extName={extName} name={[responseName]} root={file.path} path={fileFaker.path} />}
+        {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
         <File.Source>
           <Mock Template={Template} />
         </File.Source>
