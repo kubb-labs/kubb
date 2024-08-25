@@ -83,10 +83,10 @@ const command = defineCommand({
       logLevel,
     })
 
-    logger.emit('start', '🔍 Loading config')
+    logger.emit('start', 'Loading config')
 
     const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `🔍 Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
+    logger.emit('success', `Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
 
     const config = await getConfig(result, args)
 

@@ -466,9 +466,9 @@ export class PluginManager {
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && plugin[hookName])
 
       if (corePlugin) {
-        this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`])
+        this.logger.emit('warning', `No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
       } else {
-        this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`])
+        this.logger.emit('warning', `No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`)
       }
       return corePlugin ? [corePlugin] : []
     }

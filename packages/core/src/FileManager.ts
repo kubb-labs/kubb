@@ -61,7 +61,7 @@ type AddIndexesProps = {
   }
   logger: Logger
   options?: BarrelManagerOptions
-  meta?: FileWithMeta['meta']
+  plugin: Plugin
 }
 
 export class FileManager {
@@ -142,7 +142,7 @@ export class FileManager {
     return this.#add(file)
   }
 
-  async getIndexFiles({ root, output, meta, logger, options = {} }: AddIndexesProps): Promise<ResolvedFile[]> {
+  async getIndexFiles({ plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<ResolvedFile[]> {
     const { exportType = 'barrel' } = output
     if (exportType === false) {
       return []
@@ -222,13 +222,17 @@ export class FileManager {
         files.map((file) => {
           return this.#addOrAppend({
             ...file,
-            meta: meta ? meta : file.meta,
+            meta: {
+              pluginKey: plugin.key,
+            },
           })
         }),
       )),
       await this.#addOrAppend({
         ...rootFile,
-        meta: meta ? meta : rootFile.meta,
+        meta: {
+          pluginKey: plugin.key,
+        },
       }),
     ]
   }
@@ -262,15 +266,12 @@ export class FileManager {
   async read(...params: Parameters<typeof read>): ReturnType<typeof read> {
     return read(...params)
   }
+
   async processFiles(...params: Parameters<typeof processFiles>): ReturnType<typeof processFiles> {
     return processFiles(...params)
   }
 
   // statics
-
-  static async getSource<TMeta extends FileMetaBase = FileMetaBase>(file: FileWithMeta<TMeta>): Promise<string> {
-    return getSource<TMeta>(file)
-  }
 
   static combineFiles<TMeta extends FileMetaBase = FileMetaBase>(files: Array<FileWithMeta<TMeta> | null>): Array<FileWithMeta<TMeta>> {
     return combineFiles<TMeta>(files)
@@ -525,28 +526,38 @@ type WriteFilesProps = {
 /**
  * Global queue
  */
-
-const queue = new PQueue({ concurrency: 1 })
+const queue = new PQueue({ concurrency: 10 })
 
 export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
-  const mergedFiles = await Promise.all(
+  const mergedFiles: Array<KubbFile.File<FileMetaBase>> = await Promise.all(
     files.map(async (file) => ({
       ...file,
-      source: await FileManager.getSource(file),
+      source: await getSource(file),
     })),
+  )
+  const orderedFiles = orderBy(mergedFiles, [(v) => !v.meta?.pluginKey, (v) => v.path.length, (v) => trimExtName(v.path).endsWith('index')], ['desc', 'desc'])
+
+  logger.emit(
+    'debug',
+    orderedFiles.map((item) => `[${item.meta?.pluginKey || 'unknown'}]${item.path}: \n${item.source}`),
   )
 
   if (!dryRun) {
     logger.consola?.pauseLogs()
+    const size = orderedFiles.length
 
-    mergedFiles.map((file, index) => {
-      queue.add(async () => {
-        logger.emit('progress', index, mergedFiles.length)
+    const promises = orderedFiles.map(async (file, index) => {
+      await queue.add(async () => {
+        logger.emit('progress', { count: index, size, file })
         await write(file.path, file.source, { sanity: false })
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0)
+        })
+        logger.emit('progress', { count: index + 1, size, file })
       })
     })
 
-    await queue.onEmpty()
+    await Promise.all(promises)
 
     logger.consola?.resumeLogs()
   }

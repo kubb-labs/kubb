@@ -137,7 +137,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const files = await this.fileManager.getIndexFiles({
         root,
         output,
-        meta: { pluginKey: this.plugin.key },
+        plugin: this.plugin,
         logger: this.logger,
       })
 

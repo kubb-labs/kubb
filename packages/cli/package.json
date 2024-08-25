@@ -63,6 +63,7 @@
     "execa": "^9.3.1",
     "js-runtime": "^0.0.8",
     "latest-version": "^9.0.0",
+    "p-queue": "^8.0.1",
     "semver": "^7.6.3",
     "string-argv": "^0.3.2",
     "tinyrainbow": "^1.2.0"

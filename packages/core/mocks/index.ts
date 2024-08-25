@@ -2,7 +2,7 @@ import { pascalCase } from '../src/transformers/casing.ts'
 
 import { readSync } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import { FileManager } from '../src/FileManager'
+import { FileManager, getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
 
 export const mockedPluginManager = {
@@ -49,7 +49,7 @@ export const mockedPluginManager = {
 
 export async function matchFiles(files: KubbFile.File[]) {
   for (const file of files) {
-    const source = await FileManager.getSource(file)
+    const source = await getSource(file)
     expect(source).toMatchSnapshot()
   }
 }

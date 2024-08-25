@@ -108,14 +108,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
 
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
   } catch (e) {
-    const files = await processFiles({
-      dryRun: true,
-      files: pluginManager.fileManager.files,
-      logger: pluginManager.logger,
-    })
-
     return {
-      files,
+      files: [],
       pluginManager,
       error: e as Error,
     }
