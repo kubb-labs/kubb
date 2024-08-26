@@ -98,11 +98,28 @@ describe('FileManager', () => {
 
     expect(fileManager.files.length).toBe(1)
 
-    expect(file.sources).toBe(`const file1 ='file1';\nconst file1Bis ='file1Bis';`)
-    expect(file.imports).toStrictEqual([
-      { name: 'path', path: 'node:path' },
-      { name: 'fs', path: 'node:fs' },
-    ])
+    expect(file.sources).toMatchInlineSnapshot(`
+      [
+        {
+          "value": "const file1 ='file1';",
+        },
+        {
+          "value": "const file1Bis ='file1Bis';",
+        },
+      ]
+    `)
+    expect(file.imports).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "path",
+          "path": "node:path",
+        },
+        {
+          "name": "fs",
+          "path": "node:fs",
+        },
+      ]
+    `)
   })
   test('if creation of graph is correct', () => {
     const fileManager = new FileManager()
@@ -215,55 +232,49 @@ describe('FileManager', () => {
         {
           "baseName": "test.ts",
           "extName": "ts",
-          "id": "19a844882848cd1bf8e191680a1c70df04b6e0db",
+          "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
           "name": "test",
           "path": "src/test.ts",
-          "source": "",
           "sources": [],
         },
         {
           "baseName": "file2.ts",
           "extName": "ts",
-          "id": "4f7babf4969d13d560db1d62a30bd2ed42ec884a",
+          "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
           "name": "file2",
           "path": "src/axios/file2.ts",
-          "source": "",
           "sources": [],
         },
         {
           "baseName": "file2.ts",
           "extName": "ts",
-          "id": "e34a2b4ba76d4cbf9506f09ece67ec9367640742",
+          "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
           "name": "file2",
           "path": "src/axios/file1.ts",
-          "source": "",
           "sources": [],
         },
         {
           "baseName": "index.ts",
           "extName": "ts",
-          "id": "f6fe5e984e8fd6c9c01fea19edd45c5e068d0732",
+          "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
           "name": "index",
           "path": "src/axios/index.ts",
-          "source": "",
           "sources": [],
         },
         {
           "baseName": "test.ts",
           "extName": "ts",
-          "id": "f4bf4d03264616094b7a0e40386a6ed4cfed0aa2",
+          "id": "a2d277093a81a74c56c0d094071195302d6bb484",
           "name": "test",
           "path": "src/controller/test.ts",
-          "source": "",
           "sources": [],
         },
         {
           "baseName": "pet.ts",
           "extName": "ts",
-          "id": "036b52e7de3d809b6a101e0e6909a62371c5b974",
+          "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
           "name": "pet",
           "path": "src/axios/controller/pet.ts",
-          "source": "",
           "sources": [],
         },
       ]
@@ -319,10 +330,9 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "file2.ts",
                       "extName": "ts",
-                      "id": "4f7babf4969d13d560db1d62a30bd2ed42ec884a",
+                      "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
                       "name": "file2",
                       "path": "src/axios/file2.ts",
-                      "source": "",
                       "sources": [],
                     },
                     "name": "file2.ts",
@@ -332,10 +342,9 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "file2.ts",
                       "extName": "ts",
-                      "id": "e34a2b4ba76d4cbf9506f09ece67ec9367640742",
+                      "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
                       "name": "file2",
                       "path": "src/axios/file1.ts",
-                      "source": "",
                       "sources": [],
                     },
                     "name": "file1.ts",
@@ -347,10 +356,9 @@ describe('FileManager', () => {
                         "file": {
                           "baseName": "pet.ts",
                           "extName": "ts",
-                          "id": "036b52e7de3d809b6a101e0e6909a62371c5b974",
+                          "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
                           "name": "pet",
                           "path": "src/axios/controller/pet.ts",
-                          "source": "",
                           "sources": [],
                         },
                         "name": "pet.ts",
@@ -364,10 +372,9 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "index.ts",
                       "extName": "ts",
-                      "id": "f6fe5e984e8fd6c9c01fea19edd45c5e068d0732",
+                      "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
                       "name": "index",
                       "path": "src/axios/index.ts",
-                      "source": "",
                       "sources": [],
                     },
                     "name": "index.ts",
@@ -383,10 +390,9 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "test.ts",
                       "extName": "ts",
-                      "id": "f4bf4d03264616094b7a0e40386a6ed4cfed0aa2",
+                      "id": "a2d277093a81a74c56c0d094071195302d6bb484",
                       "name": "test",
                       "path": "src/controller/test.ts",
-                      "source": "",
                       "sources": [],
                     },
                     "name": "test.ts",
@@ -400,10 +406,9 @@ describe('FileManager', () => {
                 "file": {
                   "baseName": "test.ts",
                   "extName": "ts",
-                  "id": "19a844882848cd1bf8e191680a1c70df04b6e0db",
+                  "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
                   "name": "test",
                   "path": "src/test.ts",
-                  "source": "",
                   "sources": [],
                 },
                 "name": "test.ts",

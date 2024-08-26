@@ -37,7 +37,6 @@ describe('TreeNode', () => {
                   "file": {
                     "baseName": "test.ts",
                     "path": "src/test.ts",
-                    "source": "",
                     "sources": [],
                   },
                   "name": "test.ts",
@@ -54,7 +53,6 @@ describe('TreeNode', () => {
                       "file": {
                         "baseName": "hello.ts",
                         "path": "src/sub/hello.ts",
-                        "source": "",
                         "sources": [],
                       },
                       "name": "hello.ts",
@@ -69,7 +67,6 @@ describe('TreeNode', () => {
                       "file": {
                         "baseName": "world.ts",
                         "path": "src/sub/world.ts",
-                        "source": "",
                         "sources": [],
                       },
                       "name": "world.ts",

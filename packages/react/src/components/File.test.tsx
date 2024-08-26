@@ -9,7 +9,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toStrictEqual('')
+    expect(root.output).toMatchInlineSnapshot(`""`)
   })
 
   test('render File with Import and Export', () => {
@@ -51,7 +51,6 @@ describe('<File/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "",
           "sources": [],
         },
       ]
@@ -110,7 +109,6 @@ describe('<File/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "",
           "sources": [
             {
               "isExportable": undefined,
@@ -135,7 +133,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toStrictEqual('test')
+    expect(root.output).toMatchInlineSnapshot(`"test"`)
   })
 
   test('render File with multiple sources', async () => {
@@ -166,7 +164,6 @@ describe('<File/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "",
           "sources": [
             {
               "isExportable": undefined,
@@ -309,7 +306,6 @@ describe('<File.Import/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "",
           "sources": [
             {
               "isExportable": undefined,
@@ -356,7 +352,6 @@ describe('<File.Import/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "",
           "sources": [
             {
               "isExportable": undefined,

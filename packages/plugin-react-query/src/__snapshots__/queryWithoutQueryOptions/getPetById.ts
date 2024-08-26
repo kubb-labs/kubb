@@ -3,7 +3,8 @@ import client from "@kubb/plugin-client/client";
 import { useQuery } from "@tanstack/react-query";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
-type GetPetById = {
+
+ type GetPetById = {
     data: GetPetByIdQueryResponse;
     error: GetPetById400 | GetPetById404;
     request: never;
@@ -16,11 +17,14 @@ type GetPetById = {
         return: Awaited<ReturnType<GetPetByIdClient>>;
     };
 };
-export const GetPetByIdQueryKey = ({ petId }: {
+
+ export const GetPetByIdQueryKey = ({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
-export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
-/**
+
+ export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
+
+ /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId

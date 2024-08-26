@@ -1,67 +1,325 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`TypeScript SchemaGenerator > 'Body_upload_file_api_assets_post' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'Body_upload_file_api_assets_post' 1`] = `
+"export type bodyUploadFileApiAssetsPost = {
+    /**
+     * @type string, binary
+    */
+    file: Blob;
+};"
+`;
 
-exports[`TypeScript SchemaGenerator > 'CatTypeAsConst' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'CatTypeAsConst' 1`] = `
+"export type catTypeAsConst = {
+    /**
+     * @type string, uuid
+    */
+    id: string;
+    type: "Cat";
+    /**
+     * @type boolean | undefined
+    */
+    meow?: boolean;
+};"
+`;
 
-exports[`TypeScript SchemaGenerator > 'DogTypeAsConst' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'DogTypeAsConst' 1`] = `
+"export type dogTypeAsConst = {
+    /**
+     * @type string, uuid
+    */
+    id: string;
+    /**
+     * @type number | undefined
+    */
+    bark?: number;
+    type: "Dog";
+};"
+`;
 
-exports[`TypeScript SchemaGenerator > 'EnumAllOf' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumAllOf' 1`] = `
+"export const enumAllOfReasonEnum = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'EnumArray' 1`] = `""`;
+export type EnumAllOfReasonEnum = (typeof enumAllOfReasonEnum)[keyof typeof enumAllOfReasonEnum];
 
-exports[`TypeScript SchemaGenerator > 'EnumInObject' 1`] = `""`;
+export type enumAllOf = {
+    reason?: EnumAllOfReasonEnum;
+};"
+`;
 
-exports[`TypeScript SchemaGenerator > 'EnumItems' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumArray' 1`] = `
+"export const enumArrayIdentifierEnum = {
+    "NW": "NW",
+    "NE": "NE",
+    "SW": "SW",
+    "SE": "SE"
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'EnumNames' 1`] = `""`;
+export type EnumArrayIdentifierEnum = (typeof enumArrayIdentifierEnum)[keyof typeof enumArrayIdentifierEnum];
 
-exports[`TypeScript SchemaGenerator > 'EnumNamesConst' 1`] = `""`;
+export type enumArray = {
+    /**
+     * @type array | undefined
+    */
+    identifier?: [
+        number,
+        string,
+        EnumArrayIdentifierEnum
+    ];
+};"
+`;
 
-exports[`TypeScript SchemaGenerator > 'EnumNamesLiteral' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumInObject' 1`] = `
+"export const enumInObjectReasonEnum = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'EnumNamesPascalConst' 1`] = `""`;
+export type EnumInObjectReasonEnum = (typeof enumInObjectReasonEnum)[keyof typeof enumInObjectReasonEnum];
 
-exports[`TypeScript SchemaGenerator > 'EnumNamesType' 1`] = `""`;
+export type enumInObject = {
+    /**
+     * @type string | undefined
+    */
+    reason?: EnumInObjectReasonEnum;
+};"
+`;
 
-exports[`TypeScript SchemaGenerator > 'EnumNullableMember' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumItems' 1`] = `
+"export const enumItemsEnum = {
+    "created_at": "created_at",
+    "description": "description"
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'EnumNullableType' 1`] = `""`;
+export type EnumItemsEnum = (typeof enumItemsEnum)[keyof typeof enumItemsEnum];
 
-exports[`TypeScript SchemaGenerator > 'EnumString' 1`] = `""`;
+export type enumItems = EnumItemsEnum[];"
+`;
 
-exports[`TypeScript SchemaGenerator > 'EnumVarNamesType' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNames' 1`] = `
+"export enum EnumNamesEnum {
+    "Pending" = 0,
+    "Received" = 1
+}
 
-exports[`TypeScript SchemaGenerator > 'MixedValueTypeConst' 1`] = `""`;
+export type enumNames = EnumNamesEnum;"
+`;
 
-exports[`TypeScript SchemaGenerator > 'NullConstNull' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNamesConst' 1`] = `
+"export const enum EnumNamesConstEnum {
+    "Pending" = 0,
+    "Received" = 1
+}
 
-exports[`TypeScript SchemaGenerator > 'Nullable' 1`] = `""`;
+export type enumNamesConst = EnumNamesConstEnum;"
+`;
 
-exports[`TypeScript SchemaGenerator > 'NumberValueConst' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNamesLiteral' 1`] = `
+"export type EnumNamesLiteralEnum = 0 | 1;
 
-exports[`TypeScript SchemaGenerator > 'PetQuestionToken' 1`] = `""`;
+export type enumNamesLiteral = EnumNamesLiteralEnum;"
+`;
 
-exports[`TypeScript SchemaGenerator > 'PetQuestionTokenAndUndefined' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNamesPascalConst' 1`] = `
+"export const EnumNamesPascalConstEnum = {
+    "Pending": 0,
+    "Received": 1
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'PetUndefined' 1`] = `""`;
+export type EnumNamesPascalConstEnum = (typeof EnumNamesPascalConstEnum)[keyof typeof EnumNamesPascalConstEnum];
 
-exports[`TypeScript SchemaGenerator > 'Pets' 1`] = `""`;
+export type enumNamesPascalConst = EnumNamesPascalConstEnum;"
+`;
 
-exports[`TypeScript SchemaGenerator > 'PetsStoreDiscriminator' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNamesType' 1`] = `
+"export const enumNamesType = {
+    "Pending": 0,
+    "Received": 1
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'PetsStoreRef' 1`] = `""`;
+export type EnumNamesTypeEnum = (typeof enumNamesType)[keyof typeof enumNamesType];
 
-exports[`TypeScript SchemaGenerator > 'Plain_dateDate' 1`] = `""`;
+export type enumNamesType = EnumNamesTypeEnum;"
+`;
 
-exports[`TypeScript SchemaGenerator > 'Plain_dateString' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNullableMember' 1`] = `
+"export const enumNullableMemberEnum = {
+    "first": "first",
+    "second": "second"
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'Plain_email' 1`] = `""`;
+export type EnumNullableMemberEnum = (typeof enumNullableMemberEnum)[keyof typeof enumNullableMemberEnum];
 
-exports[`TypeScript SchemaGenerator > 'Plain_file' 1`] = `""`;
+export type enumNullableMember = EnumNullableMemberEnum | null;"
+`;
 
-exports[`TypeScript SchemaGenerator > 'Plain_timeDate' 1`] = `""`;
+exports[`TypeScript SchemaGenerator > 'EnumNullableType' 1`] = `
+"export const enumNullableTypeEnum = {
+    "first": "first",
+    "second": "second"
+} as const;
 
-exports[`TypeScript SchemaGenerator > 'Plain_uuid' 1`] = `""`;
+export type EnumNullableTypeEnum = (typeof enumNullableTypeEnum)[keyof typeof enumNullableTypeEnum];
 
-exports[`TypeScript SchemaGenerator > 'StringValueConst' 1`] = `""`;
+export type enumNullableType = EnumNullableTypeEnum | null;"
+`;
+
+exports[`TypeScript SchemaGenerator > 'EnumString' 1`] = `
+"export const enumStringEnum = {
+    "created_at": "created_at",
+    "description": "description",
+    "FILE.UPLOADED": "FILE.UPLOADED",
+    "FILE.DOWNLOADED": "FILE.DOWNLOADED"
+} as const;
+
+export type EnumStringEnum = (typeof enumStringEnum)[keyof typeof enumStringEnum];
+
+export type enumString = EnumStringEnum;"
+`;
+
+exports[`TypeScript SchemaGenerator > 'EnumVarNamesType' 1`] = `
+"export const enumVarNamesTypeEnum = {
+    "Pending": 0,
+    "Received": 1
+} as const;
+
+export type EnumVarNamesTypeEnum = (typeof enumVarNamesTypeEnum)[keyof typeof enumVarNamesTypeEnum];
+
+export type enumVarNamesType = EnumVarNamesTypeEnum;"
+`;
+
+exports[`TypeScript SchemaGenerator > 'MixedValueTypeConst' 1`] = `
+"export type mixedValueTypeConst = {
+    /**
+     * @type number | undefined
+    */
+    foobar?: "foobar";
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'NullConstNull' 1`] = `
+"export type nullConstNull = {
+    withoutValue?: null;
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'Nullable' 1`] = `"export type nullable = any;"`;
+
+exports[`TypeScript SchemaGenerator > 'NumberValueConst' 1`] = `
+"export type numberValueConst = {
+    /**
+     * @type number | undefined
+    */
+    foobar?: 42;
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'PetQuestionToken' 1`] = `
+"export type petQuestionToken = {
+    /**
+     * @type integer, int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+    category?: Category;
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'PetQuestionTokenAndUndefined' 1`] = `
+"export type petQuestionTokenAndUndefined = {
+    /**
+     * @type integer, int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string | undefined;
+    category?: Category | undefined;
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'PetUndefined' 1`] = `
+"export type petUndefined = {
+    /**
+     * @type integer, int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag: string | undefined;
+    category: Category | undefined;
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'Pets' 1`] = `
+"export type pets = {
+    /**
+     * @type integer, int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+}[];"
+`;
+
+exports[`TypeScript SchemaGenerator > 'PetsStoreDiscriminator' 1`] = `
+"export type petsStoreDiscriminator = {
+    /**
+     * @type integer
+    */
+    id: number;
+    /**
+     * @type array | undefined
+    */
+    pets?: (Cat | Dog)[];
+};"
+`;
+
+exports[`TypeScript SchemaGenerator > 'PetsStoreRef' 1`] = `"export type petsStoreRef = Pet[];"`;
+
+exports[`TypeScript SchemaGenerator > 'Plain_dateDate' 1`] = `"export type plainDateDate = Date;"`;
+
+exports[`TypeScript SchemaGenerator > 'Plain_dateString' 1`] = `"export type plainDateString = string;"`;
+
+exports[`TypeScript SchemaGenerator > 'Plain_email' 1`] = `"export type plainEmail = string;"`;
+
+exports[`TypeScript SchemaGenerator > 'Plain_file' 1`] = `"export type plainFile = Blob;"`;
+
+exports[`TypeScript SchemaGenerator > 'Plain_timeDate' 1`] = `"export type plainTimeDate = Date;"`;
+
+exports[`TypeScript SchemaGenerator > 'Plain_uuid' 1`] = `"export type plainUuid = string;"`;
+
+exports[`TypeScript SchemaGenerator > 'StringValueConst' 1`] = `
+"export type stringValueConst = {
+    /**
+     * @type string | undefined
+    */
+    foobar?: "foobar";
+};"
+`;
