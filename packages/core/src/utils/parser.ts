@@ -9,9 +9,9 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
   return {
     id: hash({ path: file.path }),
     name: trimExtName(file.baseName),
-    extName: file.baseName.split(".").pop() || "",
+    extName: file.baseName.split('.').pop() || '',
     ...file,
-  };
+  }
 }
 
 export type ParserModule<TImport = unknown, TExport = unknown> = {
