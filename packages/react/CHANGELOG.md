@@ -1,5 +1,20 @@
 # @kubb/react
 
+## 3.0.0-alpha.6
+
+### Minor Changes
+
+- [#1140](https://github.com/kubb-labs/kubb/pull/1140) [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of source prop in favor of sources(KubbFile.File type)
+
+- [#1140](https://github.com/kubb-labs/kubb/pull/1140) [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor File component and render logic
+
+### Patch Changes
+
+- Updated dependencies [[`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0)]:
+  - @kubb/core@3.0.0-alpha.6
+  - @kubb/fs@3.0.0-alpha.6
+  - @kubb/parser-ts@3.0.0-alpha.6
+
 ## 3.0.0-alpha.5
 
 ### Patch Changes

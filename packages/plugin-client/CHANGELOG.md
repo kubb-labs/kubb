@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 3.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies [[`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0)]:
+  - @kubb/react@3.0.0-alpha.6
+  - @kubb/core@3.0.0-alpha.6
+  - @kubb/plugin-oas@3.0.0-alpha.6
+  - @kubb/plugin-ts@3.0.0-alpha.6
+  - @kubb/fs@3.0.0-alpha.6
+  - @kubb/oas@3.0.0-alpha.6
+  - @kubb/parser-ts@3.0.0-alpha.6
+
 ## 3.0.0-alpha.5
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.0.0-alpha.5",
+  "version": "3.0.0-alpha.6",
   "description": "Generator plugin-client",
   "keywords": [
     "typescript",
