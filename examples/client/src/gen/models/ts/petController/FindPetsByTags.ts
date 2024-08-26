@@ -17,14 +17,17 @@ export type FindPetsByTagsQueryParams = {
    */
   pageSize?: string
 }
+
 /**
  * @description successful operation
  */
 export type FindPetsByTags200 = Pet[]
+
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any
+
 /**
  * @description successful operation
  */

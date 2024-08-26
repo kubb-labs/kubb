@@ -7,18 +7,22 @@ export type GetPetByIdPathParams = {
    */
   petId: number
 }
+
 /**
  * @description successful operation
  */
 export type GetPetById200 = Pet
+
 /**
  * @description Invalid ID supplied
  */
 export type GetPetById400 = any
+
 /**
  * @description Pet not found
  */
 export type GetPetById404 = any
+
 /**
  * @description successful operation
  */

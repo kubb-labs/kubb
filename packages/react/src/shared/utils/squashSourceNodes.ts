@@ -3,10 +3,10 @@ import { nodeNames } from '../dom.ts'
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
 import type { File } from '../../components/File.tsx'
-import type { DOMElement } from '../../types.ts'
+import type { DOMElement, ElementNames } from '../../types.ts'
 import { squashTextNodes } from './squashTextNodes.ts'
 
-export function squashSourceNodes(node: DOMElement): Array<KubbFile.Source> {
+export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Array<KubbFile.Source> {
   let sources: Array<KubbFile.Source> = []
 
   for (let index = 0; index < node.childNodes.length; index++) {
@@ -16,8 +16,12 @@ export function squashSourceNodes(node: DOMElement): Array<KubbFile.Source> {
       continue
     }
 
+    if (childNode.nodeName !== '#text' && ignores.includes(childNode.nodeName)) {
+      continue
+    }
+
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      sources = [...sources, ...squashSourceNodes(childNode)]
+      sources = [...sources, ...squashSourceNodes(childNode, ignores)]
     }
 
     if (childNode.nodeName === 'kubb-source') {

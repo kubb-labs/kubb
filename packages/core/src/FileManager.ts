@@ -77,7 +77,7 @@ export class FileManager {
   }
 
   async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(...files: T): AddResult<T> {
-    const promises = combineFiles(files).map((file) => {
+    const promises = files.map((file) => {
       if (file.override) {
         return this.#add(file)
       }
@@ -113,6 +113,7 @@ export class FileManager {
       return this.#add({
         ...file,
         source: previousFile.source && file.source ? `${previousFile.source}\n${file.source}` : '',
+        sources: [...(previousFile.sources || []), ...(file.sources || [])],
         imports: [...(previousFile.imports || []), ...(file.imports || [])],
         exports: [...(previousFile.exports || []), ...(file.exports || [])],
       })
@@ -235,9 +236,6 @@ export class FileManager {
   }
 
   // statics
-  static combineFiles<TMeta extends FileMetaBase = FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
-    return combineFiles<TMeta>(files)
-  }
   static getMode(path: string | undefined | null): KubbFile.Mode {
     if (!path) {
       return 'split'
@@ -246,47 +244,13 @@ export class FileManager {
   }
 }
 
-function combineFiles<TMeta extends FileMetaBase = FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
-  return files.filter(Boolean).reduce(
-    (acc, file: KubbFile.File<TMeta>) => {
-      const prevIndex = acc.findIndex((item) => item.path === file.path)
-
-      if (prevIndex === -1) {
-        return [...acc, file]
-      }
-
-      const prev = acc[prevIndex]
-
-      if (prev && file.override) {
-        acc[prevIndex] = {
-          imports: [],
-          exports: [],
-          ...file,
-        }
-        return acc
-      }
-
-      if (prev) {
-        acc[prevIndex] = {
-          ...file,
-          source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
-          imports: [...(prev.imports || []), ...(file.imports || [])],
-          exports: [...(prev.exports || []), ...(file.exports || [])],
-        }
-      }
-
-      return acc
-    },
-    [] as Array<KubbFile.File<TMeta>>,
-  )
-}
-
 export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: KubbFile.File<TMeta> | ResolvedFile<TMeta>): Promise<string> {
   const parser = await getFileParser(file.extName)
 
+  const source = file.sources.map((item) => item.value).join('\n')
   const exports = file.exports ? combineExports(file.exports) : []
   // imports should be defined and source should contain code or we have imports without them being used
-  const imports = file.imports && file.source ? combineImports(file.imports, exports, file.source) : []
+  const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
 
   const importNodes = imports
     .filter((item) => {
@@ -319,7 +283,7 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file:
   return parser.print({
     imports: importNodes,
     exports: exportNodes,
-    source: file.source,
+    source,
   })
 }
 
@@ -443,16 +407,14 @@ type WriteFilesProps = {
 const queue = new PQueue({ concurrency: 10 })
 
 export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
-  const mergedFiles: Array<KubbFile.ResolvedFile<FileMetaBase>> = await Promise.all(
-    files.map(async (file) => ({
-      ...file,
-      source: await getSource(file),
-    })),
-  )
-  const orderedFiles = orderBy(mergedFiles, [(v) => !v.meta?.pluginKey, (v) => v.path.length, (v) => trimExtName(v.path).endsWith('index')])
+  const orderedFiles = orderBy(files, [
+    (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
+    (v) => v.path.length,
+    (v) => trimExtName(v.path).endsWith('index'),
+  ])
 
   logger.emit('debug', {
-    logs: [JSON.stringify({ files: combineFiles(orderedFiles) }, null, 2)],
+    logs: [JSON.stringify({ files: orderedFiles }, null, 2)],
     fileName: 'kubb-files.json',
     override: true,
   })
@@ -464,7 +426,9 @@ export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
     const promises = orderedFiles.map(async (file, index) => {
       await queue.add(async () => {
         logger.emit('progress', { count: index, size, file })
-        await write(file.path, file.source, { sanity: false })
+        const source = await getSource(file)
+
+        await write(file.path, source, { sanity: false })
         await new Promise((resolve) => {
           setTimeout(resolve, 0)
         })
@@ -477,5 +441,5 @@ export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
     logger.consola?.resumeLogs()
   }
 
-  return mergedFiles
+  return files
 }

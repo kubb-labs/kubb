@@ -27,13 +27,13 @@ export function getFiles(node: DOMElement): KubbFile.ResolvedFile[] {
       const attributes = childNode.attributes as React.ComponentProps<typeof File>
 
       if (attributes.baseName && attributes.path) {
-        const sources = squashSourceNodes(childNode)
+        const sources = squashSourceNodes(childNode, ['kubb-export', 'kubb-import'])
 
         const file = createFile({
           id: attributes.id,
           baseName: attributes.baseName,
           path: attributes.path,
-          source: sources.map((item) => item.value).join('\n'),
+          source: '',
           sources,
           exports: squashExportNodes(childNode),
           imports: squashImportNodes(childNode),

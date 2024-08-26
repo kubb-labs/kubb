@@ -250,7 +250,7 @@ describe('<File.Export/>', () => {
 })
 
 describe('<File.Import/>', () => {
-  test('render Import with print', () => {
+  test('render Import', () => {
     const Component = () => {
       return <File.Import name="React" path="react" />
     }
@@ -260,7 +260,7 @@ describe('<File.Import/>', () => {
     expect(root.output).toMatch('import React from "react"')
   })
 
-  test('render Import with print and type', () => {
+  test('render Import with type', () => {
     const Component = () => {
       return <File.Import name="React" path="react" isTypeOnly />
     }
@@ -278,5 +278,100 @@ describe('<File.Import/>', () => {
     root.render(<Component />)
 
     expect(root.output).toMatch('import React from "./test"')
+  })
+
+  test('render Import with File.Import inside of File.Source', () => {
+    const Component = () => {
+      return (
+        <File baseName="test.ts" path="path">
+          <File.Source>
+            <File.Import name="React" path="react" />
+          </File.Source>
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "exports": [],
+          "extName": "ts",
+          "id": undefined,
+          "imports": [
+            {
+              "isNameSpace": undefined,
+              "isTypeOnly": false,
+              "name": "React",
+              "path": "react",
+              "root": undefined,
+            },
+          ],
+          "meta": undefined,
+          "name": "test",
+          "override": undefined,
+          "path": "path",
+          "source": "import React from "react";",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "import React from "react";",
+            },
+          ],
+        },
+      ]
+    `)
+    expect(root.output).toMatchInlineSnapshot(`"import React from "react";"`)
+  })
+
+  test('render Import with File.Import inside of File', () => {
+    const Component = () => {
+      return (
+        <File baseName="test.ts" path="path">
+          <File.Import name="React" path="react" />
+          <File.Source>test</File.Source>
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "exports": [],
+          "extName": "ts",
+          "id": undefined,
+          "imports": [
+            {
+              "isNameSpace": undefined,
+              "isTypeOnly": false,
+              "name": "React",
+              "path": "react",
+              "root": undefined,
+            },
+          ],
+          "meta": undefined,
+          "name": "test",
+          "override": undefined,
+          "path": "path",
+          "source": "test",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "test",
+            },
+          ],
+        },
+      ]
+    `)
+    expect(root.output).toMatchInlineSnapshot(`"test"`)
   })
 })

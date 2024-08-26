@@ -122,12 +122,12 @@ export function Schema(props: Props): ReactNode {
   return (
     <>
       {enumNames.map((name) => (
-        <File.Export key={name} name={name} />
+        <File.Source key={name} name={name} isExportable />
       ))}
       {enumTypeNames.map((name) => (
-        <File.Export key={name} name={name} isTypeOnly />
+        <File.Source key={name} name={name} isTypeOnly isExportable />
       ))}
-      <File.Export name={typeName} isTypeOnly />
+      <File.Source name={typeName} isTypeOnly isExportable />
       {print([...extraNodes, ...filterdNodes])}
     </>
   )

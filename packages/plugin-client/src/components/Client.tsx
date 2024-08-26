@@ -112,11 +112,13 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
     : undefined
 
   return (
-    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      {formData || ''}
-      <Function.Call name="res" to={<Function name="client" async generics={client.generics} params={clientParams} />} />
-      <Function.Return>{client.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
-    </Function>
+    <File.Source name={name} isExportable>
+      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        {formData || ''}
+        <Function.Call name="res" to={<Function name="client" async generics={client.generics} params={clientParams} />} />
+        <Function.Return>{client.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
+      </Function>
+    </File.Source>
   )
 }
 
@@ -150,7 +152,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         path={fileType.path}
         isTypeOnly
       />
-      <File.Source>{children}</File.Source>
+      {children}
     </File>
   )
 }
@@ -182,56 +184,53 @@ export function Client({ baseURL, Template = defaultTemplates.default }: ClientP
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   return (
-    <>
-      <File.Export name={name} />
-      <Template
-        name={name}
-        params={{
-          pathParams: {
-            mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-            children: getPathParams(schemas.pathParams, { typed: true }),
-          },
-          data: schemas.request?.name
-            ? {
-                type: schemas.request?.name,
-                optional: isOptional(schemas.request?.schema),
-              }
-            : undefined,
-          params: schemas.queryParams?.name
-            ? {
-                type: schemas.queryParams?.name,
-                optional: isOptional(schemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: schemas.headerParams?.name
-            ? {
-                type: schemas.headerParams?.name,
-                optional: isOptional(schemas.headerParams?.schema),
-              }
-            : undefined,
-          options: {
-            type: 'Partial<Parameters<typeof client>[0]>',
-            default: '{}',
-          },
-        }}
-        returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
-        JSDoc={{
-          comments: getComments(operation),
-        }}
-        client={{
-          // only set baseURL from serverIndex(swagger) when no custom client(default) is used
-          baseURL: client.importPath === '@kubb/plugin-client/client' ? baseURL : undefined,
-          generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
-          dataReturnType,
-          withQueryParams: !!schemas.queryParams?.name,
-          withData: !!schemas.request?.name,
-          withHeaders: !!schemas.headerParams?.name,
-          method: operation.method,
-          path: new URLPath(operation.path),
-          contentType,
-        }}
-      />
-    </>
+    <Template
+      name={name}
+      params={{
+        pathParams: {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(schemas.pathParams, { typed: true }),
+        },
+        data: schemas.request?.name
+          ? {
+              type: schemas.request?.name,
+              optional: isOptional(schemas.request?.schema),
+            }
+          : undefined,
+        params: schemas.queryParams?.name
+          ? {
+              type: schemas.queryParams?.name,
+              optional: isOptional(schemas.queryParams?.schema),
+            }
+          : undefined,
+        headers: schemas.headerParams?.name
+          ? {
+              type: schemas.headerParams?.name,
+              optional: isOptional(schemas.headerParams?.schema),
+            }
+          : undefined,
+        options: {
+          type: 'Partial<Parameters<typeof client>[0]>',
+          default: '{}',
+        },
+      }}
+      returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
+      JSDoc={{
+        comments: getComments(operation),
+      }}
+      client={{
+        // only set baseURL from serverIndex(swagger) when no custom client(default) is used
+        baseURL: client.importPath === '@kubb/plugin-client/client' ? baseURL : undefined,
+        generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
+        dataReturnType,
+        withQueryParams: !!schemas.queryParams?.name,
+        withData: !!schemas.request?.name,
+        withHeaders: !!schemas.headerParams?.name,
+        method: operation.method,
+        path: new URLPath(operation.path),
+        contentType,
+      }}
+    />
   )
 }
 
