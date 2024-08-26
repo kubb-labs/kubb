@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+
 type FindPetsByStatus = {
   data: FindPetsByStatusQueryResponse
   error: FindPetsByStatus400
@@ -17,6 +18,7 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response']>(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['parameters'] = {},
@@ -33,6 +35,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
     },
   }
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status

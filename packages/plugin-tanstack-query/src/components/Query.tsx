@@ -96,8 +96,9 @@ const defaultTemplates = {
       const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
       return (
-        <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
-          {`
+        <File.Source name={name} isExportable>
+          <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+            {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
@@ -113,7 +114,8 @@ const defaultTemplates = {
         return query
 
          `}
-        </Function>
+          </Function>
+        </File.Source>
       )
     }
   },
@@ -267,15 +269,16 @@ const defaultTemplates = {
       const hookQueryKey = `${queryKey}(${queryKeyParams.toString()})`
 
       return (
-        <Function
-          name={rest.name}
-          export
-          generics={rest.generics}
-          returnType={`${resultType}<${resultGenerics.join(', ')}>`}
-          params={params.toString()}
-          JSDoc={rest.JSDoc}
-        >
-          {`
+        <File.Source name={rest.name} isExportable>
+          <Function
+            name={rest.name}
+            export
+            generics={rest.generics}
+            returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+            params={params.toString()}
+            JSDoc={rest.JSDoc}
+          >
+            {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hookQueryKey}
 
@@ -290,7 +293,8 @@ const defaultTemplates = {
         return query
 
          `}
-        </Function>
+          </Function>
+        </File.Source>
       )
     }
   },

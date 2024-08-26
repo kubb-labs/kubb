@@ -6,6 +6,7 @@ import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+
 type FindPetsByStatus = {
   data: FindPetsByStatusQueryResponse
   error: FindPetsByStatus400
@@ -19,9 +20,12 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: MaybeRef<FindPetsByStatus['queryParams']>) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStatusQueryParams>, options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(refParams)
   return queryOptions({
@@ -38,6 +42,7 @@ export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStat
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status

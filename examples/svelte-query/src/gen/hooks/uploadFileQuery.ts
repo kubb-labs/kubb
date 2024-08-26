@@ -4,6 +4,7 @@ import client from '@kubb/plugin-client/client'
 import { createMutation } from '@tanstack/svelte-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+
 type UploadFile = {
   data: UploadFileMutationResponse
   error: never
@@ -17,6 +18,7 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage

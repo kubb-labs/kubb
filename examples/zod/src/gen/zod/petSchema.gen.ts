@@ -10,4 +10,5 @@ export const petSchema = z.object({
   tags: z.array(z.lazy(() => tagSchema)).optional(),
   status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
 })
+
 export type PetSchema = z.infer<typeof petSchema>

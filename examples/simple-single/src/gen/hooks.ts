@@ -69,6 +69,7 @@ import client from '@kubb/plugin-client/client'
 import { useMutation, useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
+
 type UpdatePet = {
   data: UpdatePetMutationResponse
   error: UpdatePet400 | UpdatePet404 | UpdatePet405
@@ -82,6 +83,7 @@ type UpdatePet = {
     return: Awaited<ReturnType<UpdatePetClient>>
   }
 }
+
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
@@ -109,6 +111,7 @@ export function useUpdatePet(
 }
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
+
 type AddPet = {
   data: AddPetMutationResponse
   error: AddPet405
@@ -122,6 +125,7 @@ type AddPet = {
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
+
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
@@ -149,6 +153,7 @@ export function useAddPet(
 }
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+
 type FindPetsByStatus = {
   data: FindPetsByStatusQueryResponse
   error: FindPetsByStatus400
@@ -162,8 +167,11 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions({
@@ -179,6 +187,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryPar
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -209,9 +218,12 @@ export function useFindPetsByStatus<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatusSuspenseQueryKey>
+
 export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return queryOptions({
@@ -227,6 +239,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -255,6 +268,7 @@ export function useFindPetsByStatusSuspense<TData = FindPetsByStatus['response']
 }
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+
 type FindPetsByTags = {
   data: FindPetsByTagsQueryResponse
   error: FindPetsByTags400
@@ -268,8 +282,11 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+
 export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
@@ -285,6 +302,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -315,8 +333,11 @@ export function useFindPetsByTags<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
+
 export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return queryOptions({
@@ -332,6 +353,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -360,6 +382,7 @@ export function useFindPetsByTagsSuspense<TData = FindPetsByTags['response'], TQ
 }
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+
 type GetPetById = {
   data: GetPetByIdQueryResponse
   error: GetPetById400 | GetPetById404
@@ -373,8 +396,11 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
@@ -389,6 +415,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], opt
     },
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
@@ -415,8 +442,11 @@ export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPe
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
+
 export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
   return queryOptions({
@@ -431,6 +461,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
     },
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
@@ -459,6 +490,7 @@ export function useGetPetByIdSuspense<TData = GetPetById['response'], TQueryKey 
 }
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+
 type UpdatePetWithForm = {
   data: UpdatePetWithFormMutationResponse
   error: UpdatePetWithForm405
@@ -472,6 +504,7 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -500,6 +533,7 @@ export function useUpdatePetWithForm(
 }
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+
 type DeletePet = {
   data: DeletePetMutationResponse
   error: DeletePet400
@@ -513,6 +547,7 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
@@ -542,6 +577,7 @@ export function useDeletePet(
 }
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+
 type UploadFile = {
   data: UploadFileMutationResponse
   error: never
@@ -555,6 +591,7 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
@@ -585,6 +622,7 @@ export function useUploadFile(
 }
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+
 type GetInventory = {
   data: GetInventoryQueryResponse
   error: never
@@ -598,8 +636,11 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
+
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
+
 export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
@@ -614,6 +655,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     },
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
@@ -639,8 +681,11 @@ export function useGetInventory<TData = GetInventory['response'], TQueryData = G
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getInventorySuspenseQueryKey = () => [{ url: '/store/inventory' }] as const
+
 export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspenseQueryKey>
+
 export function getInventorySuspenseQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventorySuspenseQueryKey()
   return queryOptions({
@@ -655,6 +700,7 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
     },
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
@@ -682,6 +728,7 @@ export function useGetInventorySuspense<TData = GetInventory['response'], TQuery
 }
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
+
 type PlaceOrder = {
   data: PlaceOrderMutationResponse
   error: PlaceOrder405
@@ -695,6 +742,7 @@ type PlaceOrder = {
     return: Awaited<ReturnType<PlaceOrderClient>>
   }
 }
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
@@ -722,6 +770,7 @@ export function usePlaceOrder(
 }
 
 type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+
 type PlaceOrderPatch = {
   data: PlaceOrderPatchMutationResponse
   error: PlaceOrderPatch405
@@ -735,6 +784,7 @@ type PlaceOrderPatch = {
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
@@ -762,6 +812,7 @@ export function usePlaceOrderPatch(
 }
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+
 type GetOrderById = {
   data: GetOrderByIdQueryResponse
   error: GetOrderById400 | GetOrderById404
@@ -775,8 +826,11 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
+
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
@@ -791,6 +845,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     },
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
@@ -817,9 +872,12 @@ export function useGetOrderById<TData = GetOrderById['response'], TQueryData = G
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
+
 export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return queryOptions({
@@ -834,6 +892,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
     },
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
@@ -862,6 +921,7 @@ export function useGetOrderByIdSuspense<TData = GetOrderById['response'], TQuery
 }
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
+
 type DeleteOrder = {
   data: DeleteOrderMutationResponse
   error: DeleteOrder400 | DeleteOrder404
@@ -875,6 +935,7 @@ type DeleteOrder = {
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
@@ -902,6 +963,7 @@ export function useDeleteOrder(
 }
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
+
 type CreateUser = {
   data: CreateUserMutationResponse
   error: never
@@ -915,6 +977,7 @@ type CreateUser = {
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
@@ -942,6 +1005,7 @@ export function useCreateUser(
 }
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
   error: never
@@ -955,6 +1019,7 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
@@ -982,6 +1047,7 @@ export function useCreateUsersWithListInput(
 }
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -995,8 +1061,11 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+
 export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
@@ -1012,6 +1081,7 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -1037,8 +1107,11 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
+
 export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions({
@@ -1054,6 +1127,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -1081,6 +1155,7 @@ export function useLoginUserSuspense<TData = LoginUser['response'], TQueryKey ex
 }
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+
 type LogoutUser = {
   data: LogoutUserQueryResponse
   error: never
@@ -1094,8 +1169,11 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
+
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
+
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
+
 export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
@@ -1110,6 +1188,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     },
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
@@ -1134,8 +1213,11 @@ export function useLogoutUser<TData = LogoutUser['response'], TQueryData = Logou
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const logoutUserSuspenseQueryKey = () => [{ url: '/user/logout' }] as const
+
 export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQueryKey>
+
 export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
   return queryOptions({
@@ -1150,6 +1232,7 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
     },
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
@@ -1176,6 +1259,7 @@ export function useLogoutUserSuspense<TData = LogoutUser['response'], TQueryKey 
 }
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -1189,8 +1273,11 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
@@ -1205,6 +1292,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username
@@ -1230,9 +1318,12 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
+
 export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return queryOptions({
@@ -1247,6 +1338,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username
@@ -1274,6 +1366,7 @@ export function useGetUserByNameSuspense<TData = GetUserByName['response'], TQue
 }
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+
 type UpdateUser = {
   data: UpdateUserMutationResponse
   error: never
@@ -1287,6 +1380,7 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
@@ -1315,6 +1409,7 @@ export function useUpdateUser(
 }
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
+
 type DeleteUser = {
   data: DeleteUserMutationResponse
   error: DeleteUser400 | DeleteUser404
@@ -1328,6 +1423,7 @@ type DeleteUser = {
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user

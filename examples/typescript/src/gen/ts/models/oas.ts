@@ -1304,4 +1304,5 @@ export const oas = {
     url: 'http://swagger.io',
   },
 } as const
+
 export type Oas = Infer<typeof oas>

@@ -146,9 +146,11 @@ export function Schema(props: Props): ReactNode {
           </File.Source>
         </Fragment>
       ))}
-      <File.Source name={typeName} isTypeOnly isExportable>
-        {print(typeNodes)}
-      </File.Source>
+      {enums.every((item) => item.typeName !== resolvedName) && (
+        <File.Source name={typeName} isTypeOnly isExportable>
+          {print(typeNodes)}
+        </File.Source>
+      )}
     </>
   )
 }

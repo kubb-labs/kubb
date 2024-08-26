@@ -11,6 +11,7 @@ import client from '@kubb/plugin-client/client'
 import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+
 type GetInventory = {
   data: GetInventoryQueryResponse
   error: never
@@ -24,8 +25,11 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
+
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
+
 export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
@@ -40,6 +44,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     },
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
@@ -65,8 +70,11 @@ export function getInventoryQuery<TData = GetInventory['response'], TQueryData =
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getInventoryInfiniteQueryKey = () => [{ url: '/store/inventory' }] as const
+
 export type GetInventoryInfiniteQueryKey = ReturnType<typeof getInventoryInfiniteQueryKey>
+
 export function getInventoryInfiniteQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryInfiniteQueryKey()
   return infiniteQueryOptions({
@@ -84,6 +92,7 @@ export function getInventoryInfiniteQueryOptions(options: GetInventory['client']
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status

@@ -13,6 +13,7 @@ import client from '@kubb/plugin-client/client'
 import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+
 type FindPetsByTags = {
   data: FindPetsByTagsQueryResponse
   error: FindPetsByTags400
@@ -26,8 +27,7 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
-export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => ['/pet/findByTags', ...(params ? [params] : [])] as const
-export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+
 export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
@@ -43,6 +43,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -73,8 +74,7 @@ export function useFindPetsByTagsHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => ['/pet/findByTags', ...(params ? [params] : [])] as const
-export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
+
 export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions({
@@ -97,6 +97,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -127,8 +128,7 @@ export function useFindPetsByTagsHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => ['/pet/findByTags', ...(params ? [params] : [])] as const
-export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
+
 export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return queryOptions({
@@ -144,6 +144,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags

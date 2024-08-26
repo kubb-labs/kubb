@@ -11,6 +11,7 @@ import client from '@kubb/plugin-client/client'
 import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -24,8 +25,11 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+
 export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
@@ -41,6 +45,7 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -66,8 +71,11 @@ export function loginUserQuery<TData = LoginUser['response'], TQueryData = Login
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const loginUserInfiniteQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
+
 export function loginUserInfiniteQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserInfiniteQueryKey(params)
   return infiniteQueryOptions({
@@ -90,6 +98,7 @@ export function loginUserInfiniteQueryOptions(params?: LoginUser['queryParams'],
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login

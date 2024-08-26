@@ -4,6 +4,7 @@ import client from '@kubb/plugin-client/client'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -17,8 +18,11 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
@@ -33,6 +37,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username

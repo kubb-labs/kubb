@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -17,6 +18,7 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export function loginUserQueryOptions<TData = LoginUser['response']>(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['parameters'] = {},
@@ -33,6 +35,7 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
     },
   }
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login

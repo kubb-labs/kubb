@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+
 type LogoutUser = {
   data: LogoutUserQueryResponse
   error: never
@@ -17,6 +18,7 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
+
 export function logoutUserQueryOptions<TData = LogoutUser['response']>(
   options: LogoutUser['client']['parameters'] = {},
 ): SWRConfiguration<TData, LogoutUser['error']> {
@@ -31,6 +33,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response']>(
     },
   }
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout

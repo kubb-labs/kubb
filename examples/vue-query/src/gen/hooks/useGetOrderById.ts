@@ -6,6 +6,7 @@ import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+
 type GetOrderById = {
   data: GetOrderByIdQueryResponse
   error: GetOrderById400 | GetOrderById404
@@ -19,9 +20,12 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
+
 export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+
 export function getOrderByIdQueryOptions(refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>, options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(refOrderId)
   return queryOptions({
@@ -37,6 +41,7 @@ export function getOrderByIdQueryOptions(refOrderId: MaybeRef<GetOrderByIdPathPa
     },
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID

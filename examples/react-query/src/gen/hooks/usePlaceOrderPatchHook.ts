@@ -4,6 +4,7 @@ import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/react-query'
 
 type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+
 type PlaceOrderPatch = {
   data: PlaceOrderPatchMutationResponse
   error: PlaceOrderPatch405
@@ -17,6 +18,7 @@ type PlaceOrderPatch = {
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch

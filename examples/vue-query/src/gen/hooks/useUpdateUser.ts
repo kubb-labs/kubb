@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+
 type UpdateUser = {
   data: UpdateUserMutationResponse
   error: never
@@ -19,6 +20,7 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user

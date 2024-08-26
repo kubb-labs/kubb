@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
+
 type DeleteUser = {
   data: DeleteUserMutationResponse
   error: DeleteUser400 | DeleteUser404
@@ -19,6 +20,7 @@ type DeleteUser = {
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user

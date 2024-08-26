@@ -4,7 +4,9 @@ export const addressIdentifier = {
   SW: 'SW',
   SE: 'SE',
 } as const
+
 export type AddressIdentifier = (typeof addressIdentifier)[keyof typeof addressIdentifier]
+
 export type Address = {
   /**
    * @type string | undefined
