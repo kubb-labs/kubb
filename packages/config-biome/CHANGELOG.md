@@ -1,5 +1,7 @@
 # @kubb/config-biome
 
+## 3.0.0-alpha.6
+
 ## 3.0.0-alpha.5
 
 ## 3.0.0-alpha.4
