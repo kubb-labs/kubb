@@ -15,6 +15,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
     "noEmit": true
   },
   "include": ["./src/**/*", "./templates/**/*"],

@@ -40,7 +40,7 @@ jobs:
           uses: changesets/action@v1
           if: ${{ github.event.inputs.tag == '' }}
           with:
-            publish: bun release --tag alpha
+            publish: bun release
             commit: "ci(changesets): version packages"
             setupGitUser: false
           env:
