@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
+import { File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
@@ -219,32 +219,30 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name="useSWRMutation" path="swr/mutation" />
-        <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
-        <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...(schemas.errors?.map((error) => error.name) || []),
-          ].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name="useSWRMutation" path="swr/mutation" />
+      <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.errors?.map((error) => error.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
 
-        <File.Source>
-          <SchemaType factory={factory} />
-          <Mutation Template={Template} factory={factory} />
-        </File.Source>
-      </File>
-    </Parser>
+      <File.Source>
+        <SchemaType factory={factory} />
+        <Mutation Template={Template} factory={factory} />
+      </File.Source>
+    </File>
   )
 }
 

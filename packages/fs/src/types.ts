@@ -33,6 +33,13 @@ export type Import = {
   root?: string
 }
 
+export type Source = {
+  name?: string
+  value?: string
+  isTypeOnly?: boolean
+  isExportable?: boolean
+}
+
 export type Export = {
   /**
    * Export name to be used.
@@ -98,9 +105,13 @@ export type File<TMeta extends object = object> = {
    * Path will be full qualified path to a specified file
    */
   path: AdvancedPath<BaseName> | Path
+  /**
+   * @deprecated replaced by sources
+   */
   source: string
-  imports?: Import[]
-  exports?: Export[]
+  sources: Array<Source>
+  imports?: Array<Import>
+  exports?: Array<Export>
   /**
    * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
    * This will also ignore the combinefiles utils

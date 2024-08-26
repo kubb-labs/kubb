@@ -13,7 +13,6 @@ declare global {
       'kubb-text': {
         children?: ReactNode
       }
-
       'kubb-file': {
         id?: string
         children?: ReactNode
@@ -22,22 +21,11 @@ declare global {
         override?: boolean
         meta?: KubbFile.File['meta']
       }
-
-      'kubb-source': {
-        children?: ReactNode
-        path?: string
-        print?: boolean
+      'kubb-source': KubbFile.Source & {
+        children?: KubbNode
       }
-
-      'kubb-import': KubbFile.Import & {
-        print?: boolean
-      }
-
-      'kubb-export': KubbFile.Export & {
-        print?: boolean
-        children?: ReactNode
-      }
-
+      'kubb-import': KubbFile.Import
+      'kubb-export': KubbFile.Export
       'kubb-parser': {
         language?: string
         children?: ReactNode
@@ -106,3 +94,6 @@ export type KubbNode = ReactNode
 export type JSDoc = {
   comments: string[]
 }
+
+export type { Params, Param } from './shared/utils/getParams.ts'
+export type { RootType } from './client/index.ts'

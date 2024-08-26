@@ -7,10 +7,12 @@ exports[`OperationGenerator > 'createPet with unknownType unknown' 1`] = `
 export type CreatePets201 = Error & {
   name?: ErrorCode
 }
+
 /**
  * @description unexpected error
  */
 export type CreatePetsError = Error
+
 export type CreatePetsMutationRequest = {
   /**
    * @type string
@@ -21,12 +23,14 @@ export type CreatePetsMutationRequest = {
    */
   tag: string
 }
+
 /**
  * @description Null response
  */
 export type CreatePetsMutationResponse = Error & {
   name?: ErrorCode
 }
+
 export type CreatePetsMutation = {
   Response: CreatePetsMutationResponse
   Request: CreatePetsMutationRequest
@@ -41,10 +45,12 @@ exports[`OperationGenerator > 'createPet' 1`] = `
 export type CreatePets201 = Error & {
   name?: ErrorCode
 }
+
 /**
  * @description unexpected error
  */
 export type CreatePetsError = Error
+
 export type CreatePetsMutationRequest = {
   /**
    * @type string
@@ -55,12 +61,14 @@ export type CreatePetsMutationRequest = {
    */
   tag: string
 }
+
 /**
  * @description Null response
  */
 export type CreatePetsMutationResponse = Error & {
   name?: ErrorCode
 }
+
 export type CreatePetsMutation = {
   Response: CreatePetsMutationResponse
   Request: CreatePetsMutationRequest
@@ -70,6 +78,7 @@ export type CreatePetsMutation = {
 
 exports[`OperationGenerator > 'deletePet' 1`] = `
 "export type DeletePetsPetidMutationResponse = any
+
 export type DeletePetsPetidMutation = {
   Response: DeletePetsPetidMutationResponse
 }
@@ -84,18 +93,22 @@ exports[`OperationGenerator > 'getPets' 1`] = `
    */
   limit?: string
 }
+
 /**
  * @description A paged array of pets
  */
 export type ListPets200 = Pets
+
 /**
  * @description unexpected error
  */
 export type ListPetsError = Error
+
 /**
  * @description A paged array of pets
  */
 export type ListPetsQueryResponse = Pets
+
 export type ListPetsQuery = {
   Response: ListPetsQueryResponse
   QueryParams: ListPetsQueryParams
@@ -116,18 +129,22 @@ exports[`OperationGenerator > 'showPetById' 1`] = `
    */
   testId: string
 }
+
 /**
  * @description Expected response to a valid request
  */
 export type ShowPetById200 = Pet
+
 /**
  * @description unexpected error
  */
 export type ShowPetByIdError = Error
+
 /**
  * @description Expected response to a valid request
  */
 export type ShowPetByIdQueryResponse = Pet
+
 export type ShowPetByIdQuery = {
   Response: ShowPetByIdQueryResponse
   PathParams: ShowPetByIdPathParams

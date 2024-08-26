@@ -70,67 +70,28 @@ export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, ...r
   )
 }
 
-type FileSourceUnionProps =
-  | {
-      /**
-       * When path is set it will copy-paste that file as a string inside the component.
-       * Children will then be ignored
-       */
-      path?: string
-      children?: never
-    }
-  | {
-      /**
-       * When path is set it will copy-paste that file as a string inside the component.
-       * Children will then be ignored
-       */
-      path?: never
-      children?: KubbNode
-    }
-
-type FileSourceProps = FileSourceUnionProps & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager).
-   */
-  print?: boolean
+type FileSourceProps = Omit<KubbFile.Source, 'value'> & {
+  children?: KubbNode
 }
 
-function FileSource({ path, print, children }: FileSourceProps): KubbNode {
+function FileSource({ isTypeOnly, name, isExportable, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source path={path} print={print}>
+    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable}>
       {children}
     </kubb-source>
   )
 }
 
-type FileExportProps = KubbFile.Export & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager)
-   */
-  print?: boolean
-  children?: KubbNode
+type FileExportProps = KubbFile.Export
+
+function FileExport({ name, path, isTypeOnly, asAlias }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
 }
 
-function FileExport({ name, path, children, isTypeOnly, asAlias, print }: FileExportProps): KubbNode {
-  return (
-    <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} print={print}>
-      {children}
-    </kubb-export>
-  )
-}
+type FileImportProps = KubbFile.Import
 
-type FileImportProps = KubbFile.Import & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager).
-   */
-  print?: boolean
-}
-
-export function FileImport({ name, root, path, isTypeOnly, isNameSpace, print }: FileImportProps): KubbNode {
-  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} print={print} />
+export function FileImport({ name, root, path, isTypeOnly, isNameSpace }: FileImportProps): KubbNode {
+  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
 }
 
 File.Export = FileExport

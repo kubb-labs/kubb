@@ -1,7 +1,7 @@
 import { SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, Parser, useApp } from '@kubb/react'
+import { File, useApp } from '@kubb/react'
 
 import type { OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
@@ -54,11 +54,9 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['z']} path={plugin.options.importPath} />
-        {items.map(mapItem)}
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={['z']} path={plugin.options.importPath} />
+      {items.map(mapItem)}
+    </File>
   )
 }

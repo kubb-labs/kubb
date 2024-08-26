@@ -138,6 +138,7 @@ export class PluginManager {
         pluginKey,
       },
       source,
+      sources: [],
     }
   }
 

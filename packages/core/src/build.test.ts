@@ -15,6 +15,7 @@ describe('build', () => {
     path: 'hello/world.json',
     baseName: 'world.json',
     source: "export const hello = 'world';",
+    sources: [{ value: "export const hello = 'world';" }],
   }
   const plugin = createPlugin(() => {
     return {

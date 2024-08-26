@@ -16,12 +16,14 @@ describe('FileManager', () => {
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
 
     expect(fileManager.files.length).toBe(2)
@@ -34,6 +36,11 @@ describe('FileManager', () => {
       baseName: 'file1.ts',
       source: "const file1 ='file1';",
       imports: [{ name: 'path', path: 'node:path' }],
+      sources: [
+        {
+          value: "const file1 ='file1';",
+        },
+      ],
     })
 
     expect(file).toBeDefined()
@@ -45,12 +52,22 @@ describe('FileManager', () => {
         baseName: 'file1.ts',
         source: "const file1 ='file1';",
         imports: [{ name: 'path', path: 'node:path' }],
+        sources: [
+          {
+            value: "const file1 ='file1';",
+          },
+        ],
       },
       {
         path: path.resolve('./src/file1.ts'),
         baseName: 'file1.ts',
         source: "const file1 ='file1';",
         imports: [{ name: 'path', path: 'node:path' }],
+        sources: [
+          {
+            value: "const file1 ='file1';",
+          },
+        ],
       },
     )
 
@@ -65,6 +82,11 @@ describe('FileManager', () => {
       baseName: 'file1.ts',
       source: "const file1 ='file1';",
       imports: [{ name: 'path', path: 'node:path' }],
+      sources: [
+        {
+          value: "const file1 ='file1';",
+        },
+      ],
     })
 
     const file = await fileManager.add({
@@ -72,6 +94,11 @@ describe('FileManager', () => {
       baseName: 'file1.ts',
       source: "const file1Bis ='file1Bis';",
       imports: [{ name: 'fs', path: 'node:fs' }],
+      sources: [
+        {
+          value: "const file1Bis ='file1Bis';",
+        },
+      ],
     })
 
     expect(file).toBeDefined()
@@ -90,23 +117,27 @@ describe('FileManager', () => {
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
     fileManager.add({
       path: path.resolve('./src/hooks/file1.ts'),
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
 
     fileManager.add({
       path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
 
     fileManager.add({
       path: path.resolve('./src/models/file2.ts'),
       baseName: 'file2.ts',
       source: '',
+      sources: [],
     })
 
     expect(fileManager.files.length).toBe(4)
@@ -118,6 +149,7 @@ describe('FileManager', () => {
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
 
     const resolvedFile = fileManager.getCacheById(file.id)
@@ -135,6 +167,7 @@ describe('FileManager', () => {
       path: filePath,
       baseName: 'file1.ts',
       source: '',
+      sources: [],
     })
 
     fileManager.deleteByPath(filePath)
@@ -158,36 +191,42 @@ describe('FileManager', () => {
       path: 'src/axios/file2.ts',
       baseName: 'file2.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/controller/test.ts',
       baseName: 'test.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/file1.ts',
       baseName: 'file2.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/test.ts',
       baseName: 'test.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/controller/pet.ts',
       baseName: 'pet.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/index.ts',
       baseName: 'index.ts',
       source: '',
+      sources: [],
     })
 
     expect(fileManager.orderedFiles).toMatchInlineSnapshot(`
@@ -195,50 +234,56 @@ describe('FileManager', () => {
         {
           "baseName": "test.ts",
           "extName": "ts",
-          "id": "bc7d8e8a7dbcd273eeefde16f0b49284c0a4fdf6",
+          "id": "19a844882848cd1bf8e191680a1c70df04b6e0db",
           "name": "test",
           "path": "src/test.ts",
           "source": "",
+          "sources": [],
         },
         {
           "baseName": "file2.ts",
           "extName": "ts",
-          "id": "cd0facba6e2fa54c91f40c32aa4646ed494e4586",
+          "id": "4f7babf4969d13d560db1d62a30bd2ed42ec884a",
           "name": "file2",
           "path": "src/axios/file2.ts",
           "source": "",
+          "sources": [],
         },
         {
           "baseName": "file2.ts",
           "extName": "ts",
-          "id": "18493e86c6800d1e05da320dd303b3ab172210e7",
+          "id": "e34a2b4ba76d4cbf9506f09ece67ec9367640742",
           "name": "file2",
           "path": "src/axios/file1.ts",
           "source": "",
+          "sources": [],
         },
         {
           "baseName": "index.ts",
           "extName": "ts",
-          "id": "fa692df3f230a8bb80390145ba87895e55d3e4c4",
+          "id": "f6fe5e984e8fd6c9c01fea19edd45c5e068d0732",
           "name": "index",
           "path": "src/axios/index.ts",
           "source": "",
+          "sources": [],
         },
         {
           "baseName": "test.ts",
           "extName": "ts",
-          "id": "e26573e3f3ca98fe1f254bebc2dff6ddd88f4552",
+          "id": "f4bf4d03264616094b7a0e40386a6ed4cfed0aa2",
           "name": "test",
           "path": "src/controller/test.ts",
           "source": "",
+          "sources": [],
         },
         {
           "baseName": "pet.ts",
           "extName": "ts",
-          "id": "924a8be2679c698847cac70eba758ef4928f8bc2",
+          "id": "036b52e7de3d809b6a101e0e6909a62371c5b974",
           "name": "pet",
           "path": "src/axios/controller/pet.ts",
           "source": "",
+          "sources": [],
         },
       ]
     `)
@@ -250,36 +295,42 @@ describe('FileManager', () => {
       path: 'src/axios/file2.ts',
       baseName: 'file2.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/controller/test.ts',
       baseName: 'test.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/file1.ts',
       baseName: 'file2.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/test.ts',
       baseName: 'test.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/controller/pet.ts',
       baseName: 'pet.ts',
       source: '',
+      sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/index.ts',
       baseName: 'index.ts',
       source: '',
+      sources: [],
     })
 
     expect(fileManager.groupedFiles).toMatchInlineSnapshot(`
@@ -293,10 +344,11 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "file2.ts",
                       "extName": "ts",
-                      "id": "cd0facba6e2fa54c91f40c32aa4646ed494e4586",
+                      "id": "4f7babf4969d13d560db1d62a30bd2ed42ec884a",
                       "name": "file2",
                       "path": "src/axios/file2.ts",
                       "source": "",
+                      "sources": [],
                     },
                     "name": "file2.ts",
                     "path": "src/axios/file2.ts",
@@ -305,10 +357,11 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "file2.ts",
                       "extName": "ts",
-                      "id": "18493e86c6800d1e05da320dd303b3ab172210e7",
+                      "id": "e34a2b4ba76d4cbf9506f09ece67ec9367640742",
                       "name": "file2",
                       "path": "src/axios/file1.ts",
                       "source": "",
+                      "sources": [],
                     },
                     "name": "file1.ts",
                     "path": "src/axios/file1.ts",
@@ -319,10 +372,11 @@ describe('FileManager', () => {
                         "file": {
                           "baseName": "pet.ts",
                           "extName": "ts",
-                          "id": "924a8be2679c698847cac70eba758ef4928f8bc2",
+                          "id": "036b52e7de3d809b6a101e0e6909a62371c5b974",
                           "name": "pet",
                           "path": "src/axios/controller/pet.ts",
                           "source": "",
+                          "sources": [],
                         },
                         "name": "pet.ts",
                         "path": "src/axios/controller/pet.ts",
@@ -335,10 +389,11 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "index.ts",
                       "extName": "ts",
-                      "id": "fa692df3f230a8bb80390145ba87895e55d3e4c4",
+                      "id": "f6fe5e984e8fd6c9c01fea19edd45c5e068d0732",
                       "name": "index",
                       "path": "src/axios/index.ts",
                       "source": "",
+                      "sources": [],
                     },
                     "name": "index.ts",
                     "path": "src/axios/index.ts",
@@ -353,10 +408,11 @@ describe('FileManager', () => {
                     "file": {
                       "baseName": "test.ts",
                       "extName": "ts",
-                      "id": "e26573e3f3ca98fe1f254bebc2dff6ddd88f4552",
+                      "id": "f4bf4d03264616094b7a0e40386a6ed4cfed0aa2",
                       "name": "test",
                       "path": "src/controller/test.ts",
                       "source": "",
+                      "sources": [],
                     },
                     "name": "test.ts",
                     "path": "src/controller/test.ts",
@@ -369,10 +425,11 @@ describe('FileManager', () => {
                 "file": {
                   "baseName": "test.ts",
                   "extName": "ts",
-                  "id": "bc7d8e8a7dbcd273eeefde16f0b49284c0a4fdf6",
+                  "id": "19a844882848cd1bf8e191680a1c70df04b6e0db",
                   "name": "test",
                   "path": "src/test.ts",
                   "source": "",
+                  "sources": [],
                 },
                 "name": "test.ts",
                 "path": "src/test.ts",
@@ -402,6 +459,11 @@ describe('FileManager utils', () => {
           isTypeOnly: true,
         },
       ],
+      sources: [
+        {
+          value: 'export type Pet = Pets;',
+        },
+      ],
     })
     const codeWithDefaultImport = await getSource({
       baseName: 'test.ts',
@@ -422,11 +484,21 @@ describe('FileManager utils', () => {
           path: './React',
         },
       ],
+      sources: [
+        {
+          value: 'export type Pet = Pets | Cat; const test = [client, React];',
+        },
+      ],
     })
     const codeWithDefaultImportOrder = await getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
+      sources: [
+        {
+          value: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
+        },
+      ],
       imports: [
         {
           name: ['Pets', 'Cat'],
@@ -459,6 +531,11 @@ describe('FileManager utils', () => {
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
+      sources: [
+        {
+          value: 'export type Pet = Pets;',
+        },
+      ],
       imports: [
         {
           name: 'Pets',
@@ -475,11 +552,21 @@ describe('FileManager utils', () => {
         path: './src/models/file1.ts',
         baseName: 'file1.ts',
         source: 'export const test = 2;',
+        sources: [
+          {
+            value: 'export const test = 2;',
+          },
+        ],
       },
       {
         path: './src/models/file1.ts',
         baseName: 'file2.ts',
         source: 'export const test2 = 3;',
+        sources: [
+          {
+            value: 'export const test2 = 3;',
+          },
+        ],
       },
     ])
 
@@ -500,11 +587,21 @@ export const test2 = 3;`,
         path: './src/models/file1.ts',
         baseName: 'file1.ts',
         source: 'export const test = 2;',
+        sources: [
+          {
+            value: 'export const test = 2;',
+          },
+        ],
       },
       {
         path: './src/models/file1.ts',
         baseName: 'file1.ts',
         source: 'export const test2 = 3;',
+        sources: [
+          {
+            value: 'export const test2 = 3;',
+          },
+        ],
         override: true,
       },
     ])
@@ -527,6 +624,12 @@ export const test2 = 3;`,
       baseName: 'file1.ts',
       source: `export const test = 2;
       type Test = Pets | Lily | Dog;`,
+      sources: [
+        {
+          value: `export const test = 2;
+      type Test = Pets | Lily | Dog;`,
+        },
+      ],
       imports: [
         {
           name: ['Pets'],
@@ -550,6 +653,7 @@ export const test2 = 3;`,
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
       source: '',
+      sources: [],
       exports: [
         {
           name: ['Pets'],
@@ -581,6 +685,11 @@ export const test2 = 3;`,
         path: './src/models/file1.ts',
         baseName: 'file1.ts',
         source: 'export const test = 2;',
+        sources: [
+          {
+            value: 'export const test = 2;',
+          },
+        ],
         imports: [
           {
             name: 'Pets',
@@ -593,6 +702,11 @@ export const test2 = 3;`,
         path: './src/models/file1.ts',
         baseName: 'file2.ts',
         source: 'export const test2 = 3;',
+        sources: [
+          {
+            value: 'export const test2 = 3;',
+          },
+        ],
         imports: [
           {
             name: 'Cats',
@@ -609,6 +723,11 @@ export const test2 = 3;`,
         path: './src/models/file1.ts',
         baseName: 'file1.ts',
         source: 'export const test = 2;',
+        sources: [
+          {
+            value: 'export const test = 2;',
+          },
+        ],
         exports: [
           {
             name: 'Pets',
@@ -621,6 +740,11 @@ export const test2 = 3;`,
         path: './src/models/file1.ts',
         baseName: 'file2.ts',
         source: 'export const test2 = 3;',
+        sources: [
+          {
+            value: 'export const test2 = 3;',
+          },
+        ],
         exports: [
           {
             name: 'Cats',
@@ -651,6 +775,11 @@ export const test2 = 3;`,
           "path": "./src/models/file1.ts",
           "source": "export const test = 2;
       export const test2 = 3;",
+          "sources": [
+            {
+              "value": "export const test2 = 3;",
+            },
+          ],
         },
       ]
     `)
@@ -674,6 +803,11 @@ export const test2 = 3;`,
           "path": "./src/models/file1.ts",
           "source": "export const test = 2;
       export const test2 = 3;",
+          "sources": [
+            {
+              "value": "export const test2 = 3;",
+            },
+          ],
         },
       ]
     `)

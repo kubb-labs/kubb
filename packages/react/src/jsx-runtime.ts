@@ -2,6 +2,7 @@ import ReactJSXRuntime from 'react/jsx-runtime'
 
 import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
+import type { KubbNode } from './types.ts'
 /**
  * TODO add for Server Components
  * import type {} from 'react/experimental'
@@ -16,7 +17,6 @@ declare global {
       'kubb-text': {
         children?: ReactNode
       }
-
       'kubb-file': {
         id?: string
         children?: ReactNode
@@ -25,22 +25,11 @@ declare global {
         override?: boolean
         meta?: KubbFile.File['meta']
       }
-
-      'kubb-source': {
-        children?: ReactNode
-        path?: string
-        print?: boolean
+      'kubb-source': KubbFile.Source & {
+        children?: KubbNode
       }
-
-      'kubb-import': KubbFile.Import & {
-        print?: boolean
-      }
-
-      'kubb-export': KubbFile.Export & {
-        print?: boolean
-        children?: ReactNode
-      }
-
+      'kubb-import': KubbFile.Import
+      'kubb-export': KubbFile.Export
       'kubb-parser': {
         language?: string
         children?: ReactNode

@@ -1,12 +1,12 @@
 import { URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
+import { File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 
 import { isOptional } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
-import type { KubbNode, Params } from '@kubb/react'
+import type { KubbNode, Params } from '@kubb/react/types'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginClient } from '../types.ts'
 
@@ -141,19 +141,17 @@ function RootTemplate({ children }: RootTemplateProps) {
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
-        <File.Source>{children}</File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+      <File.Import
+        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+      <File.Source>{children}</File.Source>
+    </File>
   )
 }
 

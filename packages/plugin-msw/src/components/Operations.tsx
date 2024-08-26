@@ -1,7 +1,7 @@
-import { Parser, File, useApp } from '@kubb/react'
+import { File, useApp } from '@kubb/react'
 import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
 
-import type { KubbNode } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginMsw } from '../types.ts'
 
@@ -42,12 +42,10 @@ function RootTemplate({ children }: ParserTemplateProps) {
     .filter(Boolean)
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {imports}
-        <File.Source>{children}</File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      {imports}
+      <File.Source>{children}</File.Source>
+    </File>
   )
 }
 

@@ -61,6 +61,7 @@ export class BarrelManager {
         baseName: 'index.ts',
         source: '',
         exports,
+        sources: [],
       })
 
       treeNode.children.forEach((childItem) => {

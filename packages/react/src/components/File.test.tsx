@@ -5,8 +5,6 @@ import { createRoot } from '../client/createRoot.ts'
 import { File } from './File.tsx'
 
 describe('<File/>', () => {
-  const mocksPath = path.resolve(__dirname, '../../mocks')
-
   test('render File', () => {
     const Component = () => {
       return <File baseName="test.ts" path="path" />
@@ -39,7 +37,6 @@ describe('<File/>', () => {
               "isTypeOnly": false,
               "name": undefined,
               "path": "./index.ts",
-              "print": undefined,
             },
           ],
           "extName": "ts",
@@ -50,7 +47,6 @@ describe('<File/>', () => {
               "isTypeOnly": false,
               "name": "React",
               "path": "react",
-              "print": undefined,
               "root": undefined,
             },
           ],
@@ -59,6 +55,7 @@ describe('<File/>', () => {
           "override": undefined,
           "path": "path",
           "source": "",
+          "sources": [],
         },
       ]
     `)
@@ -107,7 +104,6 @@ describe('<File/>', () => {
               "isTypeOnly": false,
               "name": "test",
               "path": undefined,
-              "print": undefined,
             },
           ],
           "extName": "ts",
@@ -118,25 +114,17 @@ describe('<File/>', () => {
           "override": undefined,
           "path": "path",
           "source": "",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "",
+            },
+          ],
         },
       ]
     `)
-  })
-
-  test('render File with Import and Export and print imports/exports', async () => {
-    const Component = () => {
-      return (
-        <File baseName="test.ts" path="path">
-          <File.Import name={'React'} path="react" print />
-          <br />
-          <File.Export asAlias path="./index.ts" print />
-        </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
-
-    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render File with source', () => {
@@ -152,28 +140,15 @@ describe('<File/>', () => {
 
     expect(root.output).toStrictEqual('test')
   })
-  test('render File with source and path, print', async () => {
-    const Component = () => {
-      return (
-        <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
-        </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
-
-    expect(await format(root.output)).toMatchSnapshot()
-  })
 
   test('render File with multiple sources', async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
-          <File.Source print>
+          <File.Source>{'const file = 2;'}</File.Source>
+          <File.Source isTypeOnly name={'test'} isExportable>
             {`
-            const test = 2;
+            export const test = 2;
             `}
           </File.Source>
         </File>
@@ -182,73 +157,37 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
-  })
-
-  test('render multiple Files', async () => {
-    const Component = () => {
-      return (
-        <>
-          <File baseName="test.ts" path="./">
-            <File.Source print>
-              {`
-            const test = 1;
-            `}
-              <File.Import name="node" path="node" />
-            </File.Source>
-          </File>
-          <File baseName="test2.ts" path="./">
-            <File.Source print>
-              {`
-            const test2 = 2;
-            `}
-            </File.Source>
-          </File>
-        </>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
-
-    expect(await format(root.output)).toMatchSnapshot()
-
-    expect(root.files.length).toBe(2)
-
-    expect(await format(root.files[0]?.source)).toMatchSnapshot()
-
-    expect(root.files[0]?.imports).toMatchInlineSnapshot(`
+    expect(root.files).toMatchInlineSnapshot(`
       [
         {
-          "isNameSpace": undefined,
-          "isTypeOnly": false,
-          "name": "node",
-          "path": "node",
-          "print": undefined,
-          "root": undefined,
+          "baseName": "test.ts",
+          "exports": [],
+          "extName": "ts",
+          "id": undefined,
+          "imports": [],
+          "meta": undefined,
+          "name": "test",
+          "override": undefined,
+          "path": "path",
+          "source": "const file = 2;
+      export const test = 2;",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "const file = 2;",
+            },
+            {
+              "isExportable": true,
+              "isTypeOnly": true,
+              "name": "test",
+              "value": "export const test = 2;",
+            },
+          ],
         },
       ]
     `)
-
-    expect(await format(root.files[1]?.source)).toMatchSnapshot()
-  })
-
-  test('render File with multiple sources', async () => {
-    const Component = () => {
-      return (
-        <File baseName="test.ts" path="path">
-          <File.Source path={path.resolve(mocksPath, './test.ts')} print />
-          <File.Source print>
-            {`
-            const test = 2;
-            `}
-          </File.Source>
-        </File>
-      )
-    }
-    const root = createRoot()
-    root.render(<Component />)
-
-    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render multiple Files', async () => {
@@ -256,7 +195,7 @@ describe('<File/>', () => {
       return (
         <>
           <File baseName="test.ts" path="./">
-            <File.Source print>
+            <File.Source>
               {`
             const test = 1;
             `}
@@ -264,7 +203,7 @@ describe('<File/>', () => {
             </File.Source>
           </File>
           <File baseName="test2.ts" path="./">
-            <File.Source print>
+            <File.Source>
               {`
             const test2 = 2;
             `}
@@ -289,7 +228,6 @@ describe('<File/>', () => {
           "isTypeOnly": false,
           "name": "node",
           "path": "node",
-          "print": undefined,
           "root": undefined,
         },
       ]
@@ -302,7 +240,7 @@ describe('<File/>', () => {
 describe('<File.Export/>', () => {
   test('render Export with print', () => {
     const Component = () => {
-      return <File.Export path="kubb" print />
+      return <File.Export path="kubb" />
     }
     const root = createRoot()
     root.render(<Component />)
@@ -314,7 +252,7 @@ describe('<File.Export/>', () => {
 describe('<File.Import/>', () => {
   test('render Import with print', () => {
     const Component = () => {
-      return <File.Import name="React" path="react" print />
+      return <File.Import name="React" path="react" />
     }
     const root = createRoot()
     root.render(<Component />)
@@ -324,7 +262,7 @@ describe('<File.Import/>', () => {
 
   test('render Import with print and type', () => {
     const Component = () => {
-      return <File.Import name="React" path="react" isTypeOnly print />
+      return <File.Import name="React" path="react" isTypeOnly />
     }
     const root = createRoot()
     root.render(<Component />)
@@ -334,7 +272,7 @@ describe('<File.Import/>', () => {
 
   test('render Import with root', () => {
     const Component = () => {
-      return <File.Import name="React" root="types" path="types/test" print />
+      return <File.Import name="React" root="types" path="types/test" />
     }
     const root = createRoot()
     root.render(<Component />)

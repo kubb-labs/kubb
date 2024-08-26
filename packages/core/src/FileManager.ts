@@ -186,6 +186,7 @@ export class FileManager {
               isTypeOnly: options.isTypeOnly,
             },
       ],
+      sources: [],
       meta: {
         pluginKey: plugin.key,
       },

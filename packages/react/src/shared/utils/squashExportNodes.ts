@@ -19,7 +19,7 @@ export function squashExportNodes(node: DOMElement): Array<KubbFile.Export> {
       exports = [...exports, ...squashExportNodes(childNode)]
     }
 
-    if (childNode.nodeName === 'kubb-export' && !childNode.attributes.print) {
+    if (childNode.nodeName === 'kubb-export') {
       const attributes = childNode.attributes as React.ComponentProps<typeof File.Export>
       exports.push(attributes)
     }

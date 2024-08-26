@@ -1,9 +1,9 @@
 import { URLPath } from '@kubb/core/utils'
 import { useOperations } from '@kubb/plugin-oas/hooks'
-import { Const, File, Parser, useApp } from '@kubb/react'
+import { Const, File, useApp } from '@kubb/react'
 
 import type { HttpMethod, Operation } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginClient } from '../types.ts'
 
@@ -44,11 +44,9 @@ function RootTemplate({ children }: RootTemplateProps) {
   const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Source>{children}</File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Source>{children}</File.Source>
+    </File>
   )
 }
 

@@ -16,8 +16,7 @@ exports[`<Schema/>  > 'Object' 1`] = `
      * @description Your address
     */
     address: (string & number) | null;
-} | null;
-"
+} | null;"
 `;
 
 exports[`<Schema/>  > 'Order' 1`] = `
@@ -27,18 +26,13 @@ exports[`<Schema/>  > 'Order' 1`] = `
 }
 export type Order = {
     status: OrderStatus;
-};
-"
+};"
 `;
 
 exports[`<Schema/>  > 'Record' 1`] = `
 "export type Record = {
     [key: string]: number;
-} | undefined;
-"
+} | undefined;"
 `;
 
-exports[`<Schema/>  > 'Upload' 1`] = `
-"export type Upload = Blob;
-"
-`;
+exports[`<Schema/>  > 'Upload' 1`] = `"export type Upload = Blob;"`;

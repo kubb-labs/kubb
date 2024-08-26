@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
-import { File, Function, Parser, useApp } from '@kubb/react'
+import { File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import { SchemaType } from './SchemaType.tsx'
@@ -124,32 +124,30 @@ function RootTemplate({ children }: RootTemplateProps) {
   const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...(schemas.errors?.map((error) => error.name) || []),
-          ].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
-        <File.Import
-          name={['UseMutationOptions', 'UseMutationResult']}
-          path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'}
-          isTypeOnly
-        />
-        <File.Import name={['useMutation']} path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'} />
-        <File.Source>{children}</File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.errors?.map((error) => error.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+      <File.Import
+        name={['UseMutationOptions', 'UseMutationResult']}
+        path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'}
+        isTypeOnly
+      />
+      <File.Import name={['useMutation']} path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'} />
+      <File.Source>{children}</File.Source>
+    </File>
   )
 }
 

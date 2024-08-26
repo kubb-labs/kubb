@@ -3,7 +3,7 @@ import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, Parser, useApp } from '@kubb/react'
+import { File, useApp } from '@kubb/react'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -150,12 +150,10 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {items.map(mapItem)}
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      {items.map(mapItem)}
 
-        <File.Source>{printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}</File.Source>
-      </File>
-    </Parser>
+      <File.Source>{printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}</File.Source>
+    </File>
   )
 }

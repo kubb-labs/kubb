@@ -9,16 +9,19 @@ describe('TreeNode', () => {
       path: 'src/test.ts',
       baseName: 'test.ts',
       source: '',
+      sources: [],
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
       source: '',
+      sources: [],
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
       source: '',
+      sources: [],
     },
   ]
   const tree = TreeNode.build(files)
@@ -38,6 +41,7 @@ describe('TreeNode', () => {
                     "baseName": "test.ts",
                     "path": "src/test.ts",
                     "source": "",
+                    "sources": [],
                   },
                   "name": "test.ts",
                   "path": "src/test.ts",
@@ -54,6 +58,7 @@ describe('TreeNode', () => {
                         "baseName": "hello.ts",
                         "path": "src/sub/hello.ts",
                         "source": "",
+                        "sources": [],
                       },
                       "name": "hello.ts",
                       "path": "src/sub/hello.ts",
@@ -68,6 +73,7 @@ describe('TreeNode', () => {
                         "baseName": "world.ts",
                         "path": "src/sub/world.ts",
                         "source": "",
+                        "sources": [],
                       },
                       "name": "world.ts",
                       "path": "src/sub/world.ts",

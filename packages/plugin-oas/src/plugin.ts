@@ -94,6 +94,13 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
           meta: {
             pluginKey: this.plugin.key,
           },
+          sources: [
+            {
+              name: camelCase(name),
+              isExportable: false,
+              value: JSON.stringify(schema),
+            },
+          ],
         })
       }
 

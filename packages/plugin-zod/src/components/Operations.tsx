@@ -1,9 +1,9 @@
 import { useOperationManager, useOperations } from '@kubb/plugin-oas/hooks'
-import { Const, File, Parser, useApp } from '@kubb/react'
+import { Const, File, useApp } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginZod } from '../types.ts'
 
@@ -84,12 +84,10 @@ function RootTemplate({ children }: RootTemplateProps) {
     .filter(Boolean)
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {mode === 'split' && imports}
-        <File.Source>{children}</File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      {mode === 'split' && imports}
+      <File.Source>{children}</File.Source>
+    </File>
   )
 }
 

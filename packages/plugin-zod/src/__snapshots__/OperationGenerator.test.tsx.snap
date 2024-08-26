@@ -5,6 +5,7 @@ exports[`OperationGenerator > 'createPet with unknownType any' 1`] = `
  * @description Null response
  */
 export const CreatePets201 = z.any()
+
 /**
  * @description unexpected error
  */
@@ -21,6 +22,7 @@ exports[`OperationGenerator > 'createPet' 1`] = `
  * @description Null response
  */
 export const CreatePets201 = z.any()
+
 /**
  * @description unexpected error
  */
@@ -39,14 +41,17 @@ exports[`OperationGenerator > 'deletePet' 1`] = `
 
 exports[`OperationGenerator > 'getPets' 1`] = `
 "export const ListPetsQueryParams = z.object({ limit: z.string().describe('How many items to return at one time (max 100)').optional() }).optional()
+
 /**
  * @description A paged array of pets
  */
 export const ListPets200 = z.lazy(() => Pets)
+
 /**
  * @description unexpected error
  */
 export const ListPetsError = z.lazy(() => Error)
+
 /**
  * @description A paged array of pets
  */
@@ -59,14 +64,17 @@ exports[`OperationGenerator > 'showPetById' 1`] = `
   petId: z.string().describe('The id of the pet to retrieve'),
   testId: z.string().describe('The id of the pet to retrieve'),
 })
+
 /**
  * @description Expected response to a valid request
  */
 export const ShowPetById200 = z.lazy(() => Pet)
+
 /**
  * @description unexpected error
  */
 export const ShowPetByIdError = z.lazy(() => Error)
+
 /**
  * @description Expected response to a valid request
  */
