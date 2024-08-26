@@ -1,4 +1,3 @@
-import { readSync } from '@kubb/fs'
 import { FileManager } from './FileManager.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
@@ -81,6 +80,7 @@ export class PluginManager {
 
   readonly executed: Array<Executer> = []
   readonly logger: Logger
+  readonly options: Options
   readonly #core: Plugin<PluginCore>
 
   readonly #usedPluginNames: Record<string, number> = {}
@@ -88,6 +88,7 @@ export class PluginManager {
 
   constructor(config: Config, options: Options) {
     this.config = config
+    this.options = options
     this.logger = options.logger
     this.fileManager = new FileManager()
     this.#promiseManager = new PromiseManager({
@@ -198,7 +199,7 @@ export class PluginManager {
   /**
    * Run a specific hookName for plugin x.
    */
-  hookForPlugin<H extends PluginLifecycleHooks>({
+  async hookForPlugin<H extends PluginLifecycleHooks>({
     pluginKey,
     hookName,
     parameters,
@@ -206,8 +207,10 @@ export class PluginManager {
     pluginKey: Plugin['key']
     hookName: H
     parameters: PluginParameter<H>
-  }): Promise<Array<ReturnType<ParseResult<H>> | null>> | null {
+  }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
+
+    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
 
     const promises = plugins
       .map((plugin) => {
@@ -220,7 +223,11 @@ export class PluginManager {
       })
       .filter(Boolean)
 
-    return Promise.all(promises)
+    const items = await Promise.all(promises)
+
+    this.logger.emit('progress_stop', { id: hookName })
+
+    return items
   }
   /**
    * Run a specific hookName for plugin x.
@@ -237,7 +244,7 @@ export class PluginManager {
   }): Array<ReturnType<ParseResult<H>>> | null {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    return plugins
+    const result = plugins
       .map((plugin) => {
         return this.#executeSync<H>({
           strategy: 'hookFirst',
@@ -247,6 +254,8 @@ export class PluginManager {
         })
       })
       .filter(Boolean)
+
+    return result
   }
 
   /**
@@ -261,27 +270,33 @@ export class PluginManager {
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
   }): Promise<SafeParseResult<H>> {
-    const promises = this.#getSortedPlugins()
-      .filter((plugin) => {
-        return skipped ? skipped.has(plugin) : true
-      })
-      .map((plugin) => {
-        return async () => {
-          const value = await this.#execute<H>({
-            strategy: 'hookFirst',
-            hookName,
-            parameters,
-            plugin,
-          })
+    const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
+      return skipped ? skipped.has(plugin) : true
+    })
 
-          return Promise.resolve({
-            plugin,
-            result: value,
-          } as SafeParseResult<H>)
-        }
-      })
+    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
 
-    return this.#promiseManager.run('first', promises)
+    const promises = plugins.map((plugin) => {
+      return async () => {
+        const value = await this.#execute<H>({
+          strategy: 'hookFirst',
+          hookName,
+          parameters,
+          plugin,
+        })
+
+        return Promise.resolve({
+          plugin,
+          result: value,
+        } as SafeParseResult<H>)
+      }
+    })
+
+    const result = await this.#promiseManager.run('first', promises)
+
+    this.logger.emit('progress_stop', { id: hookName })
+
+    return result
   }
 
   /**
@@ -297,12 +312,11 @@ export class PluginManager {
     skipped?: ReadonlySet<Plugin> | null
   }): SafeParseResult<H> {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
+    const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
+      return skipped ? skipped.has(plugin) : true
+    })
 
-    for (const plugin of this.#getSortedPlugins()) {
-      if (skipped?.has(plugin)) {
-        continue
-      }
-
+    for (const plugin of plugins) {
       parseResult = {
         result: this.#executeSync<H>({
           strategy: 'hookFirst',
@@ -317,6 +331,7 @@ export class PluginManager {
         break
       }
     }
+
     return parseResult
   }
 
@@ -330,7 +345,10 @@ export class PluginManager {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOuput>[]> {
-    const promises = this.#getSortedPlugins().map((plugin) => {
+    const plugins = this.#getSortedPlugins(hookName)
+    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
+
+    const promises = plugins.map((plugin) => {
       return () =>
         this.#execute({
           strategy: 'hookParallel',
@@ -344,11 +362,13 @@ export class PluginManager {
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
-        const plugin = this.#getSortedPlugins()[index]
+        const plugin = this.#getSortedPlugins(hookName)[index]
 
         this.#catcher<H>(result.reason, plugin, hookName)
       }
     })
+
+    this.logger.emit('progress_stop', { id: hookName })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
@@ -366,9 +386,10 @@ export class PluginManager {
     reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: Plugin) => PossiblePromise<Argument0<H> | null>
   }): Promise<Argument0<H>> {
     const [argument0, ...rest] = parameters
+    const plugins = this.#getSortedPlugins(hookName)
 
     let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
-    for (const plugin of this.#getSortedPlugins()) {
+    for (const plugin of plugins) {
       promise = promise
         .then((arg0) => {
           const value = this.#execute({
@@ -389,7 +410,10 @@ export class PluginManager {
    * Chains plugins
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    const promises = this.#getSortedPlugins().map((plugin) => {
+    const plugins = this.#getSortedPlugins(hookName)
+    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
+
+    const promises = plugins.map((plugin) => {
       return () =>
         this.#execute({
           strategy: 'hookSeq',
@@ -399,7 +423,9 @@ export class PluginManager {
         })
     })
 
-    return this.#promiseManager.run('seq', promises)
+    await this.#promiseManager.run('seq', promises)
+
+    this.logger.emit('progress_stop', { id: hookName })
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Plugin[] {
@@ -481,6 +507,8 @@ export class PluginManager {
     if (executer) {
       this.events.emit('executed', executer)
       this.executed.push(executer)
+
+      this.logger.emit('progress', { id: executer.hookName, data: `${executer.plugin.name}` })
     }
   }
 
@@ -510,8 +538,11 @@ export class PluginManager {
     }
 
     this.events.emit('execute', { strategy, hookName, parameters, plugin })
+    const promise = new Promise((resolve) => {
+      resolve(undefined)
+    })
 
-    const task = Promise.resolve()
+    const task = promise
       .then(() => {
         if (typeof hook === 'function') {
           const possiblePromiseResult = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as Promise<ReturnType<ParseResult<H>>>

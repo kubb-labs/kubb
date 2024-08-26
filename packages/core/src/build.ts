@@ -1,10 +1,10 @@
 import c from 'tinyrainbow'
 
-import { clean, read, write } from '@kubb/fs'
+import { clean, read } from '@kubb/fs'
 import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
-import { createLogger, randomCliColour } from './logger.ts'
+import { createLogger } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 import type { Logger } from './logger.ts'
@@ -49,9 +49,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     await clean(config.output.path)
   }
 
-  const pluginManager = new PluginManager(config, { logger })
-
-  return pluginManager
+  return new PluginManager(config, { logger })
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
@@ -63,6 +61,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   })
 
   const files = await processFiles({
+    config: options.config,
     dryRun: !options.config.output.write,
     files: pluginManager.fileManager.files,
     logger: pluginManager.logger,
@@ -87,8 +86,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     })
 
     //TODO set extName here instead of the files, extName is private. All exports will have extName, it's up the the process to hide.override the name
-
     files = await processFiles({
+      config: options.config,
       dryRun: !options.config.output.write,
       files: pluginManager.fileManager.files,
       logger: pluginManager.logger,

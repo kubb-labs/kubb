@@ -31,15 +31,16 @@
       "outputLogs": "new-only"
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": []
     },
     "release": {
       "dependsOn": ["build"],
       "outputs": []
     },
     "generate": {
-      "dependsOn": ["build"],
-      "outputs": []
+      "dependsOn": [],
+      "outputs": ["src/gen/**"],
+      "cache": false
     },
     "release:canary": {
       "dependsOn": ["build"],

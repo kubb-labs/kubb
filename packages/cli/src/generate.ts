@@ -1,4 +1,4 @@
-import { createLogger, LogMapper } from '@kubb/core/logger'
+import { LogMapper, createLogger } from '@kubb/core/logger'
 
 import c from 'tinyrainbow'
 
@@ -9,8 +9,8 @@ import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 import { writeLog } from './utils/writeLog.ts'
 
-import { SingleBar, Presets } from 'cli-progress'
 import { relative } from 'node:path'
+import { Presets, SingleBar } from 'cli-progress'
 
 type GenerateProps = {
   input?: string
@@ -25,23 +25,37 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     name: config.name,
   })
 
-  const progress = new SingleBar(
-    {
-      format: logLevel === LogMapper.info ? '{percentage}% {bar} {value}/{total} files | ETA: {eta}s | {filename}' : '{percentage}% {bar} ETA: {eta}s',
-      barsize: 40,
-      fps: 5,
-      clearOnComplete: true,
-    },
-    Presets.shades_grey,
-  )
+  const progressBars: Record<string, SingleBar> = {}
 
-  logger.on('progress', ({ count, size, file }) => {
-    if (count === 0) {
-      progress.start(size, 0)
-    } else if (count === size) {
-      progress.stop()
+  logger.on('progress_start', ({ id, size }) => {
+    logger.consola?.pauseLogs()
+    if (!progressBars[id]) {
+      progressBars[id] = new SingleBar(
+        {
+          format: logLevel === LogMapper.info ? '{percentage}% {bar} {value}/{total} {id} | {data}' : '{percentage}% {bar} ETA: {eta}s',
+          barsize: 25,
+          clearOnComplete: true,
+        },
+        Presets.shades_grey,
+      )
+      progressBars[id].start(size, 1, { id, data: '' })
+    }
+  })
+
+  logger.on('progress_stop', ({ id }) => {
+    const progressBar = progressBars[id]
+    progressBar?.stop()
+    logger.consola?.resumeLogs()
+  })
+
+  logger.on('progress', ({ id, count, data = '' }) => {
+    const progressBar = progressBars[id]
+    const payload = { id, data }
+
+    if (count) {
+      progressBar?.update(count, payload)
     } else {
-      progress.update(count, { filename: relative(config.root, file.path) || '' })
+      progressBar?.increment(1, payload)
     }
   })
 
@@ -111,7 +125,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡️Build completed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.consola?.log(`⚡Build completed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
   logger.consola?.box({
     title: `${config.name || ''}`,

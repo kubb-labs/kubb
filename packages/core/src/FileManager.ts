@@ -1,4 +1,4 @@
-import { extname, resolve } from 'node:path'
+import { extname, relative, resolve } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
 import { isDeepEqual } from 'remeda'
@@ -14,7 +14,7 @@ import type { GreaterThan } from '@kubb/types'
 import PQueue from 'p-queue'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
-import type { Plugin } from './types.ts'
+import type { Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
 import { type DirectoryTree, TreeNode, buildDirectoryTree } from './utils/TreeNode.ts'
 
@@ -395,6 +395,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 }
 
 type WriteFilesProps = {
+  config: Config
   files: Array<KubbFile.ResolvedFile>
   logger: Logger
   dryRun?: boolean
@@ -404,7 +405,7 @@ type WriteFilesProps = {
  */
 const queue = new PQueue({ concurrency: 10 })
 
-export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
+export async function processFiles({ dryRun, config, logger, files }: WriteFilesProps) {
   const orderedFiles = orderBy(files, [
     (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
     (v) => v.path.length,
@@ -418,25 +419,22 @@ export async function processFiles({ dryRun, logger, files }: WriteFilesProps) {
   })
 
   if (!dryRun) {
-    logger.consola?.pauseLogs()
     const size = orderedFiles.length
 
-    const promises = orderedFiles.map(async (file, index) => {
+    logger.emit('progress_start', { id: 'files', size })
+    const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
-        logger.emit('progress', { count: index, size, file })
         const source = await getSource(file)
 
         await write(file.path, source, { sanity: false })
-        await new Promise((resolve) => {
-          setTimeout(resolve, 0)
-        })
-        logger.emit('progress', { count: index + 1, size, file })
+
+        logger.emit('progress', { id: 'files', data: file ? relative(config.root, file.path) : '' })
       })
     })
 
     await Promise.all(promises)
 
-    logger.consola?.resumeLogs()
+    logger.emit('progress_stop', { id: 'files' })
   }
 
   return files

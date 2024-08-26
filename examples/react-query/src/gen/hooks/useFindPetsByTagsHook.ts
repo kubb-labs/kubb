@@ -28,6 +28,10 @@ type FindPetsByTags = {
   }
 }
 
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => ['/pet/findByTags', ...(params ? [params] : [])] as const
+
+export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+
 export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
@@ -74,6 +78,10 @@ export function useFindPetsByTagsHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
+export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => ['/pet/findByTags', ...(params ? [params] : [])] as const
+
+export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 
 export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
@@ -128,6 +136,10 @@ export function useFindPetsByTagsHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
+export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => ['/pet/findByTags', ...(params ? [params] : [])] as const
+
+export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
 
 export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
