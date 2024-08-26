@@ -117,18 +117,11 @@ export class PluginManager {
   }
 
   getFile<TOptions = object>({ name, mode, extName, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
-    let source = ''
     const baseName = `${name}${extName}` as const
     const path = this.resolvePath({ baseName, mode, pluginKey, options })
 
     if (!path) {
       throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginKey [${JSON.stringify(pluginKey)}]`)
-    }
-
-    try {
-      source = readSync(path)
-    } catch (_e) {
-      //
     }
 
     return {
@@ -137,7 +130,6 @@ export class PluginManager {
       meta: {
         pluginKey,
       },
-      source,
       sources: [],
     }
   }

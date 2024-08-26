@@ -96,4 +96,3 @@ export type JSDoc = {
 }
 
 export type { Params, Param } from './shared/utils/getParams.ts'
-export type { RootType } from './client/index.ts'

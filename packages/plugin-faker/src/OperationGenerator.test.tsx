@@ -9,7 +9,7 @@ import { parse } from '@kubb/oas/parser'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App } from '@kubb/react'
-import { createRootServer } from '@kubb/react/server'
+import { createRootServer } from '@kubb/react'
 import { OperationSchema } from './components'
 import type { PluginFaker } from './types.ts'
 

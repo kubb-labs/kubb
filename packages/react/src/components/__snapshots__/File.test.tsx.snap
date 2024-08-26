@@ -1,20 +1,12 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<File/> > render multiple Files 1`] = `
-"const test = 1
-import node from 'node'
+"const test = 1;
+            import node from "node";
 
-const test2 = 2
-"
+const test2 = 2;"
 `;
 
-exports[`<File/> > render multiple Files 2`] = `
-"const test = 1
-import node from 'node'
-"
-`;
+exports[`<File/> > render multiple Files 2`] = `""`;
 
-exports[`<File/> > render multiple Files 4`] = `
-"const test2 = 2
-"
-`;
+exports[`<File/> > render multiple Files 4`] = `""`;

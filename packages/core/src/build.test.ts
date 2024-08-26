@@ -14,7 +14,6 @@ describe('build', () => {
   const file: KubbFile.File = {
     path: 'hello/world.json',
     baseName: 'world.json',
-    source: "export const hello = 'world';",
     sources: [{ value: "export const hello = 'world';" }],
   }
   const plugin = createPlugin(() => {

@@ -6,7 +6,7 @@ import c from 'tinyrainbow'
 
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
-import type { Config, PluginManager } from '@kubb/core'
+import type { Config, FileMetaBase, PluginManager } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 
 type SummaryProps = {
@@ -17,7 +17,7 @@ type SummaryProps = {
   logger: Logger
 }
 
-export function getSummary({ pluginManager, status, hrStart, config, logger }: SummaryProps): string[] {
+export function getSummary({ pluginManager, status, hrStart, config }: SummaryProps): string[] {
   const logs: string[] = []
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
@@ -29,7 +29,7 @@ export function getSummary({ pluginManager, status, hrStart, config, logger }: S
 
   const failedPlugins = config.plugins?.filter((plugin) => !buildEndPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
-  const files = pluginManager.fileManager.files.sort((a: any, b: any) => {
+  const files = pluginManager.fileManager.files.sort((a: {meta?: FileMetaBase}, b: {meta?: FileMetaBase}) => {
     if (!a.meta?.pluginKey?.[0] || !b.meta?.pluginKey?.[0]) {
       return 0
     }
@@ -49,7 +49,7 @@ export function getSummary({ pluginManager, status, hrStart, config, logger }: S
         : `${c.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
-    time: `${c.yellow(`${elapsedSeconds}s`)} - finished at ${c.yellow(new Date().toLocaleString('en-GB', { timeZone: 'UTC' }))}`,
+    time: `${c.yellow(`${elapsedSeconds}s`)}`,
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 

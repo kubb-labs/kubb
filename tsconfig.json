@@ -22,7 +22,6 @@
       "@kubb/plugin-client/client": ["packages/plugin-client/src/client.ts"],
       "@kubb/plugin-client/components": ["packages/plugin-client/src/components/index.ts"],
       "@kubb/plugin-redoc": ["packages/plugin-redoc/src/index.ts"],
-      "@kubb/react/server": ["packages/react/src/server/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
       "@kubb/react/types": ["packages/react/src/types.ts"],
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],

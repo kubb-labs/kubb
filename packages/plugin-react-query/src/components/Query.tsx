@@ -56,7 +56,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
 
   if (isV5) {
     return (
-      <>
+      <File.Source name={name} isExportable>
         <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -74,12 +74,12 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
 
          `}
         </Function>
-      </>
+      </File.Source>
     )
   }
 
   return (
-    <>
+    <File.Source name={name} isExportable>
       <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -97,7 +97,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
 
        `}
       </Function>
-    </>
+    </File.Source>
   )
 }
 
@@ -572,52 +572,50 @@ Query.File = function ({ templates }: FileProps): ReactNode {
       {!!suspense && isV5 && (
         <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={true} />
       )}
-      <File.Source>
-        <SchemaType />
+      <SchemaType />
+      <Query
+        factory={factory}
+        Template={Template}
+        QueryKeyTemplate={QueryKeyTemplate}
+        QueryOptionsTemplate={QueryOptionsTemplate}
+        infinite={false}
+        suspense={false}
+        query={query}
+        queryOptions={queryOptions}
+        hookName={importNames.query['react'].hookName}
+        resultType={importNames.query['react'].resultType}
+        optionsType={importNames.query['react'].optionsType}
+      />
+      {!!infinite && (
+        <Query
+          factory={factory}
+          Template={Template}
+          QueryKeyTemplate={QueryKeyTemplate}
+          QueryOptionsTemplate={QueryOptionsTemplate}
+          infinite={infinite}
+          suspense={false}
+          query={query}
+          queryOptions={queryOptions}
+          hookName={importNames.queryInfinite['react'].hookName}
+          resultType={importNames.queryInfinite['react'].resultType}
+          optionsType={importNames.queryInfinite['react'].optionsType}
+        />
+      )}
+      {!!suspense && isV5 && (
         <Query
           factory={factory}
           Template={Template}
           QueryKeyTemplate={QueryKeyTemplate}
           QueryOptionsTemplate={QueryOptionsTemplate}
           infinite={false}
-          suspense={false}
+          suspense={suspense}
           query={query}
           queryOptions={queryOptions}
-          hookName={importNames.query['react'].hookName}
-          resultType={importNames.query['react'].resultType}
-          optionsType={importNames.query['react'].optionsType}
+          hookName={importNames.querySuspense['react'].hookName}
+          resultType={importNames.querySuspense['react'].resultType}
+          optionsType={importNames.querySuspense['react'].optionsType}
         />
-        {!!infinite && (
-          <Query
-            factory={factory}
-            Template={Template}
-            QueryKeyTemplate={QueryKeyTemplate}
-            QueryOptionsTemplate={QueryOptionsTemplate}
-            infinite={infinite}
-            suspense={false}
-            query={query}
-            queryOptions={queryOptions}
-            hookName={importNames.queryInfinite['react'].hookName}
-            resultType={importNames.queryInfinite['react'].resultType}
-            optionsType={importNames.queryInfinite['react'].optionsType}
-          />
-        )}
-        {!!suspense && isV5 && (
-          <Query
-            factory={factory}
-            Template={Template}
-            QueryKeyTemplate={QueryKeyTemplate}
-            QueryOptionsTemplate={QueryOptionsTemplate}
-            infinite={false}
-            suspense={suspense}
-            query={query}
-            queryOptions={queryOptions}
-            hookName={importNames.querySuspense['react'].hookName}
-            resultType={importNames.querySuspense['react'].resultType}
-            optionsType={importNames.querySuspense['react'].optionsType}
-          />
-        )}
-      </File.Source>
+      )}
     </File>
   )
 }

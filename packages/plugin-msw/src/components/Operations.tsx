@@ -14,7 +14,7 @@ type TemplateProps = {
 }
 
 function Template({ name, handlers }: TemplateProps): ReactNode {
-  return <>{`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}</>
+  return <File.Source name={name} isExportable>{`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}</File.Source>
 }
 
 type ParserTemplateProps = {
@@ -44,7 +44,7 @@ function RootTemplate({ children }: ParserTemplateProps) {
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {imports}
-      <File.Source>{children}</File.Source>
+      {children}
     </File>
   )
 }

@@ -86,6 +86,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       parameters: [options.config],
     })
 
+    //TODO set extName here instead of the files, extName is private. All exports will have extName, it's up the the process to hide.override the name
+
     files = await processFiles({
       dryRun: !options.config.output.write,
       files: pluginManager.fileManager.files,

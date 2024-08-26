@@ -73,10 +73,6 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
     consola.info(c.yellow(message))
   })
 
-  events.on('debug', (message) => {
-    consola.debug(c.yellow(message))
-  })
-
   events.on('error', (message, cause) => {
     const error = new Error(message || 'Something went wrong')
     error.cause = cause

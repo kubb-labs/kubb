@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
-import { Function, useApp } from '@kubb/react'
+import { Function, File, useApp } from '@kubb/react'
 import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { HttpMethod } from '@kubb/oas'
@@ -89,8 +89,9 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     : undefined
 
   return (
-    <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable>
+      <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        {`
       return {
         fetcher: async () => {
           ${formData || ''}
@@ -103,7 +104,8 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
       }
 
        `}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 

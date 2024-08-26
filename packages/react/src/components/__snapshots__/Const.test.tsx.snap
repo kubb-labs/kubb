@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Const/> > render Const 1`] = `
-"const data = 'blue'
+"const data = "blue"
 "
 `;
 
 exports[`<Const/> > render Const with const assertion 1`] = `
-"const data = 'blue' as const
+"const data = "blue" as const
 "
 `;

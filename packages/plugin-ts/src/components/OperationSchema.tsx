@@ -119,7 +119,7 @@ export function OperationSchema({ keysToOmit, description }: Props): ReactNode {
 type FileProps = {}
 
 OperationSchema.File = function ({}: FileProps): ReactNode {
-  const { pluginManager, plugin, mode, fileManager } = useApp<PluginTs>()
+  const { pluginManager, plugin, mode } = useApp<PluginTs>()
   const oas = useOas()
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
@@ -142,9 +142,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
         {mode === 'split' && <Oas.Schema.Imports isTypeOnly />}
-        <File.Source>
-          <OperationSchema description={description} keysToOmit={keysToOmit} />
-        </File.Source>
+        <OperationSchema description={description} keysToOmit={keysToOmit} />
       </Oas.Schema>
     )
   }
@@ -153,7 +151,9 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {items.map(mapItem)}
 
-      <File.Source>{printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}</File.Source>
+      <File.Source name={factoryName} isExportable>
+        {printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}
+      </File.Source>
     </File>
   )
 }

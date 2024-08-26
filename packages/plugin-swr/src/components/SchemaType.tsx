@@ -1,4 +1,4 @@
-import { Type, useApp } from '@kubb/react'
+import { File, Type, useApp } from '@kubb/react'
 
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import type { ReactNode } from 'react'
@@ -36,9 +36,12 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   return (
     <>
-      <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
-      <Type name={factory.name}>
-        {`
+      <File.Source name={clientType} isExportable>
+        <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
+      </File.Source>
+      <File.Source name={factory.name} isExportable>
+        <Type name={factory.name}>
+          {`
         {
           data: ${TData}
           error: ${TError}
@@ -53,7 +56,8 @@ export function SchemaType({ factory }: Props): ReactNode {
           }
         }
         `}
-      </Type>
+        </Type>
+      </File.Source>
     </>
   )
 }

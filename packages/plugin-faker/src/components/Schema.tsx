@@ -66,7 +66,7 @@ export function Schema(props: Props): ReactNode {
   const params = fakerDefaultOverride ? `data: NonNullable<Partial<${typeName}>> = ${fakerDefaultOverride}` : `data?: NonNullable<Partial<${typeName}>>`
 
   return (
-    <>
+    <File.Source name={resolvedName} isExportable>
       <Function
         export
         name={resolvedName}
@@ -79,7 +79,7 @@ export function Schema(props: Props): ReactNode {
         <Function.Return>{fakerTextWithOverride}</Function.Return>
       </Function>
       <br />
-    </>
+    </File.Source>
   )
 }
 
@@ -101,9 +101,7 @@ Schema.File = function ({}: FileProps): ReactNode {
   return (
     <Oas.Schema.File output={pluginManager.config.output.path}>
       <Schema.Imports />
-      <File.Source>
-        <Schema description={schema?.description} withData={withData} />
-      </File.Source>
+      <Schema description={schema?.description} withData={withData} />
     </Oas.Schema.File>
   )
 }

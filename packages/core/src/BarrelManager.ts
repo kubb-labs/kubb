@@ -59,7 +59,6 @@ export class BarrelManager {
       files.push({
         path: indexPath,
         baseName: 'index.ts',
-        source: '',
         exports,
         sources: [],
       })

@@ -1,4 +1,5 @@
-export { createRoot } from './client/index.ts'
+export { createRoot } from './client/createRoot.ts'
+export { createRootServer } from './server/createRootServer.ts'
 export { File } from './components/File.tsx'
 export { Function } from './components/Function.tsx'
 export { Text } from './components/Text.tsx'
@@ -9,5 +10,4 @@ export { useFile } from './hooks/useFile.ts'
 export { useApp } from './hooks/useApp.ts'
 export { useIndent } from './hooks/useIndent.ts'
 
-export { createNode } from './shared/dom.ts'
 export { createContext, useContext } from 'react'

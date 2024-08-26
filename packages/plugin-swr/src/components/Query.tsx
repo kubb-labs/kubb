@@ -201,7 +201,6 @@ export function Query({ factory, Template = defaultTemplates.default, QueryOptio
   return (
     <>
       <QueryOptions factory={factory} Template={QueryOptionsTemplate} dataReturnType={dataReturnType} />
-
       <Template
         name={name}
         generics={generics.toString()}
@@ -276,10 +275,8 @@ Query.File = function ({ templates }: FileProps): ReactNode {
         isTypeOnly
       />
 
-      <File.Source>
-        <SchemaType factory={factory} />
-        <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
-      </File.Source>
+      <SchemaType factory={factory} />
+      <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
     </File>
   )
 }

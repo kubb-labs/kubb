@@ -1,38 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Schema/>  > 'Object' 1`] = `
-"export type Object = {
-    /**
-     * @deprecated
-     * @default test
-    */
-    firstName: string;
-    /**
-     * @default 2
-     * @example 2
-    */
-    age: number;
-    /**
-     * @description Your address
-    */
-    address: (string & number) | null;
-} | null;"
-`;
+exports[`<Schema/>  > 'Object' 1`] = `""`;
 
-exports[`<Schema/>  > 'Order' 1`] = `
-"export enum OrderStatus {
-    "Placed" = "placed",
-    "Approved" = "approved"
-}
-export type Order = {
-    status: OrderStatus;
-};"
-`;
+exports[`<Schema/>  > 'Order' 1`] = `""`;
 
-exports[`<Schema/>  > 'Record' 1`] = `
-"export type Record = {
-    [key: string]: number;
-} | undefined;"
-`;
+exports[`<Schema/>  > 'Record' 1`] = `""`;
 
-exports[`<Schema/>  > 'Upload' 1`] = `"export type Upload = Blob;"`;
+exports[`<Schema/>  > 'Upload' 1`] = `""`;

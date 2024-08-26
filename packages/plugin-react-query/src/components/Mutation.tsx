@@ -82,8 +82,9 @@ function Template({ name, params, mutateParams, JSDoc, client, hook, dataReturnT
     : undefined
 
   return (
-    <Function export name={name} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable>
+      <Function export name={name} params={params} JSDoc={JSDoc}>
+        {`
          const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
          return ${hook.name}({
@@ -98,7 +99,8 @@ function Template({ name, params, mutateParams, JSDoc, client, hook, dataReturnT
            },
            ...mutationOptions
          })`}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 
@@ -146,7 +148,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         isTypeOnly
       />
       <File.Import name={['useMutation']} path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'} />
-      <File.Source>{children}</File.Source>
+      {children}
     </File>
   )
 }

@@ -46,12 +46,16 @@ function Template({ operationsName, pathsName, operations }: TemplateProps): Kub
 
   return (
     <>
-      <Const export name={operationsName} asConst>
-        {`{${transformers.stringifyObject(operationsJSON)}}`}
-      </Const>
-      <Const export name={pathsName} asConst>
-        {`{${transformers.stringifyObject(pathsJSON)}}`}
-      </Const>
+      <File.Source name={operationsName} isExportable>
+        <Const export name={operationsName} asConst>
+          {`{${transformers.stringifyObject(operationsJSON)}}`}
+        </Const>
+      </File.Source>
+      <File.Source name={pathsName} isExportable>
+        <Const export name={pathsName} asConst>
+          {`{${transformers.stringifyObject(pathsJSON)}}`}
+        </Const>
+      </File.Source>
     </>
   )
 }
@@ -86,7 +90,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {mode === 'split' && imports}
-      <File.Source>{children}</File.Source>
+      {children}
     </File>
   )
 }

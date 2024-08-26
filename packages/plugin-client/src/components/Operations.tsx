@@ -26,9 +26,11 @@ function Template({ name, operations }: TemplateProps): KubbNode {
     }
   })
   return (
-    <Const name={name} export asConst>
-      {JSON.stringify(operationsObject, undefined, 2)}
-    </Const>
+    <File.Source name={name} isExportable>
+      <Const name={name} export asConst>
+        {JSON.stringify(operationsObject, undefined, 2)}
+      </Const>
+    </File.Source>
   )
 }
 
@@ -45,7 +47,7 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-      <File.Source>{children}</File.Source>
+      {children}
     </File>
   )
 }

@@ -33,7 +33,6 @@ export function getFiles(node: DOMElement): KubbFile.ResolvedFile[] {
           id: attributes.id,
           baseName: attributes.baseName,
           path: attributes.path,
-          source: '',
           sources,
           exports: squashExportNodes(childNode),
           imports: squashImportNodes(childNode),

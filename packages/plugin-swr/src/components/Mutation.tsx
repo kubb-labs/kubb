@@ -63,8 +63,9 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
   if (client.withQueryParams) {
     return (
-      <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-        {`
+      <File.Source name={name} isExportable>
+        <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+          {`
          const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
          const url = ${client.path.template} as const
@@ -80,12 +81,15 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
           mutationOptions
         )
       `}
-      </Function>
+        </Function>
+      </File.Source>
     )
   }
+
   return (
-    <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable>
+      <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        {`
        const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
        const url = ${client.path.template} as const
@@ -101,7 +105,8 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
         mutationOptions
       )
     `}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 
@@ -238,10 +243,8 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
         isTypeOnly
       />
 
-      <File.Source>
-        <SchemaType factory={factory} />
-        <Mutation Template={Template} factory={factory} />
-      </File.Source>
+      <SchemaType factory={factory} />
+      <Mutation Template={Template} factory={factory} />
     </File>
   )
 }

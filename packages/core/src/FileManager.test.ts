@@ -15,14 +15,12 @@ describe('FileManager', () => {
     await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
 
@@ -34,7 +32,6 @@ describe('FileManager', () => {
     const file = await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
-      source: "const file1 ='file1';",
       imports: [{ name: 'path', path: 'node:path' }],
       sources: [
         {
@@ -50,7 +47,6 @@ describe('FileManager', () => {
       {
         path: path.resolve('./src/file1.ts'),
         baseName: 'file1.ts',
-        source: "const file1 ='file1';",
         imports: [{ name: 'path', path: 'node:path' }],
         sources: [
           {
@@ -61,7 +57,6 @@ describe('FileManager', () => {
       {
         path: path.resolve('./src/file1.ts'),
         baseName: 'file1.ts',
-        source: "const file1 ='file1';",
         imports: [{ name: 'path', path: 'node:path' }],
         sources: [
           {
@@ -80,7 +75,6 @@ describe('FileManager', () => {
     await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
-      source: "const file1 ='file1';",
       imports: [{ name: 'path', path: 'node:path' }],
       sources: [
         {
@@ -92,7 +86,6 @@ describe('FileManager', () => {
     const file = await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
-      source: "const file1Bis ='file1Bis';",
       imports: [{ name: 'fs', path: 'node:fs' }],
       sources: [
         {
@@ -105,7 +98,7 @@ describe('FileManager', () => {
 
     expect(fileManager.files.length).toBe(1)
 
-    expect(file.source).toBe(`const file1 ='file1';\nconst file1Bis ='file1Bis';`)
+    expect(file.sources).toBe(`const file1 ='file1';\nconst file1Bis ='file1Bis';`)
     expect(file.imports).toStrictEqual([
       { name: 'path', path: 'node:path' },
       { name: 'fs', path: 'node:fs' },
@@ -116,27 +109,23 @@ describe('FileManager', () => {
     fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
     fileManager.add({
       path: path.resolve('./src/hooks/file1.ts'),
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
 
     fileManager.add({
       path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
 
     fileManager.add({
       path: path.resolve('./src/models/file2.ts'),
       baseName: 'file2.ts',
-      source: '',
       sources: [],
     })
 
@@ -148,7 +137,6 @@ describe('FileManager', () => {
     const file = await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
 
@@ -156,7 +144,7 @@ describe('FileManager', () => {
 
     if (resolvedFile) {
       expect(resolvedFile).toBeDefined()
-      expect(resolvedFile.source).toBe(file.source)
+      expect(resolvedFile.sources).toBe(file.sources)
     }
   })
 
@@ -166,7 +154,6 @@ describe('FileManager', () => {
     await fileManager.add({
       path: filePath,
       baseName: 'file1.ts',
-      source: '',
       sources: [],
     })
 
@@ -190,42 +177,36 @@ describe('FileManager', () => {
     await fileManager.add({
       path: 'src/axios/file2.ts',
       baseName: 'file2.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/controller/test.ts',
       baseName: 'test.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/file1.ts',
       baseName: 'file2.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/test.ts',
       baseName: 'test.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/controller/pet.ts',
       baseName: 'pet.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/index.ts',
       baseName: 'index.ts',
-      source: '',
       sources: [],
     })
 
@@ -294,42 +275,36 @@ describe('FileManager', () => {
     await fileManager.add({
       path: 'src/axios/file2.ts',
       baseName: 'file2.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/controller/test.ts',
       baseName: 'test.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/file1.ts',
       baseName: 'file2.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/test.ts',
       baseName: 'test.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/controller/pet.ts',
       baseName: 'pet.ts',
-      source: '',
       sources: [],
     })
 
     await fileManager.add({
       path: 'src/axios/index.ts',
       baseName: 'index.ts',
-      source: '',
       sources: [],
     })
 
@@ -451,7 +426,6 @@ describe('FileManager utils', () => {
     const code = await getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
-      source: 'export type Pet = Pets;',
       imports: [
         {
           name: ['Pets'],
@@ -468,7 +442,6 @@ describe('FileManager utils', () => {
     const codeWithDefaultImport = await getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
-      source: 'export type Pet = Pets | Cat; const test = [client, React];',
       imports: [
         {
           name: 'client',
@@ -493,7 +466,6 @@ describe('FileManager utils', () => {
     const codeWithDefaultImportOrder = await getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
-      source: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
       sources: [
         {
           value: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
@@ -530,7 +502,6 @@ describe('FileManager utils', () => {
     const code = await getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
-      source: 'export type Pet = Pets;',
       sources: [
         {
           value: 'export type Pet = Pets;',
@@ -546,88 +517,15 @@ describe('FileManager utils', () => {
     })
     expect(await format(code)).toMatchSnapshot()
   })
-  test('if combineFiles is removing previous code', () => {
-    const combined = FileManager.combineFiles([
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file1.ts',
-        source: 'export const test = 2;',
-        sources: [
-          {
-            value: 'export const test = 2;',
-          },
-        ],
-      },
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file2.ts',
-        source: 'export const test2 = 3;',
-        sources: [
-          {
-            value: 'export const test2 = 3;',
-          },
-        ],
-      },
-    ])
-
-    expect(combined).toMatchObject([
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file2.ts',
-        imports: [],
-        exports: [],
-        source: `export const test = 2;
-export const test2 = 3;`,
-      },
-    ])
-  })
-  test('if combineFiles is overriding with latest file', () => {
-    const combined = FileManager.combineFiles([
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file1.ts',
-        source: 'export const test = 2;',
-        sources: [
-          {
-            value: 'export const test = 2;',
-          },
-        ],
-      },
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file1.ts',
-        source: 'export const test2 = 3;',
-        sources: [
-          {
-            value: 'export const test2 = 3;',
-          },
-        ],
-        override: true,
-      },
-    ])
-
-    expect(combined).toMatchObject([
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file1.ts',
-        imports: [],
-        exports: [],
-        source: 'export const test2 = 3;',
-        override: true,
-      },
-    ])
-  })
 
   test('if getFileSource is returning code with exports and exports as', async () => {
     const fileImport: KubbFile.File = {
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
-      source: `export const test = 2;
-      type Test = Pets | Lily | Dog;`,
       sources: [
         {
           value: `export const test = 2;
-      type Test = Pets | Lily | Dog;`,
+        type Test = Pets | Lily | Dog;`,
         },
       ],
       imports: [
@@ -652,7 +550,6 @@ export const test2 = 3;`,
     const fileExport: KubbFile.File = {
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
-      source: '',
       sources: [],
       exports: [
         {
@@ -676,141 +573,6 @@ export const test2 = 3;`,
 
     expect(await format(await getSource(fileImport))).toMatchSnapshot()
     expect(await format(await getSource(fileExport))).toMatchSnapshot()
-  })
-
-  test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
-    const importFiles: Array<KubbFile.File | null> = [
-      null,
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file1.ts',
-        source: 'export const test = 2;',
-        sources: [
-          {
-            value: 'export const test = 2;',
-          },
-        ],
-        imports: [
-          {
-            name: 'Pets',
-            path: './Pets',
-            isTypeOnly: true,
-          },
-        ],
-      },
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file2.ts',
-        source: 'export const test2 = 3;',
-        sources: [
-          {
-            value: 'export const test2 = 3;',
-          },
-        ],
-        imports: [
-          {
-            name: 'Cats',
-            path: './Cats',
-            isTypeOnly: true,
-          },
-        ],
-      },
-    ]
-
-    const exportFiles: Array<KubbFile.File | null> = [
-      null,
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file1.ts',
-        source: 'export const test = 2;',
-        sources: [
-          {
-            value: 'export const test = 2;',
-          },
-        ],
-        exports: [
-          {
-            name: 'Pets',
-            path: './Pets',
-            isTypeOnly: true,
-          },
-        ],
-      },
-      {
-        path: './src/models/file1.ts',
-        baseName: 'file2.ts',
-        source: 'export const test2 = 3;',
-        sources: [
-          {
-            value: 'export const test2 = 3;',
-          },
-        ],
-        exports: [
-          {
-            name: 'Cats',
-            path: './Cats',
-            isTypeOnly: true,
-          },
-        ],
-      },
-    ]
-
-    expect(FileManager.combineFiles(importFiles)).toMatchInlineSnapshot(`
-      [
-        {
-          "baseName": "file2.ts",
-          "exports": [],
-          "imports": [
-            {
-              "isTypeOnly": true,
-              "name": "Pets",
-              "path": "./Pets",
-            },
-            {
-              "isTypeOnly": true,
-              "name": "Cats",
-              "path": "./Cats",
-            },
-          ],
-          "path": "./src/models/file1.ts",
-          "source": "export const test = 2;
-      export const test2 = 3;",
-          "sources": [
-            {
-              "value": "export const test2 = 3;",
-            },
-          ],
-        },
-      ]
-    `)
-    expect(FileManager.combineFiles(exportFiles)).toMatchInlineSnapshot(`
-      [
-        {
-          "baseName": "file2.ts",
-          "exports": [
-            {
-              "isTypeOnly": true,
-              "name": "Pets",
-              "path": "./Pets",
-            },
-            {
-              "isTypeOnly": true,
-              "name": "Cats",
-              "path": "./Cats",
-            },
-          ],
-          "imports": [],
-          "path": "./src/models/file1.ts",
-          "source": "export const test = 2;
-      export const test2 = 3;",
-          "sources": [
-            {
-              "value": "export const test2 = 3;",
-            },
-          ],
-        },
-      ]
-    `)
   })
 
   test('if combineExports is filtering out duplicated exports', () => {

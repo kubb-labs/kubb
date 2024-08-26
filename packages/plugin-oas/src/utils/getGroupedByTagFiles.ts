@@ -66,7 +66,6 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
         return {
           baseName: 'index.ts' as const,
           path: resolve(root, output.path, 'index.ts'),
-          source: '',
           exports: [
             {
               path: output.extName ? `${tagPath}/index${output.extName}` : `${tagPath}/index`,

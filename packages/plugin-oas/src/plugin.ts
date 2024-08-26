@@ -90,7 +90,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         await this.addFile({
           path: resolvedPath,
           baseName,
-          source: JSON.stringify(schema),
           meta: {
             pluginKey: this.plugin.key,
           },

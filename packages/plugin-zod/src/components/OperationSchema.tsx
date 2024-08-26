@@ -46,9 +46,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={[...tree, optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)}>
         {mode === 'split' && <Oas.Schema.Imports />}
-        <File.Source>
-          <OperationSchema description={description} keysToOmit={keysToOmit} />
-        </File.Source>
+        <OperationSchema description={description} keysToOmit={keysToOmit} />
       </Oas.Schema>
     )
   }

@@ -442,16 +442,14 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
         isTypeOnly
       />
       <MutationImports Template={Import} />
-      <File.Source>
-        <SchemaType factory={factory} />
-        <Mutation
-          factory={factory}
-          Template={Template}
-          hookName={importNames.mutation[framework].hookName}
-          resultType={importNames.mutation[framework].resultType}
-          optionsType={importNames.mutation[framework].optionsType}
-        />
-      </File.Source>
+      <SchemaType factory={factory} />
+      <Mutation
+        factory={factory}
+        Template={Template}
+        hookName={importNames.mutation[framework].hookName}
+        resultType={importNames.mutation[framework].resultType}
+        optionsType={importNames.mutation[framework].optionsType}
+      />
     </File>
   )
 }

@@ -8,19 +8,16 @@ describe('TreeNode', () => {
     {
       path: 'src/test.ts',
       baseName: 'test.ts',
-      source: '',
       sources: [],
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
-      source: '',
       sources: [],
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
-      source: '',
       sources: [],
     },
   ]

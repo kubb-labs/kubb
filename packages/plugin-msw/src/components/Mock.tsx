@@ -29,7 +29,7 @@ type TemplateProps = {
 
 function Template({ name, method, path, responseName }: TemplateProps): ReactNode {
   return (
-    <>
+    <File.Source name={name} isExportable>
       {`
   export const ${name} = http.${method}('*${path.toURLPath()}', function handler(info) {
     return new Response(JSON.stringify(${responseName}()), {
@@ -39,7 +39,7 @@ function Template({ name, method, path, responseName }: TemplateProps): ReactNod
     })
   })
   `}
-    </>
+    </File.Source>
   )
 }
 
@@ -100,9 +100,7 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       <File.Import name={['http']} path={'msw'} />
       {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
-      <File.Source>
-        <Mock Template={Template} />
-      </File.Source>
+      <Mock Template={Template} />
     </File>
   )
 }

@@ -20,10 +20,6 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
       continue
     }
 
-    if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      sources = [...sources, ...squashSourceNodes(childNode, ignores)]
-    }
-
     if (childNode.nodeName === 'kubb-source') {
       const attributes = childNode.attributes as React.ComponentProps<typeof File.Source>
       const value = squashTextNodes(childNode)
@@ -33,6 +29,12 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
         // remove end enter
         value: value.replace(/^\s+|\s+$/g, ''),
       })
+
+      continue
+    }
+
+    if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
+      sources = [...sources, ...squashSourceNodes(childNode, ignores)]
     }
   }
 

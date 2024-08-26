@@ -65,9 +65,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
         {plugin.options.dateParser && <File.Import path={plugin.options.dateParser} name={plugin.options.dateParser} />}
 
         {mode === 'split' && <Oas.Schema.Imports />}
-        <File.Source>
-          <OperationSchema description={description} />
-        </File.Source>
+        <OperationSchema description={description} />
       </Oas.Schema>
     )
   }

@@ -1,5 +1,5 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, Type, useApp } from '@kubb/react'
+import { Function, Type, File, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
 
@@ -41,13 +41,16 @@ type TemplateProps = {
 function Template({ name, typeName, params, generics, returnType, JSDoc, keys }: TemplateProps): ReactNode {
   return (
     <>
-      <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
-        {`[${keys}] as const`}
-      </Function.Arrow>
-
-      <Type name={typeName} export>
-        {`ReturnType<typeof ${name}>`}
-      </Type>
+      <File.Source name={name} isExportable>
+        <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
+          {`[${keys}] as const`}
+        </Function.Arrow>
+      </File.Source>
+      <File.Source name={name} isExportable isTypeOnly>
+        <Type name={typeName} export>
+          {`ReturnType<typeof ${name}>`}
+        </Type>
+      </File.Source>
     </>
   )
 }

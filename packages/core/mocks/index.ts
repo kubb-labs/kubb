@@ -42,7 +42,6 @@ export const mockedPluginManager = {
       meta: {
         pluginKey,
       },
-      source,
     }
   },
 } as PluginManager

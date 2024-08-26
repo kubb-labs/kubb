@@ -112,7 +112,6 @@ export class FileManager {
 
       return this.#add({
         ...file,
-        source: previousFile.source && file.source ? `${previousFile.source}\n${file.source}` : '',
         sources: [...(previousFile.sources || []), ...(file.sources || [])],
         imports: [...(previousFile.imports || []), ...(file.imports || [])],
         exports: [...(previousFile.exports || []), ...(file.exports || [])],
@@ -173,7 +172,6 @@ export class FileManager {
     const rootFile: KubbFile.File = {
       path: resolve(root, 'index.ts'),
       baseName: 'index.ts',
-      source: '',
       exports: [
         output.exportAs
           ? {
@@ -247,7 +245,7 @@ export class FileManager {
 export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: KubbFile.File<TMeta> | ResolvedFile<TMeta>): Promise<string> {
   const parser = await getFileParser(file.extName)
 
-  const source = file.sources.map((item) => item.value).join('\n')
+  const source = file.sources.map((item) => item.value).join('\n\n')
   const exports = file.exports ? combineExports(file.exports) : []
   // imports should be defined and source should contain code or we have imports without them being used
   const imports = file.imports && source ? combineImports(file.imports, exports, source) : []

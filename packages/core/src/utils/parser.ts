@@ -7,11 +7,11 @@ import hash from 'object-hash'
  */
 export function createFile<TMeta extends object = object>(file: KubbFile.File<TMeta>): KubbFile.ResolvedFile<TMeta> {
   return {
-    id: hash(file),
+    id: hash({ path: file.path }),
     name: trimExtName(file.baseName),
-    extName: file.baseName.split('.').pop() || '',
+    extName: file.baseName.split(".").pop() || "",
     ...file,
-  }
+  };
 }
 
 export type ParserModule<TImport = unknown, TExport = unknown> = {

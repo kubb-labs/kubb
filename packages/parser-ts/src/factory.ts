@@ -379,9 +379,10 @@ export function createEnumDeclaration({
    */
   typeName: string
   enums: [key: string | number, value: string | number | boolean][]
-}) {
+}): [name: ts.Node | undefined, type: ts.Node] {
   if (type === 'literal') {
     return [
+      undefined,
       factory.createTypeAliasDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         factory.createIdentifier(typeName),
@@ -410,6 +411,7 @@ export function createEnumDeclaration({
 
   if (type === 'enum' || type === 'constEnum') {
     return [
+      undefined,
       factory.createEnumDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword), type === 'constEnum' ? factory.createToken(ts.SyntaxKind.ConstKeyword) : undefined].filter(Boolean),
         factory.createIdentifier(typeName),

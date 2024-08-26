@@ -1,4 +1,3 @@
-import { format } from '../../mocks/format.ts'
 import { createRoot } from '../client/createRoot.ts'
 import { Function } from './Function.tsx'
 import { mockParams } from '../../mocks/mockParams.ts'
@@ -15,7 +14,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render Function with comments', async () => {
@@ -29,7 +28,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render ArrowFunction', async () => {
@@ -43,7 +42,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render Function Generics', async () => {
@@ -57,7 +56,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render ArrowFunction Generics', async () => {
@@ -71,7 +70,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render ArrowFunction SingleLine', async () => {
@@ -85,7 +84,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render multiple functions', async () => {
@@ -105,7 +104,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render CallFunction', async () => {
@@ -116,7 +115,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
   test('render CallFunction async', async () => {
     const to = <Function name="getData" async />
@@ -126,7 +125,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render CallFunction with generics', async () => {
@@ -137,7 +136,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render CallFunction async with generics and params', async () => {
@@ -148,7 +147,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test.each(mockParams)('$name', async ({ name, params }) => {
@@ -164,7 +163,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   // test('render Function ServerComponent(beta)', async () => {

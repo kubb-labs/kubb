@@ -105,10 +105,6 @@ export type File<TMeta extends object = object> = {
    * Path will be full qualified path to a specified file
    */
   path: AdvancedPath<BaseName> | Path
-  /**
-   * @deprecated replaced by sources
-   */
-  source: string
   sources: Array<Source>
   imports?: Array<Import>
   exports?: Array<Export>

@@ -34,16 +34,6 @@
       "require": "./dist/jsx-runtime.cjs",
       "default": "./dist/jsx-runtime.cjs"
     },
-    "./client": {
-      "import": "./dist/client.js",
-      "require": "./dist/client.cjs",
-      "default": "./dist/client.cjs"
-    },
-    "./server": {
-      "import": "./dist/server.js",
-      "require": "./dist/server.cjs",
-      "default": "./dist/server.cjs"
-    },
     "./types": {
       "import": "./dist/types.js",
       "require": "./dist/types.cjs",
@@ -56,12 +46,6 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "client": [
-        "./dist/client.d.ts"
-      ],
-      "server": [
-        "./dist/server.d.ts"
-      ],
       "types": [
         "./dist/types.d.ts"
       ]
@@ -98,7 +82,6 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.4",
     "@types/react-reconciler": "^0.28.8",
-    "prettier": "^3.3.3",
     "react": "^18.3.1",
     "react-reconciler": "^0.29.2",
     "tsup": "^8.2.4",

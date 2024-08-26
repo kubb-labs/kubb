@@ -17,11 +17,15 @@ type TemplateProps = {
 function Template({ name, typeName, api }: TemplateProps): ReactNode {
   return (
     <>
-      {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
+      <File.Source name={name} isExportable>
+        {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
+      </File.Source>
       <br />
-      <Type name={typeName} export>
-        {`Infer<typeof ${name}>`}
-      </Type>
+      <File.Source name={typeName} isExportable isTypeOnly>
+        <Type name={typeName} export>
+          {`Infer<typeof ${name}>`}
+        </Type>
+      </File.Source>
     </>
   )
 }
@@ -64,9 +68,7 @@ OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileP
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       <File.Import name={['Infer']} path="@kubb/oas" isTypeOnly />
-      <File.Source>
-        <OasType Template={Template} name={name} typeName={typeName} />
-      </File.Source>
+      <OasType Template={Template} name={name} typeName={typeName} />
     </File>
   )
 }

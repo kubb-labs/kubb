@@ -1,6 +1,3 @@
-import path from 'node:path'
-
-import { format } from '../../mocks/format.ts'
 import { createRoot } from '../client/createRoot.ts'
 import { File } from './File.tsx'
 
@@ -169,8 +166,7 @@ describe('<File/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "const file = 2;
-      export const test = 2;",
+          "source": "",
           "sources": [
             {
               "isExportable": undefined,
@@ -215,11 +211,11 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
 
     expect(root.files.length).toBe(2)
 
-    expect(await format(root.files[0]?.source)).toMatchSnapshot()
+    expect(root.files[0]?.sources).toMatchSnapshot()
 
     expect(root.files[0]?.imports).toMatchInlineSnapshot(`
       [
@@ -233,7 +229,7 @@ describe('<File/>', () => {
       ]
     `)
 
-    expect(await format(root.files[1]?.source)).toMatchSnapshot()
+    expect(root.files[1]?.sources).toMatchSnapshot()
   })
 })
 
@@ -313,7 +309,7 @@ describe('<File.Import/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "import React from "react";",
+          "source": "",
           "sources": [
             {
               "isExportable": undefined,
@@ -360,7 +356,7 @@ describe('<File.Import/>', () => {
           "name": "test",
           "override": undefined,
           "path": "path",
-          "source": "test",
+          "source": "",
           "sources": [
             {
               "isExportable": undefined,
