@@ -403,7 +403,7 @@ type WriteFilesProps = {
 /**
  * Global queue
  */
-const queue = new PQueue({ concurrency: 10 })
+const queue = new PQueue({ concurrency: 100 })
 
 export async function processFiles({ dryRun, config, logger, files }: WriteFilesProps) {
   const orderedFiles = orderBy(files, [

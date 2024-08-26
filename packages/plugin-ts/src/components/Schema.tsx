@@ -133,7 +133,7 @@ export function Schema(props: Props): ReactNode {
   // )
 
   return (
-    <>
+    <Fragment>
       {enums.map(({ name, nameNode, typeName, typeNode }, index) => (
         <Fragment key={index}>
           {nameNode && (
@@ -151,7 +151,7 @@ export function Schema(props: Props): ReactNode {
           {print(typeNodes)}
         </File.Source>
       )}
-    </>
+    </Fragment>
   )
 }
 

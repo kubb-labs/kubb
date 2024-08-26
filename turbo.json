@@ -31,7 +31,7 @@
       "outputLogs": "new-only"
     },
     "typecheck": {
-      "dependsOn": []
+      "dependsOn": ["build"]
     },
     "release": {
       "dependsOn": ["build"],
