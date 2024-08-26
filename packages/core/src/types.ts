@@ -261,7 +261,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   cache: Cache<PluginCache>
   fileManager: FileManager
   pluginManager: PluginManager
-  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.File>>
+  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>
   resolvePath: (params: ResolvePathParams<TOptions['resolvePathOptions']>) => KubbFile.OptionalPath
   resolveName: (params: ResolveNameParams) => string
   logger: Logger

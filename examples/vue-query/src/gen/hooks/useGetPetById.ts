@@ -1,11 +1,12 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+
 type GetPetById = {
   data: GetPetByIdQueryResponse
   error: GetPetById400 | GetPetById404
@@ -19,8 +20,11 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+
 export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['petId']>, options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(refPetId)
   return queryOptions({
@@ -36,6 +40,7 @@ export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['
     },
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID

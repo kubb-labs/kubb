@@ -1,9 +1,9 @@
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { Type, useApp } from '@kubb/react'
+import { File, Type, useApp } from '@kubb/react'
 
+import { pluginTsName } from '@kubb/plugin-ts'
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
 
 type Props = {
   factory: {
@@ -37,9 +37,12 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   return (
     <>
-      <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
-      <Type name={factory.name}>
-        {`
+      <File.Source name={clientType} isTypeOnly>
+        <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
+      </File.Source>
+      <File.Source name={factory.name} isTypeOnly>
+        <Type name={factory.name}>
+          {`
         {
           data: ${TData}
           error: ${TError}
@@ -54,7 +57,8 @@ export function SchemaType({ factory }: Props): ReactNode {
           }
         }
         `}
-      </Type>
+        </Type>
+      </File.Source>
     </>
   )
 }

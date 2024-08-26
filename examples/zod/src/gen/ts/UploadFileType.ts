@@ -7,6 +7,7 @@ export type UploadFilePathParamsType = {
    */
   petId: number
 }
+
 export type UploadFileQueryParamsType = {
   /**
    * @description Additional Metadata
@@ -14,15 +15,19 @@ export type UploadFileQueryParamsType = {
    */
   additionalMetadata?: string
 }
+
 /**
  * @description successful operation
  */
 export type UploadFile200Type = ApiResponseType
+
 export type UploadFileMutationRequestType = Blob
+
 /**
  * @description successful operation
  */
 export type UploadFileMutationResponseType = ApiResponseType
+
 export type UploadFileTypeMutation = {
   Response: UploadFileMutationResponseType
   Request: UploadFileMutationRequestType

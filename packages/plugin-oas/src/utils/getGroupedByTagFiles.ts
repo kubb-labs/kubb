@@ -35,6 +35,9 @@ type FileMeta = {
   tag?: string
 }
 
+/**
+ * @deprecated //TODO replace by getIndexFiles?
+ */
 export async function getGroupedByTagFiles({ logger, files, plugin, template, exportAs, root, output }: Options): Promise<KubbFile.File<FileMeta>[]> {
   const { path, exportType = 'barrel' } = output
   const mode = FileManager.getMode(resolve(root, path))
@@ -50,7 +53,7 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
     })
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
-        logger?.emit('debug', [`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`])
+        logger?.emit('debug', { logs: [`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`] })
 
         return
       }
@@ -63,7 +66,6 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
         return {
           baseName: 'index.ts' as const,
           path: resolve(root, output.path, 'index.ts'),
-          source: '',
           exports: [
             {
               path: output.extName ? `${tagPath}/index${output.extName}` : `${tagPath}/index`,
@@ -74,7 +76,7 @@ export async function getGroupedByTagFiles({ logger, files, plugin, template, ex
           meta: {
             pluginKey: plugin.key,
           },
-          exportable: true,
+          sources: [],
         }
       }
     })

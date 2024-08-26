@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/react-query'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/react-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
   error: never
@@ -17,6 +18,7 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array

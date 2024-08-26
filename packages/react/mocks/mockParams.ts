@@ -1,4 +1,4 @@
-import type { Params } from '../src/index'
+import type { Params } from '../src/types.ts'
 
 export const mockParams: Array<{ name: string; params: Params }> = [
   {

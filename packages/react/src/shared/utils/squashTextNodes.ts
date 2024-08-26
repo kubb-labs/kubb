@@ -2,17 +2,9 @@ import { getRelativePath } from '@kubb/fs'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 
-import { read } from './read.ts'
-
 import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
 
-// Squashing text nodes allows to combine multiple text nodes into one and write
-// to `Output` instance only once. For example, <Text>hello{' '}world</Text>
-// is actually 3 text nodes, which would result 3 writes to `Output`.
-//
-// Also, this is necessary for libraries like ink-link (https://github.com/sindresorhus/ink-link),
-// which need to wrap all children at once, instead of wrapping 3 text nodes separately.
 export function squashTextNodes(node: DOMElement): string {
   let text = ''
 
@@ -39,18 +31,20 @@ export function squashTextNodes(node: DOMElement): string {
 
       if (childNode.nodeName === 'kubb-export') {
         const attributes = childNode.attributes as React.ComponentProps<typeof File.Export>
-        return print(
-          factory.createExportDeclaration({
-            name: attributes.name,
-            path: attributes.path,
-            isTypeOnly: attributes.isTypeOnly,
-            asAlias: attributes.asAlias,
-          }),
-        )
+        if (attributes.path) {
+          return print(
+            factory.createExportDeclaration({
+              name: attributes.name,
+              path: attributes.path,
+              isTypeOnly: attributes.isTypeOnly,
+              asAlias: attributes.asAlias,
+            }),
+          )
+        }
       }
 
       if (childNode.nodeName === 'kubb-source') {
-        return read(text, childNode)
+        return text
       }
 
       return text
@@ -63,9 +57,7 @@ export function squashTextNodes(node: DOMElement): string {
         nodeText = squashTextNodes(childNode)
       }
 
-      if (childNode.attributes.print) {
-        nodeText = getPrintText(nodeText)
-      }
+      nodeText = getPrintText(nodeText)
 
       if (childNode.nodeName === 'br') {
         nodeText = '\n'

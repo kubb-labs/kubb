@@ -1,8 +1,9 @@
-import client from "@kubb/plugin-client/client";
 import type { UseBaseQueryOptions, QueryKey, WithRequired } from "@tanstack/react-query";
+import client from "@kubb/plugin-client/client";
 
  type UploadFileClient = typeof client<UploadFileMutationResponse, UploadFile400, FormData>;
-type UploadFile = {
+
+ type UploadFile = {
     data: UploadFileMutationResponse;
     error: UploadFile400;
     request: FormData;
@@ -15,9 +16,12 @@ type UploadFile = {
         return: Awaited<ReturnType<UploadFileClient>>;
     };
 };
-export const UploadFileQueryKey = (data: UploadFile["request"]) => [{ url: "/upload" }, ...(data ? [data] : [])] as const;
-export type UploadFileQueryKey = ReturnType<typeof UploadFileQueryKey>;
-export function UploadFileQueryOptions<TData = UploadFile["response"], TQueryData = UploadFile["response"]>(data: UploadFile["request"], options: UploadFile["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UploadFile["response"], UploadFile["error"], TData, TQueryData>, "queryKey"> {
+
+ export const UploadFileQueryKey = (data: UploadFile["request"]) => [{ url: "/upload" }, ...(data ? [data] : [])] as const;
+
+ export type UploadFileQueryKey = ReturnType<typeof UploadFileQueryKey>;
+
+ export function UploadFileQueryOptions<TData = UploadFile["response"], TQueryData = UploadFile["response"]>(data: UploadFile["request"], options: UploadFile["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UploadFile["response"], UploadFile["error"], TData, TQueryData>, "queryKey"> {
     const queryKey = UploadFileQueryKey(data);
     return {
         queryKey,

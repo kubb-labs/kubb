@@ -10,4 +10,5 @@ export const userSchema = z.object({
   phone: z.string().optional(),
   userStatus: z.number().describe('User Status').optional(),
 })
+
 export type UserSchema = z.infer<typeof userSchema>

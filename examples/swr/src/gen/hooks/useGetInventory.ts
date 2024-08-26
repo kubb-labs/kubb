@@ -1,9 +1,10 @@
-import useSWR from 'swr'
-import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import useSWR from 'swr'
+import client from '@kubb/plugin-client/client'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+
 type GetInventory = {
   data: GetInventoryQueryResponse
   error: never
@@ -17,6 +18,7 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export function getInventoryQueryOptions<TData = GetInventory['response']>(
   options: GetInventory['client']['parameters'] = {},
 ): SWRConfiguration<TData, GetInventory['error']> {
@@ -31,6 +33,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response']>(
     },
   }
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status

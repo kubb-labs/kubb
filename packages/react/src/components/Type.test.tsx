@@ -1,4 +1,3 @@
-import { format } from '../../mocks/format.ts'
 import { createRoot } from '../client/createRoot.ts'
 import { Type } from './Type.tsx'
 
@@ -10,7 +9,7 @@ describe('<Type/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 
   test('render Type with comments', async () => {
@@ -24,6 +23,6 @@ describe('<Type/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatchSnapshot()
+    expect(root.output).toMatchSnapshot()
   })
 })

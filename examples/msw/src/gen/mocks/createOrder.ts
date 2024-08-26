@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { Order } from '../models/Order'
+import { faker } from '@faker-js/faker'
 
 export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   faker.seed([220])

@@ -1,11 +1,12 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+
 type FindPetsByTags = {
   data: FindPetsByTagsQueryResponse
   error: FindPetsByTags400
@@ -19,8 +20,11 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTags['queryParams']>) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+
 export function findPetsByTagsQueryOptions(refParams?: MaybeRef<FindPetsByTagsQueryParams>, options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(refParams)
   return queryOptions({
@@ -37,6 +41,7 @@ export function findPetsByTagsQueryOptions(refParams?: MaybeRef<FindPetsByTagsQu
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags

@@ -1,25 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Schema/>  > 'Object' 1`] = `
-"
-export const Object = z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(2).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()
-"
-`;
+exports[`<Schema/>  > 'Object' 1`] = `"export const Object = z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(2).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()}).describe("Your address").nullable()"`;
 
-exports[`<Schema/>  > 'Order' 1`] = `
-"
-export const Order = z.object({"status": z.enum(["placed", "approved"])})
-"
-`;
+exports[`<Schema/>  > 'Order' 1`] = `"export const Order = z.object({"status": z.enum(["placed", "approved"])})"`;
 
-exports[`<Schema/>  > 'Record' 1`] = `
-"
-export const Record = z.object({}).catchall(z.number()).optional()
-"
-`;
+exports[`<Schema/>  > 'Record' 1`] = `"export const Record = z.object({}).catchall(z.number()).optional()"`;
 
-exports[`<Schema/>  > 'Upload' 1`] = `
-"
-export const Upload = z.string()
-"
-`;
+exports[`<Schema/>  > 'Upload' 1`] = `"export const Upload = z.string()"`;

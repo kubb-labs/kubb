@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+
 type GetInventory = {
   data: GetInventoryQueryResponse
   error: never
@@ -17,8 +18,11 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
+
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
+
 export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
@@ -33,6 +37,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     },
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status

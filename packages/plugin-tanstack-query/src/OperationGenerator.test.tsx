@@ -1,4 +1,3 @@
-import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -12,7 +11,7 @@ import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginTanstackQuery } from './types.ts'
-import { getSource } from '@kubb/core/src/FileManager.ts';
+import { getSource } from '@kubb/core/src/FileManager.ts'
 
 describe('OperationGenerator', async () => {
   const oas = await parseFromConfig({

@@ -1,10 +1,11 @@
+import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
-import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -18,6 +19,7 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['parameters'] = {},
@@ -33,6 +35,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
     },
   }
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username

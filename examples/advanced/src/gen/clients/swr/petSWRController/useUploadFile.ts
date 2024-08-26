@@ -1,5 +1,3 @@
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type {
   UploadFileMutationRequest,
@@ -7,8 +5,11 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
+import useSWRMutation from 'swr/mutation'
+import client from '../../../../swr-client.ts'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+
 type UploadFile = {
   data: UploadFileMutationResponse
   error: never
@@ -22,6 +23,7 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage

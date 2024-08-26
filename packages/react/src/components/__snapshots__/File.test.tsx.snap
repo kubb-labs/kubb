@@ -1,67 +1,31 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<File/> > render File with Import and Export and print imports/exports 1`] = `
-"import React from 'react'
-
-export * from './index.ts'
-"
-`;
-
-exports[`<File/> > render File with multiple sources 1`] = `
-"export function test() {
-  return true
-}
-
-const test = 2
-"
-`;
-
-exports[`<File/> > render File with multiple sources 2`] = `
-"export function test() {
-  return true
-}
-
-const test = 2
-"
-`;
-
-exports[`<File/> > render File with source and path, print 1`] = `
-"export function test() {
-  return true
-}
-"
-`;
-
 exports[`<File/> > render multiple Files 1`] = `
-"const test = 1
+"const test = 1;
+            import node from "node";
 
-const test2 = 2
-"
+const test2 = 2;"
 `;
 
 exports[`<File/> > render multiple Files 2`] = `
-"const test = 1
-"
-`;
-
-exports[`<File/> > render multiple Files 3`] = `
-"const test2 = 2
-"
+[
+  {
+    "isExportable": undefined,
+    "isTypeOnly": undefined,
+    "name": undefined,
+    "value": "const test = 1;
+            import node from "node";",
+  },
+]
 `;
 
 exports[`<File/> > render multiple Files 4`] = `
-"const test = 1
-
-const test2 = 2
-"
-`;
-
-exports[`<File/> > render multiple Files 5`] = `
-"const test = 1
-"
-`;
-
-exports[`<File/> > render multiple Files 6`] = `
-"const test2 = 2
-"
+[
+  {
+    "isExportable": undefined,
+    "isTypeOnly": undefined,
+    "name": undefined,
+    "value": "const test2 = 2;",
+  },
+]
 `;

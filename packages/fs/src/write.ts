@@ -52,7 +52,7 @@ const writer = switcher(
 
         return data
       } catch (e) {
-        console.log(e, resolve(path))
+        console.error(e)
       }
     },
   },

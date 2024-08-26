@@ -8,10 +8,6 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
-      client: 'src/client/index.ts',
-      server: 'src/server/index.ts',
-      hooks: 'src/hooks/index.ts',
-      components: 'src/components/index.ts',
     },
     external: ['prettier'],
   },
@@ -20,10 +16,6 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
-      client: 'src/client/index.ts',
-      server: 'src/server/index.ts',
-      hooks: 'src/hooks/index.ts',
-      components: 'src/components/index.ts',
     },
     external: ['prettier'],
   },

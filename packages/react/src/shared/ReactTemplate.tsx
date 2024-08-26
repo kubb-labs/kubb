@@ -105,10 +105,10 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
   }
   onError(error: Error): void {
     if (process.env.NODE_ENV === 'test') {
-      console.error(error)
+      console.warn(error)
     }
     if (!this.logger) {
-      console.error(error)
+      console.warn(error)
     }
   }
 

@@ -16,7 +16,3 @@ export function trimQuotes(text: string): string {
 
   return text
 }
-
-export function trimExtName(text: string): string {
-  return text.replace(/\.[^/.]+$/, '')
-}

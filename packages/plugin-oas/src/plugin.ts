@@ -4,13 +4,13 @@ import { createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 
 import { getSchemas } from './utils/getSchemas.ts'
+import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
 import type { PluginOas } from './types.ts'
-import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
@@ -65,18 +65,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         contentType,
       }
     },
-    resolvePath(baseName) {
-      if (output === false) {
-        return undefined
-      }
-
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      return path.resolve(root, output.path, baseName)
-    },
-    resolveName(name, type) {
-      return camelCase(name, { isFile: type === 'file' })
-    },
     async buildStart() {
       if (!output) {
         return
@@ -91,31 +79,27 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         },
       })
       await oas.dereference()
+
+      const root = path.resolve(this.config.root, this.config.output.path)
       const schemas = getSchemas({ oas, contentType })
 
       const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
-        const resolvedPath = this.resolvePath({
-          baseName: `${name}.json`,
-          pluginKey: this.plugin.key,
-        })
-
-        const resvoledFileName = this.resolveName({
-          name: `${name}.json`,
-          pluginKey: [pluginOasName],
-          type: 'file',
-        }) as `${string}.json`
-
-        if (!resolvedPath) {
-          return
-        }
+        const baseName = `${camelCase(name)}.json` as `${string}.json`
+        const resolvedPath = path.resolve(root, output.path, baseName)
 
         await this.addFile({
           path: resolvedPath,
-          baseName: resvoledFileName,
-          source: JSON.stringify(schema),
+          baseName,
           meta: {
             pluginKey: this.plugin.key,
           },
+          sources: [
+            {
+              name: camelCase(name),
+              isExportable: false,
+              value: JSON.stringify(schema),
+            },
+          ],
         })
       }
 

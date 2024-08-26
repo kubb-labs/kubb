@@ -5,15 +5,19 @@ export type DeleteUserPathParamsType = {
    */
   username: string
 }
+
 /**
  * @description Invalid username supplied
  */
 export type DeleteUser400Type = any
+
 /**
  * @description User not found
  */
 export type DeleteUser404Type = any
+
 export type DeleteUserMutationResponseType = any
+
 export type DeleteUserTypeMutation = {
   Response: DeleteUserMutationResponseType
   PathParams: DeleteUserPathParamsType

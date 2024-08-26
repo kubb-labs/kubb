@@ -1,9 +1,10 @@
-import useSWR from 'swr'
-import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import useSWR from 'swr'
+import client from '@kubb/plugin-client/client'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+
 type GetPetById = {
   data: GetPetByIdQueryResponse
   error: GetPetById400 | GetPetById404
@@ -17,6 +18,7 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export function getPetByIdQueryOptions<TData = GetPetById['response']>(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['parameters'] = {},
@@ -32,6 +34,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response']>(
     },
   }
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID

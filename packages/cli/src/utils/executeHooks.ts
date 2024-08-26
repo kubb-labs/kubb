@@ -35,15 +35,11 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
         stripFinalNewline: true,
       })
 
-      logger.emit('success', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
-
-      if (subProcess) {
-        logger.emit('debug', [subProcess.stdout])
-      }
+      logger.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
     })
   })
 
   await Promise.all(promises)
 
-  logger.emit('success', 'Executing hooks')
+  logger.emit('success', 'Executed hooks')
 }

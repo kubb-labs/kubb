@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/react-query'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/react-query'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
+
 type DeleteUser = {
   data: DeleteUserMutationResponse
   error: DeleteUser400 | DeleteUser404
@@ -17,6 +18,7 @@ type DeleteUser = {
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user

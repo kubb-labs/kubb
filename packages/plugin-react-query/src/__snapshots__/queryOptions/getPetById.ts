@@ -1,8 +1,9 @@
-import client from "@kubb/plugin-client/client";
 import type { UseBaseQueryOptions, QueryKey, WithRequired } from "@tanstack/react-query";
+import client from "@kubb/plugin-client/client";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
-type GetPetById = {
+
+ type GetPetById = {
     data: GetPetByIdQueryResponse;
     error: GetPetById400 | GetPetById404;
     request: never;
@@ -15,11 +16,14 @@ type GetPetById = {
         return: Awaited<ReturnType<GetPetByIdClient>>;
     };
 };
-export const GetPetByIdQueryKey = ({ petId }: {
+
+ export const GetPetByIdQueryKey = ({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
-export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
-export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {
+
+ export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
+
+ export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }, options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
     const queryKey = GetPetByIdQueryKey({ petId });

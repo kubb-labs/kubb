@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+
 type LogoutUser = {
   data: LogoutUserQueryResponse
   error: never
@@ -17,8 +18,11 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
+
 export const logoutUserQueryKey = () => ['v5', { url: '/user/logout' }] as const
+
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
+
 export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
@@ -33,6 +37,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     },
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
@@ -57,8 +62,11 @@ export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = L
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const logoutUserSuspenseQueryKey = () => ['v5', { url: '/user/logout' }] as const
+
 export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQueryKey>
+
 export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
   return queryOptions({
@@ -73,6 +81,7 @@ export function logoutUserSuspenseQueryOptions(options: LogoutUser['client']['pa
     },
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout

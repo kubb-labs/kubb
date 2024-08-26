@@ -5,7 +5,9 @@ export const petStatus = {
   pending: 'pending',
   sold: 'sold',
 } as const
+
 export type PetStatus = (typeof petStatus)[keyof typeof petStatus]
+
 export type Pet = {
   /**
    * @type integer | undefined, int64

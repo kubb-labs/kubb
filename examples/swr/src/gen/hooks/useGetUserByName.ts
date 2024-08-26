@@ -1,9 +1,10 @@
-import useSWR from 'swr'
-import client from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
+import useSWR from 'swr'
+import client from '@kubb/plugin-client/client'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -17,6 +18,7 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['parameters'] = {},
@@ -32,6 +34,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
     },
   }
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username

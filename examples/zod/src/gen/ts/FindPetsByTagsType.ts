@@ -17,12 +17,15 @@ export type FindPetsByTagsQueryParamsType = {
    */
   pageSize?: string
 }
+
 export const findPetsByTagsHeaderParamsXExample = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
+
 export type FindPetsByTagsHeaderParamsXExampleType = (typeof findPetsByTagsHeaderParamsXExample)[keyof typeof findPetsByTagsHeaderParamsXExample]
+
 export type FindPetsByTagsHeaderParamsType = {
   /**
    * @description Header parameters
@@ -30,18 +33,22 @@ export type FindPetsByTagsHeaderParamsType = {
    */
   'X-EXAMPLE': FindPetsByTagsHeaderParamsXExampleType
 }
+
 /**
  * @description successful operation
  */
 export type FindPetsByTags200Type = PetType[]
+
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400Type = any
+
 /**
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponseType = PetType[]
+
 export type FindPetsByTagsTypeQuery = {
   Response: FindPetsByTagsQueryResponseType
   QueryParams: FindPetsByTagsQueryParamsType

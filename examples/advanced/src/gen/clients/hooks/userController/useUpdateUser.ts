@@ -1,9 +1,10 @@
-import client from '../../../../tanstack-query-client.ts'
-import { useMutation } from '@tanstack/react-query'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import { useMutation } from '@tanstack/react-query'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+
 type UpdateUser = {
   data: UpdateUserMutationResponse
   error: never
@@ -17,6 +18,7 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user

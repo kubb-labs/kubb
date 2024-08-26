@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse } from '../../models/DeleteOrder'
+import { faker } from '@faker-js/faker'
 
 export function createDeleteOrderPathParams(): NonNullable<DeleteOrderPathParams> {
   faker.seed([220])

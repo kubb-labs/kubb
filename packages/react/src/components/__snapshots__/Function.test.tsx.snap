@@ -3,7 +3,7 @@
 exports[`<Function/> > 'default string' 1`] = `
 "const getData = (name: string = test): number => {
   // default string
-  return 2
+return 2;
 }
 "
 `;
@@ -11,7 +11,7 @@ exports[`<Function/> > 'default string' 1`] = `
 exports[`<Function/> > 'empty children param' 1`] = `
 "const getData = ({ age }): number => {
   // empty children param
-  return 2
+return 2;
 }
 "
 `;
@@ -19,7 +19,7 @@ exports[`<Function/> > 'empty children param' 1`] = `
 exports[`<Function/> > 'empty' 1`] = `
 "const getData = (name): number => {
   // empty
-  return 2
+return 2;
 }
 "
 `;
@@ -27,15 +27,15 @@ exports[`<Function/> > 'empty' 1`] = `
 exports[`<Function/> > 'name and address' 1`] = `
 "const getData = (name: string, address: string): number => {
   // name and address
-  return 2
+return 2;
 }
 "
 `;
 
 exports[`<Function/> > 'name[optional] age, address[optional]…' 1`] = `
-"const getData = (age: number, name?: string, address?: string, country: string = 'Belgium'): number => {
+"const getData = (age: number, name?: string, address?: string, country: string = "Belgium"): number => {
   // name[optional] age, address[optional] and country[Belgium]
-  return 2
+return 2;
 }
 "
 `;
@@ -43,7 +43,7 @@ exports[`<Function/> > 'name[optional] age, address[optional]…' 1`] = `
 exports[`<Function/> > 'name[optional], age[optional] and add…' 1`] = `
 "const getData = (address: string, name?: string, age?: number): number => {
   // name[optional], age[optional] and address
-  return 2
+return 2;
 }
 "
 `;
@@ -51,7 +51,7 @@ exports[`<Function/> > 'name[optional], age[optional] and add…' 1`] = `
 exports[`<Function/> > 'optional string' 1`] = `
 "const getData = (name?: string): number => {
   // optional string
-  return 2
+return 2;
 }
 "
 `;
@@ -59,7 +59,7 @@ exports[`<Function/> > 'optional string' 1`] = `
 exports[`<Function/> > 'params[with name] with age, address[o…' 1`] = `
 "const getData = ({ age, country, address }: Data): number => {
   // params[with name] with age, address[optional] and country
-  return 2
+return 2;
 }
 "
 `;
@@ -67,7 +67,7 @@ exports[`<Function/> > 'params[with name] with age, address[o…' 1`] = `
 exports[`<Function/> > 'params[without name and default] with…' 1`] = `
 "const getData = ({ address, age = 90, country = 'Belgium' }: { address?: string; age?: number; country?: string } = {}): number => {
   // params[without name and default] with age[optional, 90] address[optional] and country[optional, Belgium]
-  return 2
+return 2;
 }
 "
 `;
@@ -75,7 +75,7 @@ exports[`<Function/> > 'params[without name and default] with…' 1`] = `
 exports[`<Function/> > 'params[without name and mode inline] …' 1`] = `
 "const getData = (data?: { address?: string; age?: number; country?: string }): number => {
   // params[without name and mode inline] with age[optional, 20] address[optional] and country[optional, Belgium]
-  return 2
+return 2;
 }
 "
 `;
@@ -83,15 +83,15 @@ exports[`<Function/> > 'params[without name and mode inline] …' 1`] = `
 exports[`<Function/> > 'params[without name and mode inline] …' 2`] = `
 "const getData = (data: { address: string; age: number; country: string }): number => {
   // params[without name and mode inline] with age[20] address and country[Belgium]
-  return 2
+return 2;
 }
 "
 `;
 
 exports[`<Function/> > 'params[without name and mode inlineSp…' 1`] = `
-"const getData = (address: string, age: number = 20, country: string = 'Belgium'): number => {
+"const getData = (address: string, age: number = 20, country: string = "Belgium"): number => {
   // params[without name and mode inlineSpread] with age[20] address and country[Belgium]
-  return 2
+return 2;
 }
 "
 `;
@@ -99,15 +99,15 @@ exports[`<Function/> > 'params[without name and mode inlineSp…' 1`] = `
 exports[`<Function/> > 'params[without name] with age, addres…' 1`] = `
 "const getData = ({ age, country, address }: { age: number; country: string; address?: string }): number => {
   // params[without name] with age, address[optional] and country
-  return 2
+return 2;
 }
 "
 `;
 
 exports[`<Function/> > 'params[without name] with age[optiona…' 1`] = `
-"const getData = ({ address, age = 20, country = 'Belgium' }?: { address?: string; age?: number; country?: string }): number => {
+"const getData = ({ address, age = 20, country = "Belgium" }?: { address?: string; age?: number; country?: string }): number => {
   // params[without name] with age[optional, 20] address[optional] and country[optional, Belgium]
-  return 2
+return 2;
 }
 "
 `;
@@ -115,7 +115,7 @@ exports[`<Function/> > 'params[without name] with age[optiona…' 1`] = `
 exports[`<Function/> > 'string' 1`] = `
 "const getData = (name: string): number => {
   // string
-  return 2
+return 2;
 }
 "
 `;
@@ -123,7 +123,7 @@ exports[`<Function/> > 'string' 1`] = `
 exports[`<Function/> > 'undefined children param' 1`] = `
 "const getData = (): number => {
   // undefined children param
-  return 2
+return 2;
 }
 "
 `;
@@ -131,27 +131,27 @@ exports[`<Function/> > 'undefined children param' 1`] = `
 exports[`<Function/> > 'undefined' 1`] = `
 "const getData = (): number => {
   // undefined
-  return 2
+return 2;
 }
 "
 `;
 
 exports[`<Function/> > render ArrowFunction 1`] = `
 "export const getData = async () => {
-  return 2
+  return 2;
 }
 "
 `;
 
 exports[`<Function/> > render ArrowFunction Generics 1`] = `
-"export const getData = async <TData,>(): Promise<number> => {
-  return 2
+"export const getData = async <TData>(): Promise<number> => {
+  return 2;
 }
 "
 `;
 
 exports[`<Function/> > render ArrowFunction SingleLine 1`] = `
-"export const getData = async <TData,>(): Promise<number> => 2
+"export const getData = async <TData>(): Promise<number> =>   2;
 "
 `;
 
@@ -177,14 +177,14 @@ exports[`<Function/> > render CallFunction with generics 1`] = `
 
 exports[`<Function/> > render Function 1`] = `
 "export async function getData() {
-  return 2
+  return 2;
 }
 "
 `;
 
 exports[`<Function/> > render Function Generics 1`] = `
 "export async function getData<TData>(): Promise<number> {
-  return 2
+  return 2;
 }
 "
 `;
@@ -194,17 +194,17 @@ exports[`<Function/> > render Function with comments 1`] = `
  * @deprecated
  */
 export async function getData() {
-  return 2
+  return 2;
 }
 "
 `;
 
 exports[`<Function/> > render multiple functions 1`] = `
 "export async function getData<TData>(): Promise<number> {
-  2
+  2;
 }
 export async function getData<TData>(): Promise<number> {
-  3
+  3;
 }
 "
 `;

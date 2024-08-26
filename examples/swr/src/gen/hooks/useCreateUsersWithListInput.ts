@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
   error: never
@@ -17,6 +18,7 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array

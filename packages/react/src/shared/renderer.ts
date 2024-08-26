@@ -14,10 +14,16 @@ type Result = {
 }
 
 export function renderer(node: DOMElement): Result {
-  const output = squashTextNodes(node)
   const imports = squashImportNodes(node)
   const exports = squashExportNodes(node)
   const files = getFiles(node)
+  const text = squashTextNodes(node)
+  const output = files.length
+    ? files
+        .flatMap((file) => file.sources.map((item) => item.value))
+        .filter(Boolean)
+        .join('\n\n')
+    : text
 
   return {
     output,

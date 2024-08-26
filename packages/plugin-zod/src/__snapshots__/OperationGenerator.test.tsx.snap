@@ -5,15 +5,15 @@ exports[`OperationGenerator > 'createPet with unknownType any' 1`] = `
  * @description Null response
  */
 export const CreatePets201 = z.any()
+
 /**
  * @description unexpected error
  */
 export const CreatePetsError = z.lazy(() => Error)
 
-export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
+export const CreatePetsMutationRequest = z.object({"name": z.string(),"tag": z.string()})
 
-export const CreatePetsMutationResponse = z.any()
-"
+export const CreatePetsMutationResponse = z.any()"
 `;
 
 exports[`OperationGenerator > 'createPet' 1`] = `
@@ -21,55 +21,53 @@ exports[`OperationGenerator > 'createPet' 1`] = `
  * @description Null response
  */
 export const CreatePets201 = z.any()
+
 /**
  * @description unexpected error
  */
 export const CreatePetsError = z.lazy(() => Error)
 
-export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
+export const CreatePetsMutationRequest = z.object({"name": z.string(),"tag": z.string()})
 
-export const CreatePetsMutationResponse = z.any()
-"
+export const CreatePetsMutationResponse = z.any()"
 `;
 
-exports[`OperationGenerator > 'deletePet' 1`] = `
-"export const DeletePetsPetidMutationResponse = z.any()
-"
-`;
+exports[`OperationGenerator > 'deletePet' 1`] = `"export const DeletePetsPetidMutationResponse = z.any()"`;
 
 exports[`OperationGenerator > 'getPets' 1`] = `
-"export const ListPetsQueryParams = z.object({ limit: z.string().describe('How many items to return at one time (max 100)').optional() }).optional()
+"export const ListPetsQueryParams = z.object({"limit": z.string().describe("How many items to return at one time (max 100)").optional()}).optional()
+
 /**
  * @description A paged array of pets
  */
 export const ListPets200 = z.lazy(() => Pets)
+
 /**
  * @description unexpected error
  */
 export const ListPetsError = z.lazy(() => Error)
+
 /**
  * @description A paged array of pets
  */
-export const ListPetsQueryResponse = z.lazy(() => Pets)
-"
+export const ListPetsQueryResponse = z.lazy(() => Pets)"
 `;
 
 exports[`OperationGenerator > 'showPetById' 1`] = `
-"export const ShowPetByIdPathParams = z.object({
-  petId: z.string().describe('The id of the pet to retrieve'),
-  testId: z.string().describe('The id of the pet to retrieve'),
-})
+"export const ShowPetByIdPathParams = z.object({"petId": z.string().describe("The id of the pet to retrieve"),"testId": z.string().describe("The id of the pet to retrieve")})
+
 /**
  * @description Expected response to a valid request
  */
 export const ShowPetById200 = z.lazy(() => Pet)
+
 /**
  * @description unexpected error
  */
 export const ShowPetByIdError = z.lazy(() => Error)
+
 /**
  * @description Expected response to a valid request
  */
-export const ShowPetByIdQueryResponse = z.lazy(() => Pet)
-"
+export const ShowPetByIdQueryResponse = z.lazy(() => Pet)"
 `;

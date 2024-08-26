@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -39,7 +39,7 @@ const baseConfig = {
     clean: true,
   },
   hooks: {
-    done: ['pnpm typecheck'],
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({
@@ -50,6 +50,7 @@ const baseConfig = {
     pluginOas({
       output: {
         path: 'schemas2',
+        exportType: false,
       },
       validate: true,
     }),
@@ -66,6 +67,7 @@ const baseConfig = {
     pluginTanstackQuery({
       output: {
         path: './clients/hooks',
+        exportType: false,
       },
       group: { type: 'tag' },
       mutate: {
@@ -76,18 +78,21 @@ const baseConfig = {
     pluginSwr({
       output: {
         path: './clients/swr',
+        exportType: false,
       },
       group: { type: 'tag' },
     }),
     pluginClient({
       output: {
         path: './clients/axios',
+        exportType: false,
       },
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
     }),
     pluginZod({
       output: {
         path: './zod',
+        exportType: false,
       },
       group: { type: 'tag' },
       typed: false,
@@ -96,12 +101,14 @@ const baseConfig = {
     pluginFaker({
       output: {
         path: 'mocks',
+        exportType: false,
       },
       group: { type: 'tag' },
     }),
     pluginMsw({
       output: {
         path: 'msw',
+        exportType: false,
       },
       group: { type: 'tag' },
     }),

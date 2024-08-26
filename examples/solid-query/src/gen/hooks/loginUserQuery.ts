@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -17,8 +18,11 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+
 export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
@@ -34,6 +38,7 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login

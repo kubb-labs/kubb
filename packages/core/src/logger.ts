@@ -3,18 +3,20 @@ import c, { createColors } from 'tinyrainbow'
 
 import { EventEmitter } from './utils/EventEmitter.ts'
 
-import { type ConsolaInstance, createConsola, type LogLevel } from 'consola'
-import type { Formatter } from 'tinyrainbow'
 import type * as KubbFile from '@kubb/fs/src/types.ts'
+import { type ConsolaInstance, type LogLevel, createConsola } from 'consola'
+import type { Formatter } from 'tinyrainbow'
 
 type Events = {
   start: [message: string]
   success: [message: string]
   error: [message: string, cause: Error]
   warning: [message: string]
-  debug: [logs: string[]]
+  debug: [{ logs: string[]; override?: boolean; fileName?: string }]
   info: [message: string]
-  progress: [{ count: number; size: number; file: KubbFile.File }]
+  progress_start: [{ id: string; size: number }]
+  progress: [{ id: string; count?: number; data?: string }]
+  progress_stop: [{ id: string }]
 }
 
 export const LogMapper = {
@@ -71,10 +73,6 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
 
   events.on('info', (message) => {
     consola.info(c.yellow(message))
-  })
-
-  events.on('debug', (message) => {
-    consola.debug(c.yellow(message))
   })
 
   events.on('error', (message, cause) => {

@@ -7,22 +7,27 @@ export type GetUserByNamePathParamsType = {
    */
   username: string
 }
+
 /**
  * @description successful operation
  */
 export type GetUserByName200Type = UserType
+
 /**
  * @description Invalid username supplied
  */
 export type GetUserByName400Type = any
+
 /**
  * @description User not found
  */
 export type GetUserByName404Type = any
+
 /**
  * @description successful operation
  */
 export type GetUserByNameQueryResponseType = UserType
+
 export type GetUserByNameTypeQuery = {
   Response: GetUserByNameQueryResponseType
   PathParams: GetUserByNamePathParamsType

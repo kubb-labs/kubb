@@ -12,7 +12,7 @@ import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginReactQuery } from './types.ts'
-import { getSource } from '@kubb/core/src/FileManager.ts';
+import { getSource } from '@kubb/core/src/FileManager.ts'
 
 describe('OperationGenerator', async () => {
   const oas = await parseFromConfig({

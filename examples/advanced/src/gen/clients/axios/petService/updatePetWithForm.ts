@@ -1,10 +1,10 @@
-import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
 } from '../../../models/ts/petController/UpdatePetWithForm'
+import client from '../../../../axios-client.ts'
 
 /**
  * @summary Updates a pet in the store with form data

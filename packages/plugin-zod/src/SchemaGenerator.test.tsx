@@ -10,7 +10,7 @@ import { mockedPluginManager } from '@kubb/core/mocks'
 
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
-import { createRootServer } from '@kubb/react/server'
+import { createRootServer } from '@kubb/react'
 import { Operations } from './components'
 import { Schema } from './components/Schema.tsx'
 

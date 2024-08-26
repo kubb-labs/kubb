@@ -1,5 +1,3 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type {
   UpdatePetWithFormMutationResponse,
@@ -7,8 +5,11 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+
 type UpdatePetWithForm = {
   data: UpdatePetWithFormMutationResponse
   error: UpdatePetWithForm405
@@ -22,6 +23,7 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId

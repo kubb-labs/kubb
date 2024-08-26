@@ -1,11 +1,18 @@
 import { ReactTemplate } from '../shared/ReactTemplate.tsx'
 import { createNode } from '../shared/dom.ts'
-import { format } from './format.ts'
 
 import type { Logger } from '@kubb/core/logger'
 import type { RootContextProps } from '../components/Root.tsx'
 import type { DOMElement } from '../types.ts'
-import type { RootType } from './types.ts'
+import type { ReactNode } from 'react'
+import type * as KubbFile from '@kubb/fs/types'
+
+type RootType<T = unknown> = {
+  renderToString(children: ReactNode, context?: T): Promise<string> | string
+  unmount(): void
+  files: KubbFile.File[]
+  getFile: (id: string) => KubbFile.File | undefined
+}
 
 const instances = new Map<string, ReactTemplate>()
 
@@ -25,7 +32,7 @@ export function createRootServer<Context extends RootContextProps = RootContextP
   return {
     renderToString(children, context?: Context) {
       instance.render(children, context)
-      return format(instance.output)
+      return instance.output
     },
     unmount() {
       instance.unmount()

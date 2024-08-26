@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+
 type UpdateUser = {
   data: UpdateUserMutationResponse
   error: never
@@ -17,6 +18,7 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user

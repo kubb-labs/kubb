@@ -1,11 +1,12 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
+
 type DeleteOrder = {
   data: DeleteOrderMutationResponse
   error: DeleteOrder400 | DeleteOrder404
@@ -19,6 +20,7 @@ type DeleteOrder = {
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID

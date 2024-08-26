@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
+import useSWRMutation from 'swr/mutation'
+import client from '../../../../swr-client.ts'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+
 type DeletePet = {
   data: DeletePetMutationResponse
   error: DeletePet400
@@ -17,6 +18,7 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet

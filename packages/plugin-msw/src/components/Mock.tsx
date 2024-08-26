@@ -1,6 +1,5 @@
-import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
-import { Parser, File, useApp } from '@kubb/react'
+import { File, useApp } from '@kubb/react'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 
@@ -30,7 +29,7 @@ type TemplateProps = {
 
 function Template({ name, method, path, responseName }: TemplateProps): ReactNode {
   return (
-    <>
+    <File.Source name={name} isExportable>
       {`
   export const ${name} = http.${method}('*${path.toURLPath()}', function handler(info) {
     return new Response(JSON.stringify(${responseName}()), {
@@ -40,7 +39,7 @@ function Template({ name, method, path, responseName }: TemplateProps): ReactNod
     })
   })
   `}
-    </>
+    </File.Source>
   )
 }
 
@@ -98,15 +97,11 @@ Mock.File = function ({ templates = defaultTemplates }: FileProps): ReactNode {
   const Template = templates.default
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['http']} path={'msw'} />
-        {fileFaker && responseName && <File.Import extName={extName} name={[responseName]} root={file.path} path={fileFaker.path} />}
-        <File.Source>
-          <Mock Template={Template} />
-        </File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={['http']} path={'msw'} />
+      {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
+      <Mock Template={Template} />
+    </File>
   )
 }
 

@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
+
 type CreateUser = {
   data: CreateUserMutationResponse
   error: never
@@ -17,6 +18,7 @@ type CreateUser = {
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user

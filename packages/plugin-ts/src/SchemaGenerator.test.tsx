@@ -12,7 +12,7 @@ import { mockedPluginManager } from '@kubb/core/mocks'
 import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App } from '@kubb/react'
-import { createRootServer } from '@kubb/react/server'
+import { createRootServer } from '@kubb/react'
 import { Schema } from './components/Schema.tsx'
 
 describe('TypeScript SchemaGenerator', async () => {

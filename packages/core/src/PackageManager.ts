@@ -68,7 +68,7 @@ export class PackageManager {
 
       return module?.default ?? module
     } catch (e) {
-      console.log(e)
+      console.error(e)
       return undefined
     }
   }

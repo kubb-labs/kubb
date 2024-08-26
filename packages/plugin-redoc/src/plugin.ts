@@ -1,13 +1,14 @@
 import path from 'node:path'
 
 import { PluginManager, createPlugin } from '@kubb/core'
-import { camelCase, trimExtName } from '@kubb/core/transformers'
+import { camelCase } from '@kubb/core/transformers'
 import { pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
+import { trimExtName } from '@kubb/fs'
 
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
@@ -21,14 +22,6 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       baseURL: undefined,
     },
     pre: [pluginOasName],
-    resolvePath(baseName) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      return path.resolve(root, baseName)
-    },
-    resolveName(name, type) {
-      return camelCase(name, { isFile: type === 'file' })
-    },
     async buildStart() {
       const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
       const oas = await swaggerPlugin.context.getOas()

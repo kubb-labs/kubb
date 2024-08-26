@@ -1,5 +1,3 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type {
   CreateBaseQueryOptions,
@@ -9,8 +7,11 @@ import type {
   CreateInfiniteQueryResult,
   InfiniteData,
 } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+
 type GetOrderById = {
   data: GetOrderByIdQueryResponse
   error: GetOrderById400 | GetOrderById404
@@ -24,8 +25,11 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
+
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
@@ -40,6 +44,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     },
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
@@ -66,9 +71,12 @@ export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData =
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdInfiniteQueryKey = ReturnType<typeof getOrderByIdInfiniteQueryKey>
+
 export function getOrderByIdInfiniteQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return infiniteQueryOptions({
@@ -86,6 +94,7 @@ export function getOrderByIdInfiniteQueryOptions(orderId: GetOrderByIdPathParams
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID

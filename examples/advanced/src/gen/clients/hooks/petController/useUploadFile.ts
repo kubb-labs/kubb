@@ -1,5 +1,3 @@
-import client from '../../../../tanstack-query-client.ts'
-import { useMutation } from '@tanstack/react-query'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -7,8 +5,11 @@ import type {
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '../../../../tanstack-query-client.ts'
+import { useMutation } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+
 type UploadFile = {
   data: UploadFileMutationResponse
   error: never
@@ -22,6 +23,7 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage

@@ -1,7 +1,3 @@
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 import type {
   QueryObserverOptions,
@@ -13,8 +9,13 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -28,8 +29,11 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+
 export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
@@ -45,6 +49,7 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -70,8 +75,11 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const loginUserInfiniteQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
+
 export function loginUserInfiniteQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserInfiniteQueryKey(params)
   return infiniteQueryOptions({
@@ -94,6 +102,7 @@ export function loginUserInfiniteQueryOptions(params?: LoginUser['queryParams'],
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -123,8 +132,11 @@ export function useLoginUserInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
+
 export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions({
@@ -140,6 +152,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login

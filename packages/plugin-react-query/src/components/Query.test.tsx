@@ -1,6 +1,6 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { createRootServer } from '@kubb/react/server'
+import { createRootServer } from '@kubb/react'
 import { Oas } from '@kubb/plugin-oas/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'

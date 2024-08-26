@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
+import client from '@kubb/plugin-client/client'
 
 /**
  * @description Add a new pet to the store

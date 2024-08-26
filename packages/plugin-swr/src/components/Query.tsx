@@ -1,9 +1,9 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
@@ -48,7 +48,7 @@ type TemplateProps = {
 function Template({ name, generics, returnType, params, JSDoc, hook, client }: TemplateProps): ReactNode {
   if (client.withQueryParams) {
     return (
-      <>
+      <File.Source name={name} isExportable>
         <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
@@ -65,12 +65,12 @@ function Template({ name, generics, returnType, params, JSDoc, hook, client }: T
          return query
          `}
         </Function>
-      </>
+      </File.Source>
     )
   }
 
   return (
-    <>
+    <File.Source name={name} isExportable>
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
@@ -87,7 +87,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, client }: T
        return query
        `}
       </Function>
-    </>
+    </File.Source>
   )
 }
 
@@ -201,7 +201,6 @@ export function Query({ factory, Template = defaultTemplates.default, QueryOptio
   return (
     <>
       <QueryOptions factory={factory} Template={QueryOptionsTemplate} dataReturnType={dataReturnType} />
-
       <Template
         name={name}
         generics={generics.toString()}
@@ -256,34 +255,29 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {parser === 'zod' && <File.Import extName={extName} name={[zodSchemas.response.name]} root={file.path} path={fileZodSchemas.path} />}
-        <File.Import name="useSWR" path="swr" />
-        <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
-        <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          extName={extName}
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...(schemas.statusCodes?.map((item) => item.name) || []),
-          ].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      {parser === 'zod' && <File.Import name={[zodSchemas.response.name]} root={file.path} path={fileZodSchemas.path} />}
+      <File.Import name="useSWR" path="swr" />
+      <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.statusCodes?.map((item) => item.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
 
-        <File.Source>
-          <SchemaType factory={factory} />
-          <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
-        </File.Source>
-      </File>
-    </Parser>
+      <SchemaType factory={factory} />
+      <Query factory={factory} Template={Template} QueryOptionsTemplate={QueryOptionsTemplate} />
+    </File>
   )
 }
 

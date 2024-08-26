@@ -6,7 +6,9 @@ export const addPetRequestStatus = {
   pending: 'pending',
   sold: 'sold',
 } as const
+
 export type AddPetRequestStatusType = (typeof addPetRequestStatus)[keyof typeof addPetRequestStatus]
+
 export type AddPetRequestType = {
   /**
    * @type integer | undefined, int64

@@ -7,22 +7,27 @@ export type GetOrderByIdPathParams = {
    */
   orderId: number
 }
+
 /**
  * @description successful operation
  */
 export type GetOrderById200 = Order
+
 /**
  * @description Invalid ID supplied
  */
 export type GetOrderById400 = any
+
 /**
  * @description Order not found
  */
 export type GetOrderById404 = any
+
 /**
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order
+
 export type GetOrderByIdQuery = {
   Response: GetOrderByIdQueryResponse
   PathParams: GetOrderByIdPathParams

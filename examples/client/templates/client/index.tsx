@@ -10,9 +10,11 @@ export const templates = {
     return (
       <>
         <File.Import name="axios" path="axios" />
-        <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-          {`return axios.${client.method}(${clientParams})`}
-        </Function>
+        <File.Source name={name} exportable>
+          <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+            {`return axios.${client.method}(${clientParams})`}
+          </Function>
+        </File.Source>
       </>
     )
   },

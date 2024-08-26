@@ -1,5 +1,3 @@
-import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type {
   CreateBaseQueryOptions,
@@ -9,8 +7,11 @@ import type {
   CreateInfiniteQueryResult,
   InfiniteData,
 } from '@tanstack/svelte-query'
+import client from '@kubb/plugin-client/client'
+import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+
 type LogoutUser = {
   data: LogoutUserQueryResponse
   error: never
@@ -24,8 +25,11 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
+
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
+
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
+
 export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
@@ -40,6 +44,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     },
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
@@ -64,8 +69,11 @@ export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = Log
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
+
 export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
+
 export function logoutUserInfiniteQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserInfiniteQueryKey()
   return infiniteQueryOptions({
@@ -83,6 +91,7 @@ export function logoutUserInfiniteQueryOptions(options: LogoutUser['client']['pa
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout

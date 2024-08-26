@@ -1,11 +1,12 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -19,8 +20,11 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export const loginUserQueryKey = (params?: MaybeRef<LoginUser['queryParams']>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+
 export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>, options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(refParams)
   return queryOptions({
@@ -37,6 +41,7 @@ export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>
     },
   })
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login

@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch'
+import useSWRMutation from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
 
 type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+
 type PlaceOrderPatch = {
   data: PlaceOrderPatchMutationResponse
   error: PlaceOrderPatch405
@@ -17,6 +18,7 @@ type PlaceOrderPatch = {
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch

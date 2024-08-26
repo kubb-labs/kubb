@@ -1,6 +1,6 @@
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, Parser, useApp } from '@kubb/react'
+import { File, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
@@ -61,24 +61,20 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-        {typeName && typePath && <File.Import extName={plugin.options.extName} isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
+        {typeName && typePath && <File.Import isTypeOnly root={file.path} path={typePath} name={[typeName]} />}
         {plugin.options.dateParser && <File.Import path={plugin.options.dateParser} name={plugin.options.dateParser} />}
 
-        {mode === 'split' && <Oas.Schema.Imports extName={plugin.options.extName} />}
-        <File.Source>
-          <OperationSchema description={description} />
-        </File.Source>
+        {mode === 'split' && <Oas.Schema.Imports />}
+        <OperationSchema description={description} />
       </Oas.Schema>
     )
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['faker']} path="@faker-js/faker" />
-        {plugin.options.regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
-        {items.map(mapItem)}
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={['faker']} path="@faker-js/faker" />
+      {plugin.options.regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
+      {items.map(mapItem)}
+    </File>
   )
 }

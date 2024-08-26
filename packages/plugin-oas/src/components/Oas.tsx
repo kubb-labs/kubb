@@ -4,7 +4,7 @@ import { Operation } from './Operation.tsx'
 import { Schema } from './Schema.tsx'
 
 import type { Oas as OasType, Operation as OperationType } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 
 type Props = {

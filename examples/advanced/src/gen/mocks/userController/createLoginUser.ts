@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser'
+import { faker } from '@faker-js/faker'
 
 export function createLoginUserQueryParams(): NonNullable<LoginUserQueryParams> {
   return { username: faker.string.alpha(), password: faker.string.alpha() }

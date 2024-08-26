@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+
 type GetOrderById = {
   data: GetOrderByIdQueryResponse
   error: GetOrderById400 | GetOrderById404
@@ -17,9 +18,12 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
+
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
@@ -34,6 +38,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     },
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
@@ -60,9 +65,12 @@ export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
+
 export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return queryOptions({
@@ -77,6 +85,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
     },
   })
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID

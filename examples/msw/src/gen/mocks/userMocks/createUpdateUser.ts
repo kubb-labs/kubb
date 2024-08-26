@@ -1,6 +1,6 @@
+import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/UpdateUser'
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/UpdateUser'
 
 export function createUpdateUserPathParams(): NonNullable<UpdateUserPathParams> {
   faker.seed([220])

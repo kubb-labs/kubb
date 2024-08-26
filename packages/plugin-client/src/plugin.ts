@@ -4,7 +4,6 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
 import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
@@ -107,37 +106,17 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       await this.addFile(...files)
 
-      if (this.config.output.write && group?.type === 'tag') {
-        const rootFiles = await getGroupedByTagFiles({
-          logger: this.logger,
-          files: this.fileManager.files,
-          plugin: this.plugin,
-          template,
-          exportAs: group.exportAs || '{{tag}}Service',
+      if (this.config.output.write) {
+        const indexFiles = await this.fileManager.getIndexFiles({
           root,
           output,
+          files: this.fileManager.files,
+          plugin: this.plugin,
+          logger: this.logger,
         })
 
-        await this.addFile(...rootFiles)
+        await this.addFile(...indexFiles)
       }
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
-
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const files = await this.fileManager.getIndexFiles({
-        root,
-        output,
-        plugin: this.plugin,
-        logger: this.logger,
-      })
-
-      await this.fileManager.processFiles({
-        logger: this.logger,
-        files,
-      })
     },
   }
 })

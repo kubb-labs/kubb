@@ -1,6 +1,6 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { Oas } from '@kubb/plugin-oas/components'
-import { createRootServer } from '@kubb/react/server'
+import { createRootServer } from '@kubb/react'
 
 import { Operations } from './Operations.tsx'
 

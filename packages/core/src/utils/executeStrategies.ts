@@ -4,7 +4,7 @@ export type ValueOfPromiseFuncArray<TInput extends Array<unknown>> = TInput exte
 
 export function noReturn(): void {}
 
-type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Array<Awaited<ValueOfPromiseFuncArray<TInput>>>
+type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promise<Array<Awaited<ValueOfPromiseFuncArray<TInput>>>>
 
 /**
  * Chains promises

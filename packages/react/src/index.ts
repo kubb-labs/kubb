@@ -1,15 +1,13 @@
-export type { RootType } from './client/index.ts'
-export { createRoot } from './client/index.ts'
-export type { ParserLanguage } from './components/index.ts'
-export { Parser, File, App, Function, Text, Type, Const } from './components/index.ts'
-export {
-  useApp,
-  useFile,
-  useParser,
-  useEditor,
-  useIndent,
-} from './hooks/index.ts'
-export { createNode } from './shared/dom.ts'
-export type * from './types.ts'
+export { createRoot } from './client/createRoot.ts'
+export { createRootServer } from './server/createRootServer.ts'
+export { File } from './components/File.tsx'
+export { Function } from './components/Function.tsx'
+export { Text } from './components/Text.tsx'
+export { Type } from './components/Type.tsx'
+export { Const } from './components/Const.tsx'
+export { App } from './components/App.tsx'
+export { useFile } from './hooks/useFile.ts'
+export { useApp } from './hooks/useApp.ts'
+export { useIndent } from './hooks/useIndent.ts'
+
 export { createContext, useContext } from 'react'
-export type { Params, Param } from './shared/utils/getParams.ts'

@@ -1,9 +1,10 @@
-import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/react-query'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import client from '@kubb/plugin-client/client'
+import { useMutation } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+
 type UploadFile = {
   data: UploadFileMutationResponse
   error: never
@@ -17,6 +18,7 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage

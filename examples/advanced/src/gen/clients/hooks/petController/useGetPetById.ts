@@ -1,7 +1,3 @@
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 import type {
   QueryObserverOptions,
@@ -13,8 +9,13 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+
 type GetPetById = {
   data: GetPetByIdQueryResponse
   error: GetPetById400 | GetPetById404
@@ -28,8 +29,11 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
@@ -44,6 +48,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], opt
     },
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
@@ -70,8 +75,11 @@ export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPe
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdInfiniteQueryKey = ReturnType<typeof getPetByIdInfiniteQueryKey>
+
 export function getPetByIdInfiniteQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdInfiniteQueryKey(petId)
   return infiniteQueryOptions({
@@ -89,6 +97,7 @@ export function getPetByIdInfiniteQueryOptions(petId: GetPetByIdPathParams['petI
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
@@ -119,8 +128,11 @@ export function useGetPetByIdInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
+
 export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
   return queryOptions({
@@ -135,6 +147,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
     },
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID

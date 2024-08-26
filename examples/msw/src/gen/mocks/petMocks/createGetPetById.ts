@@ -1,6 +1,6 @@
+import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/GetPetById'
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/GetPetById'
 
 export function createGetPetByIdPathParams(): NonNullable<GetPetByIdPathParams> {
   faker.seed([220])
