@@ -5,7 +5,9 @@ export const FindPetsByStatusQueryParamsStatus = {
   pending: 'pending',
   sold: 'sold',
 } as const
+
 export type FindPetsByStatusQueryParamsStatus = (typeof FindPetsByStatusQueryParamsStatus)[keyof typeof FindPetsByStatusQueryParamsStatus]
+
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
@@ -29,6 +31,7 @@ export type FindPetsByStatus400 = any
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
   QueryParams: FindPetsByStatusQueryParams

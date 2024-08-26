@@ -27,6 +27,7 @@ export type GetUserByName404 = any
  * @description successful operation
  */
 export type GetUserByNameQueryResponse = User
+
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse
   PathParams: GetUserByNamePathParams

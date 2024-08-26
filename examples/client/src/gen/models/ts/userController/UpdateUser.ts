@@ -19,6 +19,7 @@ export type UpdateUserError = any
 export type UpdateUserMutationRequest = User
 
 export type UpdateUserMutationResponse = any
+
 export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse
   Request: UpdateUserMutationRequest

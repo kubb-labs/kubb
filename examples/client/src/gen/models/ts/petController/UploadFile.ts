@@ -32,6 +32,7 @@ export type UploadFileMutationRequest = {
  * @description successful operation
  */
 export type UploadFileMutationResponse = ApiResponse
+
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest

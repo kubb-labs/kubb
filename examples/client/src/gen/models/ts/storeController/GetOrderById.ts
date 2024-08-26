@@ -27,6 +27,7 @@ export type GetOrderById404 = any
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order
+
 export type GetOrderByIdQuery = {
   Response: GetOrderByIdQueryResponse
   PathParams: GetOrderByIdPathParams

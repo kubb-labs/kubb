@@ -1,9 +1,9 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
 import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
@@ -48,7 +48,7 @@ type TemplateProps = {
 function Template({ name, generics, returnType, params, JSDoc, hook, client }: TemplateProps): ReactNode {
   if (client.withQueryParams) {
     return (
-      <>
+      <File.Source name={name} isExportable>
         <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
@@ -65,12 +65,12 @@ function Template({ name, generics, returnType, params, JSDoc, hook, client }: T
          return query
          `}
         </Function>
-      </>
+      </File.Source>
     )
   }
 
   return (
-    <>
+    <File.Source name={name} isExportable>
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
@@ -87,7 +87,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, client }: T
        return query
        `}
       </Function>
-    </>
+    </File.Source>
   )
 }
 

@@ -57,8 +57,7 @@ export function getSummary({ pluginManager, status, hrStart, config }: SummaryPr
     [
       [`${c.bold('Plugins:')}        ${meta.plugins}`, true],
       [`${c.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
-      [`${c.bold('Generated:')}      ${meta.filesCreated} files`, true],
-      [`${c.bold('Time:')}           ${meta.time}`, true],
+      [`${c.bold('Generated:')}      ${meta.filesCreated} files in ${meta.time}`, true],
       [`${c.bold('Output:')}         ${meta.output}`, true],
     ]
       .map((item) => {

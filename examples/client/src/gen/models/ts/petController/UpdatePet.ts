@@ -29,6 +29,7 @@ export type UpdatePetMutationRequest = Pet
  * @description Successful operation
  */
 export type UpdatePetMutationResponse = Pet
+
 export type UpdatePetMutation = {
   Response: UpdatePetMutationResponse
   Request: UpdatePetMutationRequest

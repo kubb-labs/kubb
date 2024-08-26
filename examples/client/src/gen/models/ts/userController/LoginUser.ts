@@ -25,6 +25,7 @@ export type LoginUser400 = any
  * @description successful operation
  */
 export type LoginUserQueryResponse = string
+
 export type LoginUserQuery = {
   Response: LoginUserQueryResponse
   QueryParams: LoginUserQueryParams

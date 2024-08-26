@@ -17,6 +17,7 @@ export type DeleteOrder400 = any
 export type DeleteOrder404 = any
 
 export type DeleteOrderMutationResponse = any
+
 export type DeleteOrderMutation = {
   Response: DeleteOrderMutationResponse
   PathParams: DeleteOrderPathParams
