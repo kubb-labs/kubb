@@ -297,6 +297,7 @@ export const operations = {
     },
   },
 } as const
+
 export const paths = {
   '/pets/{uuid}': {
     post: operations['createPets'],

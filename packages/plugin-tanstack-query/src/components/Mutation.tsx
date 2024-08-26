@@ -2,8 +2,8 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
-import { File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { File, Function, useApp } from '@kubb/react'
 
 import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
@@ -92,8 +92,9 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
     : undefined
 
   return (
-    <Function export name={name} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable>
+      <Function export name={name} params={params} JSDoc={JSDoc}>
+        {`
          const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
          return ${hook.name}({
@@ -108,7 +109,8 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
            },
            ...mutationOptions
          })`}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 

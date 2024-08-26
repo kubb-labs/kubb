@@ -7,6 +7,7 @@ import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
   error: never
@@ -20,6 +21,7 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array

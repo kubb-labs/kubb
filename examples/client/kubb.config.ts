@@ -12,7 +12,7 @@ export default defineConfig(() => {
       path: './petStore.yaml',
     },
     hooks: {
-      done: ['pnpm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     output: {
       path: './src/gen',

@@ -1,10 +1,10 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { pluginZodName } from '@kubb/plugin-zod'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -54,8 +54,9 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite, o
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   return (
-    <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable>
+      <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+        {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
@@ -70,7 +71,8 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite, o
         return query
 
          `}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 

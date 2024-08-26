@@ -3,11 +3,11 @@ import { squashExportNodes } from './squashExportNodes.ts'
 import { squashImportNodes } from './squashImportNodes.ts'
 import { squashSourceNodes } from './squashSourceNodes.ts'
 
+import { createFile } from '@kubb/core/utils'
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
 import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
-import { createFile } from '@kubb/core/utils'
 
 export function getFiles(node: DOMElement): KubbFile.ResolvedFile[] {
   let files: KubbFile.ResolvedFile[] = []
@@ -30,7 +30,6 @@ export function getFiles(node: DOMElement): KubbFile.ResolvedFile[] {
         const sources = squashSourceNodes(childNode, ['kubb-export', 'kubb-import'])
 
         const file = createFile({
-          id: attributes.id,
           baseName: attributes.baseName,
           path: attributes.path,
           sources,

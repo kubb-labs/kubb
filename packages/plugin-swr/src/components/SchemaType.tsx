@@ -1,9 +1,9 @@
 import { File, Type, useApp } from '@kubb/react'
 
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { pluginTsName } from '@kubb/plugin-ts'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
 
 type Props = {
   factory: {
@@ -36,10 +36,10 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   return (
     <>
-      <File.Source name={clientType} isExportable>
+      <File.Source name={clientType} isTypeOnly>
         <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
       </File.Source>
-      <File.Source name={factory.name} isExportable>
+      <File.Source name={factory.name} isTypeOnly>
         <Type name={factory.name}>
           {`
         {

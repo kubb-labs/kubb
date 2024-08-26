@@ -4,6 +4,7 @@ import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+
 type DeletePet = {
   data: DeletePetMutationResponse
   error: DeletePet400
@@ -17,6 +18,7 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet

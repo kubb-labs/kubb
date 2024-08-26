@@ -4,6 +4,7 @@ import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
+
 type CreateUser = {
   data: CreateUserMutationResponse
   error: never
@@ -17,6 +18,7 @@ type CreateUser = {
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user

@@ -37,7 +37,7 @@ describe('<File/>', () => {
             },
           ],
           "extName": "ts",
-          "id": undefined,
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
               "isNameSpace": undefined,
@@ -103,7 +103,7 @@ describe('<File/>', () => {
             },
           ],
           "extName": "ts",
-          "id": undefined,
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
           "name": "test",
@@ -158,7 +158,7 @@ describe('<File/>', () => {
           "baseName": "test.ts",
           "exports": [],
           "extName": "ts",
-          "id": undefined,
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
           "name": "test",
@@ -292,7 +292,7 @@ describe('<File.Import/>', () => {
           "baseName": "test.ts",
           "exports": [],
           "extName": "ts",
-          "id": undefined,
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
               "isNameSpace": undefined,
@@ -338,7 +338,7 @@ describe('<File.Import/>', () => {
           "baseName": "test.ts",
           "exports": [],
           "extName": "ts",
-          "id": undefined,
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
               "isNameSpace": undefined,

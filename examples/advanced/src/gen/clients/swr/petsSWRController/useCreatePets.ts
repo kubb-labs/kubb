@@ -10,6 +10,7 @@ import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
 
 type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
+
 type CreatePets = {
   data: CreatePetsMutationResponse
   error: never
@@ -23,6 +24,7 @@ type CreatePets = {
     return: Awaited<ReturnType<CreatePetsClient>>
   }
 }
+
 /**
  * @summary Create a pet
  * @link /pets/:uuid

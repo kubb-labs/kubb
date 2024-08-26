@@ -8,15 +8,15 @@ import { BarrelManager } from './BarrelManager.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
 
+import { trimExtName } from '@kubb/fs'
+import type { ResolvedFile } from '@kubb/fs/types'
 import type { GreaterThan } from '@kubb/types'
+import PQueue from 'p-queue'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
 import type { Plugin } from './types.ts'
-import PQueue from 'p-queue'
-import { buildDirectoryTree, type DirectoryTree, TreeNode } from './utils/TreeNode.ts'
-import type { ResolvedFile } from '@kubb/fs/types'
-import { trimExtName } from '@kubb/fs'
 import { createFile, getFileParser } from './utils'
+import { type DirectoryTree, TreeNode, buildDirectoryTree } from './utils/TreeNode.ts'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']

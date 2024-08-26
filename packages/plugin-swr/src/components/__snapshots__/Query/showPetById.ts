@@ -32,3 +32,28 @@ export function ShowPetByIdQueryOptions<TData = ShowPetById['response']>(petId: 
     
            
 }
+
+/**
+ * @summary Info for a specific pet
+ * @link /pets/:petId
+ */
+export function useShowPetById<TData = ShowPetById["response"]>(petId: ShowPetByIdPathParams["petId"], testId: ShowPetByIdPathParams["testId"], options?: {
+            query?: SWRConfiguration<TData, ShowPetById["error"]>,
+            client?: ShowPetById['client']['parameters'],
+            shouldFetch?: boolean,
+          }): SWRResponse<TData, ShowPetById["error"]> {
+  
+           const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+    
+           const url = `/pets/${petId}`
+           const query = useSWR<TData, ShowPetById["error"], typeof url | null>(
+            shouldFetch ? url : null,
+            {
+              ...ShowPetByIdQueryOptions<TData>(petId, testId, clientOptions),
+              ...queryOptions
+            }
+           )
+    
+           return query
+           
+}

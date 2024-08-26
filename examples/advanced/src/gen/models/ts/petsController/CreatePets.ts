@@ -7,6 +7,7 @@ export type CreatePetsPathParams = {
    */
   uuid: string
 }
+
 export type CreatePetsQueryParams = {
   /**
    * @description Offset
@@ -14,12 +15,15 @@ export type CreatePetsQueryParams = {
    */
   offset?: number
 }
+
 export const CreatePetsHeaderParamsXExampleEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
+
 export type CreatePetsHeaderParamsXExampleEnum = (typeof CreatePetsHeaderParamsXExampleEnum)[keyof typeof CreatePetsHeaderParamsXExampleEnum]
+
 export type CreatePetsHeaderParams = {
   /**
    * @description Header parameters
@@ -27,14 +31,17 @@ export type CreatePetsHeaderParams = {
    */
   'X-EXAMPLE': CreatePetsHeaderParamsXExampleEnum
 }
+
 /**
  * @description Null response
  */
 export type CreatePets201 = any
+
 /**
  * @description unexpected error
  */
 export type CreatePetsError = PetNotFound
+
 export type CreatePetsMutationRequest = {
   /**
    * @type string
@@ -45,7 +52,9 @@ export type CreatePetsMutationRequest = {
    */
   tag: string
 }
+
 export type CreatePetsMutationResponse = any
+
 export type CreatePetsMutation = {
   Response: CreatePetsMutationResponse
   Request: CreatePetsMutationRequest

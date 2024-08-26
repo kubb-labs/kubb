@@ -4,6 +4,7 @@ import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
+
 type AddPet = {
   data: AddPetMutationResponse
   error: AddPet405
@@ -17,6 +18,7 @@ type AddPet = {
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
+
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
