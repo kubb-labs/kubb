@@ -360,7 +360,7 @@ export abstract class SchemaGenerator<
     return [
       {
         keyword: schemaKeywords.ref,
-        args: { name: ref.propertyName, path: ref?.path, isTypeOnly: false },
+        args: { name: ref.propertyName, path: ref?.path },
       },
     ]
   }
