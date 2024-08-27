@@ -50,8 +50,8 @@ importers:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.16.1)(typescript@5.5.4)
       turbo:
-        specifier: ^2.0.14
-        version: 2.0.14
+        specifier: ^2.1.0
+        version: 2.1.0
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -165,17 +165,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.52.1
-        version: 5.52.1(react@18.3.1)
+        specifier: ^5.52.2
+        version: 5.52.2(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.52.0
-        version: 5.52.0(solid-js@1.8.21)
+        specifier: ^5.52.2
+        version: 5.52.2(solid-js@1.8.22)
       '@tanstack/svelte-query':
-        specifier: ^5.52.0
-        version: 5.52.0(svelte@3.59.2)
+        specifier: ^5.52.2
+        version: 5.52.2(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.52.0
-        version: 5.52.0(vue@3.4.38(typescript@5.2.2))
+        specifier: ^5.52.2
+        version: 5.52.2(vue@3.4.38(typescript@5.2.2))
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -186,8 +186,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       solid-js:
-        specifier: ^1.8.21
-        version: 1.8.21
+        specifier: ^1.8.22
+        version: 1.8.22
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -250,20 +250,20 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/query-core':
-        specifier: ^5.52.0
-        version: 5.52.0
+        specifier: ^5.52.2
+        version: 5.52.2
       '@tanstack/react-query':
-        specifier: ^5.52.1
-        version: 5.52.1(react@18.3.1)
+        specifier: ^5.52.2
+        version: 5.52.2(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.52.0
-        version: 5.52.0(solid-js@1.8.21)
+        specifier: ^5.52.2
+        version: 5.52.2(solid-js@1.8.22)
       '@tanstack/svelte-query':
-        specifier: ^5.52.0
-        version: 5.52.0(svelte@3.59.2)
+        specifier: ^5.52.2
+        version: 5.52.2(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.52.0
-        version: 5.52.0(vue@3.4.38(typescript@5.2.2))
+        specifier: ^5.52.2
+        version: 5.52.2(vue@3.4.38(typescript@5.2.2))
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -274,8 +274,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       solid-js:
-        specifier: ^1.8.21
-        version: 1.8.21
+        specifier: ^1.8.22
+        version: 1.8.22
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -449,11 +449,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/react-query':
-        specifier: ^5.52.1
-        version: 5.52.1(react@18.3.1)
+        specifier: ^5.52.2
+        version: 5.52.2(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.52.1
-        version: 5.52.1(@tanstack/react-query@5.52.1(react@18.3.1))(react@18.3.1)
+        specifier: ^5.52.2
+        version: 5.52.2(@tanstack/react-query@5.52.2(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -516,8 +516,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.52.1
-        version: 5.52.1(react@18.3.1)
+        specifier: ^5.52.2
+        version: 5.52.2(react@18.3.1)
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -555,14 +555,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
-        specifier: ^5.52.0
-        version: 5.52.0(solid-js@1.8.21)
+        specifier: ^5.52.2
+        version: 5.52.2(solid-js@1.8.22)
       axios:
         specifier: ^1.7.5
         version: 1.7.5
       solid-js:
-        specifier: ^1.8.21
-        version: 1.8.21
+        specifier: ^1.8.22
+        version: 1.8.22
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@20.16.1))(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)(yaml@2.4.5)
@@ -595,8 +595,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/svelte-query':
-        specifier: ^5.52.0
-        version: 5.52.0(svelte@3.59.2)
+        specifier: ^5.52.2
+        version: 5.52.2(svelte@3.59.2)
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -699,8 +699,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.52.0
-        version: 5.52.0(vue@3.4.38(typescript@5.2.2))
+        specifier: ^5.52.2
+        version: 5.52.2(vue@3.4.38(typescript@5.2.2))
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -1005,8 +1005,8 @@ importers:
   packages/oas:
     dependencies:
       '@redocly/openapi-core':
-        specifier: ^1.21.0
-        version: 1.21.0
+        specifier: ^1.21.1
+        version: 1.21.1
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
@@ -2947,11 +2947,11 @@ packages:
   '@redocly/ajv@8.11.0':
     resolution: {integrity: sha512-9GWx27t7xWhDIR02PA18nzBdLcKQRgc46xNQvjFkrYk4UOmvKhJ/dawwiX0cCOeetN5LcaaiqQbVOWYK62SGHw==}
 
-  '@redocly/config@0.9.0':
-    resolution: {integrity: sha512-rRd0pSiPC68AQGud2VbrHqUov1VHospfcYE2pFYmGYfZhzZfHBSiVaeiTY+CZmrhf5RB9aVdOHRCm25Vb6GFkQ==}
+  '@redocly/config@0.10.0':
+    resolution: {integrity: sha512-oFP8SL9qmsJ2QxwvOjI/h87hHMKq8G/RUbTSxF9/r4vbllCxzQ8Tla3xfUO/lGVVO6gZsAIsuJGXhaDagd4msg==}
 
-  '@redocly/openapi-core@1.21.0':
-    resolution: {integrity: sha512-8KwL/0jiQBSJMNp1lSMLM1UeV2FW9DdqcjO0J9s5w7yL7ZN+SNh11MTp0zU4om/pGYExQ64hxLM/+7VdjznHRQ==}
+  '@redocly/openapi-core@1.21.1':
+    resolution: {integrity: sha512-WTsie5b+Ohx2NsmEBVCS5WF24h4XqDpb834ZR4EeE7f+Zjwn34AgaC78HP2xGydi+gFfD4PiqDGgnDPtR5s1OA==}
     engines: {node: '>=14.19.0', npm: '>=7.0.0'}
 
   '@rollup/pluginutils@5.1.0':
@@ -3267,35 +3267,35 @@ packages:
     resolution: {integrity: sha512-PnVV3d2poenUM31ZbZi/yXkBu3J7kd5k2u51CGwwNojag451AjTH9N6n41yjXz2fpLeewleyLBmNS6+HcGDlXw==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.52.0':
-    resolution: {integrity: sha512-U1DOEgltjUwalN6uWYTewSnA14b+tE7lSylOiASKCAO61ENJeCq9VVD/TXHA6O5u9+6v5+UgGYBSccTKDoyMqw==}
+  '@tanstack/query-core@5.52.2':
+    resolution: {integrity: sha512-9vvbFecK4A0nDnrc/ks41e3UHONF1DAnGz8Tgbxkl59QcvKWmc0ewhYuIKRh8NC4ja5LTHT9EH16KHbn2AIYWA==}
 
   '@tanstack/query-devtools@5.51.16':
     resolution: {integrity: sha512-ajwuq4WnkNCMj/Hy3KR8d3RtZ6PSKc1dD2vs2T408MdjgKzQ3klVoL6zDgVO7X+5jlb5zfgcO3thh4ojPhfIaw==}
 
-  '@tanstack/react-query-devtools@5.52.1':
-    resolution: {integrity: sha512-6KwSm9vcIIK26osQJtT52Gyccz/DyHPT216B7kt4ihg22G2rtGZ7sCXYQO25XEHyVwVingwHdZ7auj+ydgg4Zg==}
+  '@tanstack/react-query-devtools@5.52.2':
+    resolution: {integrity: sha512-QI3jsi8sVA805F9NRdL/sVGgCUzVD8lr6/ts9v3ZtECG864YDW3GJwEWH030U+4aPvxMtxaJz7ctbtE7Wkxh1g==}
     peerDependencies:
-      '@tanstack/react-query': ^5.52.1
+      '@tanstack/react-query': ^5.52.2
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.52.1':
-    resolution: {integrity: sha512-soyn4dNIUZ8US8NaPVXv06gkZFHaZnPfKWPDjRJjFRW3Y7WZ0jx72eT6zhw3VQlkMPysmXye8l35ewPHspKgbQ==}
+  '@tanstack/react-query@5.52.2':
+    resolution: {integrity: sha512-d4OwmobpP+6+SvuAxW1RzAY95Pv87Gu+0GjtErzFOUXo+n0FGcwxKvzhswCsXKxsgnAr3bU2eJ2u+GXQAutkCQ==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@tanstack/solid-query@5.52.0':
-    resolution: {integrity: sha512-sJLFX2WIk2FaWUvBATb4qrc5uqZ0pon56O7GwLTAwb6o6xfuFlpnar7hQkjRBWawQ6kgmPJX0HS9ztcRUwXH/Q==}
+  '@tanstack/solid-query@5.52.2':
+    resolution: {integrity: sha512-0wVnjusBQXpiSzTAmu+S90cmkqfA4caOH0ELYf7uS1YKQ62im2jVEtPvRmNaNvuPw/1ZLGesA0XI4obbnF5ZuQ==}
     peerDependencies:
       solid-js: ^1.6.0
 
-  '@tanstack/svelte-query@5.52.0':
-    resolution: {integrity: sha512-RsT8cKrRzI7c5OR6Y+NYpZ7o7QLoVnt9QbkMPqCHPZbMgwQZgdMo8euUdQgia+/a3lORXb0Oe07kXzxKR6HGnA==}
+  '@tanstack/svelte-query@5.52.2':
+    resolution: {integrity: sha512-DkiVrsJWYu8VxmonthoAji2dl5pfkbj3ayHsEIv9l1AaOD/VTW/eEGKoYZO+DIeR6LIhM0wDAbHUMETNWtXwBQ==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
-  '@tanstack/vue-query@5.52.0':
-    resolution: {integrity: sha512-AfPLrWBIxbLy6x04eylfvpiCaAUJrIyz3MCWtANatFwme8QabQQ3F2/lskdNjeAqF0B2Tn2N2tzDrUa1aCCPVg==}
+  '@tanstack/vue-query@5.52.2':
+    resolution: {integrity: sha512-AWEKGFrU5ssRbQzl0AUWoa3bejut57gjmXGstDOuPtua4nsJ9swzFMEjYowjskCEtmIW+exG/WHyebpEmF5DrA==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -6323,8 +6323,8 @@ packages:
     resolution: {integrity: sha512-tf+h5W1IrjNm/9rKKj0JU2MDMruiopx0jjVA5zCdBtcGjfp0+c5rHw/zADLC3IeKlGHtVbHtpfzvYA0OYT+HKg==}
     engines: {node: '>=8.0.0'}
 
-  solid-js@1.8.21:
-    resolution: {integrity: sha512-FHUGdoo7GVa1BTpGh/4UtwIISde0vSXoqNB6KFpHiTgkIY959tmCJ7NYQAWDfScBfnpoMGZR8lFz0DiwW/gFlw==}
+  solid-js@1.8.22:
+    resolution: {integrity: sha512-VBzN5j+9Y4rqIKEnK301aBk+S7fvFSTs9ljg+YEdFxjNjH0hkjXPiQRcws9tE5fUzMznSS6KToL5hwMfHDgpLA==}
 
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
@@ -6649,38 +6649,38 @@ packages:
       typescript:
         optional: true
 
-  turbo-darwin-64@2.0.14:
-    resolution: {integrity: sha512-kwfDmjNwlNfvtrvT29+ZBg5n1Wvxl891bFHchMJyzMoR0HOE9N1NSNdSZb9wG3e7sYNIu4uDkNk+VBEqJW0HzQ==}
+  turbo-darwin-64@2.1.0:
+    resolution: {integrity: sha512-gHwpDk2gyB7qZ57gUUwDIS/IkglqEjjVtPZCTxmCRg28Tiwjui0azsLVKrnHP9UZHllozwbi28x8HXLXLEFF1w==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@2.0.14:
-    resolution: {integrity: sha512-m3LXYEshCx3wc4ZClM6gb01KYpFmtjQ9IBF3A7ofjb6ahux3xlYZJZ3uFCLAGHuvGLuJ3htfiPbwlDPTdknqqw==}
+  turbo-darwin-arm64@2.1.0:
+    resolution: {integrity: sha512-GLaqGetNC6eS4eqXgsheLOHic/OcnGCGDi5boVf+TFZTXYH6YE15L4ugZha4xHXCr1KouCLILHh+f8EHEmWylg==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@2.0.14:
-    resolution: {integrity: sha512-7vBzCPdoTtR92SNn2JMgj1FlMmyonGmpMaQdgAB1OVYtuQ6NVGoh7/lODfaILqXjpvmFSVbpBIDrKOT6EvcprQ==}
+  turbo-linux-64@2.1.0:
+    resolution: {integrity: sha512-VzBOsj7JyGoZtiNZZ6brjnY7UehRnClluw7pwznuLPzClkqOOPMd2jOcgkWxnP/xW4NBmOoFANXXrtvKBD4f2w==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@2.0.14:
-    resolution: {integrity: sha512-jwH+c0bfjpBf26K/tdEFatmnYyXwGROjbr6bZmNcL8R+IkGAc/cglL+OToqJnQZTgZvH7uDGbeSyUo7IsHyjuA==}
+  turbo-linux-arm64@2.1.0:
+    resolution: {integrity: sha512-St7svJnOO5g4F6R7Z32e10I/0M3e6qpNjEYybXwPNul9NSfnUXeky4WoKaALwqNhyJ7nYemoFpZ1d+i8hFQTHg==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@2.0.14:
-    resolution: {integrity: sha512-w9/XwkHSzvLjmioo6cl3S1yRfI6swxsV1j1eJwtl66JM4/pn0H2rBa855R0n7hZnmI6H5ywLt/nLt6Ae8RTDmw==}
+  turbo-windows-64@2.1.0:
+    resolution: {integrity: sha512-iSobNud2MrJ1SZ1upVPlErT8xexsr0MQtKapdfq6z0M0rBnrDGEq5bUCSScWyGu+O4+glB4br9xkTAkGFqaxqQ==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@2.0.14:
-    resolution: {integrity: sha512-XaQlyYk+Rf4xS5XWCo8XCMIpssgGGy8blzLfolN6YBp4baElIWMlkLZHDbGyiFmCbNf9I9gJI64XGRG+LVyyjA==}
+  turbo-windows-arm64@2.1.0:
+    resolution: {integrity: sha512-d61jN4rjE5PnUfF66GKrKoj8S8Ql4FGXzFFzZz4kjsHpZZzCTtqlzPZBmd1byzGYhDPTorTqG3G1USohbdyohA==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@2.0.14:
-    resolution: {integrity: sha512-00JjdCMD/cpsjP0Izkjcm8Oaor5yUCfDwODtaLb+WyblyadkaDEisGhy3Dbd5az9n+5iLSPiUgf+WjPbns6MRg==}
+  turbo@2.1.0:
+    resolution: {integrity: sha512-A969/LO/sPHKlapIarY2VVzqQ5JnnW2/1kksZlnMEpsRD6gwOELvVL+ozfMiO7av9RILt3UeN02L17efr6HUCA==}
     hasBin: true
 
   twoslash-protocol@0.2.9:
@@ -8344,12 +8344,12 @@ snapshots:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  '@redocly/config@0.9.0': {}
+  '@redocly/config@0.10.0': {}
 
-  '@redocly/openapi-core@1.21.0':
+  '@redocly/openapi-core@1.21.1':
     dependencies:
       '@redocly/ajv': 8.11.0
-      '@redocly/config': 0.9.0
+      '@redocly/config': 0.10.0
       colorette: 1.4.0
       https-proxy-agent: 7.0.4
       js-levenshtein: 1.1.6
@@ -8607,35 +8607,35 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.52.0': {}
+  '@tanstack/query-core@5.52.2': {}
 
   '@tanstack/query-devtools@5.51.16': {}
 
-  '@tanstack/react-query-devtools@5.52.1(@tanstack/react-query@5.52.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.52.2(@tanstack/react-query@5.52.2(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/query-devtools': 5.51.16
-      '@tanstack/react-query': 5.52.1(react@18.3.1)
+      '@tanstack/react-query': 5.52.2(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.52.1(react@18.3.1)':
+  '@tanstack/react-query@5.52.2(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.52.0
+      '@tanstack/query-core': 5.52.2
       react: 18.3.1
 
-  '@tanstack/solid-query@5.52.0(solid-js@1.8.21)':
+  '@tanstack/solid-query@5.52.2(solid-js@1.8.22)':
     dependencies:
-      '@tanstack/query-core': 5.52.0
-      solid-js: 1.8.21
+      '@tanstack/query-core': 5.52.2
+      solid-js: 1.8.22
 
-  '@tanstack/svelte-query@5.52.0(svelte@3.59.2)':
+  '@tanstack/svelte-query@5.52.2(svelte@3.59.2)':
     dependencies:
-      '@tanstack/query-core': 5.52.0
+      '@tanstack/query-core': 5.52.2
       svelte: 3.59.2
 
-  '@tanstack/vue-query@5.52.0(vue@3.4.38(typescript@5.2.2))':
+  '@tanstack/vue-query@5.52.2(vue@3.4.38(typescript@5.2.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.15.1
-      '@tanstack/query-core': 5.52.0
+      '@tanstack/query-core': 5.52.2
       '@vue/devtools-api': 6.6.3
       vue: 3.4.38(typescript@5.2.2)
       vue-demi: 0.14.10(vue@3.4.38(typescript@5.2.2))
@@ -11861,7 +11861,7 @@ snapshots:
   redoc@2.1.5(core-js@3.37.1)(enzyme@3.11.0)(mobx@6.13.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
       '@cfaester/enzyme-adapter-react-18': 0.8.0(enzyme@3.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@redocly/openapi-core': 1.21.0
+      '@redocly/openapi-core': 1.21.1
       classnames: 2.5.1
       core-js: 3.37.1
       decko: 1.2.0
@@ -12218,7 +12218,7 @@ snapshots:
 
   slugify@1.4.7: {}
 
-  solid-js@1.8.21:
+  solid-js@1.8.22:
     dependencies:
       csstype: 3.1.3
       seroval: 1.1.1
@@ -12577,32 +12577,32 @@ snapshots:
       - tsx
       - yaml
 
-  turbo-darwin-64@2.0.14:
+  turbo-darwin-64@2.1.0:
     optional: true
 
-  turbo-darwin-arm64@2.0.14:
+  turbo-darwin-arm64@2.1.0:
     optional: true
 
-  turbo-linux-64@2.0.14:
+  turbo-linux-64@2.1.0:
     optional: true
 
-  turbo-linux-arm64@2.0.14:
+  turbo-linux-arm64@2.1.0:
     optional: true
 
-  turbo-windows-64@2.0.14:
+  turbo-windows-64@2.1.0:
     optional: true
 
-  turbo-windows-arm64@2.0.14:
+  turbo-windows-arm64@2.1.0:
     optional: true
 
-  turbo@2.0.14:
+  turbo@2.1.0:
     optionalDependencies:
-      turbo-darwin-64: 2.0.14
-      turbo-darwin-arm64: 2.0.14
-      turbo-linux-64: 2.0.14
-      turbo-linux-arm64: 2.0.14
-      turbo-windows-64: 2.0.14
-      turbo-windows-arm64: 2.0.14
+      turbo-darwin-64: 2.1.0
+      turbo-darwin-arm64: 2.1.0
+      turbo-linux-64: 2.1.0
+      turbo-linux-arm64: 2.1.0
+      turbo-windows-64: 2.1.0
+      turbo-windows-arm64: 2.1.0
 
   twoslash-protocol@0.2.9: {}
 

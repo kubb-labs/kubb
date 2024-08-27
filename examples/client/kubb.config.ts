@@ -30,7 +30,7 @@ export default defineConfig(() => {
         group: {
           type: 'tag',
         },
-        enumType: 'asPascalConst',
+        enumType: 'asConst',
         dateType: 'date',
       }),
       pluginClient({

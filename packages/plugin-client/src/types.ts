@@ -1,9 +1,9 @@
 import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
+import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Client, Operations } from './components/index.ts'
-import type { HttpMethod } from '@kubb/oas'
 
 type Templates = {
   operations?: typeof Operations.templates | false
@@ -27,7 +27,7 @@ export type Options = {
     extName?: KubbFile.Extname
     /**
      * Define what needs to exported, here you can also disable the export of barrel files
-     * @default `'barrel'`
+     * @default `'barrelNamed'`
      */
     exportType?: 'barrel' | 'barrelNamed' | false
   }

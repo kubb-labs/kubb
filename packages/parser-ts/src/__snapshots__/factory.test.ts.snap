@@ -58,7 +58,7 @@ exports[`codegen > createEnumDeclaration 4`] = `
   end: 2050,
   survive: true,
 } as const
-export type Hello = (typeof Hello)[keyof typeof Hello]
+type Hello = (typeof Hello)[keyof typeof Hello]
 "
 `;
 

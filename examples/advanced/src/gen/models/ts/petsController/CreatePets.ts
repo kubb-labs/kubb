@@ -22,7 +22,7 @@ export const CreatePetsHeaderParamsXExampleEnum = {
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXExampleEnum = (typeof CreatePetsHeaderParamsXExampleEnum)[keyof typeof CreatePetsHeaderParamsXExampleEnum]
+type CreatePetsHeaderParamsXExampleEnum = (typeof CreatePetsHeaderParamsXExampleEnum)[keyof typeof CreatePetsHeaderParamsXExampleEnum]
 
 export type CreatePetsHeaderParams = {
   /**

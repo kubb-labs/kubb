@@ -97,6 +97,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   })
 
   if (error && logger.consola) {
+    logger.consola?.resumeLogs()
     logger.consola.error(`Build failed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
     logger.consola.box({

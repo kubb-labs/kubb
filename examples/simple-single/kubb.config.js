@@ -1,9 +1,9 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { pluginRedoc } from '@kubb/plugin-redoc'
 
 export default defineConfig([
   {
@@ -58,6 +58,9 @@ export default defineConfig([
       pluginZod({
         output: {
           path: 'index.ts',
+        },
+        templates: {
+          operations: false,
         },
       }),
     ],

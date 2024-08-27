@@ -75,6 +75,11 @@ export type Config<TInput = Input> = {
      * @default true
      */
     write?: boolean
+    /**
+     * Define what needs to exported, here you can also disable the export of barrel files
+     * @default `'barrelNamed'`
+     */
+    exportType?: 'barrel' | 'barrelNamed' | false
   }
   /**
    * Array of Kubb plugins to use.

@@ -62,7 +62,7 @@ const baseConfig = {
       group: {
         type: 'tag',
       },
-      enumType: 'asPascalConst',
+      enumType: 'asConst',
     }),
     pluginTanstackQuery({
       output: {
