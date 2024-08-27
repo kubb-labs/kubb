@@ -1,7 +1,0 @@
-export * from './createUser'
-export * from './createUsersWithListInput'
-export * from './loginUser'
-export * from './logoutUser'
-export * from './getUserByName'
-export * from './updateUser'
-export * from './deleteUser'

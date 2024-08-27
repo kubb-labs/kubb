@@ -3,15 +3,15 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, SchemaGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { zodParser } from './SchemaGenerator.tsx'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
-import { zodParser } from './SchemaGenerator.tsx'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
@@ -127,7 +127,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       await this.addFile(...operationFiles)
 
       if (this.config.output.write) {
-        const indexFiles = await this.fileManager.getIndexFiles({
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
           files: this.fileManager.files,
@@ -135,7 +135,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
           logger: this.logger,
         })
 
-        await this.addFile(...indexFiles)
+        await this.addFile(...barrelFiles)
       }
     },
   }

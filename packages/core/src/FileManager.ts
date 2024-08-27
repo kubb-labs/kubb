@@ -65,6 +65,7 @@ export class FileManager {
       (v) => trimExtName(v.path).endsWith('index'),
       (v) => trimExtName(v.baseName),
       (v) => v.path.split('.').pop(),
+      // (v) => v.path.split('.').pop(),
     ])
   }
 
@@ -145,8 +146,10 @@ export class FileManager {
     this.#files.delete(cacheItem)
   }
 
-  async getIndexFiles({ files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
-    const { exportType = 'barrel' } = output
+  async getBarrelFiles({ files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
+    const { exportType = 'barrelNamed' } = output
+    const barrelManager = new BarrelManager({ ...options, extName: output.extName })
+
     if (exportType === false) {
       return []
     }
@@ -155,36 +158,29 @@ export class FileManager {
 
     if (trimExtName(pathToBuildFrom).endsWith('index')) {
       logger.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
+
       return []
     }
 
-    const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
-    const mode = FileManager.getMode(output.path)
-    const barrelManager = new BarrelManager({ ...options, extName: output.extName })
+    const barrelFiles = barrelManager.getFiles(files, pathToBuildFrom)
 
-    let indexFiles = barrelManager.getIndexes(files, pathToBuildFrom)
-
-    if (!indexFiles) {
-      return []
-    }
-
-    const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
+    const rootPath = resolve(root, 'index.ts')
     const rootFile: KubbFile.File = {
-      path: resolve(root, 'index.ts'),
+      path: rootPath,
       baseName: 'index.ts',
-      exports: [
-        output.exportAs
-          ? {
-              name: output.exportAs,
-              asAlias: true,
-              path: rootPath,
-              isTypeOnly: options.isTypeOnly,
-            }
-          : {
-              path: rootPath,
-              isTypeOnly: options.isTypeOnly,
-            },
-      ],
+      exports: barrelFiles
+        .flatMap((file) =>
+          file.exports?.map((exportItem) =>
+            exportItem?.path
+              ? {
+                  path: getRelativePath(rootPath, file.path),
+                  name: exportItem.name,
+                  isTypeOnly: exportItem.isTypeOnly,
+                }
+              : undefined,
+          ),
+        )
+        .filter(Boolean),
       sources: [],
       meta: {
         pluginKey: plugin.key,
@@ -192,7 +188,7 @@ export class FileManager {
     }
 
     if (exportType === 'barrel') {
-      indexFiles = indexFiles.map((file) => {
+      return [rootFile, ...barrelFiles].map((file) => {
         return {
           ...file,
           exports: file.exports?.map((exportItem) => {
@@ -203,26 +199,16 @@ export class FileManager {
           }),
         }
       })
-
-      rootFile.exports = rootFile.exports?.map((item) => {
-        return {
-          ...item,
-          name: undefined,
-        }
-      })
     }
 
-    return [
-      ...indexFiles.map((indexFile) => {
-        return {
-          ...indexFile,
-          meta: {
-            pluginKey: plugin.key,
-          },
-        }
-      }),
-      rootFile,
-    ]
+    return [rootFile, ...barrelFiles].map((indexFile) => {
+      return {
+        ...indexFile,
+        meta: {
+          pluginKey: plugin.key,
+        },
+      }
+    })
   }
 
   async write(...params: Parameters<typeof write>): ReturnType<typeof write> {

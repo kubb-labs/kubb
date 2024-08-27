@@ -26,6 +26,10 @@ export function Schema(props: Props): ReactNode {
     },
   } = useApp<PluginTs>()
 
+  if (enumType === 'asPascalConst') {
+    pluginManager.logger.emit('warning', `enumType '${enumType}' is deprecated`)
+  }
+
   // all checks are also inside this.schema(React)
   const resolvedName = pluginManager.resolveName({
     name,
@@ -125,13 +129,6 @@ export function Schema(props: Props): ReactNode {
     }),
   )
 
-  // const filterdNodes = typeNodes.filter(
-  //   (node: ts.Node) =>
-  //     !enumNodes.some(
-  //       (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText,
-  //     ),
-  // )
-
   return (
     <Fragment>
       {enums.map(({ name, nameNode, typeName, typeNode }, index) => (
@@ -162,7 +159,7 @@ Schema.File = function ({}: FileProps): ReactNode {
   const { schema } = useSchema()
 
   return (
-    <Oas.Schema.File output={pluginManager.config.output.path}>
+    <Oas.Schema.File isTypeOnly output={pluginManager.config.output.path}>
       <Schema description={schema?.description} />
     </Oas.Schema.File>
   )

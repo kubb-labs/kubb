@@ -24,7 +24,7 @@ export const FindPetsByTagsHeaderParamsXExampleEnum = {
   THREE: 'THREE',
 } as const
 
-export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
+type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
 
 export type FindPetsByTagsHeaderParams = {
   /**

@@ -1,8 +1,8 @@
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -28,7 +28,7 @@ export default defineConfig({
       group: {
         type: 'tag',
       },
-      enumType: 'asPascalConst',
+      enumType: 'asConst',
       dateType: 'date',
     }),
     pluginTanstackQuery({

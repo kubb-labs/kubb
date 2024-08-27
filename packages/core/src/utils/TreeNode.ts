@@ -129,7 +129,7 @@ export class TreeNode {
 
       return treeNode
     } catch (e) {
-      throw new Error('Something went wrong with creating index files with the TreehNode class', { cause: e })
+      throw new Error('Something went wrong with creating barrel files with the TreeNode class', { cause: e })
     }
   }
 }

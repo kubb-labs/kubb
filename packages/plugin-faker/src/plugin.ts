@@ -115,7 +115,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       await this.addFile(...operationFiles)
 
       if (this.config.output.write) {
-        const indexFiles = await this.fileManager.getIndexFiles({
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
           files: this.fileManager.files,
@@ -123,7 +123,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
           logger: this.logger,
         })
 
-        await this.addFile(...indexFiles)
+        await this.addFile(...barrelFiles)
       }
     },
   }

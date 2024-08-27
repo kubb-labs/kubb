@@ -1,5 +1,3 @@
-import c from 'tinyrainbow'
-
 import { clean, read } from '@kubb/fs'
 import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
@@ -37,7 +35,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   } catch (e) {
     if (isInputPath(config)) {
       throw new Error(
-        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${c.dim(config.input.path)}`,
+        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${config.input.path}`,
         {
           cause: e,
         },
@@ -53,25 +51,12 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const pluginManager = await setup(options)
+ const {files, pluginManager, error}= await safeBuild(options)
 
-  await pluginManager.hookParallel({
-    hookName: 'buildStart',
-    parameters: [options.config],
-  })
-
-  const files = await processFiles({
-    config: options.config,
-    dryRun: !options.config.output.write,
-    files: pluginManager.fileManager.files,
-    logger: pluginManager.logger,
-  })
-
-  await pluginManager.hookParallel({ hookName: 'buildEnd' })
+  if(error) throw error
 
   return {
-    files,
-    pluginManager,
+   files, pluginManager, error,
   }
 }
 

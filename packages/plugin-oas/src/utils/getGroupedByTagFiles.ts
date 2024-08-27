@@ -36,10 +36,10 @@ type FileMeta = {
 }
 
 /**
- * @deprecated //TODO replace by getIndexFiles?
+ * @deprecated //TODO replace by getBarrelFiles?
  */
 export async function getGroupedByTagFiles({ logger, files, plugin, template, exportAs, root, output }: Options): Promise<KubbFile.File<FileMeta>[]> {
-  const { path, exportType = 'barrel' } = output
+  const { path, exportType = 'barrelNamed' } = output
   const mode = FileManager.getMode(resolve(root, path))
 
   if (mode === 'single' || exportType === false) {

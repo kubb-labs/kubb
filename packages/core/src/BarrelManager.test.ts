@@ -9,37 +9,49 @@ describe('BarrelManager', () => {
     {
       path: 'src/test.ts',
       baseName: 'test.ts',
-      sources: [],
+      sources: [{
+        name: 'test',
+        value:'export const test = 2;',
+        isExportable: true,
+      }],
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
-      sources: [],
+      sources: [{
+        name: 'hello',
+        value:'export const hello = 2;',
+        isExportable: true,
+      }],
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
-      sources: [],
+      sources: [{
+        name: 'world',
+        value:'export const world = 2;',
+        isExportable: true,
+      }],
     },
   ]
 
   test(`if getIndexes returns 'index.ts' files`, () => {
     const barrelManager = new BarrelManager()
-    const indexFiles = barrelManager.getIndexes(files, 'src') || []
-    const rootIndex = indexFiles[0]
+    const barrelFiles = barrelManager.getFiles(files, 'src') || []
+    const rootIndex = barrelFiles[0]
 
     expect(rootIndex).toBeDefined()
 
-    expect(indexFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
+    expect(barrelFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
 
     expect(rootIndex?.exports?.every((file) => !file.path?.endsWith('.ts'))).toBeTruthy()
   })
 
   test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
     const barrelManager = new BarrelManager()
-    const indexFiles = barrelManager.getIndexes(files, 'src') || []
+    const barrelFiles = barrelManager.getFiles(files, 'src') || []
 
-    const rootIndex = indexFiles[0]!
+    const rootIndex = barrelFiles[0]!
 
     expect(rootIndex).toBeDefined()
 
@@ -51,11 +63,64 @@ describe('BarrelManager', () => {
   })
   test('if getIndexes can return an export with treeNode options', () => {
     const barrelManager = new BarrelManager()
-    const indexFiles = barrelManager.getIndexes(files, 'src') || []
-    const rootIndex = indexFiles[0]
+    const barrelFiles = barrelManager.getFiles(files) || []
 
-    expect(rootIndex).toBeDefined()
+    expect(barrelFiles).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "test",
+              ],
+              "path": "./test",
+            },
+          ],
+          "path": "src/index.ts",
+          "sources": [
+            {
+              "isTypeOnly": undefined,
+              "name": "test",
+              "value": "",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "hello",
+              ],
+              "path": "./hello",
+            },
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "world",
+              ],
+              "path": "./world",
+            },
+          ],
+          "path": "src/sub/index.ts",
+          "sources": [
+            {
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
+            {
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+          ],
+        },
+      ]
+    `)
 
-    expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
 })

@@ -7,7 +7,7 @@ export const PetStatusEnum = {
   sold: 'sold',
 } as const
 
-export type PetStatusEnum = (typeof PetStatusEnum)[keyof typeof PetStatusEnum]
+type PetStatusEnum = (typeof PetStatusEnum)[keyof typeof PetStatusEnum]
 
 export type Pet = {
   /**

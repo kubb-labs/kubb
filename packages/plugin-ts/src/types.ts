@@ -1,7 +1,7 @@
 import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { ts } from '@kubb/parser-ts'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
   output?: {
@@ -57,6 +57,7 @@ export type Options = {
   /**
    * Choose to use `enum` or `as const` for enums
    * @default 'asConst'
+   * asPascalConst is deprecated
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**

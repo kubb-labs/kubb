@@ -46,7 +46,7 @@ export const pluginCore = createPlugin<PluginCore>((options) => {
           return options.getPlugins()
         },
         get plugin() {
-          // see pluginManger.#execute where we override with `.call` the this with the correct plugin
+          // see pluginManger.#execute where we override with `.call` the context with the correct plugin
           return options.plugin as NonNullable<Options['plugin']>
         },
         logger,
@@ -67,7 +67,7 @@ export const pluginCore = createPlugin<PluginCore>((options) => {
       }
     },
     resolvePath(baseName) {
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(options.config.root, options.config.output.path)
 
       return path.resolve(root, baseName)
     },

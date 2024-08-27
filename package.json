@@ -61,7 +61,7 @@
     "bun-types": "^1.1.26",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "turbo": "^2.0.14",
+    "turbo": "^2.1.0",
     "typescript": "^5.5.4",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.0.5"

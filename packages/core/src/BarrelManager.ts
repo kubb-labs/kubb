@@ -2,8 +2,9 @@ import path from 'node:path'
 
 import { TreeNode } from './utils/TreeNode.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
 import { trimExtName } from '@kubb/fs'
+import type * as KubbFile from '@kubb/fs/types'
+import { combineExports } from './FileManager.ts'
 
 export type BarrelManagerOptions = {
   isTypeOnly?: boolean
@@ -25,51 +26,73 @@ export class BarrelManager {
     return this
   }
 
-  getIndexes(generatedFiles: KubbFile.File[], root: string): Array<KubbFile.File> | null {
-    const { isTypeOnly, extName } = this.#options
-    const tree = TreeNode.build(generatedFiles, root)
+  getFiles(generatedFiles: KubbFile.File[], root?: string): Array<KubbFile.File> {
+    const { extName } = this.#options
 
-    if (!tree) {
-      return null
-    }
-
-    const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode) => {
-      if (!treeNode.children) {
+    const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode | null) => {
+      if (!treeNode || !treeNode.children) {
         return []
       }
 
-      const indexPath: KubbFile.Path = path.resolve(treeNode.data.path, 'index.ts')
+      const indexPath: KubbFile.Path = path.join(treeNode.data.path, 'index.ts')
 
-      const exports: Array<KubbFile.Export> = treeNode.children
+      const exports = treeNode.children
         .filter((item) => !!item.data.name)
-        .map((treeNode) => {
-          const importPath: string = treeNode.data.file ? `./${trimExtName(treeNode.data.name)}` : `./${treeNode.data.name}/index`
+        .flatMap((childTreeNode) => {
+          const sources = childTreeNode.data.file?.sources || []
 
-          if (importPath.endsWith('index') && treeNode.data.file) {
-            return undefined
+          if(!sources
+            .some((source) => source.isExportable)){
+            console.warn("No exportable sources found(source should have a name and isExportable")
           }
 
-          return {
-            path: extName ? `${importPath}${extName}` : importPath,
-            isTypeOnly,
-          } as KubbFile.Export
+          return sources
+            .filter((source) => source.isExportable)
+            .map((source) => {
+              const importPath: string = childTreeNode.data.file ? `./${trimExtName(childTreeNode.data.name)}` : `./${childTreeNode.data.name}`
+
+              return {
+                name: [source.name],
+                path: extName ? `${importPath}${extName}` : importPath,
+                isTypeOnly: source.isTypeOnly,
+              } as KubbFile.Export
+            })
         })
         .filter(Boolean)
 
-      files.push({
-        path: indexPath,
-        baseName: 'index.ts',
-        exports,
-        sources: [],
-      })
+      if (exports.length) {
+        files.push({
+          path: indexPath,
+          baseName: 'index.ts',
+          exports,
+          sources: exports.flatMap((item) => {
+            if (Array.isArray(item.name)) {
+              return item.name.map((name) => {
+                return {
+                  name: name,
+                  isTypeOnly: item.isTypeOnly,
+                  value: '',
+                }
+              })
+            }
+            return [
+              {
+                name: item.name,
+                isTypeOnly: item.isTypeOnly,
+                value: '',
+              },
+            ]
+          }),
+        })
+      }
 
-      treeNode.children.forEach((childItem) => {
-        fileReducer(files, childItem)
+      treeNode.children.forEach((treeNode) => {
+        fileReducer(files, treeNode)
       })
 
       return files
     }
 
-    return fileReducer([], tree).reverse()
+    return fileReducer([], TreeNode.build(generatedFiles, root))
   }
 }
