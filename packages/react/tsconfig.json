@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "module": "esnext",
     "jsxImportSource": "react"
   },
   "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]

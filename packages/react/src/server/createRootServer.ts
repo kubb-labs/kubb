@@ -2,10 +2,10 @@ import { ReactTemplate } from '../shared/ReactTemplate.tsx'
 import { createNode } from '../shared/dom.ts'
 
 import type { Logger } from '@kubb/core/logger'
+import type * as KubbFile from '@kubb/fs/types'
+import type { ReactNode } from 'react'
 import type { RootContextProps } from '../components/Root.tsx'
 import type { DOMElement } from '../types.ts'
-import type { ReactNode } from 'react'
-import type * as KubbFile from '@kubb/fs/types'
 
 type RootType<T = unknown> = {
   renderToString(children: ReactNode, context?: T): Promise<string> | string

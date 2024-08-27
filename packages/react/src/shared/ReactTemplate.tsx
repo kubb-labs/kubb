@@ -40,9 +40,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     }
 
     this.#rootNode = rootNode
-
     this.#rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
-
     this.#rootNode.onImmediateRender = this.onRender
 
     // Ignore last render after unmounting a tree to prevent empty output before exit
@@ -67,6 +65,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     this.unsubscribeExit = this.unmount
 
     if (process.env['DEV'] === 'true') {
+      console.log("Debugging ...")
       reconciler.injectIntoDevTools({
         bundleType: 0,
         // Reporting React DOM's version, not Kubb's
@@ -121,10 +120,11 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
       )
 
       reconciler.updateContainer(element, this.#container, null, noop)
-      return
+    }else {
+      reconciler.updateContainer(node, this.#container, null, noop)
     }
 
-    reconciler.updateContainer(node, this.#container, null, noop)
+
   }
 
   unmount(error?: Error | number | null): void {

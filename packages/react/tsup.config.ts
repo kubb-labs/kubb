@@ -9,7 +9,7 @@ export default defineConfig([
       index: 'src/index.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
     },
-    external: ['prettier'],
+    // noExternal: ['react', 'react-reconciler'],
   },
   {
     ...optionsESM,
@@ -17,6 +17,6 @@ export default defineConfig([
       index: 'src/index.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
     },
-    external: ['prettier'],
+    // noExternal: ['react', 'react-reconciler'],
   },
 ])

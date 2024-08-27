@@ -68,13 +68,19 @@
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
+    "start:devtools": "npx react-devtools",
+    "test:devtools": "bun ./src/client/createRoot.test.tsx",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "natural-orderby": "^3.0.2"
+    "natural-orderby": "^3.0.2",
+    "ws": "^8.15.0",
+    "react-devtools-core": "^5.3.1",
+    "react": "^18.3.1",
+    "react-reconciler": "^0.29.2"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -82,8 +88,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.4",
     "@types/react-reconciler": "^0.28.8",
-    "react": "^18.3.1",
-    "react-reconciler": "^0.29.2",
+    "@types/ws": "^8.5.10",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },

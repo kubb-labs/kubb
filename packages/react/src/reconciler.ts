@@ -5,9 +5,34 @@ import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeCh
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
-type AnyObject = Record<string, unknown>
+// We need to conditionally perform devtools connection to avoid
+// accidentally breaking other third-party code.
+// See https://github.com/vadimdemedes/ink/issues/384
+if (process.env['DEV'] === 'true') {
+  try {
+    await import('./devtools.js');
+  } catch (error: any) {
+    if (error.code === 'ERR_MODULE_NOT_FOUND') {
+      console.warn(
+        `${`
+The environment variable DEV is set to true, so Kubb tried to import \`react-devtools-core\`,
+but this failed as it was not installed. Debugging with React Devtools requires it.
 
-const diff = (before: AnyObject, after: AnyObject): AnyObject | undefined => {
+To install use this command:
+
+$ pnpm add -D react-devtools-core
+				`.trim()}\n`,
+      );
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      throw error;
+    }
+  }
+}
+
+
+
+const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
   if (before === after) {
     return
   }
@@ -16,7 +41,7 @@ const diff = (before: AnyObject, after: AnyObject): AnyObject | undefined => {
     return after
   }
 
-  const changed: AnyObject = {}
+  const changed: Record<string, unknown> = {}
   let isChanged = false
 
   for (const key of Object.keys(before)) {
