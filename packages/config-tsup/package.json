@@ -1,6 +1,6 @@
 {
   "name": "@kubb/config-tsup",
-  "version": "2.25.2",
+  "version": "2.25.3",
   "private": true,
   "sideEffects": false,
   "type": "module",
