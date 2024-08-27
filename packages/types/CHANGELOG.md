@@ -1,5 +1,7 @@
 # @kubb/types
 
+## 2.25.3
+
 ## 2.25.2
 
 ### Patch Changes

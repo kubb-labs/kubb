@@ -1,5 +1,18 @@
 # @kubb/swagger-ts
 
+## 2.25.3
+
+### Patch Changes
+
+- Updated dependencies [[`c8d41d9`](https://github.com/kubb-labs/kubb/commit/c8d41d99aeeae2e92751a63e25ac89f30abaf597)]:
+  - @kubb/plugin-oas@2.25.3
+  - @kubb/core@2.25.3
+  - @kubb/fs@2.25.3
+  - @kubb/oas@2.25.3
+  - @kubb/parser-ts@2.25.3
+  - @kubb/react@2.25.3
+  - @kubb/types@2.25.3
+
 ## 2.25.2
 
 ### Patch Changes

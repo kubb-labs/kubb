@@ -1,6 +1,6 @@
 {
   "name": "@kubb/oas",
-  "version": "2.25.2",
+  "version": "2.25.3",
   "description": "Oas helpers",
   "keywords": [
     "typescript",
