@@ -51,7 +51,7 @@ export type SchemaKeywordMapper = {
   union: { keyword: 'union'; args: Schema[] }
   ref: {
     keyword: 'ref'
-    args: { name: string; path: KubbFile.OptionalPath; isTypeOnly?: boolean }
+    args: { name: string; path: KubbFile.OptionalPath }
   }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
