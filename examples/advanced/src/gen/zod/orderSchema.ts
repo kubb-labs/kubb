@@ -1,5 +1,5 @@
-import type { Order } from '../models/ts/Order'
 import { z } from 'zod'
+import type { Order } from '../models/ts/Order'
 
 export const orderSchema = z.object({
   id: z.number().optional(),

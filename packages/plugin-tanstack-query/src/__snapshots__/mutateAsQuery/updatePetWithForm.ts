@@ -18,10 +18,6 @@ import { useQuery, queryOptions } from "@tanstack/react-query";
     };
 };
 
- export const UpdatePetWithFormQueryKey = ({ petId }: {
-    petId: UpdatePetWithFormPathParams["petId"];
-}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"]) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
-
  export type UpdatePetWithFormQueryKey = ReturnType<typeof UpdatePetWithFormQueryKey>;
 
  export function UpdatePetWithFormQueryOptions({ petId }: {

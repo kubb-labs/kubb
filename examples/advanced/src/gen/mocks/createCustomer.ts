@@ -1,6 +1,6 @@
-import type { Customer } from '../models/ts/Customer'
-import { createAddress } from './createAddress'
+import { createAddress } from './createAddress.ts'
 import { faker } from '@faker-js/faker'
+import type { Customer } from '../models/ts/Customer'
 
 export function createCustomer(data: NonNullable<Partial<Customer>> = {}): NonNullable<Customer> {
   return {

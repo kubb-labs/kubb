@@ -17,8 +17,6 @@ import type { UseBaseQueryOptions, QueryKey, WithRequired } from "@tanstack/reac
     };
 };
 
- export const UploadFileQueryKey = (data: UploadFile["request"]) => [{ url: "/upload" }, ...(data ? [data] : [])] as const;
-
  export type UploadFileQueryKey = ReturnType<typeof UploadFileQueryKey>;
 
  export function UploadFileQueryOptions<TData = UploadFile["response"], TQueryData = UploadFile["response"]>(data: UploadFile["request"], options: UploadFile["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UploadFile["response"], UploadFile["error"], TData, TQueryData>, "queryKey"> {

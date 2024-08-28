@@ -4,21 +4,28 @@ import { useQuery, queryOptions } from "@tanstack/react-query";
 
  type UploadFileClient = typeof client<UploadFileMutationResponse, UploadFile400, FormData>;
 
- type UploadFile = {
-    data: UploadFileMutationResponse;
-    error: UploadFile400;
-    request: FormData;
-    pathParams: never;
-    queryParams: never;
-    headerParams: never;
-    response: UploadFileMutationResponse;
-    client: {
-        parameters: Partial<Parameters<UploadFileClient>[0]>;
-        return: Awaited<ReturnType<UploadFileClient>>;
+ /**
+ * @description Upload file
+ * @link /upload
+ */
+export function UploadFile<TData = UploadFile["response"], TQueryData = UploadFile["response"], TQueryKey extends QueryKey = UploadFileQueryKey>(data: UploadFile["request"], options: {
+    query?: Partial<QueryObserverOptions<UploadFile["response"], UploadFile["error"], TData, TQueryData, TQueryKey>>;
+    client?: UploadFile["client"]["parameters"];
+} = {}): UseQueryResult<TData, UploadFile["error"]> & {
+    queryKey: TQueryKey;
+} {
+    const { query: queryOptions, client: clientOptions = {} } = options ?? {};
+    const queryKey = queryOptions?.queryKey ?? UploadFileQueryKey(data);
+    const query = useQuery({
+        ...UploadFileQueryOptions(data, clientOptions) as unknown as QueryObserverOptions,
+        queryKey,
+        ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
+    }) as UseQueryResult<TData, UploadFile["error"]> & {
+        queryKey: TQueryKey;
     };
-};
-
- export const UploadFileQueryKey = (data: UploadFile["request"]) => [{ url: "/upload" }, ...(data ? [data] : [])] as const;
+    query.queryKey = queryKey as TQueryKey;
+    return query;
+}
 
  export type UploadFileQueryKey = ReturnType<typeof UploadFileQueryKey>;
 
@@ -46,27 +53,4 @@ import { useQuery, queryOptions } from "@tanstack/react-query";
             return res.data;
         },
     });
-}
-
- /**
- * @description Upload file
- * @link /upload
- */
-export function UploadFile<TData = UploadFile["response"], TQueryData = UploadFile["response"], TQueryKey extends QueryKey = UploadFileQueryKey>(data: UploadFile["request"], options: {
-    query?: Partial<QueryObserverOptions<UploadFile["response"], UploadFile["error"], TData, TQueryData, TQueryKey>>;
-    client?: UploadFile["client"]["parameters"];
-} = {}): UseQueryResult<TData, UploadFile["error"]> & {
-    queryKey: TQueryKey;
-} {
-    const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? UploadFileQueryKey(data);
-    const query = useQuery({
-        ...UploadFileQueryOptions(data, clientOptions) as unknown as QueryObserverOptions,
-        queryKey,
-        ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-    }) as UseQueryResult<TData, UploadFile["error"]> & {
-        queryKey: TQueryKey;
-    };
-    query.queryKey = queryKey as TQueryKey;
-    return query;
 }

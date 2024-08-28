@@ -1,8 +1,8 @@
-import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
-import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
+import useSWR from 'swr'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 

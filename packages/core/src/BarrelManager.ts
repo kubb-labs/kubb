@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { join } from 'node:path'
 
 import { TreeNode } from './utils/TreeNode.ts'
 
@@ -28,7 +28,7 @@ export class BarrelManager {
         return []
       }
 
-      const indexPath: KubbFile.Path = path.join(treeNode.data.path, 'index.ts')
+      const indexPath: KubbFile.Path = join(treeNode.data.path, 'index.ts')
 
       const exports = treeNode.children
         .filter((item) => !!item.data.name)
@@ -91,7 +91,7 @@ export class BarrelManager {
           return undefined
         }
 
-        const barrelPath: KubbFile.Path = path.join(treeNode.parent?.data.path, 'index.ts')
+        const barrelPath: KubbFile.Path = join(treeNode.parent?.data.path, 'index.ts')
 
         const leaves = treeNode.leaves
 

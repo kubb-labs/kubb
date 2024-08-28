@@ -18,8 +18,6 @@ import { useQuery } from "@tanstack/react-query";
     };
 };
 
- export const GetPetByIdQueryKey = (petId: GetPetByIdPathParams["petId"]) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
-
  export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
 
  export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>(petId: GetPetByIdPathParams["petId"], options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {

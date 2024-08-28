@@ -110,7 +110,6 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './clients/axios',
-          exportType: false,
         },
         exclude: [
           {

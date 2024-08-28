@@ -124,14 +124,9 @@ export type enumNamesLiteral = EnumNamesLiteralEnum;"
 `;
 
 exports[`TypeScript SchemaGenerator > 'EnumNamesPascalConst' 1`] = `
-"export const EnumNamesPascalConstEnum = {
-    "Pending": 0,
-    "Received": 1
-} as const;
+"export type enumNamesPascalConst = EnumNamesPascalConstEnum;
 
-type EnumNamesPascalConstEnum = (typeof EnumNamesPascalConstEnum)[keyof typeof EnumNamesPascalConstEnum];
-
-export type enumNamesPascalConst = EnumNamesPascalConstEnum;"
+type EnumNamesPascalConstEnum = (typeof EnumNamesPascalConstEnum)[keyof typeof EnumNamesPascalConstEnum];"
 `;
 
 exports[`TypeScript SchemaGenerator > 'EnumNamesType' 1`] = `

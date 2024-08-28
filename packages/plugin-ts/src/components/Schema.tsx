@@ -132,15 +132,17 @@ export function Schema(props: Props): ReactNode {
   return (
     <Fragment>
       {enums.map(({ name, nameNode, typeName, typeNode }, index) => (
-        <Fragment key={index}>
+        <Fragment key={[name, nameNode].join('-')}>
           {nameNode && (
             <File.Source name={name} isExportable>
               {print(nameNode)}
             </File.Source>
           )}
-          <File.Source name={typeName} isExportable={['enum', 'asConst', 'constEnum', 'literal'].includes(enumType)} isTypeOnly>
-            {print(typeNode)}
-          </File.Source>
+          {
+            <File.Source name={typeName} isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)} isTypeOnly>
+              {print(typeNode)}
+            </File.Source>
+          }
         </Fragment>
       ))}
       {enums.every((item) => item.typeName !== resolvedName) && (

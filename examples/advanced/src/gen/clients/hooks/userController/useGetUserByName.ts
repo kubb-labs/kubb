@@ -1,4 +1,13 @@
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
+import client from '../../../../tanstack-query-client.ts'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
+import type {
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
+  GetUserByName400,
+  GetUserByName404,
+} from '../../../models/ts/userController/GetUserByName.ts'
 import type {
   QueryObserverOptions,
   UseQueryResult,
@@ -9,10 +18,6 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
-import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
-import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 

@@ -1,0 +1,50 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FileManager utils > if getFileSource is returning code with exports and exports as 1`] = `
+"import type { Pets, Lily } from './Pets'
+import type Dog from './Dog'
+
+export const test = 2
+type Test = Pets | Lily | Dog
+"
+`;
+
+exports[`FileManager utils > if getFileSource is returning code with exports and exports as 2`] = `
+"export type { Pets, Lily } from './Pets'
+export type * as Dog from './Dog'
+"
+`;
+
+exports[`FileManager utils > if getFileSource is returning code with imports 1`] = `
+"import type { Pets } from './Pets'
+
+export type Pet = Pets
+"
+`;
+
+exports[`FileManager utils > if getFileSource is returning code with imports 2`] = `
+"import client from './Pets'
+import type { Pets, Cat } from './Pets'
+import React from './React'
+
+export type Pet = Pets | Cat
+const test = [client, React]
+"
+`;
+
+exports[`FileManager utils > if getFileSource is returning code with imports 3`] = `
+"import type { Pets, Cat } from './Pets'
+import client from './Pets'
+import React from './React'
+
+export type Pet = Pets | Cat
+const test = [client, React]
+"
+`;
+
+exports[`FileManager utils > if getFileSource is returning code with imports and default import 1`] = `
+"import type Pets from './Pets'
+
+export type Pet = Pets
+"
+`;

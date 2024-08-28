@@ -1,12 +1,12 @@
+import client from '../../../../tanstack-query-client.ts'
+import { useMutation } from '@tanstack/react-query'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../../../models/ts/petController/UpdatePetWithForm'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import client from '../../../../tanstack-query-client.ts'
-import { useMutation } from '@tanstack/react-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 

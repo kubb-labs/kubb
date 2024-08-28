@@ -1,6 +1,6 @@
-import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/ts/userController/UpdateUser'
+import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
-import { createUser } from '../createUser'
+import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/ts/userController/UpdateUser'
 
 export function createUpdateUserPathParams(): NonNullable<UpdateUserPathParams> {
   return { username: faker.string.alpha() }

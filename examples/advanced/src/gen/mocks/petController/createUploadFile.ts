@@ -1,3 +1,5 @@
+import { createApiResponse } from '../createApiResponse.ts'
+import { faker } from '@faker-js/faker'
 import type {
   UploadFilePathParams,
   UploadFileQueryParams,
@@ -5,8 +7,6 @@ import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
 } from '../../models/ts/petController/UploadFile'
-import { faker } from '@faker-js/faker'
-import { createApiResponse } from '../createApiResponse'
 
 export function createUploadFilePathParams(): NonNullable<UploadFilePathParams> {
   return { petId: faker.number.int() }

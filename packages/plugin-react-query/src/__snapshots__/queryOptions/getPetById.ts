@@ -17,10 +17,6 @@ import type { UseBaseQueryOptions, QueryKey, WithRequired } from "@tanstack/reac
     };
 };
 
- export const GetPetByIdQueryKey = ({ petId }: {
-    petId: GetPetByIdPathParams["petId"];
-}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
-
  export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
 
  export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {

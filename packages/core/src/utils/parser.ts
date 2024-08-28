@@ -3,7 +3,7 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import { getRelativePath } from '@kubb/fs'
 import hash from 'object-hash'
-import { combineExports, combineImports } from '../FileManager.ts';
+import { combineExports, combineImports, combineSources } from '../FileManager.ts'
 import type { Logger } from '../logger.ts'
 
 /**
@@ -19,16 +19,24 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
   const source = file.sources.map((item) => item.value).join('\n\n')
   const exports = file.exports ? combineExports(file.exports) : []
   const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
-
+  const sources = file.sources ? combineSources(file.sources) : []
 
   return {
     ...file,
     id: hash({ path: file.path }),
     name: trimExtName(file.baseName),
     extName,
-    imports: imports?.map((item) => createFileImport(item)) || [],
-    exports: exports?.map((item) => createFileExport(item)) || [],
+    imports: imports.map((item) => createFileImport(item)),
+    exports: exports.map((item) => createFileExport(item)),
+    sources: sources.map((item) => createFileSource(item)),
   }
+}
+
+/**
+ * Helper to create a fileImport with extName set
+ */
+export function createFileSource(source: KubbFile.Source): KubbFile.Source {
+  return source
 }
 
 /**
@@ -40,7 +48,7 @@ export function createFileImport(imp: KubbFile.Import): KubbFile.ResolvedImport 
   return {
     ...imp,
     extName: imp.extName ? imp.extName : extName,
-  } as any
+  }
 }
 
 /**

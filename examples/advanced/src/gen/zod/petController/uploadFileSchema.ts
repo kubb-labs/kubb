@@ -1,5 +1,5 @@
+import { apiResponseSchema } from '../apiResponseSchema.ts'
 import { z } from 'zod'
-import { apiResponseSchema } from '../apiResponseSchema'
 
 export const uploadFilePathParamsSchema = z.object({ petId: z.number().describe('ID of pet to update') })
 

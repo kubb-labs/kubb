@@ -39,16 +39,7 @@ describe('<File/>', () => {
           ],
           "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
-          "imports": [
-            {
-              "extName": "",
-              "isNameSpace": undefined,
-              "isTypeOnly": false,
-              "name": "React",
-              "path": "react",
-              "root": undefined,
-            },
-          ],
+          "imports": [],
           "meta": undefined,
           "name": "test",
           "override": undefined,
@@ -99,12 +90,13 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": undefined,
+              "extName": "",
               "isTypeOnly": false,
               "name": "test",
-              "path": undefined,
+              "path": "",
             },
           ],
-          "extName": "ts",
+          "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
@@ -135,7 +127,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatchInlineSnapshot(`""`)
+    expect(root.output).toMatchInlineSnapshot(`"test"`)
   })
 
   test('render File with multiple sources', async () => {
@@ -154,7 +146,35 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.files).toMatchInlineSnapshot('[]')
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "exports": [],
+          "extName": ".ts",
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
+          "imports": [],
+          "meta": undefined,
+          "name": "test",
+          "override": undefined,
+          "path": "path",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "const file = 2;",
+            },
+            {
+              "isExportable": true,
+              "isTypeOnly": true,
+              "name": "test",
+              "value": "export const test = 2;",
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('render multiple Files', async () => {
@@ -191,6 +211,7 @@ describe('<File/>', () => {
     expect(root.files[0]?.imports).toMatchInlineSnapshot(`
       [
         {
+          "extName": "",
           "isNameSpace": undefined,
           "isTypeOnly": false,
           "name": "node",
@@ -260,8 +281,39 @@ describe('<File.Import/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.files).toMatchInlineSnapshot('[]')
-    expect(root.output).toMatchInlineSnapshot(`""`)
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "exports": [],
+          "extName": ".ts",
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
+          "imports": [
+            {
+              "extName": "",
+              "isNameSpace": undefined,
+              "isTypeOnly": false,
+              "name": "React",
+              "path": "react",
+              "root": undefined,
+            },
+          ],
+          "meta": undefined,
+          "name": "test",
+          "override": undefined,
+          "path": "path",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "import React from "react";",
+            },
+          ],
+        },
+      ]
+    `)
+    expect(root.output).toMatchInlineSnapshot(`"import React from "react";"`)
   })
 
   test('render Import with File.Import inside of File', () => {
@@ -276,7 +328,38 @@ describe('<File.Import/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.files).toMatchInlineSnapshot('[]')
-    expect(root.output).toMatchInlineSnapshot(`""`)
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "test.ts",
+          "exports": [],
+          "extName": ".ts",
+          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
+          "imports": [
+            {
+              "extName": "",
+              "isNameSpace": undefined,
+              "isTypeOnly": false,
+              "name": "React",
+              "path": "react",
+              "root": undefined,
+            },
+          ],
+          "meta": undefined,
+          "name": "test",
+          "override": undefined,
+          "path": "path",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "test",
+            },
+          ],
+        },
+      ]
+    `)
+    expect(root.output).toMatchInlineSnapshot(`"test"`)
   })
 })

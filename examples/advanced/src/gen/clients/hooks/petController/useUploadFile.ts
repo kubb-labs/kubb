@@ -1,12 +1,12 @@
+import client from '../../../../tanstack-query-client.ts'
+import { useMutation } from '@tanstack/react-query'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile'
+} from '../../../models/ts/petController/UploadFile.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import client from '../../../../tanstack-query-client.ts'
-import { useMutation } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 

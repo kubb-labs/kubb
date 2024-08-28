@@ -18,8 +18,6 @@ import type { QueryKey } from "@tanstack/react-query";
     };
 };
 
- export const UploadFileQueryKey = (data: UploadFile["request"]) => [{ url: "/upload" }, ...(data ? [data] : [])] as const;
-
  export type UploadFileQueryKey = ReturnType<typeof UploadFileQueryKey>;
 
  export function UploadFileQueryOptions(data: UploadFile["request"], options: UploadFile["client"]["parameters"] = {}) {
