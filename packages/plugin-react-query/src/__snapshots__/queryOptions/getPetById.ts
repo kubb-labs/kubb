@@ -17,12 +17,16 @@ import type { UseBaseQueryOptions, QueryKey, WithRequired } from "@tanstack/reac
     };
 };
 
- export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
+ export const getPetByIdQueryKey = ({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 
- export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {
+ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>;
+
+ export function getPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }, options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = GetPetByIdQueryKey({ petId });
+    const queryKey = getPetByIdQueryKey({ petId });
     return {
         queryKey,
         queryFn: async () => {

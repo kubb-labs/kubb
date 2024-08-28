@@ -15,7 +15,7 @@
       "path": "../plugin-client"
     },
     {
-      "path": "../swagger-faker"
+      "path": "../plugin-faker"
     },
     {
       "path": "../plugin-msw"

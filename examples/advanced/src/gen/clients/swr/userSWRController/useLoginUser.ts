@@ -1,8 +1,8 @@
 import client from '../../../../swr-client.ts'
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 import useSWR from 'swr'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 

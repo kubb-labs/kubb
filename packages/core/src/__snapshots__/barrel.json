@@ -4,11 +4,13 @@
     "baseName": "index.ts",
     "exports": [
       {
+        "path": "./",
         "name": [
+          "hello",
+          "world",
           "test"
         ],
-        "path": "./test.ts",
-        "extName": ".ts"
+        "extName": ""
       },
       {
         "name": [
@@ -23,20 +25,30 @@
         ],
         "path": "./sub/world.ts",
         "extName": ".ts"
+      },
+      {
+        "name": [
+          "test"
+        ],
+        "path": "./test.ts",
+        "extName": ".ts"
       }
     ],
     "sources": [
       {
-        "name": "test",
-        "value": ""
-      },
-      {
         "name": "hello",
-        "value": ""
+        "value": "",
+        "exportable": false
       },
       {
         "name": "world",
-        "value": ""
+        "value": "",
+        "exportable": false
+      },
+      {
+        "name": "test",
+        "value": "",
+        "exportable": false
       }
     ],
     "id": "feabc02536bd6630458e734990f7e2a21a55c469",
@@ -66,11 +78,13 @@
     "sources": [
       {
         "name": "hello",
-        "value": ""
+        "value": "",
+        "exportable": false
       },
       {
         "name": "world",
-        "value": ""
+        "value": "",
+        "exportable": false
       }
     ],
     "id": "c67967bd2363dd9637437671f6fe1ed146debdbf",

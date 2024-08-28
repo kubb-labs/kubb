@@ -6,8 +6,8 @@ export const operations = {"get_pets-pet-id": {
     header: undefined
           },
     responses: {
-            200: GetPetsPetIdQueryResponse,
-    default: GetPetsPetIdQueryResponse
+            200: getPetsPetIdQueryResponse,
+    default: getPetsPetIdQueryResponse
           },
     errors: {
             
@@ -17,27 +17,27 @@ export const operations = {"get_pets-pet-id": {
             request: undefined,
     parameters: {
             path: undefined,
-    query: ListPetsQueryParams,
+    query: listPetsQueryParams,
     header: undefined
           },
     responses: {
-            200: ListPetsQueryResponse,
-    default: ListPetsQueryResponse
+            200: listPetsQueryResponse,
+    default: listPetsQueryResponse
           },
     errors: {
             
           }
           },
     "createPets": {
-            request: CreatePetsMutationRequest,
+            request: createPetsMutationRequest,
     parameters: {
             path: undefined,
     query: undefined,
     header: undefined
           },
     responses: {
-            201: CreatePetsMutationResponse,
-    default: CreatePetsMutationResponse
+            201: createPetsMutationResponse,
+    default: createPetsMutationResponse
           },
     errors: {
             

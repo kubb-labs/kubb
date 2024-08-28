@@ -38,7 +38,7 @@ export default defineConfig(() => {
         group: {
           type: 'tag',
         },
-        enumType: 'asPascalConst',
+        enumType: 'asConst',
         enumSuffix: 'enum',
         dateType: 'date',
         override: [

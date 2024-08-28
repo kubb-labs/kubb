@@ -18,7 +18,11 @@ import { useQuery } from "@tanstack/react-query";
     };
 };
 
- export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
+ export const getPetByIdQueryKey = ({ petId }: {
+    petId: GetPetByIdPathParams["petId"];
+}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
+
+ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>;
 
  /**
  * @description Returns a single pet
@@ -34,9 +38,9 @@ export function getPetById<TData = GetPetById["response"], TQueryData = GetPetBy
     queryKey: TQueryKey;
 } {
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? GetPetByIdQueryKey({ petId });
+    const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ petId });
     const query = useQuery<GetPetById["data"], GetPetById["error"], TData, any>({
-        ...GetPetByIdQueryOptions<TData, TQueryData>({ petId }, clientOptions),
+        ...getPetByIdQueryOptions<TData, TQueryData>({ petId }, clientOptions),
         queryKey,
         ...queryOptions
     }) as UseQueryResult<TData, GetPetById["error"]> & {

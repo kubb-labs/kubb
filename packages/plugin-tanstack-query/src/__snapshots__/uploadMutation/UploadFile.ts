@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
-import { queryOptions } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 
  type UploadFileClient = typeof client<UploadFileMutationResponse, UploadFile400, FormData>;
 
@@ -18,10 +18,12 @@ import type { QueryKey } from "@tanstack/react-query";
     };
 };
 
- export type UploadFileQueryKey = ReturnType<typeof UploadFileQueryKey>;
+ export const uploadFileQueryKey = (data: UploadFile["request"]) => [{ url: "/upload" }, ...(data ? [data] : [])] as const;
 
- export function UploadFileQueryOptions(data: UploadFile["request"], options: UploadFile["client"]["parameters"] = {}) {
-    const queryKey = UploadFileQueryKey(data);
+ export type UploadFileQueryKey = ReturnType<typeof uploadFileQueryKey>;
+
+ export function uploadFileQueryOptions(data: UploadFile["request"], options: UploadFile["client"]["parameters"] = {}) {
+    const queryKey = uploadFileQueryKey(data);
     return queryOptions({
         queryKey,
         queryFn: async () => {

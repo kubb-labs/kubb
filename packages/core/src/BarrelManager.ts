@@ -149,7 +149,9 @@ export class BarrelManager {
                 return {
                   name: name,
                   isTypeOnly: item.isTypeOnly,
+                  //TODO use parser to generate import
                   value: '',
+                  exportable: false,
                 }
               })
             }
@@ -157,7 +159,9 @@ export class BarrelManager {
               {
                 name: item.name,
                 isTypeOnly: item.isTypeOnly,
+                //TODO use parser to generate import
                 value: '',
+                exportable: false,
               },
             ]
           }),

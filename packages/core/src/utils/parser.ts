@@ -71,75 +71,80 @@ export type ParserModule<TMeta extends object = object> = {
   /**
    * Convert a file to string
    */
-  print: (file: KubbFile.ResolvedFile<TMeta>) => string
+  print: (file: KubbFile.ResolvedFile<TMeta>, options: PrintOptions) => Promise<string>
 }
 
 export function createFileParser<TMeta extends object = object>(parser: ParserModule<TMeta>): ParserModule<TMeta> {
   return parser
 }
 
-type GetFileParserOptions = {
+type PrintOptions = {
   logger?: Logger
 }
 
-export async function getFileParser<TMeta extends object = object>(
-  extName: KubbFile.Extname | undefined,
-  { logger }: GetFileParserOptions = {},
-): Promise<ParserModule<TMeta>> {
-  switch (extName) {
-    case '.ts':
-    case '.js':
-    case '.tsx':
-    case '.jsx': {
-      const module = await import('@kubb/parser-ts')
+const typeScriptParser = createFileParser({
+  render() {
+    return undefined
+  },
+  async print(file) {
+    const module = await import('@kubb/parser-ts')
 
-      return createFileParser({
-        render() {
-          return undefined
-        },
-        print(file) {
-          const importNodes = file.imports
-            .map((item) => {
-              const path = item.root ? getRelativePath(item.root, item.path) : item.path
+    const importNodes = file.imports
+      .map((item) => {
+        const path = item.root ? getRelativePath(item.root, item.path) : item.path
 
-              return module.factory.createImportDeclaration({
-                name: item.name,
-                path,
-                isTypeOnly: item.isTypeOnly,
-              })
-            })
-            .filter(Boolean)
-
-          const exportNodes = file.exports
-            .map((item) => {
-              return module.factory.createExportDeclaration({
-                name: item.name,
-                path: item.path,
-                isTypeOnly: item.isTypeOnly,
-                asAlias: item.asAlias,
-              })
-            })
-            .filter(Boolean)
-
-          const source = [module.print([...importNodes, ...exportNodes]), file.sources.map((item) => item.value).join('\n\n')].join('\n')
-
-          // do some basic linting with the ts compiler
-          return module.print([], { source, noEmitHelpers: false })
-        },
+        return module.factory.createImportDeclaration({
+          name: item.name,
+          path,
+          isTypeOnly: item.isTypeOnly,
+        })
       })
-    }
-    default:
-      return createFileParser({
-        render() {
-          return undefined
-        },
-        print(file) {
-          logger?.emit('warning', `[parser] No print found for ${file.path}, falling back will be used`)
+      .filter(Boolean)
 
-          return file.sources.map((item) => item.value).join('\n\n')
-        },
+    const exportNodes = file.exports
+      .map((item) => {
+        return module.factory.createExportDeclaration({
+          name: item.name,
+          path: item.path,
+          isTypeOnly: item.isTypeOnly,
+          asAlias: item.asAlias,
+        })
       })
+      .filter(Boolean)
+
+    const source = [module.print([...importNodes, ...exportNodes]), file.sources.map((item) => item.value).join('\n\n')].join('\n')
+
+    // do some basic linting with the ts compiler
+    return module.print([], { source, noEmitHelpers: false })
+  },
+})
+
+const defaultParser = createFileParser({
+  render() {
+    return undefined
+  },
+  async print(file, { logger }) {
+    logger?.emit('warning', `[parser] No print found for ${file.path}, default parser will be used`)
+
+    return file.sources.map((item) => item.value).join('\n\n')
+  },
+})
+
+const parsers: Record<KubbFile.Extname, ParserModule<any>> = {
+  '.ts': typeScriptParser,
+  '.js': typeScriptParser,
+  '.jsx': typeScriptParser,
+  '.tsx': typeScriptParser,
+}
+
+export async function getFileParser<TMeta extends object = object>(extName: KubbFile.Extname | undefined): Promise<ParserModule<TMeta>> {
+  if (!extName) {
+    return defaultParser
   }
+
+  const parser = parsers[extName]
+
+  return parser || defaultParser
 }
 
 export function trimExtName(text: string): string {

@@ -18,12 +18,16 @@ import { useQuery } from "@tanstack/react-query";
     };
 };
 
- export type UpdatePetWithFormQueryKey = ReturnType<typeof UpdatePetWithFormQueryKey>;
+ export const updatePetWithFormQueryKey = ({ petId }: {
+    petId: UpdatePetWithFormPathParams["petId"];
+}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"]) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
 
- export function UpdatePetWithFormQueryOptions<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"]>({ petId }: {
+ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>;
+
+ export function updatePetWithFormQueryOptions<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"]>({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
 }, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"], options: UpdatePetWithForm["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UpdatePetWithForm["response"], UpdatePetWithForm["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = UpdatePetWithFormQueryKey({ petId }, params, data);
+    const queryKey = updatePetWithFormQueryKey({ petId }, params, data);
     return {
         queryKey,
         queryFn: async () => {
@@ -52,9 +56,9 @@ export function updatePetWithForm<TData = UpdatePetWithForm["response"], TQueryD
     queryKey: TQueryKey;
 } {
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? UpdatePetWithFormQueryKey({ petId }, params, data);
+    const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey({ petId }, params, data);
     const query = useQuery<UpdatePetWithForm["data"], UpdatePetWithForm["error"], TData, any>({
-        ...UpdatePetWithFormQueryOptions<TData, TQueryData>({ petId }, params, data, clientOptions),
+        ...updatePetWithFormQueryOptions<TData, TQueryData>({ petId }, params, data, clientOptions),
         queryKey,
         ...queryOptions
     }) as UseQueryResult<TData, UpdatePetWithForm["error"]> & {

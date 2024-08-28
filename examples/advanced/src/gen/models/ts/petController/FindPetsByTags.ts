@@ -18,13 +18,13 @@ export type FindPetsByTagsQueryParams = {
   pageSize?: string
 }
 
-export const FindPetsByTagsHeaderParamsXExampleEnum = {
+export const findPetsByTagsHeaderParamsXExampleEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
+export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof findPetsByTagsHeaderParamsXExampleEnum)[keyof typeof findPetsByTagsHeaderParamsXExampleEnum]
 
 export type FindPetsByTagsHeaderParams = {
   /**

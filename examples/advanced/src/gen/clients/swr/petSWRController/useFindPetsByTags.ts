@@ -1,5 +1,4 @@
 import client from '../../../../swr-client.ts'
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 import useSWR from 'swr'
 import type {
   FindPetsByTagsQueryResponse,
@@ -8,6 +7,7 @@ import type {
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 

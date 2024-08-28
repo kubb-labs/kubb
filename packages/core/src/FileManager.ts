@@ -163,7 +163,11 @@ export class FileManager {
       path: rootPath,
       baseName: 'index.ts',
       exports: barrelFiles
-        // .filter((file) => !file.path.endsWith('index.ts'))
+        .filter((file) => {
+          const importPath = getRelativePath(pathToBuildFrom, file.path)
+
+          return importPath === './index.ts'
+        })
         .flatMap((file) =>
           file.exports?.map((exportItem) =>
             exportItem?.path
@@ -225,9 +229,9 @@ type GetSourceOptions = {
 }
 
 export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions = {}): Promise<string> {
-  const parser = await getFileParser(file.extName, { logger })
+  const parser = await getFileParser(file.extName)
 
-  return parser.print(file)
+  return parser.print(file, { logger })
 }
 
 export function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {
@@ -280,6 +284,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
         (imp) => imp.path === curr.path && isDeepEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
       )
 
+      // we already have an item that was unique enough or name field is empty or prev asAlias is set but current has no changes
       if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
         return prev
       }
@@ -294,6 +299,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
         ]
       }
 
+      // merge all names when prev and current both have the same isTypeOnly set
       if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(curr.name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
         prevByPath.name = [...new Set([...prevByPath.name, ...curr.name])]
 
@@ -305,7 +311,13 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
     [] as Array<KubbFile.Export>,
   )
 
-  return orderBy(combinedExports, [(v) => v.isTypeOnly, (v) => v.path, (v) => v.name])
+  return orderBy(combinedExports, [
+    (v) => !!Array.isArray(v.name),
+    (v) => !v.isTypeOnly,
+    (v) => v.path,
+    (v) => !!v.name,
+    (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
+  ])
 }
 
 export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
@@ -328,6 +340,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         return prev
       }
 
+      // merge all names and check if the importName is being used in the generated source and if not filter those imports out
       if (Array.isArray(name)) {
         name = name.filter((item) => (typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName)))
       }
@@ -341,10 +354,12 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         return prev
       }
 
+      // already unique enough or name is empty
       if (uniquePrev || (Array.isArray(name) && !name.length)) {
         return prev
       }
 
+      // new item, append name
       if (!prevByPath) {
         return [
           ...prev,
@@ -355,12 +370,14 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         ]
       }
 
+      // merge all names when prev and current both have the same isTypeOnly set
       if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
         prevByPath.name = [...new Set([...prevByPath.name, ...name])]
 
         return prev
       }
 
+      // no import was found in the source, ignore import
       if (!Array.isArray(name) && name && !hasImportInSource(name)) {
         return prev
       }
@@ -370,7 +387,13 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     [] as Array<KubbFile.Import>,
   )
 
-  return orderBy(combinedImports, [(v) => v.isTypeOnly, (v) => v.path, (v) => v.name])
+  return orderBy(combinedImports, [
+    (v) => !!Array.isArray(v.name),
+    (v) => !v.isTypeOnly,
+    (v) => v.path,
+    (v) => !!v.name,
+    (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
+  ])
 }
 type WriteFilesProps = {
   config: Config

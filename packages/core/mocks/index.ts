@@ -1,4 +1,4 @@
-import { pascalCase } from '../src/transformers/casing.ts'
+import { camelCase, pascalCase } from '../src/transformers/casing.ts'
 
 import { readSync } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
@@ -18,7 +18,11 @@ export const mockedPluginManager = {
       return pascalCase(name)
     }
 
-    return name
+    if (type === 'function') {
+      return camelCase(name)
+    }
+
+    return camelCase(name)
   },
   config: {
     output: {

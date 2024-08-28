@@ -17,4 +17,8 @@ import type { QueryKey } from "@tanstack/react-query";
     };
 };
 
- export type DeletePetQueryKey = ReturnType<typeof DeletePetQueryKey>;
+ export const deletePetQueryKey = ({ petId }: {
+    petId: DeletePetPathParams["petId"];
+}) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
+
+ export type DeletePetQueryKey = ReturnType<typeof deletePetQueryKey>;

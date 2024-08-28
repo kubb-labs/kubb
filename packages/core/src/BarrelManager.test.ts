@@ -119,6 +119,7 @@ describe('BarrelManager', () => {
           "path": "src/index.ts",
           "sources": [
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "test",
               "value": "",
@@ -139,38 +140,42 @@ describe('BarrelManager', () => {
               "isTypeOnly": undefined,
               "name": [
                 "world",
+                "hello",
               ],
-              "path": "./sub/world.ts",
+              "path": "./sub/index.ts",
             },
             {
               "isTypeOnly": undefined,
               "name": [
                 "world",
-                "hello",
               ],
-              "path": "./sub/index.ts",
+              "path": "./sub/world.ts",
             },
           ],
           "path": "src/index.ts",
           "sources": [
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",
             },
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
             },
             {
-              "isTypeOnly": undefined,
-              "name": "world",
-              "value": "",
-            },
-            {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
+              "value": "",
+            },
+            {
+              "exportable": false,
+              "isTypeOnly": undefined,
+              "name": "world",
               "value": "",
             },
           ],
@@ -189,6 +194,7 @@ describe('BarrelManager', () => {
           "path": "src/sub/index.ts",
           "sources": [
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",
@@ -209,6 +215,7 @@ describe('BarrelManager', () => {
           "path": "src/sub/index.ts",
           "sources": [
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
@@ -230,11 +237,13 @@ describe('BarrelManager', () => {
           "path": "src/sub/index.ts",
           "sources": [
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
             },
             {
+              "exportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",

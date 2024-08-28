@@ -15,6 +15,8 @@ type GetPetsUuid =
               }
             }
 
+export const GetPetsUuidQueryKey = () =>   [{ url: '/pets/:uuid', params: {uuid:uuid} }] as const
+
 export type GetPetsUuidQueryKey = ReturnType<typeof GetPetsUuidQueryKey>
 
 export function GetPetsUuidQueryOptions(options: GetPetsUuid['client']['parameters'] = {}) {

@@ -1,8 +1,8 @@
 import client from '../../../../swr-client.ts'
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 import useSWR from 'swr'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 

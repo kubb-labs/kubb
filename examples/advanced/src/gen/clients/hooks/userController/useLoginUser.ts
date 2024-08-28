@@ -1,7 +1,4 @@
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import type {
   QueryObserverOptions,
@@ -13,6 +10,9 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 

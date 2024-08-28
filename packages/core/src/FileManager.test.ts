@@ -112,13 +112,13 @@ describe('FileManager', () => {
       [
         {
           "extName": "",
-          "name": "path",
-          "path": "node:path",
+          "name": "fs",
+          "path": "node:fs",
         },
         {
           "extName": "",
-          "name": "fs",
-          "path": "node:fs",
+          "name": "path",
+          "path": "node:path",
         },
       ]
     `)
@@ -606,7 +606,22 @@ describe('FileManager utils', () => {
       },
     ]
 
-    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toEqual([imports[0], imports[1]])
+    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toMatchInlineSnapshot(`
+      [
+        {
+          "isTypeOnly": true,
+          "name": "models",
+          "path": "./models",
+        },
+        {
+          "isTypeOnly": true,
+          "name": [
+            "Config",
+          ],
+          "path": "./models",
+        },
+      ]
+    `)
 
     const importsWithoutSource: Array<KubbFile.Import> = [
       {

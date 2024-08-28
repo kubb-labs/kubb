@@ -18,10 +18,12 @@ import { useQuery } from "@tanstack/react-query";
     };
 };
 
- export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
+ export const getPetByIdQueryKey = (petId: GetPetByIdPathParams["petId"]) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 
- export function GetPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>(petId: GetPetByIdPathParams["petId"], options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = GetPetByIdQueryKey(petId);
+ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>;
+
+ export function getPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>(petId: GetPetByIdPathParams["petId"], options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
+    const queryKey = getPetByIdQueryKey(petId);
     return {
         queryKey,
         queryFn: async () => {
@@ -47,9 +49,9 @@ export function getPetById<TData = GetPetById["response"], TQueryData = GetPetBy
     queryKey: TQueryKey;
 } {
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? GetPetByIdQueryKey(petId);
+    const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId);
     const query = useQuery<GetPetById["data"], GetPetById["error"], TData, any>({
-        ...GetPetByIdQueryOptions<TData, TQueryData>(petId, clientOptions),
+        ...getPetByIdQueryOptions<TData, TQueryData>(petId, clientOptions),
         queryKey,
         ...queryOptions
     }) as UseQueryResult<TData, GetPetById["error"]> & {
