@@ -36,6 +36,10 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
 
   return {
     name: pluginZodName,
+    output: {
+      exportType: "barrelNamed",
+      ...output
+    },
     options: {
       extName: output.extName,
       transformers,

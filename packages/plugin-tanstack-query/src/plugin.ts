@@ -41,6 +41,10 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
 
   return {
     name: pluginTanstackQueryName,
+    output: {
+      exportType: "barrelNamed",
+      ...output
+    },
     options: {
       extName: output.extName,
       framework,

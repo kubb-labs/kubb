@@ -23,68 +23,6 @@ export class BarrelManager {
   getFiles(generatedFiles: KubbFile.File[], root?: string): Array<KubbFile.File> {
     const { logger } = this.#options
 
-    const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode | null) => {
-      if (!treeNode || !treeNode.children) {
-        return []
-      }
-
-      const indexPath: KubbFile.Path = join(treeNode.data.path, 'index.ts')
-
-      const exports = treeNode.children
-        .filter((item) => !!item.data.name)
-        .flatMap((childTreeNode) => {
-          const sources = childTreeNode.data.file?.sources || []
-
-          if (!sources.some((source) => source.isExportable)) {
-            logger?.emit(
-              'warning',
-              `No exportable source found(source should have a name and isExportable):\nFile: ${JSON.stringify(childTreeNode.data.file, undefined, 2)}`,
-            )
-          }
-
-          return sources
-            .filter((source) => source.isExportable)
-            .map((source) => {
-              const importPath: string = childTreeNode.data.file ? `./${childTreeNode.data.name}` : `./${childTreeNode.data.name}`
-
-              return {
-                name: [source.name],
-                path: importPath,
-                isTypeOnly: source.isTypeOnly,
-              } as KubbFile.Export
-            })
-        })
-        .filter(Boolean)
-
-      if (exports.length) {
-        files.push({
-          path: indexPath,
-          baseName: 'index.ts',
-          exports,
-          sources: exports.flatMap((item) => {
-            if (Array.isArray(item.name)) {
-              return item.name.map((name) => {
-                return {
-                  name: name,
-                  isTypeOnly: item.isTypeOnly,
-                  value: '',
-                }
-              })
-            }
-            return [
-              {
-                name: item.name,
-                isTypeOnly: item.isTypeOnly,
-                value: '',
-              },
-            ]
-          }),
-        })
-      }
-
-      return files
-    }
-
     const files = TreeNode.build(generatedFiles, root)
       ?.map((treeNode) => {
         if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
@@ -122,14 +60,14 @@ export class BarrelManager {
               if (isSubExport) {
                 return {
                   name: [source.name],
-                  path: getRelativePath(treeNode.parent?.data.path, item.data.file.path),
+                  path: getRelativePath(treeNode.parent?.data.path, item.data.path),
                   isTypeOnly: source.isTypeOnly,
                 } as KubbFile.Export
               }
 
               return {
                 name: [source.name],
-                path: `./${item.data.name}`,
+                path: `./${item.data.file.baseName}`,
                 isTypeOnly: source.isTypeOnly,
               } as KubbFile.Export
             })
@@ -151,8 +89,8 @@ export class BarrelManager {
                   isTypeOnly: item.isTypeOnly,
                   //TODO use parser to generate import
                   value: '',
-                  exportable: false,
-                }
+                  isExportable: false,
+                } as KubbFile.Source
               })
             }
             return [
@@ -161,8 +99,8 @@ export class BarrelManager {
                 isTypeOnly: item.isTypeOnly,
                 //TODO use parser to generate import
                 value: '',
-                exportable: false,
-              },
+                isExportable: false,
+              } as KubbFile.Source,
             ]
           }),
         }

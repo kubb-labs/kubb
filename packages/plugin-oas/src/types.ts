@@ -33,7 +33,9 @@ export type Options = {
          * @default 'schemas'
          */
         path: string
-      }
+    extName?: KubbFile.Extname
+    exportType?: 'barrel' | 'barrelNamed' | false
+  }
     | false
   /**
    * Which server to use from the array of `servers.url[serverIndex]`

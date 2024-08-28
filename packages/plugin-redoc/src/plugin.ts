@@ -5,10 +5,10 @@ import { camelCase } from '@kubb/core/transformers'
 import { pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
+import { trimExtName } from '@kubb/fs'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
-import { trimExtName } from '@kubb/fs'
 
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
@@ -17,6 +17,10 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
 
   return {
     name: pluginRedocName,
+    output: {
+      exportType: "barrelNamed",
+      ...output
+    },
     options: {
       name: trimExtName(output.path),
       baseURL: undefined,

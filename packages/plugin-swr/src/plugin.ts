@@ -23,6 +23,10 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
 
   return {
     name: pluginSwrName,
+    output: {
+      exportType: "barrelNamed",
+      ...output
+    },
     options: {
       extName: output.extName,
       templates: {

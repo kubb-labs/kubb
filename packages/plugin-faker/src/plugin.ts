@@ -36,6 +36,10 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
   return {
     name: pluginFakerName,
     options: {
+      output: {
+        exportType: "barrelNamed",
+        ...output
+      },
       extName: output.extName,
       transformers,
       dateType,

@@ -34,6 +34,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   return {
     name: pluginTsName,
+    output: {
+      exportType: "barrelNamed",
+      ...output
+    },
     options: {
       extName: output.extName,
       transformers,

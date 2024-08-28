@@ -124,8 +124,6 @@ const defaultParser = createFileParser({
     return undefined
   },
   async print(file, { logger }) {
-    logger?.emit('warning', `[parser] No print found for ${file.path}, default parser will be used`)
-
     return file.sources.map((item) => item.value).join('\n\n')
   },
 })
@@ -135,6 +133,7 @@ const parsers: Record<KubbFile.Extname, ParserModule<any>> = {
   '.js': typeScriptParser,
   '.jsx': typeScriptParser,
   '.tsx': typeScriptParser,
+  '.json': defaultParser,
 }
 
 export async function getFileParser<TMeta extends object = object>(extName: KubbFile.Extname | undefined): Promise<ParserModule<TMeta>> {
@@ -143,6 +142,10 @@ export async function getFileParser<TMeta extends object = object>(extName: Kubb
   }
 
   const parser = parsers[extName]
+
+  if (!parser) {
+    console.warn(`[parser] No parser found for ${extName}, default parser will be used`)
+  }
 
   return parser || defaultParser
 }

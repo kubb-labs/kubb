@@ -31,6 +31,10 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
   return {
     name: pluginClientName,
+    output: {
+      exportType: "barrelNamed",
+      ...output
+    },
     options: {
       extName: output.extName,
       dataReturnType,

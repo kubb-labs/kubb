@@ -138,6 +138,7 @@ export type PluginKey<TName> = [name: TName, identifier?: string | number]
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 
+
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin
@@ -151,7 +152,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   options: TOptions['resolvedOptions']
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-   * Can be used to validate depended plugins.
+   * Can be used to validate dependent plugins.
    */
   pre?: Array<string>
   /**
@@ -181,9 +182,24 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * @private
    */
   key: TOptions['key']
+  output?: {
+    /**
+     * Output to save the clients.
+     */
+    path: string
+    /**
+     * Add an extension to the generated imports and exports, default it will not use an extension
+     */
+    extName?: KubbFile.Extname
+    /**
+     * Define what needs to exported, here you can also disable the export of barrel files
+     * @default `'barrelNamed'`
+     */
+    exportType?: 'barrel' | 'barrelNamed' | false
+  }
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-   * Can be used to validate depended plugins.
+   * Can be used to validate dependent plugins.
    */
   pre?: Array<string>
   /**
@@ -279,3 +295,5 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   plugin: Plugin<TOptions>
 }
+
+

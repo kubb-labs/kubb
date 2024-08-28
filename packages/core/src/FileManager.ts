@@ -158,35 +158,8 @@ export class FileManager {
 
     const barrelFiles = barrelManager.getFiles(files, pathToBuildFrom)
 
-    const rootPath = join(root, 'index.ts')
-    const rootFile: KubbFile.File = {
-      path: rootPath,
-      baseName: 'index.ts',
-      exports: barrelFiles
-        .filter((file) => {
-          const importPath = getRelativePath(pathToBuildFrom, file.path)
-
-          return importPath === './index.ts'
-        })
-        .flatMap((file) =>
-          file.exports?.map((exportItem) =>
-            exportItem?.path
-              ? {
-                  path: getRelativePath(rootPath, file.path),
-                  name: exportItem.name,
-                  isTypeOnly: exportItem.isTypeOnly,
-                  extName: output.extName,
-                }
-              : undefined,
-          ),
-        )
-        .filter(Boolean),
-      sources: [],
-      meta,
-    }
-
     if (exportType === 'barrel') {
-      return [rootFile, ...barrelFiles].map((file) => {
+      return barrelFiles.map((file) => {
         return {
           ...file,
           exports: file.exports?.map((exportItem) => {
@@ -199,7 +172,7 @@ export class FileManager {
       })
     }
 
-    return [rootFile, ...barrelFiles].map((indexFile) => {
+    return barrelFiles.map((indexFile) => {
       return {
         ...indexFile,
         meta,

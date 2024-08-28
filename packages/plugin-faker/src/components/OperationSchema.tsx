@@ -51,7 +51,8 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
       pluginKey: [pluginTsName],
       type: 'file',
     })
-    //todo replace by getFile
+
+    // todo replace by getFile
     const typePath = pluginManager.resolvePath({
       baseName: typeFileName,
       pluginKey: [pluginTsName],

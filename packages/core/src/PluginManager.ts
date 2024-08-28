@@ -160,6 +160,7 @@ export class PluginManager {
       parameters: [params.baseName, params.mode, params.options as object],
     }).result
   }
+  //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
