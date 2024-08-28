@@ -103,9 +103,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
               if (FileManager.getMode(plugin?.output?.path) === 'single') {
                 return undefined
               }
-
               return {
-                name: [source.name],
+                name: options.config.output.exportType === 'barrel' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
                 isTypeOnly: source.isTypeOnly,
               } as KubbFile.Export

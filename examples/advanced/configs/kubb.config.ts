@@ -33,7 +33,6 @@ export default defineConfig(() => {
         output: {
           path: 'models/ts',
           extName: '.js',
-          exportType: false,
         },
         group: {
           type: 'tag',
@@ -54,7 +53,6 @@ export default defineConfig(() => {
       pluginTanstackQuery({
         output: {
           path: './clients/hooks',
-          exportType: false,
         },
         exclude: [
           {
@@ -127,7 +125,6 @@ export default defineConfig(() => {
       pluginZod({
         output: {
           path: './zod',
-          exportType: false,
         },
         exclude: [
           {
@@ -138,6 +135,9 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         typed: true,
+        templates: {
+          operations: false,
+        },
       }),
       pluginFaker({
         output: {

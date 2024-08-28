@@ -21,7 +21,6 @@ export const config = {
     pluginTs({
       output: {
         path: 'models',
-        exportType: false,
       },
     }),
     pluginReactQuery({
@@ -35,7 +34,6 @@ export const config = {
       },
       output: {
         path: './hooks',
-        exportType: false,
       },
       query: {
         queryKey: (keys) => ['"v5"', ...keys],

@@ -35,7 +35,6 @@ export default defineConfig(async () => {
       pluginZod({
         output: {
           path: './zod',
-          exportType: false,
         },
         transformers: {
           name: (name, type) => (type === 'file' ? `${name}.gen` : name),

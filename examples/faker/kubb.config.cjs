@@ -22,13 +22,11 @@ module.exports = defineConfig(() => {
       pluginTs({
         output: {
           path: 'models',
-          exportType: false,
         },
       }),
       pluginFaker({
         output: {
           path: './customMocks',
-          exportType: false,
         },
         transformers: {
           schema: ({ schema, name, parentName }, defaultSchemas) => {

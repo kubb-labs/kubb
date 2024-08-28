@@ -20,12 +20,11 @@ export default defineConfig({
       output: false,
     }),
     pluginTs({
-      output: { path: 'models', exportType: false },
+      output: { path: 'models' },
     }),
     pluginTanstackQuery({
       output: {
         path: './hooks',
-        exportType: false,
       },
       framework: 'solid',
     }),

@@ -11,6 +11,7 @@ export default defineConfig({
   output: {
     path: './src/gen',
     clean: true,
+    exportType: 'barrel',
   },
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
@@ -20,13 +21,12 @@ export default defineConfig({
     pluginTs({
       output: {
         path: 'models',
-        exportType: false,
+        exportType: 'barrel',
       },
     }),
     pluginSwr({
       output: {
         path: './hooks',
-        exportType: false,
       },
     }),
   ],

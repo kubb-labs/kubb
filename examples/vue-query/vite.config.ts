@@ -26,7 +26,6 @@ export default defineConfig({
           pluginTs({
             output: {
               path: 'models',
-              exportType: false,
             },
           }),
           pluginTanstackQuery({

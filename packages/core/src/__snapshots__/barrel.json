@@ -27,17 +27,17 @@
     ],
     "sources": [
       {
+        "name": "test",
+        "value": "",
+        "isExportable": false
+      },
+      {
         "name": "hello",
         "value": "",
         "isExportable": false
       },
       {
         "name": "world",
-        "value": "",
-        "isExportable": false
-      },
-      {
-        "name": "test",
         "value": "",
         "isExportable": false
       }

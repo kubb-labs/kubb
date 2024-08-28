@@ -1,4 +1,5 @@
 import { defineConfig } from '@kubb/core'
+import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
@@ -50,7 +51,6 @@ const baseConfig = {
     pluginOas({
       output: {
         path: 'schemas2',
-        exportType: false,
       },
       validate: true,
     }),
@@ -67,7 +67,6 @@ const baseConfig = {
     pluginTanstackQuery({
       output: {
         path: './clients/hooks',
-        exportType: false,
       },
       group: { type: 'tag' },
       mutate: {
@@ -85,7 +84,6 @@ const baseConfig = {
     pluginClient({
       output: {
         path: './clients/axios',
-        exportType: false,
       },
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
     }),
@@ -97,6 +95,9 @@ const baseConfig = {
       group: { type: 'tag' },
       typed: false,
       typedSchema: true,
+      templates: {
+        operations: false,
+      },
     }),
     pluginFaker({
       output: {
@@ -104,11 +105,21 @@ const baseConfig = {
         exportType: false,
       },
       group: { type: 'tag' },
+      // transformers: {
+      //   name: (name, type) => {
+      //     if (type === 'file' || type === 'function') {
+      //       return camelCase(name, {
+      //         prefix: type ? 'createMock' : undefined,
+      //         isFile: type === 'file',
+      //       })
+      //     }
+      //     return name
+      //   },
+      // },
     }),
     pluginMsw({
       output: {
         path: 'msw',
-        exportType: false,
       },
       group: { type: 'tag' },
     }),
