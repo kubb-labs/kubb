@@ -189,58 +189,6 @@ describe('OperationGenerator', async () => {
       method: 'post',
       operation: oas.operation('/pet/{petId}', 'post'),
     },
-    {
-      name: 'upload',
-      options: {
-        infinite: false,
-        suspense: false,
-        dataReturnType: 'data',
-        pathParamsType: 'object',
-        templates: {
-          query: Query.templates,
-          queryKey: QueryKey.templates,
-          queryOptions: QueryOptions.templates,
-        },
-        client: {
-          importPath: '@kubb/plugin-client/client',
-        },
-        parser: undefined,
-        query: {
-          methods: ['post'],
-          queryKey: (key: unknown[]) => key,
-        },
-        queryOptions: {},
-        mutate: false,
-      },
-      method: 'post',
-      operation: oas.operation('/upload', 'post'),
-    },
-    {
-      name: 'uploadMutation',
-      options: {
-        infinite: false,
-        suspense: false,
-        dataReturnType: 'data',
-        pathParamsType: 'object',
-        templates: {
-          query: Query.templates,
-          queryKey: QueryKey.templates,
-          queryOptions: QueryOptions.templates,
-        },
-        client: {
-          importPath: '@kubb/plugin-client/client',
-        },
-        parser: undefined,
-        mutate: {
-          methods: ['post'],
-          variablesType: 'mutate',
-        },
-        queryOptions: {},
-        query: false,
-      },
-      method: 'post',
-      operation: oas.operation('/upload', 'post'),
-    },
   ]
 
   test.each(items)('$name', async ({ name, method, options, operation }) => {

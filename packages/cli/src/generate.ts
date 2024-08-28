@@ -84,12 +84,13 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     },
   }
   const hrStart = process.hrtime()
-  const { pluginManager, error } = await safeBuild({
+  const { pluginManager, files, error } = await safeBuild({
     config: definedConfig,
     logger,
   })
 
   const summary = getSummary({
+    filesCreated: files.length,
     pluginManager,
     config: definedConfig,
     status: error ? 'failed' : 'success',

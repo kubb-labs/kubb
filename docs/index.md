@@ -33,7 +33,7 @@ features:
       src: ./feature/tanstack.svg
       height: 24
     title: Tanstack Query
-    details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue). <div class="learn-more"><a href="/plugins/swagger-tanstack-query">Learn more</a></div>
+    details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue). <div class="learn-more"><a href="/plugins/plugin-tanstack-query">Learn more</a></div>
   - icon:
       dark: ./feature/swr-dark.svg
       light: ./feature/swr-light.svg
