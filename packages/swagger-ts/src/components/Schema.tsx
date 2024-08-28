@@ -126,7 +126,7 @@ Schema.File = function ({}: FileProps): ReactNode {
   const { schema } = useSchema()
 
   return (
-    <Oas.Schema.File output={pluginManager.config.output.path}>
+    <Oas.Schema.File output={pluginManager.config.output.path} isTypeOnly>
       <File.Source>
         <Schema description={schema?.description} />
       </File.Source>
