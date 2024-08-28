@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 2.25.4
+
+### Patch Changes
+
+- [`ddb9882`](https://github.com/kubb-labs/kubb/commit/ddb9882325f1c96e6a12953d03ada439734f4c97) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always isTypeOnly for all typescript types
+
+- Updated dependencies []:
+  - @kubb/core@2.25.4
+  - @kubb/fs@2.25.4
+  - @kubb/oas@2.25.4
+  - @kubb/react@2.25.4
+
 ## 2.25.3
 
 ### Patch Changes
