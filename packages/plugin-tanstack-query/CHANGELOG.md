@@ -1,5 +1,26 @@
 # @kubb/plugin-tanstack-query
 
+## 3.0.0-alpha.7
+
+### Minor Changes
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - output option for all plugins(KubbPlugin) to track the barrel exportType or the output root of every plugin
+
+### Patch Changes
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Rewrite of generation for exportType 'barrelNamed'
+
+- Updated dependencies [[`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b), [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b)]:
+  - @kubb/plugin-client@3.0.0-alpha.7
+  - @kubb/plugin-oas@3.0.0-alpha.7
+  - @kubb/plugin-zod@3.0.0-alpha.7
+  - @kubb/plugin-ts@3.0.0-alpha.7
+  - @kubb/core@3.0.0-alpha.7
+  - @kubb/oas@3.0.0-alpha.7
+  - @kubb/parser-ts@3.0.0-alpha.7
+  - @kubb/react@3.0.0-alpha.7
+  - @kubb/fs@3.0.0-alpha.7
+
 ## 3.0.0-alpha.6
 
 ### Patch Changes
