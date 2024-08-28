@@ -27,7 +27,7 @@ export default defineConfig(() => {
       pluginFaker({
         output: {
           path: './mocks',
-          exportType: false,
+          // exportType: false,
         },
         group: {
           type: 'tag',
@@ -38,7 +38,7 @@ export default defineConfig(() => {
       pluginMsw({
         output: {
           path: './msw',
-          exportType: false,
+          // exportType: false,
         },
         group: {
           type: 'tag',
