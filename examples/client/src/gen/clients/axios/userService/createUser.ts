@@ -1,7 +1,7 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
 import type client from '@kubb/plugin-client/client'
 import axios from 'axios'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description This can only be done by the logged in user.

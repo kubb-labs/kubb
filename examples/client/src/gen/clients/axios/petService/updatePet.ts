@@ -1,6 +1,6 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet'
 import client from '@kubb/plugin-client/client'
+import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description Update an existing pet by Id

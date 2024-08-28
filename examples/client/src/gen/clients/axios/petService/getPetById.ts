@@ -1,6 +1,6 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById'
 import client from '@kubb/plugin-client/client'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description Returns a single pet

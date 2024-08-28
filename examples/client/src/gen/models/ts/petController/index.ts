@@ -1,3 +1,15 @@
+export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.ts'
+export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.ts'
+export type {
+  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatus200,
+  FindPetsByStatus400,
+  FindPetsByStatusQueryResponse,
+  FindPetsByStatusQuery,
+} from './FindPetsByStatus.ts'
+export type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryResponse, FindPetsByTagsQuery } from './FindPetsByTags.ts'
+export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './GetPetById.ts'
 export type {
   UpdatePet200,
   UpdatePet400,
@@ -6,26 +18,14 @@ export type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
   UpdatePetMutation,
-} from './UpdatePet'
-export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet'
-export type {
-  FindPetsByStatusQueryParamsStatus,
-  FindPetsByStatusQueryParams,
-  FindPetsByStatus200,
-  FindPetsByStatus400,
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatusQuery,
-} from './FindPetsByStatus'
-export type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryResponse, FindPetsByTagsQuery } from './FindPetsByTags'
-export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './GetPetById'
+} from './UpdatePet.ts'
 export type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormMutation,
-} from './UpdatePetWithForm'
-export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet'
+} from './UpdatePetWithForm.ts'
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
@@ -33,5 +33,5 @@ export type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFileMutation,
-} from './UploadFile'
-export { findPetsByStatusQueryParamsStatus } from './FindPetsByStatus'
+} from './UploadFile.ts'
+export { findPetsByStatusQueryParamsStatus } from './FindPetsByStatus.ts'

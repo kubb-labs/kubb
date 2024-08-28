@@ -1,7 +1,7 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 import type client from '@kubb/plugin-client/client'
 import axios from 'axios'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary Logs out current logged in user session
