@@ -1,4 +1,4 @@
-import type { Tag } from './Tag'
+import type { Tag } from './Tag.ts'
 
 export const addPetRequestStatus = {
   available: 'available',

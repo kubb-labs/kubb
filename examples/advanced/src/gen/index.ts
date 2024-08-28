@@ -1,19 +1,17 @@
-export {
-  operations,
-  addPet,
-  deletePet,
-  findPetsByStatus,
-  findPetsByTags,
-  getPetById,
-  updatePet,
-  updatePetWithForm,
-  uploadFile,
-  createPets,
-  createUser,
-  createUsersWithListInput,
-  deleteUser,
-  getUserByName,
-  loginUser,
-  logoutUser,
-  updateUser,
-} from './clients/axios/index.ts'
+export { operations } from './clients/axios/operations.ts'
+export { addPet } from './clients/axios/petService/addPet.ts'
+export { deletePet } from './clients/axios/petService/deletePet.ts'
+export { findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
+export { findPetsByTags } from './clients/axios/petService/findPetsByTags.ts'
+export { getPetById } from './clients/axios/petService/getPetById.ts'
+export { updatePet } from './clients/axios/petService/updatePet.ts'
+export { updatePetWithForm } from './clients/axios/petService/updatePetWithForm.ts'
+export { uploadFile } from './clients/axios/petService/uploadFile.ts'
+export { createPets } from './clients/axios/petsService/createPets.ts'
+export { createUser } from './clients/axios/userService/createUser.ts'
+export { createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.ts'
+export { deleteUser } from './clients/axios/userService/deleteUser.ts'
+export { getUserByName } from './clients/axios/userService/getUserByName.ts'
+export { loginUser } from './clients/axios/userService/loginUser.ts'
+export { logoutUser } from './clients/axios/userService/logoutUser.ts'
+export { updateUser } from './clients/axios/userService/updateUser.ts'

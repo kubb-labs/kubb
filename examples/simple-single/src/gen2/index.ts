@@ -395,14 +395,15 @@ export const flyMachineProcessSchema = z.object({
  */
 export const flyMachineRestartSchema = z
   .object({
+    gpu_bid_price: z.number().describe('GPU bid price for spot Machines.').optional(),
     max_retries: z
       .number()
       .describe('When policy is on-failure, the maximum number of times to attempt to restart the Machine before letting it stop.')
       .optional(),
     policy: z
-      .enum(['no', 'always', 'on-failure'])
+      .enum(['no', 'always', 'on-failure', 'spot-price'])
       .describe(
-        '* no - Never try to restart a Machine automatically when its main process exits, whether that\u2019s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.',
+        '* no - Never try to restart a Machine automatically when its main process exits, whether that\u2019s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.\n* spot-price - Starts the Machine only when there is capacity and the spot price is less than or equal to the bid price.',
       )
       .optional(),
   })

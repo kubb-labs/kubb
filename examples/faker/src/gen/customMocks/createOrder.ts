@@ -1,6 +1,6 @@
+import dayjs from 'dayjs'
 import type { Order } from '../models/Order'
 import { faker } from '@faker-js/faker'
-import dayjs from 'dayjs'
 
 export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   return {

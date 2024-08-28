@@ -17,6 +17,9 @@ export default defineConfig(async () => {
       path: './src/gen',
       clean: true,
     },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+    },
     plugins: [
       pluginOas({ output: false }),
       pluginTs({
@@ -32,6 +35,7 @@ export default defineConfig(async () => {
       pluginZod({
         output: {
           path: './zod',
+          exportType: false,
         },
         transformers: {
           name: (name, type) => (type === 'file' ? `${name}.gen` : name),

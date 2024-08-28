@@ -1,7 +1,7 @@
 import { createServer } from '@mswjs/http-middleware'
 import { setupServer } from 'msw/node'
 
-import { handlers } from './gen/index'
+import { handlers } from './gen/msw/handlers'
 
 const server = createServer(...handlers)
 

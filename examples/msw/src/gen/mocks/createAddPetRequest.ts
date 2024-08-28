@@ -1,6 +1,6 @@
 import type { AddPetRequest } from '../models/AddPetRequest'
-import { createCategory } from './createCategory'
-import { createTag } from './createTag'
+import { createCategory } from './createCategory.ts'
+import { createTag } from './createTag.ts'
 import { faker } from '@faker-js/faker'
 
 export function createAddPetRequest(data: NonNullable<Partial<AddPetRequest>> = {}): NonNullable<AddPetRequest> {

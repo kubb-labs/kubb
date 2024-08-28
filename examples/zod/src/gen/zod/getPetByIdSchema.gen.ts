@@ -1,5 +1,5 @@
 import { z } from '../../zod.ts'
-import { petSchema } from './petSchema.gen'
+import { petSchema } from './petSchema.gen.ts'
 
 export const getPetByIdPathParamsSchema = z.object({ petId: z.number().describe('ID of pet to return') })
 

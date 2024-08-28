@@ -1,5 +1,5 @@
 import { z } from '../../zod.ts'
-import { petNotFoundSchema } from './petNotFoundSchema.gen'
+import { petNotFoundSchema } from './petNotFoundSchema.gen.ts'
 
 export const createPetsPathParamsSchema = z.object({ uuid: z.string().describe('UUID') })
 

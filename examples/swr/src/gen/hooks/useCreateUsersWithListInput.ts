@@ -1,7 +1,7 @@
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
-import useSWRMutation from 'swr/mutation'
 import client from '@kubb/plugin-client/client'
+import useSWRMutation from 'swr/mutation'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 

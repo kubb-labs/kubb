@@ -1,5 +1,0 @@
-export { getInventoryHandler } from './getInventoryHandler'
-export { placeOrderHandler } from './placeOrderHandler'
-export { placeOrderPatchHandler } from './placeOrderPatchHandler'
-export { getOrderByIdHandler } from './getOrderByIdHandler'
-export { deleteOrderHandler } from './deleteOrderHandler'

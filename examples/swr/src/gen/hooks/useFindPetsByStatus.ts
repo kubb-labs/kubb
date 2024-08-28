@@ -1,7 +1,7 @@
-import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
-import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
+import useSWR from 'swr'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 

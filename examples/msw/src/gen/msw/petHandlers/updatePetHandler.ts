@@ -1,5 +1,5 @@
+import { createUpdatePetMutationResponse } from '../../mocks/petMocks/createUpdatePet.ts'
 import { http } from 'msw'
-import { createUpdatePetMutationResponse } from '../../mocks/petMocks/createUpdatePet'
 
 export const updatePetHandler = http.put('*/pet', function handler(info) {
   return new Response(JSON.stringify(createUpdatePetMutationResponse()), {

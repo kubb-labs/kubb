@@ -1,6 +1,6 @@
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import client from '@kubb/plugin-client/client'
+import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>

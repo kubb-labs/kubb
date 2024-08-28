@@ -1,4 +1,5 @@
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import client from '@kubb/plugin-client/client'
+import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
@@ -7,7 +8,6 @@ import type {
   CreateInfiniteQueryResult,
   InfiniteData,
 } from '@tanstack/svelte-query'
-import client from '@kubb/plugin-client/client'
 import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>

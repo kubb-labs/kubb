@@ -103,6 +103,11 @@ export class FileManager {
     return resolvedFile
   }
 
+  clear() {
+    this.#filesByPath.clear()
+    this.#files.clear()
+  }
+
   async #addOrAppend(file: KubbFile.File): Promise<ResolvedFile> {
     const previousFile = this.#filesByPath.get(file.path)
 

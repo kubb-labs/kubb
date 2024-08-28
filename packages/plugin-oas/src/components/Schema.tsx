@@ -43,8 +43,6 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
   const { plugin, pluginManager, mode } = useApp<PluginOas>()
   const { name } = useSchema()
 
-
-
   if (mode === 'single') {
     const baseName = `${pluginManager.resolveName({
       name,

@@ -1,6 +1,6 @@
 import { clean, read } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import { type FileManager, processFiles } from './FileManager.ts'
+import { FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
@@ -100,6 +100,10 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
                 return undefined
               }
 
+              if (FileManager.getMode(plugin?.output?.path) === 'single') {
+                return undefined
+              }
+
               return {
                 name: [source.name],
                 path: getRelativePath(rootPath, file.path),
@@ -126,6 +130,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     })
 
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
+
+    pluginManager.fileManager.clear()
   } catch (e) {
     return {
       files: [],

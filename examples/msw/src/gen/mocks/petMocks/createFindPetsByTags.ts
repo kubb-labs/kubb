@@ -1,6 +1,6 @@
 import type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags'
+import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
-import { createPet } from '../createPet'
 
 export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQueryParams> {
   faker.seed([220])
