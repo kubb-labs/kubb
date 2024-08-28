@@ -2,8 +2,9 @@ import path from 'node:path'
 
 import { TreeNode } from './utils/TreeNode.ts'
 
-import { trimExtName } from '@kubb/fs'
+import { getRelativePath } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
+import { combineExports } from './FileManager.ts'
 import type { Logger } from './logger.ts'
 
 export type BarrelManagerOptions = {
@@ -35,7 +36,10 @@ export class BarrelManager {
           const sources = childTreeNode.data.file?.sources || []
 
           if (!sources.some((source) => source.isExportable)) {
-            logger?.emit('warning', `No exportable source found(source should have a name and isExportable):\n${JSON.stringify(sources, undefined, 2)}`)
+            logger?.emit(
+              'warning',
+              `No exportable source found(source should have a name and isExportable):\nFile: ${JSON.stringify(childTreeNode.data.file, undefined, 2)}`,
+            )
           }
 
           return sources
@@ -78,13 +82,90 @@ export class BarrelManager {
         })
       }
 
-      treeNode.children.forEach((treeNode) => {
-        fileReducer(files, treeNode)
-      })
-
       return files
     }
 
-    return fileReducer([], TreeNode.build(generatedFiles, root))
+    const files = TreeNode.build(generatedFiles, root)
+      ?.map((treeNode) => {
+        if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
+          return undefined
+        }
+
+        const barrelPath: KubbFile.Path = path.join(treeNode.parent?.data.path, 'index.ts')
+
+        const leaves = treeNode.leaves
+
+        // biome-ignore lint/complexity/useFlatMap: we have a custom map in TreeNode
+        const exports = leaves
+          .map((item) => {
+            if (!item.data.name) {
+              return undefined
+            }
+
+            const sources = item.data.file?.sources || []
+
+            if (!sources.some((source) => source.isExportable)) {
+              logger?.emit(
+                'warning',
+                `No exportable source found(source should have a name and isExportable):\nFile: ${JSON.stringify(item.data.file, undefined, 2)}`,
+              )
+            }
+
+            return sources.map((source) => {
+              if (!item.data.file?.path || !source.isExportable) {
+                return undefined
+              }
+
+              // true when we have a subdirectory that also contains barrel files
+              const isSubExport = !!treeNode.parent?.data.path?.split?.('/')?.length
+
+              if (isSubExport) {
+                return {
+                  name: [source.name],
+                  path: getRelativePath(treeNode.parent?.data.path, item.data.file.path),
+                  isTypeOnly: source.isTypeOnly,
+                } as KubbFile.Export
+              }
+
+              return {
+                name: [source.name],
+                path: `./${item.data.name}`,
+                isTypeOnly: source.isTypeOnly,
+              } as KubbFile.Export
+            })
+          })
+          .flat()
+          .filter(Boolean)
+
+        const combinedExports = combineExports(exports)
+
+        const barrelFile: KubbFile.File = {
+          path: barrelPath,
+          baseName: 'index.ts',
+          exports: combinedExports,
+          sources: combinedExports.flatMap((item) => {
+            if (Array.isArray(item.name)) {
+              return item.name.map((name) => {
+                return {
+                  name: name,
+                  isTypeOnly: item.isTypeOnly,
+                  value: '',
+                }
+              })
+            }
+            return [
+              {
+                name: item.name,
+                isTypeOnly: item.isTypeOnly,
+                value: '',
+              },
+            ]
+          }),
+        }
+        return barrelFile
+      })
+      .filter(Boolean)
+
+    return files || []
   }
 }

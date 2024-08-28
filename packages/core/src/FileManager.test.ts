@@ -4,6 +4,7 @@ import { format } from '../mocks/format.ts'
 import { FileManager, combineExports, combineImports, getSource } from './FileManager.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
+import { createFile } from './utils'
 
 describe('FileManager', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')
@@ -111,10 +112,12 @@ describe('FileManager', () => {
     expect(file.imports).toMatchInlineSnapshot(`
       [
         {
+          "extName": "",
           "name": "path",
           "path": "node:path",
         },
         {
+          "extName": "",
           "name": "fs",
           "path": "node:fs",
         },
@@ -231,48 +234,60 @@ describe('FileManager', () => {
       [
         {
           "baseName": "test.ts",
-          "extName": "ts",
+          "exports": [],
+          "extName": ".ts",
           "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
+          "imports": [],
           "name": "test",
           "path": "src/test.ts",
           "sources": [],
         },
         {
           "baseName": "file2.ts",
-          "extName": "ts",
+          "exports": [],
+          "extName": ".ts",
           "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
+          "imports": [],
           "name": "file2",
           "path": "src/axios/file2.ts",
           "sources": [],
         },
         {
           "baseName": "file2.ts",
-          "extName": "ts",
+          "exports": [],
+          "extName": ".ts",
           "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
+          "imports": [],
           "name": "file2",
           "path": "src/axios/file1.ts",
           "sources": [],
         },
         {
           "baseName": "index.ts",
-          "extName": "ts",
+          "exports": [],
+          "extName": ".ts",
           "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
+          "imports": [],
           "name": "index",
           "path": "src/axios/index.ts",
           "sources": [],
         },
         {
           "baseName": "test.ts",
-          "extName": "ts",
+          "exports": [],
+          "extName": ".ts",
           "id": "a2d277093a81a74c56c0d094071195302d6bb484",
+          "imports": [],
           "name": "test",
           "path": "src/controller/test.ts",
           "sources": [],
         },
         {
           "baseName": "pet.ts",
-          "extName": "ts",
+          "exports": [],
+          "extName": ".ts",
           "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
+          "imports": [],
           "name": "pet",
           "path": "src/axios/controller/pet.ts",
           "sources": [],
@@ -329,8 +344,10 @@ describe('FileManager', () => {
                   {
                     "file": {
                       "baseName": "file2.ts",
-                      "extName": "ts",
+                      "exports": [],
+                      "extName": ".ts",
                       "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
+                      "imports": [],
                       "name": "file2",
                       "path": "src/axios/file2.ts",
                       "sources": [],
@@ -341,8 +358,10 @@ describe('FileManager', () => {
                   {
                     "file": {
                       "baseName": "file2.ts",
-                      "extName": "ts",
+                      "exports": [],
+                      "extName": ".ts",
                       "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
+                      "imports": [],
                       "name": "file2",
                       "path": "src/axios/file1.ts",
                       "sources": [],
@@ -355,8 +374,10 @@ describe('FileManager', () => {
                       {
                         "file": {
                           "baseName": "pet.ts",
-                          "extName": "ts",
+                          "exports": [],
+                          "extName": ".ts",
                           "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
+                          "imports": [],
                           "name": "pet",
                           "path": "src/axios/controller/pet.ts",
                           "sources": [],
@@ -371,8 +392,10 @@ describe('FileManager', () => {
                   {
                     "file": {
                       "baseName": "index.ts",
-                      "extName": "ts",
+                      "exports": [],
+                      "extName": ".ts",
                       "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
+                      "imports": [],
                       "name": "index",
                       "path": "src/axios/index.ts",
                       "sources": [],
@@ -389,8 +412,10 @@ describe('FileManager', () => {
                   {
                     "file": {
                       "baseName": "test.ts",
-                      "extName": "ts",
+                      "exports": [],
+                      "extName": ".ts",
                       "id": "a2d277093a81a74c56c0d094071195302d6bb484",
+                      "imports": [],
                       "name": "test",
                       "path": "src/controller/test.ts",
                       "sources": [],
@@ -405,8 +430,10 @@ describe('FileManager', () => {
               {
                 "file": {
                   "baseName": "test.ts",
-                  "extName": "ts",
+                  "exports": [],
+                  "extName": ".ts",
                   "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
+                  "imports": [],
                   "name": "test",
                   "path": "src/test.ts",
                   "sources": [],
@@ -428,75 +455,83 @@ describe('FileManager', () => {
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', async () => {
-    const code = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      imports: [
-        {
-          name: ['Pets'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-      ],
-      sources: [
-        {
-          value: 'export type Pet = Pets;',
-        },
-      ],
-    })
-    const codeWithDefaultImport = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      imports: [
-        {
-          name: 'client',
-          path: './Pets',
-        },
-        {
-          name: ['Pets', 'Cat'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-        {
-          name: 'React',
-          path: './React',
-        },
-      ],
-      sources: [
-        {
-          value: 'export type Pet = Pets | Cat; const test = [client, React];',
-        },
-      ],
-    })
-    const codeWithDefaultImportOrder = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      sources: [
-        {
-          value: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
-        },
-      ],
-      imports: [
-        {
-          name: ['Pets', 'Cat'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-        {
-          name: 'client',
-          path: './Pets',
-        },
-        {
-          name: 'React',
-          path: './React',
-        },
-        {
-          name: ['Pets', 'Cat'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-      ],
-    })
+    const code = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        imports: [
+          {
+            name: ['Pets'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+        sources: [
+          {
+            value: 'export type Pet = Pets;',
+          },
+        ],
+      }),
+    )
+
+    const codeWithDefaultImport = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        imports: [
+          {
+            name: 'client',
+            path: './Pets',
+          },
+          {
+            name: ['Pets', 'Cat'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+          {
+            name: 'React',
+            path: './React',
+          },
+        ],
+        sources: [
+          {
+            value: 'export type Pet = Pets | Cat; const test = [client, React];',
+          },
+        ],
+      }),
+    )
+
+    const codeWithDefaultImportOrder = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        sources: [
+          {
+            value: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
+          },
+        ],
+        imports: [
+          {
+            name: ['Pets', 'Cat'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+          {
+            name: 'client',
+            path: './Pets',
+          },
+          {
+            name: 'React',
+            path: './React',
+          },
+          {
+            name: ['Pets', 'Cat'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+      }),
+    )
 
     expect(await format(code)).toMatchSnapshot()
     expect(await format(codeWithDefaultImport)).toMatchSnapshot()
@@ -504,27 +539,29 @@ describe('FileManager utils', () => {
   })
 
   test('if getFileSource is returning code with imports and default import', async () => {
-    const code = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      sources: [
-        {
-          value: 'export type Pet = Pets;',
-        },
-      ],
-      imports: [
-        {
-          name: 'Pets',
-          path: './Pets',
-          isTypeOnly: true,
-        },
-      ],
-    })
+    const code = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        sources: [
+          {
+            value: 'export type Pet = Pets;',
+          },
+        ],
+        imports: [
+          {
+            name: 'Pets',
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+      }),
+    )
     expect(await format(code)).toMatchSnapshot()
   })
 
   test('if getFileSource is returning code with exports and exports as', async () => {
-    const fileImport: KubbFile.File = {
+    const fileImport = createFile({
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
       sources: [
@@ -550,9 +587,9 @@ describe('FileManager utils', () => {
           isTypeOnly: true,
         },
       ],
-    }
+    })
 
-    const fileExport: KubbFile.File = {
+    const fileExport = createFile({
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
       sources: [],
@@ -574,7 +611,7 @@ describe('FileManager utils', () => {
           isTypeOnly: true,
         },
       ],
-    }
+    })
 
     expect(await format(await getSource(fileImport))).toMatchSnapshot()
     expect(await format(await getSource(fileExport))).toMatchSnapshot()

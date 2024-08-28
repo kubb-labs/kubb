@@ -1,31 +1,3 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<File/> > render multiple Files 1`] = `
-"const test = 1;
-            import node from "node";
-
-const test2 = 2;"
-`;
-
-exports[`<File/> > render multiple Files 2`] = `
-[
-  {
-    "isExportable": undefined,
-    "isTypeOnly": undefined,
-    "name": undefined,
-    "value": "const test = 1;
-            import node from "node";",
-  },
-]
-`;
-
-exports[`<File/> > render multiple Files 4`] = `
-[
-  {
-    "isExportable": undefined,
-    "isTypeOnly": undefined,
-    "name": undefined,
-    "value": "const test2 = 2;",
-  },
-]
-`;
+exports[`<File/> > render multiple Files 1`] = `""`;

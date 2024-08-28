@@ -95,6 +95,48 @@ export class TreeNode {
     return this
   }
 
+  filter(callback: (treeNode: TreeNode) => boolean): Array<TreeNode> {
+    let data: Array<TreeNode> = []
+    if (typeof callback !== 'function') {
+      throw new TypeError('forEach() callback must be a function')
+    }
+
+    // run this node through function
+    if (callback(this)) {
+      data.push(this)
+    }
+
+    // do the same for all children
+    if (this.children) {
+      for (let i = 0, { length } = this.children; i < length; i++) {
+        const childData = this.children[i]?.filter(callback).filter(Boolean) || []
+        data = [...new Set([...data, ...childData])]
+      }
+    }
+
+    return data
+  }
+
+  map<T>(callback: (treeNode: TreeNode) => T): Array<T> {
+    let data: Array<T> = []
+    if (typeof callback !== 'function') {
+      throw new TypeError('forEach() callback must be a function')
+    }
+
+    // run this node through function
+    data.push(callback(this))
+
+    // do the same for all children
+    if (this.children) {
+      for (let i = 0, { length } = this.children; i < length; i++) {
+        const childData = this.children[i]?.map(callback).filter(Boolean) || []
+        data = [...new Set([...data, ...childData])]
+      }
+    }
+
+    return data
+  }
+
   public static build(files: KubbFile.File[], root?: string): TreeNode | null {
     try {
       const filteredTree = buildDirectoryTree(files, root)

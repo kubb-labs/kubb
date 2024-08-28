@@ -1,8 +1,9 @@
 import { extname } from 'node:path'
 import type * as KubbFile from '@kubb/fs/types'
 
-import type { ResolvedExport } from '@kubb/fs/src/types.ts'
+import { getRelativePath } from '@kubb/fs'
 import hash from 'object-hash'
+import { combineExports, combineImports } from '../FileManager.ts';
 import type { Logger } from '../logger.ts'
 
 /**
@@ -15,13 +16,18 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
     throw new Error(`No extName found for ${file.baseName}`)
   }
 
+  const source = file.sources.map((item) => item.value).join('\n\n')
+  const exports = file.exports ? combineExports(file.exports) : []
+  const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
+
+
   return {
     ...file,
     id: hash({ path: file.path }),
     name: trimExtName(file.baseName),
     extName,
-    imports: file.imports?.map((item) => createFileImport(item)) || [],
-    exports: file.exports?.map((item) => createFileExport(item)) || [],
+    imports: imports?.map((item) => createFileImport(item)) || [],
+    exports: exports?.map((item) => createFileExport(item)) || [],
   }
 }
 
@@ -49,39 +55,29 @@ export function createFileExport(exp: KubbFile.Export): KubbFile.ResolvedExport 
   }
 }
 
-export type ParserModule<TImport = unknown, TExport = unknown> = {
-  createImport: (props: {
-    name:
-      | string
-      | Array<
-          | string
-          | {
-              propertyName: string
-              name?: string
-            }
-        >
-    path: string
-    isTypeOnly?: boolean
-    isNameSpace?: boolean
-  }) => TImport | undefined
-  createExport: (props: {
-    path: string
-    asAlias?: boolean
-    isTypeOnly?: boolean
-    name?: string | Array<string>
-  }) => TExport | undefined
-  print: (props: { imports: Array<TImport>; exports: Array<TExport>; source: string }) => string
+export type ParserModule<TMeta extends object = object> = {
+  /**
+   * By default @kubb/react is used
+   */
+  render: (item: any) => any
+  /**
+   * Convert a file to string
+   */
+  print: (file: KubbFile.ResolvedFile<TMeta>) => string
 }
 
-export function createFileParser<TImport = unknown, TExport = unknown>(parser: ParserModule<TImport, TExport>): ParserModule<TImport, TExport> {
+export function createFileParser<TMeta extends object = object>(parser: ParserModule<TMeta>): ParserModule<TMeta> {
   return parser
 }
 
 type GetFileParserOptions = {
-  logger: Logger
+  logger?: Logger
 }
 
-export async function getFileParser(extName: KubbFile.Extname | undefined, { logger }: GetFileParserOptions): Promise<ParserModule<any, any>> {
+export async function getFileParser<TMeta extends object = object>(
+  extName: KubbFile.Extname | undefined,
+  { logger }: GetFileParserOptions = {},
+): Promise<ParserModule<TMeta>> {
   switch (extName) {
     case '.ts':
     case '.js':
@@ -90,23 +86,34 @@ export async function getFileParser(extName: KubbFile.Extname | undefined, { log
       const module = await import('@kubb/parser-ts')
 
       return createFileParser({
-        createExport({ name, path, isTypeOnly, asAlias }) {
-          return module.factory.createExportDeclaration({
-            path,
-            asAlias,
-            isTypeOnly,
-            name,
-          })
+        render() {
+          return undefined
         },
-        createImport({ name, path, isTypeOnly }) {
-          return module.factory.createImportDeclaration({
-            name: name as any,
-            path,
-            isTypeOnly,
-          })
-        },
-        print(props) {
-          const source = [module.print([...props.imports, ...props.exports]), props.source].join('\n')
+        print(file) {
+          const importNodes = file.imports
+            .map((item) => {
+              const path = item.root ? getRelativePath(item.root, item.path) : item.path
+
+              return module.factory.createImportDeclaration({
+                name: item.name,
+                path,
+                isTypeOnly: item.isTypeOnly,
+              })
+            })
+            .filter(Boolean)
+
+          const exportNodes = file.exports
+            .map((item) => {
+              return module.factory.createExportDeclaration({
+                name: item.name,
+                path: item.path,
+                isTypeOnly: item.isTypeOnly,
+                asAlias: item.asAlias,
+              })
+            })
+            .filter(Boolean)
+
+          const source = [module.print([...importNodes, ...exportNodes]), file.sources.map((item) => item.value).join('\n\n')].join('\n')
 
           // do some basic linting with the ts compiler
           return module.print([], { source, noEmitHelpers: false })
@@ -114,21 +121,14 @@ export async function getFileParser(extName: KubbFile.Extname | undefined, { log
       })
     }
     default:
-      return createFileParser<string>({
-        createExport() {
-          logger.emit('warning', `No createExport found for ${extName}`)
-
+      return createFileParser({
+        render() {
           return undefined
         },
-        createImport() {
-          logger.emit('warning', `No createImport found for ${extName}`)
+        print(file) {
+          logger?.emit('warning', `[parser] No print found for ${file.path}, falling back will be used`)
 
-          throw new Error(`No parser found for ${extName}`)
-        },
-        print(props) {
-          logger.emit('warning', `No print found for ${extName}, falling back on source`)
-
-          return props.source
+          return file.sources.map((item) => item.value).join('\n\n')
         },
       })
   }

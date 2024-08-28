@@ -167,6 +167,7 @@ export class FileManager {
       path: rootPath,
       baseName: 'index.ts',
       exports: barrelFiles
+        .filter((file) => !file.path.endsWith('index.ts'))
         .flatMap((file) =>
           file.exports?.map((exportItem) =>
             exportItem?.path
@@ -224,44 +225,13 @@ export class FileManager {
 }
 
 type GetSourceOptions = {
-  logger: Logger
+  logger?: Logger
 }
 
-export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions): Promise<string> {
+export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions={}): Promise<string> {
   const parser = await getFileParser(file.extName, { logger })
 
-  const source = file.sources.map((item) => item.value).join('\n\n')
-  const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
-
-  const importNodes = imports
-    .map((item) => {
-      const path = item.root ? getRelativePath(item.root, item.path) : item.path
-
-      return parser.createImport({
-        name: item.name,
-        path: path,
-        isTypeOnly: item.isTypeOnly,
-      })
-    })
-    .filter(Boolean)
-
-  const exportNodes = exports
-    .map((item) => {
-      return parser.createExport({
-        name: item.name,
-        path: item.path,
-        isTypeOnly: item.isTypeOnly,
-        asAlias: item.asAlias,
-      })
-    })
-    .filter(Boolean)
-
-  return parser.print({
-    imports: importNodes,
-    exports: exportNodes,
-    source,
-  })
+  return parser.print(file)
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {

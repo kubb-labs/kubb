@@ -3,6 +3,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import { format } from '../mocks/format.ts'
 import { BarrelManager } from './BarrelManager.ts'
 import { getSource } from './FileManager.ts'
+import { createFile } from './utils'
 
 describe('BarrelManager', () => {
   const files: KubbFile.File[] = [
@@ -61,7 +62,7 @@ describe('BarrelManager', () => {
 
     expect(rootIndex).toBeDefined()
 
-    const code = await getSource(rootIndex)
+    const code = await getSource(createFile(rootIndex))
 
     expect(await format(code)).toMatchSnapshot()
 
@@ -81,7 +82,7 @@ describe('BarrelManager', () => {
               "name": [
                 "test",
               ],
-              "path": "./test",
+              "path": "./test.ts",
             },
           ],
           "path": "src/index.ts",
@@ -101,14 +102,39 @@ describe('BarrelManager', () => {
               "name": [
                 "hello",
               ],
-              "path": "./hello",
+              "path": "./sub/hello.ts",
             },
             {
               "isTypeOnly": undefined,
               "name": [
                 "world",
               ],
-              "path": "./world",
+              "path": "./sub/world.ts",
+            },
+          ],
+          "path": "src/index.ts",
+          "sources": [
+            {
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
+            {
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "hello",
+              ],
+              "path": "./hello.ts",
             },
           ],
           "path": "src/sub/index.ts",
@@ -118,6 +144,21 @@ describe('BarrelManager', () => {
               "name": "hello",
               "value": "",
             },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "world",
+              ],
+              "path": "./world.ts",
+            },
+          ],
+          "path": "src/sub/index.ts",
+          "sources": [
             {
               "isTypeOnly": undefined,
               "name": "world",
