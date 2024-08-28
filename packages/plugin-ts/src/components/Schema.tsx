@@ -102,7 +102,7 @@ export function Schema(props: Props): ReactNode {
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
 
   const enums = enumSchemas.map((enumSchema) => {
-    const name = transformers.camelCase(enumSchema.args.name)
+    const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
     const typeName = enumSchema.args.typeName
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
@@ -138,7 +138,7 @@ export function Schema(props: Props): ReactNode {
               {print(nameNode)}
             </File.Source>
           )}
-          <File.Source name={typeName} isExportable isTypeOnly>
+          <File.Source name={typeName} isExportable={['enum', 'asConst', 'constEnum', 'literal'].includes(enumType)} isTypeOnly>
             {print(typeNode)}
           </File.Source>
         </Fragment>

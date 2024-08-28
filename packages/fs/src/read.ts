@@ -27,10 +27,10 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
   const slashedPath = slash(relativePath, platform)
 
   if (slashedPath.startsWith('../')) {
-    return slashedPath.replace(basename(slashedPath), basename(slashedPath, extname(filePath)))
+    return slashedPath
   }
 
-  return `./${slashedPath.replace(basename(slashedPath), basename(slashedPath, extname(filePath)))}`
+  return `./${slashedPath}`
 }
 
 const reader = switcher(

@@ -4,6 +4,13 @@ import { readSync } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
+import type { Logger } from '../src/logger'
+
+export const mockedLogger = {
+  emit(type, message) {},
+  on(type, message) {},
+  consola: {},
+} as Logger
 
 export const mockedPluginManager = {
   resolveName: ({ name, type }) => {
@@ -48,7 +55,7 @@ export const mockedPluginManager = {
 
 export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File>) {
   for (const file of files) {
-    const source = await getSource(file as KubbFile.ResolvedFile)
+    const source = await getSource(file as KubbFile.ResolvedFile, { logger: mockedLogger })
     expect(source).toMatchSnapshot()
   }
 }

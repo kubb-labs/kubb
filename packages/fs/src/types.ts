@@ -20,7 +20,7 @@ export type Import = {
    * @example '@kubb/core'
    */
   path: string
-  extName?: string
+  extName?: Extname
   /**
    * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
    */
@@ -49,10 +49,9 @@ export type Export = {
   name?: string | Array<string>
   /**
    * Path for the import.
-   * When not defined it will only be used in cache(fileManager will not add it and use it to create barrel files)
    * @example '@kubb/core'
    */
-  path?: string
+  path: string
   extName?: Extname
   /**
    * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`.
@@ -64,9 +63,6 @@ export type Export = {
   asAlias?: boolean
 }
 
-/**
- * @deprecated
- */
 export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
 export type Mode = 'single' | 'split'
@@ -88,13 +84,6 @@ export type AdvancedPath<T extends BaseName = BaseName> = `${BasePath}${T}`
 export type OptionalPath = Path | undefined | null
 
 export type File<TMeta extends object = object> = {
-  /**
-   * Unique identifier to reuse later
-   * @default object-hash
-   */
-  id?: string
-  name?: string
-  extName?: string
   /**
    * Name to be used to create the path
    * Based on UNIX basename, `${name}.extName`
@@ -120,6 +109,10 @@ export type File<TMeta extends object = object> = {
   meta?: TMeta
 }
 
+export type ResolvedImport = Import
+
+export type ResolvedExport = Export
+
 export type ResolvedFile<TMeta extends object = object> = File<TMeta> & {
   /**
    * @default object-hash
@@ -130,5 +123,7 @@ export type ResolvedFile<TMeta extends object = object> = File<TMeta> & {
    * @link  https://nodejs.org/api/path.html#pathformatpathobject
    */
   name: string
-  extName: string
+  extName: Extname
+  imports: Array<ResolvedImport>
+  exports: Array<ResolvedExport>
 }

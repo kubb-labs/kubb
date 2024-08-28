@@ -1,7 +1,7 @@
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { File, useApp } from '@kubb/react'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -51,6 +51,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
       pluginKey: [pluginTsName],
       type: 'file',
     })
+    //todo replace by getFile
     const typePath = pluginManager.resolvePath({
       baseName: typeFileName,
       pluginKey: [pluginTsName],

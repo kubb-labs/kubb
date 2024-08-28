@@ -4,19 +4,12 @@ import { TreeNode } from './utils/TreeNode.ts'
 
 import { trimExtName } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import { combineExports } from './FileManager.ts'
+import type { Logger } from './logger.ts'
 
 export type BarrelManagerOptions = {
-  isTypeOnly?: boolean
-  /**
-   * Add .ts or .js
-   */
-  extName?: string
+  logger?: Logger
 }
 
-/**
- * Replace with the use of the FileManager exports/imports
- */
 export class BarrelManager {
   #options: BarrelManagerOptions
 
@@ -27,7 +20,7 @@ export class BarrelManager {
   }
 
   getFiles(generatedFiles: KubbFile.File[], root?: string): Array<KubbFile.File> {
-    const { extName } = this.#options
+    const { logger } = this.#options
 
     const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode | null) => {
       if (!treeNode || !treeNode.children) {
@@ -41,19 +34,18 @@ export class BarrelManager {
         .flatMap((childTreeNode) => {
           const sources = childTreeNode.data.file?.sources || []
 
-          if(!sources
-            .some((source) => source.isExportable)){
-            console.warn("No exportable sources found(source should have a name and isExportable")
+          if (!sources.some((source) => source.isExportable)) {
+            logger?.emit('warning', `No exportable source found(source should have a name and isExportable):\n${JSON.stringify(sources, undefined, 2)}`)
           }
 
           return sources
             .filter((source) => source.isExportable)
             .map((source) => {
-              const importPath: string = childTreeNode.data.file ? `./${trimExtName(childTreeNode.data.name)}` : `./${childTreeNode.data.name}`
+              const importPath: string = childTreeNode.data.file ? `./${childTreeNode.data.name}` : `./${childTreeNode.data.name}`
 
               return {
                 name: [source.name],
-                path: extName ? `${importPath}${extName}` : importPath,
+                path: importPath,
                 isTypeOnly: source.isTypeOnly,
               } as KubbFile.Export
             })

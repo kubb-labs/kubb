@@ -9,29 +9,35 @@ describe('BarrelManager', () => {
     {
       path: 'src/test.ts',
       baseName: 'test.ts',
-      sources: [{
-        name: 'test',
-        value:'export const test = 2;',
-        isExportable: true,
-      }],
+      sources: [
+        {
+          name: 'test',
+          value: 'export const test = 2;',
+          isExportable: true,
+        },
+      ],
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
-      sources: [{
-        name: 'hello',
-        value:'export const hello = 2;',
-        isExportable: true,
-      }],
+      sources: [
+        {
+          name: 'hello',
+          value: 'export const hello = 2;',
+          isExportable: true,
+        },
+      ],
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
-      sources: [{
-        name: 'world',
-        value:'export const world = 2;',
-        isExportable: true,
-      }],
+      sources: [
+        {
+          name: 'world',
+          value: 'export const world = 2;',
+          isExportable: true,
+        },
+      ],
     },
   ]
 
@@ -121,6 +127,5 @@ describe('BarrelManager', () => {
         },
       ]
     `)
-
   })
 })

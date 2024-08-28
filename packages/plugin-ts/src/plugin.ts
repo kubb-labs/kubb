@@ -118,7 +118,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           root,
           output,
           files: this.fileManager.files,
-          plugin: this.plugin,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
           logger: this.logger,
         })
 

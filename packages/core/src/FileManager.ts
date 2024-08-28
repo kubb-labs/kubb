@@ -12,7 +12,6 @@ import { trimExtName } from '@kubb/fs'
 import type { ResolvedFile } from '@kubb/fs/types'
 import type { GreaterThan } from '@kubb/types'
 import PQueue from 'p-queue'
-import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
 import type { Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
@@ -34,8 +33,8 @@ type AddIndexesProps = {
    */
   output: {
     path: string
+    extName?: KubbFile.Extname
     exportAs?: string
-    extName?: string
     exportType?: 'barrel' | 'barrelNamed' | false
   }
   group?: {
@@ -44,8 +43,7 @@ type AddIndexesProps = {
   }
   logger: Logger
   files: KubbFile.File[]
-  options?: BarrelManagerOptions
-  plugin: Plugin
+  meta: FileMetaBase
 }
 
 export class FileManager {
@@ -146,9 +144,9 @@ export class FileManager {
     this.#files.delete(cacheItem)
   }
 
-  async getBarrelFiles({ files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
+  async getBarrelFiles({ files, meta, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
     const { exportType = 'barrelNamed' } = output
-    const barrelManager = new BarrelManager({ ...options, extName: output.extName })
+    const barrelManager = new BarrelManager({ logger })
 
     if (exportType === false) {
       return []
@@ -176,15 +174,14 @@ export class FileManager {
                   path: getRelativePath(rootPath, file.path),
                   name: exportItem.name,
                   isTypeOnly: exportItem.isTypeOnly,
+                  extName: output.extName,
                 }
               : undefined,
           ),
         )
         .filter(Boolean),
       sources: [],
-      meta: {
-        pluginKey: plugin.key,
-      },
+      meta,
     }
 
     if (exportType === 'barrel') {
@@ -204,9 +201,7 @@ export class FileManager {
     return [rootFile, ...barrelFiles].map((indexFile) => {
       return {
         ...indexFile,
-        meta: {
-          pluginKey: plugin.key,
-        },
+        meta,
       }
     })
   }
@@ -228,39 +223,37 @@ export class FileManager {
   }
 }
 
-export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: KubbFile.File<TMeta> | ResolvedFile<TMeta>): Promise<string> {
-  const parser = await getFileParser(file.extName)
+type GetSourceOptions = {
+  logger: Logger
+}
+
+export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions): Promise<string> {
+  const parser = await getFileParser(file.extName, { logger })
 
   const source = file.sources.map((item) => item.value).join('\n\n')
   const exports = file.exports ? combineExports(file.exports) : []
-  // imports should be defined and source should contain code or we have imports without them being used
   const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
 
   const importNodes = imports
-    .filter((item) => {
-      const path = item.root ? getRelativePath(item.root, item.path) : item.path
-      // trim extName
-      return path !== trimExtName(file.path)
-    })
     .map((item) => {
       const path = item.root ? getRelativePath(item.root, item.path) : item.path
 
       return parser.createImport({
         name: item.name,
-        path: item.extName ? `${path}${item.extName}` : path,
+        path: path,
         isTypeOnly: item.isTypeOnly,
       })
     })
+    .filter(Boolean)
+
   const exportNodes = exports
     .map((item) => {
-      if (item.path) {
-        return parser.createExport({
-          name: item.name,
-          path: item.extName ? `${item.path}${item.extName}` : item.path,
-          isTypeOnly: item.isTypeOnly,
-          asAlias: item.asAlias,
-        })
-      }
+      return parser.createExport({
+        name: item.name,
+        path: item.path,
+        isTypeOnly: item.isTypeOnly,
+        asAlias: item.asAlias,
+      })
     })
     .filter(Boolean)
 
@@ -272,7 +265,7 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file:
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
-  const combinedExports = orderBy(exports, [(v) => !v.isTypeOnly], ['asc']).reduce(
+  return exports.reduce(
     (prev, curr) => {
       const name = curr.name
       const prevByPath = prev.findLast((imp) => imp.path === curr.path)
@@ -311,12 +304,10 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
     },
     [] as Array<KubbFile.Export>,
   )
-
-  return orderBy(combinedExports, [(v) => !v.isTypeOnly, (v) => v.asAlias])
 }
 
 export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
-  const combinedImports = orderBy(imports, [(v) => !v.isTypeOnly], ['asc']).reduce(
+  return imports.reduce(
     (prev, curr) => {
       let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
@@ -376,10 +367,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     },
     [] as Array<KubbFile.Import>,
   )
-
-  return orderBy(combinedImports, [(v) => !v.isTypeOnly])
 }
-
 type WriteFilesProps = {
   config: Config
   files: Array<KubbFile.ResolvedFile>
@@ -410,7 +398,7 @@ export async function processFiles({ dryRun, config, logger, files }: WriteFiles
     logger.emit('progress_start', { id: 'files', size })
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
-        const source = await getSource(file)
+        const source = await getSource(file, { logger })
 
         await write(file.path, source, { sanity: false })
 

@@ -34,12 +34,9 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     }
   } catch (e) {
     if (isInputPath(config)) {
-      throw new Error(
-        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${config.input.path}`,
-        {
-          cause: e,
-        },
-      )
+      throw new Error(`Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${config.input.path}`, {
+        cause: e,
+      })
     }
   }
 
@@ -51,12 +48,14 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
- const {files, pluginManager, error}= await safeBuild(options)
+  const { files, pluginManager, error } = await safeBuild(options)
 
-  if(error) throw error
+  if (error) throw error
 
   return {
-   files, pluginManager, error,
+    files,
+    pluginManager,
+    error,
   }
 }
 
