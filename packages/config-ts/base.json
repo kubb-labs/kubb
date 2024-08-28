@@ -5,7 +5,7 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2020",
+    "target": "ESNext",
     "verbatimModuleSyntax": true,
     "allowJs": true,
     "resolveJsonModule": true,

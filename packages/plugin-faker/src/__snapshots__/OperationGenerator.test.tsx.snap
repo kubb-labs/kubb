@@ -4,7 +4,7 @@ exports[`OperationGenerator > 'createPet with seed 222' 1`] = `
 "/**
  * @description Null response
  */
-export function CreatePets201(): NonNullable<CreatePets201> {
+export function createPets201(): NonNullable<CreatePets201> {
   faker.seed([222])
   return undefined
 }
@@ -12,17 +12,17 @@ export function CreatePets201(): NonNullable<CreatePets201> {
 /**
  * @description unexpected error
  */
-export function CreatePetsError(): NonNullable<CreatePetsError> {
+export function createPetsError(): NonNullable<CreatePetsError> {
   faker.seed([222])
-  return Error()
+  return error()
 }
 
-export function CreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+export function createPetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
   faker.seed([222])
   return {"name": faker.string.alpha(),"tag": faker.string.alpha()}
 }
 
-export function CreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
+export function createPetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
   faker.seed([222])
   return undefined
 }"
@@ -32,7 +32,7 @@ exports[`OperationGenerator > 'createPet with unknownType any' 1`] = `
 "/**
  * @description Null response
  */
-export function CreatePets201(): NonNullable<CreatePets201> {
+export function createPets201(): NonNullable<CreatePets201> {
   
   return undefined
 }
@@ -40,17 +40,17 @@ export function CreatePets201(): NonNullable<CreatePets201> {
 /**
  * @description unexpected error
  */
-export function CreatePetsError(): NonNullable<CreatePetsError> {
+export function createPetsError(): NonNullable<CreatePetsError> {
   
-  return Error()
+  return error()
 }
 
-export function CreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+export function createPetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
   
   return {"name": faker.string.alpha(),"tag": faker.string.alpha()}
 }
 
-export function CreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
+export function createPetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
   
   return undefined
 }"
@@ -60,7 +60,7 @@ exports[`OperationGenerator > 'createPet' 1`] = `
 "/**
  * @description Null response
  */
-export function CreatePets201(): NonNullable<CreatePets201> {
+export function createPets201(): NonNullable<CreatePets201> {
   
   return undefined
 }
@@ -68,31 +68,31 @@ export function CreatePets201(): NonNullable<CreatePets201> {
 /**
  * @description unexpected error
  */
-export function CreatePetsError(): NonNullable<CreatePetsError> {
+export function createPetsError(): NonNullable<CreatePetsError> {
   
-  return Error()
+  return error()
 }
 
-export function CreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+export function createPetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
   
   return {"name": faker.string.alpha(),"tag": faker.string.alpha()}
 }
 
-export function CreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
+export function createPetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
   
   return undefined
 }"
 `;
 
 exports[`OperationGenerator > 'deletePet' 1`] = `
-"export function DeletePetsPetidMutationResponse(): NonNullable<DeletePetsPetidMutationResponse> {
+"export function deletePetsPetidMutationResponse(): NonNullable<DeletePetsPetidMutationResponse> {
   
   return undefined
 }"
 `;
 
 exports[`OperationGenerator > 'getPets' 1`] = `
-"export function ListPetsQueryParams(): NonNullable<ListPetsQueryParams> {
+"export function listPetsQueryParams(): NonNullable<ListPetsQueryParams> {
   
   return {"limit": faker.string.alpha()}
 }
@@ -100,30 +100,30 @@ exports[`OperationGenerator > 'getPets' 1`] = `
 /**
  * @description A paged array of pets
  */
-export function ListPets200(): NonNullable<ListPets200> {
+export function listPets200(): NonNullable<ListPets200> {
   
-  return Pets()
+  return pets()
 }
 
 /**
  * @description unexpected error
  */
-export function ListPetsError(): NonNullable<ListPetsError> {
+export function listPetsError(): NonNullable<ListPetsError> {
   
-  return Error()
+  return error()
 }
 
 /**
  * @description A paged array of pets
  */
-export function ListPetsQueryResponse(): NonNullable<ListPetsQueryResponse> {
+export function listPetsQueryResponse(): NonNullable<ListPetsQueryResponse> {
   
-  return Pets()
+  return pets()
 }"
 `;
 
 exports[`OperationGenerator > 'showPetById' 1`] = `
-"export function ShowPetByIdPathParams(): NonNullable<ShowPetByIdPathParams> {
+"export function showPetByIdPathParams(): NonNullable<ShowPetByIdPathParams> {
   
   return {"petId": faker.string.alpha(),"testId": faker.string.alpha()}
 }
@@ -131,24 +131,24 @@ exports[`OperationGenerator > 'showPetById' 1`] = `
 /**
  * @description Expected response to a valid request
  */
-export function ShowPetById200(): NonNullable<ShowPetById200> {
+export function showPetById200(): NonNullable<ShowPetById200> {
   
-  return Pet()
+  return pet()
 }
 
 /**
  * @description unexpected error
  */
-export function ShowPetByIdError(): NonNullable<ShowPetByIdError> {
+export function showPetByIdError(): NonNullable<ShowPetByIdError> {
   
-  return Error()
+  return error()
 }
 
 /**
  * @description Expected response to a valid request
  */
-export function ShowPetByIdQueryResponse(): NonNullable<ShowPetByIdQueryResponse> {
+export function showPetByIdQueryResponse(): NonNullable<ShowPetByIdQueryResponse> {
   
-  return Pet()
+  return pet()
 }"
 `;

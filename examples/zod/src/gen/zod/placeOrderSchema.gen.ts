@@ -1,5 +1,5 @@
 import { z } from '../../zod.ts'
-import { orderSchema } from './orderSchema.gen'
+import { orderSchema } from './orderSchema.gen.ts'
 
 /**
  * @description successful operation

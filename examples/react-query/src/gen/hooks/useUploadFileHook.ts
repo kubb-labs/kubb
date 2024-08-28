@@ -1,6 +1,6 @@
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { UseMutationOptions } from '@tanstack/react-query'
 import client from '@kubb/plugin-client/client'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>

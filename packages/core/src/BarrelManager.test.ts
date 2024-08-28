@@ -1,61 +1,256 @@
 import type * as KubbFile from '@kubb/fs/types'
 
-import { format } from '../mocks/format.ts'
 import { BarrelManager } from './BarrelManager.ts'
-import { getSource } from './FileManager.ts'
 
 describe('BarrelManager', () => {
-  const files: KubbFile.File[] = [
-    {
-      path: 'src/test.ts',
-      baseName: 'test.ts',
-      sources: [],
-    },
-    {
-      path: 'src/sub/hello.ts',
-      baseName: 'hello.ts',
-      sources: [],
-    },
-    {
-      path: 'src/sub/world.ts',
-      baseName: 'world.ts',
-      sources: [],
-    },
-  ]
-
-  test(`if getIndexes returns 'index.ts' files`, () => {
+  test(`if getFiles returns 'index.ts' files`, () => {
+    const files: KubbFile.File[] = [
+      {
+        path: 'src/test.ts',
+        baseName: 'test.ts',
+        sources: [
+          {
+            name: 'test',
+            value: 'export const test = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/hello.ts',
+        baseName: 'hello.ts',
+        sources: [
+          {
+            name: 'hello',
+            value: 'export const hello = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/world.ts',
+        baseName: 'world.ts',
+        sources: [
+          {
+            name: 'world',
+            value: 'export const world = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+    ]
     const barrelManager = new BarrelManager()
-    const indexFiles = barrelManager.getIndexes(files, 'src') || []
-    const rootIndex = indexFiles[0]
+    const barrelFiles = barrelManager.getFiles(files, 'src') || []
+    const rootIndex = barrelFiles[0]
 
     expect(rootIndex).toBeDefined()
-
-    expect(indexFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
-
-    expect(rootIndex?.exports?.every((file) => !file.path?.endsWith('.ts'))).toBeTruthy()
-  })
-
-  test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
-    const barrelManager = new BarrelManager()
-    const indexFiles = barrelManager.getIndexes(files, 'src') || []
-
-    const rootIndex = indexFiles[0]!
-
-    expect(rootIndex).toBeDefined()
-
-    const code = await getSource(rootIndex)
-
-    expect(await format(code)).toMatchSnapshot()
-
+    expect(barrelFiles?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
     expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
-  test('if getIndexes can return an export with treeNode options', () => {
+
+  test('if getFiles retuns subdirectory files without already generated index files', () => {
+    const files: KubbFile.File[] = [
+      {
+        path: 'src/test.ts',
+        baseName: 'test.ts',
+        sources: [
+          {
+            name: 'test',
+            value: 'export const test = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/hello.ts',
+        baseName: 'hello.ts',
+        sources: [
+          {
+            name: 'hello',
+            value: 'export const hello = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/world.ts',
+        baseName: 'world.ts',
+        sources: [
+          {
+            name: 'world',
+            value: 'export const world = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/index.ts',
+        baseName: 'index.ts',
+        sources: [
+          {
+            name: 'world',
+            value: 'export const world = 2;',
+            isExportable: true,
+          },
+          {
+            name: 'hello',
+            value: 'export const hello = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+    ]
     const barrelManager = new BarrelManager()
-    const indexFiles = barrelManager.getIndexes(files, 'src') || []
-    const rootIndex = indexFiles[0]
+    const barrelFiles = barrelManager.getFiles(files) || []
 
-    expect(rootIndex).toBeDefined()
-
-    expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
+    expect(barrelFiles).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "test",
+              ],
+              "path": "./test.ts",
+            },
+          ],
+          "path": "src/index.ts",
+          "sources": [
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "test",
+              "value": "",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "hello",
+              ],
+              "path": "./sub/hello.ts",
+            },
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "world",
+                "hello",
+              ],
+              "path": "./sub/index.ts",
+            },
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "world",
+              ],
+              "path": "./sub/world.ts",
+            },
+          ],
+          "path": "src/index.ts",
+          "sources": [
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "hello",
+              ],
+              "path": "./hello.ts",
+            },
+          ],
+          "path": "src/sub/index.ts",
+          "sources": [
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "world",
+              ],
+              "path": "./world.ts",
+            },
+          ],
+          "path": "src/sub/index.ts",
+          "sources": [
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "world",
+                "hello",
+              ],
+              "path": "./index.ts",
+            },
+          ],
+          "path": "src/sub/index.ts",
+          "sources": [
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+            {
+              "isExportable": false,
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
+          ],
+        },
+      ]
+    `)
   })
 })

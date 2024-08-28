@@ -1,6 +1,6 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from '../../../models/ts/petController/FindPetsByTags'
 import client from '@kubb/plugin-client/client'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from '../../../models/ts/petController/FindPetsByTags.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.

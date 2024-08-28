@@ -1,6 +1,6 @@
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import client from '@kubb/plugin-client/client'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>

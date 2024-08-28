@@ -1,10 +1,10 @@
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import client from '../../../../swr-client.ts'
+import useSWRMutation from 'swr/mutation'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput'
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
+} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 

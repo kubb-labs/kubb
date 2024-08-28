@@ -1,0 +1,86 @@
+[
+  {
+    "path": "src/index.ts",
+    "baseName": "index.ts",
+    "exports": [
+      {
+        "name": [
+          "hello"
+        ],
+        "path": "./sub/hello.ts",
+        "extName": ".ts"
+      },
+      {
+        "name": [
+          "world"
+        ],
+        "path": "./sub/world.ts",
+        "extName": ".ts"
+      },
+      {
+        "name": [
+          "test"
+        ],
+        "path": "./test.ts",
+        "extName": ".ts"
+      }
+    ],
+    "sources": [
+      {
+        "name": "hello",
+        "value": "",
+        "isExportable": false
+      },
+      {
+        "name": "world",
+        "value": "",
+        "isExportable": false
+      },
+      {
+        "name": "test",
+        "value": "",
+        "isExportable": false
+      }
+    ],
+    "id": "feabc02536bd6630458e734990f7e2a21a55c469",
+    "name": "index",
+    "extName": ".ts",
+    "imports": []
+  },
+  {
+    "path": "src/sub/index.ts",
+    "baseName": "index.ts",
+    "exports": [
+      {
+        "name": [
+          "hello"
+        ],
+        "path": "./hello.ts",
+        "extName": ".ts"
+      },
+      {
+        "name": [
+          "world"
+        ],
+        "path": "./world.ts",
+        "extName": ".ts"
+      }
+    ],
+    "sources": [
+      {
+        "name": "hello",
+        "value": "",
+        "isExportable": false
+      },
+      {
+        "name": "world",
+        "value": "",
+        "isExportable": false
+      }
+    ],
+    "id": "c67967bd2363dd9637437671f6fe1ed146debdbf",
+    "name": "index",
+    "extName": ".ts",
+    "imports": []
+  }
+]

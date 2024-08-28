@@ -4,16 +4,16 @@ exports[`OperationGenerator > 'createPet with unknownType unknown' 1`] = `
 "/**
  * @description Null response
 */
-export type CreatePets201 = (Error & {
-    name?: ErrorCode;
+export type createPets201 = (error & {
+    name?: errorCode;
 });
 
 /**
  * @description unexpected error
 */
-export type CreatePetsError = Error;
+export type createPetsError = error;
 
-export type CreatePetsMutationRequest = {
+export type createPetsMutationRequest = {
     /**
      * @type string
     */
@@ -27,13 +27,13 @@ export type CreatePetsMutationRequest = {
 /**
  * @description Null response
 */
-export type CreatePetsMutationResponse = (Error & {
-    name?: ErrorCode;
+export type createPetsMutationResponse = (error & {
+    name?: errorCode;
 });
 
 export type CreatePetsMutation = {
-    Response: CreatePetsMutationResponse;
-    Request: CreatePetsMutationRequest;
+    Response: createPetsMutationResponse;
+    Request: createPetsMutationRequest;
 };"
 `;
 
@@ -41,16 +41,16 @@ exports[`OperationGenerator > 'createPet' 1`] = `
 "/**
  * @description Null response
 */
-export type CreatePets201 = (Error & {
-    name?: ErrorCode;
+export type createPets201 = (error & {
+    name?: errorCode;
 });
 
 /**
  * @description unexpected error
 */
-export type CreatePetsError = Error;
+export type createPetsError = error;
 
-export type CreatePetsMutationRequest = {
+export type createPetsMutationRequest = {
     /**
      * @type string
     */
@@ -64,26 +64,26 @@ export type CreatePetsMutationRequest = {
 /**
  * @description Null response
 */
-export type CreatePetsMutationResponse = (Error & {
-    name?: ErrorCode;
+export type createPetsMutationResponse = (error & {
+    name?: errorCode;
 });
 
 export type CreatePetsMutation = {
-    Response: CreatePetsMutationResponse;
-    Request: CreatePetsMutationRequest;
+    Response: createPetsMutationResponse;
+    Request: createPetsMutationRequest;
 };"
 `;
 
 exports[`OperationGenerator > 'deletePet' 1`] = `
-"export type DeletePetsPetidMutationResponse = any;
+"export type deletePetsPetidMutationResponse = any;
 
 export type DeletePetsPetidMutation = {
-    Response: DeletePetsPetidMutationResponse;
+    Response: deletePetsPetidMutationResponse;
 };"
 `;
 
 exports[`OperationGenerator > 'getPets' 1`] = `
-"export type ListPetsQueryParams = {
+"export type listPetsQueryParams = {
     /**
      * @description How many items to return at one time (max 100)
      * @type string | undefined
@@ -94,26 +94,26 @@ exports[`OperationGenerator > 'getPets' 1`] = `
 /**
  * @description A paged array of pets
 */
-export type ListPets200 = Pets;
+export type listPets200 = pets;
 
 /**
  * @description unexpected error
 */
-export type ListPetsError = Error;
+export type listPetsError = error;
 
 /**
  * @description A paged array of pets
 */
-export type ListPetsQueryResponse = Pets;
+export type listPetsQueryResponse = pets;
 
 export type ListPetsQuery = {
-    Response: ListPetsQueryResponse;
-    QueryParams: ListPetsQueryParams;
+    Response: listPetsQueryResponse;
+    QueryParams: listPetsQueryParams;
 };"
 `;
 
 exports[`OperationGenerator > 'showPetById' 1`] = `
-"export type ShowPetByIdPathParams = {
+"export type showPetByIdPathParams = {
     /**
      * @description The id of the pet to retrieve
      * @type string
@@ -129,20 +129,20 @@ exports[`OperationGenerator > 'showPetById' 1`] = `
 /**
  * @description Expected response to a valid request
 */
-export type ShowPetById200 = Pet;
+export type showPetById200 = pet;
 
 /**
  * @description unexpected error
 */
-export type ShowPetByIdError = Error;
+export type showPetByIdError = error;
 
 /**
  * @description Expected response to a valid request
 */
-export type ShowPetByIdQueryResponse = Pet;
+export type showPetByIdQueryResponse = pet;
 
 export type ShowPetByIdQuery = {
-    Response: ShowPetByIdQueryResponse;
-    PathParams: ShowPetByIdPathParams;
+    Response: showPetByIdQueryResponse;
+    PathParams: showPetByIdPathParams;
 };"
 `;

@@ -14,16 +14,21 @@ module.exports = defineConfig(() => {
       path: './src/gen',
       clean: true,
     },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+    },
     plugins: [
       pluginOas({ output: false }),
       pluginTs({
         output: {
           path: 'models',
+          exportType: false,
         },
       }),
       pluginFaker({
         output: {
           path: './customMocks',
+          exportType: false,
         },
         transformers: {
           schema: ({ schema, name, parentName }, defaultSchemas) => {

@@ -1,3 +1,4 @@
+import client from '@kubb/plugin-client/client'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -63,9 +64,8 @@ import type {
   DeleteUserPathParams,
   DeleteUser400,
   DeleteUser404,
-} from './models'
+} from './models.ts'
 import type { UseMutationOptions, QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import client from '@kubb/plugin-client/client'
 import { useMutation, useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>

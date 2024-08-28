@@ -1,9 +1,10 @@
 import path from 'node:path'
 
 import { format } from '../mocks/format.ts'
-import { FileManager, combineExports, combineImports, getSource } from './FileManager.ts'
+import { FileManager, combineExports, combineImports, combineSources, getSource } from './FileManager.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
+import { createFile } from './utils'
 
 describe('FileManager', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')
@@ -101,9 +102,8 @@ describe('FileManager', () => {
     expect(file.sources).toMatchInlineSnapshot(`
       [
         {
-          "value": "const file1 ='file1';",
-        },
-        {
+          "isExportable": undefined,
+          "isTypeOnly": undefined,
           "value": "const file1Bis ='file1Bis';",
         },
       ]
@@ -111,12 +111,14 @@ describe('FileManager', () => {
     expect(file.imports).toMatchInlineSnapshot(`
       [
         {
-          "name": "path",
-          "path": "node:path",
-        },
-        {
+          "extName": "",
           "name": "fs",
           "path": "node:fs",
+        },
+        {
+          "extName": "",
+          "name": "path",
+          "path": "node:path",
         },
       ]
     `)
@@ -187,7 +189,6 @@ describe('FileManager', () => {
     expect(FileManager.getMode(undefined)).toBe('split')
     expect(FileManager.getMode(null)).toBe('split')
   })
-  test.todo('fileManager.addIndexes')
 
   test('fileManager.orderedFiles', async () => {
     const fileManager = new FileManager()
@@ -227,58 +228,84 @@ describe('FileManager', () => {
       sources: [],
     })
 
-    expect(fileManager.orderedFiles).toMatchInlineSnapshot(`
-      [
-        {
-          "baseName": "test.ts",
-          "extName": "ts",
-          "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
-          "name": "test",
-          "path": "src/test.ts",
-          "sources": [],
-        },
-        {
-          "baseName": "file2.ts",
-          "extName": "ts",
-          "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
-          "name": "file2",
-          "path": "src/axios/file2.ts",
-          "sources": [],
-        },
-        {
-          "baseName": "file2.ts",
-          "extName": "ts",
-          "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
-          "name": "file2",
-          "path": "src/axios/file1.ts",
-          "sources": [],
-        },
-        {
-          "baseName": "index.ts",
-          "extName": "ts",
-          "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
-          "name": "index",
-          "path": "src/axios/index.ts",
-          "sources": [],
-        },
-        {
-          "baseName": "test.ts",
-          "extName": "ts",
-          "id": "a2d277093a81a74c56c0d094071195302d6bb484",
-          "name": "test",
-          "path": "src/controller/test.ts",
-          "sources": [],
-        },
-        {
-          "baseName": "pet.ts",
-          "extName": "ts",
-          "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
-          "name": "pet",
-          "path": "src/axios/controller/pet.ts",
-          "sources": [],
-        },
-      ]
-    `)
+    const files = fileManager.orderedFiles
+
+    expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/ordered.json'))
+  })
+
+  test('fileManager.getBarrelFiles', async () => {
+    const fileManager = new FileManager()
+    const files: KubbFile.File[] = [
+      {
+        path: 'src/test.ts',
+        baseName: 'test.ts',
+        sources: [
+          {
+            name: 'test',
+            value: 'export const test = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/index.ts',
+        baseName: 'index.ts',
+        sources: [
+          {
+            name: 'hello',
+            value: '',
+          },
+          {
+            name: 'world',
+            value: '',
+          },
+        ],
+        exports: [
+          {
+            name: ['hello'],
+            path: './sub/hello.ts',
+          },
+          {
+            name: ['world'],
+            path: './sub/world.ts',
+          },
+        ],
+      },
+      {
+        path: 'src/sub/hello.ts',
+        baseName: 'hello.ts',
+        sources: [
+          {
+            name: 'hello',
+            value: 'export const hello = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+      {
+        path: 'src/sub/world.ts',
+        baseName: 'world.ts',
+        sources: [
+          {
+            name: 'world',
+            value: 'export const world = 2;',
+            isExportable: true,
+          },
+        ],
+      },
+    ]
+
+    const barrelFiles = await fileManager.getBarrelFiles({
+      files,
+      root: 'src',
+      output: {
+        path: '.',
+      },
+    })
+
+    await fileManager.add(...barrelFiles)
+
+    expect(JSON.stringify(fileManager.files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/barrel.json'))
   })
 
   test('fileManager.groupedFiles', async () => {
@@ -318,185 +345,91 @@ describe('FileManager', () => {
       baseName: 'index.ts',
       sources: [],
     })
+    const files = fileManager.groupedFiles
 
-    expect(fileManager.groupedFiles).toMatchInlineSnapshot(`
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "file": {
-                      "baseName": "file2.ts",
-                      "extName": "ts",
-                      "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
-                      "name": "file2",
-                      "path": "src/axios/file2.ts",
-                      "sources": [],
-                    },
-                    "name": "file2.ts",
-                    "path": "src/axios/file2.ts",
-                  },
-                  {
-                    "file": {
-                      "baseName": "file2.ts",
-                      "extName": "ts",
-                      "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
-                      "name": "file2",
-                      "path": "src/axios/file1.ts",
-                      "sources": [],
-                    },
-                    "name": "file1.ts",
-                    "path": "src/axios/file1.ts",
-                  },
-                  {
-                    "children": [
-                      {
-                        "file": {
-                          "baseName": "pet.ts",
-                          "extName": "ts",
-                          "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
-                          "name": "pet",
-                          "path": "src/axios/controller/pet.ts",
-                          "sources": [],
-                        },
-                        "name": "pet.ts",
-                        "path": "src/axios/controller/pet.ts",
-                      },
-                    ],
-                    "name": "controller",
-                    "path": "src/axios/controller",
-                  },
-                  {
-                    "file": {
-                      "baseName": "index.ts",
-                      "extName": "ts",
-                      "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
-                      "name": "index",
-                      "path": "src/axios/index.ts",
-                      "sources": [],
-                    },
-                    "name": "index.ts",
-                    "path": "src/axios/index.ts",
-                  },
-                ],
-                "name": "axios",
-                "path": "src/axios",
-              },
-              {
-                "children": [
-                  {
-                    "file": {
-                      "baseName": "test.ts",
-                      "extName": "ts",
-                      "id": "a2d277093a81a74c56c0d094071195302d6bb484",
-                      "name": "test",
-                      "path": "src/controller/test.ts",
-                      "sources": [],
-                    },
-                    "name": "test.ts",
-                    "path": "src/controller/test.ts",
-                  },
-                ],
-                "name": "controller",
-                "path": "src/controller",
-              },
-              {
-                "file": {
-                  "baseName": "test.ts",
-                  "extName": "ts",
-                  "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
-                  "name": "test",
-                  "path": "src/test.ts",
-                  "sources": [],
-                },
-                "name": "test.ts",
-                "path": "src/test.ts",
-              },
-            ],
-            "name": "src",
-            "path": "src",
-          },
-        ],
-        "name": "",
-        "path": "",
-      }
-    `)
+    expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/grouped.json'))
   })
 })
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', async () => {
-    const code = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      imports: [
-        {
-          name: ['Pets'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-      ],
-      sources: [
-        {
-          value: 'export type Pet = Pets;',
-        },
-      ],
-    })
-    const codeWithDefaultImport = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      imports: [
-        {
-          name: 'client',
-          path: './Pets',
-        },
-        {
-          name: ['Pets', 'Cat'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-        {
-          name: 'React',
-          path: './React',
-        },
-      ],
-      sources: [
-        {
-          value: 'export type Pet = Pets | Cat; const test = [client, React];',
-        },
-      ],
-    })
-    const codeWithDefaultImportOrder = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      sources: [
-        {
-          value: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
-        },
-      ],
-      imports: [
-        {
-          name: ['Pets', 'Cat'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-        {
-          name: 'client',
-          path: './Pets',
-        },
-        {
-          name: 'React',
-          path: './React',
-        },
-        {
-          name: ['Pets', 'Cat'],
-          path: './Pets',
-          isTypeOnly: true,
-        },
-      ],
-    })
+    const code = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        imports: [
+          {
+            name: ['Pets'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+        sources: [
+          {
+            value: 'export type Pet = Pets;',
+          },
+        ],
+      }),
+    )
+
+    const codeWithDefaultImport = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        imports: [
+          {
+            name: 'client',
+            path: './Pets',
+          },
+          {
+            name: ['Pets', 'Cat'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+          {
+            name: 'React',
+            path: './React',
+          },
+        ],
+        sources: [
+          {
+            value: 'export type Pet = Pets | Cat; const test = [client, React];',
+          },
+        ],
+      }),
+    )
+
+    const codeWithDefaultImportOrder = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        sources: [
+          {
+            value: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
+          },
+        ],
+        imports: [
+          {
+            name: ['Pets', 'Cat'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+          {
+            name: 'client',
+            path: './Pets',
+          },
+          {
+            name: 'React',
+            path: './React',
+          },
+          {
+            name: ['Pets', 'Cat'],
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+      }),
+    )
 
     expect(await format(code)).toMatchSnapshot()
     expect(await format(codeWithDefaultImport)).toMatchSnapshot()
@@ -504,27 +437,29 @@ describe('FileManager utils', () => {
   })
 
   test('if getFileSource is returning code with imports and default import', async () => {
-    const code = await getSource({
-      baseName: 'test.ts',
-      path: 'models/ts/test.ts',
-      sources: [
-        {
-          value: 'export type Pet = Pets;',
-        },
-      ],
-      imports: [
-        {
-          name: 'Pets',
-          path: './Pets',
-          isTypeOnly: true,
-        },
-      ],
-    })
+    const code = await getSource(
+      createFile({
+        baseName: 'test.ts',
+        path: 'models/ts/test.ts',
+        sources: [
+          {
+            value: 'export type Pet = Pets;',
+          },
+        ],
+        imports: [
+          {
+            name: 'Pets',
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+      }),
+    )
     expect(await format(code)).toMatchSnapshot()
   })
 
   test('if getFileSource is returning code with exports and exports as', async () => {
-    const fileImport: KubbFile.File = {
+    const fileImport = createFile({
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
       sources: [
@@ -550,9 +485,9 @@ describe('FileManager utils', () => {
           isTypeOnly: true,
         },
       ],
-    }
+    })
 
-    const fileExport: KubbFile.File = {
+    const fileExport = createFile({
       path: './src/models/file1.ts',
       baseName: 'file1.ts',
       sources: [],
@@ -574,13 +509,49 @@ describe('FileManager utils', () => {
           isTypeOnly: true,
         },
       ],
-    }
+    })
 
     expect(await format(await getSource(fileImport))).toMatchSnapshot()
     expect(await format(await getSource(fileExport))).toMatchSnapshot()
   })
 
-  test('if combineExports is filtering out duplicated exports', () => {
+  test('if combineExports is filtering out duplicated sources(by name)', () => {
+    const sources: Array<KubbFile.Source> = [
+      {
+        name: 'test',
+        isTypeOnly: false,
+        value: 'const test = 2',
+      },
+      {
+        name: 'test',
+        isTypeOnly: false,
+        value: 'const test = 3',
+      },
+      {
+        name: 'Test',
+        isTypeOnly: false,
+        value: 'type Test = 2',
+      },
+    ]
+
+    expect(combineSources(sources)).toMatchInlineSnapshot(`
+      [
+        {
+          "isExportable": undefined,
+          "isTypeOnly": false,
+          "name": "test",
+          "value": "const test = 3",
+        },
+        {
+          "isTypeOnly": false,
+          "name": "Test",
+          "value": "type Test = 2",
+        },
+      ]
+    `)
+  })
+
+  test('if combineExports is filtering out duplicated exports(by path and name)', () => {
     const exports: Array<KubbFile.Export> = [
       {
         path: './models',
@@ -616,7 +587,7 @@ describe('FileManager utils', () => {
     `)
   })
 
-  test('if combineImports is filtering out duplicated imports', () => {
+  test('if combineImports is filtering out duplicated imports(by path and name)', () => {
     const imports: Array<KubbFile.Import> = [
       {
         path: './models',
@@ -635,7 +606,22 @@ describe('FileManager utils', () => {
       },
     ]
 
-    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toEqual([imports[0], imports[1]])
+    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toMatchInlineSnapshot(`
+      [
+        {
+          "isTypeOnly": true,
+          "name": "models",
+          "path": "./models",
+        },
+        {
+          "isTypeOnly": true,
+          "name": [
+            "Config",
+          ],
+          "path": "./models",
+        },
+      ]
+    `)
 
     const importsWithoutSource: Array<KubbFile.Import> = [
       {

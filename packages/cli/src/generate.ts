@@ -79,16 +79,18 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
       : userConfig.input,
     output: {
       write: true,
+      exportType: 'barrelNamed',
       ...userConfig.output,
     },
   }
   const hrStart = process.hrtime()
-  const { pluginManager, error } = await safeBuild({
+  const { pluginManager, files, error } = await safeBuild({
     config: definedConfig,
     logger,
   })
 
   const summary = getSummary({
+    filesCreated: files.length,
     pluginManager,
     config: definedConfig,
     status: error ? 'failed' : 'success',
@@ -97,6 +99,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   })
 
   if (error && logger.consola) {
+    logger.consola?.resumeLogs()
     logger.consola.error(`Build failed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
     logger.consola.box({

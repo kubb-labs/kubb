@@ -34,7 +34,7 @@ exports[`Faker SchemaGenerator > 'Pets' 1`] = `
 "export function pets(data: NonNullable<Partial<Pets>> = []): NonNullable<Pets> {
   
   return [
-          ...faker.helpers.arrayElements([Pet()]) as any,
+          ...faker.helpers.arrayElements([pet()]) as any,
           ...data
         ]
 }"

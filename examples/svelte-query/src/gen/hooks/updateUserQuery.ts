@@ -1,6 +1,6 @@
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import client from '@kubb/plugin-client/client'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>

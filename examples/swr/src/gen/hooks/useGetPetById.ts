@@ -1,7 +1,7 @@
-import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
+import useSWR from 'swr'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 

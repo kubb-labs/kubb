@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet'
+import type { Pet } from '../Pet.ts'
 
 export type FindPetsByTagsQueryParams = {
   /**
@@ -18,13 +18,13 @@ export type FindPetsByTagsQueryParams = {
   pageSize?: string
 }
 
-export const FindPetsByTagsHeaderParamsXExampleEnum = {
+export const findPetsByTagsHeaderParamsXExampleEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
+export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof findPetsByTagsHeaderParamsXExampleEnum)[keyof typeof findPetsByTagsHeaderParamsXExampleEnum]
 
 export type FindPetsByTagsHeaderParams = {
   /**

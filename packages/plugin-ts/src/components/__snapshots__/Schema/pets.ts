@@ -1,14 +1,14 @@
 /**
  * @description Null response
 */
-export type CreatePets201 = any;
+export type createPets201 = any;
 
 /**
  * @description unexpected error
 */
-export type CreatePetsError = Error;
+export type createPetsError = error;
 
-export type CreatePetsMutationRequest = {
+export type createPetsMutationRequest = {
     /**
      * @type string
     */
@@ -19,9 +19,9 @@ export type CreatePetsMutationRequest = {
     tag: string;
 };
 
-export type CreatePetsMutationResponse = any;
+export type createPetsMutationResponse = any;
 
 export type CreatePetsMutation = {
-    Response: CreatePetsMutationResponse;
-    Request: CreatePetsMutationRequest;
+    Response: createPetsMutationResponse;
+    Request: createPetsMutationRequest;
 };

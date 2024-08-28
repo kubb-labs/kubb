@@ -1,6 +1,7 @@
 <script lang="ts">
 import { computed, defineComponent, unref } from 'vue'
-import { type FindPetsByStatusQueryParams, useFindPetsByStatus } from './index.ts'
+import type { FindPetsByStatusQueryParams } from './gen/models/FindPetsByStatus.ts'
+import { useFindPetsByStatus } from './gen/hooks/useFindPetsByStatus.ts'
 
 export default defineComponent({
   name: 'PetsList',

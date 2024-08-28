@@ -26,6 +26,10 @@ export function Schema(props: Props): ReactNode {
     },
   } = useApp<PluginTs>()
 
+  if (enumType === 'asPascalConst') {
+    pluginManager.logger.emit('warning', `enumType '${enumType}' is deprecated`)
+  }
+
   // all checks are also inside this.schema(React)
   const resolvedName = pluginManager.resolveName({
     name,
@@ -98,7 +102,7 @@ export function Schema(props: Props): ReactNode {
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
 
   const enums = enumSchemas.map((enumSchema) => {
-    const name = transformers.camelCase(enumSchema.args.name)
+    const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
     const typeName = enumSchema.args.typeName
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
@@ -125,25 +129,20 @@ export function Schema(props: Props): ReactNode {
     }),
   )
 
-  // const filterdNodes = typeNodes.filter(
-  //   (node: ts.Node) =>
-  //     !enumNodes.some(
-  //       (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText,
-  //     ),
-  // )
-
   return (
     <Fragment>
       {enums.map(({ name, nameNode, typeName, typeNode }, index) => (
-        <Fragment key={index}>
+        <Fragment key={[name, nameNode].join('-')}>
           {nameNode && (
             <File.Source name={name} isExportable>
               {print(nameNode)}
             </File.Source>
           )}
-          <File.Source name={typeName} isExportable isTypeOnly>
-            {print(typeNode)}
-          </File.Source>
+          {
+            <File.Source name={typeName} isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)} isTypeOnly>
+              {print(typeNode)}
+            </File.Source>
+          }
         </Fragment>
       ))}
       {enums.every((item) => item.typeName !== resolvedName) && (
@@ -162,7 +161,7 @@ Schema.File = function ({}: FileProps): ReactNode {
   const { schema } = useSchema()
 
   return (
-    <Oas.Schema.File output={pluginManager.config.output.path}>
+    <Oas.Schema.File isTypeOnly output={pluginManager.config.output.path}>
       <Schema description={schema?.description} />
     </Oas.Schema.File>
   )

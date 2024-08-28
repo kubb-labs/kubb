@@ -1,6 +1,6 @@
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
-import type { UseMutationOptions } from '@tanstack/vue-query'
 import client from '@kubb/plugin-client/client'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>

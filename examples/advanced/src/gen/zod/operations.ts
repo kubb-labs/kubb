@@ -1,51 +1,54 @@
+import { addPetMutationRequestSchema, addPetMutationResponseSchema, addPet405Schema } from './petController/addPetSchema.ts'
+import { deletePetMutationResponseSchema, deletePet400Schema, deletePetPathParamsSchema, deletePetHeaderParamsSchema } from './petController/deletePetSchema.ts'
+import { findPetsByStatusQueryResponseSchema, findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema } from './petController/findPetsByStatusSchema.ts'
 import {
-  createPetsMutationRequestSchema,
-  createPetsMutationResponseSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-  createPetsHeaderParamsSchema,
-} from './petsController/createPetsSchema'
+  findPetsByTagsQueryResponseSchema,
+  findPetsByTags400Schema,
+  findPetsByTagsQueryParamsSchema,
+  findPetsByTagsHeaderParamsSchema,
+} from './petController/findPetsByTagsSchema.ts'
+import { getPetByIdQueryResponseSchema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema } from './petController/getPetByIdSchema.ts'
 import {
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,
-} from './petController/updatePetSchema'
-import { addPetMutationRequestSchema, addPetMutationResponseSchema, addPet405Schema } from './petController/addPetSchema'
-import { findPetsByStatusQueryResponseSchema, findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema } from './petController/findPetsByStatusSchema'
-import {
-  findPetsByTagsQueryResponseSchema,
-  findPetsByTags400Schema,
-  findPetsByTagsQueryParamsSchema,
-  findPetsByTagsHeaderParamsSchema,
-} from './petController/findPetsByTagsSchema'
-import { getPetByIdQueryResponseSchema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema } from './petController/getPetByIdSchema'
+} from './petController/updatePetSchema.ts'
 import {
   updatePetWithFormMutationResponseSchema,
   updatePetWithForm405Schema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
-} from './petController/updatePetWithFormSchema'
-import { deletePetMutationResponseSchema, deletePet400Schema, deletePetPathParamsSchema, deletePetHeaderParamsSchema } from './petController/deletePetSchema'
+} from './petController/updatePetWithFormSchema.ts'
 import {
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
-} from './petController/uploadFileSchema'
-import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './userController/createUserSchema'
-import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './userController/createUsersWithListInputSchema'
-import { loginUserQueryResponseSchema, loginUser400Schema, loginUserQueryParamsSchema } from './userController/loginUserSchema'
-import { logoutUserQueryResponseSchema } from './userController/logoutUserSchema'
+} from './petController/uploadFileSchema.ts'
+import {
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+  createPetsHeaderParamsSchema,
+} from './petsController/createPetsSchema.ts'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './userController/createUserSchema.ts'
+import {
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
+} from './userController/createUsersWithListInputSchema.ts'
+import { deleteUserMutationResponseSchema, deleteUser400Schema, deleteUser404Schema, deleteUserPathParamsSchema } from './userController/deleteUserSchema.ts'
 import {
   getUserByNameQueryResponseSchema,
   getUserByName400Schema,
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
-} from './userController/getUserByNameSchema'
-import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './userController/updateUserSchema'
-import { deleteUserMutationResponseSchema, deleteUser400Schema, deleteUser404Schema, deleteUserPathParamsSchema } from './userController/deleteUserSchema'
+} from './userController/getUserByNameSchema.ts'
+import { loginUserQueryResponseSchema, loginUser400Schema, loginUserQueryParamsSchema } from './userController/loginUserSchema.ts'
+import { logoutUserQueryResponseSchema } from './userController/logoutUserSchema.ts'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './userController/updateUserSchema.ts'
 
 export const operations = {
   createPets: {

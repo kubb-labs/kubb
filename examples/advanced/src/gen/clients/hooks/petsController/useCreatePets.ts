@@ -1,12 +1,12 @@
+import client from '../../../../tanstack-query-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets'
+} from '../../../models/ts/petsController/CreatePets.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
 
 type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>

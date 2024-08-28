@@ -1,7 +1,7 @@
-import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser'
-import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
+import useSWR from 'swr'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 

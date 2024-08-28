@@ -1,13 +1,13 @@
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import client from '../../../../swr-client.ts'
+import useSWRMutation from 'swr/mutation'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets'
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
+} from '../../../models/ts/petsController/CreatePets.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
 

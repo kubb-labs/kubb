@@ -1,6 +1,6 @@
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
-import type { UseMutationOptions } from '@tanstack/react-query'
 import client from '@kubb/plugin-client/client'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>

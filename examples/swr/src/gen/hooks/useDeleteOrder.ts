@@ -1,7 +1,7 @@
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
-import useSWRMutation from 'swr/mutation'
 import client from '@kubb/plugin-client/client'
+import useSWRMutation from 'swr/mutation'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
 

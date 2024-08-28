@@ -23,6 +23,10 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
   return {
     name: pluginMswName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       extName: output.extName,
       templates: {
@@ -84,16 +88,18 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       const files = await operationGenerator.build()
       await this.addFile(...files)
 
-      if (this.config.output.write) {
-        const indexFiles = await this.fileManager.getIndexFiles({
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
           files: this.fileManager.files,
-          plugin: this.plugin,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
           logger: this.logger,
         })
 
-        await this.addFile(...indexFiles)
+        await this.addFile(...barrelFiles)
       }
     },
   }

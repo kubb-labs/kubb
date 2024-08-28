@@ -1,4 +1,4 @@
-import type { PetNotFound } from '../PetNotFound'
+import type { PetNotFound } from '../PetNotFound.ts'
 
 export type CreatePetsPathParams = {
   /**
@@ -16,13 +16,13 @@ export type CreatePetsQueryParams = {
   offset?: number
 }
 
-export const CreatePetsHeaderParamsXExampleEnum = {
+export const createPetsHeaderParamsXExampleEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXExampleEnum = (typeof CreatePetsHeaderParamsXExampleEnum)[keyof typeof CreatePetsHeaderParamsXExampleEnum]
+export type CreatePetsHeaderParamsXExampleEnum = (typeof createPetsHeaderParamsXExampleEnum)[keyof typeof createPetsHeaderParamsXExampleEnum]
 
 export type CreatePetsHeaderParams = {
   /**

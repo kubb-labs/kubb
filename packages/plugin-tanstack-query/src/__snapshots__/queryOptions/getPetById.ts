@@ -1,5 +1,5 @@
-import type { QueryKey } from "@tanstack/react-query";
 import client from "@kubb/plugin-client/client";
+import type { QueryKey } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
@@ -18,16 +18,16 @@ import { queryOptions } from "@tanstack/react-query";
     };
 };
 
- export const GetPetByIdQueryKey = ({ petId }: {
+ export const getPetByIdQueryKey = ({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 
- export type GetPetByIdQueryKey = ReturnType<typeof GetPetByIdQueryKey>;
+ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>;
 
- export function GetPetByIdQueryOptions({ petId }: {
+ export function getPetByIdQueryOptions({ petId }: {
     petId: GetPetByIdPathParams["petId"];
 }, options: GetPetById["client"]["parameters"] = {}) {
-    const queryKey = GetPetByIdQueryKey({ petId });
+    const queryKey = getPetByIdQueryKey({ petId });
     return queryOptions({
         queryKey,
         queryFn: async () => {

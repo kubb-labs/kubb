@@ -1,5 +1,5 @@
 import type { Customer } from '../models/ts/Customer'
-import { addressSchema } from './addressSchema'
+import { addressSchema } from './addressSchema.ts'
 import { z } from 'zod'
 
 export const customerSchema = z.object({

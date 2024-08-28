@@ -1,9 +1,15 @@
-import { pascalCase } from '../src/transformers/casing.ts'
+import { camelCase, pascalCase } from '../src/transformers/casing.ts'
 
-import { readSync } from '@kubb/fs'
-import type * as KubbFile from '@kubb/fs/types'
+import type  {File, ResolvedFile} from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
+import type { Logger } from '../src/logger'
+
+export const mockedLogger = {
+  emit(type, message) {},
+  on(type, message) {},
+  consola: {},
+} as Logger
 
 export const mockedPluginManager = {
   resolveName: ({ name, type }) => {
@@ -11,7 +17,11 @@ export const mockedPluginManager = {
       return pascalCase(name)
     }
 
-    return name
+    if (type === 'function') {
+      return camelCase(name)
+    }
+
+    return camelCase(name)
   },
   config: {
     output: {
@@ -28,13 +38,7 @@ export const mockedPluginManager = {
   },
   getFile: ({ name, extName, pluginKey }) => {
     const baseName = `${name}${extName}`
-    let source = ''
 
-    try {
-      source = readSync(baseName)
-    } catch (_e) {
-      //
-    }
 
     return {
       path: baseName,
@@ -46,9 +50,9 @@ export const mockedPluginManager = {
   },
 } as PluginManager
 
-export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File>) {
+export async function matchFiles(files: Array<ResolvedFile | File>) {
   for (const file of files) {
-    const source = await getSource(file as KubbFile.ResolvedFile)
+    const source = await getSource(file as ResolvedFile, { logger: mockedLogger })
     expect(source).toMatchSnapshot()
   }
 }

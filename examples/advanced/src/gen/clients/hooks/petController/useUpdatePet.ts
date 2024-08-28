@@ -1,6 +1,12 @@
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
-import type { UseMutationOptions } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
+import type {
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+} from '../../../models/ts/petController/UpdatePet.ts'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>

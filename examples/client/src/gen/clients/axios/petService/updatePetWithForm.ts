@@ -1,10 +1,10 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-} from '../../../models/ts/petController/UpdatePetWithForm'
-import client from '@kubb/plugin-client/client'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary Updates a pet in the store with form data

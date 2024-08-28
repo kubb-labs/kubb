@@ -1,12 +1,12 @@
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import client from '@kubb/plugin-client/client'
+import useSWRMutation from 'swr/mutation'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../models/UpdatePetWithForm'
-import useSWRMutation from 'swr/mutation'
-import client from '@kubb/plugin-client/client'
+} from '../models/UpdatePetWithForm.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
 

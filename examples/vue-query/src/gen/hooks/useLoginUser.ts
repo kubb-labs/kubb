@@ -1,7 +1,7 @@
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import client from '@kubb/plugin-client/client'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
-import client from '@kubb/plugin-client/client'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 
