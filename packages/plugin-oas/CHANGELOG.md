@@ -1,5 +1,29 @@
 # @kubb/swagger
 
+## 2.25.3
+
+### Patch Changes
+
+- [#1148](https://github.com/kubb-labs/kubb/pull/1148) [`c8d41d9`](https://github.com/kubb-labs/kubb/commit/c8d41d99aeeae2e92751a63e25ac89f30abaf597) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - isTypeOnly set to true for all generated schema's(typescript)
+
+- Updated dependencies []:
+  - @kubb/core@2.25.3
+  - @kubb/fs@2.25.3
+  - @kubb/oas@2.25.3
+  - @kubb/react@2.25.3
+
+## 2.25.2
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/core@2.25.2
+  - @kubb/fs@2.25.2
+  - @kubb/oas@2.25.2
+  - @kubb/react@2.25.2
+
 ## 2.25.1
 
 ### Patch Changes

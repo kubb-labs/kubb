@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-ts",
-  "version": "2.25.1",
+  "version": "2.25.3",
   "description": "Generator swagger-ts",
   "keywords": [
     "typescript",
@@ -79,7 +79,7 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.4",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "tsup": "^8.2.4"

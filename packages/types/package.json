@@ -1,6 +1,6 @@
 {
   "name": "@kubb/types",
-  "version": "2.25.1",
+  "version": "2.25.3",
   "description": "Generator types",
   "keywords": [
     "typescript",
