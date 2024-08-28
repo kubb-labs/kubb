@@ -37,8 +37,8 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
   return {
     name: pluginZodName,
     output: {
-      exportType: "barrelNamed",
-      ...output
+      exportType: 'barrelNamed',
+      ...output,
     },
     options: {
       extName: output.extName,
@@ -130,7 +130,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const operationFiles = await operationGenerator.build(zodParser)
       await this.addFile(...operationFiles)
 
-      if (this.config.output.write) {
+      if (this.config.output.exportType) {
         const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,

@@ -32,8 +32,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
   return {
     name: pluginClientName,
     output: {
-      exportType: "barrelNamed",
-      ...output
+      exportType: 'barrelNamed',
+      ...output,
     },
     options: {
       extName: output.extName,
@@ -110,7 +110,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       await this.addFile(...files)
 
-      if (this.config.output.write) {
+      if (this.config.output.exportType) {
         const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,

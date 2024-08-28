@@ -41,8 +41,8 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
   return {
     name: pluginReactQueryName,
     output: {
-      exportType: "barrelNamed",
-      ...output
+      exportType: 'barrelNamed',
+      ...output,
     },
     options: {
       client: {
@@ -147,7 +147,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       const files = await operationGenerator.build()
       await this.addFile(...files)
 
-      if (this.config.output.write) {
+      if (this.config.output.exportType) {
         const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,

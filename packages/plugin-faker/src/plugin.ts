@@ -35,11 +35,11 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
   return {
     name: pluginFakerName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
-      output: {
-        exportType: "barrelNamed",
-        ...output
-      },
       extName: output.extName,
       transformers,
       dateType,
@@ -118,7 +118,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)
 
-      if (this.config.output.write) {
+      if (this.config.output.exportType) {
         const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,

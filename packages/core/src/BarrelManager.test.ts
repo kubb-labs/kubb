@@ -119,7 +119,7 @@ describe('BarrelManager', () => {
           "path": "src/index.ts",
           "sources": [
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "test",
               "value": "",
@@ -155,25 +155,25 @@ describe('BarrelManager', () => {
           "path": "src/index.ts",
           "sources": [
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",
             },
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
             },
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",
             },
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
@@ -194,7 +194,7 @@ describe('BarrelManager', () => {
           "path": "src/sub/index.ts",
           "sources": [
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",
@@ -215,7 +215,7 @@ describe('BarrelManager', () => {
           "path": "src/sub/index.ts",
           "sources": [
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
@@ -237,13 +237,13 @@ describe('BarrelManager', () => {
           "path": "src/sub/index.ts",
           "sources": [
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "world",
               "value": "",
             },
             {
-              "exportable": false,
+              "isExportable": false,
               "isTypeOnly": undefined,
               "name": "hello",
               "value": "",

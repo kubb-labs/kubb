@@ -4,15 +4,6 @@
     "baseName": "index.ts",
     "exports": [
       {
-        "path": "./",
-        "name": [
-          "hello",
-          "world",
-          "test"
-        ],
-        "extName": ""
-      },
-      {
         "name": [
           "hello"
         ],
@@ -38,17 +29,17 @@
       {
         "name": "hello",
         "value": "",
-        "exportable": false
+        "isExportable": false
       },
       {
         "name": "world",
         "value": "",
-        "exportable": false
+        "isExportable": false
       },
       {
         "name": "test",
         "value": "",
-        "exportable": false
+        "isExportable": false
       }
     ],
     "id": "feabc02536bd6630458e734990f7e2a21a55c469",
@@ -79,12 +70,12 @@
       {
         "name": "hello",
         "value": "",
-        "exportable": false
+        "isExportable": false
       },
       {
         "name": "world",
         "value": "",
-        "exportable": false
+        "isExportable": false
       }
     ],
     "id": "c67967bd2363dd9637437671f6fe1ed146debdbf",

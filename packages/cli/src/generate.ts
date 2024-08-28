@@ -79,6 +79,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
       : userConfig.input,
     output: {
       write: true,
+      exportType: 'barrelNamed',
       ...userConfig.output,
     },
   }

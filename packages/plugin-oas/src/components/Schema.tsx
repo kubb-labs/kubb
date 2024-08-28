@@ -43,8 +43,15 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
   const { plugin, pluginManager, mode } = useApp<PluginOas>()
   const { name } = useSchema()
 
+
+
   if (mode === 'single') {
-    const baseName = output as KubbFile.BaseName
+    const baseName = `${pluginManager.resolveName({
+      name,
+      pluginKey: plugin.key,
+      type: 'file',
+    })}.ts` as const
+
     const resolvedPath = pluginManager.resolvePath({
       baseName: '',
       pluginKey: plugin.key,

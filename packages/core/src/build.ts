@@ -6,7 +6,7 @@ import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { getRelativePath } from '@kubb/fs'
 import type { Logger } from './logger.ts'
 import type { PluginContext } from './types.ts'
@@ -75,49 +75,47 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     // create root barrel file
     const root = resolve(options.config.root)
     const rootPath = resolve(root, options.config.output.path, 'index.ts')
-    const barrelOutput = {
-      path: options.config.output.path,
-      extName: '.ts' as KubbFile.Extname,
-    }
     const barrelFiles = pluginManager.fileManager.files.filter((file) => {
       return file.sources.some((source) => source.isExportable)
     })
-
 
     const rootFile: KubbFile.File = {
       path: rootPath,
       baseName: 'index.ts',
       exports: barrelFiles
         .flatMap((file) => {
-          return file.sources?.map((source) => {
-            if (!file.path || !source.isExportable) {
-              return undefined
-            }
+          return file.sources
+            ?.map((source) => {
+              if (!file.path || !source.isExportable) {
+                return undefined
+              }
 
-            // validate of the file coming from plugin x
-            const plugin = pluginManager.plugins.find(item=>{
-              const meta = file.meta as any
-              return item.name===meta?.pluginKey?.[0]
+              // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
+              const plugin = pluginManager.plugins.find((item) => {
+                const meta = file.meta as any
+                return item.name === meta?.pluginKey?.[0]
+              })
+
+              if (plugin?.output?.exportType === false) {
+                return undefined
+              }
+
+              return {
+                name: [source.name],
+                path: getRelativePath(rootPath, file.path),
+                isTypeOnly: source.isTypeOnly,
+              } as KubbFile.Export
             })
-            
-            if(plugin?.output?.exportType===false){
-              return undefined
-            }
-
-            return {
-              name: [source.name],
-              path: getRelativePath(rootPath ,file.path),
-              isTypeOnly: source.isTypeOnly,
-            } as KubbFile.Export
-          }).filter(Boolean)
-
+            .filter(Boolean)
         })
         .filter(Boolean),
       sources: [],
       meta: {},
     }
 
-    await pluginManager.fileManager.add(rootFile)
+    if (options.config.output.exportType) {
+      await pluginManager.fileManager.add(rootFile)
+    }
 
     //TODO set extName here instead of the files, extName is private. All exports will have extName, it's up the the process to hide.override the name
     files = await processFiles({

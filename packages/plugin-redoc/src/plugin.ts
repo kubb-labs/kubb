@@ -18,8 +18,8 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
   return {
     name: pluginRedocName,
     output: {
-      exportType: "barrelNamed",
-      ...output
+      exportType: 'barrelNamed',
+      ...output,
     },
     options: {
       name: trimExtName(output.path),

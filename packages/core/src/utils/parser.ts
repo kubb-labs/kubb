@@ -12,8 +12,10 @@ import type { Logger } from '../logger.ts'
 export function createFile<TMeta extends object = object>(file: KubbFile.File<TMeta>): KubbFile.ResolvedFile<TMeta> {
   const extName = extname(file.baseName) as KubbFile.Extname
 
+  console.log(extName, file.baseName)
+
   if (!extName) {
-    throw new Error(`No extName found for ${file.baseName}`)
+    throw new Error(`No extName found for ${file?.baseName}`)
   }
 
   const source = file.sources.map((item) => item.value).join('\n\n')

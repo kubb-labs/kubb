@@ -42,8 +42,8 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
   return {
     name: pluginTanstackQueryName,
     output: {
-      exportType: "barrelNamed",
-      ...output
+      exportType: 'barrelNamed',
+      ...output,
     },
     options: {
       extName: output.extName,
@@ -158,7 +158,7 @@ export const pluginTanstackQuery = createPlugin<PluginTanstackQuery>((options) =
       const files = await operationGenerator.build()
       await this.addFile(...files)
 
-      if (this.config.output.write) {
+      if (this.config.output.exportType) {
         const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,

@@ -35,8 +35,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   return {
     name: pluginTsName,
     output: {
-      exportType: "barrelNamed",
-      ...output
+      exportType: 'barrelNamed',
+      ...output,
     },
     options: {
       extName: output.extName,
@@ -117,7 +117,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)
 
-      if (this.config.output.write) {
+      if (this.config.output.exportType) {
         const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,

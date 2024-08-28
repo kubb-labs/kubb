@@ -110,6 +110,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     if (!this.logger) {
       console.warn(error)
     }
+    throw error
   }
 
   render(node: ReactNode, context?: Context): void {
