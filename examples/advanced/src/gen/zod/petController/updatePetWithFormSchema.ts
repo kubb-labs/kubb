@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const updatePetWithFormPathParamsSchema = z.object({ petId: z.number().describe('ID of pet that needs to be updated') })
+export const updatePetWithFormPathParamsSchema = z.object({ petId: z.number().int().describe('ID of pet that needs to be updated') })
 
 export const updatePetWithFormQueryParamsSchema = z
   .object({

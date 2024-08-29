@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 export const createPetsPathParamsSchema = z.object({ uuid: z.string().describe('UUID') })
 
-export const createPetsQueryParamsSchema = z.object({ offset: z.number().describe('Offset').optional() }).optional()
+export const createPetsQueryParamsSchema = z.object({ offset: z.number().int().describe('Offset').optional() }).optional()
 
 export const createPetsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters') })
 

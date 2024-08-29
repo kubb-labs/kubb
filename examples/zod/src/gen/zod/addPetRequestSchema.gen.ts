@@ -3,7 +3,7 @@ import { categorySchema } from './categorySchema.gen.ts'
 import { tagSchema } from './tagSchema.gen.ts'
 
 export const addPetRequestSchema = z.object({
-  id: z.number().optional(),
+  id: z.number().int().optional(),
   name: z.string(),
   category: z.lazy(() => categorySchema).optional(),
   photoUrls: z.array(z.string()),

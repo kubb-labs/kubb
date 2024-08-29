@@ -180,8 +180,8 @@ importers:
         specifier: ^1.7.5
         version: 1.7.5
       msw:
-        specifier: ^2.4.0
-        version: 2.4.0(typescript@5.2.2)
+        specifier: ^2.4.1
+        version: 2.4.1(graphql@16.9.0)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -268,8 +268,8 @@ importers:
         specifier: ^1.7.5
         version: 1.7.5
       msw:
-        specifier: ^2.4.0
-        version: 2.4.0(typescript@5.2.2)
+        specifier: ^2.4.1
+        version: 2.4.1(graphql@16.9.0)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -404,10 +404,10 @@ importers:
         version: link:../../packages/plugin-ts
       '@mswjs/http-middleware':
         specifier: ^0.9.2
-        version: 0.9.2(msw@2.4.0(typescript@5.2.2))
+        version: 0.9.2(msw@2.4.1(graphql@16.9.0)(typescript@5.2.2))
       msw:
-        specifier: ^2.4.0
-        version: 2.4.0(typescript@5.2.2)
+        specifier: ^2.4.1
+        version: 2.4.1(graphql@16.9.0)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1005,14 +1005,14 @@ importers:
   packages/oas:
     dependencies:
       '@redocly/openapi-core':
-        specifier: ^1.21.1
-        version: 1.21.1
+        specifier: ^1.22.0
+        version: 1.22.0
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
       json-schema-to-ts:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.1.1
+        version: 3.1.1
       oas:
         specifier: ^24.6.0
         version: 24.6.0
@@ -2947,11 +2947,11 @@ packages:
   '@redocly/ajv@8.11.0':
     resolution: {integrity: sha512-9GWx27t7xWhDIR02PA18nzBdLcKQRgc46xNQvjFkrYk4UOmvKhJ/dawwiX0cCOeetN5LcaaiqQbVOWYK62SGHw==}
 
-  '@redocly/config@0.10.0':
-    resolution: {integrity: sha512-oFP8SL9qmsJ2QxwvOjI/h87hHMKq8G/RUbTSxF9/r4vbllCxzQ8Tla3xfUO/lGVVO6gZsAIsuJGXhaDagd4msg==}
+  '@redocly/config@0.10.1':
+    resolution: {integrity: sha512-H3LnKVGzOaxskwJu8pmJYwBOWjP61qOK7TuTrbafqArDVckE06fhA6l0nO4KvBbjLPjy1Al7UnlxOu23V4Nl0w==}
 
-  '@redocly/openapi-core@1.21.1':
-    resolution: {integrity: sha512-WTsie5b+Ohx2NsmEBVCS5WF24h4XqDpb834ZR4EeE7f+Zjwn34AgaC78HP2xGydi+gFfD4PiqDGgnDPtR5s1OA==}
+  '@redocly/openapi-core@1.22.0':
+    resolution: {integrity: sha512-IXazrCCUwRkwgVGlaWghFEyyLrz5EM1VM+Kn3/By4QGaNVd04oxC1c92h3kbt1StAxtrTfxBAGwS7bqqCF7nsw==}
     engines: {node: '>=14.19.0', npm: '>=7.0.0'}
 
   '@rollup/pluginutils@5.1.0':
@@ -5084,8 +5084,8 @@ packages:
     resolution: {integrity: sha512-CTUKmIlPJbsWfzRRnOXz+0MjIqvnleIXwFTzz+t9T86HnYX/Rozria6ZVGLktAU9e+NygNljveP+yxqtQp/Q4w==}
     engines: {node: '>=12.0.0'}
 
-  json-schema-to-ts@3.1.0:
-    resolution: {integrity: sha512-UeVN/ery4/JeXI8h4rM8yZPxsH+KqPi/84qFxHfTGHZnWnK9D0UU9ZGYO+6XAaJLqCWMiks+ARuFOKAiSxJCHA==}
+  json-schema-to-ts@3.1.1:
+    resolution: {integrity: sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==}
     engines: {node: '>=16'}
 
   json-schema-traverse@0.4.1:
@@ -5519,12 +5519,12 @@ packages:
       typescript:
         optional: true
 
-  msw@2.4.0:
-    resolution: {integrity: sha512-NqAjbDvJ66J/VS9KqLmY8ZF6ceQpYRy+s2yJYLl+3vUdNa4C7zouXVDl1TLast/o9gLzPMTrfaTJkeR7qJ41ew==}
+  msw@2.4.1:
+    resolution: {integrity: sha512-HXcoQPzYTwEmVk+BGIcRa0vLabBT+J20SSSeYh/QfajaK5ceA6dlD4ZZjfz2dqGEq4vRNCPLP6eXsB94KllPFg==}
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
-      graphql: '*'
+      graphql: '>= 16.8.x'
       typescript: '>= 4.7.x'
     peerDependenciesMeta:
       graphql:
@@ -8182,10 +8182,10 @@ snapshots:
       '@types/set-cookie-parser': 2.4.9
       set-cookie-parser: 2.6.0
 
-  '@mswjs/http-middleware@0.9.2(msw@2.4.0(typescript@5.2.2))':
+  '@mswjs/http-middleware@0.9.2(msw@2.4.1(graphql@16.9.0)(typescript@5.2.2))':
     dependencies:
       express: 4.19.2
-      msw: 2.4.0(typescript@5.2.2)
+      msw: 2.4.1(graphql@16.9.0)(typescript@5.2.2)
       strict-event-emitter: 0.5.1
     transitivePeerDependencies:
       - supports-color
@@ -8347,12 +8347,12 @@ snapshots:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  '@redocly/config@0.10.0': {}
+  '@redocly/config@0.10.1': {}
 
-  '@redocly/openapi-core@1.21.1':
+  '@redocly/openapi-core@1.22.0':
     dependencies:
       '@redocly/ajv': 8.11.0
-      '@redocly/config': 0.10.0
+      '@redocly/config': 0.10.1
       colorette: 1.4.0
       https-proxy-agent: 7.0.4
       js-levenshtein: 1.1.6
@@ -10786,7 +10786,7 @@ snapshots:
       json-schema-compare: 0.2.2
       lodash: 4.17.21
 
-  json-schema-to-ts@3.1.0:
+  json-schema-to-ts@3.1.1:
     dependencies:
       '@babel/runtime': 7.24.7
       ts-algebra: 2.0.0
@@ -11331,7 +11331,7 @@ snapshots:
       - encoding
       - supports-color
 
-  msw@2.4.0(typescript@5.2.2):
+  msw@2.4.1(graphql@16.9.0)(typescript@5.2.2):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.0
       '@bundled-es-modules/statuses': 1.0.1
@@ -11350,6 +11350,7 @@ snapshots:
       type-fest: 4.23.0
       yargs: 17.7.2
     optionalDependencies:
+      graphql: 16.9.0
       typescript: 5.2.2
 
   muggle-string@0.4.1: {}
@@ -11863,7 +11864,7 @@ snapshots:
   redoc@2.1.5(core-js@3.37.1)(enzyme@3.11.0)(mobx@6.13.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
       '@cfaester/enzyme-adapter-react-18': 0.8.0(enzyme@3.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@redocly/openapi-core': 1.21.1
+      '@redocly/openapi-core': 1.22.0
       classnames: 2.5.1
       core-js: 3.37.1
       decko: 1.2.0
