@@ -14,15 +14,21 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: schemaKeywords.string,
+    name: 'string',
     schema: {
       keyword: schemaKeywords.string,
     },
   },
   {
-    name: schemaKeywords.number,
+    name: 'number',
     schema: {
       keyword: schemaKeywords.number,
+    },
+  },
+  {
+    name: 'integer',
+    schema: {
+      keyword: schemaKeywords.integer,
     },
   },
   {
@@ -98,7 +104,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: schemaKeywords.min,
+    name: 'min',
     schema: {
       keyword: schemaKeywords.min,
       args: 2,
@@ -445,6 +451,30 @@ const full: Array<{ name: string; schema: Schema[] }> = [
     schema: [
       {
         keyword: schemaKeywords.blob,
+      },
+    ],
+  },
+  {
+    name: 'PageSizeNumber',
+    schema: [
+      {
+        keyword: schemaKeywords.number,
+      },
+      {
+        keyword: schemaKeywords.default,
+        args: 10,
+      },
+    ],
+  },
+  {
+    name: 'PageSizeInteger',
+    schema: [
+      {
+        keyword: schemaKeywords.integer,
+      },
+      {
+        keyword: schemaKeywords.default,
+        args: 10,
       },
     ],
   },
