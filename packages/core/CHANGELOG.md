@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 3.0.0-alpha.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.0-alpha.9
+  - @kubb/parser-ts@3.0.0-alpha.9
+  - @kubb/types@3.0.0-alpha.9
+
 ## 3.0.0-alpha.8
 
 ### Minor Changes
