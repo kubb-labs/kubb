@@ -1,5 +1,11 @@
 # @kubb/fs
 
+## 3.0.0-alpha.8
+
+### Minor Changes
+
+- [`962e2d6`](https://github.com/kubb-labs/kubb/commit/962e2d6d49dff55563be13b1ded832d10743ec29) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - indexable to track files that could be used in the barrel generation(should be 90% the same as exportable)
+
 ## 3.0.0-alpha.7
 
 ### Minor Changes
