@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createMutation } from '@tanstack/svelte-query'
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch'
+import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch.ts'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
 
 type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+
 type PlaceOrderPatch = {
   data: PlaceOrderPatchMutationResponse
   error: PlaceOrderPatch405
@@ -17,6 +18,7 @@ type PlaceOrderPatch = {
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch

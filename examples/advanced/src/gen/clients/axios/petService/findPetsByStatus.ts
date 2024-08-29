@@ -1,6 +1,6 @@
 import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus.ts'
 
 /**
  * @description Multiple status values can be provided with comma separated strings

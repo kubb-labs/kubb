@@ -4,7 +4,7 @@ import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-} from '../../../models/ts/petController/UpdatePetWithForm'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
 
 /**
  * @summary Updates a pet in the store with form data

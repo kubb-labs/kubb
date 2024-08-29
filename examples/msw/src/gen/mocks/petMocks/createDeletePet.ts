@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse } from '../../models/DeletePet'
+import { faker } from '@faker-js/faker'
 
 export function createDeletePetPathParams(): NonNullable<DeletePetPathParams> {
   faker.seed([220])

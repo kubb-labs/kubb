@@ -4,8 +4,8 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
 
+import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
@@ -32,11 +32,16 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
   return {
     name: pluginClientName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       extName: output.extName,
       dataReturnType,
       client: {
         importPath: '@kubb/plugin-client/client',
+        methods: ['get', 'post', 'delete', 'put'],
         ...options.client,
       },
       pathParamsType,
@@ -105,34 +110,20 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       const files = await operationGenerator.build(axiosParser)
 
       await this.addFile(...files)
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      if (group?.type === 'tag') {
-        const rootFiles = await getGroupedByTagFiles({
-          logger: this.logger,
-          files: this.fileManager.files,
-          plugin: this.plugin,
-          template,
-          exportAs: group.exportAs || '{{tag}}Service',
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
+          files: this.fileManager.files,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
+          logger: this.logger,
         })
 
-        await this.addFile(...rootFiles)
+        await this.addFile(...barrelFiles)
       }
-
-      await this.fileManager.addIndexes({
-        root,
-        output,
-        meta: { pluginKey: this.plugin.key },
-        logger: this.logger,
-      })
     },
   }
 })

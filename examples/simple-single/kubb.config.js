@@ -1,9 +1,9 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { pluginRedoc } from '@kubb/plugin-redoc'
 
 export default defineConfig([
   {
@@ -15,6 +15,10 @@ export default defineConfig([
     output: {
       path: './src/gen',
       clean: true,
+      exportType: false,
+    },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
       pluginOas({
@@ -57,8 +61,10 @@ export default defineConfig([
       pluginOas({ validate: false, output: false }),
       pluginZod({
         output: {
-          // exportType: false,
           path: 'index.ts',
+        },
+        templates: {
+          operations: false,
         },
       }),
     ],

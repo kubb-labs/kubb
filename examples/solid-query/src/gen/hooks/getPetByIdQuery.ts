@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+
 type GetPetById = {
   data: GetPetByIdQueryResponse
   error: GetPetById400 | GetPetById404
@@ -17,8 +18,11 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
@@ -33,6 +37,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], opt
     },
   })
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID

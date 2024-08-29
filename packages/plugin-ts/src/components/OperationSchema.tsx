@@ -3,7 +3,7 @@ import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File, Parser, useApp } from '@kubb/react'
+import { File, useApp } from '@kubb/react'
 
 import { SchemaGenerator } from '../SchemaGenerator.tsx'
 
@@ -85,7 +85,7 @@ function printCombinedSchema({
   }
 
   const namespaceNode = factory.createTypeAliasDeclaration({
-    name: operation.method === 'get' ? `${name}Query` : `${name}Mutation`,
+    name,
     type: factory.createTypeLiteralNode(
       Object.keys(properties)
         .map((key) => {
@@ -119,7 +119,7 @@ export function OperationSchema({ keysToOmit, description }: Props): ReactNode {
 type FileProps = {}
 
 OperationSchema.File = function ({}: FileProps): ReactNode {
-  const { pluginManager, plugin, mode, fileManager } = useApp<PluginTs>()
+  const { pluginManager, plugin, mode } = useApp<PluginTs>()
   const oas = useOas()
   const { getSchemas, getFile, getName } = useOperationManager()
   const operation = useOperation()
@@ -141,21 +141,21 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
     return (
       <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-        {mode === 'split' && <Oas.Schema.Imports extName={plugin.options.extName} isTypeOnly />}
-        <File.Source>
-          <OperationSchema description={description} keysToOmit={keysToOmit} />
-        </File.Source>
+        {mode === 'split' && <Oas.Schema.Imports isTypeOnly />}
+        <OperationSchema description={description} keysToOmit={keysToOmit} />
       </Oas.Schema>
     )
   }
 
-  return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {items.map(mapItem)}
+  const combinedSchemaName = operation.method === 'get' ? `${factoryName}Query` : `${factoryName}Mutation`
 
-        <File.Source>{printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}</File.Source>
-      </File>
-    </Parser>
+  return (
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      {items.map(mapItem)}
+
+      <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
+        {printCombinedSchema({ name: combinedSchemaName, operation, schemas, pluginManager })}
+      </File.Source>
+    </File>
   )
 }

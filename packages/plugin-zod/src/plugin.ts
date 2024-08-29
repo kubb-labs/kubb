@@ -3,15 +3,15 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
+import { OperationGenerator, SchemaGenerator, pluginOasName } from '@kubb/plugin-oas'
+
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { zodParser } from './SchemaGenerator.tsx'
 import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
-import { zodParser } from './SchemaGenerator.tsx'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
@@ -36,6 +36,10 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
 
   return {
     name: pluginZodName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       extName: output.extName,
       transformers,
@@ -125,34 +129,20 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
 
       const operationFiles = await operationGenerator.build(zodParser)
       await this.addFile(...operationFiles)
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      if (group?.type === 'tag') {
-        const rootFiles = await getGroupedByTagFiles({
-          logger: this.logger,
-          files: this.fileManager.files,
-          plugin: this.plugin,
-          template,
-          exportAs: group.exportAs || '{{tag}}Schemas',
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
+          files: this.fileManager.files,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
+          logger: this.logger,
         })
 
-        await this.addFile(...rootFiles)
+        await this.addFile(...barrelFiles)
       }
-
-      await this.fileManager.addIndexes({
-        root,
-        output,
-        meta: { pluginKey: this.plugin.key },
-        logger: this.logger,
-      })
     },
   }
 })

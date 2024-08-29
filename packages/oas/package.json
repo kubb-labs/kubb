@@ -1,6 +1,6 @@
 {
   "name": "@kubb/oas",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.8",
   "description": "Oas helpers",
   "keywords": [
     "typescript",
@@ -59,7 +59,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@redocly/openapi-core": "^1.21.0",
+    "@redocly/openapi-core": "^1.21.1",
     "hotscript": "^1.0.13",
     "json-schema-to-ts": "^3.1.0",
     "oas": "^24.6.0",

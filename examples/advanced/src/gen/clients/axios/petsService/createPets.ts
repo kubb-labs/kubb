@@ -6,7 +6,7 @@ import type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets'
+} from '../../../models/ts/petsController/CreatePets.ts'
 
 /**
  * @summary Create a pet

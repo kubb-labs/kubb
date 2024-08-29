@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+
 type FindPetsByStatus = {
   data: FindPetsByStatusQueryResponse
   error: FindPetsByStatus400
@@ -17,8 +18,11 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => ['v5', { url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions({
@@ -34,6 +38,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryPar
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -64,9 +69,12 @@ export function useFindPetsByStatusHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   ['v5', { url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatusSuspenseQueryKey>
+
 export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return queryOptions({
@@ -82,6 +90,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status

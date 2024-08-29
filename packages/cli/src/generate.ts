@@ -1,16 +1,15 @@
-import { LogLevel, LogMapper, createLogger, randomCliColour } from '@kubb/core/logger'
+import { LogMapper, createLogger } from '@kubb/core/logger'
 
 import c from 'tinyrainbow'
 
-import { spinner } from './utils/spinner.ts'
-
-import { type Config, Warning, safeBuild } from '@kubb/core'
-import { createConsola } from 'consola'
+import { type Config, safeBuild } from '@kubb/core'
 import type { Args } from './commands/generate.ts'
 import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 import { writeLog } from './utils/writeLog.ts'
+
+import { Presets, SingleBar } from 'cli-progress'
 
 type GenerateProps = {
   input?: string
@@ -19,48 +18,58 @@ type GenerateProps = {
 }
 
 export async function generate({ input, config, args }: GenerateProps): Promise<void> {
-  const logLevel = (args.logLevel as LogLevel) || LogLevel.silent
+  const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
   const logger = createLogger({
     logLevel,
     name: config.name,
-    spinner,
-    consola: createConsola({
-      level: LogMapper[logLevel] || 3,
-    }),
   })
 
-  logger.on('debug', async (messages: string[]) => {
-    if (logLevel === LogLevel.debug) {
-      await writeLog(messages.join('\n'))
+  const progressBars: Record<string, SingleBar> = {}
+
+  logger.on('progress_start', ({ id, size }) => {
+    logger.consola?.pauseLogs()
+    if (!progressBars[id]) {
+      progressBars[id] = new SingleBar(
+        {
+          format:
+            logLevel === LogMapper.info
+              ? '{percentage}% {bar} {value}/{total} {id} | {data} | ETA: {eta_formatted} | Duration: {duration_formatted} '
+              : '{percentage}% {bar} ETA: {eta_formatted}',
+          barsize: 25,
+          clearOnComplete: true,
+          emptyOnZero: true,
+        },
+        Presets.shades_grey,
+      )
+      progressBars[id].start(size, 1, { id, data: '' })
     }
   })
 
-  logger.consola?.wrapConsole()
+  logger.on('progress_stop', ({ id }) => {
+    const progressBar = progressBars[id]
+    progressBar?.stop()
+    logger.consola?.resumeLogs()
+  })
 
-  if (logger.name) {
-    spinner.prefixText = randomCliColour(logger.name)
-  }
+  logger.on('progress', ({ id, count, data = '' }) => {
+    const progressBar = progressBars[id]
+    const payload = { id, data }
 
-  const hrstart = process.hrtime()
+    if (count) {
+      progressBar?.update(count, payload)
+    } else {
+      progressBar?.increment(1, payload)
+    }
+  })
 
-  if (args.logLevel === LogLevel.debug) {
-    const { performance, PerformanceObserver } = await import('node:perf_hooks')
-
-    const performanceOpserver = new PerformanceObserver((items) => {
-      const message = `${items.getEntries()[0]?.duration.toFixed(0)}ms`
-
-      spinner.suffixText = c.yellow(message)
-
-      performance.clearMarks()
-    })
-
-    performanceOpserver.observe({ type: 'measure' })
-  }
+  logger.on('debug', async ({ logs, override, fileName }) => {
+    await writeLog({ data: logs.join('\n'), fileName, override })
+  })
 
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  spinner.start(`🚀 Building ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  logger.emit('start', `Building ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
   const definedConfig: Config = {
     root,
@@ -73,37 +82,43 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
       : userConfig.input,
     output: {
       write: true,
+      exportType: 'barrelNamed',
       ...userConfig.output,
     },
   }
-  const { pluginManager, error } = await safeBuild({
+  const hrStart = process.hrtime()
+  const { pluginManager, files, error } = await safeBuild({
     config: definedConfig,
     logger,
   })
 
   const summary = getSummary({
+    filesCreated: files.length,
     pluginManager,
     config: definedConfig,
     status: error ? 'failed' : 'success',
-    hrstart,
+    hrStart,
     logger,
   })
 
-  if (error) {
-    spinner.suffixText = ''
-    spinner.fail(`🚀 Build failed ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  if (error && logger.consola) {
+    logger.consola?.resumeLogs()
+    logger.consola.error(`Build failed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
-    console.log(summary.join(''))
-
-    if (error instanceof Warning) {
-      spinner.warn(c.yellow(error.message))
-      process.exit(0)
-    }
+    logger.consola.box({
+      title: `${config.name || ''}`,
+      message: summary.join(''),
+      style: {
+        padding: 2,
+        borderColor: 'red',
+        borderStyle: 'rounded',
+      },
+    })
 
     const errors = getErrorCauses([error])
-    if (logger.consola && errors.length && logLevel === LogLevel.debug) {
+    if (logger.consola && errors.length && logLevel === LogMapper.debug) {
       errors.forEach((err) => {
-        logger.consola!.error(err)
+        logger.consola?.error(err)
       })
     }
 
@@ -112,10 +127,19 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     process.exit(0)
   }
 
-  await executeHooks({ hooks: config.hooks, logLevel })
+  if (config.hooks) {
+    await executeHooks({ hooks: config.hooks, logger })
+  }
 
-  spinner.suffixText = ''
-  spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
+  logger.consola?.log(`⚡Build completed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
-  console.log(summary.join(''))
+  logger.consola?.box({
+    title: `${config.name || ''}`,
+    message: summary.join(''),
+    style: {
+      padding: 2,
+      borderColor: 'green',
+      borderStyle: 'rounded',
+    },
+  })
 }

@@ -1,11 +1,12 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -19,9 +20,12 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) =>
   [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+
 export function getUserByNameQueryOptions(refUsername: MaybeRef<GetUserByNamePathParams['username']>, options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(refUsername)
   return queryOptions({
@@ -37,6 +41,7 @@ export function getUserByNameQueryOptions(refUsername: MaybeRef<GetUserByNamePat
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username

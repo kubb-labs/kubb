@@ -34,6 +34,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   return {
     name: pluginTsName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       extName: output.extName,
       transformers,
@@ -112,20 +116,20 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       const operationFiles = await operationGenerator.build()
       await this.addFile(...operationFiles)
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
+
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
+          root,
+          output,
+          files: this.fileManager.files,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
+          logger: this.logger,
+        })
+
+        await this.addFile(...barrelFiles)
       }
-
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      await this.fileManager.addIndexes({
-        root,
-        output,
-        meta: { pluginKey: this.plugin.key },
-        logger: this.logger,
-      })
     },
   }
 })

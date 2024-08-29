@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { ApiResponse } from '../models/ApiResponse'
+import { faker } from '@faker-js/faker'
 
 export function createApiResponse(data: NonNullable<Partial<ApiResponse>> = {}): NonNullable<ApiResponse> {
   return {

@@ -1,16 +1,17 @@
 import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../models/UpdatePetWithForm'
+} from '../models/UpdatePetWithForm.ts'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+
 type UpdatePetWithForm = {
   data: UpdatePetWithFormMutationResponse
   error: UpdatePetWithForm405
@@ -24,6 +25,7 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId

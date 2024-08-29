@@ -1,5 +1,5 @@
+import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
-import { petSchema } from '../petSchema'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
@@ -10,14 +10,17 @@ export const findPetsByTagsQueryParamsSchema = z
   .optional()
 
 export const findPetsByTagsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters') })
+
 /**
  * @description successful operation
  */
 export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+
 /**
  * @description Invalid tag value
  */
 export const findPetsByTags400Schema = z.any()
+
 /**
  * @description successful operation
  */

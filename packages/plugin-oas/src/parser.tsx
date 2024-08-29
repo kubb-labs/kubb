@@ -1,6 +1,7 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import { App, createRoot, type KubbNode } from '@kubb/react'
+import { App, createRoot } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type * as KubbFile from '@kubb/fs/types'
 import type { OperationsByMethod } from './types.ts'
 import { Oas } from '@kubb/plugin-oas/components'

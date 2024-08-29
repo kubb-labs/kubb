@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+
 type LogoutUser = {
   data: LogoutUserQueryResponse
   error: never
@@ -17,8 +18,11 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
+
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
+
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
+
 export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
@@ -33,6 +37,7 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
     },
   })
 }
+
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout

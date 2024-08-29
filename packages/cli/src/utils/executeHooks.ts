@@ -1,65 +1,45 @@
-import { LogLevel } from '@kubb/core/logger'
+import type { Logger } from '@kubb/core/logger'
 import { execa } from 'execa'
 import { parseArgsStringToArgv } from 'string-argv'
 import c from 'tinyrainbow'
 
-import { OraWritable } from './OraWritable.ts'
-import { spinner } from './spinner.ts'
+import { ConsolaWritable } from './Writables.ts'
 
-import type { Writable } from 'node:stream'
 import type { Config } from '@kubb/core'
+import { LogMapper } from '@kubb/core/logger'
+import PQueue from 'p-queue'
 
 type ExecutingHooksProps = {
-  hooks: Config['hooks']
-  logLevel: LogLevel
+  hooks: NonNullable<Config['hooks']>
+  logger: Logger
 }
 
-export async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
-  if (!hooks?.done) {
-    return
-  }
+export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Promise<void> {
+  const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
+  const queue = new PQueue({ concurrency: 1 })
 
-  const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
+  const promises = commands.map(async (command) => {
+    const consolaWritable = new ConsolaWritable(logger.consola!, command)
+    const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
-  if (logLevel === LogLevel.silent) {
-    spinner.start('Executing hooks')
-  }
+    if (!cmd) {
+      return null
+    }
 
-  const executers = commands
-    .map(async (command) => {
-      const oraWritable = new OraWritable(spinner, command)
-      const abortController = new AbortController()
-      const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
-
-      if (!cmd) {
-        return null
-      }
-
-      spinner.start(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
+    await queue.add(async () => {
+      logger.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
 
       const subProcess = await execa(cmd, _args, {
         detached: true,
-        cancelSignal: abortController.signal,
-        stdout: ['pipe', oraWritable],
+        stdout: logger.logLevel === LogMapper.silent ? undefined : ['pipe', consolaWritable],
+        stripFinalNewline: true,
       })
-      spinner.suffixText = ''
 
-      if (logLevel === LogLevel.silent) {
-        spinner.succeed(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
-
-        if (subProcess) {
-          console.log(subProcess.stdout)
-        }
-      }
-
-      oraWritable.destroy()
-      return { subProcess, abort: abortController.abort.bind(abortController) }
+      logger.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
     })
-    .filter(Boolean)
+  })
 
-  await Promise.all(executers)
+  await Promise.all(promises)
 
-  if (logLevel === LogLevel.silent) {
-    spinner.succeed('Executing hooks')
-  }
+  logger.emit('success', 'Executed hooks')
 }

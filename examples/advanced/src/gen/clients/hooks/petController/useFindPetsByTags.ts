@@ -1,13 +1,10 @@
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
-} from '../../../models/ts/petController/FindPetsByTags'
+} from '../../../models/ts/petController/FindPetsByTags.ts'
 import type {
   QueryObserverOptions,
   UseQueryResult,
@@ -18,8 +15,12 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+
 type FindPetsByTags = {
   data: FindPetsByTagsQueryResponse
   error: FindPetsByTags400
@@ -33,8 +34,11 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+
 export function findPetsByTagsQueryOptions(
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
@@ -55,6 +59,7 @@ export function findPetsByTagsQueryOptions(
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -86,8 +91,11 @@ export function useFindPetsByTags<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
+
 export function findPetsByTagsInfiniteQueryOptions(
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
@@ -115,6 +123,7 @@ export function findPetsByTagsInfiniteQueryOptions(
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -146,8 +155,11 @@ export function useFindPetsByTagsInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
+
 export function findPetsByTagsSuspenseQueryOptions(
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
@@ -168,6 +180,7 @@ export function findPetsByTagsSuspenseQueryOptions(
     },
   })
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags

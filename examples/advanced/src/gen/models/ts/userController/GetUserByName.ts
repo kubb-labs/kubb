@@ -1,4 +1,4 @@
-import type { User } from '../User.js'
+import type { User } from '../User.ts'
 
 export type GetUserByNamePathParams = {
   /**
@@ -7,22 +7,27 @@ export type GetUserByNamePathParams = {
    */
   username: string
 }
+
 /**
  * @description successful operation
  */
 export type GetUserByName200 = User
+
 /**
  * @description Invalid username supplied
  */
 export type GetUserByName400 = any
+
 /**
  * @description User not found
  */
 export type GetUserByName404 = any
+
 /**
  * @description successful operation
  */
 export type GetUserByNameQueryResponse = User
+
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse
   PathParams: GetUserByNamePathParams

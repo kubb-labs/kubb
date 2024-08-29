@@ -1,9 +1,9 @@
 import { type URLObject, URLPath } from '@kubb/core/utils'
-import { Function, Type } from '@kubb/react'
-import { QueryKey } from '@kubb/plugin-react-query/components'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import type React from 'react'
+import { QueryKey } from '@kubb/plugin-react-query/components'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { File, Function, Type } from '@kubb/react'
+import type React from 'react'
 
 export const templates = {
   ...QueryKey.templates,
@@ -23,13 +23,17 @@ export const templates = {
 
     return (
       <>
-        <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
-          {`[${keys}] as const`}
-        </Function.Arrow>
+        <File.Source name={name} isExportable isIndexable>
+          <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
+            {`[${keys}] as const`}
+          </Function.Arrow>
+        </File.Source>
 
-        <Type name={typeName} export>
-          {`ReturnType<typeof ${name}>`}
-        </Type>
+        <File.Source name={typeName} isExportable isIndexable isTypeOnly>
+          <Type name={typeName} export>
+            {`ReturnType<typeof ${name}>`}
+          </Type>
+        </File.Source>
       </>
     )
   },

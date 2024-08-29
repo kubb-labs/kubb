@@ -1,12 +1,11 @@
-import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
-import { File, Function, Parser, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { File, Function, useApp } from '@kubb/react'
 
-import { getImportNames, reactQueryDepRegex } from '../utils.ts'
+import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
@@ -93,8 +92,9 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
     : undefined
 
   return (
-    <Function export name={name} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable isIndexable>
+      <Function export name={name} params={params} JSDoc={JSDoc}>
+        {`
          const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
          return ${hook.name}({
@@ -109,7 +109,8 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
            },
            ...mutationOptions
          })`}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 
@@ -426,37 +427,32 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={'client'} path={importPath} />
-        <File.Import extName={extName} name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          extName={extName}
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...(schemas.errors?.map((error) => error.name) || []),
-          ].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
-        <MutationImports Template={Import} />
-        <File.Source>
-          <SchemaType factory={factory} />
-          <Mutation
-            factory={factory}
-            Template={Template}
-            hookName={importNames.mutation[framework].hookName}
-            resultType={importNames.mutation[framework].resultType}
-            optionsType={importNames.mutation[framework].optionsType}
-          />
-        </File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.errors?.map((error) => error.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+      <MutationImports Template={Import} />
+      <SchemaType factory={factory} />
+      <Mutation
+        factory={factory}
+        Template={Template}
+        hookName={importNames.mutation[framework].hookName}
+        resultType={importNames.mutation[framework].resultType}
+        optionsType={importNames.mutation[framework].optionsType}
+      />
+    </File>
   )
 }
 

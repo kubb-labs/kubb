@@ -240,6 +240,7 @@ export const flyFileSchema = z
       .string()
       .describe('GuestPath is the path on the machine where the file will be written and must be an absolute path.\nFor example: /full/path/to/file.json')
       .optional(),
+    mode: z.number().describe('Mode bits used to set permissions on this file as accepted by chmod(2).').optional(),
     raw_value: z.string().describe('The base64 encoded string of the file contents.').optional(),
     secret_name: z.string().describe('The name of the secret that contains the base64 encoded file contents.').optional(),
   })
@@ -269,6 +270,7 @@ export const flyMachineCheckSchema = z
       .lazy(() => flyDurationSchema)
       .describe('The time between connectivity checks')
       .optional(),
+    kind: z.enum(['informational', 'readiness']).describe('Kind of the check (informational, readiness)').optional(),
     method: z.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
     path: z.string().describe('For http checks, the path to send the request to').optional(),
     port: z.number().describe('The port to connect to, often the same as internal_port').optional(),
@@ -393,14 +395,15 @@ export const flyMachineProcessSchema = z.object({
  */
 export const flyMachineRestartSchema = z
   .object({
+    gpu_bid_price: z.number().describe('GPU bid price for spot Machines.').optional(),
     max_retries: z
       .number()
       .describe('When policy is on-failure, the maximum number of times to attempt to restart the Machine before letting it stop.')
       .optional(),
     policy: z
-      .enum(['no', 'always', 'on-failure'])
+      .enum(['no', 'always', 'on-failure', 'spot-price'])
       .describe(
-        '* no - Never try to restart a Machine automatically when its main process exits, whether that\u2019s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.',
+        '* no - Never try to restart a Machine automatically when its main process exits, whether that\u2019s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.\n* spot-price - Starts the Machine only when there is capacity and the spot price is less than or equal to the bid price.',
       )
       .optional(),
   })
@@ -481,10 +484,12 @@ export const flydv1ExecResponseSchema = z.object({
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
 
 export const appsListQueryParamsSchema = z.object({ org_slug: z.string().describe("The org slug, or 'personal', to filter apps") })
+
 /**
  * @description OK
  */
 export const appsList200Schema = z.lazy(() => listAppsResponseSchema)
+
 /**
  * @description OK
  */
@@ -494,10 +499,12 @@ export const appsListQueryResponseSchema = z.lazy(() => listAppsResponseSchema)
  * @description Created
  */
 export const appsCreate201Schema = z.any()
+
 /**
  * @description Bad Request
  */
 export const appsCreate400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description App body
  */
@@ -506,16 +513,19 @@ export const appsCreateMutationRequestSchema = z.lazy(() => createAppRequestSche
 export const appsCreateMutationResponseSchema = z.any()
 
 export const appsShowPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
 /**
  * @description OK
  */
 export const appsShow200Schema = z.lazy(() => appSchema)
+
 /**
  * @description OK
  */
 export const appsShowQueryResponseSchema = z.lazy(() => appSchema)
 
 export const appsDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
 /**
  * @description Accepted
  */
@@ -528,52 +538,63 @@ export const machinesListPathParamsSchema = z.object({ app_name: z.string().desc
 export const machinesListQueryParamsSchema = z
   .object({ include_deleted: z.boolean().describe('Include deleted machines').optional(), region: z.string().describe('Region filter').optional() })
   .optional()
+
 /**
  * @description OK
  */
 export const machinesList200Schema = z.array(z.lazy(() => machineSchema))
+
 /**
  * @description OK
  */
 export const machinesListQueryResponseSchema = z.array(z.lazy(() => machineSchema))
 
 export const machinesCreatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
 /**
  * @description OK
  */
 export const machinesCreate200Schema = z.lazy(() => machineSchema)
+
 /**
  * @description Create machine request
  */
 export const machinesCreateMutationRequestSchema = z.lazy(() => createMachineRequestSchema)
+
 /**
  * @description OK
  */
 export const machinesCreateMutationResponseSchema = z.lazy(() => machineSchema)
 
 export const machinesShowPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesShow200Schema = z.lazy(() => machineSchema)
+
 /**
  * @description OK
  */
 export const machinesShowQueryResponseSchema = z.lazy(() => machineSchema)
 
 export const machinesUpdatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesUpdate200Schema = z.lazy(() => machineSchema)
+
 /**
  * @description Bad Request
  */
 export const machinesUpdate400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description Request body
  */
 export const machinesUpdateMutationRequestSchema = z.lazy(() => updateMachineRequestSchema)
+
 /**
  * @description OK
  */
@@ -582,6 +603,7 @@ export const machinesUpdateMutationResponseSchema = z.lazy(() => machineSchema)
 export const machinesDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
 export const machinesDeleteQueryParamsSchema = z.object({ force: z.boolean().describe("Force kill the machine if it's running").optional() }).optional()
+
 /**
  * @description OK
  */
@@ -590,6 +612,7 @@ export const machinesDelete200Schema = z.any()
 export const machinesDeleteMutationResponseSchema = z.any()
 
 export const machinesCordonPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
@@ -598,38 +621,46 @@ export const machinesCordon200Schema = z.any()
 export const machinesCordonMutationResponseSchema = z.any()
 
 export const machinesListEventsPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesListEvents200Schema = z.array(z.lazy(() => machineEventSchema))
+
 /**
  * @description OK
  */
 export const machinesListEventsQueryResponseSchema = z.array(z.lazy(() => machineEventSchema))
 
 export const machinesExecPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description stdout, stderr, exit code, and exit signal are returned
  */
 export const machinesExec200Schema = z.lazy(() => flydv1ExecResponseSchema)
+
 /**
  * @description Bad Request
  */
 export const machinesExec400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description Request body
  */
 export const machinesExecMutationRequestSchema = z.lazy(() => machineExecRequestSchema)
+
 /**
  * @description stdout, stderr, exit code, and exit signal are returned
  */
 export const machinesExecMutationResponseSchema = z.lazy(() => flydv1ExecResponseSchema)
 
 export const machinesShowLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesShowLease200Schema = z.lazy(() => leaseSchema)
+
 /**
  * @description OK
  */
@@ -640,14 +671,17 @@ export const machinesCreateLeasePathParamsSchema = z.object({ app_name: z.string
 export const machinesCreateLeaseHeaderParamsSchema = z
   .object({ 'fly-machine-lease-nonce': z.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease').optional() })
   .optional()
+
 /**
  * @description OK
  */
 export const machinesCreateLease200Schema = z.lazy(() => leaseSchema)
+
 /**
  * @description Request body
  */
 export const machinesCreateLeaseMutationRequestSchema = z.lazy(() => createLeaseRequestSchema)
+
 /**
  * @description OK
  */
@@ -656,6 +690,7 @@ export const machinesCreateLeaseMutationResponseSchema = z.lazy(() => leaseSchem
 export const machinesReleaseLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
 export const machinesReleaseLeaseHeaderParamsSchema = z.object({ 'fly-machine-lease-nonce': z.string().describe('Existing lease nonce') })
+
 /**
  * @description OK
  */
@@ -664,10 +699,12 @@ export const machinesReleaseLease200Schema = z.any()
 export const machinesReleaseLeaseMutationResponseSchema = z.any()
 
 export const machinesShowMetadataPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesShowMetadata200Schema = z.object({}).catchall(z.string())
+
 /**
  * @description OK
  */
@@ -678,10 +715,12 @@ export const machinesUpdateMetadataPathParamsSchema = z.object({
   machine_id: z.string().describe('Machine ID'),
   key: z.string().describe('Metadata Key'),
 })
+
 /**
  * @description No Content
  */
 export const machinesUpdateMetadata204Schema = z.any()
+
 /**
  * @description Bad Request
  */
@@ -694,6 +733,7 @@ export const machinesDeleteMetadataPathParamsSchema = z.object({
   machine_id: z.string().describe('Machine ID'),
   key: z.string().describe('Metadata Key'),
 })
+
 /**
  * @description No Content
  */
@@ -706,14 +746,17 @@ export const machinesListProcessesPathParamsSchema = z.object({ app_name: z.stri
 export const machinesListProcessesQueryParamsSchema = z
   .object({ sort_by: z.string().describe('Sort by').optional(), order: z.string().describe('Order').optional() })
   .optional()
+
 /**
  * @description OK
  */
 export const machinesListProcesses200Schema = z.array(z.lazy(() => processStatSchema))
+
 /**
  * @description Bad Request
  */
 export const machinesListProcesses400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description OK
  */
@@ -724,13 +767,15 @@ export const machinesRestartPathParamsSchema = z.object({ app_name: z.string().d
 export const machinesRestartQueryParamsSchema = z
   .object({
     timeout: z.string().describe('Restart timeout as a Go duration string or number of seconds').optional(),
-    signal: z.string().describe('UNIX signal name').optional(),
+    signal: z.string().describe('Unix signal name').optional(),
   })
   .optional()
+
 /**
  * @description OK
  */
 export const machinesRestart200Schema = z.any()
+
 /**
  * @description Bad Request
  */
@@ -739,14 +784,17 @@ export const machinesRestart400Schema = z.lazy(() => errorResponseSchema)
 export const machinesRestartMutationResponseSchema = z.any()
 
 export const machinesSignalPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesSignal200Schema = z.any()
+
 /**
  * @description Bad Request
  */
 export const machinesSignal400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description Request body
  */
@@ -755,6 +803,7 @@ export const machinesSignalMutationRequestSchema = z.lazy(() => signalRequestSch
 export const machinesSignalMutationResponseSchema = z.any()
 
 export const machinesStartPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
@@ -763,14 +812,17 @@ export const machinesStart200Schema = z.any()
 export const machinesStartMutationResponseSchema = z.any()
 
 export const machinesStopPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesStop200Schema = z.any()
+
 /**
  * @description Bad Request
  */
 export const machinesStop400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description Optional request body
  */
@@ -779,6 +831,7 @@ export const machinesStopMutationRequestSchema = z.lazy(() => stopRequestSchema)
 export const machinesStopMutationResponseSchema = z.any()
 
 export const machinesSuspendPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
@@ -787,6 +840,7 @@ export const machinesSuspend200Schema = z.any()
 export const machinesSuspendMutationResponseSchema = z.any()
 
 export const machinesUncordonPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
@@ -795,10 +849,12 @@ export const machinesUncordon200Schema = z.any()
 export const machinesUncordonMutationResponseSchema = z.any()
 
 export const machinesListVersionsPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
+
 /**
  * @description OK
  */
 export const machinesListVersions200Schema = z.array(z.lazy(() => machineVersionSchema))
+
 /**
  * @description OK
  */
@@ -813,10 +869,12 @@ export const machinesWaitQueryParamsSchema = z
     state: z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state').optional(),
   })
   .optional()
+
 /**
  * @description OK
  */
 export const machinesWait200Schema = z.any()
+
 /**
  * @description Bad Request
  */
@@ -825,92 +883,111 @@ export const machinesWait400Schema = z.lazy(() => errorResponseSchema)
 export const machinesWaitQueryResponseSchema = z.any()
 
 export const volumesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
 /**
  * @description OK
  */
 export const volumesList200Schema = z.array(z.lazy(() => volumeSchema))
+
 /**
  * @description OK
  */
 export const volumesListQueryResponseSchema = z.array(z.lazy(() => volumeSchema))
 
 export const volumesCreatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
 /**
  * @description OK
  */
 export const volumesCreate200Schema = z.lazy(() => volumeSchema)
+
 /**
  * @description Request body
  */
 export const volumesCreateMutationRequestSchema = z.lazy(() => createVolumeRequestSchema)
+
 /**
  * @description OK
  */
 export const volumesCreateMutationResponseSchema = z.lazy(() => volumeSchema)
 
 export const volumesGetByIdPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
+
 /**
  * @description OK
  */
 export const volumesGetById200Schema = z.lazy(() => volumeSchema)
+
 /**
  * @description OK
  */
 export const volumesGetByIdQueryResponseSchema = z.lazy(() => volumeSchema)
 
 export const volumesUpdatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
+
 /**
  * @description OK
  */
 export const volumesUpdate200Schema = z.lazy(() => volumeSchema)
+
 /**
  * @description Bad Request
  */
 export const volumesUpdate400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description Request body
  */
 export const volumesUpdateMutationRequestSchema = z.lazy(() => updateVolumeRequestSchema)
+
 /**
  * @description OK
  */
 export const volumesUpdateMutationResponseSchema = z.lazy(() => volumeSchema)
 
 export const volumeDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
+
 /**
  * @description OK
  */
 export const volumeDelete200Schema = z.lazy(() => volumeSchema)
+
 /**
  * @description OK
  */
 export const volumeDeleteMutationResponseSchema = z.lazy(() => volumeSchema)
 
 export const volumesExtendPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
+
 /**
  * @description OK
  */
 export const volumesExtend200Schema = z.lazy(() => extendVolumeResponseSchema)
+
 /**
  * @description Request body
  */
 export const volumesExtendMutationRequestSchema = z.lazy(() => extendVolumeRequestSchema)
+
 /**
  * @description OK
  */
 export const volumesExtendMutationResponseSchema = z.lazy(() => extendVolumeResponseSchema)
 
 export const volumesListSnapshotsPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
+
 /**
  * @description OK
  */
 export const volumesListSnapshots200Schema = z.array(z.lazy(() => volumeSnapshotSchema))
+
 /**
  * @description OK
  */
 export const volumesListSnapshotsQueryResponseSchema = z.array(z.lazy(() => volumeSnapshotSchema))
 
 export const createVolumeSnapshotPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
+
 /**
  * @description OK
  */
@@ -922,6 +999,7 @@ export const createVolumeSnapshotMutationResponseSchema = z.any()
  * @description KMS token
  */
 export const tokensRequestKms200Schema = z.string()
+
 /**
  * @description KMS token
  */
@@ -931,621 +1009,18 @@ export const tokensRequestKmsMutationResponseSchema = z.string()
  * @description OIDC token
  */
 export const tokensRequestOidc200Schema = z.string()
+
 /**
  * @description Bad Request
  */
 export const tokensRequestOidc400Schema = z.lazy(() => errorResponseSchema)
+
 /**
  * @description Optional request body
  */
 export const tokensRequestOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema)
+
 /**
  * @description OIDC token
  */
 export const tokensRequestOidcMutationResponseSchema = z.string()
-
-export const operations = {
-  Apps_list: {
-    request: undefined,
-    parameters: {
-      path: undefined,
-      query: appsListQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: appsListQueryResponseSchema,
-      default: appsListQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Apps_create: {
-    request: appsCreateMutationRequestSchema,
-    parameters: {
-      path: undefined,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      201: appsCreateMutationResponseSchema,
-      400: appsCreate400Schema,
-      default: appsCreateMutationResponseSchema,
-    },
-    errors: {
-      400: appsCreate400Schema,
-    },
-  },
-  Apps_show: {
-    request: undefined,
-    parameters: {
-      path: appsShowPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: appsShowQueryResponseSchema,
-      default: appsShowQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Apps_delete: {
-    request: undefined,
-    parameters: {
-      path: appsDeletePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      202: appsDeleteMutationResponseSchema,
-      default: appsDeleteMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_list: {
-    request: undefined,
-    parameters: {
-      path: machinesListPathParamsSchema,
-      query: machinesListQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListQueryResponseSchema,
-      default: machinesListQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_create: {
-    request: machinesCreateMutationRequestSchema,
-    parameters: {
-      path: machinesCreatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesCreateMutationResponseSchema,
-      default: machinesCreateMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_show: {
-    request: undefined,
-    parameters: {
-      path: machinesShowPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesShowQueryResponseSchema,
-      default: machinesShowQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_update: {
-    request: machinesUpdateMutationRequestSchema,
-    parameters: {
-      path: machinesUpdatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesUpdateMutationResponseSchema,
-      400: machinesUpdate400Schema,
-      default: machinesUpdateMutationResponseSchema,
-    },
-    errors: {
-      400: machinesUpdate400Schema,
-    },
-  },
-  Machines_delete: {
-    request: undefined,
-    parameters: {
-      path: machinesDeletePathParamsSchema,
-      query: machinesDeleteQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesDeleteMutationResponseSchema,
-      default: machinesDeleteMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_cordon: {
-    request: undefined,
-    parameters: {
-      path: machinesCordonPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesCordonMutationResponseSchema,
-      default: machinesCordonMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_list_events: {
-    request: undefined,
-    parameters: {
-      path: machinesListEventsPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListEventsQueryResponseSchema,
-      default: machinesListEventsQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_exec: {
-    request: machinesExecMutationRequestSchema,
-    parameters: {
-      path: machinesExecPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesExecMutationResponseSchema,
-      400: machinesExec400Schema,
-      default: machinesExecMutationResponseSchema,
-    },
-    errors: {
-      400: machinesExec400Schema,
-    },
-  },
-  Machines_show_lease: {
-    request: undefined,
-    parameters: {
-      path: machinesShowLeasePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesShowLeaseQueryResponseSchema,
-      default: machinesShowLeaseQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_create_lease: {
-    request: machinesCreateLeaseMutationRequestSchema,
-    parameters: {
-      path: machinesCreateLeasePathParamsSchema,
-      query: undefined,
-      header: machinesCreateLeaseHeaderParamsSchema,
-    },
-    responses: {
-      200: machinesCreateLeaseMutationResponseSchema,
-      default: machinesCreateLeaseMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_release_lease: {
-    request: undefined,
-    parameters: {
-      path: machinesReleaseLeasePathParamsSchema,
-      query: undefined,
-      header: machinesReleaseLeaseHeaderParamsSchema,
-    },
-    responses: {
-      200: machinesReleaseLeaseMutationResponseSchema,
-      default: machinesReleaseLeaseMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_show_metadata: {
-    request: undefined,
-    parameters: {
-      path: machinesShowMetadataPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesShowMetadataQueryResponseSchema,
-      default: machinesShowMetadataQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_update_metadata: {
-    request: undefined,
-    parameters: {
-      path: machinesUpdateMetadataPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      204: machinesUpdateMetadataMutationResponseSchema,
-      400: machinesUpdateMetadata400Schema,
-      default: machinesUpdateMetadataMutationResponseSchema,
-    },
-    errors: {
-      400: machinesUpdateMetadata400Schema,
-    },
-  },
-  Machines_delete_metadata: {
-    request: undefined,
-    parameters: {
-      path: machinesDeleteMetadataPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      204: machinesDeleteMetadataMutationResponseSchema,
-      default: machinesDeleteMetadataMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_list_processes: {
-    request: undefined,
-    parameters: {
-      path: machinesListProcessesPathParamsSchema,
-      query: machinesListProcessesQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListProcessesQueryResponseSchema,
-      400: machinesListProcesses400Schema,
-      default: machinesListProcessesQueryResponseSchema,
-    },
-    errors: {
-      400: machinesListProcesses400Schema,
-    },
-  },
-  Machines_restart: {
-    request: undefined,
-    parameters: {
-      path: machinesRestartPathParamsSchema,
-      query: machinesRestartQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesRestartMutationResponseSchema,
-      400: machinesRestart400Schema,
-      default: machinesRestartMutationResponseSchema,
-    },
-    errors: {
-      400: machinesRestart400Schema,
-    },
-  },
-  Machines_signal: {
-    request: machinesSignalMutationRequestSchema,
-    parameters: {
-      path: machinesSignalPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesSignalMutationResponseSchema,
-      400: machinesSignal400Schema,
-      default: machinesSignalMutationResponseSchema,
-    },
-    errors: {
-      400: machinesSignal400Schema,
-    },
-  },
-  Machines_start: {
-    request: undefined,
-    parameters: {
-      path: machinesStartPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesStartMutationResponseSchema,
-      default: machinesStartMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_stop: {
-    request: machinesStopMutationRequestSchema,
-    parameters: {
-      path: machinesStopPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesStopMutationResponseSchema,
-      400: machinesStop400Schema,
-      default: machinesStopMutationResponseSchema,
-    },
-    errors: {
-      400: machinesStop400Schema,
-    },
-  },
-  Machines_suspend: {
-    request: undefined,
-    parameters: {
-      path: machinesSuspendPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesSuspendMutationResponseSchema,
-      default: machinesSuspendMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_uncordon: {
-    request: undefined,
-    parameters: {
-      path: machinesUncordonPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesUncordonMutationResponseSchema,
-      default: machinesUncordonMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_list_versions: {
-    request: undefined,
-    parameters: {
-      path: machinesListVersionsPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: machinesListVersionsQueryResponseSchema,
-      default: machinesListVersionsQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Machines_wait: {
-    request: undefined,
-    parameters: {
-      path: machinesWaitPathParamsSchema,
-      query: machinesWaitQueryParamsSchema,
-      header: undefined,
-    },
-    responses: {
-      200: machinesWaitQueryResponseSchema,
-      400: machinesWait400Schema,
-      default: machinesWaitQueryResponseSchema,
-    },
-    errors: {
-      400: machinesWait400Schema,
-    },
-  },
-  Volumes_list: {
-    request: undefined,
-    parameters: {
-      path: volumesListPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesListQueryResponseSchema,
-      default: volumesListQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Volumes_create: {
-    request: volumesCreateMutationRequestSchema,
-    parameters: {
-      path: volumesCreatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesCreateMutationResponseSchema,
-      default: volumesCreateMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Volumes_get_by_id: {
-    request: undefined,
-    parameters: {
-      path: volumesGetByIdPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesGetByIdQueryResponseSchema,
-      default: volumesGetByIdQueryResponseSchema,
-    },
-    errors: {},
-  },
-  Volumes_update: {
-    request: volumesUpdateMutationRequestSchema,
-    parameters: {
-      path: volumesUpdatePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesUpdateMutationResponseSchema,
-      400: volumesUpdate400Schema,
-      default: volumesUpdateMutationResponseSchema,
-    },
-    errors: {
-      400: volumesUpdate400Schema,
-    },
-  },
-  Volume_delete: {
-    request: undefined,
-    parameters: {
-      path: volumeDeletePathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumeDeleteMutationResponseSchema,
-      default: volumeDeleteMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Volumes_extend: {
-    request: volumesExtendMutationRequestSchema,
-    parameters: {
-      path: volumesExtendPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesExtendMutationResponseSchema,
-      default: volumesExtendMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Volumes_list_snapshots: {
-    request: undefined,
-    parameters: {
-      path: volumesListSnapshotsPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: volumesListSnapshotsQueryResponseSchema,
-      default: volumesListSnapshotsQueryResponseSchema,
-    },
-    errors: {},
-  },
-  createVolumeSnapshot: {
-    request: undefined,
-    parameters: {
-      path: createVolumeSnapshotPathParamsSchema,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: createVolumeSnapshotMutationResponseSchema,
-      default: createVolumeSnapshotMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Tokens_request_Kms: {
-    request: undefined,
-    parameters: {
-      path: undefined,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: tokensRequestKmsMutationResponseSchema,
-      default: tokensRequestKmsMutationResponseSchema,
-    },
-    errors: {},
-  },
-  Tokens_request_OIDC: {
-    request: tokensRequestOidcMutationRequestSchema,
-    parameters: {
-      path: undefined,
-      query: undefined,
-      header: undefined,
-    },
-    responses: {
-      200: tokensRequestOidcMutationResponseSchema,
-      400: tokensRequestOidc400Schema,
-      default: tokensRequestOidcMutationResponseSchema,
-    },
-    errors: {
-      400: tokensRequestOidc400Schema,
-    },
-  },
-} as const
-export const paths = {
-  '/apps': {
-    get: operations['Apps_list'],
-    post: operations['Apps_create'],
-  },
-  '/apps/{app_name}': {
-    get: operations['Apps_show'],
-    delete: operations['Apps_delete'],
-  },
-  '/apps/{app_name}/machines': {
-    get: operations['Machines_list'],
-    post: operations['Machines_create'],
-  },
-  '/apps/{app_name}/machines/{machine_id}': {
-    get: operations['Machines_show'],
-    post: operations['Machines_update'],
-    delete: operations['Machines_delete'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/cordon': {
-    post: operations['Machines_cordon'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/events': {
-    get: operations['Machines_list_events'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/exec': {
-    post: operations['Machines_exec'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/lease': {
-    get: operations['Machines_show_lease'],
-    post: operations['Machines_create_lease'],
-    delete: operations['Machines_release_lease'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/metadata': {
-    get: operations['Machines_show_metadata'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/metadata/{key}': {
-    post: operations['Machines_update_metadata'],
-    delete: operations['Machines_delete_metadata'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/ps': {
-    get: operations['Machines_list_processes'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/restart': {
-    post: operations['Machines_restart'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/signal': {
-    post: operations['Machines_signal'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/start': {
-    post: operations['Machines_start'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/stop': {
-    post: operations['Machines_stop'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/suspend': {
-    post: operations['Machines_suspend'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/uncordon': {
-    post: operations['Machines_uncordon'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/versions': {
-    get: operations['Machines_list_versions'],
-  },
-  '/apps/{app_name}/machines/{machine_id}/wait': {
-    get: operations['Machines_wait'],
-  },
-  '/apps/{app_name}/volumes': {
-    get: operations['Volumes_list'],
-    post: operations['Volumes_create'],
-  },
-  '/apps/{app_name}/volumes/{volume_id}': {
-    get: operations['Volumes_get_by_id'],
-    put: operations['Volumes_update'],
-    delete: operations['Volume_delete'],
-  },
-  '/apps/{app_name}/volumes/{volume_id}/extend': {
-    put: operations['Volumes_extend'],
-  },
-  '/apps/{app_name}/volumes/{volume_id}/snapshots': {
-    get: operations['Volumes_list_snapshots'],
-    post: operations['createVolumeSnapshot'],
-  },
-  '/tokens/kms': {
-    post: operations['Tokens_request_Kms'],
-  },
-  '/tokens/oidc': {
-    post: operations['Tokens_request_OIDC'],
-  },
-} as const

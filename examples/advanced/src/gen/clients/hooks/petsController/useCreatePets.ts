@@ -1,15 +1,16 @@
 import client from '../../../../tanstack-query-client.ts'
-import { useMutation } from '@tanstack/react-query'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets'
+} from '../../../models/ts/petsController/CreatePets.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
+
 type CreatePets = {
   data: CreatePetsMutationResponse
   error: never
@@ -23,6 +24,7 @@ type CreatePets = {
     return: Awaited<ReturnType<CreatePetsClient>>
   }
 }
+
 /**
  * @summary Create a pet
  * @link /pets/:uuid

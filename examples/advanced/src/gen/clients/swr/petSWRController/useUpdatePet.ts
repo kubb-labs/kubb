@@ -1,9 +1,16 @@
-import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
+import useSWRMutation from 'swr/mutation'
+import type {
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+} from '../../../models/ts/petController/UpdatePet.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
 
 type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
+
 type UpdatePet = {
   data: UpdatePetMutationResponse
   error: UpdatePet400 | UpdatePet404 | UpdatePet405
@@ -17,6 +24,7 @@ type UpdatePet = {
     return: Awaited<ReturnType<UpdatePetClient>>
   }
 }
+
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet

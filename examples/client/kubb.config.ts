@@ -1,20 +1,18 @@
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 import { Client } from './templates/client/index'
 
-export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+export default defineConfig(() => {
   return {
     root: '.',
     input: {
-      // path: './test.json',
       path: './petStore.yaml',
+    },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     output: {
       path: './src/gen',
@@ -32,7 +30,7 @@ export default defineConfig(async () => {
         group: {
           type: 'tag',
         },
-        enumType: 'asPascalConst',
+        enumType: 'asConst',
         dateType: 'date',
       }),
       pluginClient({

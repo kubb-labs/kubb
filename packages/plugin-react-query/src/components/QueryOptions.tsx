@@ -3,7 +3,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
-import { Function, useApp } from '@kubb/react'
+import { Function, useApp, File } from '@kubb/react'
 import { pluginZodName } from '@kubb/plugin-zod'
 
 import { isRequired } from '@kubb/oas'
@@ -123,8 +123,9 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
   if (infinite) {
     if (isV5) {
       return (
-        <Function name={name} export params={params} JSDoc={JSDoc}>
-          {`
+        <File.Source name={name} isExportable isIndexable>
+          <Function name={name} export params={params} JSDoc={JSDoc}>
+            {`
        const queryKey = ${hook.queryKey}
 
        return infiniteQueryOptions({
@@ -142,13 +143,15 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
        })
 
        `}
-        </Function>
+          </Function>
+        </File.Source>
       )
     }
 
     return (
-      <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-        {`
+      <File.Source name={name} isExportable isIndexable>
+        <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+          {`
          const queryKey = ${hook.queryKey}
 
          return {
@@ -166,14 +169,16 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
          }
 
          `}
-      </Function>
+        </Function>
+      </File.Source>
     )
   }
 
   if (isV5) {
     return (
-      <Function name={name} export params={params} JSDoc={JSDoc}>
-        {`
+      <File.Source name={name} isExportable isIndexable>
+        <Function name={name} export params={params} JSDoc={JSDoc}>
+          {`
    const queryKey = ${hook.queryKey}
 
    return queryOptions({
@@ -191,13 +196,15 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
    })
 
    `}
-      </Function>
+        </Function>
+      </File.Source>
     )
   }
 
   return (
-    <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable isIndexable>
+      <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        {`
        const queryKey = ${hook.queryKey}
 
        return {
@@ -215,7 +222,8 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
        }
 
        `}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 

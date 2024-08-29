@@ -1,1 +1,1 @@
-export * from './useCreatePets'
+export { useCreatePets } from './useCreatePets.ts'

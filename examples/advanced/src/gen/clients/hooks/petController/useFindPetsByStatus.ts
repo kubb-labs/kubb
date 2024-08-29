@@ -1,8 +1,5 @@
-import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema'
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import type {
   QueryObserverOptions,
   UseQueryResult,
@@ -13,8 +10,12 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+
 type FindPetsByStatus = {
   data: FindPetsByStatusQueryResponse
   error: FindPetsByStatus400
@@ -28,8 +29,11 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions({
@@ -45,6 +49,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryPar
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -75,9 +80,12 @@ export function useFindPetsByStatus<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByStatusInfiniteQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusInfiniteQueryKey = ReturnType<typeof findPetsByStatusInfiniteQueryKey>
+
 export function findPetsByStatusInfiniteQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusInfiniteQueryKey(params)
   return infiniteQueryOptions({
@@ -100,6 +108,7 @@ export function findPetsByStatusInfiniteQueryOptions(params?: FindPetsByStatus['
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -130,9 +139,12 @@ export function useFindPetsByStatusInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatusSuspenseQueryKey>
+
 export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return queryOptions({
@@ -148,6 +160,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status

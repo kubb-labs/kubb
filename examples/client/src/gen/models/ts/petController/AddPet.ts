@@ -1,10 +1,11 @@
-import type { AddPetRequest } from '../AddPetRequest'
-import type { Pet } from '../Pet'
+import type { AddPetRequest } from '../AddPetRequest.ts'
+import type { Pet } from '../Pet.ts'
 
 /**
  * @description Successful operation
  */
 export type AddPet200 = Pet
+
 /**
  * @description Pet not found
  */
@@ -18,14 +19,17 @@ export type AddPet405 = {
    */
   message?: string
 }
+
 /**
  * @description Create a new pet in the store
  */
 export type AddPetMutationRequest = AddPetRequest
+
 /**
  * @description Successful operation
  */
 export type AddPetMutationResponse = Pet
+
 export type AddPetMutation = {
   Response: AddPetMutationResponse
   Request: AddPetMutationRequest

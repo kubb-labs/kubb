@@ -1,5 +1,5 @@
 import { safeBuild } from '@kubb/core'
-import { createLogger, LogLevel } from '@kubb/core/logger'
+import { createLogger } from '@kubb/core/logger'
 
 import { createUnplugin } from 'unplugin'
 
@@ -10,7 +10,6 @@ import type { Options } from './types.ts'
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) => {
   const name = 'unplugin-kubb' as const
   const logger = createLogger({
-    logLevel: LogLevel.info,
     name,
   })
 
@@ -23,7 +22,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) =
           config.logger.info(`${name}: ${message}`)
         })
 
-        logger.on('end', (message: string) => {
+        logger.on('success', (message: string) => {
           config.logger.info(`${name}: ${message}`)
         })
 
@@ -44,7 +43,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) =
 
       const { root: _root, ...userConfig } = options.config as Config
 
-      logger.emit('start', '🚀 Building')
+      logger.emit('start', 'Building')
 
       const { error } = await safeBuild({
         config: {

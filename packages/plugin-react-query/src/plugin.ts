@@ -4,12 +4,12 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginOasName } from '@kubb/plugin-oas'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
+
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mutation, Operations, Query, QueryKey, QueryOptions } from './components/index.ts'
+import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
@@ -40,6 +40,10 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
   return {
     name: pluginReactQueryName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       client: {
         importPath: '@kubb/plugin-client/client',
@@ -78,7 +82,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         queryOptions: QueryOptions.templates,
         queryKey: QueryKey.templates,
         queryImports: QueryImports.templates,
-        operations: Operations.templates,
         ...templates,
       },
       parser,
@@ -143,34 +146,20 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       const files = await operationGenerator.build()
       await this.addFile(...files)
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      if (group?.type === 'tag') {
-        const rootFiles = await getGroupedByTagFiles({
-          logger: this.logger,
-          files: this.fileManager.files,
-          plugin: this.plugin,
-          template,
-          exportAs: group.exportAs || '{{tag}}Hooks',
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
+          files: this.fileManager.files,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
+          logger: this.logger,
         })
 
-        await this.addFile(...rootFiles)
+        await this.addFile(...barrelFiles)
       }
-
-      await this.fileManager.addIndexes({
-        root,
-        output,
-        meta: { pluginKey: this.plugin.key },
-        logger: this.logger,
-      })
     },
   }
 })

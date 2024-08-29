@@ -1,6 +1,7 @@
 import type client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName'
 import axios from 'axios'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName.ts'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**

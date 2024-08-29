@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`FileManager utils > if getFileSource is returning code with exports and exports as 1`] = `
-"import type { Pets, Lily } from './Pets'
-import type Dog from './Dog'
+"import type Dog from './Dog'
+import type { Pets, Lily } from './Pets'
 
 export const test = 2
 type Test = Pets | Lily | Dog
@@ -10,8 +10,8 @@ type Test = Pets | Lily | Dog
 `;
 
 exports[`FileManager utils > if getFileSource is returning code with exports and exports as 2`] = `
-"export type { Pets, Lily } from './Pets'
-export type * as Dog from './Dog'
+"export type * as Dog from './Dog'
+export type { Pets, Lily } from './Pets'
 "
 `;
 
@@ -46,26 +46,5 @@ exports[`FileManager utils > if getFileSource is returning code with imports and
 "import type Pets from './Pets'
 
 export type Pet = Pets
-"
-`;
-
-exports[`FileManager utils > if getFileSource is setting \`process.env\` based on \`env\` object 1`] = `
-"export const hello = 'world'
-"
-`;
-
-exports[`FileManager utils > if getFileSource is setting \`process.env\` based on \`env\` object 2`] = `
-"import type { Pets } from './Pets'
-
-export const hello = 'world'
-type Test = Pets
-"
-`;
-
-exports[`FileManager utils > if getFileSource is setting \`process.env\` based on \`env\` object 3`] = `
-"import type { Pets } from './Pets'
-
-export const hello = typeof 'world' !== 'undefined' ? 'world' : undefined
-type Test = Pets
 "
 `;

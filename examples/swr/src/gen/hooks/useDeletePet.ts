@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
 import client from '@kubb/plugin-client/client'
+import useSWRMutation from 'swr/mutation'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+
 type DeletePet = {
   data: DeletePetMutationResponse
   error: DeletePet400
@@ -17,6 +18,7 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet

@@ -1,17 +1,15 @@
-import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
-import { Function, useApp } from '@kubb/react'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
+import { pluginTsName } from '@kubb/plugin-ts'
 import type { ReactNode } from 'react'
 import type { Infinite, PluginTanstackQuery, Suspense } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { reactQueryDepRegex } from '../utils.ts'
 
 type TemplateProps = {
   /**
@@ -121,8 +119,9 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
 
   if (infinite) {
     return (
-      <Function name={name} export params={params} JSDoc={JSDoc}>
-        {`
+      <File.Source name={name} isExportable isIndexable>
+        <Function name={name} export params={params} JSDoc={JSDoc}>
+          {`
        const queryKey = ${hook.queryKey}
 
        return infiniteQueryOptions({
@@ -140,13 +139,15 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
        })
 
        `}
-      </Function>
+        </Function>
+      </File.Source>
     )
   }
 
   return (
-    <Function name={name} export params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable isIndexable>
+      <Function name={name} export params={params} JSDoc={JSDoc}>
+        {`
    const queryKey = ${hook.queryKey}
 
    return queryOptions({
@@ -164,7 +165,8 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
    })
 
    `}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 

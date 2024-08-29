@@ -5,7 +5,7 @@ import type {
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile'
+} from '../../../models/ts/petController/UploadFile.ts'
 
 /**
  * @summary uploads an image

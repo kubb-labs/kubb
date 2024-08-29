@@ -1,14 +1,15 @@
 import client from '@kubb/plugin-client/client'
-import { createMutation } from '@tanstack/svelte-query'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../models/UpdatePetWithForm'
+} from '../models/UpdatePetWithForm.ts'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+
 type UpdatePetWithForm = {
   data: UpdatePetWithFormMutationResponse
   error: UpdatePetWithForm405
@@ -22,6 +23,7 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId

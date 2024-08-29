@@ -1,10 +1,11 @@
+import { userSchema } from '../userSchema.ts'
 import { z } from 'zod'
-import { userSchema } from '../userSchema'
 
 /**
  * @description successful operation
  */
 export const createUserErrorSchema = z.lazy(() => userSchema)
+
 /**
  * @description Created user object
  */

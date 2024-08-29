@@ -1,13 +1,12 @@
-import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { pluginZodName } from '@kubb/plugin-zod'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
-import { getImportNames, reactQueryDepRegex } from '../utils.ts'
+import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -55,8 +54,9 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite, o
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   return (
-    <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
-      {`
+    <File.Source name={name} isExportable isIndexable>
+      <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+        {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
@@ -71,7 +71,8 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite, o
         return query
 
          `}
-    </Function>
+      </Function>
+    </File.Source>
   )
 }
 
@@ -95,8 +96,9 @@ const defaultTemplates = {
       const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
       return (
-        <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
-          {`
+        <File.Source name={name} isExportable isIndexable>
+          <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+            {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
@@ -112,7 +114,8 @@ const defaultTemplates = {
         return query
 
          `}
-        </Function>
+          </Function>
+        </File.Source>
       )
     }
   },
@@ -266,15 +269,16 @@ const defaultTemplates = {
       const hookQueryKey = `${queryKey}(${queryKeyParams.toString()})`
 
       return (
-        <Function
-          name={rest.name}
-          export
-          generics={rest.generics}
-          returnType={`${resultType}<${resultGenerics.join(', ')}>`}
-          params={params.toString()}
-          JSDoc={rest.JSDoc}
-        >
-          {`
+        <File.Source name={rest.name} isExportable isIndexable>
+          <Function
+            name={rest.name}
+            export
+            generics={rest.generics}
+            returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+            params={params.toString()}
+            JSDoc={rest.JSDoc}
+          >
+            {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hookQueryKey}
 
@@ -289,7 +293,8 @@ const defaultTemplates = {
         return query
 
          `}
-        </Function>
+          </Function>
+        </File.Source>
       )
     }
   },
@@ -558,81 +563,76 @@ Query.File = function ({ templates }: FileProps): ReactNode {
   }
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        {parser === 'zod' && <File.Import extName={extName} name={[zodSchemas.response?.name]} root={file.path} path={fileZodSchemas.path} />}
-        <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          extName={extName}
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...(schemas.errors?.map((error) => error.name) || []),
-          ].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      {parser === 'zod' && <File.Import name={[zodSchemas.response?.name]} root={file.path} path={fileZodSchemas.path} />}
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.errors?.map((error) => error.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
 
-        <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={false} />
-        {!!infinite && (
-          <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={true} isSuspense={false} />
-        )}
-        {!!suspense && framework === 'react' && (
-          <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={true} />
-        )}
-        <File.Source>
-          <SchemaType factory={factory} />
-          <Query
-            factory={factory}
-            Template={Template}
-            QueryKeyTemplate={QueryKeyTemplate}
-            QueryOptionsTemplate={QueryOptionsTemplate}
-            infinite={false}
-            suspense={false}
-            query={query}
-            queryOptions={queryOptions}
-            hookName={importNames.query[framework].hookName}
-            resultType={importNames.query[framework].resultType}
-            optionsType={importNames.query[framework].optionsType}
-          />
-          {!!infinite && (
-            <Query
-              factory={factory}
-              Template={Template}
-              QueryKeyTemplate={QueryKeyTemplate}
-              QueryOptionsTemplate={QueryOptionsTemplate}
-              infinite={infinite}
-              suspense={false}
-              query={query}
-              queryOptions={queryOptions}
-              hookName={importNames.queryInfinite[framework].hookName}
-              resultType={importNames.queryInfinite[framework].resultType}
-              optionsType={importNames.queryInfinite[framework].optionsType}
-            />
-          )}
-          {!!suspense && framework === 'react' && (
-            <Query
-              factory={factory}
-              Template={Template}
-              QueryKeyTemplate={QueryKeyTemplate}
-              QueryOptionsTemplate={QueryOptionsTemplate}
-              infinite={false}
-              suspense={suspense}
-              query={query}
-              queryOptions={queryOptions}
-              hookName={importNames.querySuspense[framework].hookName}
-              resultType={importNames.querySuspense[framework].resultType}
-              optionsType={importNames.querySuspense[framework].optionsType}
-            />
-          )}
-        </File.Source>
-      </File>
-    </Parser>
+      <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={false} />
+      {!!infinite && (
+        <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={true} isSuspense={false} />
+      )}
+      {!!suspense && framework === 'react' && (
+        <QueryImports hookPath={typeof query !== 'boolean' ? query.importPath : undefined} Template={Import} isInfinite={false} isSuspense={true} />
+      )}
+      <SchemaType factory={factory} />
+      <Query
+        factory={factory}
+        Template={Template}
+        QueryKeyTemplate={QueryKeyTemplate}
+        QueryOptionsTemplate={QueryOptionsTemplate}
+        infinite={false}
+        suspense={false}
+        query={query}
+        queryOptions={queryOptions}
+        hookName={importNames.query[framework].hookName}
+        resultType={importNames.query[framework].resultType}
+        optionsType={importNames.query[framework].optionsType}
+      />
+      {!!infinite && (
+        <Query
+          factory={factory}
+          Template={Template}
+          QueryKeyTemplate={QueryKeyTemplate}
+          QueryOptionsTemplate={QueryOptionsTemplate}
+          infinite={infinite}
+          suspense={false}
+          query={query}
+          queryOptions={queryOptions}
+          hookName={importNames.queryInfinite[framework].hookName}
+          resultType={importNames.queryInfinite[framework].resultType}
+          optionsType={importNames.queryInfinite[framework].optionsType}
+        />
+      )}
+      {!!suspense && framework === 'react' && (
+        <Query
+          factory={factory}
+          Template={Template}
+          QueryKeyTemplate={QueryKeyTemplate}
+          QueryOptionsTemplate={QueryOptionsTemplate}
+          infinite={false}
+          suspense={suspense}
+          query={query}
+          queryOptions={queryOptions}
+          hookName={importNames.querySuspense[framework].hookName}
+          resultType={importNames.querySuspense[framework].resultType}
+          optionsType={importNames.querySuspense[framework].optionsType}
+        />
+      )}
+    </File>
   )
 }
 

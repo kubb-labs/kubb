@@ -33,6 +33,8 @@ export type Options = {
          * @default 'schemas'
          */
         path: string
+        extName?: KubbFile.Extname
+        exportType?: 'barrel' | 'barrelNamed' | false
       }
     | false
   /**

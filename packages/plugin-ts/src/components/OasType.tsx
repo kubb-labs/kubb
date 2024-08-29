@@ -1,5 +1,5 @@
-import { Parser, File, Type, useApp } from '@kubb/react'
 import { useOas } from '@kubb/plugin-oas/hooks'
+import { File, Type, useApp } from '@kubb/react'
 
 import type { OasTypes } from '@kubb/oas'
 import type { ReactNode } from 'react'
@@ -17,11 +17,15 @@ type TemplateProps = {
 function Template({ name, typeName, api }: TemplateProps): ReactNode {
   return (
     <>
-      {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
+      <File.Source name={name} isExportable isIndexable>
+        {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
+      </File.Source>
       <br />
-      <Type name={typeName} export>
-        {`Infer<typeof ${name}>`}
-      </Type>
+      <File.Source name={typeName} isExportable isIndexable isTypeOnly>
+        <Type name={typeName} export>
+          {`Infer<typeof ${name}>`}
+        </Type>
+      </File.Source>
     </>
   )
 }
@@ -62,14 +66,10 @@ OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileP
   const Template = templates.default
 
   return (
-    <Parser language="typescript">
-      <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['Infer']} path="@kubb/oas" isTypeOnly />
-        <File.Source>
-          <OasType Template={Template} name={name} typeName={typeName} />
-        </File.Source>
-      </File>
-    </Parser>
+    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File.Import name={['Infer']} path="@kubb/oas" isTypeOnly />
+      <OasType Template={Template} name={name} typeName={typeName} />
+    </File>
   )
 }
 

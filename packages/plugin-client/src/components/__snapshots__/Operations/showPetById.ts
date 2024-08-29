@@ -1,6 +1,6 @@
 export const operations = {
-  showPetById: {
-    path: '/pets/:pet_id',
-    method: 'get',
-  },
-} as const
+      "showPetById": {
+        "path": "/pets/:pet_id",
+        "method": "get"
+      }
+    } as const

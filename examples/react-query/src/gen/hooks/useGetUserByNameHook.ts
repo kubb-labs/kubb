@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -17,9 +18,12 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) =>
   ['v5', { url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
@@ -34,6 +38,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username
@@ -63,9 +68,12 @@ export function useGetUserByNameHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
   ['v5', { url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
+
 export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return queryOptions({
@@ -80,6 +88,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username

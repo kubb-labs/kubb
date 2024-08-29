@@ -12,12 +12,16 @@ export default defineConfig({
     path: './src/gen',
     clean: true,
   },
+  hooks: {
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+  },
   plugins: [
     pluginOas({ validate: false }),
     pluginTs({
       output: {
         path: 'models.ts',
         exportAs: 'models',
+        exportType: false,
       },
       enumType: 'enum',
     }),
@@ -25,6 +29,7 @@ export default defineConfig({
       output: {
         path: 'modelsConst.ts',
         exportAs: 'modelsAsConst',
+        exportType: false,
       },
       enumType: 'asConst',
     }),
@@ -32,13 +37,15 @@ export default defineConfig({
       output: {
         path: 'modelsPascalConst.ts',
         exportAs: 'modelsPascalConst',
+        exportType: false,
       },
-      enumType: 'asPascalConst',
+      enumType: 'asConst',
     }),
     pluginTs({
       output: {
         path: 'modelsConstEnum.ts',
         exportAs: 'modelsConstEnum',
+        exportType: false,
       },
       enumType: 'constEnum',
     }),
@@ -46,6 +53,7 @@ export default defineConfig({
       output: {
         path: 'modelsLiteral.ts',
         exportAs: 'modelsLiteral',
+        exportType: false,
       },
       enumType: 'literal',
     }),

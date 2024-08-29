@@ -1,11 +1,12 @@
 import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+
 type UploadFile = {
   data: UploadFileMutationResponse
   error: never
@@ -19,6 +20,7 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage

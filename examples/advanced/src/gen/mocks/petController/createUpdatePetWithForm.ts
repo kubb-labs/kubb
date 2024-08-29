@@ -1,10 +1,10 @@
-import { faker } from '@faker-js/faker'
 import type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
 } from '../../models/ts/petController/UpdatePetWithForm'
+import { faker } from '@faker-js/faker'
 
 export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {
   return { petId: faker.number.int() }

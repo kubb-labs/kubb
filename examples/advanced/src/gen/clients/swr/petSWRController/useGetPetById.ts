@@ -1,10 +1,11 @@
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema'
-import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
+import useSWR from 'swr'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+
 type GetPetById = {
   data: GetPetByIdQueryResponse
   error: GetPetById400 | GetPetById404
@@ -18,6 +19,7 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export function getPetByIdQueryOptions<TData = GetPetById['response']>(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['parameters'] = {},
@@ -33,6 +35,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response']>(
     },
   }
 }
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID

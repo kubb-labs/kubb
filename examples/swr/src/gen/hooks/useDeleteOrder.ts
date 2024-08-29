@@ -1,9 +1,10 @@
-import useSWRMutation from 'swr/mutation'
 import client from '@kubb/plugin-client/client'
+import useSWRMutation from 'swr/mutation'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
+
 type DeleteOrder = {
   data: DeleteOrderMutationResponse
   error: DeleteOrder400 | DeleteOrder404
@@ -17,6 +18,7 @@ type DeleteOrder = {
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID

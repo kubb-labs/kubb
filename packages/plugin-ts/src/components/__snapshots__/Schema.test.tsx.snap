@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Schema/>  > 'Object' 1`] = `
-"export type Object = {
+"export type object = {
     /**
      * @deprecated
      * @default test
@@ -16,8 +16,7 @@ exports[`<Schema/>  > 'Object' 1`] = `
      * @description Your address
     */
     address: (string & number) | null;
-} | null;
-"
+} | null;"
 `;
 
 exports[`<Schema/>  > 'Order' 1`] = `
@@ -25,20 +24,16 @@ exports[`<Schema/>  > 'Order' 1`] = `
     "Placed" = "placed",
     "Approved" = "approved"
 }
-export type Order = {
+
+export type order = {
     status: OrderStatus;
-};
-"
+};"
 `;
 
 exports[`<Schema/>  > 'Record' 1`] = `
-"export type Record = {
+"export type record = {
     [key: string]: number;
-} | undefined;
-"
+} | undefined;"
 `;
 
-exports[`<Schema/>  > 'Upload' 1`] = `
-"export type Upload = Blob;
-"
-`;
+exports[`<Schema/>  > 'Upload' 1`] = `"export type upload = Blob;"`;

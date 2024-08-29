@@ -75,6 +75,11 @@ export type Config<TInput = Input> = {
      * @default true
      */
     write?: boolean
+    /**
+     * Define what needs to exported, here you can also disable the export of barrel files
+     * @default `'barrelNamed'`
+     */
+    exportType?: 'barrel' | 'barrelNamed' | false
   }
   /**
    * Array of Kubb plugins to use.
@@ -146,7 +151,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   options: TOptions['resolvedOptions']
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-   * Can be used to validate depended plugins.
+   * Can be used to validate dependent plugins.
    */
   pre?: Array<string>
   /**
@@ -176,9 +181,24 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * @private
    */
   key: TOptions['key']
+  output?: {
+    /**
+     * Output to save the clients.
+     */
+    path: string
+    /**
+     * Add an extension to the generated imports and exports, default it will not use an extension
+     */
+    extName?: KubbFile.Extname
+    /**
+     * Define what needs to exported, here you can also disable the export of barrel files
+     * @default `'barrelNamed'`
+     */
+    exportType?: 'barrel' | 'barrelNamed' | false
+  }
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
-   * Can be used to validate depended plugins.
+   * Can be used to validate dependent plugins.
    */
   pre?: Array<string>
   /**
@@ -261,7 +281,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   cache: Cache<PluginCache>
   fileManager: FileManager
   pluginManager: PluginManager
-  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.File>>
+  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>
   resolvePath: (params: ResolvePathParams<TOptions['resolvePathOptions']>) => KubbFile.OptionalPath
   resolveName: (params: ResolveNameParams) => string
   logger: Logger

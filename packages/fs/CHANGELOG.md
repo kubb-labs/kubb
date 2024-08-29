@@ -1,5 +1,27 @@
 # @kubb/fs
 
+## 3.0.0-alpha.8
+
+### Minor Changes
+
+- [`962e2d6`](https://github.com/kubb-labs/kubb/commit/962e2d6d49dff55563be13b1ded832d10743ec29) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - indexable to track files that could be used in the barrel generation(should be 90% the same as exportable)
+
+## 3.0.0-alpha.7
+
+### Minor Changes
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - output option for all plugins(KubbPlugin) to track the barrel exportType or the output root of every plugin
+
+## 3.0.0-alpha.6
+
+## 3.0.0-alpha.5
+
+## 3.0.0-alpha.4
+
+## 3.0.0-alpha.3
+
+## 3.0.0-alpha.2
+
 ## 3.0.0-alpha.1
 
 ## 3.0.0-alpha.0

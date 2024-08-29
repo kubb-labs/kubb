@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/LogoutUser'
+import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation

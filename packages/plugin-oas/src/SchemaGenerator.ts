@@ -13,6 +13,7 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
+import type { Parser } from './parser.tsx'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import type { Parser } from './parser.tsx'
 
@@ -361,7 +362,7 @@ export class SchemaGenerator<
     return [
       {
         keyword: schemaKeywords.ref,
-        args: { name: ref.propertyName, path: ref?.path, isTypeOnly: false },
+        args: { name: ref.propertyName, path: ref?.path },
       },
     ]
   }

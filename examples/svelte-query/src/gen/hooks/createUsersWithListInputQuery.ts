@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createMutation } from '@tanstack/svelte-query'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
   error: never
@@ -17,6 +18,7 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array

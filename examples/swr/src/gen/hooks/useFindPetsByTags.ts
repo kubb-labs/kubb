@@ -1,9 +1,10 @@
-import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
+import useSWR from 'swr'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+
 type FindPetsByTags = {
   data: FindPetsByTagsQueryResponse
   error: FindPetsByTags400
@@ -17,6 +18,7 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['parameters'] = {},
@@ -33,6 +35,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
     },
   }
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags

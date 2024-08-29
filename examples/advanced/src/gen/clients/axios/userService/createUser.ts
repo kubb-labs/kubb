@@ -1,6 +1,6 @@
 import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 
 /**
  * @description This can only be done by the logged in user.

@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { Order } from '../models/ts/Order'
+import { faker } from '@faker-js/faker'
 
 export function createOrder(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   return {

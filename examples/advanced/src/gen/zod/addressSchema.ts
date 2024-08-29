@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import type { Address } from '../models/ts/Address'
+import { z } from 'zod'
 
 export const addressSchema = z.object({
   street: z.string().optional(),

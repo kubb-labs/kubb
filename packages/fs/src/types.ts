@@ -25,15 +25,28 @@ export type Import = {
    * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
    */
   isTypeOnly?: boolean
-  /**
-   * Add `* as` prefix to the import, this will result in: `import * as path from './path'`.
-   */
 
   isNameSpace?: boolean
   /**
    * When root is set it will get the path with relative getRelativePath(root, path).
    */
   root?: string
+}
+
+export type Source = {
+  name?: string
+  value?: string
+  isTypeOnly?: boolean
+  /**
+   * Has const or type 'export'
+   * @default false
+   */
+  isExportable?: boolean
+  /**
+   * When set, barrel generation will add this
+   * @default false
+   */
+  isIndexable?: boolean
 }
 
 export type Export = {
@@ -59,14 +72,6 @@ export type Export = {
   asAlias?: boolean
 }
 
-export declare const dataTagSymbol: unique symbol
-export type DataTag<Type, Value> = Type & {
-  [dataTagSymbol]: Value
-}
-
-export type UUID = string
-export type Source = string
-
 export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
 export type Mode = 'single' | 'split'
@@ -76,7 +81,7 @@ export type Mode = 'single' | 'split'
  * Based on UNIX basename
  * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
  */
-export type BaseName = `${string}${Extname}`
+export type BaseName = `${string}.${string}`
 
 /**
  * Path will be full qualified path to a specified file
@@ -87,25 +92,20 @@ export type AdvancedPath<T extends BaseName = BaseName> = `${BasePath}${T}`
 
 export type OptionalPath = Path | undefined | null
 
-export type File<TMeta extends object = object, TBaseName extends BaseName = BaseName> = {
-  /**
-   * Unique identifier to reuse later
-   * @default crypto.randomUUID()
-   */
-  id?: string
+export type File<TMeta extends object = object> = {
   /**
    * Name to be used to create the path
    * Based on UNIX basename, `${name}.extName`
    * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
    */
-  baseName: TBaseName
+  baseName: BaseName
   /**
    * Path will be full qualified path to a specified file
    */
-  path: AdvancedPath<TBaseName> | Path
-  source: Source
-  imports?: Import[]
-  exports?: Export[]
+  path: AdvancedPath<BaseName> | Path
+  sources: Array<Source>
+  imports?: Array<Import>
+  exports?: Array<Export>
   /**
    * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
    * This will also ignore the combinefiles utils
@@ -116,17 +116,23 @@ export type File<TMeta extends object = object, TBaseName extends BaseName = Bas
    * Use extra meta, this is getting used to generate the barrel/index files.
    */
   meta?: TMeta
+}
+
+export type ResolvedImport = Import
+
+export type ResolvedExport = Export
+
+export type ResolvedFile<TMeta extends object = object> = File<TMeta> & {
   /**
-   * Override if a file can be exported by the BarrelManager
-   * @default true
+   * @default object-hash
    */
-  exportable?: boolean
+  id: string
   /**
-   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
+   * Contains the first part of the baseName, generated based on baseName
+   * @link  https://nodejs.org/api/path.html#pathformatpathobject
    */
-  env?: NodeJS.ProcessEnv
-  /**
-   * The name of the language being used. This can be TypeScript, JavaScript and still have another ext.
-   */
-  language?: string
+  name: string
+  extName: Extname
+  imports: Array<ResolvedImport>
+  exports: Array<ResolvedExport>
 }

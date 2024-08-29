@@ -1,11 +1,11 @@
-import { File, Parser, createContext, useApp, useFile } from '@kubb/react'
+import { File, createContext, useApp, useFile } from '@kubb/react'
 
 import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type { ReactNode } from 'react'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
@@ -44,7 +44,12 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
   const { name } = useSchema()
 
   if (mode === 'single') {
-    const baseName = output as KubbFile.BaseName
+    const baseName = `${pluginManager.resolveName({
+      name,
+      pluginKey: plugin.key,
+      type: 'file',
+    })}.ts` as const
+
     const resolvedPath = pluginManager.resolvePath({
       baseName: '',
       pluginKey: plugin.key,
@@ -55,17 +60,15 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
     }
 
     return (
-      <Parser language="typescript">
-        <File
-          baseName={baseName}
-          path={resolvedPath}
-          meta={{
-            pluginKey: plugin.key,
-          }}
-        >
-          {children}
-        </File>
-      </Parser>
+      <File
+        baseName={baseName}
+        path={resolvedPath}
+        meta={{
+          pluginKey: plugin.key,
+        }}
+      >
+        {children}
+      </File>
     )
   }
 
@@ -84,27 +87,24 @@ Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode 
   }
 
   return (
-    <Parser language="typescript">
-      <File
-        baseName={baseName}
-        path={resolvedPath}
-        meta={{
-          pluginKey: plugin.key,
-        }}
-      >
-        <Schema.Imports isTypeOnly={isTypeOnly} />
-        {children}
-      </File>
-    </Parser>
+    <File
+      baseName={baseName}
+      path={resolvedPath}
+      meta={{
+        pluginKey: plugin.key,
+      }}
+    >
+      <Schema.Imports isTypeOnly={isTypeOnly} />
+      {children}
+    </File>
   )
 }
 
 type SchemaImportsProps = {
   isTypeOnly?: boolean
-  extName?: KubbFile.Extname
 }
 
-Schema.Imports = ({ isTypeOnly, extName }: SchemaImportsProps): ReactNode => {
+Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
   const { tree } = useSchema()
   const { path: root } = useFile()
 
@@ -118,9 +118,7 @@ Schema.Imports = ({ isTypeOnly, extName }: SchemaImportsProps): ReactNode => {
             return undefined
           }
 
-          return (
-            <File.Import key={i} extName={extName} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={item.args.isTypeOnly ?? isTypeOnly} />
-          )
+          return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={isTypeOnly} />
         })
         .filter(Boolean)}
     </>

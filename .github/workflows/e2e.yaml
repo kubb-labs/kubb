@@ -30,9 +30,9 @@ jobs:
           # experimental: [false]
 
           ## comment for support of node 19,20
-          exclude:
-            - os: ubuntu-latest
-              node-version: 20
+#          exclude:
+#            - os: ubuntu-latest
+#              node-version: 20
           include:
             - os: windows-latest
               node-version: 20
@@ -65,7 +65,6 @@ jobs:
             #   experimental: true
 
       runs-on: ${{ matrix.os }}
-      continue-on-error: ${{ matrix.experimental || false }}
 
       steps:
         - name: Check out code
@@ -96,10 +95,10 @@ jobs:
           run: |
             bun run generate
 
-#        - name: E2e with Bun
-#          working-directory: ./e2e
-#          if: ${{ matrix.os == 'ubuntu-latest' }}
-#          env:
-#            NODE_OPTIONS: "--max_old_space_size=4096"
-#          run: |
-#            bun run generate --bun
+        - name: E2e with Bun
+          working-directory: ./e2e
+          if: ${{ matrix.os == 'ubuntu-latest' }}
+          env:
+            NODE_OPTIONS: "--max_old_space_size=4096"
+          run: |
+            bun run generate --bun

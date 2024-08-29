@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+
 type GetInventory = {
   data: GetInventoryQueryResponse
   error: never
@@ -17,8 +18,11 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export const getInventoryQueryKey = () => ['v5', { url: '/store/inventory' }] as const
+
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
+
 export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
@@ -33,6 +37,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
     },
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
@@ -58,8 +63,11 @@ export function useGetInventoryHook<TData = GetInventory['response'], TQueryData
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getInventorySuspenseQueryKey = () => ['v5', { url: '/store/inventory' }] as const
+
 export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspenseQueryKey>
+
 export function getInventorySuspenseQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventorySuspenseQueryKey()
   return queryOptions({
@@ -74,6 +82,7 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
     },
   })
 }
+
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status

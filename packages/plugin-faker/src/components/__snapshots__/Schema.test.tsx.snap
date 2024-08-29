@@ -1,50 +1,38 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Schema/>  > 'Object' 1`] = `
-"
-export function Object(data: NonNullable<Partial<Object>> = {}): NonNullable<Object> {
+"export function object(data: NonNullable<Partial<Object>> = {}): NonNullable<Object> {
   
   return {
       ...{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())},
       ...data
     }
-}
-
-"
+}"
 `;
 
 exports[`<Schema/>  > 'Order' 1`] = `
-"
-export function Order(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
+"export function order(data: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   
   return {
       ...{"status": faker.helpers.arrayElement<any>(["Placed", "Approved"])},
       ...data
     }
-}
-
-"
+}"
 `;
 
 exports[`<Schema/>  > 'Record' 1`] = `
-"
-export function Record(data: NonNullable<Partial<Record>> = {}): NonNullable<Record> {
+"export function record(data: NonNullable<Partial<Record>> = {}): NonNullable<Record> {
   
   return {
       ...{},
       ...data
     }
-}
-
-"
+}"
 `;
 
 exports[`<Schema/>  > 'Upload' 1`] = `
-"
-export function Upload(): NonNullable<Upload> {
+"export function upload(): NonNullable<Upload> {
   
   return faker.image.imageUrl() as unknown as Blob
-}
-
-"
+}"
 `;

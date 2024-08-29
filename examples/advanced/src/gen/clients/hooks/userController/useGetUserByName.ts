@@ -1,8 +1,10 @@
-import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 import client from '../../../../tanstack-query-client.ts'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
-import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
+import type {
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
+  GetUserByName400,
+  GetUserByName404,
+} from '../../../models/ts/userController/GetUserByName.ts'
 import type {
   QueryObserverOptions,
   UseQueryResult,
@@ -13,8 +15,12 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '../../../../tanstack-query-hook.ts'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+
 type GetUserByName = {
   data: GetUserByNameQueryResponse
   error: GetUserByName400 | GetUserByName404
@@ -28,8 +34,11 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
@@ -44,6 +53,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username
@@ -69,9 +79,12 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
+
 export function getUserByNameInfiniteQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return infiniteQueryOptions({
@@ -89,6 +102,7 @@ export function getUserByNameInfiniteQueryOptions(username: GetUserByNamePathPar
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username
@@ -118,9 +132,12 @@ export function useGetUserByNameInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
+
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
+
 export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return queryOptions({
@@ -135,6 +152,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
     },
   })
 }
+
 /**
  * @summary Get user by user name
  * @link /user/:username

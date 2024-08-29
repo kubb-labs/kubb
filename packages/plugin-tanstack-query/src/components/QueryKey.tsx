@@ -1,12 +1,12 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function, Type, useApp } from '@kubb/react'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
+import { File, Function, Type, useApp } from '@kubb/react'
 
 import { isRequired } from '@kubb/oas'
+import { pluginTsName } from '@kubb/plugin-ts'
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types'
-import { pluginTsName } from '@kubb/plugin-ts'
 
 type TemplateProps = {
   /**
@@ -41,13 +41,17 @@ type TemplateProps = {
 function Template({ name, typeName, params, generics, returnType, JSDoc, keys }: TemplateProps): ReactNode {
   return (
     <>
-      <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
-        {`[${keys}] as const`}
-      </Function.Arrow>
+      <File.Source name={name} isExportable isIndexable>
+        <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
+          {`[${keys}] as const`}
+        </Function.Arrow>
+      </File.Source>
 
-      <Type name={typeName} export>
-        {`ReturnType<typeof ${name}>`}
-      </Type>
+      <File.Source name={typeName} isExportable isIndexable isTypeOnly>
+        <Type name={typeName} export>
+          {`ReturnType<typeof ${name}>`}
+        </Type>
+      </File.Source>
     </>
   )
 }

@@ -29,7 +29,7 @@ describe('read', () => {
     const testFile = path.resolve(folderPath, 'test.js')
     await write(testFile, 'test')
 
-    expect(getRelativePath(mocksPath, testFile)).toBe('./folder/test')
+    expect(getRelativePath(mocksPath, testFile)).toBe('./folder/test.js')
 
     expect(getRelativePath(folderPath, mocksPath)).toBe('./..')
 
@@ -45,7 +45,7 @@ describe('read', () => {
     const testFile = path.resolve(folderPath, 'test.js')
     await write(testFile, 'test')
 
-    expect(getRelativePath(mocksPath, testFile, 'windows')).toBe('./folder/test')
+    expect(getRelativePath(mocksPath, testFile, 'windows')).toBe('./folder/test.js')
     expect(getRelativePath(folderPath, mocksPath, 'windows')).toBe('./..')
 
     try {

@@ -1,14 +1,15 @@
 import client from '@kubb/plugin-client/client'
-import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../models/UpdatePetWithForm'
+} from '../models/UpdatePetWithForm.ts'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+
 type UpdatePetWithForm = {
   data: UpdatePetWithFormMutationResponse
   error: UpdatePetWithForm405
@@ -22,9 +23,12 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
+
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams']) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
+
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
+
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],
@@ -44,6 +48,7 @@ export function updatePetWithFormQueryOptions(
     },
   })
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -74,9 +79,12 @@ export function useUpdatePetWithFormHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
+
 export const updatePetWithFormSuspenseQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams']) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
+
 export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithFormSuspenseQueryKey>
+
 export function updatePetWithFormSuspenseQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],
@@ -96,6 +104,7 @@ export function updatePetWithFormSuspenseQueryOptions(
     },
   })
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId

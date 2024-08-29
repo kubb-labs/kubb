@@ -1,5 +1,5 @@
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { Type, useApp } from '@kubb/react'
+import { File, Type, useApp } from '@kubb/react'
 
 import type { ReactNode } from 'react'
 import type { PluginReactQuery } from '../types.ts'
@@ -32,9 +32,12 @@ export function SchemaType(): ReactNode {
 
   return (
     <>
-      <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
-      <Type name={factoryName}>
-        {`
+      <File.Source name={clientType} isTypeOnly>
+        <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
+      </File.Source>
+      <File.Source name={factoryName} isTypeOnly>
+        <Type name={factoryName}>
+          {`
         {
           data: ${TData}
           error: ${TError}
@@ -49,7 +52,8 @@ export function SchemaType(): ReactNode {
           }
         }
         `}
-      </Type>
+        </Type>
+      </File.Source>
     </>
   )
 }

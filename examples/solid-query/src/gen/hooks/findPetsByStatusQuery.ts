@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+
 type FindPetsByStatus = {
   data: FindPetsByStatusQueryResponse
   error: FindPetsByStatus400
@@ -17,8 +18,11 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions({
@@ -34,6 +38,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatus['queryPar
     },
   })
 }
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status

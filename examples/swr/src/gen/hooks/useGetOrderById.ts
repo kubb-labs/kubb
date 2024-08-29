@@ -1,9 +1,10 @@
-import useSWR from 'swr'
 import client from '@kubb/plugin-client/client'
+import useSWR from 'swr'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+
 type GetOrderById = {
   data: GetOrderByIdQueryResponse
   error: GetOrderById400 | GetOrderById404
@@ -17,6 +18,7 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
+
 export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
@@ -32,6 +34,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
     },
   }
 }
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID

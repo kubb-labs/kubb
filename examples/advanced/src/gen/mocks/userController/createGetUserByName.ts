@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-import { createUser } from '../createUser'
 import type {
   GetUserByNamePathParams,
   GetUserByName200,
@@ -7,6 +5,8 @@ import type {
   GetUserByName404,
   GetUserByNameQueryResponse,
 } from '../../models/ts/userController/GetUserByName'
+import { createUser } from '../createUser.ts'
+import { faker } from '@faker-js/faker'
 
 export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
   return { username: faker.string.alpha() }

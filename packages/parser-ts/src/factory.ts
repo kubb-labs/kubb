@@ -332,7 +332,7 @@ export function createExportDeclaration({
   name?: string | Array<ts.Identifier | string>
 }) {
   if (name && !Array.isArray(name) && !asAlias) {
-    throw new Error('When using `name` as string, `asAlias` should be true')
+    console.warn(`When using name as string, asAlias should be true ${name}`)
   }
 
   if (!Array.isArray(name)) {
@@ -379,9 +379,10 @@ export function createEnumDeclaration({
    */
   typeName: string
   enums: [key: string | number, value: string | number | boolean][]
-}) {
+}): [name: ts.Node | undefined, type: ts.Node] {
   if (type === 'literal') {
     return [
+      undefined,
       factory.createTypeAliasDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         factory.createIdentifier(typeName),
@@ -410,6 +411,7 @@ export function createEnumDeclaration({
 
   if (type === 'enum' || type === 'constEnum') {
     return [
+      undefined,
       factory.createEnumDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword), type === 'constEnum' ? factory.createToken(ts.SyntaxKind.ConstKeyword) : undefined].filter(Boolean),
         factory.createIdentifier(typeName),
@@ -490,7 +492,7 @@ export function createEnumDeclaration({
       ),
     ),
     factory.createTypeAliasDeclaration(
-      [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      type === 'asPascalConst' ? [] : [factory.createToken(ts.SyntaxKind.ExportKeyword)],
       factory.createIdentifier(typeName),
       undefined,
       factory.createIndexedAccessTypeNode(

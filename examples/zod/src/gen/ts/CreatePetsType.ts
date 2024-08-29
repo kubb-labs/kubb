@@ -1,4 +1,4 @@
-import type { PetNotFoundType } from './PetNotFoundType'
+import type { PetNotFoundType } from './PetNotFoundType.ts'
 
 export type CreatePetsPathParamsType = {
   /**
@@ -7,6 +7,7 @@ export type CreatePetsPathParamsType = {
    */
   uuid: string
 }
+
 export type CreatePetsQueryParamsType = {
   /**
    * @description Offset
@@ -14,12 +15,15 @@ export type CreatePetsQueryParamsType = {
    */
   offset?: number
 }
+
 export const createPetsHeaderParamsXExample = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
+
 export type CreatePetsHeaderParamsXExampleType = (typeof createPetsHeaderParamsXExample)[keyof typeof createPetsHeaderParamsXExample]
+
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
@@ -27,14 +31,17 @@ export type CreatePetsHeaderParamsType = {
    */
   'X-EXAMPLE': CreatePetsHeaderParamsXExampleType
 }
+
 /**
  * @description Null response
  */
 export type CreatePets201Type = any
+
 /**
  * @description unexpected error
  */
 export type CreatePetsErrorType = PetNotFoundType
+
 export type CreatePetsMutationRequestType = {
   /**
    * @type string
@@ -45,7 +52,9 @@ export type CreatePetsMutationRequestType = {
    */
   tag: string
 }
+
 export type CreatePetsMutationResponseType = any
+
 export type CreatePetsTypeMutation = {
   Response: CreatePetsMutationResponseType
   Request: CreatePetsMutationRequestType

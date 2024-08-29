@@ -1,6 +1,6 @@
 import type { Infer, Model, RequestParams, Response } from '@kubb/oas'
 
-import type { Oas as GeneratedOas } from './gen/index.ts'
+import type { Oas as GeneratedOas } from './gen/ts/models/oas'
 
 export type UserModel = Model<GeneratedOas, 'User'>
 

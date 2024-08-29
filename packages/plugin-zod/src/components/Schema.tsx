@@ -46,15 +46,17 @@ export function Schema(props: Props): ReactNode {
 
   if (!tree.length) {
     return (
-      <Const
-        name={resolvedName}
-        export
-        JSDoc={{
-          comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
-        }}
-      >
-        undefined
-      </Const>
+      <File.Source name={resolvedName} isExportable isIndexable>
+        <Const
+          name={resolvedName}
+          export
+          JSDoc={{
+            comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
+          }}
+        >
+          undefined
+        </Const>
+      </File.Source>
     )
   }
 
@@ -77,25 +79,29 @@ export function Schema(props: Props): ReactNode {
 
   return (
     <>
-      <Const
-        export
-        name={resolvedName}
-        JSDoc={{
-          comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
-        }}
-      >
-        {[
-          output,
-          keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-          withTypeAnnotation && typeName ? ` as z.ZodType<${typeName}>` : '',
-        ]
-          .filter(Boolean)
-          .join('') || ''}
-      </Const>
+      <File.Source name={resolvedName} isExportable isIndexable>
+        <Const
+          export
+          name={resolvedName}
+          JSDoc={{
+            comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
+          }}
+        >
+          {[
+            output,
+            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
+            withTypeAnnotation && typeName ? ` as z.ZodType<${typeName}>` : '',
+          ]
+            .filter(Boolean)
+            .join('') || ''}
+        </Const>
+      </File.Source>
       {typedSchema && (
-        <Type export name={resolvedTypeName}>
-          {`z.infer<typeof ${resolvedName}>`}
-        </Type>
+        <File.Source name={resolvedTypeName} isExportable isIndexable isTypeOnly>
+          <Type export name={resolvedTypeName}>
+            {`z.infer<typeof ${resolvedName}>`}
+          </Type>
+        </File.Source>
       )}
     </>
   )
@@ -117,9 +123,7 @@ Schema.File = function ({}: FileProps): ReactNode {
   return (
     <Oas.Schema.File output={pluginManager.config.output.path}>
       <Schema.Imports />
-      <File.Source>
-        <Schema withTypeAnnotation={withTypeAnnotation} description={schema?.description} />
-      </File.Source>
+      <Schema withTypeAnnotation={withTypeAnnotation} description={schema?.description} />
     </Oas.Schema.File>
   )
 }

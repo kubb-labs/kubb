@@ -1,15 +1,16 @@
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
-import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
-import type { SWRConfiguration, SWRResponse } from 'swr'
+import useSWR from 'swr'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
-} from '../../../models/ts/petController/FindPetsByTags'
+} from '../../../models/ts/petController/FindPetsByTags.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+
 type FindPetsByTags = {
   data: FindPetsByTagsQueryResponse
   error: FindPetsByTags400
@@ -23,6 +24,7 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   headers?: FindPetsByTags['headerParams'],
@@ -41,6 +43,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
     },
   }
 }
+
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags

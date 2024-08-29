@@ -1,4 +1,4 @@
-import type { Pet } from './Pet'
+import type { Pet } from './Pet.ts'
 
 export type FindPetsByTagsQueryParams = {
   /**
@@ -7,18 +7,22 @@ export type FindPetsByTagsQueryParams = {
    */
   tags?: string[]
 }
+
 /**
  * @description successful operation
  */
 export type FindPetsByTags200 = Pet[]
+
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any
+
 /**
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
+
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse
   QueryParams: FindPetsByTagsQueryParams

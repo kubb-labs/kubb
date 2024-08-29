@@ -2,72 +2,54 @@
 
 exports[`Faker SchemaGenerator > 'Pet' 1`] = `
 "export function pet(data: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
+  
   return {
-    ...{
-      id: faker.number.int(),
-      name: faker.string.alpha(),
-      tag: faker.string.alpha(),
-      code: faker.helpers.arrayElement<any>([faker.string.alpha(), faker.helpers.fromRegExp(new RegExp('\\\\b[1-9]\\\\b'))]),
-      shipDate: faker.date.anytime(),
-      shipTime: faker.date.anytime(),
-    },
-    ...data,
-  }
-}
-"
+      ...{"id": faker.number.int(),"name": faker.string.alpha(),"tag": faker.string.alpha(),"code": faker.helpers.arrayElement<any>([faker.string.alpha(), faker.helpers.fromRegExp(new RegExp('\\\\b[1-9]\\\\b'))]),"shipDate": faker.date.anytime(),"shipTime": faker.date.anytime()},
+      ...data
+    }
+}"
 `;
 
 exports[`Faker SchemaGenerator > 'PetWithParser' 1`] = `
 "export function petWithParser(data: NonNullable<Partial<PetWithParser>> = {}): NonNullable<PetWithParser> {
+  
   return {
-    ...{
-      id: faker.number.int(),
-      name: faker.string.alpha(),
-      tag: faker.string.alpha(),
-      code: faker.helpers.arrayElement<any>([faker.string.alpha(), faker.helpers.fromRegExp(new RegExp('\\\\b[1-9]\\\\b'))]),
-      shipDate: dayjs(faker.date.anytime()).format('YYYY-MM-DD'),
-      shipTime: dayjs(faker.date.anytime()).format('HH:mm:ss'),
-    },
-    ...data,
-  }
-}
-"
+      ...{"id": faker.number.int(),"name": faker.string.alpha(),"tag": faker.string.alpha(),"code": faker.helpers.arrayElement<any>([faker.string.alpha(), faker.helpers.fromRegExp(new RegExp('\\\\b[1-9]\\\\b'))]),"shipDate": dayjs(faker.date.anytime()).format("YYYY-MM-DD"),"shipTime": dayjs(faker.date.anytime()).format("HH:mm:ss")},
+      ...data
+    }
+}"
 `;
 
 exports[`Faker SchemaGenerator > 'PetWithRandExp' 1`] = `
 "export function petWithRandExp(data: NonNullable<Partial<PetWithRandExp>> = {}): NonNullable<PetWithRandExp> {
+  
   return {
-    ...{
-      id: faker.number.int(),
-      name: faker.string.alpha(),
-      tag: faker.string.alpha(),
-      code: faker.helpers.arrayElement<any>([faker.string.alpha(), new RandExp('\\\\b[1-9]\\\\b').gen()]),
-      shipDate: faker.date.anytime(),
-      shipTime: faker.date.anytime(),
-    },
-    ...data,
-  }
-}
-"
+      ...{"id": faker.number.int(),"name": faker.string.alpha(),"tag": faker.string.alpha(),"code": faker.helpers.arrayElement<any>([faker.string.alpha(), new RandExp('\\\\b[1-9]\\\\b').gen()]),"shipDate": faker.date.anytime(),"shipTime": faker.date.anytime()},
+      ...data
+    }
+}"
 `;
 
 exports[`Faker SchemaGenerator > 'Pets' 1`] = `
 "export function pets(data: NonNullable<Partial<Pets>> = []): NonNullable<Pets> {
-  return [...(faker.helpers.arrayElements([Pet()]) as any), ...data]
-}
-"
+  
+  return [
+          ...faker.helpers.arrayElements([pet()]) as any,
+          ...data
+        ]
+}"
 `;
 
 exports[`Faker SchemaGenerator > 'enumNames' 1`] = `
 "export function enumNames(): NonNullable<EnumNames> {
+  
   return undefined
-}
-"
+}"
 `;
 
 exports[`Faker SchemaGenerator > 'enumVarNames' 1`] = `
 "export function enumVarNames(): NonNullable<EnumVarNames> {
+  
   return undefined
-}
-"
+}"
 `;

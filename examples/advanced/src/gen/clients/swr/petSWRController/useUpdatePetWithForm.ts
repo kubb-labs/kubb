@@ -1,14 +1,15 @@
-import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../../../models/ts/petController/UpdatePetWithForm'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+
 type UpdatePetWithForm = {
   data: UpdatePetWithFormMutationResponse
   error: UpdatePetWithForm405
@@ -22,6 +23,7 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId

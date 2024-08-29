@@ -57,6 +57,7 @@ export function useOperationManager(): UseOperationManagerResult {
   const getFile: UseOperationManagerResult['getFile'] = (operation, { pluginKey = plugin.key, extName = '.ts' } = {}) => {
     // needed for the `output.group`
     const tag = operation.getTags().at(0)?.name
+    //TODO replace with group
     const name = getName(operation, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({

@@ -4,7 +4,7 @@ import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginOasName } from '@kubb/plugin-oas'
-import { getGroupedByTagFiles } from '@kubb/plugin-oas/utils'
+
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { pluginTsName } from '@kubb/plugin-ts'
 
@@ -23,6 +23,10 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
   return {
     name: pluginMswName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       extName: output.extName,
       templates: {
@@ -83,34 +87,20 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
       const files = await operationGenerator.build()
       await this.addFile(...files)
-    },
-    async buildEnd() {
-      if (this.config.output.write === false) {
-        return
-      }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-
-      if (group?.type === 'tag') {
-        const rootFiles = await getGroupedByTagFiles({
-          logger: this.logger,
-          files: this.fileManager.files,
-          plugin: this.plugin,
-          template,
-          exportAs: group.exportAs || '{{tag}}Handlers',
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
+          files: this.fileManager.files,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
+          logger: this.logger,
         })
 
-        await this.addFile(...rootFiles)
+        await this.addFile(...barrelFiles)
       }
-
-      await this.fileManager.addIndexes({
-        root,
-        output,
-        meta: { pluginKey: this.plugin.key },
-        logger: this.logger,
-      })
     },
   }
 })

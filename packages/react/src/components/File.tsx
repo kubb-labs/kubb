@@ -44,97 +44,49 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props<TMeta extends FileMetaBase = FileMetaBase> = BaseProps & {
   /**
-   * Unique identifier to reuse later.
-   * @default crypto.randomUUID()
-   */
-  id?: KubbFile.File['id']
-  /**
-   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
-   */
-  env?: KubbFile.File['env']
-  /**
    * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists.
    * This will also ignore the combinefiles utils
    * @default `false`
    */
   override?: KubbFile.File['override']
-  /**
-   * Override if a file can be exported by the BarrelManager
-   * @default true
-   */
-  exportable?: boolean
   meta?: TMeta
   children?: KubbNode
 }
 
-export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, exportable = true, ...rest }: Props<TMeta>): KubbNode {
+export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, ...rest }: Props<TMeta>): KubbNode {
   if (!rest.baseName || !rest.path) {
     return children
   }
 
   return (
-    <kubb-file exportable={exportable} {...rest}>
+    <kubb-file {...rest}>
       <FileContext.Provider value={{ baseName: rest.baseName, path: rest.path, meta: rest.meta }}>{children}</FileContext.Provider>
     </kubb-file>
   )
 }
 
-type FileSourceUnionProps =
-  | {
-      /**
-       * When path is set it will copy-paste that file as a string inside the component.
-       * Children will then be ignored
-       */
-      path?: string
-      children?: never
-    }
-  | {
-      /**
-       * When path is set it will copy-paste that file as a string inside the component.
-       * Children will then be ignored
-       */
-      path?: never
-      children?: KubbNode
-    }
-
-type FileSourceProps = FileSourceUnionProps & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager).
-   */
-  print?: boolean
+type FileSourceProps = Omit<KubbFile.Source, 'value'> & {
+  children?: KubbNode
 }
 
-function FileSource({ path, print, children }: FileSourceProps): KubbNode {
+function FileSource({ isTypeOnly, name, isExportable, isIndexable, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source path={path} print={print}>
+    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable} isIndexable={isIndexable}>
       {children}
     </kubb-source>
   )
 }
 
-type FileExportProps = KubbFile.Export & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager)
-   */
-  print?: boolean
+type FileExportProps = KubbFile.Export
+
+function FileExport({ name, path, isTypeOnly, extName, asAlias }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} extName={extName} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
 }
 
-function FileExport({ name, path, isTypeOnly, asAlias, print, extName }: FileExportProps): KubbNode {
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} extName={extName} asAlias={asAlias} print={print} />
-}
+type FileImportProps = KubbFile.Import
 
-type FileImportProps = KubbFile.Import & {
-  /**
-   * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager).
-   */
-  print?: boolean
-}
-
-export function FileImport({ name, root, path, isTypeOnly, isNameSpace, extName, print }: FileImportProps): KubbNode {
-  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} extName={extName} isTypeOnly={isTypeOnly || false} print={print} />
+export function FileImport({ name, root, path, isTypeOnly, extName, isNameSpace }: FileImportProps): KubbNode {
+  return <kubb-import name={name} root={root} path={path} extName={extName} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
 }
 
 File.Export = FileExport

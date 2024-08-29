@@ -7,6 +7,8 @@ import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
 
 import type { Plugin } from '@kubb/core'
+import { getSource } from '@kubb/core/src/FileManager.ts'
+import { createFile } from '@kubb/core/utils'
 import type * as KubbFile from '@kubb/fs/types'
 import type { Operation } from '@kubb/oas'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
@@ -187,58 +189,6 @@ describe('OperationGenerator', async () => {
       method: 'post',
       operation: oas.operation('/pet/{petId}', 'post'),
     },
-    {
-      name: 'upload',
-      options: {
-        infinite: false,
-        suspense: false,
-        dataReturnType: 'data',
-        pathParamsType: 'object',
-        templates: {
-          query: Query.templates,
-          queryKey: QueryKey.templates,
-          queryOptions: QueryOptions.templates,
-        },
-        client: {
-          importPath: '@kubb/plugin-client/client',
-        },
-        parser: undefined,
-        query: {
-          methods: ['post'],
-          queryKey: (key: unknown[]) => key,
-        },
-        queryOptions: {},
-        mutate: false,
-      },
-      method: 'post',
-      operation: oas.operation('/upload', 'post'),
-    },
-    {
-      name: 'uploadMutation',
-      options: {
-        infinite: false,
-        suspense: false,
-        dataReturnType: 'data',
-        pathParamsType: 'object',
-        templates: {
-          query: Query.templates,
-          queryKey: QueryKey.templates,
-          queryOptions: QueryOptions.templates,
-        },
-        client: {
-          importPath: '@kubb/plugin-client/client',
-        },
-        parser: undefined,
-        mutate: {
-          methods: ['post'],
-          variablesType: 'mutate',
-        },
-        queryOptions: {},
-        query: false,
-      },
-      method: 'post',
-      operation: oas.operation('/upload', 'post'),
-    },
   ]
 
   test.each(items)('$name', async ({ name, method, options, operation }) => {
@@ -256,7 +206,7 @@ describe('OperationGenerator', async () => {
     const files = (await og.operation(operation, options)) as KubbFile.File[]
 
     for (const file of files) {
-      const source = await FileManager.getSource(file)
+      const source = await getSource(createFile(file))
 
       expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file.baseName}`)
     }

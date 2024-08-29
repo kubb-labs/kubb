@@ -6,7 +6,7 @@ import { print, type ts } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { useSchema } from '@kubb/plugin-oas/hooks'
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { parse, typeKeywordMapper } from '../parser/index.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types.ts'
@@ -26,6 +26,10 @@ export function Schema(props: Props): ReactNode {
     },
   } = useApp<PluginTs>()
 
+  if (enumType === 'asPascalConst') {
+    pluginManager.logger.emit('warning', `enumType '${enumType}' is deprecated`)
+  }
+
   // all checks are also inside this.schema(React)
   const resolvedName = pluginManager.resolveName({
     name,
@@ -39,8 +43,7 @@ export function Schema(props: Props): ReactNode {
     type: 'type',
   })
 
-  const nodes: ts.Node[] = []
-  const extraNodes: ts.Node[] = []
+  const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
     return ''
@@ -52,7 +55,17 @@ export function Schema(props: Props): ReactNode {
 
   let type =
     (tree
-      .map((schema) => parse(undefined, schema, { name: resolvedName, typeName, description, keysToOmit, optionalType, enumType, mapper }))
+      .map((schema) =>
+        parse(undefined, schema, {
+          name: resolvedName,
+          typeName,
+          description,
+          keysToOmit,
+          optionalType,
+          enumType,
+          mapper,
+        }),
+      )
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
@@ -87,36 +100,58 @@ export function Schema(props: Props): ReactNode {
   })
 
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
-  if (enumSchemas) {
-    enumSchemas.forEach((enumSchema) => {
-      extraNodes.push(
-        ...factory.createEnumDeclaration({
-          name: transformers.camelCase(enumSchema.args.name),
-          typeName: enumSchema.args.typeName,
-          enums: enumSchema.args.items
-            .map((item) => (item.value === undefined ? undefined : [transformers.trimQuotes(item.name?.toString()), item.value]))
-            .filter(Boolean) as unknown as [string, string][],
-          type: enumType,
-        }),
-      )
-    })
-  }
 
-  nodes.push(
+  const enums = enumSchemas.map((enumSchema) => {
+    const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
+    const typeName = enumSchema.args.typeName
+
+    const [nameNode, typeNode] = factory.createEnumDeclaration({
+      name,
+      typeName,
+      enums: enumSchema.args.items
+        .map((item) => (item.value === undefined ? undefined : [transformers.trimQuotes(item.name?.toString()), item.value]))
+        .filter(Boolean) as unknown as [string, string][],
+      type: enumType,
+    })
+
+    return {
+      nameNode,
+      typeNode,
+      name,
+      typeName,
+    }
+  })
+
+  typeNodes.push(
     factory.appendJSDocToNode({
       node,
       comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
     }),
   )
 
-  const filterdNodes = nodes.filter(
-    (node: ts.Node) =>
-      !extraNodes.some(
-        (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText,
-      ),
+  return (
+    <Fragment>
+      {enums.map(({ name, nameNode, typeName, typeNode }, index) => (
+        <Fragment key={[name, nameNode].join('-')}>
+          {nameNode && (
+            <File.Source name={name} isExportable isIndexable>
+              {print(nameNode)}
+            </File.Source>
+          )}
+          {
+            <File.Source name={typeName} isIndexable isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)} isTypeOnly>
+              {print(typeNode)}
+            </File.Source>
+          }
+        </Fragment>
+      ))}
+      {enums.every((item) => item.typeName !== resolvedName) && (
+        <File.Source name={typeName} isTypeOnly isExportable isIndexable>
+          {print(typeNodes)}
+        </File.Source>
+      )}
+    </Fragment>
   )
-
-  return print([...extraNodes, ...filterdNodes])
 }
 
 type FileProps = {}
@@ -126,10 +161,8 @@ Schema.File = function ({}: FileProps): ReactNode {
   const { schema } = useSchema()
 
   return (
-    <Oas.Schema.File output={pluginManager.config.output.path}>
-      <File.Source>
-        <Schema description={schema?.description} />
-      </File.Source>
+    <Oas.Schema.File isTypeOnly output={pluginManager.config.output.path}>
+      <Schema description={schema?.description} />
     </Oas.Schema.File>
   )
 }

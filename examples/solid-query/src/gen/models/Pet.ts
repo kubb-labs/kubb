@@ -1,12 +1,14 @@
-import type { Category } from './Category'
-import type { Tag } from './Tag'
+import type { Category } from './Category.ts'
+import type { Tag } from './Tag.ts'
 
 export const petStatus = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
+
 export type PetStatus = (typeof petStatus)[keyof typeof petStatus]
+
 export type Pet = {
   /**
    * @type integer | undefined, int64

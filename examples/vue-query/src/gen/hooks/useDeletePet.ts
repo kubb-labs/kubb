@@ -1,11 +1,12 @@
 import client from '@kubb/plugin-client/client'
-import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+
 type DeletePet = {
   data: DeletePetMutationResponse
   error: DeletePet400
@@ -19,6 +20,7 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet

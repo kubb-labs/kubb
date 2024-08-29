@@ -82,10 +82,8 @@ describe('PluginManager', () => {
     },
     plugins: [pluginA({}), pluginB({}), pluginBBis({})] as Plugin[],
   } satisfies Config
-  const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
-    logger: createLogger({ logLevel: 'silent' }),
-    task: queueTaskMock,
+    logger: createLogger({ logLevel: 3 }),
   })
 
   afterEach(() => {
@@ -93,7 +91,6 @@ describe('PluginManager', () => {
   })
 
   test('if pluginManager can be created', () => {
-    expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
     expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName', 'buildEnd'])

@@ -5,15 +5,19 @@ export type DeleteOrderPathParamsType = {
    */
   orderId: number
 }
+
 /**
  * @description Invalid ID supplied
  */
 export type DeleteOrder400Type = any
+
 /**
  * @description Order not found
  */
 export type DeleteOrder404Type = any
+
 export type DeleteOrderMutationResponseType = any
+
 export type DeleteOrderTypeMutation = {
   Response: DeleteOrderMutationResponseType
   PathParams: DeleteOrderPathParamsType

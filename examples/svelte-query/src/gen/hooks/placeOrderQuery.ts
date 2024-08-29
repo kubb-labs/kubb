@@ -1,9 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import { createMutation } from '@tanstack/svelte-query'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
+
 type PlaceOrder = {
   data: PlaceOrderMutationResponse
   error: PlaceOrder405
@@ -17,6 +18,7 @@ type PlaceOrder = {
     return: Awaited<ReturnType<PlaceOrderClient>>
   }
 }
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet

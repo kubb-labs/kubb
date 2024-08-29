@@ -1,4 +1,4 @@
-import type { Pet } from '../Pet.js'
+import type { Pet } from '../Pet.ts'
 
 export type FindPetsByTagsQueryParams = {
   /**
@@ -17,12 +17,15 @@ export type FindPetsByTagsQueryParams = {
    */
   pageSize?: string
 }
-export const FindPetsByTagsHeaderParamsXExampleEnum = {
+
+export const findPetsByTagsHeaderParamsXExampleEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
-export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
+
+export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof findPetsByTagsHeaderParamsXExampleEnum)[keyof typeof findPetsByTagsHeaderParamsXExampleEnum]
+
 export type FindPetsByTagsHeaderParams = {
   /**
    * @description Header parameters
@@ -30,18 +33,22 @@ export type FindPetsByTagsHeaderParams = {
    */
   'X-EXAMPLE': FindPetsByTagsHeaderParamsXExampleEnum
 }
+
 /**
  * @description successful operation
  */
 export type FindPetsByTags200 = Pet[]
+
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any
+
 /**
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
+
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse
   QueryParams: FindPetsByTagsQueryParams

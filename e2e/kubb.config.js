@@ -1,8 +1,9 @@
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -39,7 +40,7 @@ const baseConfig = {
     clean: true,
   },
   hooks: {
-    done: ['pnpm typecheck'],
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({
@@ -61,7 +62,7 @@ const baseConfig = {
       group: {
         type: 'tag',
       },
-      enumType: 'asPascalConst',
+      enumType: 'asConst',
     }),
     pluginTanstackQuery({
       output: {
@@ -76,6 +77,7 @@ const baseConfig = {
     pluginSwr({
       output: {
         path: './clients/swr',
+        exportType: false,
       },
       group: { type: 'tag' },
     }),
@@ -88,16 +90,32 @@ const baseConfig = {
     pluginZod({
       output: {
         path: './zod',
+        exportType: false,
       },
       group: { type: 'tag' },
       typed: false,
       typedSchema: true,
+      templates: {
+        operations: false,
+      },
     }),
     pluginFaker({
       output: {
         path: 'mocks',
+        exportType: false,
       },
       group: { type: 'tag' },
+      // transformers: {
+      //   name: (name, type) => {
+      //     if (type === 'file' || type === 'function') {
+      //       return camelCase(name, {
+      //         prefix: type ? 'createMock' : undefined,
+      //         isFile: type === 'file',
+      //       })
+      //     }
+      //     return name
+      //   },
+      // },
     }),
     pluginMsw({
       output: {

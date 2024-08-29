@@ -1,10 +1,11 @@
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema'
-import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
+import useSWR from 'swr'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+
 type LoginUser = {
   data: LoginUserQueryResponse
   error: LoginUser400
@@ -18,6 +19,7 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
+
 export function loginUserQueryOptions<TData = LoginUser['response']>(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['parameters'] = {},
@@ -34,6 +36,7 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
     },
   }
 }
+
 /**
  * @summary Logs user into the system
  * @link /user/login
