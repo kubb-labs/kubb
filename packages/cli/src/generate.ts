@@ -28,14 +28,17 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
 
   logger.on('progress_start', ({ id, size }) => {
     logger.consola?.pauseLogs()
+    
     if (!progressBars[id]) {
       progressBars[id] = new SingleBar(
-        {
-          format:
-            logLevel === LogMapper.info
-              ? '{percentage}% {bar} {value}/{total} {id} | {data} | ETA: {eta_formatted} | Duration: {duration_formatted} '
-              : '{percentage}% {bar} ETA: {eta_formatted}',
-          barsize: 25,
+        logLevel === LogMapper.info? {
+          format:'{percentage}% {bar} {value}/{total} {id} | ETA: {eta_formatted} | {data}',
+          barsize: 20,
+          clearOnComplete: true,
+          emptyOnZero: true,
+        }: {
+          format: '{percentage}% {bar} {value}/{total} {id}',
+          barsize: 30,
           clearOnComplete: true,
           emptyOnZero: true,
         },
