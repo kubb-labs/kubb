@@ -20,6 +20,20 @@ exports[`<Schema/>  > 'Order' 1`] = `
 }"
 `;
 
+exports[`<Schema/>  > 'PageSizeInteger' 1`] = `
+"export function pageSizeInteger(): NonNullable<PageSizeInteger> {
+  
+  return faker.number.int()
+}"
+`;
+
+exports[`<Schema/>  > 'PageSizeNumber' 1`] = `
+"export function pageSizeNumber(): NonNullable<PageSizeNumber> {
+  
+  return faker.number.float()
+}"
+`;
+
 exports[`<Schema/>  > 'Record' 1`] = `
 "export function record(data: NonNullable<Partial<Record>> = {}): NonNullable<Record> {
   

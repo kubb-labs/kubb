@@ -379,12 +379,6 @@ export class SchemaGenerator<
     const options = this.#getOptions({ schema: _schema, name })
     const unknownReturn = this.#getUnknownReturn({ schema: _schema, name })
     const { schema, version } = this.#getParsedSchemaObject(_schema)
-    const resolvedName = this.context.pluginManager.resolveName({
-      name: `${parentName || ''} ${name}`,
-      pluginKey: this.context.plugin.key,
-      type: 'type',
-    })
-
     if (!schema) {
       return [{ keyword: unknownReturn }]
     }
@@ -408,11 +402,15 @@ export class SchemaGenerator<
           keyword: schemaKeywords.default,
           args: transformers.stringify(schema.default),
         })
-      }
-      if (typeof schema.default === 'boolean') {
+      } else if (typeof schema.default === 'boolean') {
         baseItems.push({
           keyword: schemaKeywords.default,
           args: schema.default ?? false,
+        })
+      } else {
+        baseItems.push({
+          keyword: schemaKeywords.default,
+          args: schema.default,
         })
       }
     }
