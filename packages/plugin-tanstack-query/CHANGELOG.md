@@ -1,5 +1,20 @@
 # @kubb/plugin-tanstack-query
 
+## 3.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies [[`962e2d6`](https://github.com/kubb-labs/kubb/commit/962e2d6d49dff55563be13b1ded832d10743ec29)]:
+  - @kubb/react@3.0.0-alpha.8
+  - @kubb/core@3.0.0-alpha.8
+  - @kubb/fs@3.0.0-alpha.8
+  - @kubb/plugin-client@3.0.0-alpha.8
+  - @kubb/plugin-oas@3.0.0-alpha.8
+  - @kubb/plugin-ts@3.0.0-alpha.8
+  - @kubb/plugin-zod@3.0.0-alpha.8
+  - @kubb/oas@3.0.0-alpha.8
+  - @kubb/parser-ts@3.0.0-alpha.8
+
 ## 3.0.0-alpha.7
 
 ### Minor Changes
