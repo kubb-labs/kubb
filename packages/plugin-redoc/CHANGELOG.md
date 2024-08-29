@@ -1,5 +1,15 @@
 # @kubb/plugin-redoc
 
+## 2.25.5
+
+### Patch Changes
+
+- Updated dependencies [[`7018149`](https://github.com/kubb-labs/kubb/commit/701814979285b6b0753b7183157f2b77f1b2db97)]:
+  - @kubb/plugin-oas@2.25.5
+  - @kubb/core@2.25.5
+  - @kubb/oas@2.25.5
+  - @kubb/react@2.25.5
+
 ## 2.25.4
 
 ### Patch Changes
