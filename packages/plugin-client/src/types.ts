@@ -6,8 +6,8 @@ import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugi
 import type { Client, Operations } from './components/index.ts'
 
 type Templates = {
-  operations?: typeof Operations.templates | false
-  client?: typeof Client.templates | false
+  operations?: typeof Operations | false
+  client?: typeof Client | false
 }
 
 export type Options = {

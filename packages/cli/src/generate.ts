@@ -41,7 +41,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
         },
         Presets.shades_grey,
       )
-      progressBars[id].start(size, 1, { id, data: '' })
+      progressBars[id].start(size, 1, { id, data: ' ' })
     }
   })
 

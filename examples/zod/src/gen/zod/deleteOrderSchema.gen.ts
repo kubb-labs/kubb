@@ -1,6 +1,6 @@
 import { z } from '../../zod.ts'
 
-export const deleteOrderPathParamsSchema = z.object({ orderId: z.number().describe('ID of the order that needs to be deleted') })
+export const deleteOrderPathParamsSchema = z.object({ orderId: z.number().int().describe('ID of the order that needs to be deleted') })
 
 export type DeleteOrderPathParamsSchema = z.infer<typeof deleteOrderPathParamsSchema>
 

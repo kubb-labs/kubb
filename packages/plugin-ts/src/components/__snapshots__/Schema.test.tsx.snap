@@ -30,6 +30,10 @@ export type order = {
 };"
 `;
 
+exports[`<Schema/>  > 'PageSizeInteger' 1`] = `"export type pageSizeInteger = number;"`;
+
+exports[`<Schema/>  > 'PageSizeNumber' 1`] = `"export type pageSizeNumber = number;"`;
+
 exports[`<Schema/>  > 'Record' 1`] = `
 "export type record = {
     [key: string]: number;
