@@ -509,7 +509,7 @@ export class PluginManager {
       this.events.emit('executed', executer)
       this.executed.push(executer)
 
-      this.logger.emit('progress', { id: executer.hookName, data: `${executer.plugin.name} ${executer.parameters?.join(', ') || ''}` })
+      this.logger.emit('progress', { id: executer.hookName, data: `${executer.plugin.name}` })
     }
   }
 
