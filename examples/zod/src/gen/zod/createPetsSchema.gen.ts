@@ -4,7 +4,7 @@ import { petNotFoundSchema } from './petNotFoundSchema.gen'
 export const createPetsPathParamsSchema = z.object({ uuid: z.string().describe('UUID') })
 export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSchema>
 
-export const createPetsQueryParamsSchema = z.object({ offset: z.number().describe('Offset').optional() }).optional()
+export const createPetsQueryParamsSchema = z.object({ offset: z.number().int().describe('Offset').optional() }).optional()
 export type CreatePetsQueryParamsSchema = z.infer<typeof createPetsQueryParamsSchema>
 
 export const createPetsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters') })
