@@ -1,12 +1,12 @@
-import { createReactParser } from '@kubb/plugin-oas'
-import { Operations } from '../components/Operations'
-import { Client } from '../components/Client'
-import type { PluginClient } from '../types'
+import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
+import { Client } from '../components/Client'
+import { Operations } from '../components/Operations'
+import type { PluginClient } from '../types'
 
-export const axiosParser = createReactParser<PluginClient>({
+export const axiosGenerator = createReactGenerator<PluginClient>({
   name: 'plugin-client',
   Operations({ options, operations }) {
     const { pluginManager } = useApp<PluginClient>()
@@ -16,14 +16,12 @@ export const axiosParser = createReactParser<PluginClient>({
     }
 
     const Template = options.templates.operations || Operations
-
-    const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey: ['plugin-client'] })
+    const name = 'operations'
+    const file = pluginManager.getFile({ name, extName: '.ts', pluginKey: ['plugin-client'] })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} exportable={false}>
-        <File.Source>
-          <Template operations={operations} />
-        </File.Source>
+      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+        <Template name={name} operations={operations} />
       </File>
     )
   },
@@ -56,10 +54,9 @@ export const axiosParser = createReactParser<PluginClient>({
           ].filter(Boolean)}
           root={file.path}
           path={fileType.path}
+          isTypeOnly
         />
-        <File.Source>
-          <Template name={name} options={options} typedSchemas={typedSchemas} operation={operation} />
-        </File.Source>
+        <Template name={name} options={options} typedSchemas={typedSchemas} operation={operation} />
       </File>
     )
   },

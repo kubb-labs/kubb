@@ -154,6 +154,10 @@ export function getParams(items: Params, options: Options): string {
     .join(', ')
 }
 
+export function createParams(params: Params): Params {
+  return params
+}
+
 export function isParamItems(items: any): items is Params {
   return typeof items !== 'string' && items && Object.keys(items)?.length
 }

@@ -1,14 +1,13 @@
-import { File, Function } from '@kubb/react'
-import type { Client as BaseClient } from '@kubb/plugin-client/components'
-import type React from 'react'
 import { URLPath } from '@kubb/core/utils'
-import type { Params } from '@kubb/react'
-import { isOptional, getPathParams } from '@kubb/plugin-oas/utils'
+import type { Client as BaseClient } from '@kubb/plugin-client/components'
+import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
 import { getComments } from '@kubb/plugin-oas/utils'
+import { File, Function, createParams } from '@kubb/react'
+import type React from 'react'
 
 export function Client({ name, options, typedSchemas, operation }: React.ComponentProps<typeof BaseClient>) {
   const path = new URLPath(operation.path)
-  const params: Params = {
+  const params = createParams({
     pathParams: {
       mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
       children: getPathParams(typedSchemas.pathParams, { typed: true }),
@@ -35,27 +34,29 @@ export function Client({ name, options, typedSchemas, operation }: React.Compone
       type: 'Partial<Parameters<typeof client>[0]>',
       default: '{}',
     },
-  }
+  })
 
   const clientParams = [path.template, typedSchemas.request ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
 
   return (
     <>
       <File.Import name="axios" path="axios" />
-      <Function
-        name={name}
-        async
-        export
-        params={params}
-        returnType={
-          options.dataReturnType === 'data' ? `ResponseConfig<${typedSchemas.response.name}>["data"]` : `ResponseConfig<${typedSchemas.response.name}>`
-        }
-        JSDoc={{
-          comments: getComments(operation),
-        }}
-      >
-        {`return axios.${operation.method}(${clientParams})`}
-      </Function>
+      <File.Source name={name} exportable isIndexable>
+        <Function
+          name={name}
+          async
+          export
+          params={params}
+          returnType={
+            options.dataReturnType === 'data' ? `ResponseConfig<${typedSchemas.response.name}>["data"]` : `ResponseConfig<${typedSchemas.response.name}>`
+          }
+          JSDoc={{
+            comments: getComments(operation),
+          }}
+        >
+          {`return axios.${operation.method}(${clientParams})`}
+        </Function>
+      </File.Source>
     </>
   )
 }

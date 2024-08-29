@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById.ts'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**

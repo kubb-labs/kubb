@@ -1,4 +1,4 @@
-import { type FileMetaBase, Generator } from '@kubb/core'
+import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
@@ -13,9 +13,8 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
-import type { Parser } from './parser.tsx'
+import type { Generator } from './generator.tsx'
 import type { OperationSchema, Override, Refs } from './types.ts'
-import type { Parser } from './parser.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -69,7 +68,7 @@ export class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
-> extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
+> extends BaseGenerator<TOptions, Context<TOptions, TPluginOptions>> {
   // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}
 
@@ -822,7 +821,7 @@ export class SchemaGenerator<
     return [{ keyword: unknownReturn }]
   }
 
-  async build(...parsers: Array<Parser<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     const schemas = getSchemas({ oas, contentType, includes: include })
@@ -838,8 +837,8 @@ export class SchemaGenerator<
         acc.push(promiseOperation)
       }
 
-      parsers?.forEach((parser) => {
-        const promise = parser.schema?.({
+      generators?.forEach((generator) => {
+        const promise = generator.schema?.({
           instance: this,
           name,
           schema,

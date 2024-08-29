@@ -1,0 +1,69 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`[params] getParams callable(Function.Call) > 'default string' 1`] = `"name: string = test"`;
+
+exports[`[params] getParams callable(Function.Call) > 'empty children param' 1`] = `"{ age }"`;
+
+exports[`[params] getParams callable(Function.Call) > 'empty' 1`] = `"name"`;
+
+exports[`[params] getParams callable(Function.Call) > 'name and address' 1`] = `"name: string, address: string"`;
+
+exports[`[params] getParams callable(Function.Call) > 'name[optional] age, address[optional]…' 1`] = `"age: number, name?: string, address?: string, country: string = "Belgium""`;
+
+exports[`[params] getParams callable(Function.Call) > 'name[optional], age[optional] and add…' 1`] = `"address: string, name?: string, age?: number"`;
+
+exports[`[params] getParams callable(Function.Call) > 'optional string' 1`] = `"name?: string"`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[with name] with age, address[o…' 1`] = `"{ age, country, address }"`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[without name and default] with…' 1`] = `"{ address, age = 90, country = 'Belgium' } = {}"`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[without name and mode inline] …' 1`] = `"data"`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[without name and mode inline] …' 2`] = `"data"`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[without name and mode inlineSp…' 1`] = `"address: string, age: number = 20, country: string = "Belgium""`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[without name] with age, addres…' 1`] = `"{ age, country, address }"`;
+
+exports[`[params] getParams callable(Function.Call) > 'params[without name] with age[optiona…' 1`] = `"{ address, age = 20, country = "Belgium" }"`;
+
+exports[`[params] getParams callable(Function.Call) > 'string' 1`] = `"name: string"`;
+
+exports[`[params] getParams callable(Function.Call) > 'undefined children param' 1`] = `""`;
+
+exports[`[params] getParams callable(Function.Call) > 'undefined' 1`] = `""`;
+
+exports[`[params] getParams not callable(Function) > 'default string' 1`] = `"name: string = test"`;
+
+exports[`[params] getParams not callable(Function) > 'empty children param' 1`] = `"{ age }"`;
+
+exports[`[params] getParams not callable(Function) > 'empty' 1`] = `"name"`;
+
+exports[`[params] getParams not callable(Function) > 'name and address' 1`] = `"name: string, address: string"`;
+
+exports[`[params] getParams not callable(Function) > 'name[optional] age, address[optional]…' 1`] = `"age: number, name?: string, address?: string, country: string = "Belgium""`;
+
+exports[`[params] getParams not callable(Function) > 'name[optional], age[optional] and add…' 1`] = `"address: string, name?: string, age?: number"`;
+
+exports[`[params] getParams not callable(Function) > 'optional string' 1`] = `"name?: string"`;
+
+exports[`[params] getParams not callable(Function) > 'params[with name] with age, address[o…' 1`] = `"{ age, country, address }: Data"`;
+
+exports[`[params] getParams not callable(Function) > 'params[without name and default] with…' 1`] = `"{ address, age = 90, country = 'Belgium' }: { address?: string; age?: number; country?: string } = {}"`;
+
+exports[`[params] getParams not callable(Function) > 'params[without name and mode inline] …' 1`] = `"data?: { address?: string; age?: number; country?: string }"`;
+
+exports[`[params] getParams not callable(Function) > 'params[without name and mode inline] …' 2`] = `"data: { address: string; age: number; country: string }"`;
+
+exports[`[params] getParams not callable(Function) > 'params[without name and mode inlineSp…' 1`] = `"address: string, age: number = 20, country: string = "Belgium""`;
+
+exports[`[params] getParams not callable(Function) > 'params[without name] with age, addres…' 1`] = `"{ age, country, address }: { age: number; country: string; address?: string }"`;
+
+exports[`[params] getParams not callable(Function) > 'params[without name] with age[optiona…' 1`] = `"{ address, age = 20, country = "Belgium" }?: { address?: string; age?: number; country?: string }"`;
+
+exports[`[params] getParams not callable(Function) > 'string' 1`] = `"name: string"`;
+
+exports[`[params] getParams not callable(Function) > 'undefined children param' 1`] = `""`;
+
+exports[`[params] getParams not callable(Function) > 'undefined' 1`] = `""`;

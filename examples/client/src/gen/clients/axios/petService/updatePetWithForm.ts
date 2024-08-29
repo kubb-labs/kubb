@@ -3,7 +3,7 @@ import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-} from '../../../models/ts/petController/UpdatePetWithForm'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**

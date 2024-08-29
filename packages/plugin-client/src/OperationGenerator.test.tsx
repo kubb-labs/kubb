@@ -1,6 +1,5 @@
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
-import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
 import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
 

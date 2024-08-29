@@ -5,13 +5,12 @@ import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
-import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { axiosGenerator } from './generators/axiosGenerator.tsx'
 import type { PluginClient } from './types.ts'
-import { axiosParser } from './parsers/axiosParser.tsx'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
@@ -107,7 +106,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(axiosParser)
+      const files = await operationGenerator.build(axiosGenerator)
 
       await this.addFile(...files)
 

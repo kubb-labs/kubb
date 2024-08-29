@@ -2,7 +2,7 @@
  * Abstract class that contains the building blocks for plugins to create their own Generator
  * @link idea based on https://github.com/colinhacks/zod/blob/master/src/types.ts#L137
  */
-export abstract class Generator<TOptions = unknown, TContext = unknown> {
+export abstract class BaseGenerator<TOptions = unknown, TContext = unknown> {
   #options: TOptions = {} as TOptions
   #context: TContext = {} as TContext
 

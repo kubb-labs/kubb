@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
+import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.ts'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**

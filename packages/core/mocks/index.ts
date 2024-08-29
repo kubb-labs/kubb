@@ -49,7 +49,11 @@ export const mockedPluginManager = {
   },
 } as PluginManager
 
-export async function matchFiles(files: Array<ResolvedFile | File>) {
+export async function matchFiles(files: Array<ResolvedFile | File> | undefined) {
+  if (!files) {
+    return undefined
+  }
+
   for (const file of files) {
     const source = await getSource(file as ResolvedFile, { logger: mockedLogger })
     expect(source).toMatchSnapshot()

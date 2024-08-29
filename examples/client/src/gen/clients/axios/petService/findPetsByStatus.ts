@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**

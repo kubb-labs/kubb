@@ -1,12 +1,12 @@
 import type { PluginFactoryOptions } from '@kubb/core'
+import type * as KubbFile from '@kubb/fs/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
+import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 import type { KubbNode } from '@kubb/react/types'
-import type * as KubbFile from '@kubb/fs/types'
-import type { OperationsByMethod } from './types.ts'
-import { Oas } from '@kubb/plugin-oas/components'
 import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
+import type { OperationsByMethod } from './types.ts'
 
 type OperationsProps<TOptions extends PluginFactoryOptions> = {
   instance: Omit<OperationGenerator<TOptions>, 'build'>
@@ -28,20 +28,20 @@ type SchemaProps<TOptions extends PluginFactoryOptions> = {
   options: TOptions['resolvedOptions']
 }
 
-export type ParserOptions<TOptions extends PluginFactoryOptions> = {
+export type GeneratorOptions<TOptions extends PluginFactoryOptions> = {
   name: string
   operations?: (props: OperationsProps<TOptions>) => Promise<KubbFile.File[]>
   operation?: (props: OperationProps<TOptions>) => Promise<KubbFile.File[]>
   schema?: (props: SchemaProps<TOptions>) => Promise<KubbFile.File[]>
 }
 
-export type Parser<TOptions extends PluginFactoryOptions> = ParserOptions<TOptions>
+export type Generator<TOptions extends PluginFactoryOptions> = GeneratorOptions<TOptions>
 
-export function createParser<TOptions extends PluginFactoryOptions>(parseOptions: ParserOptions<TOptions>): Parser<TOptions> {
+export function createGenerator<TOptions extends PluginFactoryOptions>(parseOptions: GeneratorOptions<TOptions>): Generator<TOptions> {
   return parseOptions
 }
 
-export type ParserReactOptions<TOptions extends PluginFactoryOptions> = {
+export type ReactGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   name: string
   Operations?: (props: OperationsProps<TOptions>) => KubbNode
   Operation?: (props: OperationProps<TOptions>) => KubbNode
@@ -52,7 +52,7 @@ export type ParserReactOptions<TOptions extends PluginFactoryOptions> = {
   render?: () => any
 }
 
-export function createReactParser<TOptions extends PluginFactoryOptions>(parseOptions: ParserReactOptions<TOptions>): Parser<TOptions> {
+export function createReactGenerator<TOptions extends PluginFactoryOptions>(parseOptions: ReactGeneratorOptions<TOptions>): Generator<TOptions> {
   return {
     ...parseOptions,
     async operations({ instance, options, operations, operationsByMethod }) {

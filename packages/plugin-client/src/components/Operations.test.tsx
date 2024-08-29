@@ -1,14 +1,10 @@
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
-import { createRootServer } from '@kubb/react/server'
-import { Oas } from '@kubb/plugin-oas/components'
 
 import type { Plugin } from '@kubb/core'
-import { App } from '@kubb/react'
-import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
+import { axiosGenerator } from '../generators/axiosGenerator.tsx'
 import type { PluginClient } from '../types.ts'
-import { axiosParser } from '../parsers/axiosParser.tsx'
-import { Client } from './Client.tsx'
 import { Operations } from './Operations.tsx'
 
 describe('<Operations/>', async () => {
@@ -26,6 +22,7 @@ describe('<Operations/>', async () => {
     },
     client: {
       importPath: '@kubb/plugin-client/client',
+      methods: ['get', 'post', 'put'],
     },
     baseURL: '',
     extName: undefined,
@@ -45,7 +42,7 @@ describe('<Operations/>', async () => {
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
 
-    const files = await axiosParser.operations?.({
+    const files = await axiosGenerator.operations?.({
       operations: [operation],
       operationsByMethod: {},
       options,

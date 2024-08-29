@@ -26,10 +26,10 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./parsers": {
-      "import": "./dist/parsers.js",
-      "require": "./dist/parsers.cjs",
-      "default": "./dist/parsers.cjs"
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs",
+      "default": "./dist/generators.cjs"
     },
     "./components": {
       "import": "./dist/components.js",
@@ -57,8 +57,8 @@
       "components": [
         "./dist/components.d.ts"
       ],
-      "parsers": [
-        "./dist/parsers.d.ts"
+      "generators": [
+        "./dist/generators.d.ts"
       ]
     }
   },

@@ -1,4 +1,4 @@
-import { type FileMetaBase, Generator } from '@kubb/core'
+import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
 import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
@@ -6,8 +6,8 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod, Oas, OasTypes, Operation, contentType } from '@kubb/oas'
+import type { Generator } from './generator.tsx'
 import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
-import type { Parser } from './parser.tsx'
 
 /**
  * @deprecated
@@ -34,7 +34,7 @@ export class OperationGenerator<
   TOptions = unknown,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
-> extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
+> extends BaseGenerator<TOptions, Context<TOptions, TPluginOptions>> {
   #operationsByMethod: OperationsByMethod = {}
   get operationsByMethod(): OperationsByMethod {
     return this.#operationsByMethod
@@ -231,7 +231,7 @@ export class OperationGenerator<
 
   #methods = ['get', 'post', 'patch', 'put', 'delete']
 
-  async build(...parsers: Array<Parser<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
     const paths = oas.getPaths()
@@ -291,8 +291,8 @@ export class OperationGenerator<
           acc.push(promiseOperation)
         }
 
-        parsers?.forEach((parser) => {
-          const promise = parser.operation?.({
+        generators?.forEach((generator) => {
+          const promise = generator.operation?.({
             instance: this,
             operation,
             options: {
@@ -314,8 +314,8 @@ export class OperationGenerator<
 
     promises.push(this.all(operations.flat().filter(Boolean), this.operationsByMethod))
 
-    parsers?.forEach((parser) => {
-      const promise = parser.operations?.({
+    generators?.forEach((generator) => {
+      const promise = generator.operations?.({
         instance: this,
         operations: operations.flat().filter(Boolean),
         operationsByMethod: this.operationsByMethod,

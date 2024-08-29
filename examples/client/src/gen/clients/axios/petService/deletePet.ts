@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams } from '../../../models/ts/petController/DeletePet'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams } from '../../../models/ts/petController/DeletePet.ts'
 import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**

@@ -70,7 +70,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <Text>{'>'}</Text>
         </>
       )}
-      {isParamItems(params) ? <Text>({getParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
+      {isParamItems(params) ? <Text>({params(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -127,7 +127,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <Text>{'>'}</Text>
         </>
       )}
-      {isParamItems(params) ? <Text>({getParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
+      {isParamItems(params) ? <Text>({params(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -194,7 +194,7 @@ export function CallFunction({ name, to }: CallFunctionProps) {
           <Text>{'>'}</Text>
         </>
       )}
-      {isParamItems(params) ? <Text>({getParams(params, { type: 'call' })})</Text> : <Text>({params})</Text>}
+      {isParamItems(params) ? <Text>({params(params, { type: 'call' })})</Text> : <Text>({params})</Text>}
       <br />
     </>
   )

@@ -1,11 +1,11 @@
 import { URLPath } from '@kubb/core/utils'
 
-import { Function } from '@kubb/react'
-import { isOptional, type Operation } from '@kubb/oas'
-import type { KubbNode, Params } from '@kubb/react'
-import type { PluginClient } from '../types.ts'
-import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, createParams } from '@kubb/react'
+import type { KubbNode, Params } from '@kubb/react/types'
+import type { PluginClient } from '../types.ts'
 
 type Props = {
   /**
@@ -27,7 +27,7 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
     typedSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
-  const params: Params = {
+  const params = createParams({
     pathParams: {
       mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
       children: getPathParams(typedSchemas.pathParams, { typed: true }),
@@ -54,9 +54,9 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
       type: 'Partial<Parameters<typeof client>[0]>',
       default: '{}',
     },
-  }
+  })
 
-  const clientParams: Params = {
+  const clientParams = createParams({
     data: {
       mode: 'object',
       children: {
@@ -97,7 +97,7 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
         },
       },
     },
-  }
+  })
 
   const formData = isFormData
     ? `
@@ -114,22 +114,26 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
     : undefined
 
   return (
-    <Function
-      name={name}
-      async
-      export
-      returnType={options.dataReturnType === 'data' ? `ResponseConfig<${typedSchemas.response.name}>["data"]` : `ResponseConfig<${typedSchemas.response.name}>`}
-      params={params}
-      JSDoc={{
-        comments: getComments(operation),
-      }}
-    >
-      {formData || ''}
-      <Function.Call
-        name="res"
-        to={<Function name="client" async generics={[typedSchemas.response.name, typedSchemas.request?.name].filter(Boolean)} params={clientParams} />}
-      />
-      <Function.Return>{options.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
-    </Function>
+    <File.Source name={name} isExportable isIndexable>
+      <Function
+        name={name}
+        async
+        export
+        returnType={
+          options.dataReturnType === 'data' ? `ResponseConfig<${typedSchemas.response.name}>["data"]` : `ResponseConfig<${typedSchemas.response.name}>`
+        }
+        params={params}
+        JSDoc={{
+          comments: getComments(operation),
+        }}
+      >
+        {formData || ''}
+        <Function.Call
+          name="res"
+          to={<Function name="client" async generics={[typedSchemas.response.name, typedSchemas.request?.name].filter(Boolean)} params={clientParams} />}
+        />
+        <Function.Return>{options.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
+      </Function>
+    </File.Source>
   )
 }

@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<Client/> > showPetById 1`] = `
+"import client from "@kubb/plugin-client/client";
+import type { ResponseConfig } from "@kubb/plugin-client/client";
+
+ /**
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
+export async function showPetById({ petId, testId }: {
+    petId: ShowPetByIdPathParams["pet_id"];
+    testId: ShowPetByIdPathParams["testId"];
+}, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+    const res = await client<ShowPetByIdQueryResponse>({ method: "get", url: \`/pets/\${petId}\`, ...options });
+    return res.data;
+}
+"
+`;

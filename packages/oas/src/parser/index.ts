@@ -1,6 +1,6 @@
+import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'
 import swagger2openapi from 'swagger2openapi'
-import { bundle, loadConfig } from '@redocly/openapi-core'
 
 import { Oas } from '../Oas.ts'
 import { filterAndSort, isOpenApiV2Document } from '../utils.ts'
