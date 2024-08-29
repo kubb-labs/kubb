@@ -1,5 +1,7 @@
 # @kubb/config-ts
 
+## 3.0.0-alpha.9
+
 ## 3.0.0-alpha.8
 
 ## 3.0.0-alpha.7

@@ -1,5 +1,22 @@
 # @kubb/plugin-zod
 
+## 3.0.0-alpha.9
+
+### Patch Changes
+
+- [#1132](https://github.com/kubb-labs/kubb/pull/1132) [`7bb4a34`](https://github.com/kubb-labs/kubb/commit/7bb4a340927077d5f587f938d09b1381787a4310) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct integer parser when used together with coerce
+
+- [#1132](https://github.com/kubb-labs/kubb/pull/1132) [`7bb4a34`](https://github.com/kubb-labs/kubb/commit/7bb4a340927077d5f587f938d09b1381787a4310) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Set default property for schema AST when type of default is not string or boolean
+
+- Updated dependencies [[`7bb4a34`](https://github.com/kubb-labs/kubb/commit/7bb4a340927077d5f587f938d09b1381787a4310)]:
+  - @kubb/plugin-oas@3.0.0-alpha.9
+  - @kubb/core@3.0.0-alpha.9
+  - @kubb/fs@3.0.0-alpha.9
+  - @kubb/oas@3.0.0-alpha.9
+  - @kubb/parser-ts@3.0.0-alpha.9
+  - @kubb/react@3.0.0-alpha.9
+  - @kubb/types@3.0.0-alpha.9
+
 ## 3.0.0-alpha.8
 
 ### Patch Changes
