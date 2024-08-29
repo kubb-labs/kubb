@@ -123,7 +123,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
   if (infinite) {
     if (isV5) {
       return (
-        <File.Source name={name} isExportable>
+        <File.Source name={name} isExportable isIndexable>
           <Function name={name} export params={params} JSDoc={JSDoc}>
             {`
        const queryKey = ${hook.queryKey}
@@ -149,7 +149,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
     }
 
     return (
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
           {`
          const queryKey = ${hook.queryKey}
@@ -176,7 +176,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
 
   if (isV5) {
     return (
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function name={name} export params={params} JSDoc={JSDoc}>
           {`
    const queryKey = ${hook.queryKey}
@@ -202,7 +202,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
   }
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
        const queryKey = ${hook.queryKey}

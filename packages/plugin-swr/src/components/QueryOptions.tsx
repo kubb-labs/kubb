@@ -89,7 +89,7 @@ function Template({ name, params, generics, returnType, JSDoc, client, dataRetur
     : undefined
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
       return {

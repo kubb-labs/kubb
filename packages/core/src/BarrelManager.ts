@@ -43,15 +43,15 @@ export class BarrelManager {
 
           const sources = item.data.file?.sources || []
 
-          if (!sources.some((source) => source.isExportable)) {
+          if (!sources.some((source) => source.isIndexable)) {
             logger?.emit(
               'warning',
-              `No exportable source found(source should have a name and isExportable):\nFile: ${JSON.stringify(item.data.file, undefined, 2)}`,
+              `No isIndexable source found(source should have a name and isIndexable):\nFile: ${JSON.stringify(item.data.file, undefined, 2)}`,
             )
           }
 
           return sources.map((source) => {
-            if (!item.data.file?.path || !source.isExportable) {
+            if (!item.data.file?.path || !source.isIndexable) {
               return undefined
             }
 
@@ -89,6 +89,7 @@ export class BarrelManager {
                 //TODO use parser to generate import
                 value: '',
                 isExportable: false,
+                isIndexable: false,
               } as KubbFile.Source
             })
           }
@@ -99,6 +100,7 @@ export class BarrelManager {
               //TODO use parser to generate import
               value: '',
               isExportable: false,
+              isIndexable: false,
             } as KubbFile.Source,
           ]
         }),

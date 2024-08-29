@@ -14,7 +14,7 @@ type TemplateProps = {
 }
 
 function Template({ name, handlers }: TemplateProps): ReactNode {
-  return <File.Source name={name} isExportable>{`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}</File.Source>
+  return <File.Source name={name} isExportable isIndexable>{`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}</File.Source>
 }
 
 type ParserTemplateProps = {

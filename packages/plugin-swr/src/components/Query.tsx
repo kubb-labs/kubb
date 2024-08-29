@@ -48,7 +48,7 @@ type TemplateProps = {
 function Template({ name, generics, returnType, params, JSDoc, hook, client }: TemplateProps): ReactNode {
   if (client.withQueryParams) {
     return (
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
@@ -70,7 +70,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, client }: T
   }
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

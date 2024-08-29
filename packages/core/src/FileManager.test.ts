@@ -103,6 +103,7 @@ describe('FileManager', () => {
       [
         {
           "isExportable": undefined,
+          "isIndexable": undefined,
           "isTypeOnly": undefined,
           "value": "const file1Bis ='file1Bis';",
         },
@@ -244,6 +245,7 @@ describe('FileManager', () => {
             name: 'test',
             value: 'export const test = 2;',
             isExportable: true,
+            isIndexable: true,
           },
         ],
       },
@@ -279,6 +281,7 @@ describe('FileManager', () => {
             name: 'hello',
             value: 'export const hello = 2;',
             isExportable: true,
+            isIndexable: true,
           },
         ],
       },
@@ -290,6 +293,7 @@ describe('FileManager', () => {
             name: 'world',
             value: 'export const world = 2;',
             isExportable: true,
+            isIndexable: true,
           },
         ],
       },
@@ -538,6 +542,7 @@ describe('FileManager utils', () => {
       [
         {
           "isExportable": undefined,
+          "isIndexable": undefined,
           "isTypeOnly": false,
           "name": "test",
           "value": "const test = 3",

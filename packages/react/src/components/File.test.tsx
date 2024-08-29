@@ -106,6 +106,7 @@ describe('<File/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "",
@@ -161,12 +162,14 @@ describe('<File/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "const file = 2;",
             },
             {
               "isExportable": true,
+              "isIndexable": undefined,
               "isTypeOnly": true,
               "name": "test",
               "value": "export const test = 2;",
@@ -305,6 +308,7 @@ describe('<File.Import/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "import React from "react";",
@@ -352,6 +356,7 @@ describe('<File.Import/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "test",

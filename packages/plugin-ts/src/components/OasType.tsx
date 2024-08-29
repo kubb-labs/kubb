@@ -17,11 +17,11 @@ type TemplateProps = {
 function Template({ name, typeName, api }: TemplateProps): ReactNode {
   return (
     <>
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
       </File.Source>
       <br />
-      <File.Source name={typeName} isExportable isTypeOnly>
+      <File.Source name={typeName} isExportable isIndexable isTypeOnly>
         <Type name={typeName} export>
           {`Infer<typeof ${name}>`}
         </Type>

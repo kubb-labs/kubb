@@ -37,7 +37,16 @@ export type Source = {
   name?: string
   value?: string
   isTypeOnly?: boolean
+  /**
+   * Has const or type 'export'
+   * @default false
+   */
   isExportable?: boolean
+  /**
+   * When set, barrel generation will add this
+   * @default false
+   */
+  isIndexable?: boolean
 }
 
 export type Export = {

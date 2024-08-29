@@ -69,9 +69,9 @@ type FileSourceProps = Omit<KubbFile.Source, 'value'> & {
   children?: KubbNode
 }
 
-function FileSource({ isTypeOnly, name, isExportable, children }: FileSourceProps): KubbNode {
+function FileSource({ isTypeOnly, name, isExportable, isIndexable, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable}>
+    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable} isIndexable={isIndexable}>
       {children}
     </kubb-source>
   )

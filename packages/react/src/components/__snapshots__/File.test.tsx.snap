@@ -11,6 +11,7 @@ exports[`<File/> > render multiple Files 2`] = `
 [
   {
     "isExportable": undefined,
+    "isIndexable": undefined,
     "isTypeOnly": undefined,
     "name": undefined,
     "value": "const test = 1;
@@ -23,6 +24,7 @@ exports[`<File/> > render multiple Files 4`] = `
 [
   {
     "isExportable": undefined,
+    "isIndexable": undefined,
     "isTypeOnly": undefined,
     "name": undefined,
     "value": "const test2 = 2;",

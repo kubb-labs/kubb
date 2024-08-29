@@ -3,7 +3,7 @@ import { extname, join, relative } from 'node:path'
 import { orderBy } from 'natural-orderby'
 import { isDeepEqual } from 'remeda'
 
-import { getRelativePath, read, write } from '@kubb/fs'
+import { read, write } from '@kubb/fs'
 import { BarrelManager } from './BarrelManager.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
@@ -236,6 +236,7 @@ export function combineSources(sources: Array<KubbFile.Source>): Array<KubbFile.
         prevByName.value = curr.value
         prevByName.isExportable = curr.isExportable
         prevByName.isTypeOnly = curr.isTypeOnly
+        prevByName.isIndexable = curr.isIndexable
 
         return prev
       }

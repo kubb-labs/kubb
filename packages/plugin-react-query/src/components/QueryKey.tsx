@@ -41,13 +41,13 @@ type TemplateProps = {
 function Template({ name, typeName, params, generics, returnType, JSDoc, keys }: TemplateProps): ReactNode {
   return (
     <>
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
           {`[${keys}] as const`}
         </Function.Arrow>
       </File.Source>
 
-      <File.Source name={typeName} isExportable isTypeOnly>
+      <File.Source name={typeName} isExportable isIndexable isTypeOnly>
         <Type name={typeName} export>
           {`ReturnType<typeof ${name}>`}
         </Type>

@@ -112,7 +112,7 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
     : undefined
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {formData || ''}
         <Function.Call name="res" to={<Function name="client" async generics={client.generics} params={clientParams} />} />

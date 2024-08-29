@@ -9,7 +9,6 @@ import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 import { writeLog } from './utils/writeLog.ts'
 
-import { relative } from 'node:path'
 import { Presets, SingleBar } from 'cli-progress'
 
 type GenerateProps = {
@@ -32,9 +31,13 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     if (!progressBars[id]) {
       progressBars[id] = new SingleBar(
         {
-          format: logLevel === LogMapper.info ? '{percentage}% {bar} {value}/{total} {id} | {data}' : '{percentage}% {bar} ETA: {eta}s',
+          format:
+            logLevel === LogMapper.info
+              ? '{percentage}% {bar} {value}/{total} {id} | {data} | ETA: {eta_formatted} | Duration: {duration_formatted} '
+              : '{percentage}% {bar} ETA: {eta_formatted}',
           barsize: 25,
           clearOnComplete: true,
+          emptyOnZero: true,
         },
         Presets.shades_grey,
       )

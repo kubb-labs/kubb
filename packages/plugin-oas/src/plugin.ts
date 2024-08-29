@@ -107,6 +107,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
             {
               name: camelCase(name),
               isExportable: false,
+              isIndexable: false,
               value: JSON.stringify(schema),
             },
           ],

@@ -26,7 +26,7 @@ function Template({ name, operations }: TemplateProps): KubbNode {
     }
   })
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Const name={name} export asConst>
         {JSON.stringify(operationsObject, undefined, 2)}
       </Const>

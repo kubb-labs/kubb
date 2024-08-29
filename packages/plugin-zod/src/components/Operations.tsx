@@ -46,12 +46,12 @@ function Template({ operationsName, pathsName, operations }: TemplateProps): Kub
 
   return (
     <>
-      <File.Source name={operationsName} isExportable>
+      <File.Source name={operationsName} isExportable isIndexable>
         <Const export name={operationsName} asConst>
           {`{${transformers.stringifyObject(operationsJSON)}}`}
         </Const>
       </File.Source>
-      <File.Source name={pathsName} isExportable>
+      <File.Source name={pathsName} isExportable isIndexable>
         <Const export name={pathsName} asConst>
           {`{${transformers.stringifyObject(pathsJSON)}}`}
         </Const>

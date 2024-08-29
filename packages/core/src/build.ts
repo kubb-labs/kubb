@@ -76,7 +76,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     const root = resolve(options.config.root)
     const rootPath = resolve(root, options.config.output.path, 'index.ts')
     const barrelFiles = pluginManager.fileManager.files.filter((file) => {
-      return file.sources.some((source) => source.isExportable)
+      return file.sources.some((source) => source.isIndexable)
     })
 
     const rootFile: KubbFile.File = {
@@ -86,7 +86,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
         .flatMap((file) => {
           return file.sources
             ?.map((source) => {
-              if (!file.path || !source.isExportable) {
+              if (!file.path || !source.isIndexable) {
                 return undefined
               }
 

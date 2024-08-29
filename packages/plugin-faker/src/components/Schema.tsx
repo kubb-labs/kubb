@@ -66,7 +66,7 @@ export function Schema(props: Props): ReactNode {
   const params = fakerDefaultOverride ? `data: NonNullable<Partial<${typeName}>> = ${fakerDefaultOverride}` : `data?: NonNullable<Partial<${typeName}>>`
 
   return (
-    <File.Source name={resolvedName} isExportable>
+    <File.Source name={resolvedName} isExportable isIndexable>
       <Function
         export
         name={resolvedName}

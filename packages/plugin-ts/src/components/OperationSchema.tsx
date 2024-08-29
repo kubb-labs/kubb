@@ -153,7 +153,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {items.map(mapItem)}
 
-      <File.Source name={combinedSchemaName} isExportable isTypeOnly>
+      <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
         {printCombinedSchema({ name: combinedSchemaName, operation, schemas, pluginManager })}
       </File.Source>
     </File>
