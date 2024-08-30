@@ -82,7 +82,7 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
   })
 
   events.on('debug', (message) => {
-    if (message.logs.join('\n\n').length <= 100) {
+    if (message.logs.join('\n\n').length <= 100 && logLevel === LogMapper.debug) {
       console.log(message.logs.join('\n\n'))
     }
 

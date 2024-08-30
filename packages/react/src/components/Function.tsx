@@ -1,10 +1,10 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
 
-import { getParams, isParamItems } from '../shared/utils/getParams.ts'
+import { getFunctionParams, isFunctionParams } from '../shared/utils/getFunctionParams.ts'
 import { Text } from './Text.tsx'
 
 import type { ReactElement } from 'react'
-import type { Params } from '../shared/utils/getParams.ts'
+import type { Params } from '../shared/utils/getFunctionParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
 
 type Props = {
@@ -70,7 +70,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <Text>{'>'}</Text>
         </>
       )}
-      {isParamItems(params) ? <Text>({getParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
+      {isFunctionParams(params) ? <Text>({getFunctionParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -127,7 +127,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <Text>{'>'}</Text>
         </>
       )}
-      {isParamItems(params) ? <Text>({getParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
+      {isFunctionParams(params) ? <Text>({getFunctionParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -194,7 +194,7 @@ export function CallFunction({ name, to }: CallFunctionProps) {
           <Text>{'>'}</Text>
         </>
       )}
-      {isParamItems(params) ? <Text>({getParams(params, { type: 'call' })})</Text> : <Text>({params})</Text>}
+      {isFunctionParams(params) ? <Text>({getFunctionParams(params, { type: 'call' })})</Text> : <Text>({params})</Text>}
       <br />
     </>
   )

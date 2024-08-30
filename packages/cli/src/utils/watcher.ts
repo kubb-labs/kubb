@@ -1,8 +1,9 @@
 import c from 'tinyrainbow'
-import { logger } from './logger.ts'
+import { createLogger } from '@kubb/core/logger'
 
 export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
   const { watch } = await import('chokidar')
+  const logger = createLogger()
 
   const ignored = ['**/{.git,node_modules}/**']
 
@@ -11,7 +12,7 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
     ignored,
   })
   watcher.on('all', (type, file) => {
-    logger.emit('info', c.yellow(c.bold(`Change detected: ${type} ${file}`)))
+    logger?.emit('info', c.yellow(c.bold(`Change detected: ${type} ${file}`)))
 
     try {
       cb(path)

@@ -64,18 +64,21 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 }
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
-  const pluginManager = await setup(options)
   let files = []
-
-  pluginManager.events.on('executing', ({ plugin, message }) => {
-    pluginManager.logger.emit('debug', { date: new Date(), logs: [`Executing pluginKey ${plugin.key?.join('.')} | ${message}`] })
-  })
-
-  pluginManager.events.on('executed', ({ plugin, message }) => {
-    pluginManager.logger.emit('debug', { date: new Date(), logs: [`Executed pluginKey ${plugin.key?.join('.')} | ${message}`] })
-  })
+  const pluginManager = await setup(options)
 
   try {
+    pluginManager.events.on('executing', ({ plugin, message }) => {
+      pluginManager.logger.emit('debug', { date: new Date(), logs: [`Executing pluginKey ${plugin.key?.join('.')} | ${message}`] })
+    })
+
+    pluginManager.events.on('executed', ({ plugin, message, output }) => {
+      pluginManager.logger.emit('debug', {
+        date: new Date(),
+        logs: [`Executed pluginKey ${plugin.key?.join('.')} | ${message} |  ${JSON.stringify(output, undefined, 2)}`],
+      })
+    })
+
     await pluginManager.hookParallel({
       hookName: 'buildStart',
       parameters: [options.config],

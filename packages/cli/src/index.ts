@@ -3,17 +3,9 @@ import getLatestVersion from 'latest-version'
 import { lt } from 'semver'
 
 import { version } from '../package.json'
-import { logger } from './utils/logger.ts'
+import consola from 'consola'
 
 const name = 'kubb'
-
-process.on('SIGINT', async () => {
-  logger.consola?.info('Exiting Kubb and writing log files')
-
-  await logger.writeLogs()
-
-  process.exit()
-})
 
 const main = defineCommand({
   meta: {
@@ -26,7 +18,7 @@ const main = defineCommand({
       const latestVersion = await getLatestVersion('@kubb/cli')
 
       if (lt(version, latestVersion)) {
-        logger.consola?.box({
+        consola.box({
           title: 'Update available for `Kubb` ',
           message: `\`v${version}\` → \`v${latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,

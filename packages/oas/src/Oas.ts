@@ -194,11 +194,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     })
 
     await oasNormalize.validate({
+      convertToLatest: true,
       parser: {
         validate: {
           colorizeErrors: true,
-          schema: false,
-          spec: false,
         },
       },
     })

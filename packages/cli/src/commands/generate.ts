@@ -10,8 +10,7 @@ import { startWatcher } from '../utils/watcher.ts'
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { generate } from '../generate.ts'
 import path from 'node:path'
-import { LogMapper } from '@kubb/core/logger'
-import { logger } from '../utils/logger.ts'
+import { createLogger, LogMapper } from '@kubb/core/logger'
 
 const args = {
   config: {
@@ -79,7 +78,11 @@ const command = defineCommand({
       return
     }
 
-    logger.logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+    const logger = createLogger({
+      logLevel,
+    })
+
     logger.emit('start', 'Loading config')
 
     const result = await getCosmiConfig('kubb', args.config)
@@ -94,7 +97,7 @@ const command = defineCommand({
 
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
-          await generate({ config, args })
+          await generate({ config, args, input })
           logger.emit('start', c.yellow(c.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }

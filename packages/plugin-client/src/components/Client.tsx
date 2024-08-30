@@ -3,7 +3,7 @@ import { URLPath } from '@kubb/core/utils'
 import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, createParams } from '@kubb/react'
+import { File, Function, createFunctionParams } from '@kubb/react'
 import type { KubbNode, Params } from '@kubb/react/types'
 import type { PluginClient } from '../types.ts'
 
@@ -27,7 +27,7 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
     typedSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
-  const params = createParams({
+  const params = createFunctionParams({
     pathParams: {
       mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
       children: getPathParams(typedSchemas.pathParams, { typed: true }),
@@ -56,7 +56,7 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
     },
   })
 
-  const clientParams = createParams({
+  const clientParams = createFunctionParams({
     data: {
       mode: 'object',
       children: {

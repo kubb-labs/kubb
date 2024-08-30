@@ -7,9 +7,9 @@ import type { WritableOptions } from 'node:stream'
 import type { ConsolaInstance } from 'consola'
 
 export class ConsolaWritable extends Writable {
-  consola: ConsolaInstance
+  consola: ConsolaInstance | undefined
   command: string
-  constructor(consola: ConsolaInstance, command: string, opts?: WritableOptions) {
+  constructor(consola: ConsolaInstance | undefined, command: string, opts?: WritableOptions) {
     super(opts)
 
     this.command = command

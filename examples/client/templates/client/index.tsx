@@ -2,12 +2,12 @@ import { URLPath } from '@kubb/core/utils'
 import type { Client as BaseClient } from '@kubb/plugin-client/components'
 import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
 import { getComments } from '@kubb/plugin-oas/utils'
-import { File, Function, createParams } from '@kubb/react'
+import { File, Function, createFunctionParams } from '@kubb/react'
 import type React from 'react'
 
 export function Client({ name, options, typedSchemas, operation }: React.ComponentProps<typeof BaseClient>) {
   const path = new URLPath(operation.path)
-  const params = createParams({
+  const params = createFunctionParams({
     pathParams: {
       mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
       children: getPathParams(typedSchemas.pathParams, { typed: true }),

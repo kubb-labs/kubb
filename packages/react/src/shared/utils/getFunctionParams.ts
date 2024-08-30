@@ -124,7 +124,7 @@ function parseItem(name: string, item: ParamItem): string[] {
   return acc
 }
 
-export function getParams(items: Params, options: Options): string {
+export function getFunctionParams(items: Params, options: Options): string {
   const entries = order(Object.entries(items as Record<string, ParamItem | undefined>))
 
   return entries
@@ -139,7 +139,7 @@ export function getParams(items: Params, options: Options): string {
         }
 
         if (item.mode === 'inlineSpread') {
-          return [...acc, getParams(item.children!, options)]
+          return [...acc, getFunctionParams(item.children!, options)]
         }
 
         const parsedItem = parseChild(key, item, options)
@@ -154,10 +154,10 @@ export function getParams(items: Params, options: Options): string {
     .join(', ')
 }
 
-export function createParams(params: Params): Params {
+export function createFunctionParams(params: Params): Params {
   return params
 }
 
-export function isParamItems(items: any): items is Params {
+export function isFunctionParams(items: any): items is Params {
   return typeof items !== 'string' && items && Object.keys(items)?.length
 }

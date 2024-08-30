@@ -100,7 +100,17 @@ export class BarrelManager {
       logger?.emit('debug', {
         date: new Date(),
         logs: [
-          `Generating barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with ${barrelFile.sources.length} indexable files`,
+          `Generating barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with ${barrelFile.sources.length} indexable exports: '${barrelFile.sources?.map((source) => source.name).join(', ')}'`,
+        ],
+      })
+
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [
+          `Generated barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with exports: '${cachedFiles
+            .get(barrelFile.path)
+            ?.sources?.map((source) => source.name)
+            .join(', ')}'`,
         ],
       })
 

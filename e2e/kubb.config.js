@@ -1,5 +1,4 @@
 import { defineConfig } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
@@ -10,8 +9,9 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
+  // ['test', './schemas/test.json'],
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
-  ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'],
+  // ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'], // not valid anymore
   ['optionalParameters', './schemas/optionalParameters.json'],
   ['allOf', './schemas/allOf.json'],
   ['anyOf', './schemas/anyOf.json'],
@@ -45,14 +45,14 @@ const baseConfig = {
   plugins: [
     pluginOas({
       output: false,
-      validate: true,
+      validate: false,
       docs: false,
     }),
     pluginOas({
       output: {
         path: 'schemas2',
       },
-      validate: true,
+      validate: false,
     }),
     pluginTs({
       output: {

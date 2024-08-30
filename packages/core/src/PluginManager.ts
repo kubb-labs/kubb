@@ -642,6 +642,16 @@ export class PluginManager {
         const fn = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
+
+        this.#addExecutedToCallStack({
+          parameters,
+          output,
+          strategy,
+          hookName,
+          plugin,
+          message,
+        })
+
         return fn
       }
 

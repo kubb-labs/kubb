@@ -3,13 +3,13 @@ import { LogMapper } from '@kubb/core/logger'
 import c from 'tinyrainbow'
 
 import { type Config, safeBuild } from '@kubb/core'
-import type { Args } from './commands/generate.ts'
 import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 
 import { Presets, SingleBar } from 'cli-progress'
-import { logger } from './utils/logger.ts'
+import type { Args } from './commands/generate.ts'
+import { createLogger } from '@kubb/core/logger'
 
 type GenerateProps = {
   input?: string
@@ -18,11 +18,13 @@ type GenerateProps = {
 }
 
 export async function generate({ input, config, args }: GenerateProps): Promise<void> {
+  const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+  const logger = createLogger({
+    logLevel,
+    name: config.name,
+  })
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
-
-  logger.logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-  logger.name = config.name
 
   if (logger.logLevel !== LogMapper.debug) {
     const progressCache = new Map<string, SingleBar>()
@@ -81,9 +83,13 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     logger,
   })
 
-  logger.consola?.start('Writing logs')
-  const logFiles = await logger.writeLogs()
-  logger.consola?.success(`Written logs: \n${logFiles.join('\n')}`)
+  if (logger.logLevel === LogMapper.debug) {
+    logger.consola?.start('Writing logs')
+
+    const logFiles = await logger.writeLogs()
+
+    logger.consola?.success(`Written logs: \n${logFiles.join('\n')}`)
+  }
 
   const summary = getSummary({
     filesCreated: files.length,
@@ -120,7 +126,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   }
 
   if (config.hooks) {
-    await executeHooks({ hooks: config.hooks })
+    await executeHooks({ hooks: config.hooks, logger })
   }
 
   logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
