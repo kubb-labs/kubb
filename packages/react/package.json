@@ -76,8 +76,8 @@
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsup --watch",
-    "test": "vitest --passWithNoTests",
     "start:devtools": "npx react-devtools",
+    "test": "vitest --passWithNoTests",
     "test:devtools": "node ./dist/runner.cjs",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -86,10 +86,11 @@
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "auto-bind": "^5.0.1",
+    "execa": "^9.3.1",
     "natural-orderby": "^3.0.2",
     "react": "^18.3.1",
-    "react-reconciler": "^0.29.2",
     "react-devtools-core": "^5.3.1",
+    "react-reconciler": "^0.29.2",
     "signal-exit": "^4.1.0",
     "ws": "8.15.0"
   },

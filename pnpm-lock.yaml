@@ -1607,6 +1607,9 @@ importers:
       auto-bind:
         specifier: ^5.0.1
         version: 5.0.1
+      execa:
+        specifier: ^9.3.1
+        version: 9.3.1
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2

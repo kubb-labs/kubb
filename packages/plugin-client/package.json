@@ -102,8 +102,8 @@
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
-    "axios": "^1.7.2",
-    "@kubb/react": "workspace:*"
+    "@kubb/react": "workspace:*",
+    "axios": "^1.7.2"
   },
   "peerDependenciesMeta": {
     "axios": {
