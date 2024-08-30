@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 1.0.0-alpha.10
+
+### Patch Changes
+
+- Updated dependencies [[`3afc193`](https://github.com/kubb-labs/kubb/commit/3afc1935af6c5ad5233c22ad7c9a135693f0a850)]:
+  - @kubb/core@3.0.0-alpha.10
+
 ## 1.0.0-alpha.9
 
 ### Patch Changes

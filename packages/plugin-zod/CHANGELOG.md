@@ -1,5 +1,18 @@
 # @kubb/plugin-zod
 
+## 3.0.0-alpha.10
+
+### Patch Changes
+
+- Updated dependencies [[`3afc193`](https://github.com/kubb-labs/kubb/commit/3afc1935af6c5ad5233c22ad7c9a135693f0a850)]:
+  - @kubb/core@3.0.0-alpha.10
+  - @kubb/plugin-oas@3.0.0-alpha.10
+  - @kubb/react@3.0.0-alpha.10
+  - @kubb/fs@3.0.0-alpha.10
+  - @kubb/oas@3.0.0-alpha.10
+  - @kubb/parser-ts@3.0.0-alpha.10
+  - @kubb/types@3.0.0-alpha.10
+
 ## 3.0.0-alpha.9
 
 ### Patch Changes
