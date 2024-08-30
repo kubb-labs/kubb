@@ -76,14 +76,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "auto-bind": "^5.0.1",
-    "natural-orderby": "^3.0.2",
-    "react": "^18.3.1",
-    "react-devtools-core": "^5.3.1",
-    "react-devtools-inline": "^5.3.1",
-    "react-reconciler": "^0.29.2",
-    "signal-exit": "^4.1.0",
-    "ws": "^8.15.0"
+    "natural-orderby": "^3.0.2"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -92,6 +85,12 @@
     "@types/react": "^18.3.1",
     "@types/react-reconciler": "^0.28.8",
     "@types/signal-exit": "^3.0.4",
+    "react": "^18.3.1",
+    "auto-bind": "^5.0.1",
+    "react-devtools-core": "^5.3.1",
+    "react-reconciler": "^0.29.2",
+    "signal-exit": "^4.1.0",
+    "ws": "^8.15.0",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },

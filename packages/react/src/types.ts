@@ -26,29 +26,11 @@ declare global {
       }
       'kubb-import': KubbFile.Import
       'kubb-export': KubbFile.Export
-      'kubb-parser': {
-        language?: string
-        children?: ReactNode
-      }
-      'kubb-parser-provider': {
-        language?: string
-        children?: ReactNode
-      }
     }
   }
 }
 
-export type ElementNames =
-  | ReactElementNames
-  | 'kubb-text'
-  | 'kubb-file'
-  | 'kubb-source'
-  | 'kubb-import'
-  | 'kubb-export'
-  | 'kubb-root'
-  | 'kubb-app'
-  | 'kubb-language'
-  | 'kubb-parser'
+export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-file' | 'kubb-source' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
 
 export type Node = {
   parentNode: DOMElement | undefined

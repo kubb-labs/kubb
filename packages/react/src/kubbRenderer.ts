@@ -6,6 +6,11 @@ import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeCh
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
+// @ts-ignore
+import devtools from 'react-devtools-core'
+if (process.env['DEVTOOLS'] === 'true') {
+  devtools.connectToDevTools()
+}
 
 const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
   if (before === after) {
@@ -187,6 +192,5 @@ export const KubbRenderer = createReconciler<
     removeChildNode(node, removeNode)
   },
 })
-
 
 export type { FiberRoot } from 'react-reconciler'

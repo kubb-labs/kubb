@@ -1,6 +1,7 @@
 import { Component, createContext } from 'react'
 
 import type { Logger } from '@kubb/core/logger'
+import { App } from '@kubb/react'
 import type { KubbNode } from '../types.ts'
 
 type ErrorBoundaryProps<Meta extends Record<string, unknown> = Record<string, unknown>> = {
@@ -17,6 +18,7 @@ class ErrorBoundary extends Component<{
 }> {
   state = { hasError: false }
 
+  static displayName = 'KubbErrorBoundary'
   static getDerivedStateFromError(_error: Error) {
     return { hasError: true }
   }
@@ -76,3 +78,4 @@ export function Root<Meta extends Record<string, unknown> = Record<string, unkno
 }
 
 Root.Context = RootContext
+Root.displayName = 'KubbRoot'

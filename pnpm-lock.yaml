@@ -1598,30 +1598,9 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
-      auto-bind:
-        specifier: ^5.0.1
-        version: 5.0.1
       natural-orderby:
         specifier: ^3.0.2
         version: 3.0.2
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-devtools-core:
-        specifier: ^5.3.1
-        version: 5.3.1(bufferutil@4.0.8)
-      react-devtools-inline:
-        specifier: ^5.3.1
-        version: 5.3.1
-      react-reconciler:
-        specifier: ^0.29.2
-        version: 0.29.2(react@18.3.1)
-      signal-exit:
-        specifier: ^4.1.0
-        version: 4.1.0
-      ws:
-        specifier: ^8.15.0
-        version: 8.18.0(bufferutil@4.0.8)
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*
@@ -1641,12 +1620,30 @@ importers:
       '@types/signal-exit':
         specifier: ^3.0.4
         version: 3.0.4
+      auto-bind:
+        specifier: ^5.0.1
+        version: 5.0.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-devtools-core:
+        specifier: ^5.3.1
+        version: 5.3.1(bufferutil@4.0.8)
+      react-reconciler:
+        specifier: ^0.29.2
+        version: 0.29.2(react@18.3.1)
+      signal-exit:
+        specifier: ^4.1.0
+        version: 4.1.0
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@20.16.2))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)(yaml@2.4.5)
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      ws:
+        specifier: ^8.15.0
+        version: 8.18.0(bufferutil@4.0.8)
 
   packages/types:
     devDependencies:
@@ -6118,9 +6115,6 @@ packages:
   react-devtools-core@5.3.1:
     resolution: {integrity: sha512-7FSb9meX0btdBQLwdFOwt6bGqvRPabmVMMslv8fgoSPqXyuGpgQe36kx8gR86XPw7aV1yVouTp6fyZ0EH+NfUw==}
 
-  react-devtools-inline@5.3.1:
-    resolution: {integrity: sha512-f5DJJg4p+3SvUQt/Yw5KiZinOBOGwF1yumWla875lO5qch1m/IFNkZqRRcmboPQKp2L4aqtVd/hyyEJVu642Xw==}
-
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -6449,10 +6443,6 @@ packages:
   solid-js@1.8.22:
     resolution: {integrity: sha512-VBzN5j+9Y4rqIKEnK301aBk+S7fvFSTs9ljg+YEdFxjNjH0hkjXPiQRcws9tE5fUzMznSS6KToL5hwMfHDgpLA==}
 
-  source-map-js@0.6.2:
-    resolution: {integrity: sha512-/3GptzWzu0+0MBQFrDKzw/DvvMTUORvgY6k6jd/VS6iCR4RDTKWH6v6WPwQoUO8667uQEf9Oe38DxAYWY5F/Ug==}
-    engines: {node: '>=0.10.0'}
-
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -6467,10 +6457,6 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
-
-  sourcemap-codec@1.4.8:
-    resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
-    deprecated: Please use @jridgewell/sourcemap-codec instead
 
   spawndamnit@2.0.0:
     resolution: {integrity: sha512-j4JKEcncSjFlqIwU5L/rp2N5SIPsdxaRsIv678+TZxZ0SRDJTm8JrxJMjE/XuiEZNEir3S8l0Fa3Ke339WI4qA==}
@@ -12037,11 +12023,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  react-devtools-inline@5.3.1:
-    dependencies:
-      source-map-js: 0.6.2
-      sourcemap-codec: 1.4.8
-
   react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
@@ -12461,8 +12442,6 @@ snapshots:
       seroval: 1.1.1
       seroval-plugins: 1.1.1(seroval@1.1.1)
 
-  source-map-js@0.6.2: {}
-
   source-map-js@1.2.0: {}
 
   source-map-support@0.5.21:
@@ -12475,8 +12454,6 @@ snapshots:
   source-map@0.8.0-beta.0:
     dependencies:
       whatwg-url: 7.1.0
-
-  sourcemap-codec@1.4.8: {}
 
   spawndamnit@2.0.0:
     dependencies:

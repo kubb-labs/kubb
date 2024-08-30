@@ -30,14 +30,6 @@ declare global {
       }
       'kubb-import': KubbFile.Import
       'kubb-export': KubbFile.Export
-      'kubb-parser': {
-        language?: string
-        children?: ReactNode
-      }
-      'kubb-parser-provider': {
-        language?: string
-        children?: ReactNode
-      }
     }
   }
 }

@@ -31,3 +31,4 @@ export function App({ plugin, pluginManager, mode, children }: Props): KubbNode 
 }
 
 App.Context = AppContext
+App.displayName = 'KubbApp'
