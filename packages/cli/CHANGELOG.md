@@ -1,5 +1,17 @@
 # @kubb/cli
 
+## 3.0.0-alpha.10
+
+### Minor Changes
+
+- [#1171](https://github.com/kubb-labs/kubb/pull/1171) [`3afc193`](https://github.com/kubb-labs/kubb/commit/3afc1935af6c5ad5233c22ad7c9a135693f0a850) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Create kubb logs + barrelManager memory improvements
+
+### Patch Changes
+
+- Updated dependencies [[`3afc193`](https://github.com/kubb-labs/kubb/commit/3afc1935af6c5ad5233c22ad7c9a135693f0a850)]:
+  - @kubb/core@3.0.0-alpha.10
+  - @kubb/fs@3.0.0-alpha.10
+
 ## 3.0.0-alpha.9
 
 ### Patch Changes
