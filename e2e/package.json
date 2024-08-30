@@ -29,6 +29,7 @@
     "@kubb/plugin-msw": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-swr": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/plugin-tanstack-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",

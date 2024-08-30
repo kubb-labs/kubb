@@ -15,7 +15,6 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
-    "generate:devtools": "DEVTOOLS=true kubb generate",
     "generate:bun": "kubb generate --bun",
     "generate:js": "kubb generate --config .kubbrc.js",
     "generate:json": "kubb generate --config kubb.json",
