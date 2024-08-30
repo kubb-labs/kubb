@@ -6,6 +6,7 @@ import { Text } from './Text.tsx'
 import type { ReactElement } from 'react'
 import type { Params } from '../shared/utils/getFunctionParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
+import { Const } from './Const.tsx'
 
 type Props = {
   /**
@@ -89,6 +90,8 @@ export function Function({ name, export: canExport, async, generics, params, ret
   )
 }
 
+Function.displayName = 'KubbFunction'
+
 type ArrowFunctionProps = Props & {
   /**
    * Create Arrow function in one line
@@ -157,6 +160,9 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
     </>
   )
 }
+
+ArrowFunction.displayName = 'KubbArrowFunction'
+
 /**
  *
  * @deprecated
@@ -199,6 +205,9 @@ export function CallFunction({ name, to }: CallFunctionProps) {
     </>
   )
 }
+
+CallFunction.displayName = 'KubbCallFunction'
+
 /**
  *
  * @deprecated
@@ -229,5 +238,3 @@ Function.Call = CallFunction
  * @deprecated
  */
 Function.Return = ReturnFunction
-
-export const Fun = Function

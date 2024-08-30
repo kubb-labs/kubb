@@ -20,6 +20,7 @@ export const options: Options = {
   platform: 'node',
   shims: true,
   ignoreWatch: ['**/.turbo', '**/dist', '**/node_modules', '**/.DS_STORE', '**/.git'],
+  treeshake: 'recommended',
 }
 
 export const optionsESM: Options = {

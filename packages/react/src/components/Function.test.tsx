@@ -1,6 +1,6 @@
-import { createRoot } from '../client/createRoot.ts'
-import { Function } from './Function.tsx'
 import { mockParams } from '../../mocks/mockParams.ts'
+import { createRoot } from '../createRoot.ts'
+import { Function } from './Function.tsx'
 
 describe('<Function/>', () => {
   test('render Function', async () => {
