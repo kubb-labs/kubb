@@ -1,4 +1,4 @@
-import { LogMapper, createLogger } from '@kubb/core/logger'
+import { LogMapper } from '@kubb/core/logger'
 
 import c from 'tinyrainbow'
 
@@ -7,9 +7,9 @@ import type { Args } from './commands/generate.ts'
 import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
-import { writeLog } from './utils/writeLog.ts'
 
 import { Presets, SingleBar } from 'cli-progress'
+import { logger } from './utils/logger.ts'
 
 type GenerateProps = {
   input?: string
@@ -18,61 +18,47 @@ type GenerateProps = {
 }
 
 export async function generate({ input, config, args }: GenerateProps): Promise<void> {
-  const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-  const logger = createLogger({
-    logLevel,
-    name: config.name,
-  })
+  const { root = process.cwd(), ...userConfig } = config
+  const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  const progressBars: Record<string, SingleBar> = {}
+  logger.logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+  logger.name = config.name
 
-  logger.on('progress_start', ({ id, size }) => {
-    logger.consola?.pauseLogs()
-    
-    if (!progressBars[id]) {
-      progressBars[id] = new SingleBar(
-        logLevel === LogMapper.info? {
-          format:'{percentage}% {bar} {value}/{total} {id} | ETA: {eta_formatted} | {data}',
-          barsize: 20,
-          clearOnComplete: true,
-          emptyOnZero: true,
-        }: {
-          format: '{percentage}% {bar} {value}/{total} {id}',
+  if (logger.logLevel !== LogMapper.debug) {
+    const progressCache = new Map<string, SingleBar>()
+
+    logger.on('progress_start', ({ id, size, message = '' }) => {
+      logger.consola?.pauseLogs()
+      const payload = { id, message }
+      const progressBar = new SingleBar(
+        {
+          format: '{percentage}% {bar} {value}/{total} | {message}',
           barsize: 30,
           clearOnComplete: true,
           emptyOnZero: true,
         },
         Presets.shades_grey,
       )
-      progressBars[id].start(size, 1, { id, data: ' ' })
-    }
-  })
 
-  logger.on('progress_stop', ({ id }) => {
-    const progressBar = progressBars[id]
-    progressBar?.stop()
-    logger.consola?.resumeLogs()
-  })
+      if (!progressCache.has(id)) {
+        progressCache.set(id, progressBar)
+        progressBar.start(size, 1, payload)
+      }
+    })
 
-  logger.on('progress', ({ id, count, data = '' }) => {
-    const progressBar = progressBars[id]
-    const payload = { id, data }
+    logger.on('progress_stop', ({ id }) => {
+      progressCache.get(id)?.stop()
+      logger.consola?.resumeLogs()
+    })
 
-    if (count) {
-      progressBar?.update(count, payload)
-    } else {
-      progressBar?.increment(1, payload)
-    }
-  })
+    logger.on('progressed', ({ id, message = '' }) => {
+      const payload = { id, message }
 
-  logger.on('debug', async ({ logs, override, fileName }) => {
-    await writeLog({ data: logs.join('\n'), fileName, override })
-  })
+      progressCache.get(id)?.increment(1, payload)
+    })
+  }
 
-  const { root = process.cwd(), ...userConfig } = config
-  const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
-
-  logger.emit('start', `Building ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
   const definedConfig: Config = {
     root,
@@ -95,18 +81,21 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     logger,
   })
 
+  logger.consola?.start('Writing logs')
+  const logFiles = await logger.writeLogs()
+  logger.consola?.success(`Written logs: \n${logFiles.join('\n')}`)
+
   const summary = getSummary({
     filesCreated: files.length,
     pluginManager,
     config: definedConfig,
     status: error ? 'failed' : 'success',
     hrStart,
-    logger,
   })
 
   if (error && logger.consola) {
     logger.consola?.resumeLogs()
-    logger.consola.error(`Build failed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
     logger.consola.box({
       title: `${config.name || ''}`,
@@ -119,7 +108,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     })
 
     const errors = getErrorCauses([error])
-    if (logger.consola && errors.length && logLevel === LogMapper.debug) {
+    if (logger.consola && errors.length && logger.logLevel === LogMapper.debug) {
       errors.forEach((err) => {
         logger.consola?.error(err)
       })
@@ -131,10 +120,10 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   }
 
   if (config.hooks) {
-    await executeHooks({ hooks: config.hooks, logger })
+    await executeHooks({ hooks: config.hooks })
   }
 
-  logger.consola?.log(`⚡Build completed ${logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
 
   logger.consola?.box({
     title: `${config.name || ''}`,

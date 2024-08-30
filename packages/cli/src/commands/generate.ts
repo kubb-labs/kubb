@@ -10,7 +10,8 @@ import { startWatcher } from '../utils/watcher.ts'
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { generate } from '../generate.ts'
 import path from 'node:path'
-import { createLogger, LogMapper } from '@kubb/core/logger'
+import { LogMapper } from '@kubb/core/logger'
+import { logger } from '../utils/logger.ts'
 
 const args = {
   config: {
@@ -78,11 +79,7 @@ const command = defineCommand({
       return
     }
 
-    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-    const logger = createLogger({
-      logLevel,
-    })
-
+    logger.logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
     logger.emit('start', 'Loading config')
 
     const result = await getCosmiConfig('kubb', args.config)

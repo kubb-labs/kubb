@@ -6,7 +6,7 @@ import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { getRelativePath } from '@kubb/fs'
 import type { Logger } from './logger.ts'
 import type { PluginContext } from './types.ts'
@@ -45,6 +45,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
 
   if (config.output.clean) {
     await clean(config.output.path)
+    await clean(join(config.root, '.kubb'))
   }
 
   return new PluginManager(config, { logger })
@@ -66,10 +67,19 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   const pluginManager = await setup(options)
   let files = []
 
+  pluginManager.events.on('executing', ({ plugin, message }) => {
+    pluginManager.logger.emit('debug', { date: new Date(), logs: [`Executing pluginKey ${plugin.key?.join('.')} | ${message}`] })
+  })
+
+  pluginManager.events.on('executed', ({ plugin, message }) => {
+    pluginManager.logger.emit('debug', { date: new Date(), logs: [`Executed pluginKey ${plugin.key?.join('.')} | ${message}`] })
+  })
+
   try {
     await pluginManager.hookParallel({
       hookName: 'buildStart',
       parameters: [options.config],
+      message: 'buildStart',
     })
 
     // create root barrel file
@@ -128,7 +138,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       logger: pluginManager.logger,
     })
 
-    await pluginManager.hookParallel({ hookName: 'buildEnd' })
+    await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${options.config.name}` })
 
     pluginManager.fileManager.clear()
   } catch (e) {

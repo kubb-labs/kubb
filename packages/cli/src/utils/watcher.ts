@@ -1,11 +1,10 @@
 import c from 'tinyrainbow'
-import { createLogger } from '@kubb/core/logger'
+import { logger } from './logger.ts'
 
 export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
   const { watch } = await import('chokidar')
 
   const ignored = ['**/{.git,node_modules}/**']
-  const logger = createLogger()
 
   const watcher = watch(path, {
     ignorePermissionErrors: true,

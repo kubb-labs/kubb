@@ -37,6 +37,7 @@ type Argument0<H extends keyof PluginLifecycle> = Parameters<RequiredPluginLifec
 type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookReduceArg0' | 'hookSeq'
 
 type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  message: string
   strategy: Strategy
   hookName: H
   plugin: Plugin
@@ -58,7 +59,7 @@ type Options = {
 }
 
 type Events = {
-  execute: [executer: Executer]
+  executing: [executer: Executer]
   executed: [executer: Executer]
   error: [error: Error]
 }
@@ -141,10 +142,12 @@ export class PluginManager {
         pluginKey: params.pluginKey,
         hookName: 'resolvePath',
         parameters: [params.baseName, params.mode, params.options as object],
+        message: `Resolving path '${params.baseName}'`,
       })
 
       if (paths && paths?.length > 1) {
         this.logger.emit('debug', {
+          date: new Date(),
           logs: [
             `Cannot return a path where the 'pluginKey' ${
               params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
@@ -158,6 +161,7 @@ export class PluginManager {
     return this.hookFirstSync({
       hookName: 'resolvePath',
       parameters: [params.baseName, params.mode, params.options as object],
+      message: `Resolving path '${params.baseName}'`,
     }).result
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
@@ -167,10 +171,12 @@ export class PluginManager {
         pluginKey: params.pluginKey,
         hookName: 'resolveName',
         parameters: [params.name, params.type],
+        message: `Resolving name '${params.name}' and type '${params.type}'`,
       })
 
       if (names && names?.length > 1) {
         this.logger.emit('debug', {
+          date: new Date(),
           logs: [
             `Cannot return a name where the 'pluginKey' ${
               params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
@@ -185,6 +191,7 @@ export class PluginManager {
     const name = this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [params.name, params.type],
+      message: `Resolving name '${params.name}' and type '${params.type}'`,
     }).result
 
     return transformReservedWord(name)
@@ -204,14 +211,16 @@ export class PluginManager {
     pluginKey,
     hookName,
     parameters,
+    message,
   }: {
     pluginKey: Plugin['key']
     hookName: H
     parameters: PluginParameter<H>
+    message: string
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
+    this.logger.emit('progress_start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
 
     const promises = plugins
       .map((plugin) => {
@@ -220,6 +229,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
+          message,
         })
       })
       .filter(Boolean)
@@ -238,10 +248,12 @@ export class PluginManager {
     pluginKey,
     hookName,
     parameters,
+    message,
   }: {
     pluginKey: Plugin['key']
     hookName: H
     parameters: PluginParameter<H>
+    message: string
   }): Array<ReturnType<ParseResult<H>>> | null {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
@@ -252,6 +264,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
+          message,
         })
       })
       .filter(Boolean)
@@ -266,10 +279,12 @@ export class PluginManager {
     hookName,
     parameters,
     skipped,
+    message,
   }: {
     hookName: H
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
+    message: string
   }): Promise<SafeParseResult<H>> {
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
       return skipped ? skipped.has(plugin) : true
@@ -284,6 +299,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
+          message,
         })
 
         return Promise.resolve({
@@ -307,10 +323,12 @@ export class PluginManager {
     hookName,
     parameters,
     skipped,
+    message,
   }: {
     hookName: H
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
+    message: string
   }): SafeParseResult<H> {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
@@ -324,6 +342,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
+          message,
         }),
         plugin,
       } as SafeParseResult<H>
@@ -342,9 +361,11 @@ export class PluginManager {
   async hookParallel<H extends PluginLifecycleHooks, TOuput = void>({
     hookName,
     parameters,
+    message,
   }: {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
+    message: string
   }): Promise<Awaited<TOuput>[]> {
     const plugins = this.#getSortedPlugins(hookName)
     this.logger.emit('progress_start', { id: hookName, size: plugins.length })
@@ -356,6 +377,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
+          message,
         }) as Promise<TOuput>
     })
 
@@ -381,10 +403,12 @@ export class PluginManager {
     hookName,
     parameters,
     reduce,
+    message,
   }: {
     hookName: H
     parameters: PluginParameter<H>
     reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: Plugin) => PossiblePromise<Argument0<H> | null>
+    message: string
   }): Promise<Argument0<H>> {
     const [argument0, ...rest] = parameters
     const plugins = this.#getSortedPlugins(hookName)
@@ -398,6 +422,7 @@ export class PluginManager {
             hookName,
             parameters: [arg0, ...rest] as PluginParameter<H>,
             plugin,
+            message,
           })
           return value
         })
@@ -410,7 +435,11 @@ export class PluginManager {
   /**
    * Chains plugins
    */
-  async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
+  async hookSeq<H extends PluginLifecycleHooks>({
+    hookName,
+    parameters,
+    message,
+  }: { hookName: H; parameters?: PluginParameter<H>; message: string }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
     this.logger.emit('progress_start', { id: hookName, size: plugins.length })
 
@@ -421,6 +450,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
+          message,
         })
     })
 
@@ -433,11 +463,6 @@ export class PluginManager {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     if (hookName) {
-      const containsHookName = plugins.some((item) => item[hookName])
-      if (!containsHookName) {
-        this.logger.emit('debug', { logs: [`No hook ${hookName} found`] })
-      }
-
       return plugins.filter((item) => item[hookName])
     }
     // TODO add test case for sorting with pre/post
@@ -491,10 +516,12 @@ export class PluginManager {
 
       if (corePlugin) {
         this.logger.emit('debug', {
+          date: new Date(),
           logs: [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`],
         })
       } else {
         this.logger.emit('debug', {
+          date: new Date(),
           logs: [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`],
         })
       }
@@ -509,7 +536,7 @@ export class PluginManager {
       this.events.emit('executed', executer)
       this.executed.push(executer)
 
-      this.logger.emit('progress', { id: executer.hookName, data: `${executer.plugin.name}` })
+      this.logger.emit('progressed', { id: executer.hookName, message: `${executer.plugin.name}: ${executer.message}` })
     }
   }
 
@@ -525,11 +552,13 @@ export class PluginManager {
     hookName,
     parameters,
     plugin,
+    message,
   }: {
     strategy: Strategy
     hookName: H
     parameters: unknown[] | undefined
     plugin: PluginWithLifeCycle
+    message: string
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const hook = plugin[hookName]
     let output: unknown
@@ -538,7 +567,7 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('execute', { strategy, hookName, parameters, plugin })
+    this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
     const promise = new Promise((resolve) => {
       resolve(undefined)
     })
@@ -565,6 +594,7 @@ export class PluginManager {
           strategy,
           hookName,
           plugin,
+          message,
         })
 
         return result
@@ -590,11 +620,13 @@ export class PluginManager {
     hookName,
     parameters,
     plugin,
+    message,
   }: {
     strategy: Strategy
     hookName: H
     parameters: PluginParameter<H>
     plugin: PluginWithLifeCycle
+    message: string
   }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
     let output: unknown
@@ -603,7 +635,7 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('execute', { strategy, hookName, parameters, plugin })
+    this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
 
     try {
       if (typeof hook === 'function') {
@@ -621,6 +653,7 @@ export class PluginManager {
         strategy,
         hookName,
         plugin,
+        message,
       })
 
       return hook

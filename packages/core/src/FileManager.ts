@@ -161,7 +161,7 @@ export class FileManager {
       return []
     }
 
-    const barrelFiles = barrelManager.getFiles(files, pathToBuildFrom)
+    const barrelFiles = barrelManager.getFiles({ files, root: pathToBuildFrom, meta })
 
     if (exportType === 'barrel') {
       return barrelFiles.map((file) => {
@@ -393,22 +393,24 @@ export async function processFiles({ dryRun, config, logger, files }: WriteFiles
   ])
 
   logger.emit('debug', {
+    date: new Date(),
     logs: [JSON.stringify({ files: orderedFiles }, null, 2)],
-    fileName: 'kubb-files.json',
-    override: true,
+    fileName: 'kubb-files.log',
   })
 
   if (!dryRun) {
     const size = orderedFiles.length
 
-    logger.emit('progress_start', { id: 'files', size })
+    logger.emit('progress_start', { id: 'files', size, message: 'Writing files ...' })
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
+        const message = file ? `Writing ${relative(config.root, file.path)}` : ''
+
         const source = await getSource(file, { logger })
 
         await write(file.path, source, { sanity: false })
 
-        logger.emit('progress', { id: 'files', data: file ? relative(config.root, file.path) : '' })
+        logger.emit('progressed', { id: 'files', message })
       })
     })
 

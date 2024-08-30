@@ -6,8 +6,7 @@ import c from 'tinyrainbow'
 
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
-import type { Config, FileMetaBase, PluginManager } from '@kubb/core'
-import type { Logger } from '@kubb/core/logger'
+import type { Config, PluginManager } from '@kubb/core'
 
 type SummaryProps = {
   pluginManager: PluginManager
@@ -15,7 +14,6 @@ type SummaryProps = {
   hrStart: [number, number]
   filesCreated: number
   config: Config
-  logger: Logger
 }
 
 export function getSummary({ pluginManager, filesCreated, status, hrStart, config }: SummaryProps): string[] {
