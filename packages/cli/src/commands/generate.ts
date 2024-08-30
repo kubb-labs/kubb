@@ -97,7 +97,7 @@ const command = defineCommand({
 
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
-          await generate({ config, args })
+          await generate({ config, args, input })
           logger.emit('start', c.yellow(c.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }

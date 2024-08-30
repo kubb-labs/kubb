@@ -2,8 +2,8 @@ import { defineCommand, runCommand, runMain } from 'citty'
 import getLatestVersion from 'latest-version'
 import { lt } from 'semver'
 
-import consola from 'consola'
 import { version } from '../package.json'
+import consola from 'consola'
 
 const name = 'kubb'
 

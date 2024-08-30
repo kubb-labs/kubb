@@ -37,7 +37,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:^",
     "@types/node": "^20.16.2",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "axios": "^1.7.5",
     "react": "^18.3.1",
     "unplugin-kubb": "workspace:^",

@@ -60,13 +60,13 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "redoc": "^2.1.5",
-    "styled-components": "^6.1.12"
+    "styled-components": "^6.1.13"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"

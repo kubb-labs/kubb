@@ -50,3 +50,5 @@ docs/.vitepress/dist/**
 kubb-files.json
 kubb.log
 hello
+.log
+.kubb
