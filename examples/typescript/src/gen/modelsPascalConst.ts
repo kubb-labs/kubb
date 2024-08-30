@@ -1,18 +1,18 @@
-export const OrderStatus = {
+export const orderStatus = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
 
-export const OrderHttpStatus = {
+export const orderHttpStatus = {
   '200': 200,
   '400': 400,
   '500': 500,
 } as const
 
-export type OrderHttpStatus = (typeof OrderHttpStatus)[keyof typeof OrderHttpStatus]
+export type OrderHttpStatus = (typeof orderHttpStatus)[keyof typeof orderHttpStatus]
 
 export type Order = {
   /**
@@ -139,13 +139,13 @@ export type Tag = {
   name?: string
 }
 
-export const PetStatus = {
+export const petStatus = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type PetStatus = (typeof PetStatus)[keyof typeof PetStatus]
+export type PetStatus = (typeof petStatus)[keyof typeof petStatus]
 
 export type Pet = {
   /**
@@ -172,13 +172,13 @@ export type Pet = {
   status?: PetStatus
 }
 
-export const AddPetRequestStatus = {
+export const addPetRequestStatus = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type AddPetRequestStatus = (typeof AddPetRequestStatus)[keyof typeof AddPetRequestStatus]
+export type AddPetRequestStatus = (typeof addPetRequestStatus)[keyof typeof addPetRequestStatus]
 
 export type AddPetRequest = {
   /**
@@ -304,13 +304,13 @@ export type AddPetMutation = {
   Errors: AddPet405
 }
 
-export const FindPetsByStatusQueryParamsStatus = {
+export const findPetsByStatusQueryParamsStatus = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatus = (typeof FindPetsByStatusQueryParamsStatus)[keyof typeof FindPetsByStatusQueryParamsStatus]
+export type FindPetsByStatusQueryParamsStatus = (typeof findPetsByStatusQueryParamsStatus)[keyof typeof findPetsByStatusQueryParamsStatus]
 
 export type FindPetsByStatusQueryParams = {
   /**

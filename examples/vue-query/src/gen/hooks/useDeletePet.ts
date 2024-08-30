@@ -1,7 +1,7 @@
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
+import client from '@kubb/plugin-client/client'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
-import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 

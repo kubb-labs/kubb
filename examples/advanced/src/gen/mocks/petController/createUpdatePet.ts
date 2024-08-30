@@ -6,7 +6,7 @@ import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
 } from '../../models/ts/petController/UpdatePet'
-import { createPet } from '../createPet'
+import { createPet } from '../createPet.ts'
 
 /**
  * @description Successful operation

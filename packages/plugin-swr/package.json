@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-swr",
-  "version": "3.0.0-alpha.6",
+  "version": "3.0.0-alpha.10",
   "description": "Generator plugin-swr",
   "keywords": [
     "typescript",
@@ -80,7 +80,7 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "react": "^18.3.1",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"

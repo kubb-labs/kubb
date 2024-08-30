@@ -1,5 +1,5 @@
 import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser'
-import { createUser } from '../createUser'
+import { createUser } from '../createUser.ts'
 
 /**
  * @description successful operation

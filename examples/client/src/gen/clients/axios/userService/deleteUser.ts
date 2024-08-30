@@ -1,7 +1,7 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 import type client from '@kubb/plugin-client/client'
 import axios from 'axios'
+import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description This can only be done by the logged in user.

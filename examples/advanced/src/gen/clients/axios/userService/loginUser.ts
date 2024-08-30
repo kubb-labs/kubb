@@ -1,6 +1,6 @@
-import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 import client from '../../../../axios-client.ts'
+import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser.ts'
 
 /**
  * @summary Logs user into the system

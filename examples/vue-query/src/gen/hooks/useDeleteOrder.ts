@@ -1,7 +1,7 @@
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
+import client from '@kubb/plugin-client/client'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
-import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 

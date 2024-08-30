@@ -1,6 +1,6 @@
-import type { LogoutUserQueryResponse } from '../models/LogoutUser'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import client from '@kubb/plugin-client/client'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>

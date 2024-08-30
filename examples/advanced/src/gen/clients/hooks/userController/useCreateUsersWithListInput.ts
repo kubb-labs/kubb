@@ -1,9 +1,9 @@
+import client from '../../../../tanstack-query-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput'
+} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
 
 type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>

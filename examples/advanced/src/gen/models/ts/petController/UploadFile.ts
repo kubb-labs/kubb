@@ -1,4 +1,4 @@
-import type { ApiResponse } from '../ApiResponse'
+import type { ApiResponse } from '../ApiResponse.ts'
 
 export type UploadFilePathParams = {
   /**

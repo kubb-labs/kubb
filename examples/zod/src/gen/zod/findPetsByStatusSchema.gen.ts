@@ -1,5 +1,5 @@
 import { z } from '../../zod.ts'
-import { petSchema } from './petSchema.gen'
+import { petSchema } from './petSchema.gen.ts'
 
 export const findPetsByStatusQueryParamsSchema = z
   .object({ status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter').optional() })

@@ -1,6 +1,6 @@
-import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import client from '@kubb/plugin-client/client'
+import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>

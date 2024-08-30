@@ -47,8 +47,10 @@
     "@kubb/plugin-react-query": "2.25.1"
   },
   "changesets": [
+    "angry-cameras-try",
     "clever-donkeys-drive",
     "curly-snails-film",
+    "early-pens-clap",
     "fifty-rockets-remember",
     "giant-moose-move",
     "great-beds-deny",
@@ -58,7 +60,11 @@
     "honest-trainers-invent",
     "large-meals-count",
     "loud-teachers-unite",
+    "many-plants-return",
+    "odd-ants-double",
+    "orange-crabs-attend",
     "plenty-icons-rest",
+    "red-fishes-jump",
     "slimy-lamps-develop",
     "unlucky-rockets-own"
   ]

@@ -1,10 +1,10 @@
 import type { Pet } from '../models/ts/Pet'
-import { categorySchema } from './categorySchema'
-import { tagTagSchema } from './tag/tagSchema'
+import { categorySchema } from './categorySchema.ts'
+import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod'
 
 export const petSchema = z.object({
-  id: z.number().optional(),
+  id: z.number().int().optional(),
   name: z.string(),
   category: z.lazy(() => categorySchema).optional(),
   photoUrls: z.array(z.string()),

@@ -1,9 +1,9 @@
-import { categorySchema } from './categorySchema.gen'
-import { tagSchema } from './tagSchema.gen'
 import { z } from '../../zod.ts'
+import { categorySchema } from './categorySchema.gen.ts'
+import { tagSchema } from './tagSchema.gen.ts'
 
 export const petSchema = z.object({
-  id: z.number().optional(),
+  id: z.number().int().optional(),
   name: z.string().uuid(),
   category: z.lazy(() => categorySchema).optional(),
   photoUrls: z.array(z.string()),

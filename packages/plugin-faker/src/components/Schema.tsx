@@ -1,6 +1,6 @@
 import { Oas } from '@kubb/plugin-oas/components'
-import { File, Function, useApp, useFile } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { File, Function, useApp, useFile } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import { schemaKeywords } from '@kubb/plugin-oas'
@@ -66,7 +66,7 @@ export function Schema(props: Props): ReactNode {
   const params = fakerDefaultOverride ? `data: NonNullable<Partial<${typeName}>> = ${fakerDefaultOverride}` : `data?: NonNullable<Partial<${typeName}>>`
 
   return (
-    <File.Source name={resolvedName} isExportable>
+    <File.Source name={resolvedName} isExportable isIndexable>
       <Function
         export
         name={resolvedName}

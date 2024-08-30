@@ -54,7 +54,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite, o
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
         {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -96,7 +96,7 @@ const defaultTemplates = {
       const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
       return (
-        <File.Source name={name} isExportable>
+        <File.Source name={name} isExportable isIndexable>
           <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
             {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -269,7 +269,7 @@ const defaultTemplates = {
       const hookQueryKey = `${queryKey}(${queryKeyParams.toString()})`
 
       return (
-        <File.Source name={rest.name} isExportable>
+        <File.Source name={rest.name} isExportable isIndexable>
           <Function
             name={rest.name}
             export

@@ -27,7 +27,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
   #isUnmounted: boolean
   #lastOutput: string
 
-  #lastFiles: KubbFile.File[] = []
+  #lastFiles: Array<KubbFile.File> = []
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
   public logger?: Logger
@@ -80,7 +80,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     return this.#lastOutput
   }
 
-  get files(): KubbFile.File[] {
+  get files(): Array<KubbFile.File> {
     return this.#lastFiles
   }
 
@@ -109,6 +109,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     if (!this.logger) {
       console.warn(error)
     }
+    throw error
   }
 
   render(node: ReactNode, context?: Context): void {

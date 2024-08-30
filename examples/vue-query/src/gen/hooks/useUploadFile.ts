@@ -1,7 +1,7 @@
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
+import client from '@kubb/plugin-client/client'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
-import client from '@kubb/plugin-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 

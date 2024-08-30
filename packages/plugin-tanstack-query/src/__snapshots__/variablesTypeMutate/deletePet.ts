@@ -1,5 +1,5 @@
-import type { QueryKey } from "@tanstack/react-query";
 import client from "@kubb/plugin-client/client";
+import type { QueryKey } from "@tanstack/react-query";
 
  type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;
 
@@ -17,8 +17,8 @@ import client from "@kubb/plugin-client/client";
     };
 };
 
- export const DeletePetQueryKey = ({ petId }: {
+ export const deletePetQueryKey = ({ petId }: {
     petId: DeletePetPathParams["petId"];
 }) => [{ url: "/pet/:petId", params: { petId: petId } }] as const;
 
- export type DeletePetQueryKey = ReturnType<typeof DeletePetQueryKey>;
+ export type DeletePetQueryKey = ReturnType<typeof deletePetQueryKey>;

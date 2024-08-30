@@ -5,11 +5,11 @@ import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
-import { clientParser } from './OperationGenerator.tsx'
 import { Client, Operations } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { axiosGenerator } from './generators/axiosGenerator.tsx'
 import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
@@ -31,6 +31,10 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
   return {
     name: pluginClientName,
+    output: {
+      exportType: 'barrelNamed',
+      ...output,
+    },
     options: {
       extName: output.extName,
       dataReturnType,
@@ -41,8 +45,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       },
       pathParamsType,
       templates: {
-        operations: Operations.templates,
-        client: Client.templates,
+        operations: Operations,
+        client: Client,
         ...templates,
       },
       baseURL: undefined,
@@ -102,20 +106,22 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(clientParser)
+      const files = await operationGenerator.build(axiosGenerator)
 
       await this.addFile(...files)
 
-      if (this.config.output.write) {
-        const indexFiles = await this.fileManager.getIndexFiles({
+      if (this.config.output.exportType) {
+        const barrelFiles = await this.fileManager.getBarrelFiles({
           root,
           output,
           files: this.fileManager.files,
-          plugin: this.plugin,
+          meta: {
+            pluginKey: this.plugin.key,
+          },
           logger: this.logger,
         })
 
-        await this.addFile(...indexFiles)
+        await this.addFile(...barrelFiles)
       }
     },
   }

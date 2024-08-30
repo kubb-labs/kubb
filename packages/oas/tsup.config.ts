@@ -9,6 +9,7 @@ export default defineConfig([
       index: 'src/index.ts',
       parser: 'src/parser/index.ts',
     },
+    noExternal: [/whatwg-url/],
   },
   {
     ...optionsESM,
@@ -16,5 +17,6 @@ export default defineConfig([
       index: 'src/index.ts',
       parser: 'src/parser/index.ts',
     },
+    noExternal: [/whatwg-url/],
   },
 ])

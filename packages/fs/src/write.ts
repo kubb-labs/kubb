@@ -19,6 +19,8 @@ const writer = switcher(
         /* empty */
       }
 
+      // await new Promise((resolve) => setTimeout(resolve, 20000))
+
       await fs.outputFile(resolve(path), data, { encoding: 'utf-8' })
 
       if (sanity) {

@@ -1,6 +1,6 @@
 import { z } from '../../zod.ts'
 
-export const deletePetPathParamsSchema = z.object({ petId: z.number().describe('Pet id to delete') })
+export const deletePetPathParamsSchema = z.object({ petId: z.number().int().describe('Pet id to delete') })
 
 export type DeletePetPathParamsSchema = z.infer<typeof deletePetPathParamsSchema>
 

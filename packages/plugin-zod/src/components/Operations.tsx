@@ -46,12 +46,12 @@ function Template({ operationsName, pathsName, operations }: TemplateProps): Kub
 
   return (
     <>
-      <File.Source name={operationsName} isExportable>
+      <File.Source name={operationsName} isExportable isIndexable>
         <Const export name={operationsName} asConst>
           {`{${transformers.stringifyObject(operationsJSON)}}`}
         </Const>
       </File.Source>
-      <File.Source name={pathsName} isExportable>
+      <File.Source name={pathsName} isExportable isIndexable>
         <Const export name={pathsName} asConst>
           {`{${transformers.stringifyObject(pathsJSON)}}`}
         </Const>
@@ -80,10 +80,10 @@ function RootTemplate({ children }: RootTemplateProps) {
 
   const file = pluginManager.getFile({ name: 'operations', extName: '.ts', pluginKey })
   const imports = Object.entries(transformedOperations)
-    .map(([_key, { data, operation }], index) => {
+    .map(([key, { data, operation }]) => {
       const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean)
 
-      return <File.Import key={index} name={names} root={file.path} path={getFile(operation).path} />
+      return <File.Import key={key} name={names} root={file.path} path={getFile(operation).path} />
     })
     .filter(Boolean)
 

@@ -46,7 +46,7 @@ export function Schema(props: Props): ReactNode {
 
   if (!tree.length) {
     return (
-      <File.Source name={resolvedName} isExportable>
+      <File.Source name={resolvedName} isExportable isIndexable>
         <Const
           name={resolvedName}
           export
@@ -79,7 +79,7 @@ export function Schema(props: Props): ReactNode {
 
   return (
     <>
-      <File.Source name={resolvedName} isExportable>
+      <File.Source name={resolvedName} isExportable isIndexable>
         <Const
           export
           name={resolvedName}
@@ -97,7 +97,7 @@ export function Schema(props: Props): ReactNode {
         </Const>
       </File.Source>
       {typedSchema && (
-        <File.Source name={resolvedTypeName} isExportable isTypeOnly>
+        <File.Source name={resolvedTypeName} isExportable isIndexable isTypeOnly>
           <Type export name={resolvedTypeName}>
             {`z.infer<typeof ${resolvedName}>`}
           </Type>

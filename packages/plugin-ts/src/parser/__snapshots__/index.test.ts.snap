@@ -444,6 +444,19 @@ NodeObject {
 }
 `;
 
+exports[`type parse > 'integer' 1`] = `
+TokenObject {
+  "emitNode": undefined,
+  "end": -1,
+  "flags": 16,
+  "id": 0,
+  "kind": 150,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
 exports[`type parse > 'matches' 1`] = `undefined`;
 
 exports[`type parse > 'matchesReg' 1`] = `undefined`;

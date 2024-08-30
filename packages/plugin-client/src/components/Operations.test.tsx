@@ -1,14 +1,11 @@
-import { mockedPluginManager } from '@kubb/core/mocks'
-import { createRootServer } from '@kubb/react'
-import { Oas } from '@kubb/plugin-oas/components'
-
-import { Operations } from './Operations.tsx'
+import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import type { Plugin } from '@kubb/core'
-import { App } from '@kubb/react'
-import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
+import { axiosGenerator } from '../generators/axiosGenerator.tsx'
 import type { PluginClient } from '../types.ts'
+import { Operations } from './Operations.tsx'
 
 describe('<Operations/>', async () => {
   const oas = await parseFromConfig({
@@ -17,20 +14,21 @@ describe('<Operations/>', async () => {
     input: { path: 'packages/plugin-client/mocks/petStore.yaml' },
   })
 
-  const options: GetOperationGeneratorOptions<OperationGenerator> = {
+  const options: PluginClient['resolvedOptions'] = {
     dataReturnType: 'data',
     pathParamsType: 'object',
     templates: {
-      operations: Operations.templates,
+      operations: Operations,
     },
     client: {
       importPath: '@kubb/plugin-client/client',
+      methods: ['get', 'post', 'put'],
     },
     baseURL: '',
     extName: undefined,
   }
   const plugin = { options } as Plugin<PluginClient>
-  const og = new OperationGenerator(options, {
+  const og = new OperationGenerator<PluginClient>(options as any, {
     oas,
     exclude: [],
     include: undefined,
@@ -44,21 +42,13 @@ describe('<Operations/>', async () => {
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
 
-    const Component = () => {
-      return (
-        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
-            <Oas.Operation operation={operation}>
-              <Operations.File baseURL="" />
-            </Oas.Operation>
-          </Oas>
-        </App>
-      )
-    }
+    const files = await axiosGenerator.operations?.({
+      operations: [operation],
+      operationsByMethod: {},
+      options,
+      instance: og,
+    })
 
-    const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />)
-
-    expect(output).toMatchFileSnapshot('./__snapshots__/Operations/showPetById.ts')
+    await matchFiles(files)
   })
 })

@@ -10,8 +10,7 @@ import type { DOMElement } from '../types.ts'
 type RootType<T = unknown> = {
   renderToString(children: ReactNode, context?: T): Promise<string> | string
   unmount(): void
-  files: KubbFile.File[]
-  getFile: (id: string) => KubbFile.File | undefined
+  files: Array<KubbFile.File>
 }
 
 const instances = new Map<string, ReactTemplate>()
@@ -40,9 +39,6 @@ export function createRootServer<Context extends RootContextProps = RootContextP
     },
     get files() {
       return instance.files
-    },
-    getFile(id: string) {
-      return instance.files.find((file) => file.id === id)
     },
   }
 }

@@ -1,9 +1,9 @@
-import { extname, relative, resolve } from 'node:path'
+import { extname, join, relative } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
 import { isDeepEqual } from 'remeda'
 
-import { getRelativePath, read, write } from '@kubb/fs'
+import { read, write } from '@kubb/fs'
 import { BarrelManager } from './BarrelManager.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
@@ -12,7 +12,6 @@ import { trimExtName } from '@kubb/fs'
 import type { ResolvedFile } from '@kubb/fs/types'
 import type { GreaterThan } from '@kubb/types'
 import PQueue from 'p-queue'
-import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { Logger } from './logger.ts'
 import type { Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
@@ -29,23 +28,23 @@ type AddIndexesProps = {
    * Root based on root and output.path specified in the config
    */
   root: string
+  files: KubbFile.File[]
   /**
    * Output for plugin
    */
   output: {
     path: string
+    extName?: KubbFile.Extname
     exportAs?: string
-    extName?: string
     exportType?: 'barrel' | 'barrelNamed' | false
   }
   group?: {
     output: string
     exportAs: string
   }
-  logger: Logger
-  files: KubbFile.File[]
-  options?: BarrelManagerOptions
-  plugin: Plugin
+  logger?: Logger
+
+  meta?: FileMetaBase
 }
 
 export class FileManager {
@@ -61,6 +60,7 @@ export class FileManager {
 
   get orderedFiles(): Array<KubbFile.ResolvedFile> {
     return orderBy(Array.from(this.#files), [
+      (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
       (v) => v.path.length,
       (v) => trimExtName(v.path).endsWith('index'),
       (v) => trimExtName(v.baseName),
@@ -103,6 +103,11 @@ export class FileManager {
     return resolvedFile
   }
 
+  clear() {
+    this.#filesByPath.clear()
+    this.#files.clear()
+  }
+
   async #addOrAppend(file: KubbFile.File): Promise<ResolvedFile> {
     const previousFile = this.#filesByPath.get(file.path)
 
@@ -110,12 +115,7 @@ export class FileManager {
       this.#filesByPath.delete(previousFile.path)
       this.#files.delete(previousFile)
 
-      return this.#add({
-        ...file,
-        sources: [...(previousFile.sources || []), ...(file.sources || [])],
-        imports: [...(previousFile.imports || []), ...(file.imports || [])],
-        exports: [...(previousFile.exports || []), ...(file.exports || [])],
-      })
+      return this.#add(mergeFile(previousFile, file))
     }
     return this.#add(file)
   }
@@ -145,54 +145,26 @@ export class FileManager {
     this.#files.delete(cacheItem)
   }
 
-  async getIndexFiles({ files, plugin, root, output, logger, options = {} }: AddIndexesProps): Promise<KubbFile.File[]> {
-    const { exportType = 'barrel' } = output
+  async getBarrelFiles({ files, meta, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
+    const { exportType = 'barrelNamed' } = output
+    const barrelManager = new BarrelManager({ logger })
+
     if (exportType === false) {
       return []
     }
 
-    const pathToBuildFrom = resolve(root, output.path)
+    const pathToBuildFrom = join(root, output.path)
 
     if (trimExtName(pathToBuildFrom).endsWith('index')) {
-      logger.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
+      logger?.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
+
       return []
     }
 
-    const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
-    const mode = FileManager.getMode(output.path)
-    const barrelManager = new BarrelManager({ ...options, extName: output.extName })
-
-    let indexFiles = barrelManager.getIndexes(files, pathToBuildFrom)
-
-    if (!indexFiles) {
-      return []
-    }
-
-    const rootPath = mode === 'split' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
-    const rootFile: KubbFile.File = {
-      path: resolve(root, 'index.ts'),
-      baseName: 'index.ts',
-      exports: [
-        output.exportAs
-          ? {
-              name: output.exportAs,
-              asAlias: true,
-              path: rootPath,
-              isTypeOnly: options.isTypeOnly,
-            }
-          : {
-              path: rootPath,
-              isTypeOnly: options.isTypeOnly,
-            },
-      ],
-      sources: [],
-      meta: {
-        pluginKey: plugin.key,
-      },
-    }
+    const barrelFiles = barrelManager.getFiles({ files, root: pathToBuildFrom, meta })
 
     if (exportType === 'barrel') {
-      indexFiles = indexFiles.map((file) => {
+      return barrelFiles.map((file) => {
         return {
           ...file,
           exports: file.exports?.map((exportItem) => {
@@ -203,26 +175,14 @@ export class FileManager {
           }),
         }
       })
-
-      rootFile.exports = rootFile.exports?.map((item) => {
-        return {
-          ...item,
-          name: undefined,
-        }
-      })
     }
 
-    return [
-      ...indexFiles.map((indexFile) => {
-        return {
-          ...indexFile,
-          meta: {
-            pluginKey: plugin.key,
-          },
-        }
-      }),
-      rootFile,
-    ]
+    return barrelFiles.map((indexFile) => {
+      return {
+        ...indexFile,
+        meta,
+      }
+    })
   }
 
   async write(...params: Parameters<typeof write>): ReturnType<typeof write> {
@@ -242,51 +202,53 @@ export class FileManager {
   }
 }
 
-export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: KubbFile.File<TMeta> | ResolvedFile<TMeta>): Promise<string> {
+type GetSourceOptions = {
+  logger?: Logger
+}
+
+export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions = {}): Promise<string> {
   const parser = await getFileParser(file.extName)
 
-  const source = file.sources.map((item) => item.value).join('\n\n')
-  const exports = file.exports ? combineExports(file.exports) : []
-  // imports should be defined and source should contain code or we have imports without them being used
-  const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
+  return parser.print(file, { logger })
+}
 
-  const importNodes = imports
-    .filter((item) => {
-      const path = item.root ? getRelativePath(item.root, item.path) : item.path
-      // trim extName
-      return path !== trimExtName(file.path)
-    })
-    .map((item) => {
-      const path = item.root ? getRelativePath(item.root, item.path) : item.path
+export function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {
+  return {
+    ...a,
+    sources: [...(a.sources || []), ...(b.sources || [])],
+    imports: [...(a.imports || []), ...(b.imports || [])],
+    exports: [...(a.exports || []), ...(b.exports || [])],
+  }
+}
 
-      return parser.createImport({
-        name: item.name,
-        path: item.extName ? `${path}${item.extName}` : path,
-        isTypeOnly: item.isTypeOnly,
-      })
-    })
-  const exportNodes = exports
-    .map((item) => {
-      if (item.path) {
-        return parser.createExport({
-          name: item.name,
-          path: item.extName ? `${item.path}${item.extName}` : item.path,
-          isTypeOnly: item.isTypeOnly,
-          asAlias: item.asAlias,
-        })
+export function combineSources(sources: Array<KubbFile.Source>): Array<KubbFile.Source> {
+  return sources.reduce(
+    (prev, curr) => {
+      const prevByName = prev.findLast((imp) => imp.name === curr.name)
+      const prevByPathAndIsExportable = prev.findLast((imp) => imp.name === curr.name && imp.isExportable)
+
+      if (prevByPathAndIsExportable) {
+        // we already have an export that has the same name but uses `isExportable` (export type ...)
+        return [...prev, curr]
       }
-    })
-    .filter(Boolean)
 
-  return parser.print({
-    imports: importNodes,
-    exports: exportNodes,
-    source,
-  })
+      if (prevByName) {
+        prevByName.value = curr.value
+        prevByName.isExportable = curr.isExportable
+        prevByName.isTypeOnly = curr.isTypeOnly
+        prevByName.isIndexable = curr.isIndexable
+
+        return prev
+      }
+
+      return [...prev, curr]
+    },
+    [] as Array<KubbFile.Source>,
+  )
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
-  const combinedExports = orderBy(exports, [(v) => !v.isTypeOnly], ['asc']).reduce(
+  const combinedExports = exports.reduce(
     (prev, curr) => {
       const name = curr.name
       const prevByPath = prev.findLast((imp) => imp.path === curr.path)
@@ -301,6 +263,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
         (imp) => imp.path === curr.path && isDeepEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
       )
 
+      // we already have an item that was unique enough or name field is empty or prev asAlias is set but current has no changes
       if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
         return prev
       }
@@ -315,6 +278,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
         ]
       }
 
+      // merge all names when prev and current both have the same isTypeOnly set
       if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(curr.name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
         prevByPath.name = [...new Set([...prevByPath.name, ...curr.name])]
 
@@ -326,11 +290,17 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
     [] as Array<KubbFile.Export>,
   )
 
-  return orderBy(combinedExports, [(v) => !v.isTypeOnly, (v) => v.asAlias])
+  return orderBy(combinedExports, [
+    (v) => !!Array.isArray(v.name),
+    (v) => !v.isTypeOnly,
+    (v) => v.path,
+    (v) => !!v.name,
+    (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
+  ])
 }
 
 export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
-  const combinedImports = orderBy(imports, [(v) => !v.isTypeOnly], ['asc']).reduce(
+  const combinedImports = imports.reduce(
     (prev, curr) => {
       let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
@@ -349,6 +319,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         return prev
       }
 
+      // merge all names and check if the importName is being used in the generated source and if not filter those imports out
       if (Array.isArray(name)) {
         name = name.filter((item) => (typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName)))
       }
@@ -362,10 +333,12 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         return prev
       }
 
+      // already unique enough or name is empty
       if (uniquePrev || (Array.isArray(name) && !name.length)) {
         return prev
       }
 
+      // new item, append name
       if (!prevByPath) {
         return [
           ...prev,
@@ -376,12 +349,14 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         ]
       }
 
+      // merge all names when prev and current both have the same isTypeOnly set
       if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
         prevByPath.name = [...new Set([...prevByPath.name, ...name])]
 
         return prev
       }
 
+      // no import was found in the source, ignore import
       if (!Array.isArray(name) && name && !hasImportInSource(name)) {
         return prev
       }
@@ -391,9 +366,14 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     [] as Array<KubbFile.Import>,
   )
 
-  return orderBy(combinedImports, [(v) => !v.isTypeOnly])
+  return orderBy(combinedImports, [
+    (v) => !!Array.isArray(v.name),
+    (v) => !v.isTypeOnly,
+    (v) => v.path,
+    (v) => !!v.name,
+    (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
+  ])
 }
-
 type WriteFilesProps = {
   config: Config
   files: Array<KubbFile.ResolvedFile>
@@ -413,22 +393,24 @@ export async function processFiles({ dryRun, config, logger, files }: WriteFiles
   ])
 
   logger.emit('debug', {
+    date: new Date(),
     logs: [JSON.stringify({ files: orderedFiles }, null, 2)],
-    fileName: 'kubb-files.json',
-    override: true,
+    fileName: 'kubb-files.log',
   })
 
   if (!dryRun) {
     const size = orderedFiles.length
 
-    logger.emit('progress_start', { id: 'files', size })
+    logger.emit('progress_start', { id: 'files', size, message: 'Writing files ...' })
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
-        const source = await getSource(file)
+        const message = file ? `Writing ${relative(config.root, file.path)}` : ''
+
+        const source = await getSource(file, { logger })
 
         await write(file.path, source, { sanity: false })
 
-        logger.emit('progress', { id: 'files', data: file ? relative(config.root, file.path) : '' })
+        logger.emit('progressed', { id: 'files', message })
       })
     })
 

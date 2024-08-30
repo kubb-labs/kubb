@@ -22,7 +22,7 @@ export default defineConfig(() => {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: true }),
       pluginOas({
         output: {
           path: 'schemas2',
@@ -33,12 +33,11 @@ export default defineConfig(() => {
         output: {
           path: 'models/ts',
           extName: '.js',
-          exportType: false,
         },
         group: {
           type: 'tag',
         },
-        enumType: 'asPascalConst',
+        enumType: 'asConst',
         enumSuffix: 'enum',
         dateType: 'date',
         override: [
@@ -54,7 +53,6 @@ export default defineConfig(() => {
       pluginTanstackQuery({
         output: {
           path: './clients/hooks',
-          exportType: false,
         },
         exclude: [
           {
@@ -110,7 +108,6 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './clients/axios',
-          exportType: false,
         },
         exclude: [
           {
@@ -128,7 +125,6 @@ export default defineConfig(() => {
       pluginZod({
         output: {
           path: './zod',
-          exportType: false,
         },
         exclude: [
           {
@@ -139,6 +135,9 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         typed: true,
+        templates: {
+          operations: false,
+        },
       }),
       pluginFaker({
         output: {

@@ -85,7 +85,7 @@ function printCombinedSchema({
   }
 
   const namespaceNode = factory.createTypeAliasDeclaration({
-    name: operation.method === 'get' ? `${name}Query` : `${name}Mutation`,
+    name,
     type: factory.createTypeLiteralNode(
       Object.keys(properties)
         .map((key) => {
@@ -147,12 +147,14 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     )
   }
 
+  const combinedSchemaName = operation.method === 'get' ? `${factoryName}Query` : `${factoryName}Mutation`
+
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {items.map(mapItem)}
 
-      <File.Source name={factoryName} isExportable>
-        {printCombinedSchema({ name: factoryName, operation, schemas, pluginManager })}
+      <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
+        {printCombinedSchema({ name: combinedSchemaName, operation, schemas, pluginManager })}
       </File.Source>
     </File>
   )

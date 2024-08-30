@@ -1,11 +1,11 @@
+import client from '@kubb/plugin-client/client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../models/UpdatePetWithForm'
+} from '../models/UpdatePetWithForm.ts'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
-import client from '@kubb/plugin-client/client'
 import { createMutation } from '@tanstack/svelte-query'
 
 type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>

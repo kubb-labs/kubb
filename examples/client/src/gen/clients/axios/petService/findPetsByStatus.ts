@@ -1,6 +1,6 @@
-import type { ResponseConfig } from '@kubb/plugin-client/client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
 import client from '@kubb/plugin-client/client'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { ResponseConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description Multiple status values can be provided with comma separated strings

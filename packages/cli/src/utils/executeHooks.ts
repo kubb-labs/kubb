@@ -27,19 +27,19 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
     }
 
     await queue.add(async () => {
-      logger.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
+      logger?.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
 
-      const subProcess = await execa(cmd, _args, {
+      await execa(cmd, _args, {
         detached: true,
-        stdout: logger.logLevel === LogMapper.silent ? undefined : ['pipe', consolaWritable],
+        stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', consolaWritable],
         stripFinalNewline: true,
       })
 
-      logger.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
+      logger?.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
     })
   })
 
   await Promise.all(promises)
 
-  logger.emit('success', 'Executed hooks')
+  logger?.emit('success', 'Executed hooks')
 }

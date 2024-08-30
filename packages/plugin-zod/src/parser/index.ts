@@ -12,7 +12,11 @@ export const zodKeywordMapper = {
       .join('')
   },
   integer: (coercion?: boolean, min?: number, max?: number) => {
-    return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+    return [
+      coercion ? 'z.coerce.number().int()' : 'z.number().int()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+    ]
       .filter(Boolean)
       .join('')
   },
@@ -308,8 +312,12 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
     return zodKeywordMapper.string(options.coercion)
   }
 
-  if (isKeyword(current, schemaKeywords.number) || isKeyword(current, schemaKeywords.integer)) {
+  if (isKeyword(current, schemaKeywords.number)) {
     return zodKeywordMapper.number(options.coercion)
+  }
+
+  if (isKeyword(current, schemaKeywords.integer)) {
+    return zodKeywordMapper.integer(options.coercion)
   }
 
   if (isKeyword(current, schemaKeywords.min)) {

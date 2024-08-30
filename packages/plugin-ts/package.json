@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "3.0.0-alpha.6",
+  "version": "3.0.0-alpha.10",
   "description": "Generator plugin-ts",
   "keywords": [
     "zod",
@@ -72,7 +72,7 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "tsup": "^8.2.4",

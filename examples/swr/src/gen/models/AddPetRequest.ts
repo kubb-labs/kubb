@@ -1,5 +1,5 @@
-import type { Category } from './Category'
-import type { Tag } from './Tag'
+import type { Category } from './Category.ts'
+import type { Tag } from './Tag.ts'
 
 export const addPetRequestStatus = {
   available: 'available',

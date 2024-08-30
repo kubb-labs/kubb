@@ -9,5 +9,6 @@ export { App } from './components/App.tsx'
 export { useFile } from './hooks/useFile.ts'
 export { useApp } from './hooks/useApp.ts'
 export { useIndent } from './hooks/useIndent.ts'
+export { createFunctionParams } from './shared/utils/getFunctionParams.ts'
 
 export { createContext, useContext } from 'react'

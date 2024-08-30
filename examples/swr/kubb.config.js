@@ -11,12 +11,17 @@ export default defineConfig({
   output: {
     path: './src/gen',
     clean: true,
+    exportType: 'barrel',
+  },
+  hooks: {
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({ output: false }),
     pluginTs({
       output: {
         path: 'models',
+        exportType: 'barrel',
       },
     }),
     pluginSwr({

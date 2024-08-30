@@ -1,10 +1,10 @@
-import { createReactParser } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas'
+import { OperationSchema } from './components/OperationSchema.tsx'
+import { Operations } from './components/Operations.tsx'
 import { Schema } from './components/Schema.tsx'
 import type { PluginZod } from './types.ts'
-import { Operations } from './components/Operations.tsx'
-import { OperationSchema } from './components/OperationSchema.tsx'
 
-export const zodParser = createReactParser<PluginZod>({
+export const zodParser = createReactGenerator<PluginZod>({
   name: 'plugin-zod',
   Operations({ options }) {
     if (!options.templates.operations) {

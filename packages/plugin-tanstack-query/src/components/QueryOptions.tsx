@@ -119,7 +119,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
 
   if (infinite) {
     return (
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function name={name} export params={params} JSDoc={JSDoc}>
           {`
        const queryKey = ${hook.queryKey}
@@ -145,7 +145,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
   }
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} export params={params} JSDoc={JSDoc}>
         {`
    const queryKey = ${hook.queryKey}

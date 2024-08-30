@@ -29,7 +29,7 @@ type TemplateProps = {
 
 function Template({ name, method, path, responseName }: TemplateProps): ReactNode {
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       {`
   export const ${name} = http.${method}('*${path.toURLPath()}', function handler(info) {
     return new Response(JSON.stringify(${responseName}()), {

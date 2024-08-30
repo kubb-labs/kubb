@@ -45,6 +45,16 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
   return {
     name: pluginOasName,
+    output:
+      output === false
+        ? {
+            path: '',
+            exportType: false,
+          }
+        : {
+            exportType: 'barrelNamed',
+            ...output,
+          },
     options,
     context() {
       const { config, logger } = this
@@ -97,6 +107,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
             {
               name: camelCase(name),
               isExportable: false,
+              isIndexable: false,
               value: JSON.stringify(schema),
             },
           ],

@@ -1,5 +1,5 @@
 import { z } from '../../zod.ts'
-import { userSchema } from './userSchema.gen'
+import { userSchema } from './userSchema.gen.ts'
 
 export const updateUserPathParamsSchema = z.object({ username: z.string().describe('name that need to be deleted') })
 

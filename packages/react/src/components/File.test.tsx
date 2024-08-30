@@ -31,22 +31,15 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": true,
+              "extName": ".ts",
               "isTypeOnly": false,
               "name": undefined,
               "path": "./index.ts",
             },
           ],
-          "extName": "ts",
+          "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
-          "imports": [
-            {
-              "isNameSpace": undefined,
-              "isTypeOnly": false,
-              "name": "React",
-              "path": "react",
-              "root": undefined,
-            },
-          ],
+          "imports": [],
           "meta": undefined,
           "name": "test",
           "override": undefined,
@@ -82,7 +75,7 @@ describe('<File/>', () => {
       return (
         <File baseName="test.ts" path="path">
           <File.Source>
-            <File.Export name={'test'} />
+            <File.Export path={''} name={'test'} />
           </File.Source>
         </File>
       )
@@ -97,12 +90,13 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": undefined,
+              "extName": "",
               "isTypeOnly": false,
               "name": "test",
-              "path": undefined,
+              "path": "",
             },
           ],
-          "extName": "ts",
+          "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
@@ -112,6 +106,7 @@ describe('<File/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "",
@@ -157,7 +152,7 @@ describe('<File/>', () => {
         {
           "baseName": "test.ts",
           "exports": [],
-          "extName": "ts",
+          "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
@@ -167,12 +162,14 @@ describe('<File/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "const file = 2;",
             },
             {
               "isExportable": true,
+              "isIndexable": undefined,
               "isTypeOnly": true,
               "name": "test",
               "value": "export const test = 2;",
@@ -217,6 +214,7 @@ describe('<File/>', () => {
     expect(root.files[0]?.imports).toMatchInlineSnapshot(`
       [
         {
+          "extName": "",
           "isNameSpace": undefined,
           "isTypeOnly": false,
           "name": "node",
@@ -291,10 +289,11 @@ describe('<File.Import/>', () => {
         {
           "baseName": "test.ts",
           "exports": [],
-          "extName": "ts",
+          "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
+              "extName": "",
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -309,6 +308,7 @@ describe('<File.Import/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "import React from "react";",
@@ -337,10 +337,11 @@ describe('<File.Import/>', () => {
         {
           "baseName": "test.ts",
           "exports": [],
-          "extName": "ts",
+          "extName": ".ts",
           "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
+              "extName": "",
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -355,6 +356,7 @@ describe('<File.Import/>', () => {
           "sources": [
             {
               "isExportable": undefined,
+              "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "test",

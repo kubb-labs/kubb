@@ -9,8 +9,9 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
+  // ['test', './schemas/test.json'],
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
-  ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'],
+  // ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'], // not valid anymore
   ['optionalParameters', './schemas/optionalParameters.json'],
   ['allOf', './schemas/allOf.json'],
   ['anyOf', './schemas/anyOf.json'],
@@ -44,15 +45,14 @@ const baseConfig = {
   plugins: [
     pluginOas({
       output: false,
-      validate: true,
+      validate: false,
       docs: false,
     }),
     pluginOas({
       output: {
         path: 'schemas2',
-        exportType: false,
       },
-      validate: true,
+      validate: false,
     }),
     pluginTs({
       output: {
@@ -62,12 +62,11 @@ const baseConfig = {
       group: {
         type: 'tag',
       },
-      enumType: 'asPascalConst',
+      enumType: 'asConst',
     }),
     pluginTanstackQuery({
       output: {
         path: './clients/hooks',
-        exportType: false,
       },
       group: { type: 'tag' },
       mutate: {
@@ -85,7 +84,6 @@ const baseConfig = {
     pluginClient({
       output: {
         path: './clients/axios',
-        exportType: false,
       },
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
     }),
@@ -97,6 +95,9 @@ const baseConfig = {
       group: { type: 'tag' },
       typed: false,
       typedSchema: true,
+      templates: {
+        operations: false,
+      },
     }),
     pluginFaker({
       output: {
@@ -104,11 +105,21 @@ const baseConfig = {
         exportType: false,
       },
       group: { type: 'tag' },
+      // transformers: {
+      //   name: (name, type) => {
+      //     if (type === 'file' || type === 'function') {
+      //       return camelCase(name, {
+      //         prefix: type ? 'createMock' : undefined,
+      //         isFile: type === 'file',
+      //       })
+      //     }
+      //     return name
+      //   },
+      // },
     }),
     pluginMsw({
       output: {
         path: 'msw',
-        exportType: false,
       },
       group: { type: 'tag' },
     }),

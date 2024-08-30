@@ -44,11 +44,6 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props<TMeta extends FileMetaBase = FileMetaBase> = BaseProps & {
   /**
-   * Unique identifier to reuse later.
-   * @default crypto.randomUUID()
-   */
-  id?: KubbFile.File['id']
-  /**
    * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists.
    * This will also ignore the combinefiles utils
    * @default `false`
@@ -74,9 +69,9 @@ type FileSourceProps = Omit<KubbFile.Source, 'value'> & {
   children?: KubbNode
 }
 
-function FileSource({ isTypeOnly, name, isExportable, children }: FileSourceProps): KubbNode {
+function FileSource({ isTypeOnly, name, isExportable, isIndexable, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable}>
+    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable} isIndexable={isIndexable}>
       {children}
     </kubb-source>
   )
@@ -84,14 +79,14 @@ function FileSource({ isTypeOnly, name, isExportable, children }: FileSourceProp
 
 type FileExportProps = KubbFile.Export
 
-function FileExport({ name, path, isTypeOnly, asAlias }: FileExportProps): KubbNode {
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
+function FileExport({ name, path, isTypeOnly, extName, asAlias }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} extName={extName} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
 }
 
 type FileImportProps = KubbFile.Import
 
-export function FileImport({ name, root, path, isTypeOnly, isNameSpace }: FileImportProps): KubbNode {
-  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
+export function FileImport({ name, root, path, isTypeOnly, extName, isNameSpace }: FileImportProps): KubbNode {
+  return <kubb-import name={name} root={root} path={path} extName={extName} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
 }
 
 File.Export = FileExport

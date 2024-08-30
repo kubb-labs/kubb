@@ -11,8 +11,7 @@ type RootType<T = unknown> = {
   render(children: ReactNode, context?: T): void
   unmount(): void
   output: string
-  files: KubbFile.File[]
-  getFile: (id: string) => KubbFile.File | undefined
+  files: Array<KubbFile.File>
 }
 
 const instances = new Map<string, ReactTemplate>()
@@ -43,9 +42,6 @@ export function createRoot<Context extends RootContextProps = RootContextProps>(
     },
     get files() {
       return instance.files
-    },
-    getFile(id: string) {
-      return instance.files.find((file) => file.id === id)
     },
   }
 }

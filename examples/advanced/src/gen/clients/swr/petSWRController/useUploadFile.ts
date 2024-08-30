@@ -1,12 +1,12 @@
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import client from '../../../../swr-client.ts'
+import useSWRMutation from 'swr/mutation'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile'
-import useSWRMutation from 'swr/mutation'
-import client from '../../../../swr-client.ts'
+} from '../../../models/ts/petController/UploadFile.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
 

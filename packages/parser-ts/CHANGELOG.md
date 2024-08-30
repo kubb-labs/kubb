@@ -1,5 +1,17 @@
 # @kubb/parser-ts
 
+## 3.0.0-alpha.10
+
+## 3.0.0-alpha.9
+
+## 3.0.0-alpha.8
+
+## 3.0.0-alpha.7
+
+### Minor Changes
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - output option for all plugins(KubbPlugin) to track the barrel exportType or the output root of every plugin
+
 ## 3.0.0-alpha.6
 
 ## 3.0.0-alpha.5

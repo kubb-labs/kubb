@@ -1,11 +1,11 @@
 import { z } from '../../zod.ts'
-import { petNotFoundSchema } from './petNotFoundSchema.gen'
+import { petNotFoundSchema } from './petNotFoundSchema.gen.ts'
 
 export const createPetsPathParamsSchema = z.object({ uuid: z.string().describe('UUID') })
 
 export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSchema>
 
-export const createPetsQueryParamsSchema = z.object({ offset: z.number().describe('Offset').optional() }).optional()
+export const createPetsQueryParamsSchema = z.object({ offset: z.number().int().describe('Offset').optional() }).optional()
 
 export type CreatePetsQueryParamsSchema = z.infer<typeof createPetsQueryParamsSchema>
 

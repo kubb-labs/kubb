@@ -1,5 +1,5 @@
+import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
-import { petSchema } from '../petSchema'
 
 /**
  * @description Successful operation

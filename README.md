@@ -81,10 +81,6 @@
   </picture>
 </a>
 
-## Example generation
-
-<img src="/assets/kubb-generate.gif" style="{ display: 'inline' }" alt="Kubb generation" />
-
 <!-- Badges -->
 
 [npm-version-src]: https://img.shields.io/npm/v/@kubb/core?flat&colorA=18181B&colorB=f58517

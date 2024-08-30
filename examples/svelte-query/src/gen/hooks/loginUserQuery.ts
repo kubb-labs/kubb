@@ -1,4 +1,5 @@
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import client from '@kubb/plugin-client/client'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type {
   CreateBaseQueryOptions,
   CreateQueryResult,
@@ -7,7 +8,6 @@ import type {
   CreateInfiniteQueryResult,
   InfiniteData,
 } from '@tanstack/svelte-query'
-import client from '@kubb/plugin-client/client'
 import { createQuery, queryOptions, createInfiniteQuery, infiniteQueryOptions } from '@tanstack/svelte-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>

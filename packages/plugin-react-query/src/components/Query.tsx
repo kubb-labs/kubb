@@ -56,7 +56,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
 
   if (isV5) {
     return (
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -79,7 +79,7 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
   }
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {} } = options ?? {}

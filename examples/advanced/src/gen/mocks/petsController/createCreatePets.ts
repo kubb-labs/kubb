@@ -7,8 +7,8 @@ import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
 } from '../../models/ts/petsController/CreatePets'
+import { createPetNotFound } from '../createPetNotFound.ts'
 import { faker } from '@faker-js/faker'
-import { createPetNotFound } from '../createPetNotFound'
 
 export function createCreatePetsPathParams(): NonNullable<CreatePetsPathParams> {
   return { uuid: faker.string.alpha() }

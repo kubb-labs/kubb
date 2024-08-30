@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "3.0.0-alpha.6",
+  "version": "3.0.0-alpha.10",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -104,7 +104,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/object-hash": "^3.0.6",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "consola": "^3.2.3",

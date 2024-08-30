@@ -1,83 +1,85 @@
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
+
+import { type Operation, isOptional } from '@kubb/oas'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-
-import { isOptional } from '@kubb/oas'
-import type { HttpMethod } from '@kubb/oas'
+import { File, Function, createFunctionParams } from '@kubb/react'
 import type { KubbNode, Params } from '@kubb/react/types'
-import type { ComponentProps, ComponentType } from 'react'
-import type { FileMeta, PluginClient } from '../types.ts'
+import type { PluginClient } from '../types.ts'
 
-type TemplateProps = {
+type Props = {
   /**
    * Name of the function
    */
   name: string
-  /**
-   * Parameters/options/props that need to be used
-   */
-  params: Params
-  /**
-   * Generics that needs to be added for TypeScript
-   */
-  generics?: string
-  /**
-   * ReturnType(see async for adding Promise type)
-   */
-  returnType?: string
-  /**
-   * Options for JSdocs
-   */
-  JSDoc?: {
-    comments: string[]
-  }
-  client: {
-    baseURL: string | undefined
-    generics: string | string[]
-    method: HttpMethod
-    path: URLPath
-    dataReturnType: PluginClient['options']['dataReturnType']
-    withQueryParams: boolean
-    withData: boolean
-    withHeaders: boolean
-    contentType: string
-  }
+  options: PluginClient['resolvedOptions']
+  typedSchemas: OperationSchemas
+  operation: Operation
 }
 
-function Template({ name, generics, returnType, params, JSDoc, client }: TemplateProps): KubbNode {
-  const isFormData = client.contentType === 'multipart/form-data'
+export function Client({ name, options, typedSchemas, operation }: Props): KubbNode {
+  const contentType = operation.getContentType()
+  const baseURL = options.client.importPath === '@kubb/plugin-client/client' ? options.baseURL : undefined
+  const path = new URLPath(operation.path)
+  const isFormData = contentType === 'multipart/form-data'
   const headers = [
-    client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
-    client.withHeaders ? '...headers' : undefined,
-  ]
-    .filter(Boolean)
-    .join(', ')
-  const clientParams: Params = {
+    contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
+    typedSchemas.headerParams?.name ? '...headers' : undefined,
+  ].filter(Boolean)
+
+  const params = createFunctionParams({
+    pathParams: {
+      mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typedSchemas.pathParams, { typed: true }),
+    },
+    data: typedSchemas.request?.name
+      ? {
+          type: typedSchemas.request?.name,
+          optional: isOptional(typedSchemas.request?.schema),
+        }
+      : undefined,
+    params: typedSchemas.queryParams?.name
+      ? {
+          type: typedSchemas.queryParams?.name,
+          optional: isOptional(typedSchemas.queryParams?.schema),
+        }
+      : undefined,
+    headers: typedSchemas.headerParams?.name
+      ? {
+          type: typedSchemas.headerParams?.name,
+          optional: isOptional(typedSchemas.headerParams?.schema),
+        }
+      : undefined,
+    options: {
+      type: 'Partial<Parameters<typeof client>[0]>',
+      default: '{}',
+    },
+  })
+
+  const clientParams = createFunctionParams({
     data: {
       mode: 'object',
       children: {
         method: {
           type: 'string',
-          value: JSON.stringify(client.method),
+          value: JSON.stringify(operation.method),
         },
         url: {
           type: 'string',
-          value: client.path.template,
+          value: path.template,
         },
-        baseURL: client.baseURL
+        baseURL: baseURL
           ? {
               type: 'string',
-              value: JSON.stringify(client.baseURL),
+              value: JSON.stringify(baseURL),
             }
           : undefined,
-        params: client.withQueryParams
+        params: typedSchemas.queryParams?.name
           ? {
               type: 'any',
             }
           : undefined,
-        data: client.withData
+        data: typedSchemas.request?.name
           ? {
               type: 'any',
               value: isFormData ? 'formData' : undefined,
@@ -86,7 +88,7 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
         headers: headers.length
           ? {
               type: 'any',
-              value: headers.length ? `{ ${headers}, ...options.headers }` : undefined,
+              value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
             }
           : undefined,
         options: {
@@ -95,7 +97,7 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
         },
       },
     },
-  }
+  })
 
   const formData = isFormData
     ? `
@@ -112,147 +114,26 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
     : undefined
 
   return (
-    <File.Source name={name} isExportable>
-      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+    <File.Source name={name} isExportable isIndexable>
+      <Function
+        name={name}
+        async
+        export
+        returnType={
+          options.dataReturnType === 'data' ? `ResponseConfig<${typedSchemas.response.name}>["data"]` : `ResponseConfig<${typedSchemas.response.name}>`
+        }
+        params={params}
+        JSDoc={{
+          comments: getComments(operation),
+        }}
+      >
         {formData || ''}
-        <Function.Call name="res" to={<Function name="client" async generics={client.generics} params={clientParams} />} />
-        <Function.Return>{client.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
+        <Function.Call
+          name="res"
+          to={<Function name="client" async generics={[typedSchemas.response.name, typedSchemas.request?.name].filter(Boolean)} params={clientParams} />}
+        />
+        <Function.Return>{options.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
       </Function>
     </File.Source>
   )
 }
-
-type RootTemplateProps = {
-  children?: React.ReactNode
-}
-
-function RootTemplate({ children }: RootTemplateProps) {
-  const {
-    plugin: {
-      options: {
-        client: { importPath },
-      },
-    },
-  } = useApp<PluginClient>()
-
-  const { getSchemas, getFile } = useOperationManager()
-  const operation = useOperation()
-
-  const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-
-  return (
-    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-      <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-      <File.Import
-        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean)}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
-      {children}
-    </File>
-  )
-}
-
-const defaultTemplates = { default: Template, root: RootTemplate } as const
-
-type Templates = Partial<typeof defaultTemplates>
-
-type ClientProps = {
-  baseURL: string | undefined
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: ComponentType<ComponentProps<typeof Template>>
-}
-
-export function Client({ baseURL, Template = defaultTemplates.default }: ClientProps): KubbNode {
-  const {
-    plugin: {
-      options: { client, dataReturnType, pathParamsType },
-    },
-  } = useApp<PluginClient>()
-
-  const { getSchemas, getName } = useOperationManager()
-  const operation = useOperation()
-
-  const contentType = operation.getContentType()
-  const name = getName(operation, { type: 'function' })
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-
-  return (
-    <Template
-      name={name}
-      params={{
-        pathParams: {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(schemas.pathParams, { typed: true }),
-        },
-        data: schemas.request?.name
-          ? {
-              type: schemas.request?.name,
-              optional: isOptional(schemas.request?.schema),
-            }
-          : undefined,
-        params: schemas.queryParams?.name
-          ? {
-              type: schemas.queryParams?.name,
-              optional: isOptional(schemas.queryParams?.schema),
-            }
-          : undefined,
-        headers: schemas.headerParams?.name
-          ? {
-              type: schemas.headerParams?.name,
-              optional: isOptional(schemas.headerParams?.schema),
-            }
-          : undefined,
-        options: {
-          type: 'Partial<Parameters<typeof client>[0]>',
-          default: '{}',
-        },
-      }}
-      returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
-      JSDoc={{
-        comments: getComments(operation),
-      }}
-      client={{
-        // only set baseURL from serverIndex(swagger) when no custom client(default) is used
-        baseURL: client.importPath === '@kubb/plugin-client/client' ? baseURL : undefined,
-        generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
-        dataReturnType,
-        withQueryParams: !!schemas.queryParams?.name,
-        withData: !!schemas.request?.name,
-        withHeaders: !!schemas.headerParams?.name,
-        method: operation.method,
-        path: new URLPath(operation.path),
-        contentType,
-      }}
-    />
-  )
-}
-
-type FileProps = {
-  baseURL: string | undefined
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  templates?: Templates
-}
-
-Client.File = function ({ baseURL, ...props }: FileProps): KubbNode {
-  const templates = { ...defaultTemplates, ...props.templates }
-
-  const Template = templates.default
-  const RootTemplate = templates.root
-
-  return (
-    <RootTemplate>
-      <Client baseURL={baseURL} Template={Template} />
-    </RootTemplate>
-  )
-}
-
-Client.templates = defaultTemplates

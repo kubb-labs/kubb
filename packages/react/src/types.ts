@@ -95,4 +95,4 @@ export type JSDoc = {
   comments: string[]
 }
 
-export type { Params, Param } from './shared/utils/getParams.ts'
+export type { Params, Param } from './shared/utils/getFunctionParams.ts'

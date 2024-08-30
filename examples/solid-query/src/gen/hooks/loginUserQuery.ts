@@ -1,6 +1,6 @@
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import client from '@kubb/plugin-client/client'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>

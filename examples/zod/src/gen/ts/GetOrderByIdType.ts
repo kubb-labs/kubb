@@ -1,4 +1,4 @@
-import type { OrderType } from './OrderType'
+import type { OrderType } from './OrderType.ts'
 
 export type GetOrderByIdPathParamsType = {
   /**

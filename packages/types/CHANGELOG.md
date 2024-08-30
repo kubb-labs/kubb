@@ -1,5 +1,13 @@
 # @kubb/types
 
+## 3.0.0-alpha.10
+
+## 3.0.0-alpha.9
+
+## 3.0.0-alpha.8
+
+## 3.0.0-alpha.7
+
 ## 3.0.0-alpha.6
 
 ## 3.0.0-alpha.5

@@ -3,7 +3,7 @@ import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-import * as client from './templates/client/index'
+import { Client } from './templates/client/index'
 
 export default defineConfig(() => {
   return {
@@ -30,7 +30,7 @@ export default defineConfig(() => {
         group: {
           type: 'tag',
         },
-        enumType: 'asPascalConst',
+        enumType: 'asConst',
         dateType: 'date',
       }),
       pluginClient({
@@ -50,7 +50,7 @@ export default defineConfig(() => {
             pattern: 'user',
             options: {
               templates: {
-                client: client.templates,
+                client: Client,
               },
             },
           },

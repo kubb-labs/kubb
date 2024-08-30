@@ -1,21 +1,16 @@
-import path from 'node:path'
+import { join } from 'node:path'
 
 import { TreeNode } from './utils/TreeNode.ts'
 
+import { getRelativePath } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import { trimExtName } from '@kubb/fs'
+import type { Logger } from './logger.ts'
+import type { FileMetaBase } from './FileManager.ts'
 
 export type BarrelManagerOptions = {
-  isTypeOnly?: boolean
-  /**
-   * Add .ts or .js
-   */
-  extName?: string
+  logger?: Logger
 }
 
-/**
- * Replace with the use of the FileManager exports/imports
- */
 export class BarrelManager {
   #options: BarrelManagerOptions
 
@@ -25,51 +20,108 @@ export class BarrelManager {
     return this
   }
 
-  getIndexes(generatedFiles: KubbFile.File[], root: string): Array<KubbFile.File> | null {
-    const { isTypeOnly, extName } = this.#options
-    const tree = TreeNode.build(generatedFiles, root)
+  getFiles({ files: generatedFiles, root, meta }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
+    const { logger } = this.#options
 
-    if (!tree) {
-      return null
-    }
+    const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
-    const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode) => {
-      if (!treeNode.children) {
-        return []
+    logger?.emit('debug', { date: new Date(), logs: [`Start barrel generation for pluginKey ${meta?.pluginKey?.join('.')} and root '${root}'`] })
+
+    TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
+      if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
+        return undefined
       }
 
-      const indexPath: KubbFile.Path = path.resolve(treeNode.data.path, 'index.ts')
+      const barrelFile: KubbFile.File = {
+        path: join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path,
+        baseName: 'index.ts',
+        exports: [],
+        sources: [],
+      }
+      const previousBarrelFile = cachedFiles.get(barrelFile.path)
+      const leaves = treeNode.leaves
 
-      const exports: Array<KubbFile.Export> = treeNode.children
-        .filter((item) => !!item.data.name)
-        .map((treeNode) => {
-          const importPath: string = treeNode.data.file ? `./${trimExtName(treeNode.data.name)}` : `./${treeNode.data.name}/index`
+      leaves.forEach((item) => {
+        if (!item.data.name) {
+          return undefined
+        }
 
-          if (importPath.endsWith('index') && treeNode.data.file) {
+        const sources = item.data.file?.sources || []
+
+        if (!sources.some((source) => source.isIndexable)) {
+          logger?.emit(
+            'warning',
+            `No isIndexable source found(source should have a name and isIndexable):\nFile: ${JSON.stringify(item.data.file, undefined, 2)}`,
+          )
+        }
+
+        sources.forEach((source) => {
+          if (!item.data.file?.path || !source.isIndexable || !source.name) {
+            return undefined
+          }
+          const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some((item) => item.name === source.name)
+
+          if (alreadyContainInPreviousBarrelFile) {
             return undefined
           }
 
-          return {
-            path: extName ? `${importPath}${extName}` : importPath,
-            isTypeOnly,
-          } as KubbFile.Export
+          if (!barrelFile.exports) {
+            barrelFile.exports = []
+          }
+
+          // true when we have a subdirectory that also contains barrel files
+          const isSubExport = !!treeNode.parent?.data.path?.split?.('/')?.length
+
+          if (isSubExport) {
+            barrelFile.exports.push({
+              name: [source.name],
+              path: getRelativePath(treeNode.parent?.data.path, item.data.path),
+              isTypeOnly: source.isTypeOnly,
+            })
+          } else {
+            barrelFile.exports.push({
+              name: [source.name],
+              path: `./${item.data.file.baseName}`,
+              isTypeOnly: source.isTypeOnly,
+            })
+          }
+
+          barrelFile.sources.push({
+            name: source.name,
+            isTypeOnly: source.isTypeOnly,
+            //TODO use parser to generate import
+            value: '',
+            isExportable: false,
+            isIndexable: false,
+          })
         })
-        .filter(Boolean)
-
-      files.push({
-        path: indexPath,
-        baseName: 'index.ts',
-        exports,
-        sources: [],
       })
 
-      treeNode.children.forEach((childItem) => {
-        fileReducer(files, childItem)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [
+          `Generating barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with ${barrelFile.sources.length} indexable exports: '${barrelFile.sources?.map((source) => source.name).join(', ')}'`,
+        ],
       })
 
-      return files
-    }
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [
+          `Generated barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with exports: '${cachedFiles
+            .get(barrelFile.path)
+            ?.sources?.map((source) => source.name)
+            .join(', ')}'`,
+        ],
+      })
 
-    return fileReducer([], tree).reverse()
+      if (previousBarrelFile) {
+        previousBarrelFile.sources.push(...barrelFile.sources)
+        previousBarrelFile.exports?.push(...(barrelFile.exports || []))
+      } else {
+        cachedFiles.set(barrelFile.path, barrelFile)
+      }
+    })
+
+    return [...cachedFiles.values()]
   }
 }

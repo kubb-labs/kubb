@@ -63,7 +63,7 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
   if (client.withQueryParams) {
     return (
-      <File.Source name={name} isExportable>
+      <File.Source name={name} isExportable isIndexable>
         <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
           {`
          const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
@@ -87,7 +87,7 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
   }
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
        const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

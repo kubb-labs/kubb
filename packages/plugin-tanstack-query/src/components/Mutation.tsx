@@ -92,7 +92,7 @@ function Template({ name, generics, returnType, params, mutateParams, JSDoc, cli
     : undefined
 
   return (
-    <File.Source name={name} isExportable>
+    <File.Source name={name} isExportable isIndexable>
       <Function export name={name} params={params} JSDoc={JSDoc}>
         {`
          const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

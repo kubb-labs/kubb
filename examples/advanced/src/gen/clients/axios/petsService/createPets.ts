@@ -1,3 +1,4 @@
+import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,
@@ -5,8 +6,7 @@ import type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets'
-import client from '../../../../axios-client.ts'
+} from '../../../models/ts/petsController/CreatePets.ts'
 
 /**
  * @summary Create a pet

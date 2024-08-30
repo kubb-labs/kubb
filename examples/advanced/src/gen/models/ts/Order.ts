@@ -1,24 +1,24 @@
-export const OrderOrderTypeEnum = {
+export const orderOrderTypeEnum = {
   foo: 'foo',
   bar: 'bar',
 } as const
 
-export type OrderOrderTypeEnum = (typeof OrderOrderTypeEnum)[keyof typeof OrderOrderTypeEnum]
+export type OrderOrderTypeEnum = (typeof orderOrderTypeEnum)[keyof typeof orderOrderTypeEnum]
 
-export const OrderStatusEnum = {
+export const orderStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderStatusEnum = (typeof OrderStatusEnum)[keyof typeof OrderStatusEnum]
+export type OrderStatusEnum = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export const OrderHttpStatusEnum = {
+export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
 } as const
 
-export type OrderHttpStatusEnum = (typeof OrderHttpStatusEnum)[keyof typeof OrderHttpStatusEnum]
+export type OrderHttpStatusEnum = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
   /**
