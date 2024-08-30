@@ -1,5 +1,4 @@
-export { createRoot } from './client/createRoot.ts'
-export { createRootServer } from './server/createRootServer.ts'
+export { createRoot, createRoot as createRootServer } from './createRoot.ts'
 export { File } from './components/File.tsx'
 export { Function } from './components/Function.tsx'
 export { Text } from './components/Text.tsx'

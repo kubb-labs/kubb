@@ -1,35 +1,10 @@
 import createReconciler from 'react-reconciler'
+
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
 import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './shared/dom.ts'
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
-
-// We need to conditionally perform devtools connection to avoid
-// accidentally breaking other third-party code.
-// See https://github.com/vadimdemedes/ink/issues/384
-if (process.env['DEV'] === 'true') {
-  try {
-    await import('./devtools.js');
-  } catch (error: any) {
-    if (error.code === 'ERR_MODULE_NOT_FOUND') {
-      console.warn(
-        `${`
-The environment variable DEV is set to true, so Kubb tried to import \`react-devtools-core\`,
-but this failed as it was not installed. Debugging with React Devtools requires it.
-
-To install use this command:
-
-$ pnpm add -D react-devtools-core
-				`.trim()}\n`,
-      );
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-throw-literal
-      throw error;
-    }
-  }
-}
-
 
 
 const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
@@ -75,7 +50,14 @@ type UpdatePayload = {
   props: Props | undefined
 }
 
-export const reconciler = createReconciler<
+/**
+ * @link https://www.npmjs.com/package/react-devtools-inline
+ * @link https://github.com/nitin42/Making-a-custom-React-renderer/blob/master/part-one.md
+ * @link https://github.com/facebook/react/tree/main/packages/react-reconciler#practical-examples
+ * @link https://github.com/vadimdemedes/ink
+ * @link https://github.com/pixijs/pixi-react/tree/main/packages
+ */
+export const KubbRenderer = createReconciler<
   ElementNames,
   Props,
   DOMElement,
@@ -136,16 +118,6 @@ export const reconciler = createReconciler<
         continue
       }
 
-      if (key === 'internal_transform') {
-        node.internal_transform = value as any
-        continue
-      }
-
-      if (key === 'internal_static') {
-        node.internal_static = true
-        continue
-      }
-
       setAttribute(node, key, value as DOMNodeAttribute)
     }
 
@@ -170,15 +142,7 @@ export const reconciler = createReconciler<
   appendInitialChild: appendChildNode,
   appendChild: appendChildNode,
   insertBefore: insertBeforeNode,
-  finalizeInitialChildren(node, _type, _props, rootNode) {
-    if (node.internal_static) {
-      rootNode.isStaticDirty = true
-
-      // Save reference to <Static> node to skip traversal of entire
-      // node tree to find it
-      rootNode.staticNode = node
-    }
-
+  finalizeInitialChildren(_node, _type, _props, _rootNode) {
     return false
   },
   isPrimaryRenderer: true,
@@ -200,34 +164,18 @@ export const reconciler = createReconciler<
   removeChildFromContainer(node, removeNode) {
     removeChildNode(node, removeNode)
   },
-  prepareUpdate(node, _type, oldProps, newProps, rootNode) {
-    if (node.internal_static) {
-      rootNode.isStaticDirty = true
-    }
-
+  prepareUpdate(_node, _type, oldProps, newProps, _rootNode) {
     const props = diff(oldProps, newProps)
 
-    const style = diff(oldProps['style'] as any, newProps['style'] as any)
-
-    if (!props && !style) {
+    if (!props) {
       return null
     }
 
-    return { props, style }
+    return { props }
   },
   commitUpdate(node, { props }) {
     if (props) {
       for (const [key, value] of Object.entries(props)) {
-        if (key === 'internal_transform') {
-          node.internal_transform = value as any
-          continue
-        }
-
-        if (key === 'internal_static') {
-          node.internal_static = true
-          continue
-        }
-
         setAttribute(node, key, value as DOMNodeAttribute)
       }
     }
@@ -239,5 +187,6 @@ export const reconciler = createReconciler<
     removeChildNode(node, removeNode)
   },
 })
+
 
 export type { FiberRoot } from 'react-reconciler'

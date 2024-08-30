@@ -4,11 +4,15 @@ import { useContext } from 'react'
 import { App } from '../components/App'
 
 type AppResult<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  plugin: Plugin<TOptions>
-  mode: KubbFile.Mode
-  pluginManager: PluginManager
-  fileManager: FileManager
-  getFile: PluginManager['getFile']
+  /**
+   * Exit (unmount)
+   */
+  readonly exit: (error?: Error) => void
+  readonly plugin: Plugin<TOptions>
+  readonly mode: KubbFile.Mode
+  readonly pluginManager: PluginManager
+  readonly fileManager: FileManager
+  readonly getFile: PluginManager['getFile']
 }
 
 /**
@@ -27,5 +31,6 @@ export function useApp<TOptions extends PluginFactoryOptions = PluginFactoryOpti
     fileManager: app.pluginManager.fileManager,
     getFile: app.pluginManager.getFile.bind(app.pluginManager),
     mode: app.mode,
+    exit: app.exit,
   }
 }

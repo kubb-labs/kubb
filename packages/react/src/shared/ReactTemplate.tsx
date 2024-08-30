@@ -1,22 +1,29 @@
 import crypto from 'node:crypto'
 import process from 'node:process'
+import { onExit } from 'signal-exit'
 
 import { Root } from '../components/Root.tsx'
-import { reconciler } from '../reconciler.ts'
-import { renderer } from './renderer.ts'
+import { KubbRenderer } from '../kubbRenderer.ts'
+import { renderer, type RendererResult } from './renderer.ts'
 import { throttle } from './utils/throttle.ts'
 
 import type { Logger } from '@kubb/core/logger'
 import type * as KubbFile from '@kubb/fs/types'
-import type { ReactNode } from 'react'
+import  { type ReactNode } from 'react'
 import type { RootContextProps } from '../components/Root.tsx'
-import type { FiberRoot } from '../reconciler.ts'
+import type { FiberRoot } from '../kubbRenderer.ts'
 import type { DOMElement } from '../types.ts'
+import { createNode } from './dom.ts'
+import autoBind from 'auto-bind'
+import * as React from 'react';
 
 // https://agent-hunt.medium.com/hello-world-custom-react-renderer-9a95b7cd04bc
 const noop = () => {}
 
 export type ReactTemplateOptions = {
+  stdout?: NodeJS.WriteStream
+  stdin?: NodeJS.ReadStream
+  stderr?: NodeJS.WriteStream
   logger?: Logger
   debug?: boolean
 }
@@ -25,21 +32,17 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
   readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
-  #lastOutput: string
+  #lastRendererResult: RendererResult
 
-  #lastFiles: Array<KubbFile.File> = []
+  #exitPromise?: Promise<RendererResult>
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
-  public logger?: Logger
-  public readonly id = crypto.randomUUID()
 
-  constructor(rootNode: DOMElement, options: ReactTemplateOptions = { debug: false }) {
+  constructor(options: ReactTemplateOptions) {
+    autoBind(this)
     this.#options = options
-    if (options.logger) {
-      this.logger = options.logger
-    }
 
-    this.#rootNode = rootNode
+    this.#rootNode = createNode('kubb-root')
     this.#rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
     this.#rootNode.onImmediateRender = this.onRender
 
@@ -47,9 +50,14 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     this.#isUnmounted = false
 
     // Store last output to only rerender when needed
-    this.#lastOutput = ''
+    this.#lastRendererResult = {
+      exports: [],
+      files: [],
+      imports: [],
+      output: '',
+    }
 
-    this.#container = reconciler.createContainer(
+    this.#container = KubbRenderer.createContainer(
       this.#rootNode,
       // Legacy mode
       0,
@@ -62,33 +70,29 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     )
 
     // Unmount when process exits
-    this.unsubscribeExit = this.unmount
+    this.unsubscribeExit = onExit(
+      (code) => {
+        this.unmount(code)
+      },
+      { alwaysLast: false },
+    )
 
-    if (process.env['DEV'] === 'true') {
-      console.log("Debugging ...")
-      reconciler.injectIntoDevTools({
-        bundleType: 0,
-        // Reporting React DOM's version, not Kubb's
-        // See https://github.com/facebook/react/issues/16666#issuecomment-532639905
-        version: '18.0.2',
-        rendererPackageName: '@kubb/react',
-      })
-    }
+    KubbRenderer.injectIntoDevTools({
+      bundleType: 0, // 0 for PROD, 1 for DEV
+      version: "18.3.1", // should be React version and not Kubb's custom version
+      rendererPackageName: 'kubb', // package name
+    })
   }
 
   get output(): string {
-    return this.#lastOutput
+    return this.#lastRendererResult.output
   }
 
   get files(): Array<KubbFile.File> {
-    return this.#lastFiles
+    return this.#lastRendererResult.files
   }
 
-  resized = (): void => {
-    this.onRender()
-  }
-
-  resolveExitPromise: () => void = () => {}
+  resolveExitPromise: (result: RendererResult) => void = () => {}
   rejectExitPromise: (reason?: Error) => void = () => {}
   unsubscribeExit: () => void = () => {}
 
@@ -97,35 +101,39 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
       return
     }
 
-    const { output, files } = renderer(this.#rootNode)
+    const result = renderer(this.#rootNode)
 
-    this.#lastOutput = output
-    this.#lastFiles = files
+    if (this.#options.debug) {
+      console.log('Render', result.output)
+    }
+
+    this.#options.stdout?.write(result.output)
+
+    this.#lastRendererResult = result
   }
   onError(error: Error): void {
     if (process.env.NODE_ENV === 'test') {
       console.warn(error)
     }
-    if (!this.logger) {
-      console.warn(error)
-    }
     throw error
+  }
+  onExit(error?: Error): void {
+    this.unmount(error)
   }
 
   render(node: ReactNode, context?: Context): void {
-    if (context) {
-      const element = (
-        <Root logger={this.logger} meta={context.meta} onError={this.onError}>
-          {node}
-        </Root>
-      )
+    const element = (
+      <Root logger={this.#options.logger} meta={context?.meta || {}} onExit={this.onExit} onError={this.onError}>
+        {node}
+      </Root>
+    )
 
-      reconciler.updateContainer(element, this.#container, null, noop)
-    }else {
-      reconciler.updateContainer(node, this.#container, null, noop)
-    }
+    KubbRenderer.updateContainer(element, this.#container, null, noop)
+  }
+  renderToString(node: ReactNode, context?: Context): string {
+    this.render(node, context)
 
-
+    return this.#lastRendererResult.output
   }
 
   unmount(error?: Error | number | null): void {
@@ -138,12 +146,28 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
 
     this.#isUnmounted = true
 
-    reconciler.updateContainer(null, this.#container, null, noop)
+    KubbRenderer.updateContainer(null, this.#container, null, noop)
 
     if (error instanceof Error) {
+      if (this.#options.debug) {
+        console.log('Unmount', error)
+      }
+
       this.rejectExitPromise(error)
     } else {
-      this.resolveExitPromise()
+      if (this.#options.debug) {
+        console.log('Unmount', error)
+      }
+      this.resolveExitPromise(this.#lastRendererResult)
     }
+  }
+
+  async waitUntilExit(): Promise<RendererResult> {
+    this.#exitPromise ||= new Promise((resolve, reject) => {
+      this.resolveExitPromise = resolve
+      this.rejectExitPromise = reject
+    })
+
+    return this.#exitPromise
   }
 }

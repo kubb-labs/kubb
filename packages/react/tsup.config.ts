@@ -9,7 +9,26 @@ export default defineConfig([
       index: 'src/index.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
     },
-    // noExternal: ['react', 'react-reconciler'],
+  },
+  {
+    entry: {
+      runner: './src/runner.tsx',
+    },
+    format: ['cjs'],
+    target: ['es2020', 'node16'],
+    noExternal:[/auto-bind/],
+    banner: {
+      'js': `
+const ws = require('ws');
+
+const customGlobal = global;
+customGlobal.WebSocket ||= ws;
+customGlobal.window ||= global;
+customGlobal.self ||= global;
+
+const devtools = require('react-devtools-core');
+devtools.connectToDevTools();
+    `}
   },
   {
     ...optionsESM,
@@ -17,6 +36,5 @@ export default defineConfig([
       index: 'src/index.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
     },
-    // noExternal: ['react', 'react-reconciler'],
   },
 ])

@@ -69,26 +69,29 @@
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "start:devtools": "npx react-devtools",
-    "test:devtools": "bun ./src/client/createRoot.test.tsx",
+    "test:devtools": "node ./dist/runner.cjs",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
+    "auto-bind": "^5.0.1",
     "natural-orderby": "^3.0.2",
-    "ws": "^8.15.0",
-    "react-devtools-core": "^5.3.1",
     "react": "^18.3.1",
-    "react-reconciler": "^0.29.2"
+    "react-devtools-core": "^5.3.1",
+    "react-devtools-inline": "^5.3.1",
+    "react-reconciler": "^0.29.2",
+    "signal-exit": "^4.1.0",
+    "ws": "^8.15.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.5",
+    "@types/react": "^18.3.1",
     "@types/react-reconciler": "^0.28.8",
-    "@types/ws": "^8.5.10",
+    "@types/signal-exit": "^3.0.4",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
