@@ -48,3 +48,4 @@ export function Type({ name, export: canExport, JSDoc, children }: Props): KubbN
     </>
   )
 }
+Type.displayName = 'KubbType'

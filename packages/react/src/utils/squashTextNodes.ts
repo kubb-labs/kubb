@@ -2,8 +2,8 @@ import { getRelativePath } from '@kubb/fs'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 
-import type { File } from '../../components/File.tsx'
-import type { DOMElement } from '../../types.ts'
+import type { File } from '../components/File.tsx'
+import type { DOMElement } from '../types.ts'
 
 export function squashTextNodes(node: DOMElement): string {
   let text = ''

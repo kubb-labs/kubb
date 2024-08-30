@@ -1,4 +1,4 @@
-import { createRoot } from '../client/createRoot.ts'
+import { createRoot } from '../createRoot.ts'
 import { Const } from './Const.tsx'
 
 describe('<Const/>', () => {

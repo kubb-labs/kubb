@@ -1,7 +1,6 @@
 import { Component, createContext } from 'react'
 
 import type { Logger } from '@kubb/core/logger'
-import { App } from '@kubb/react'
 import type { KubbNode } from '../types.ts'
 
 type ErrorBoundaryProps<Meta extends Record<string, unknown> = Record<string, unknown>> = {

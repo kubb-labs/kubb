@@ -1,20 +1,20 @@
 import process from 'node:process'
 import { onExit } from 'signal-exit'
 
-import { Root } from '../components/Root.tsx'
-import { KubbRenderer } from '../kubbRenderer.ts'
-import { renderer, type RendererResult } from './renderer.ts'
+import { Root } from './components/Root.tsx'
+import { KubbRenderer } from './kubbRenderer.ts'
+import { type RendererResult, renderer } from './renderer.ts'
 import { throttle } from './utils/throttle.ts'
 
 import type { Logger } from '@kubb/core/logger'
 import type * as KubbFile from '@kubb/fs/types'
-import type { ReactNode } from 'react'
-import type { RootContextProps } from '../components/Root.tsx'
-import type { FiberRoot } from '../kubbRenderer.ts'
-import type { DOMElement } from '../types.ts'
-import { createNode } from './dom.ts'
 import autoBind from 'auto-bind'
+import type { ReactNode } from 'react'
 import * as React from 'react'
+import type { RootContextProps } from './components/Root.tsx'
+import { createNode } from './dom.ts'
+import type { FiberRoot } from './kubbRenderer.ts'
+import type { DOMElement } from './types.ts'
 
 // https://agent-hunt.medium.com/hello-world-custom-react-renderer-9a95b7cd04bc
 const noop = () => {}
