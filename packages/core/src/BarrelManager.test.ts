@@ -43,7 +43,7 @@ describe('BarrelManager', () => {
       },
     ]
     const barrelManager = new BarrelManager()
-    const barrelFiles = barrelManager.getFiles(files, 'src') || []
+    const barrelFiles = barrelManager.getFiles({ files, root: 'src' }) || []
     const rootIndex = barrelFiles[0]
 
     expect(rootIndex).toBeDefined()
@@ -109,13 +109,20 @@ describe('BarrelManager', () => {
       },
     ]
     const barrelManager = new BarrelManager()
-    const barrelFiles = barrelManager.getFiles(files) || []
+    const barrelFiles = barrelManager.getFiles({ files }) || []
 
     expect(barrelFiles).toMatchInlineSnapshot(`
       [
         {
           "baseName": "index.ts",
           "exports": [
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "test",
+              ],
+              "path": "./test.ts",
+            },
             {
               "isTypeOnly": undefined,
               "name": [
@@ -127,23 +134,22 @@ describe('BarrelManager', () => {
               "isTypeOnly": undefined,
               "name": [
                 "world",
-                "hello",
-              ],
-              "path": "./sub/index.ts",
-            },
-            {
-              "isTypeOnly": undefined,
-              "name": [
-                "world",
               ],
               "path": "./sub/world.ts",
             },
             {
               "isTypeOnly": undefined,
               "name": [
-                "test",
+                "world",
               ],
-              "path": "./test.ts",
+              "path": "./sub/index.ts",
+            },
+            {
+              "isTypeOnly": undefined,
+              "name": [
+                "hello",
+              ],
+              "path": "./sub/index.ts",
             },
           ],
           "path": "src/index.ts",
@@ -169,6 +175,20 @@ describe('BarrelManager', () => {
               "name": "world",
               "value": "",
             },
+            {
+              "isExportable": false,
+              "isIndexable": false,
+              "isTypeOnly": undefined,
+              "name": "world",
+              "value": "",
+            },
+            {
+              "isExportable": false,
+              "isIndexable": false,
+              "isTypeOnly": undefined,
+              "name": "hello",
+              "value": "",
+            },
           ],
         },
         {
@@ -180,14 +200,6 @@ describe('BarrelManager', () => {
                 "hello",
               ],
               "path": "./hello.ts",
-            },
-            {
-              "isTypeOnly": undefined,
-              "name": [
-                "world",
-                "hello",
-              ],
-              "path": "./index.ts",
             },
             {
               "isTypeOnly": undefined,

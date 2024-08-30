@@ -4,8 +4,8 @@ import { TreeNode } from './utils/TreeNode.ts'
 
 import { getRelativePath } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import { combineExports, combineSources } from './FileManager.ts'
 import type { Logger } from './logger.ts'
+import type { FileMetaBase } from './FileManager.ts'
 
 export type BarrelManagerOptions = {
   logger?: Logger
@@ -20,12 +20,12 @@ export class BarrelManager {
     return this
   }
 
-  getFiles(generatedFiles: KubbFile.File[], root?: string): Array<KubbFile.File> {
+  getFiles({ files: generatedFiles, root, meta }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
     const { logger } = this.#options
 
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
-    logger?.emit('debug', { date: new Date(), logs: [`Start barrel generation for root: ${root}`] })
+    logger?.emit('debug', { date: new Date(), logs: [`Start barrel generation for pluginKey ${meta?.pluginKey?.join('.')} and root '${root}'`] })
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
       if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
@@ -97,17 +97,16 @@ export class BarrelManager {
         })
       })
 
-      logger?.emit('debug', { date: new Date(), logs: [`Generating barrelFile(${barrelFile.path}) for: ${treeNode.data?.path}`] })
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [
+          `Generating barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with ${barrelFile.sources.length} indexable files`,
+        ],
+      })
 
       if (previousBarrelFile) {
         previousBarrelFile.sources.push(...barrelFile.sources)
         previousBarrelFile.exports?.push(...(barrelFile.exports || []))
-        // cachedFiles.set(barrelFile.path, {
-        //   ...previousBarrelFile,
-        //   ...barrelFile,
-        //   exports: combineExports([...(previousBarrelFile.exports || []), ...(barrelFile.exports || [])]),
-        //   sources: combineSources([...(previousBarrelFile.sources || []), ...(barrelFile.sources || [])]),
-        // })
       } else {
         cachedFiles.set(barrelFile.path, barrelFile)
       }

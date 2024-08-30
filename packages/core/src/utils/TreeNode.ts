@@ -80,7 +80,7 @@ export class TreeNode {
     return this
   }
 
-  findDeep(predicate: (value: TreeNode, index: number, obj: TreeNode[]) => boolean): TreeNode | undefined {
+  findDeep(predicate?: (value: TreeNode, index: number, obj: TreeNode[]) => boolean): TreeNode | undefined {
     if (typeof predicate !== 'function') {
       throw new TypeError('find() predicate must be a function')
     }

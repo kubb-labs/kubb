@@ -128,8 +128,8 @@ describe('TreeNode', () => {
   test('if `find` is executed correctly', () => {
     const helloTS = tree?.leaves.find((leave) => leave.data.name === 'hello.ts')
 
-    expect(tree?.find()).toBeNull()
-    expect(tree?.find(helloTS?.data)?.data.name).toEqual('hello.ts')
+    expect(tree?.findDeep).toBeDefined()
+    expect(tree?.findDeep((item) => item.data === helloTS?.data)?.data.name).toEqual('hello.ts')
   })
 
   test('if `foreach` is executed correctly', () => {
