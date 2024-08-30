@@ -65,8 +65,6 @@ export function File<TMeta extends FileMetaBase = FileMetaBase>({ children, ...r
   )
 }
 
-File.displayName = 'KubbFile'
-
 type FileSourceProps = Omit<KubbFile.Source, 'value'> & {
   children?: KubbNode
 }
@@ -79,23 +77,17 @@ function FileSource({ isTypeOnly, name, isExportable, isIndexable, children }: F
   )
 }
 
-FileSource.displayName = 'KubbFileSource'
-
 type FileExportProps = KubbFile.Export
 
 function FileExport({ name, path, isTypeOnly, extName, asAlias }: FileExportProps): KubbNode {
   return <kubb-export name={name} path={path} extName={extName} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
 }
 
-FileExport.displayName = 'KubbFileExport'
-
 type FileImportProps = KubbFile.Import
 
-function FileImport({ name, root, path, isTypeOnly, extName, isNameSpace }: FileImportProps): KubbNode {
+export function FileImport({ name, root, path, isTypeOnly, extName, isNameSpace }: FileImportProps): KubbNode {
   return <kubb-import name={name} root={root} path={path} extName={extName} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
 }
-
-FileImport.displayName = 'KubbFileImport'
 
 File.Export = FileExport
 File.Import = FileImport

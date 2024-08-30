@@ -15,6 +15,13 @@ customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
   {
     // ComponentFilterDisplayName
     type: 2,
+    value: 'Context.Provider',
+    isEnabled: true,
+    isValid: true,
+  },
+  {
+    // ComponentFilterDisplayName
+    type: 2,
     value: 'KubbApp',
     isEnabled: true,
     isValid: true,
@@ -36,6 +43,27 @@ customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
   {
     // ComponentFilterDisplayName
     type: 2,
+    value: 'kubb-text',
+    isEnabled: true,
+    isValid: true,
+  },
+  {
+    // ComponentFilterDisplayName
+    type: 2,
+    value: 'kubb-file',
+    isEnabled: true,
+    isValid: true,
+  },
+  {
+    // ComponentFilterDisplayName
+    type: 2,
+    value: 'kubb-source',
+    isEnabled: true,
+    isValid: true,
+  },
+  {
+    // ComponentFilterDisplayName
+    type: 2,
     value: 'kubb-import',
     isEnabled: true,
     isValid: true,
@@ -50,7 +78,7 @@ customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
   {
     // ComponentFilterDisplayName
     type: 2,
-    value: 'kubb-text',
+    value: 'kubb-export',
     isEnabled: true,
     isValid: true,
   },

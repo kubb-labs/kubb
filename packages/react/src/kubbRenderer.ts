@@ -2,14 +2,13 @@ import createReconciler from 'react-reconciler'
 
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
-import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
+import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './shared/dom.ts'
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
+// @ts-ignore
+import devtools from 'react-devtools-core'
 if (process.env['DEVTOOLS'] === 'true') {
-  // @ts-ignore
-  const devtools = await import('react-devtools-core')
-
   devtools.connectToDevTools()
 }
 

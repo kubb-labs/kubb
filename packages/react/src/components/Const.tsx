@@ -54,5 +54,3 @@ export function Const({ name, export: canExport, JSDoc, asConst, children }: Pro
     </>
   )
 }
-
-Const.displayName = 'KubbConst'

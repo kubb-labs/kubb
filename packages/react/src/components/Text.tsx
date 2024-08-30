@@ -1,6 +1,8 @@
+import { createJSDocBlockText } from '@kubb/core/transformers'
+
 import { useIndent } from '../hooks/useIndent.ts'
 
-import type { KubbNode } from '../types.ts'
+import type { JSDoc, KubbNode } from '../types.ts'
 
 type Props = {
   /**
@@ -23,7 +25,47 @@ export function Text({ indentSize = 0, children }: Props): KubbNode {
   )
 }
 
-Text.displayName = 'KubbText'
+type ConstProps = Props & {
+  /**
+   * Name of the const.
+   */
+  name: string
+  /**
+   * Does this const need to be exported.
+   */
+  export?: boolean
+  /**
+   * Options for JSdocs.
+   */
+  JSDoc?: JSDoc
+}
+
+/**
+ * @deprecated
+ */
+export function Const({ name, export: canExport, JSDoc, children }: ConstProps): KubbNode {
+  return (
+    <>
+      {JSDoc?.comments && (
+        <>
+          {createJSDocBlockText({ comments: JSDoc?.comments })}
+          <br />
+        </>
+      )}
+      {canExport && (
+        <Text>
+          export
+          <Text.Space />
+        </Text>
+      )}
+      <Text>
+        const {name} =<Text.Space />
+      </Text>
+
+      <Text>{children}</Text>
+    </>
+  )
+}
 
 type SpaceProps = {
   /**
@@ -33,12 +75,14 @@ type SpaceProps = {
   size?: number
 }
 
-export function Space({ size = 1 }: SpaceProps): KubbNode {
+function Space({ size = 1 }: SpaceProps): KubbNode {
   const indentBefore = useIndent({ size })
 
   return <kubb-text>{indentBefore}</kubb-text>
 }
 
-Space.displayName = 'KubbSpace'
-
 Text.Space = Space
+/**
+ * @deprecated
+ */
+Text.Const = Const

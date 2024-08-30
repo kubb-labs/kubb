@@ -2,8 +2,8 @@ import { nodeNames } from '../dom.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
-import type { File } from '../components/File.tsx'
-import type { DOMElement, ElementNames } from '../types.ts'
+import type { File } from '../../components/File.tsx'
+import type { DOMElement, ElementNames } from '../../types.ts'
 import { squashTextNodes } from './squashTextNodes.ts'
 
 export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Array<KubbFile.Source> {
