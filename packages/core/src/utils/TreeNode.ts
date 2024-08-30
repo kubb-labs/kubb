@@ -12,11 +12,10 @@ type BarrelData = {
 }
 
 export class TreeNode {
-  public data: BarrelData
-
-  public parent?: TreeNode
-
-  public children: Array<TreeNode> = []
+  data: BarrelData
+  parent?: TreeNode
+  children: Array<TreeNode> = []
+  #cachedLeaves?: Array<TreeNode> = undefined
 
   constructor(data: BarrelData, parent?: TreeNode) {
     this.data = data
@@ -33,31 +32,21 @@ export class TreeNode {
     return child
   }
 
-  find(data?: BarrelData): TreeNode | null {
-    if (!data) {
-      return null
-    }
-
-    if (data === this.data) {
+  get root(): TreeNode {
+    if (!this.parent) {
       return this
     }
-
-    if (this.children?.length) {
-      for (let i = 0, { length } = this.children, target: TreeNode | null = null; i < length; i++) {
-        target = this.children[i]!.find(data)
-        if (target) {
-          return target
-        }
-      }
-    }
-
-    return null
+    return this.parent.root
   }
 
   get leaves(): Array<TreeNode> {
     if (!this.children || this.children.length === 0) {
       // this is a leaf
       return [this]
+    }
+
+    if (this.#cachedLeaves) {
+      return this.#cachedLeaves
     }
 
     // if not a leaf, return all children's leaves recursively
@@ -67,14 +56,10 @@ export class TreeNode {
         leaves.push.apply(leaves, this.children[i]!.leaves)
       }
     }
-    return leaves
-  }
 
-  get root(): TreeNode {
-    if (!this.parent) {
-      return this
-    }
-    return this.parent.root
+    this.#cachedLeaves = leaves
+
+    return leaves
   }
 
   forEach(callback: (treeNode: TreeNode) => void): this {
@@ -95,46 +80,36 @@ export class TreeNode {
     return this
   }
 
-  filter(callback: (treeNode: TreeNode) => boolean): Array<TreeNode> {
-    let data: Array<TreeNode> = []
-    if (typeof callback !== 'function') {
-      throw new TypeError('forEach() callback must be a function')
+  findDeep(predicate: (value: TreeNode, index: number, obj: TreeNode[]) => boolean): TreeNode | undefined {
+    if (typeof predicate !== 'function') {
+      throw new TypeError('find() predicate must be a function')
     }
 
-    // run this node through function
-    if (callback(this)) {
-      data.push(this)
-    }
-
-    // do the same for all children
-    if (this.children) {
-      for (let i = 0, { length } = this.children; i < length; i++) {
-        const childData = this.children[i]?.filter(callback).filter(Boolean) || []
-        data = [...new Set([...data, ...childData])]
-      }
-    }
-
-    return data
+    return this.leaves.find(predicate)
   }
 
-  map<T>(callback: (treeNode: TreeNode) => T): Array<T> {
-    let data: Array<T> = []
+  forEachDeep(callback: (treeNode: TreeNode) => void): void {
     if (typeof callback !== 'function') {
       throw new TypeError('forEach() callback must be a function')
     }
 
-    // run this node through function
-    data.push(callback(this))
+    this.leaves.forEach(callback)
+  }
 
-    // do the same for all children
-    if (this.children) {
-      for (let i = 0, { length } = this.children; i < length; i++) {
-        const childData = this.children[i]?.map(callback).filter(Boolean) || []
-        data = [...new Set([...data, ...childData])]
-      }
+  filterDeep(callback: (treeNode: TreeNode) => boolean): Array<TreeNode> {
+    if (typeof callback !== 'function') {
+      throw new TypeError('filter() callback must be a function')
     }
 
-    return data
+    return this.leaves.filter(callback)
+  }
+
+  mapDeep<T>(callback: (treeNode: TreeNode) => T): Array<T> {
+    if (typeof callback !== 'function') {
+      throw new TypeError('map() callback must be a function')
+    }
+
+    return this.leaves.map(callback)
   }
 
   public static build(files: KubbFile.File[], root?: string): TreeNode | null {
