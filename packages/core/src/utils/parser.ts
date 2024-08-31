@@ -3,7 +3,7 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import { getRelativePath } from '@kubb/fs'
 import hash from 'object-hash'
-import { combineExports, combineImports, combineSources, filterImportsBasedOnSource } from '../FileManager.ts'
+import { combineExports, combineImports, combineSources } from '../FileManager.ts'
 import type { Logger } from '../logger.ts'
 
 /**
@@ -18,7 +18,7 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
 
   const source = file.sources.map((item) => item.value).join('\n\n')
   const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports && source ? combineImports(file.imports) : []
+  const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
   const sources = file.sources ? combineSources(file.sources) : []
 
   return {
