@@ -59,10 +59,10 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@redocly/openapi-core": "^1.22.0",
+    "@redocly/openapi-core": "^1.22.1",
     "hotscript": "^1.0.13",
     "json-schema-to-ts": "^3.1.1",
-    "oas": "^24.6.0",
+    "oas": "^24.7.0",
     "oas-normalize": "^11.1.1",
     "openapi-format": "^1.22.3",
     "openapi-types": "^12.1.3",
