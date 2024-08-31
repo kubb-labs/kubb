@@ -3,7 +3,6 @@ import { createContext } from 'react'
 import type { FileMetaBase } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type { KubbNode } from '../types.ts'
-import { Const } from './Const.tsx'
 
 export type FileContextProps<TMeta extends FileMetaBase = FileMetaBase> = {
   /**

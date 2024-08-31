@@ -1,7 +1,6 @@
 import { useIndent } from '../hooks/useIndent.ts'
 
 import type { KubbNode } from '../types.ts'
-import { Const } from './Const.tsx'
 
 type Props = {
   /**

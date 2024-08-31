@@ -54,7 +54,7 @@ const knowledgeBaseSidebar = [
         text: 'Debugging Kubb',
         link: '/knowledge-base/how-tos/debugging',
       },
-    ]
+    ],
   },
   {
     text: 'Plugins',

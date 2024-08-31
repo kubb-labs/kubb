@@ -7,17 +7,17 @@ outline: deep
 
 # Debugging Kubb
 
-## React Devtools
+## React DevTools
 
-Kubb supports React Devtools out-of-the-box. To enable integration with React Devtools, import the devtools package in your `kubb.config.ts` config file.
+Kubb supports React DevTools out-of-the-box. To enable integration with React DevTools, import the devtools package in your `kubb.config.ts` config file.
 
-![React-Devtools](/screenshots/react-devtools.png)
+![React-DevTools](/screenshots/react-devtools.png)
 
 > [!NOTE]
 > Kubb will already run `npx react-devtools` as part of the `@kubb/react/devtools` import.
 
 ### Installation
-Before you can use the React Devtools, install the React package.
+Before you can use the React DevTools, install the React package.
 
 ::: code-group
 
@@ -71,7 +71,7 @@ The internal components `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, 
 > [!IMPORTANT]
 > You must manually quit your CLI via `Ctrl+C` after you're done testing.
 
-![React-Devtools](/screenshots/react-devtools.gif)
+![React-DevTools](/screenshots/react-devtools.gif)
 
 ## Node debugging
 
@@ -81,5 +81,5 @@ Because Kubb is a cli tool you need to use `NODE_OPTIONS='--inspect-brk' kubb`.
 
 ## Links
 
-- [React Devtools](https://react.dev/learn/react-developer-tools)
+- [React DevTools](https://react.dev/learn/react-developer-tools)
 - [Node debugging](https://www.youtube.com/watch?v=i9hOCvBDMMg)

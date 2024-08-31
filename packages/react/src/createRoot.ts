@@ -1,4 +1,4 @@
-import { ReactTemplate, type ReactTemplateOptions } from './shared/ReactTemplate.tsx'
+import { ReactTemplate, type ReactTemplateOptions } from './ReactTemplate.tsx'
 
 import type { RootContextProps } from './components/Root.tsx'
 

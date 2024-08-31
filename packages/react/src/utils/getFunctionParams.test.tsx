@@ -1,4 +1,4 @@
-import { mockParams } from '../../../mocks/mockParams.ts'
+import { mockParams } from '../../mocks/mockParams.ts'
 import { getFunctionParams } from './getFunctionParams.ts'
 
 describe('[params] getFunctionParams callable(Function.Call)', () => {

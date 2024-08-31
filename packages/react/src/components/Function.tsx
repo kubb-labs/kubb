@@ -1,12 +1,11 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
 
-import { getFunctionParams, isFunctionParams } from '../shared/utils/getFunctionParams.ts'
+import { getFunctionParams, isFunctionParams } from '../utils/getFunctionParams.ts'
 import { Text } from './Text.tsx'
 
 import type { ReactElement } from 'react'
-import type { Params } from '../shared/utils/getFunctionParams.ts'
 import type { JSDoc, KubbNode } from '../types.ts'
-import { Const } from './Const.tsx'
+import type { Params } from '../utils/getFunctionParams.ts'
 
 type Props = {
   /**

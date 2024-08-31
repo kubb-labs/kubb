@@ -365,6 +365,9 @@ importers:
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../../packages/react
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -1647,6 +1650,9 @@ importers:
       '@types/signal-exit':
         specifier: ^3.0.4
         version: 3.0.4
+      '@types/ws':
+        specifier: ^8.5.12
+        version: 8.5.12
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@20.16.2))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)(yaml@2.4.5)
@@ -3578,6 +3584,9 @@ packages:
 
   '@types/ws@8.5.10':
     resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
+
+  '@types/ws@8.5.12':
+    resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
 
   '@typescript/vfs@1.5.0':
     resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
@@ -9036,6 +9045,10 @@ snapshots:
   '@types/wrap-ansi@3.0.0': {}
 
   '@types/ws@8.5.10':
+    dependencies:
+      '@types/node': 20.16.2
+
+  '@types/ws@8.5.12':
     dependencies:
       '@types/node': 20.16.2
 

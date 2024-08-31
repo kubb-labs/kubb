@@ -6,8 +6,8 @@ import { squashSourceNodes } from './squashSourceNodes.ts'
 import { createFile } from '@kubb/core/utils'
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
-import type { File } from '../../components/File.tsx'
-import type { DOMElement } from '../../types.ts'
+import type { File } from '../components/File.tsx'
+import type { DOMElement } from '../types.ts'
 
 export function getFiles(node: DOMElement): KubbFile.ResolvedFile[] {
   let files: KubbFile.ResolvedFile[] = []

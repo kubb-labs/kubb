@@ -1,4 +1,4 @@
-import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from '../types.ts'
+import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
 export const createNode = (nodeName: string): DOMElement => {
   const node: DOMElement = {

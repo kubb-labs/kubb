@@ -2,7 +2,7 @@ import createReconciler from 'react-reconciler'
 
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
-import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './shared/dom.ts'
+import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 

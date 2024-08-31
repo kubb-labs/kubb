@@ -101,6 +101,7 @@
     "@types/react": "^18.3.1",
     "@types/react-reconciler": "^0.28.8",
     "@types/signal-exit": "^3.0.4",
+    "@types/ws": "^8.5.12",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },

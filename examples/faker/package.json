@@ -26,6 +26,7 @@
     "@faker-js/faker": "^8.4.1",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
