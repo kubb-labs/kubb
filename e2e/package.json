@@ -37,7 +37,7 @@
     "@tanstack/solid-query": "^5.53.1",
     "@tanstack/svelte-query": "^5.53.1",
     "@tanstack/vue-query": "^5.53.1",
-    "axios": "^1.7.6",
+    "axios": "^1.7.7",
     "msw": "^2.4.1",
     "react": "^18.3.1",
     "solid-js": "^1.8.22",
@@ -51,7 +51,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "tsup": "^8.2.4",
-    "typescript": "~5.2.2"
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

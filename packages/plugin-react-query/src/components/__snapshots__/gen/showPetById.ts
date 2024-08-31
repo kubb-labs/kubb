@@ -19,7 +19,7 @@ export const GetPetsUuidQueryKey = () =>   [{ url: '/pets/:uuid', params: {uuid:
 
 export type GetPetsUuidQueryKey = ReturnType<typeof GetPetsUuidQueryKey>
 
-export function GetPetsUuidQueryOptions<TData = GetPetsUuid["response"], TQueryData = GetPetsUuid["response"]>(options: GetPetsUuid['client']['parameters'] = {}): WithRequired<UseBaseQueryOptions<GetPetsUuid['response'], GetPetsUuid["error"], TData, TQueryData>, 'queryKey'> {
+export function GetPetsUuidQueryOptions(options: GetPetsUuid['client']['parameters'] = {}) {
   
            const queryKey = GetPetsUuidQueryKey()
     
