@@ -1,22 +1,26 @@
 import { onExit } from 'signal-exit'
 import ws from 'ws'
 
+declare global {
+  var WebSocket: any
+  var self: any
+  var window: any
+  var isDevtoolsEnabled: any
+}
+
 // Filter out Kubbs's internal components from devtools for a cleaner view.
 // See https://github.com/facebook/react/blob/edf6eac8a181860fd8a2d076a43806f1237495a1/packages/react-devtools-shared/src/types.js#L24
 
-const customGlobal = global
-// @ts-ignore
+const customGlobal = globalThis
 customGlobal.WebSocket ||= ws
-// @ts-ignore
-customGlobal.window ||= global
-// @ts-ignore
-customGlobal.self ||= global
-// @ts-ignore
+customGlobal.window ||= globalThis
+customGlobal.self ||= globalThis
+customGlobal.isDevtoolsEnabled = true
 customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
   {
     // ComponentFilterDisplayName
     type: 2,
-    value: 'KubbApp',
+    value: 'Context.Provider',
     isEnabled: true,
     isValid: true,
   },
@@ -31,6 +35,13 @@ customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
     // ComponentFilterDisplayName
     type: 2,
     value: 'KubbErrorBoundary',
+    isEnabled: true,
+    isValid: true,
+  },
+  {
+    // ComponentFilterDisplayName
+    type: 2,
+    value: 'kubb-file',
     isEnabled: true,
     isValid: true,
   },
@@ -55,20 +66,31 @@ customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
     isEnabled: true,
     isValid: true,
   },
+  {
+    // ComponentFilterDisplayName
+    type: 2,
+    value: 'kubb-source',
+    isEnabled: true,
+    isValid: true,
+  },
 ]
 
 function openDevtools() {
   let subprocess: { kill: () => void }
-  import('execa').then(async (execa) => {
-    console.log('Opening devtools')
+  import('execa')
+    .then(async (execa) => {
+      console.log('Opening devtools')
 
-    subprocess = execa.execa({ preferLocal: true })`npx react-devtools`
-  })
-  // @ts-ignore
-  import('react-devtools-core').then((devtools) => {
-    console.log('Connecting devtools')
-    devtools.default.connectToDevTools()
-  })
+      subprocess = execa.execa({ preferLocal: true })`npx react-devtools`
+    })
+    .then(() => {
+      // @ts-ignore
+      return import('react-devtools-core')
+    })
+    .then((devtools) => {
+      console.log('Connecting devtools')
+      devtools.default.connectToDevTools()
+    })
 
   onExit(
     () => {

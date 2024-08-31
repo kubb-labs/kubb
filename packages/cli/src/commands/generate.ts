@@ -8,9 +8,14 @@ import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
 import path from 'node:path'
+import * as process from 'node:process'
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { LogMapper, createLogger } from '@kubb/core/logger'
 import { generate } from '../generate.ts'
+
+declare global {
+  var isDevtoolsEnabled: any
+}
 
 const args = {
   config: {
@@ -59,7 +64,8 @@ const command = defineCommand({
     description: "[input] Generate files based on a 'kubb.config.ts' file",
   },
   args,
-  async run({ args }) {
+  async run(commandContext) {
+    const { args } = commandContext
     const input = args._[0]
 
     if (args.help) {
@@ -111,6 +117,19 @@ const command = defineCommand({
     }
 
     await generate({ input, config, args })
+
+    if (globalThis.isDevtoolsEnabled) {
+      const restart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
+        type: 'confirm',
+        initial: false,
+      })
+
+      if (restart) {
+        await command.run?.(commandContext)
+      } else {
+        process.exit(1)
+      }
+    }
   },
 })
 

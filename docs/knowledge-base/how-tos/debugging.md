@@ -67,7 +67,7 @@ After it starts up, you should see the component tree of your CLI. You can even 
 > [!NOTE]
 > Kubb will already filter out some internal components like:
 >
-> `KubbApp`, `KubbRoot`, `KubbErrorBoundary`, `kubb-text`, `kubb-import` and `kubb-export`.
+> `KubbApp`, `KubbRoot`, `KubbErrorBoundary`, `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import` and `kubb-export`.
 
 The internal components `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, and `kubb-export` are utilized to convert the React tree into a file that accurately includes the necessary imports, exports, and source code.
 
