@@ -31,17 +31,23 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": true,
-              "extName": ".ts",
+              "extName": undefined,
               "isTypeOnly": false,
               "name": undefined,
               "path": "./index.ts",
             },
           ],
-          "extName": ".ts",
-          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
-          "imports": [],
+          "imports": [
+            {
+              "extName": undefined,
+              "isNameSpace": undefined,
+              "isTypeOnly": false,
+              "name": "React",
+              "path": "react",
+              "root": undefined,
+            },
+          ],
           "meta": undefined,
-          "name": "test",
           "override": undefined,
           "path": "path",
           "sources": [],
@@ -90,17 +96,14 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": undefined,
-              "extName": "",
+              "extName": undefined,
               "isTypeOnly": false,
               "name": "test",
               "path": "",
             },
           ],
-          "extName": ".ts",
-          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
-          "name": "test",
           "override": undefined,
           "path": "path",
           "sources": [
@@ -152,11 +155,8 @@ describe('<File/>', () => {
         {
           "baseName": "test.ts",
           "exports": [],
-          "extName": ".ts",
-          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [],
           "meta": undefined,
-          "name": "test",
           "override": undefined,
           "path": "path",
           "sources": [
@@ -214,7 +214,7 @@ describe('<File/>', () => {
     expect(root.files[0]?.imports).toMatchInlineSnapshot(`
       [
         {
-          "extName": "",
+          "extName": undefined,
           "isNameSpace": undefined,
           "isTypeOnly": false,
           "name": "node",
@@ -289,11 +289,9 @@ describe('<File.Import/>', () => {
         {
           "baseName": "test.ts",
           "exports": [],
-          "extName": ".ts",
-          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
-              "extName": "",
+              "extName": undefined,
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -302,7 +300,6 @@ describe('<File.Import/>', () => {
             },
           ],
           "meta": undefined,
-          "name": "test",
           "override": undefined,
           "path": "path",
           "sources": [
@@ -337,11 +334,9 @@ describe('<File.Import/>', () => {
         {
           "baseName": "test.ts",
           "exports": [],
-          "extName": ".ts",
-          "id": "38da13367dcfda34091dd6de1997dfb3511c6d30",
           "imports": [
             {
-              "extName": "",
+              "extName": undefined,
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -350,7 +345,6 @@ describe('<File.Import/>', () => {
             },
           ],
           "meta": undefined,
-          "name": "test",
           "override": undefined,
           "path": "path",
           "sources": [

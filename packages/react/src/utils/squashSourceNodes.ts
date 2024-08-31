@@ -1,6 +1,5 @@
 import { nodeNames } from '../dom.ts'
 
-import { combineSources } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
 import type { File } from '../components/File.tsx'
@@ -33,7 +32,7 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
     }
 
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      sources = new Set(combineSources([...sources, ...squashSourceNodes(childNode, ignores)]))
+      sources = new Set([...sources, ...squashSourceNodes(childNode, ignores)])
     }
   }
 

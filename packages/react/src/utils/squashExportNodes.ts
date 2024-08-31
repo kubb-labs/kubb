@@ -1,6 +1,5 @@
 import { nodeNames } from '../dom.ts'
 
-import { combineExports } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
 import type { File } from '../components/File.tsx'
@@ -11,7 +10,7 @@ export function squashExportNodes(node: DOMElement): Set<KubbFile.ResolvedExport
 
   node.childNodes.filter(Boolean).forEach((childNode) => {
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      exports = new Set(combineExports([...exports, ...squashExportNodes(childNode)]))
+      exports = new Set([...exports, ...squashExportNodes(childNode)])
     }
 
     if (childNode.nodeName === 'kubb-export') {

@@ -3,14 +3,13 @@ import { squashExportNodes } from './squashExportNodes.ts'
 import { squashImportNodes } from './squashImportNodes.ts'
 import { squashSourceNodes } from './squashSourceNodes.ts'
 
-import { createFile } from '@kubb/core/utils'
 import type * as KubbFile from '@kubb/fs/types'
 import type React from 'react'
 import type { File } from '../components/File.tsx'
 import type { DOMElement } from '../types.ts'
 
-export function getFiles(node: DOMElement): Set<KubbFile.ResolvedFile> {
-  let files = new Set<KubbFile.ResolvedFile>()
+export function getFiles(node: DOMElement): Set<KubbFile.File> {
+  let files = new Set<KubbFile.File>()
 
   for (let index = 0; index < node.childNodes.length; index++) {
     const childNode = node.childNodes[index]
@@ -29,7 +28,7 @@ export function getFiles(node: DOMElement): Set<KubbFile.ResolvedFile> {
       if (attributes.baseName && attributes.path) {
         const sources = squashSourceNodes(childNode, ['kubb-export', 'kubb-import'])
 
-        const file = createFile({
+        const file: KubbFile.File = {
           baseName: attributes.baseName,
           path: attributes.path,
           sources: [...sources],
@@ -37,7 +36,7 @@ export function getFiles(node: DOMElement): Set<KubbFile.ResolvedFile> {
           imports: [...squashImportNodes(childNode)],
           override: attributes.override,
           meta: attributes.meta,
-        })
+        }
 
         files.add(file)
       }
