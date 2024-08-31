@@ -19,6 +19,9 @@ Kubb supports React DevTools out-of-the-box. To enable integration with React De
 ### Installation
 Before you can use the React DevTools, install the React package.
 
+> [!IMPORTANT]
+> Minimal Kubb version of `v3.0.0-alpha.11`.
+
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
