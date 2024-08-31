@@ -1,4 +1,4 @@
-import { createRoot } from '../client/createRoot.ts'
+import { createRoot } from '../createRoot.ts'
 import { Type } from './Type.tsx'
 
 describe('<Type/>', () => {

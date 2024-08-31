@@ -2,8 +2,8 @@ import { getRelativePath } from '@kubb/fs'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 
-import type { File } from '../../components/File.tsx'
-import type { DOMElement } from '../../types.ts'
+import type { File } from '../components/File.tsx'
+import type { DOMElement } from '../types.ts'
 
 export function squashTextNodes(node: DOMElement): string {
   let text = ''
@@ -53,7 +53,7 @@ export function squashTextNodes(node: DOMElement): string {
     if (childNode.nodeName === '#text') {
       nodeText = childNode.nodeValue
     } else {
-      if (['kubb-text', 'kubb-file', 'kubb-source', 'kubb-parser', 'kubb-parser-provider'].includes(childNode.nodeName)) {
+      if (['kubb-text', 'kubb-file', 'kubb-source'].includes(childNode.nodeName)) {
         nodeText = squashTextNodes(childNode)
       }
 

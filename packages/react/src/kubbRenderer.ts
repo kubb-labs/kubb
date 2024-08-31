@@ -1,13 +1,12 @@
 import createReconciler from 'react-reconciler'
+
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
-import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './shared/dom.ts'
+import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
-type AnyObject = Record<string, unknown>
-
-const diff = (before: AnyObject, after: AnyObject): AnyObject | undefined => {
+const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
   if (before === after) {
     return
   }
@@ -16,7 +15,7 @@ const diff = (before: AnyObject, after: AnyObject): AnyObject | undefined => {
     return after
   }
 
-  const changed: AnyObject = {}
+  const changed: Record<string, unknown> = {}
   let isChanged = false
 
   for (const key of Object.keys(before)) {
@@ -50,7 +49,14 @@ type UpdatePayload = {
   props: Props | undefined
 }
 
-export const reconciler = createReconciler<
+/**
+ * @link https://www.npmjs.com/package/react-devtools-inline
+ * @link https://github.com/nitin42/Making-a-custom-React-renderer/blob/master/part-one.md
+ * @link https://github.com/facebook/react/tree/main/packages/react-reconciler#practical-examples
+ * @link https://github.com/vadimdemedes/ink
+ * @link https://github.com/pixijs/pixi-react/tree/main/packages
+ */
+export const KubbRenderer = createReconciler<
   ElementNames,
   Props,
   DOMElement,
@@ -111,16 +117,6 @@ export const reconciler = createReconciler<
         continue
       }
 
-      if (key === 'internal_transform') {
-        node.internal_transform = value as any
-        continue
-      }
-
-      if (key === 'internal_static') {
-        node.internal_static = true
-        continue
-      }
-
       setAttribute(node, key, value as DOMNodeAttribute)
     }
 
@@ -145,15 +141,7 @@ export const reconciler = createReconciler<
   appendInitialChild: appendChildNode,
   appendChild: appendChildNode,
   insertBefore: insertBeforeNode,
-  finalizeInitialChildren(node, _type, _props, rootNode) {
-    if (node.internal_static) {
-      rootNode.isStaticDirty = true
-
-      // Save reference to <Static> node to skip traversal of entire
-      // node tree to find it
-      rootNode.staticNode = node
-    }
-
+  finalizeInitialChildren(_node, _type, _props, _rootNode) {
     return false
   },
   isPrimaryRenderer: true,
@@ -175,34 +163,18 @@ export const reconciler = createReconciler<
   removeChildFromContainer(node, removeNode) {
     removeChildNode(node, removeNode)
   },
-  prepareUpdate(node, _type, oldProps, newProps, rootNode) {
-    if (node.internal_static) {
-      rootNode.isStaticDirty = true
-    }
-
+  prepareUpdate(_node, _type, oldProps, newProps, _rootNode) {
     const props = diff(oldProps, newProps)
 
-    const style = diff(oldProps['style'] as any, newProps['style'] as any)
-
-    if (!props && !style) {
+    if (!props) {
       return null
     }
 
-    return { props, style }
+    return { props }
   },
   commitUpdate(node, { props }) {
     if (props) {
       for (const [key, value] of Object.entries(props)) {
-        if (key === 'internal_transform') {
-          node.internal_transform = value as any
-          continue
-        }
-
-        if (key === 'internal_static') {
-          node.internal_static = true
-          continue
-        }
-
         setAttribute(node, key, value as DOMNodeAttribute)
       }
     }

@@ -3,13 +3,6 @@ import ReactJSXRuntime from 'react/jsx-runtime'
 import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
 import type { KubbNode } from './types.ts'
-/**
- * TODO add for Server Components
- * import type {} from 'react/experimental'
- */
-
-/// <reference no-default-lib="true" />
-/// <reference lib="esnext" />
 
 declare global {
   namespace JSX {
@@ -30,14 +23,6 @@ declare global {
       }
       'kubb-import': KubbFile.Import
       'kubb-export': KubbFile.Export
-      'kubb-parser': {
-        language?: string
-        children?: ReactNode
-      }
-      'kubb-parser-provider': {
-        language?: string
-        children?: ReactNode
-      }
     }
   }
 }

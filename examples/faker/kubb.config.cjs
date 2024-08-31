@@ -1,3 +1,5 @@
+// require('@kubb/react/devtools') // enable/disable devtools
+
 const { defineConfig } = require('@kubb/core')
 
 const { pluginOas, schemaKeywords } = require('@kubb/plugin-oas')

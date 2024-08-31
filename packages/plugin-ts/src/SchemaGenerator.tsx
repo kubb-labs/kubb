@@ -5,6 +5,7 @@ import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 import { Schema } from './components/Schema.tsx'
 import type { FileMeta, PluginTs } from './types.ts'
+import { pascalCase } from '@kubb/core/transformers'
 
 export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {
   async schema(name: string, schema: SchemaObject, options: PluginTs['resolvedOptions']): SchemaMethodResult<FileMeta> {
@@ -16,15 +17,19 @@ export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], Plug
 
     const tree = this.parse({ schema, name })
 
-    root.render(
+    const Component = () => (
       <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
         <Oas oas={oas}>
           <Oas.Schema name={name} value={schema} tree={tree}>
             <Schema.File />
           </Oas.Schema>
         </Oas>
-      </App>,
+      </App>
     )
+
+    Component.displayName = pascalCase(name)
+
+    root.render(<Component />)
 
     return root.files
   }

@@ -1,5 +1,13 @@
 # @kubb/cli
 
+## 3.0.0-alpha.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.11
+  - @kubb/fs@3.0.0-alpha.11
+
 ## 3.0.0-alpha.10
 
 ### Minor Changes

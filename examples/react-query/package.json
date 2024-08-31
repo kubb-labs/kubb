@@ -31,7 +31,7 @@
     "@kubb/react": "workspace:*",
     "@tanstack/react-query": "^5.53.1",
     "@tanstack/react-query-devtools": "^5.53.1",
-    "axios": "^1.7.5",
+    "axios": "^1.7.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "unplugin-kubb": "workspace:*"

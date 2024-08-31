@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "3.0.0-alpha.10",
+  "version": "3.0.0-alpha.11",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -18,9 +18,6 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -28,9 +25,12 @@
       "default": "./dist/index.cjs"
     }
   },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
-    "kubb": "bin/kubb.cjs",
-    "bkubb": "bin/bkubb.cjs"
+    "bkubb": "bin/bkubb.cjs",
+    "kubb": "bin/kubb.cjs"
   },
   "files": [
     "src",
