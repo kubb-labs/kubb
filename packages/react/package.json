@@ -34,6 +34,11 @@
       "require": "./dist/jsx-runtime.cjs",
       "default": "./dist/jsx-runtime.cjs"
     },
+    "./devtools": {
+      "import": "./dist/devtools.js",
+      "require": "./dist/devtools.cjs",
+      "default": "./dist/devtools.cjs"
+    },
     "./types": {
       "import": "./dist/types.js",
       "require": "./dist/types.cjs",
@@ -46,6 +51,9 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
+      "devtools": [
+        "./dist/devtools.d.ts"
+      ],
       "types": [
         "./dist/types.d.ts"
       ]
@@ -56,6 +64,7 @@
     "dist",
     "*.d.ts",
     "*.d.cts",
+    "!*.map",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -67,14 +76,23 @@
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsup --watch",
+    "start:devtools": "npx react-devtools",
     "test": "vitest --passWithNoTests",
+    "test:devtools": "node ./dist/runner.cjs",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "natural-orderby": "^3.0.2"
+    "auto-bind": "^5.0.1",
+    "execa": "^9.3.1",
+    "natural-orderby": "^3.0.2",
+    "react": "^18.3.1",
+    "react-devtools-core": "^5.3.1",
+    "react-reconciler": "^0.29.2",
+    "signal-exit": "^4.1.0",
+    "ws": "8.15.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -82,8 +100,8 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.5",
     "@types/react-reconciler": "^0.28.8",
-    "react": "^18.3.1",
-    "react-reconciler": "^0.29.2",
+    "@types/signal-exit": "^3.0.4",
+    "@types/ws": "^8.5.12",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },

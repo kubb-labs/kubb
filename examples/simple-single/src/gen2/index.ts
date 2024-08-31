@@ -54,7 +54,6 @@ export const createVolumeRequestSchema = z.object({
   compute_image: z.string().optional(),
   encrypted: z.boolean().optional(),
   fstype: z.string().optional(),
-  machines_only: z.boolean().optional(),
   name: z.string().optional(),
   region: z.string().optional(),
   require_unique_zone: z.boolean().optional(),

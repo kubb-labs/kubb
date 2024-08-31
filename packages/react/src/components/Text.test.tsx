@@ -1,4 +1,4 @@
-import { createRoot } from '../client/createRoot.ts'
+import { createRoot } from '../createRoot.ts'
 import { Text } from './Text.tsx'
 
 describe('<Text/>', () => {

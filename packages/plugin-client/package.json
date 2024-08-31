@@ -96,14 +96,14 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.5",
-    "axios": "^1.7.5",
+    "axios": "^1.7.6",
     "react": "^18.3.1",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
-    "axios": "^1.7.2",
-    "@kubb/react": "workspace:*"
+    "@kubb/react": "workspace:*",
+    "axios": "^1.7.2"
   },
   "peerDependenciesMeta": {
     "axios": {

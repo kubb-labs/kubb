@@ -3,7 +3,7 @@ import { Component, createContext } from 'react'
 import type { Logger } from '@kubb/core/logger'
 import type { KubbNode } from '../types.ts'
 
-type Props<Meta extends Record<string, unknown> = Record<string, unknown>> = {
+type ErrorBoundaryProps<Meta extends Record<string, unknown> = Record<string, unknown>> = {
   onError: (error: Error) => void
   meta: Meta
   logger?: Logger
@@ -11,12 +11,13 @@ type Props<Meta extends Record<string, unknown> = Record<string, unknown>> = {
 }
 
 class ErrorBoundary extends Component<{
-  onError: Props['onError']
+  onError: ErrorBoundaryProps['onError']
   logger?: Logger
   children: KubbNode
 }> {
   state = { hasError: false }
 
+  static displayName = 'KubbErrorBoundary'
   static getDerivedStateFromError(_error: Error) {
     return { hasError: true }
   }
@@ -24,7 +25,6 @@ class ErrorBoundary extends Component<{
   componentDidCatch(error: Error) {
     if (error) {
       this.props.onError(error)
-      this.props.logger?.emit('error', error.message, error)
     }
   }
 
@@ -37,19 +37,44 @@ class ErrorBoundary extends Component<{
 }
 
 export type RootContextProps<Meta extends Record<string, unknown> = Record<string, unknown>> = {
-  meta: Meta
+  /**
+   * Exit (unmount) the whole Ink app.
+   */
+  readonly exit: (error?: Error) => void
+  readonly meta: Meta
 }
 
-const RootContext = createContext<RootContextProps>({
+export const RootContext = createContext<RootContextProps>({
+  exit: () => {},
   meta: {},
 })
 
-export function Root<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, logger, meta, children }: Props<Meta>): KubbNode {
+type RootProps<Meta extends Record<string, unknown> = Record<string, unknown>> = {
+  /**
+   * Exit (unmount) hook
+   */
+  readonly onExit: (error?: Error) => void
+  /**
+   * Error hook
+   */
+  readonly onError: (error: Error) => void
+  readonly meta: Meta
+  readonly logger?: Logger
+  readonly children?: KubbNode
+}
+
+export function Root<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, onExit, logger, meta, children }: RootProps<Meta>): KubbNode {
   return (
-    <ErrorBoundary logger={logger} onError={onError}>
-      <RootContext.Provider value={{ meta }}>{children}</RootContext.Provider>
+    <ErrorBoundary
+      logger={logger}
+      onError={(error) => {
+        onError(error)
+      }}
+    >
+      <RootContext.Provider value={{ meta, exit: onExit }}>{children}</RootContext.Provider>
     </ErrorBoundary>
   )
 }
 
 Root.Context = RootContext
+Root.displayName = 'KubbRoot'

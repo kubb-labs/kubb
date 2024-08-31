@@ -3,10 +3,10 @@ import c, { createColors } from 'tinyrainbow'
 
 import { EventEmitter } from './utils/EventEmitter.ts'
 
+import { resolve } from 'node:path'
+import { write } from '@kubb/fs'
 import { type ConsolaInstance, type LogLevel, createConsola } from 'consola'
 import type { Formatter } from 'tinyrainbow'
-import { write } from '@kubb/fs'
-import { resolve } from 'node:path'
 
 type DebugEvent = { date: Date; logs: string[]; fileName?: string }
 
@@ -58,7 +58,7 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
       formatOptions: {
         colors: true,
         date: true,
-        columns: 120,
+        columns: 80,
         compact: logLevel !== LogMapper.debug,
       },
     }).withTag(name ? randomCliColour(name) : '')

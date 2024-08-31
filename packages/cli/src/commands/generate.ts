@@ -7,10 +7,10 @@ import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
-import { PromiseManager, isInputPath } from '@kubb/core'
-import { generate } from '../generate.ts'
 import path from 'node:path'
-import { createLogger, LogMapper } from '@kubb/core/logger'
+import { PromiseManager, isInputPath } from '@kubb/core'
+import { LogMapper, createLogger } from '@kubb/core/logger'
+import { generate } from '../generate.ts'
 
 const args = {
   config: {
