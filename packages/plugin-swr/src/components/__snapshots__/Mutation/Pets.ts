@@ -28,7 +28,7 @@ export function useCreatePets(options?: {
            const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
     
            const url = `/pets` as const
-           return useSWRMutation<CreatePets["response"], CreatePets["error"], typeof url | null>(
+           return useSWRMutation<CreatePets["response"], CreatePets["error"], Key>(
             shouldFetch ? url : null,
             async (_url, { arg: data }) => {
               const res = await client<CreatePets["data"], CreatePets["error"], CreatePets["request"]>({
