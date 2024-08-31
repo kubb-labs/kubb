@@ -1,21 +1,20 @@
 import { PackageManager } from '@kubb/core'
 import { File } from '@kubb/react'
 
-import { getImportNames, reactQueryDepRegex } from '../utils.ts'
+import { getImportNames } from '../utils.ts'
 
 import type { ReactNode } from 'react'
 
 type TemplateProps = {
   path: string
   optionsType: string
-  resultType: string
   hookName: string
 }
 
-function Template({ path, hookName, optionsType, resultType }: TemplateProps): ReactNode {
+function Template({ path, hookName, optionsType }: TemplateProps): ReactNode {
   return (
     <>
-      <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
+      <File.Import name={[optionsType]} path={path} isTypeOnly />
       <File.Import name={[hookName]} path={path} />
     </>
   )

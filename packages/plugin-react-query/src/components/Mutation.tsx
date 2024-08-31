@@ -2,8 +2,8 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
-import { File, Function, useApp } from '@kubb/react'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { File, Function, useApp } from '@kubb/react'
 
 import { SchemaType } from './SchemaType.tsx'
 
@@ -128,7 +128,6 @@ function RootTemplate({ children }: RootTemplateProps) {
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,
@@ -143,7 +142,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         isTypeOnly
       />
       <File.Import
-        name={['UseMutationOptions', 'UseMutationResult']}
+        name={['UseMutationOptions']}
         path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'}
         isTypeOnly
       />

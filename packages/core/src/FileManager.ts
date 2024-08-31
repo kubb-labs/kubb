@@ -49,31 +49,33 @@ type AddIndexesProps = {
 
 export class FileManager {
   #filesByPath: Map<KubbFile.Path, KubbFile.ResolvedFile> = new Map()
-  #files: Set<KubbFile.ResolvedFile> = new Set()
   constructor() {
     return this
   }
 
   get files(): Array<KubbFile.ResolvedFile> {
-    return Array.from(this.#files)
+    return [...this.#filesByPath.values()]
   }
 
   get orderedFiles(): Array<KubbFile.ResolvedFile> {
-    return orderBy(Array.from(this.#files), [
-      (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
-      (v) => v.path.length,
-      (v) => trimExtName(v.path).endsWith('index'),
-      (v) => trimExtName(v.baseName),
-      (v) => v.path.split('.').pop(),
-    ])
+    return orderBy(
+      [...this.#filesByPath.values()],
+      [
+        (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
+        (v) => v.path.length,
+        (v) => trimExtName(v.path).endsWith('index'),
+        (v) => trimExtName(v.baseName),
+        (v) => v.path.split('.').pop(),
+      ],
+    )
   }
 
   get groupedFiles(): DirectoryTree | null {
-    return buildDirectoryTree(Array.from(this.#files))
+    return buildDirectoryTree([...this.#filesByPath.values()])
   }
 
   get treeNode(): TreeNode | null {
-    return TreeNode.build(Array.from(this.#files))
+    return TreeNode.build([...this.#filesByPath.values()])
   }
 
   async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(...files: T): AddResult<T> {
@@ -98,14 +100,12 @@ export class FileManager {
     const resolvedFile = createFile(file)
 
     this.#filesByPath.set(resolvedFile.path, resolvedFile)
-    this.#files.add(resolvedFile)
 
     return resolvedFile
   }
 
   clear() {
     this.#filesByPath.clear()
-    this.#files.clear()
   }
 
   async #addOrAppend(file: KubbFile.File): Promise<ResolvedFile> {
@@ -113,7 +113,6 @@ export class FileManager {
 
     if (previousFile) {
       this.#filesByPath.delete(previousFile.path)
-      this.#files.delete(previousFile)
 
       return this.#add(mergeFile(previousFile, file))
     }
@@ -121,14 +120,7 @@ export class FileManager {
   }
 
   getCacheById(id: string): KubbFile.File | undefined {
-    let cache: KubbFile.File | undefined
-
-    this.#files.forEach((file) => {
-      if (file.id === id) {
-        cache = file
-      }
-    })
-    return cache
+    return [...this.#filesByPath.values()].find((file) => file.id === id)
   }
 
   getByPath(path: KubbFile.Path): KubbFile.ResolvedFile | undefined {
@@ -142,7 +134,6 @@ export class FileManager {
     }
 
     this.#filesByPath.delete(path)
-    this.#files.delete(cacheItem)
   }
 
   async getBarrelFiles({ files, meta, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
@@ -248,7 +239,13 @@ export function combineSources(sources: Array<KubbFile.Source>): Array<KubbFile.
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
-  const combinedExports = exports.reduce(
+  return orderBy(exports, [
+    (v) => !!Array.isArray(v.name),
+    (v) => !v.isTypeOnly,
+    (v) => v.path,
+    (v) => !!v.name,
+    (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
+  ]).reduce(
     (prev, curr) => {
       const name = curr.name
       const prevByPath = prev.findLast((imp) => imp.path === curr.path)
@@ -289,39 +286,32 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
     },
     [] as Array<KubbFile.Export>,
   )
+}
 
-  return orderBy(combinedExports, [
+export function filterImportsBasedOnSource(imp: KubbFile.Import, source: string): boolean {
+  const names = Array.isArray(imp.name)
+    ? imp.name.map((item) => {
+        return typeof item === 'object' && 'propertyName' in item ? item.propertyName : item
+      })
+    : [imp.name]
+
+  return names.every((name) => source.search(name) !== -1)
+}
+
+export function combineImports(imports: Array<KubbFile.Import>): Array<KubbFile.Import> {
+  return orderBy(imports, [
     (v) => !!Array.isArray(v.name),
     (v) => !v.isTypeOnly,
     (v) => v.path,
     (v) => !!v.name,
     (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
-  ])
-}
-
-export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
-  const combinedImports = imports.reduce(
+  ]).reduce(
     (prev, curr) => {
-      let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
-
-      const hasImportInSource = (importName: string) => {
-        if (!source) {
-          return true
-        }
-
-        const checker = (name?: string) => name && !!source.includes(name)
-
-        return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
-      }
+      const name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
       if (curr.path === curr.root) {
         // root and path are the same file, remove the "./" import
         return prev
-      }
-
-      // merge all names and check if the importName is being used in the generated source and if not filter those imports out
-      if (Array.isArray(name)) {
-        name = name.filter((item) => (typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName)))
       }
 
       const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
@@ -357,7 +347,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
       }
 
       // no import was found in the source, ignore import
-      if (!Array.isArray(name) && name && !hasImportInSource(name)) {
+      if (!Array.isArray(name) && name) {
         return prev
       }
 
@@ -365,14 +355,6 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     },
     [] as Array<KubbFile.Import>,
   )
-
-  return orderBy(combinedImports, [
-    (v) => !!Array.isArray(v.name),
-    (v) => !v.isTypeOnly,
-    (v) => v.path,
-    (v) => !!v.name,
-    (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
-  ])
 }
 type WriteFilesProps = {
   config: Config

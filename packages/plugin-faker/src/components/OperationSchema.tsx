@@ -74,7 +74,6 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
 
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-      <File.Import name={['faker']} path="@faker-js/faker" />
       {plugin.options.regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
       {items.map(mapItem)}
     </File>

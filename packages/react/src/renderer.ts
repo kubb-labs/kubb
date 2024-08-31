@@ -18,8 +18,8 @@ export function renderer(node: DOMElement): RendererResult {
   const exports = squashExportNodes(node)
   const files = getFiles(node)
   const text = squashTextNodes(node)
-  const output = files.length
-    ? files
+  const output = files.size
+    ? [...files]
         .flatMap((file) => file.sources.map((item) => item.value))
         .filter(Boolean)
         .join('\n\n')
@@ -27,8 +27,8 @@ export function renderer(node: DOMElement): RendererResult {
 
   return {
     output,
-    files,
-    imports,
-    exports,
+    files: [...files],
+    imports: [...imports],
+    exports: [...exports],
   }
 }

@@ -1,9 +1,9 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { File, Function, useApp } from '@kubb/react'
 
 import { SchemaType } from './SchemaType.tsx'
 
@@ -228,7 +228,6 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
       <File.Import name="useSWRMutation" path="swr/mutation" />
       <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
       <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,

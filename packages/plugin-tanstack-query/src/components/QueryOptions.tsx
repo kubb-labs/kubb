@@ -21,14 +21,6 @@ type TemplateProps = {
    */
   params: string
   /**
-   * Generics that needs to be added for TypeScript
-   */
-  generics?: string
-  /**
-   * ReturnType(see async for adding Promise type)
-   */
-  returnType?: string
-  /**
    * Options for JSdocs
    */
   JSDoc?: {
@@ -53,7 +45,7 @@ type TemplateProps = {
   parser: string | undefined
 }
 
-function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
+function Template({ name, params, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
     client.contentType !== 'application/json' ? `'Content-Type': '${client.contentType}'` : undefined,
@@ -420,8 +412,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     <Template
       name={queryOptionsName}
       params={params.toString()}
-      generics={generics.toString()}
-      returnType={`WithRequired<${resultType}<${resultGenerics.join(', ')}>, 'queryKey'>`}
       client={client}
       hook={hook}
       infinite={infinite}

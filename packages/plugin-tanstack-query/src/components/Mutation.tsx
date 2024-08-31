@@ -429,7 +429,6 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,

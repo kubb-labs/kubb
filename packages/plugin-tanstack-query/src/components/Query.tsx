@@ -566,7 +566,6 @@ Query.File = function ({ templates }: FileProps): ReactNode {
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {parser === 'zod' && <File.Import name={[zodSchemas.response?.name]} root={file.path} path={fileZodSchemas.path} />}
       <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,

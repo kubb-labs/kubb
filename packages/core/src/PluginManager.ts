@@ -73,7 +73,7 @@ type GetFileProps<TOptions = object> = {
 }
 
 export class PluginManager {
-  readonly plugins: PluginWithLifeCycle[]
+  readonly plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
   readonly fileManager: FileManager
   readonly events: EventEmitter<Events> = new EventEmitter()
 
@@ -96,8 +96,6 @@ export class PluginManager {
       nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
     })
 
-    const plugins = config.plugins || []
-
     const core = pluginCore({
       config,
       logger: this.logger,
@@ -110,9 +108,10 @@ export class PluginManager {
 
     // call core.context.call with empty context so we can transform `context()` to `context: {}`
     this.#core = this.#parse(core as unknown as UserPlugin, this as any, core.context.call(null as any)) as Plugin<PluginCore>
+    ;[this.#core, ...(config.plugins || [])].forEach((plugin) => {
+      const parsedPlugin = this.#parse(plugin as UserPlugin, this, this.#core.context)
 
-    this.plugins = [this.#core, ...plugins].map((plugin) => {
-      return this.#parse(plugin as UserPlugin, this, this.#core.context)
+      this.plugins.add(parsedPlugin)
     })
 
     return this
@@ -463,7 +462,7 @@ export class PluginManager {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     if (hookName) {
-      return plugins.filter((item) => item[hookName])
+      return plugins.filter((plugin) => hookName in plugin)
     }
     // TODO add test case for sorting with pre/post
 
@@ -495,7 +494,7 @@ export class PluginManager {
     const [searchPluginName, searchIdentifier] = pluginKey
 
     const pluginByPluginName = plugins
-      .filter((plugin) => plugin[hookName])
+      .filter((plugin) => hookName in plugin)
       .filter((item) => {
         const [name, identifier] = item.key
 
@@ -512,7 +511,7 @@ export class PluginManager {
     if (!pluginByPluginName?.length) {
       // fallback on the core plugin when there is no match
 
-      const corePlugin = plugins.find((plugin) => plugin.name === 'core' && plugin[hookName])
+      const corePlugin = plugins.find((plugin) => plugin.name === 'core' && hookName in plugin)
 
       if (corePlugin) {
         this.logger.emit('debug', {

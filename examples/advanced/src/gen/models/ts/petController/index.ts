@@ -8,8 +8,8 @@ export type {
   FindPetsByStatusQueryResponse,
   FindPetsByStatusQuery,
 } from './FindPetsByStatus.ts'
-export type { FindPetsByTagsQueryParams } from './FindPetsByTags.ts'
 export type {
+  FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParamsXExampleEnum,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,

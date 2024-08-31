@@ -3,9 +3,7 @@ export type { Address } from './Address.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Category } from './Category.ts'
 export type { Customer } from './Customer.ts'
-export type { OrderOrderTypeEnum } from './Order.ts'
-export type { OrderStatusEnum } from './Order.ts'
-export type { OrderHttpStatusEnum, Order } from './Order.ts'
+export type { OrderOrderTypeEnum, OrderStatusEnum, OrderHttpStatusEnum, Order } from './Order.ts'
 export type { PetStatusEnum, Pet } from './Pet.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './petController/AddPet.ts'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './petController/DeletePet.ts'
@@ -17,8 +15,8 @@ export type {
   FindPetsByStatusQueryResponse,
   FindPetsByStatusQuery,
 } from './petController/FindPetsByStatus.ts'
-export type { FindPetsByTagsQueryParams } from './petController/FindPetsByTags.ts'
 export type {
+  FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParamsXExampleEnum,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
@@ -52,8 +50,9 @@ export type {
   UploadFileMutation,
 } from './petController/UploadFile.ts'
 export type { PetNotFound } from './PetNotFound.ts'
-export type { CreatePetsPathParams, CreatePetsQueryParams } from './petsController/CreatePets.ts'
 export type {
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
   CreatePetsHeaderParamsXExampleEnum,
   CreatePetsHeaderParams,
   CreatePets201,
@@ -110,9 +109,7 @@ export type {
   UpdateUserMutation,
 } from './userController/UpdateUser.ts'
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
-export { orderOrderTypeEnum } from './Order.ts'
-export { orderStatusEnum } from './Order.ts'
-export { orderHttpStatusEnum } from './Order.ts'
+export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './Order.ts'
 export { petStatusEnum } from './Pet.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXExampleEnum } from './petsController/CreatePets.ts'

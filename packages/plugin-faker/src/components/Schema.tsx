@@ -65,21 +65,26 @@ export function Schema(props: Props): ReactNode {
 
   const params = fakerDefaultOverride ? `data: NonNullable<Partial<${typeName}>> = ${fakerDefaultOverride}` : `data?: NonNullable<Partial<${typeName}>>`
 
+  const containsFaker = !!fakerTextWithOverride.match(/faker/) || !!seed
+
   return (
-    <File.Source name={resolvedName} isExportable isIndexable>
-      <Function
-        export
-        name={resolvedName}
-        JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
-        params={withData ? params : ''}
-        returnType={typeName ? `NonNullable<${typeName}>` : ''}
-      >
-        {seed ? `faker.seed(${JSON.stringify(seed)})` : ''}
+    <>
+      {containsFaker && <File.Import name={['faker']} path="@faker-js/faker" />}
+      <File.Source name={resolvedName} isExportable isIndexable>
+        <Function
+          export
+          name={resolvedName}
+          JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
+          params={withData ? params : ''}
+          returnType={typeName ? `NonNullable<${typeName}>` : ''}
+        >
+          {seed ? `faker.seed(${JSON.stringify(seed)})` : ''}
+          <br />
+          <Function.Return>{fakerTextWithOverride}</Function.Return>
+        </Function>
         <br />
-        <Function.Return>{fakerTextWithOverride}</Function.Return>
-      </Function>
-      <br />
-    </File.Source>
+      </File.Source>
+    </>
   )
 }
 
@@ -135,7 +140,6 @@ Schema.Imports = (): ReactNode => {
 
   return (
     <>
-      <File.Import name={['faker']} path="@faker-js/faker" />
       {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
       {dateParser && <File.Import path={dateParser} name={dateParser} />}
       {typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}

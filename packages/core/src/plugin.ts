@@ -1,7 +1,5 @@
 import path from 'node:path'
 
-import { createPluginCache } from './utils/cache.ts'
-
 import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { Plugin, PluginContext, PluginFactoryOptions, UserPluginWithLifeCycle } from './types.ts'
@@ -63,7 +61,6 @@ export const pluginCore = createPlugin<PluginCore>((options) => {
         },
         resolvePath,
         resolveName,
-        cache: createPluginCache(),
       }
     },
     resolvePath(baseName) {

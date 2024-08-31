@@ -1,11 +1,11 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { pluginZodName } from '@kubb/plugin-zod'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
 import { getImportNames, reactQueryDepRegex } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -550,7 +550,6 @@ Query.File = function ({ templates }: FileProps): ReactNode {
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       {parser === 'zod' && <File.Import name={[zodSchemas.response?.name]} root={file.path} path={fileZodSchemas.path} />}
       <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,

@@ -122,7 +122,6 @@ export function Query({ factory, Template = defaultTemplates.default, QueryOptio
   const { getSchemas, getName } = useOperationManager()
 
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-  const zodSchemas = getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' })
 
   const name = getName(operation, { type: 'function' })
 
@@ -260,7 +259,6 @@ Query.File = function ({ templates }: FileProps): ReactNode {
       <File.Import name="useSWR" path="swr" />
       <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
       <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,
@@ -268,7 +266,7 @@ Query.File = function ({ templates }: FileProps): ReactNode {
           schemas.pathParams?.name,
           schemas.queryParams?.name,
           schemas.headerParams?.name,
-          ...(schemas.statusCodes?.map((item) => item.name) || []),
+          ...(schemas.errors?.map((item) => item.name) || []),
         ].filter(Boolean)}
         root={file.path}
         path={fileType.path}

@@ -17,7 +17,7 @@ type SummaryProps = {
 }
 
 export function getSummary({ pluginManager, filesCreated, status, hrStart, config }: SummaryProps): string[] {
-  const logs: string[] = []
+  const logs = new Set<string>()
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
   const buildStartPlugins = pluginManager.executed
@@ -40,7 +40,7 @@ export function getSummary({ pluginManager, filesCreated, status, hrStart, confi
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
-  logs.push(
+  logs.add(
     [
       [`${c.bold('Plugins:')}        ${meta.plugins}`, true],
       [`${c.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
@@ -57,5 +57,5 @@ export function getSummary({ pluginManager, filesCreated, status, hrStart, confi
       .join('\n'),
   )
 
-  return logs
+  return [...logs]
 }

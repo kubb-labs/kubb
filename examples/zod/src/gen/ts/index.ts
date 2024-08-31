@@ -3,8 +3,9 @@ export type { AddPet200Type, AddPet405Type, AddPetMutationRequestType, AddPetMut
 export type { AddressType } from './AddressType.ts'
 export type { ApiResponseType } from './ApiResponseType.ts'
 export type { CategoryType } from './CategoryType.ts'
-export type { CreatePetsPathParamsType, CreatePetsQueryParamsType } from './CreatePetsType.ts'
 export type {
+  CreatePetsPathParamsType,
+  CreatePetsQueryParamsType,
   CreatePetsHeaderParamsXExampleType,
   CreatePetsHeaderParamsType,
   CreatePets201Type,
@@ -51,8 +52,8 @@ export type {
   FindPetsByStatusQueryResponseType,
   FindPetsByStatusTypeQuery,
 } from './FindPetsByStatusType.ts'
-export type { FindPetsByTagsQueryParamsType } from './FindPetsByTagsType.ts'
 export type {
+  FindPetsByTagsQueryParamsType,
   FindPetsByTagsHeaderParamsXExampleType,
   FindPetsByTagsHeaderParamsType,
   FindPetsByTags200Type,
@@ -87,8 +88,7 @@ export type {
 } from './GetUserByNameType.ts'
 export type { LoginUserQueryParamsType, LoginUser200Type, LoginUser400Type, LoginUserQueryResponseType, LoginUserTypeQuery } from './LoginUserType.ts'
 export type { LogoutUserErrorType, LogoutUserQueryResponseType, LogoutUserTypeQuery } from './LogoutUserType.ts'
-export type { OrderStatusType } from './OrderType.ts'
-export type { OrderHttpStatusType, OrderType } from './OrderType.ts'
+export type { OrderStatusType, OrderHttpStatusType, OrderType } from './OrderType.ts'
 export type { PetNotFoundType } from './PetNotFoundType.ts'
 export type { PetStatusType, PetType } from './PetType.ts'
 export type {
@@ -143,6 +143,5 @@ export { addPetRequestStatus } from './AddPetRequestType.ts'
 export { createPetsHeaderParamsXExample } from './CreatePetsType.ts'
 export { findPetsByStatusQueryParamsStatus } from './FindPetsByStatusType.ts'
 export { findPetsByTagsHeaderParamsXExample } from './FindPetsByTagsType.ts'
-export { orderStatus } from './OrderType.ts'
-export { orderHttpStatus } from './OrderType.ts'
+export { orderStatus, orderHttpStatus } from './OrderType.ts'
 export { petStatus } from './PetType.ts'
