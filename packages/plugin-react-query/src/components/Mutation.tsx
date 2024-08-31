@@ -118,29 +118,14 @@ function RootTemplate({ children }: RootTemplateProps) {
     },
   } = useApp<PluginReactQuery>()
 
-  const { getSchemas, getFile } = useOperationManager()
+  const { getFile } = useOperationManager()
   const operation = useOperation()
-
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       <File.Import name={'client'} path={importPath} />
-      <File.Import
-        name={[
-          schemas.request?.name,
-          schemas.response.name,
-          schemas.pathParams?.name,
-          schemas.queryParams?.name,
-          schemas.headerParams?.name,
-          ...(schemas.errors?.map((error) => error.name) || []),
-        ].filter(Boolean)}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
+
       <File.Import
         name={['UseMutationOptions']}
         path={typeof mutate !== 'boolean' && mutate.importPath ? mutate.importPath : '@tanstack/react-query'}

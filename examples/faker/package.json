@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsup",
     "generate": "kubb generate",
-    "generate:devtools": "NODE_OPTIONS='--inspect-brk' kubb generate",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "generate:js": "kubb generate --config .kubbrc",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config kubb.config.js",

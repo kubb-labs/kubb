@@ -288,17 +288,7 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
   )
 }
 
-export function filterImportsBasedOnSource(imp: KubbFile.Import, source: string): boolean {
-  const names = Array.isArray(imp.name)
-    ? imp.name.map((item) => {
-        return typeof item === 'object' && 'propertyName' in item ? item.propertyName : item
-      })
-    : [imp.name]
-
-  return names.every((name) => source.search(name) !== -1)
-}
-
-export function combineImports(imports: Array<KubbFile.Import>): Array<KubbFile.Import> {
+export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
   return orderBy(imports, [
     (v) => !!Array.isArray(v.name),
     (v) => !v.isTypeOnly,
@@ -307,11 +297,28 @@ export function combineImports(imports: Array<KubbFile.Import>): Array<KubbFile.
     (v) => (Array.isArray(v.name) ? orderBy(v.name) : v.name),
   ]).reduce(
     (prev, curr) => {
-      const name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
+      let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
+
+      const hasImportInSource = (importName: string) => {
+        if (!source) {
+          return true
+        }
+
+        const checker = (name?: string) => {
+          return name && !!source.includes(name)
+        }
+
+        return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
+      }
 
       if (curr.path === curr.root) {
         // root and path are the same file, remove the "./" import
         return prev
+      }
+
+      // merge all names and check if the importName is being used in the generated source and if not filter those imports out
+      if (Array.isArray(name)) {
+        name = name.filter((item) => (typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName)))
       }
 
       const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
@@ -347,7 +354,7 @@ export function combineImports(imports: Array<KubbFile.Import>): Array<KubbFile.
       }
 
       // no import was found in the source, ignore import
-      if (!Array.isArray(name) && name) {
+      if (!Array.isArray(name) && name && !hasImportInSource(name)) {
         return prev
       }
 
@@ -356,6 +363,7 @@ export function combineImports(imports: Array<KubbFile.Import>): Array<KubbFile.
     [] as Array<KubbFile.Import>,
   )
 }
+
 type WriteFilesProps = {
   config: Config
   files: Array<KubbFile.ResolvedFile>

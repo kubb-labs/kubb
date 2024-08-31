@@ -396,22 +396,18 @@ type FileProps = {
 
 Mutation.File = function ({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
   const {
-    pluginManager,
     plugin: {
       options: {
         client: { importPath },
         framework,
-        extName,
       },
     },
   } = useApp<PluginTanstackQuery>()
 
-  const { getSchemas, getFile, getName } = useOperationManager()
+  const { getFile, getName } = useOperationManager()
   const operation = useOperation()
 
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
   const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const factoryName = getName(operation, { type: 'type' })
 
   const importNames = getImportNames()
@@ -429,19 +425,6 @@ Mutation.File = function ({ templates = defaultTemplates, imports = MutationImpo
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
       <File.Import name={'client'} path={importPath} />
-      <File.Import
-        name={[
-          schemas.request?.name,
-          schemas.response.name,
-          schemas.pathParams?.name,
-          schemas.queryParams?.name,
-          schemas.headerParams?.name,
-          ...(schemas.errors?.map((error) => error.name) || []),
-        ].filter(Boolean)}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
       <MutationImports Template={Import} />
       <SchemaType factory={factory} />
       <Mutation
