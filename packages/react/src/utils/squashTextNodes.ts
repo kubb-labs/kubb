@@ -8,9 +8,7 @@ import type { DOMElement } from '../types.ts'
 export function squashTextNodes(node: DOMElement): string {
   let text = ''
 
-  for (let index = 0; index < node.childNodes.length; index++) {
-    const childNode = node.childNodes[index]
-
+  for (const childNode of node.childNodes) {
     if (!childNode) {
       continue
     }
@@ -61,12 +59,6 @@ export function squashTextNodes(node: DOMElement): string {
 
       if (childNode.nodeName === 'br') {
         nodeText = '\n'
-      }
-
-      // Since these text nodes are being concatenated, `Output` instance won't be able to
-      // apply children transform, so we have to do it manually here for each text node
-      if (nodeText.length > 0 && typeof childNode.internal_transform === 'function') {
-        nodeText = childNode.internal_transform(nodeText, index)
       }
     }
 

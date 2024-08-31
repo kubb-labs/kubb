@@ -1,9 +1,9 @@
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File, Type, useApp } from '@kubb/react'
 
+import { pluginTsName } from '@kubb/plugin-ts'
 import type { ReactNode } from 'react'
 import type { PluginReactQuery } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
 
 export function SchemaType(): ReactNode {
   const {
@@ -11,9 +11,11 @@ export function SchemaType(): ReactNode {
       options: { dataReturnType },
     },
   } = useApp<PluginReactQuery>()
-  const { getSchemas, getName } = useOperationManager()
+  const { getSchemas, getName, getFile } = useOperationManager()
   const operation = useOperation()
 
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
@@ -32,6 +34,19 @@ export function SchemaType(): ReactNode {
 
   return (
     <>
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.errors?.map((error) => error.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
       <File.Source name={clientType} isTypeOnly>
         <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${isFormData ? 'FormData' : TRequest}>`}</Type>
       </File.Source>

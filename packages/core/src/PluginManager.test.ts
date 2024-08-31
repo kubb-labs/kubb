@@ -92,7 +92,7 @@ describe('PluginManager', () => {
 
   test('if pluginManager can be created', () => {
     expect(pluginManager.fileManager).toBeDefined()
-    expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
+    expect(pluginManager.plugins.size).toBe(config.plugins.length + 1)
     expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName', 'buildEnd'])
     expect(pluginManager.getPluginsByKey('buildStart', ['pluginB'])?.[0]?.name).toBe('pluginB')
   })

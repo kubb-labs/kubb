@@ -1,5 +1,5 @@
 import client from "@kubb/plugin-client/client";
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from "@tanstack/react-query";
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
  type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>;
@@ -22,7 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 
  export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>;
 
- export function getPetByIdQueryOptions<TData = GetPetById["response"], TQueryData = GetPetById["response"]>(petId: GetPetByIdPathParams["petId"], options: GetPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetById["response"], GetPetById["error"], TData, TQueryData>, "queryKey"> {
+ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams["petId"], options: GetPetById["client"]["parameters"] = {}) {
     const queryKey = getPetByIdQueryKey(petId);
     return {
         queryKey,

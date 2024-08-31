@@ -1,5 +1,6 @@
-export type { CreatePetsPathParams, CreatePetsQueryParams } from './CreatePets.ts'
 export type {
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
   CreatePetsHeaderParamsXExampleEnum,
   CreatePetsHeaderParams,
   CreatePets201,

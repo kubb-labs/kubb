@@ -3,14 +3,14 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams } from '@kubb/plugin-oas/utils'
-import { Function, useApp, File } from '@kubb/react'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { File, Function, useApp } from '@kubb/react'
 
 import { isRequired } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
+import { pluginTsName } from '@kubb/plugin-ts'
 import type { ReactNode } from 'react'
 import type { Infinite, PluginReactQuery, Suspense } from '../types.ts'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { reactQueryDepRegex } from '../utils.ts'
 
 type TemplateProps = {
@@ -22,14 +22,6 @@ type TemplateProps = {
    * Parameters/options/props that need to be used
    */
   params: string
-  /**
-   * Generics that needs to be added for TypeScript
-   */
-  generics?: string
-  /**
-   * ReturnType(see async for adding Promise type)
-   */
-  returnType?: string
   /**
    * Options for JSdocs
    */
@@ -55,7 +47,7 @@ type TemplateProps = {
   parser: string | undefined
 }
 
-function Template({ name, params, generics, returnType, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
+function Template({ name, params, JSDoc, hook, client, infinite, dataReturnType, parser }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
   const isFormData = client.contentType === 'multipart/form-data'
   const headers = [
@@ -150,7 +142,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
 
     return (
       <File.Source name={name} isExportable isIndexable>
-        <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        <Function name={name} export params={params} JSDoc={JSDoc}>
           {`
          const queryKey = ${hook.queryKey}
 
@@ -203,7 +195,7 @@ function Template({ name, params, generics, returnType, JSDoc, hook, client, inf
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+      <Function name={name} export params={params} JSDoc={JSDoc}>
         {`
        const queryKey = ${hook.queryKey}
 
@@ -477,8 +469,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     <Template
       name={queryOptionsName}
       params={params.toString()}
-      generics={generics.toString()}
-      returnType={`WithRequired<${resultType}<${resultGenerics.join(', ')}>, 'queryKey'>`}
       client={client}
       hook={hook}
       infinite={infinite}

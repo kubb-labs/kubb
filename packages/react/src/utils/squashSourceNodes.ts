@@ -6,12 +6,10 @@ import type { File } from '../components/File.tsx'
 import type { DOMElement, ElementNames } from '../types.ts'
 import { squashTextNodes } from './squashTextNodes.ts'
 
-export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Array<KubbFile.Source> {
-  let sources: Array<KubbFile.Source> = []
+export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>): Set<KubbFile.Source> {
+  let sources = new Set<KubbFile.Source>()
 
-  for (let index = 0; index < node.childNodes.length; index++) {
-    const childNode = node.childNodes[index]
-
+  for (const childNode of node.childNodes) {
     if (!childNode) {
       continue
     }
@@ -24,7 +22,7 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
       const attributes = childNode.attributes as React.ComponentProps<typeof File.Source>
       const value = squashTextNodes(childNode)
 
-      sources.push({
+      sources.add({
         ...attributes,
         // remove end enter
         value: value.replace(/^\s+|\s+$/g, ''),
@@ -34,7 +32,7 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
     }
 
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      sources = [...sources, ...squashSourceNodes(childNode, ignores)]
+      sources = new Set([...sources, ...squashSourceNodes(childNode, ignores)])
     }
   }
 

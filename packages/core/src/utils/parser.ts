@@ -89,6 +89,8 @@ const typeScriptParser = createFileParser({
   async print(file) {
     const module = await import('@kubb/parser-ts')
 
+    const source = file.sources.map((item) => item.value).join('\n\n')
+
     const importNodes = file.imports
       .map((item) => {
         const path = item.root ? getRelativePath(item.root, item.path) : item.path
@@ -112,10 +114,8 @@ const typeScriptParser = createFileParser({
       })
       .filter(Boolean)
 
-    const source = [module.print([...importNodes, ...exportNodes]), file.sources.map((item) => item.value).join('\n\n')].join('\n')
-
     // do some basic linting with the ts compiler
-    return module.print([], { source, noEmitHelpers: false })
+    return module.print([], { source: [module.print([...importNodes, ...exportNodes]), source].join('\n'), noEmitHelpers: false })
   },
 })
 

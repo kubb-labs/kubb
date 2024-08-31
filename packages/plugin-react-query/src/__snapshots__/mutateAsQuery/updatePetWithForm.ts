@@ -1,5 +1,5 @@
 import client from "@kubb/plugin-client/client";
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from "@tanstack/react-query";
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
  type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>;
@@ -24,9 +24,9 @@ import { useQuery } from "@tanstack/react-query";
 
  export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>;
 
- export function updatePetWithFormQueryOptions<TData = UpdatePetWithForm["response"], TQueryData = UpdatePetWithForm["response"]>({ petId }: {
+ export function updatePetWithFormQueryOptions({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
-}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"], options: UpdatePetWithForm["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<UpdatePetWithForm["response"], UpdatePetWithForm["error"], TData, TQueryData>, "queryKey"> {
+}, params?: UpdatePetWithForm["queryParams"], data?: UpdatePetWithForm["request"], options: UpdatePetWithForm["client"]["parameters"] = {}) {
     const queryKey = updatePetWithFormQueryKey({ petId }, params, data);
     return {
         queryKey,

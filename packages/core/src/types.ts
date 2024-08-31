@@ -3,7 +3,6 @@ import type { PossiblePromise } from '@kubb/types'
 import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { Logger } from './logger.ts'
-import type { Cache } from './utils/cache.ts'
 
 // config
 
@@ -278,7 +277,6 @@ export type ResolveNameParams = {
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
-  cache: Cache<PluginCache>
   fileManager: FileManager
   pluginManager: PluginManager
   addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>

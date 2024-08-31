@@ -10,7 +10,7 @@ export type RendererResult = {
   output: string
   imports: Array<KubbFile.Import>
   exports: Array<KubbFile.Export>
-  files: KubbFile.File[]
+  files: Array<KubbFile.File>
 }
 
 export function renderer(node: DOMElement): RendererResult {
@@ -18,17 +18,17 @@ export function renderer(node: DOMElement): RendererResult {
   const exports = squashExportNodes(node)
   const files = getFiles(node)
   const text = squashTextNodes(node)
-  const output = files.length
-    ? files
-        .flatMap((file) => file.sources.map((item) => item.value))
+  const output = files.size
+    ? [...files]
+        .flatMap((file) => [...file.sources].map((item) => item.value))
         .filter(Boolean)
         .join('\n\n')
     : text
 
   return {
     output,
-    files,
-    imports,
-    exports,
+    files: [...files],
+    imports: [...imports],
+    exports: [...exports],
   }
 }

@@ -2,10 +2,9 @@
 
 exports[`<Operations/> > showPetById 1`] = `
 "export const operations = {
-    "showPetById": {
+      "showPetById": {
         "path": "/pets/:pet_id",
         "method": "get"
-    }
-} as const;
-"
+      }
+    } as const"
 `;

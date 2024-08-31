@@ -103,7 +103,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "unplugin": "^1.12.2"
+    "unplugin": "^1.12.3"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

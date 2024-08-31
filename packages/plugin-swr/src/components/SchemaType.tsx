@@ -17,10 +17,12 @@ export function SchemaType({ factory }: Props): ReactNode {
       options: { dataReturnType },
     },
   } = useApp<PluginSwr>()
-  const { getSchemas } = useOperationManager()
+  const { getSchemas, getFile } = useOperationManager()
   const operation = useOperation()
 
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
+  const file = getFile(operation)
+  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,
@@ -36,6 +38,20 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   return (
     <>
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...(schemas.errors?.map((error) => error.name) || []),
+        ].filter(Boolean)}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+
       <File.Source name={clientType} isTypeOnly>
         <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
       </File.Source>

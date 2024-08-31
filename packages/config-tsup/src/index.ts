@@ -18,6 +18,8 @@ export const options: Options = {
   minify: false,
   clean: true,
   platform: 'node',
+  // minimal support for Kubb is node 20
+  target: 'node20',
   shims: true,
   ignoreWatch: ['**/.turbo', '**/dist', '**/node_modules', '**/.DS_STORE', '**/.git'],
   treeshake: 'recommended',

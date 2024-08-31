@@ -4,8 +4,8 @@ import { TreeNode } from './utils/TreeNode.ts'
 
 import { getRelativePath } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import type { Logger } from './logger.ts'
 import type { FileMetaBase } from './FileManager.ts'
+import type { Logger } from './logger.ts'
 
 export type BarrelManagerOptions = {
   logger?: Logger
