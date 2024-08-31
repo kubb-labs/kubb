@@ -1,5 +1,20 @@
 # @kubb/react
 
+## 3.0.0-alpha.11
+
+### Minor Changes
+
+- [#1151](https://github.com/kubb-labs/kubb/pull/1151) [`81b3a78`](https://github.com/kubb-labs/kubb/commit/81b3a78474b3e53446d98db88571a31a452384e0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Link Kubb generation with the react-devtools to easy debug and view the generated files.
+  This can be enabled by import `@kubb/react/devtools` and then run `kubb generate`.
+  To run the React devtools, use 'npx react-devtools'.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.11
+  - @kubb/fs@3.0.0-alpha.11
+  - @kubb/parser-ts@3.0.0-alpha.11
+
 ## 3.0.0-alpha.10
 
 ### Patch Changes
