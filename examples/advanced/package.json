@@ -15,7 +15,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
-    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
+    "generate:devtools": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "generate:bun": "kubb generate --bun",
     "generate:js": "kubb generate --config .kubbrc.js",
     "generate:json": "kubb generate --config kubb.json",

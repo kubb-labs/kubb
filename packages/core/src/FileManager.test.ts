@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { format } from '../mocks/format.ts'
-import { FileManager, combineExports, combineImports, combineSources, getSource } from './FileManager.ts'
+import { FileManager, combineExports, combineImports, combineSources, filterImportsBasedOnSource, getSource } from './FileManager.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
 import { createFile } from './utils'
@@ -611,7 +611,7 @@ describe('FileManager utils', () => {
       },
     ]
 
-    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toMatchInlineSnapshot(`
+    expect(combineImports(imports)).toMatchInlineSnapshot(`
       [
         {
           "isTypeOnly": true,
@@ -646,6 +646,39 @@ describe('FileManager utils', () => {
       },
     ]
 
-    expect(combineImports(importsWithoutSource, [])).toEqual([imports[0], imports[1]])
+    expect(combineImports(importsWithoutSource)).toEqual([imports[0], imports[1]])
+  })
+
+  test('if filterImportsBasedOnSource filters out imports without source', () => {
+    const imports: Array<KubbFile.Import> = [
+      {
+        name: 'test',
+        path: 'react',
+      },
+      {
+        name: 'pet',
+        path: 'react',
+      },
+    ]
+
+    expect(
+      filterImportsBasedOnSource(
+        {
+          name: 'pet',
+          path: 'react',
+        },
+        `import { test } from "react"`,
+      ),
+    ).toBeFalsy()
+
+    expect(imports.filter((imp) => filterImportsBasedOnSource(imp, `import { f } from "react"`))).toMatchInlineSnapshot('[]')
+    expect(imports.filter((imp) => filterImportsBasedOnSource(imp, `import { test } from "react"`))).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "test",
+          "path": "react",
+        },
+      ]
+    `)
   })
 })
