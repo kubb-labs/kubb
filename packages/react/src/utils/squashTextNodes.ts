@@ -23,8 +23,8 @@ export function squashTextNodes(node: DOMElement): string {
             name: attributes.name,
             path: attributes.root ? getRelativePath(attributes.root, attributes.path) : attributes.path,
             isTypeOnly: attributes.isTypeOnly,
-          })],
-        )
+          }),
+        ])
       }
 
       if (childNode.nodeName === 'kubb-export') {
@@ -36,8 +36,8 @@ export function squashTextNodes(node: DOMElement): string {
               path: attributes.path,
               isTypeOnly: attributes.isTypeOnly,
               asAlias: attributes.asAlias,
-            })],
-          )
+            }),
+          ])
         }
       }
 

@@ -1,6 +1,4 @@
 <script setup>
-
-
 const props = defineProps(['allContributors'])
 </script>
 

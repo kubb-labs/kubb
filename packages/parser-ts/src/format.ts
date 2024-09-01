@@ -1,8 +1,6 @@
-import { print } from "./print.ts";
+import { print } from './print.ts'
 
-export function format(source: string){
-
-
+export function format(source: string) {
   // do some basic linting with the ts compiler
-  return print([],{source, noEmitHelpers: false})
+  return print([], { source, noEmitHelpers: false })
 }

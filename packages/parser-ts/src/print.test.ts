@@ -1,4 +1,4 @@
-import { format } from './format.ts';
+import { format } from './format.ts'
 import { print } from './print.ts'
 
 describe('print', () => {
@@ -18,7 +18,7 @@ describe('print', () => {
     )
   })
 
-  test('remove comments from text',  () => {
+  test('remove comments from text', () => {
     const source = `
     // comment that should be removed
     const test = 2;
