@@ -121,6 +121,7 @@ export default defineConfig(() => {
         client: {
           importPath: '../../../../axios-client.ts',
         },
+        operations: true,
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),

@@ -3,12 +3,7 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Client, Operations } from './components/index.ts'
-
-type Templates = {
-  operations?: typeof Operations | false
-  client?: typeof Client | false
-}
+import type { Client } from './components/index.ts'
 
 export type Options = {
   output?: {
@@ -79,7 +74,13 @@ export type Options = {
      * @default ['get', 'post', 'put', 'delete']
      */
     methods?: Array<HttpMethod>
+    template?: typeof Client
   }
+  /**
+   * Create `operations.ts` file with all operations grouped by methods.
+   * @default `false`
+   */
+  operations?: boolean
   /**
    * ReturnType that needs to be used when calling client().
    *
@@ -106,19 +107,13 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
 }
 
 type ResolvedOptions = {
-  extName: KubbFile.Extname | undefined
   baseURL: string | undefined
-  client: Required<NonNullable<Options['client']>>
+  client: NonNullable<Options['client']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
-  templates: NonNullable<Templates>
 }
 
 export type FileMeta = {

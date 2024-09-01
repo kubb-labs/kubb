@@ -3,29 +3,12 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import { Client } from '../components/Client'
-import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 
-export const axiosGenerator = createReactGenerator<PluginClient>({
+export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'plugin-client',
-  Operations({ options, operations }) {
-    const { pluginManager } = useApp<PluginClient>()
-
-    if (!options.templates.operations) {
-      return null
-    }
-
-    const Template = options.templates.operations || Operations
-    const name = 'operations'
-    const file = pluginManager.getFile({ name, extName: '.ts', pluginKey: ['plugin-client'] })
-
-    return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        <Template name={name} operations={operations} />
-      </File>
-    )
-  },
   Operation({ options, operation }) {
+    const { plugin } = useApp<PluginClient>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const name = getName(operation, { type: 'function' })
@@ -33,18 +16,18 @@ export const axiosGenerator = createReactGenerator<PluginClient>({
     const file = getFile(operation)
     const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
-    if (!options.templates.client) {
+    if (!options.client.template) {
       return null
     }
 
-    const Template = options.templates.client || Client
+    const Template = options.client.template || Client
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={'client'} path={options.client.importPath || '@kubb/plugin-client/client'} />
+        <File.Import name={['ResponseConfig']} path={options.client.importPath || '@kubb/plugin-client/client'} isTypeOnly />
         <File.Import
-          extName={options.extName}
+          extName={plugin.output?.extName}
           name={[
             typedSchemas.request?.name,
             typedSchemas.response.name,

@@ -5,11 +5,12 @@ import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
-import { Client, Operations } from './components/index.ts'
+import { Client } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { axiosGenerator } from './generators/axiosGenerator.tsx'
+import { operationsGenerator } from './generators'
+import { clientGenerator } from './generators/clientGenerator.tsx'
 import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
@@ -24,7 +25,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     transformers = {},
     dataReturnType = 'data',
     pathParamsType = 'inline',
-    templates,
+    operations = false,
   } = options
 
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -36,19 +37,14 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       ...output,
     },
     options: {
-      extName: output.extName,
       dataReturnType,
       client: {
         importPath: '@kubb/plugin-client/client',
         methods: ['get', 'post', 'delete', 'put'],
+        template: Client,
         ...options.client,
       },
       pathParamsType,
-      templates: {
-        operations: Operations,
-        client: Client,
-        ...templates,
-      },
       baseURL: undefined,
     },
     pre: [pluginOasName],
@@ -106,7 +102,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(axiosGenerator)
+      const files = await operationGenerator.build(...[clientGenerator, operations ? operationsGenerator : undefined].filter(Boolean))
 
       await this.addFile(...files)
 
