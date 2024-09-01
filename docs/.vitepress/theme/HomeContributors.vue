@@ -6,6 +6,9 @@ const contributors = computed(() => props.allContributors.contributors)
 </script>
 
 <template>
+  <h2 id="op50 font-normal pt-5 pb-2">
+    Contributors
+  </h2>
   <div flex="~ wrap gap2" justify-center>
     <a v-for="{ login, name, avatar_url } of contributors" :key="login" :href="`https://github.com/${login}`" m-0
       rel="noopener noreferrer" :aria-label="`${name} on GitHub`">

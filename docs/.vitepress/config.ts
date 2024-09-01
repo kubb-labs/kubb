@@ -553,33 +553,36 @@ export default defineConfig({
         text: `v${version}`,
         items: [
           {
-            text: 'v1',
-            link: 'https://v1.kubb.dev',
-            target: '_blank',
+            text: 'Sponsors',
+            link: 'sponsors',
           },
           {
-            text: 'v2',
-            link: 'https://v2.kubb.dev',
-            target: '_blank',
+            text: 'Contributers',
+            link: '/contributers',
+          },
+          {
+            text: 'Versions',
+            items: [
+              {
+                text: 'v1',
+                link: 'https://v1.kubb.dev',
+                target: '_blank',
+              },
+              {
+                text: 'v2',
+                link: 'https://v2.kubb.dev',
+                target: '_blank',
+              },
+              {
+                text: 'Releases',
+                link: 'https://github.com/kubb-labs/kubb/releases',
+                target: '_blank',
+              },
+            ],
           },
           {
             text: 'Blog',
             link: '/blog/v3',
-          },
-          {
-            text: 'Releases',
-            link: 'https://github.com/kubb-labs/kubb/releases',
-            target: '_blank',
-          },
-
-          {
-            text: 'Sponsor Kubb',
-            link: 'https://github.com/sponsors/stijnvanhulle/',
-            target: '_blank',
-          },
-          {
-            text: 'Contribute Kubb',
-            link: '/contributing',
           },
           {
             text: 'About Kubb',
@@ -588,8 +591,14 @@ export default defineConfig({
         ],
       },
       {
-        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="25" width="90" style="border: 0; border-radius: 6px;"></iframe>
-      `,
+        text: `<a
+      class="fancy-sponsor"
+      href="https://github.com/sponsors/stijnvanhulle"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Sponsor us
+    </a>`,
         link: '',
       },
     ],

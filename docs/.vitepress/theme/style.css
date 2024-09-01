@@ -66,6 +66,14 @@
   --vp-home-hero-image-background-image: linear-gradient(-45deg, rgb(245, 133, 23) 50%, rgb(227, 192, 157) 50%);
   --vp-home-hero-image-background-image-invert: linear-gradient(-90deg, rgb(245, 133, 23) 50%, rgb(227, 192, 157) 50%);
   --vp-home-hero-image-filter: blur(40px);
+
+  --red: #FF6565;
+  --pink: #FF64F9;
+  --purple: #6B5FFF;
+  --blue: #4D8AFF;
+  --green: #5BFF89;
+  --yellow: #FFEE55;
+  --orange: #FF6D1B;
 }
 
 @media (min-width: 640px) {
@@ -94,6 +102,15 @@
   --vp-custom-block-tip-border: var(--vp-c-brand);
   --vp-custom-block-tip-text: var(--vp-c-brand-lightest);
   --vp-custom-block-tip-bg: var(--vp-c-brand-dimm);
+}
+
+/**
+ * Animations
+ */
+
+@keyframes spin {
+  0% {background-position: 0}
+  100% {background-position: 200%}
 }
 
 /**
@@ -203,3 +220,73 @@
   margin-left: 0.3rem;
   height: 16px;
 }
+
+a.sponsor {
+  /* .VPButton */
+  display: inline-block;
+  border: 1px solid transparent;
+  text-align: center;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    color 0.25s,
+    border-color 0.25s,
+    background-color 0.25s;
+  /* .VPButton.medium */
+  border-radius: 20px;
+  padding: 0 20px;
+  line-height: 30px;
+  font-size: 14px;
+  text-decoration: none;
+  /* .VPButton.sponsor */
+  border-color: var(--vp-button-sponsor-border);
+  color: var(--vp-button-sponsor-text);
+  background-color: var(--vp-button-sponsor-bg);
+}
+
+a.sponsor:hover {
+  /* .VPButton.sponsor:hover */
+  border-color: var(--vp-button-sponsor-hover-border);
+  color: var(--vp-button-sponsor-hover-text);
+  background-color: var(--vp-button-sponsor-hover-bg);
+}
+
+
+a.fancy-sponsor {
+  border: calc(0.08 * 2rem) solid transparent;
+  position: relative;
+  color: var(--vp-c-white);
+  border-radius: calc(0.7 * 2rem);
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0 15px;
+  font-size: 14px;
+  line-height: 30px;
+
+  background:linear-gradient(var(--vp-button-alt-hover-bg), var(--vp-button-alt-hover-bg)), linear-gradient(var(--vp-button-alt-hover-bg) 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)),  linear-gradient(90deg, var(--orange), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red));
+  background-origin: border-box;
+  background-clip: padding-box, border-box, border-box;
+  background-size: 200%;
+  animation: spin 2s infinite linear;
+}
+
+a.fancy-sponsor::before {
+  content: '';
+  background: linear-gradient(90deg, var(--orange), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red));
+  height: 20%;
+  width: 60%;
+  position: absolute;
+  bottom: -20%;
+  z-index: -5;
+  background-size: 200%;
+  animation: spin 2s infinite linear;
+  filter: blur(calc(0.8 * 2rem));
+}
+
+a.fancy-sponsor:hover, a.fancy-sponsor:hover::before {
+  animation: spin 0.5s infinite linear;
+  color: var(--vp-c-white);
+}
+

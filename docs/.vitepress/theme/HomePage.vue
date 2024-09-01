@@ -1,5 +1,5 @@
 <script setup>
-import Contributors from './Contributors.vue'
+
 
 const props = defineProps(['allContributors'])
 </script>
@@ -8,15 +8,27 @@ const props = defineProps(['allContributors'])
   <div class="content">
     <div class="content-container">
       <main class="main">
-        <div class="vp-doc" flex flex-col items-center mt-10>
-          <h2 id="the-team" op50 font-normal pt-5 pb-2>
-            Contributors
-          </h2>
-          <p text-lg max-w-200 text-center leading-7>
-            <Contributors :allContributors="props.allContributors"/>
-            <br>
-            <a href="https://github.com/kubb-labs/kubb" rel="noopener noreferrer">Join the community</a> and get involved!
+        <div class="vp-doc flex flex-col items-center mt-10">
+          <p align="center">
+            <h2 id="the-team op50 font-normal pt-5 pb-2">
+              Sponsors
+            </h2>
+            <a href="https://github.com/sponsors/stijnvanhulle">
+              <img style="max-height: 300px;" src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors-circles.svg" alt="My sponsors" />
+            </a>
           </p>
+          <div class="action">
+            <a
+              class="fancy-sponsor"
+              href="https://github.com/sponsors/stijnvanhulle"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Sponsor us
+            </a>
+            <a class="sponsor" href="https://github.com/kubb-labs/kubb" rel="noopener noreferrer">Join the community</a>
+          </div>
+<!--          <HomeContributors :allContributors="props.allContributors"/>-->
         </div>
       </main>
     </div>
@@ -24,6 +36,13 @@ const props = defineProps(['allContributors'])
 </template>
 
 <style scoped>
+.action {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 4rem;
+}
+
 .items-center, [items-center=""] {
   align-items: center;
 }

@@ -32,6 +32,32 @@
   <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/features.png" alt="features"  height="auto" />
 </div>
 
+## Supporting Kubb
+
+Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+
+<p align="center">
+  <a href="https://github.com/sponsors/stijnvanhulle">
+    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+  </a>
+</p>
+
+
+## Supporting Kubb
+
+Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+
+<p align="center">
+  <a href="https://github.com/sponsors/stijnvanhulle">
+    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+  </a>
+</p>
+
+
 ## Contributors [![Contributors][contributors-src]][contributors-href]
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -80,6 +106,19 @@
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
   </picture>
 </a>
+
+## Supporting Kubb
+
+Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+
+<p align="center">
+  <a href="https://github.com/sponsors/stijnvanhulle">
+    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+  </a>
+</p>
+
 
 <!-- Badges -->
 

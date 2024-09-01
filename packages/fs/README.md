@@ -27,6 +27,19 @@
       <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Request Feature</a>
   </h4>
 </div>
+## Supporting Kubb
+
+Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+
+<p align="center">
+  <a href="https://github.com/sponsors/stijnvanhulle">
+    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+  </a>
+</p>
+
+
 <!-- Badges -->
 
 [npm-version-src]: https://img.shields.io/npm/v/@kubb/fs?flat&colorA=18181B&colorB=f58517
