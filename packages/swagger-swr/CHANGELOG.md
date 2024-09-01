@@ -1,5 +1,24 @@
 # @kubb/swagger-swr
 
+## 2.26.0
+
+### Minor Changes
+
+- [`6be1e59`](https://github.com/kubb-labs/kubb/commit/6be1e59967aa591acf0bc3634338d017a2bb176a) Thanks [@helt](https://github.com/helt)! - Fixes/swr mutations key fn
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.0
+  - @kubb/fs@2.26.0
+  - @kubb/oas@2.26.0
+  - @kubb/parser-ts@2.26.0
+  - @kubb/plugin-oas@2.26.0
+  - @kubb/react@2.26.0
+  - @kubb/swagger-client@2.26.0
+  - @kubb/swagger-ts@2.26.0
+  - @kubb/swagger-zod@2.26.0
+
 ## 2.25.5
 
 ### Patch Changes
