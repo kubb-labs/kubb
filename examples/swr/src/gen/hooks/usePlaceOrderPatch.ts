@@ -2,12 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-
-export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
-
-export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutationKey>
 
 /**
  * @description Place a new order in the store with patch
@@ -32,15 +26,15 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
  */
 export function usePlaceOrderPatch(
   options: {
-    mutation?: SWRMutationConfiguration<PlaceOrderPatchMutationResponse, PlaceOrderPatch405>
+    mutation?: Parameters<typeof useSWRMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, any>>[2]
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = placeOrderPatchMutationKey()
-  return useSWRMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = ['/store/order'] as const
+  return useSWRMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return placeOrderPatch(data, config)
     },

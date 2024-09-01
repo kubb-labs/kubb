@@ -52,7 +52,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  mutation?: SWRMutationConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}>,
+  mutation?: Parameters<typeof useSWRMutation<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}, any>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
   shouldFetch?: boolean,
 }
@@ -64,7 +64,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
 
 export function Mutation({ name, clientName, mutationKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'Key']
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'typeof swrKey | null']
 
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,

@@ -2,12 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-
-export const createUserMutationKey = () => [{ url: '/user' }] as const
-
-export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -32,15 +26,15 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function useCreateUser(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, Error, any>>[2]
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUserMutationKey()
-  return useSWRMutation<CreateUserMutationResponse, Error, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = ['/user'] as const
+  return useSWRMutation<CreateUserMutationResponse, Error, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return createUser(data, config)
     },

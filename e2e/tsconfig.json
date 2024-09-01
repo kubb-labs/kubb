@@ -6,7 +6,7 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
-    "outDir": "es",
+    "outDir": "dist",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "baseUrl": ".",
@@ -15,6 +15,8 @@
     "allowJs": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "alwaysStrict": true,
+    "strict": true,
     "paths": {
       "@kubb/cli": ["../packages/cli/src/index.ts"],
       "@kubb/config-biome": ["../packages/config/config-biome/src/index.ts"],

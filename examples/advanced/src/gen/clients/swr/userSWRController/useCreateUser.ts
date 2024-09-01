@@ -2,13 +2,7 @@ import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
-
-export const createUserMutationKey = () => [{ url: '/user' }] as const
-
-export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -33,15 +27,15 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function useCreateUser(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, Error, any>>[2]
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUserMutationKey()
-  return useSWRMutation<CreateUserMutationResponse, Error, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = ['/user'] as const
+  return useSWRMutation<CreateUserMutationResponse, Error, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return createUser(data, config)
     },

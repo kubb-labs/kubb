@@ -2,11 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
-
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
-
-export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
 /**
  * @description Returns a single pet
@@ -39,14 +34,14 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
 export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: SWRConfiguration<GetPetByIdQueryResponse, GetPetById400 | GetPetById404>
+    query?: Parameters<typeof useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const queryKey = getPetByIdQueryKey(petId)
-  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, Key>(shouldFetch ? queryKey : null, {
+  const swrKey = [`/pet/${petId}`] as const
+  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, typeof swrKey | null>(shouldFetch ? swrKey : null, {
     ...getPetByIdQueryOptions(petId, config),
     ...queryOptions,
   })

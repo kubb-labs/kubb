@@ -7,12 +7,7 @@ import type {
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
-import type { Key, SWRConfiguration } from 'swr'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
-
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
-
-export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -48,14 +43,14 @@ export function useFindPetsByTags(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: SWRConfiguration<FindPetsByTagsQueryResponse, FindPetsByTags400>
+    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const queryKey = findPetsByTagsQueryKey(params)
-  return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, Key>(shouldFetch ? queryKey : null, {
+  const swrKey = ['/pet/findByTags', params] as const
+  return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, typeof swrKey | null>(shouldFetch ? swrKey : null, {
     ...findPetsByTagsQueryOptions(headers, params, config),
     ...queryOptions,
   })

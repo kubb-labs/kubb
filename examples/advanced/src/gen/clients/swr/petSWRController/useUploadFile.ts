@@ -7,13 +7,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
-
-export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
-
-export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
 /**
  * @summary uploads an image
@@ -45,15 +39,15 @@ export function useUploadFile(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, Error, any>>[2]
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = uploadFileMutationKey()
-  return useSWRMutation<UploadFileMutationResponse, Error, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = [`/pet/${petId}/uploadImage`, params] as const
+  return useSWRMutation<UploadFileMutationResponse, Error, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return uploadFile(petId, data, params, config)
     },

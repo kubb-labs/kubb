@@ -2,11 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
-
-export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
-
-export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
 /**
  * @summary Logs user into the system
@@ -38,14 +33,14 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
 export function useLoginUser(
   params?: LoginUserQueryParams,
   options: {
-    query?: SWRConfiguration<LoginUserQueryResponse, LoginUser400>
+    query?: Parameters<typeof useSWR<LoginUserQueryResponse, LoginUser400, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const queryKey = loginUserQueryKey(params)
-  return useSWR<LoginUserQueryResponse, LoginUser400, Key>(shouldFetch ? queryKey : null, {
+  const swrKey = ['/user/login', params] as const
+  return useSWR<LoginUserQueryResponse, LoginUser400, typeof swrKey | null>(shouldFetch ? swrKey : null, {
     ...loginUserQueryOptions(params, config),
     ...queryOptions,
   })

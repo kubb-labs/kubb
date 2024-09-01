@@ -58,7 +58,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  query?: SWRConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}>,
+  query?: Parameters<typeof useSWR<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}, any>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
   shouldFetch?: boolean,
 }
@@ -70,7 +70,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
 
 export function Query({ name, typeSchemas, queryKeyName, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'Key']
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'typeof swrKey | null']
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,

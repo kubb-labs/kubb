@@ -2,11 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
-
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
-
-export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
 /**
  * @summary Get user by user name
@@ -37,14 +32,14 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
 export function useGetUserByName(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: SWRConfiguration<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404>
+    query?: Parameters<typeof useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const queryKey = getUserByNameQueryKey(username)
-  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, Key>(shouldFetch ? queryKey : null, {
+  const swrKey = [`/user/${username}`] as const
+  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, typeof swrKey | null>(shouldFetch ? swrKey : null, {
     ...getUserByNameQueryOptions(username, config),
     ...queryOptions,
   })

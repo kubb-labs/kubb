@@ -7,13 +7,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
-
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
-
-export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
 /**
  * @summary Updates a pet in the store with form data
@@ -38,15 +32,15 @@ export function useUpdatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<UpdatePetWithFormMutationResponse, UpdatePetWithForm405>
+    mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updatePetWithFormMutationKey()
-  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = [`/pet/${petId}`, params] as const
+  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url) => {
       return updatePetWithForm(petId, params, config)
     },

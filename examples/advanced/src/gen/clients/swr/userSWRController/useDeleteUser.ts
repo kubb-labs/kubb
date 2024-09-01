@@ -2,13 +2,7 @@ import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
-
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
-
-export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -33,15 +27,15 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
 export function useDeleteUser(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: SWRMutationConfiguration<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404>
+    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = deleteUserMutationKey()
-  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = [`/user/${username}`] as const
+  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url) => {
       return deleteUser(username, config)
     },

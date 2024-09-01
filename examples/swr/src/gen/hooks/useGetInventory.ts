@@ -2,11 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
-
-export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
-
-export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 
 /**
  * @description Returns a map of status codes to quantities
@@ -38,14 +33,14 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useGetInventory(
   options: {
-    query?: SWRConfiguration<GetInventoryQueryResponse, Error>
+    query?: Parameters<typeof useSWR<GetInventoryQueryResponse, Error, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const queryKey = getInventoryQueryKey()
-  return useSWR<GetInventoryQueryResponse, Error, Key>(shouldFetch ? queryKey : null, {
+  const swrKey = ['/store/inventory'] as const
+  return useSWR<GetInventoryQueryResponse, Error, typeof swrKey | null>(shouldFetch ? swrKey : null, {
     ...getInventoryQueryOptions(config),
     ...queryOptions,
   })

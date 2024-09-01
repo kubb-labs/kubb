@@ -5,13 +5,7 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.ts'
-
-export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
-
-export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
 /**
  * @description Creates list of users with given input array
@@ -39,15 +33,15 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUsersWithListInputMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<CreateUsersWithListInputMutationResponse, Error, any>>[2]
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = createUsersWithListInputMutationKey()
-  return useSWRMutation<CreateUsersWithListInputMutationResponse, Error, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = ['/user/createWithList'] as const
+  return useSWRMutation<CreateUsersWithListInputMutationResponse, Error, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return createUsersWithListInput(data, config)
     },

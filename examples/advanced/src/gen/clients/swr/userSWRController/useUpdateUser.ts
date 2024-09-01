@@ -2,13 +2,7 @@ import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
-
-export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
-
-export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -38,15 +32,15 @@ async function updateUser(
 export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options: {
-    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, Error, any>>[2]
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updateUserMutationKey()
-  return useSWRMutation<UpdateUserMutationResponse, Error, Key>(
-    shouldFetch ? mutationKey : null,
+  const swrKey = [`/user/${username}`] as const
+  return useSWRMutation<UpdateUserMutationResponse, Error, typeof swrKey | null>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return updateUser(username, data, config)
     },
