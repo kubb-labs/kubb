@@ -1,5 +1,24 @@
 # @kubb/plugin-swr
 
+## 3.0.0-alpha.13
+
+### Minor Changes
+
+- [#1176](https://github.com/kubb-labs/kubb/pull/1176) [`1aede94`](https://github.com/kubb-labs/kubb/commit/1aede94741d07ddaebc9b00d6d554d0b3e20f2c9) Thanks [@helt](https://github.com/helt)! - Fixes/swr mutations key fn
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.13
+  - @kubb/fs@3.0.0-alpha.13
+  - @kubb/oas@3.0.0-alpha.13
+  - @kubb/parser-ts@3.0.0-alpha.13
+  - @kubb/plugin-client@3.0.0-alpha.13
+  - @kubb/plugin-oas@3.0.0-alpha.13
+  - @kubb/plugin-ts@3.0.0-alpha.13
+  - @kubb/plugin-zod@3.0.0-alpha.13
+  - @kubb/react@3.0.0-alpha.13
+
 ## 3.0.0-alpha.12
 
 ### Patch Changes
