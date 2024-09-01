@@ -1,6 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { Key } from 'swr'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
@@ -32,7 +33,7 @@ export function useUpdateUser(
 ): SWRMutationResponse<UpdateUser['response'], UpdateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
-  return useSWRMutation<UpdateUser['response'], UpdateUser['error'], typeof url | null>(
+  return useSWRMutation<UpdateUser['response'], UpdateUser['error'], Key>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({

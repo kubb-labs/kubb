@@ -1,6 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { Key } from 'swr'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
@@ -29,7 +30,7 @@ export function usePlaceOrder(options?: {
 }): SWRMutationResponse<PlaceOrder['response'], PlaceOrder['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/store/order' as const
-  return useSWRMutation<PlaceOrder['response'], PlaceOrder['error'], typeof url | null>(
+  return useSWRMutation<PlaceOrder['response'], PlaceOrder['error'], Key>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({

@@ -47,12 +47,13 @@ export const createMachineRequestSchema = z.object({
  */
 export const createOidcTokenRequestSchema = z.object({ aud: z.string().optional() }).describe('Optional parameters')
 
+export const createSecretRequestSchema = z.object({ value: z.array(z.number().int()).optional() })
+
 export const createVolumeRequestSchema = z.object({
   compute: z.lazy(() => flyMachineGuestSchema).optional(),
   compute_image: z.string().optional(),
   encrypted: z.boolean().optional(),
   fstype: z.string().optional(),
-  machines_only: z.boolean().optional(),
   name: z.string().optional(),
   region: z.string().optional(),
   require_unique_zone: z.boolean().optional(),
@@ -96,6 +97,8 @@ export const listAppSchema = z.object({
 })
 
 export const listAppsResponseSchema = z.object({ apps: z.array(z.lazy(() => listAppSchema)).optional(), total_apps: z.number().int().optional() })
+
+export const listSecretSchema = z.object({ label: z.string().optional(), type: z.string().optional() })
 
 export const listenSocketSchema = z.object({ address: z.string().optional(), proto: z.string().optional() })
 
@@ -831,6 +834,53 @@ export const machinesWait400Schema = z.lazy(() => errorResponseSchema)
 
 export const machinesWaitQueryResponseSchema = z.any()
 
+/**
+ * @description OK
+ */
+export const secretsList200Schema = z.array(z.lazy(() => listSecretSchema))
+/**
+ * @description OK
+ */
+export const secretsListQueryResponseSchema = z.array(z.lazy(() => listSecretSchema))
+
+export const secretDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), secret_label: z.string().describe('App Secret Label') })
+/**
+ * @description OK
+ */
+export const secretDelete200Schema = z.any()
+/**
+ * @description Not Found
+ */
+export const secretDelete404Schema = z.any()
+
+export const secretDeleteMutationResponseSchema = z.any()
+
+/**
+ * @description Created
+ */
+export const secretCreate201Schema = z.any()
+/**
+ * @description Bad Request
+ */
+export const secretCreate400Schema = z.lazy(() => errorResponseSchema)
+/**
+ * @description secret body
+ */
+export const secretCreateMutationRequestSchema = z.lazy(() => createSecretRequestSchema)
+
+export const secretCreateMutationResponseSchema = z.any()
+
+/**
+ * @description Created
+ */
+export const secretGenerate201Schema = z.any()
+/**
+ * @description Bad Request
+ */
+export const secretGenerate400Schema = z.lazy(() => errorResponseSchema)
+
+export const secretGenerateMutationResponseSchema = z.any()
+
 export const volumesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 /**
  * @description OK
@@ -1330,6 +1380,67 @@ export const operations = {
       400: machinesWait400Schema,
     },
   },
+  Secrets_list: {
+    request: undefined,
+    parameters: {
+      path: undefined,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      200: secretsListQueryResponseSchema,
+      default: secretsListQueryResponseSchema,
+    },
+    errors: {},
+  },
+  Secret_delete: {
+    request: undefined,
+    parameters: {
+      path: secretDeletePathParamsSchema,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      200: secretDeleteMutationResponseSchema,
+      404: secretDelete404Schema,
+      default: secretDeleteMutationResponseSchema,
+    },
+    errors: {
+      404: secretDelete404Schema,
+    },
+  },
+  Secret_create: {
+    request: secretCreateMutationRequestSchema,
+    parameters: {
+      path: undefined,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      201: secretCreateMutationResponseSchema,
+      400: secretCreate400Schema,
+      default: secretCreateMutationResponseSchema,
+    },
+    errors: {
+      400: secretCreate400Schema,
+    },
+  },
+  Secret_generate: {
+    request: undefined,
+    parameters: {
+      path: undefined,
+      query: undefined,
+      header: undefined,
+    },
+    responses: {
+      201: secretGenerateMutationResponseSchema,
+      400: secretGenerate400Schema,
+      default: secretGenerateMutationResponseSchema,
+    },
+    errors: {
+      400: secretGenerate400Schema,
+    },
+  },
   Volumes_list: {
     request: undefined,
     parameters: {
@@ -1532,6 +1643,18 @@ export const paths = {
   },
   '/apps/{app_name}/machines/{machine_id}/wait': {
     get: operations['Machines_wait'],
+  },
+  '/apps/{app_name}/secrets': {
+    get: operations['Secrets_list'],
+  },
+  '/apps/{app_name}/secrets/{secret_label}': {
+    delete: operations['Secret_delete'],
+  },
+  '/apps/{app_name}/secrets/{secret_label}/type/{secret_type}': {
+    post: operations['Secret_create'],
+  },
+  '/apps/{app_name}/secrets/{secret_label}/type/{secret_type}/generate': {
+    post: operations['Secret_generate'],
   },
   '/apps/{app_name}/volumes': {
     get: operations['Volumes_list'],

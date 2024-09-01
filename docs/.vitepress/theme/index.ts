@@ -17,7 +17,7 @@ export default {
     return h(DefaultTheme.Layout, null, {
       // https://vitepress.dev/guide/extending-default-theme#layout-slots
       'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
-      'layout-top': () => h(Banner)
+      'layout-top': () => h(Banner),
     })
   },
   enhanceApp(ctx: EnhanceAppContext) {
