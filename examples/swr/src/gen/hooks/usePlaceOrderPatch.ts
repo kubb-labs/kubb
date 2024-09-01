@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch.ts'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
@@ -31,7 +32,7 @@ export function usePlaceOrderPatch(options?: {
 }): SWRMutationResponse<PlaceOrderPatch['response'], PlaceOrderPatch['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/store/order' as const
-  return useSWRMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], typeof url | null>(
+  return useSWRMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], Key>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({

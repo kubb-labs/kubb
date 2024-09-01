@@ -1,6 +1,7 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
@@ -34,7 +35,7 @@ export function useDeleteUser(
 ): SWRMutationResponse<DeleteUser['response'], DeleteUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
-  return useSWRMutation<DeleteUser['response'], DeleteUser['error'], typeof url | null>(
+  return useSWRMutation<DeleteUser['response'], DeleteUser['error'], Key>(
     shouldFetch ? url : null,
     async (_url) => {
       const res = await client<DeleteUser['data'], DeleteUser['error']>({

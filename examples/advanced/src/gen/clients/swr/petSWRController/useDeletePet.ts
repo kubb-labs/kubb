@@ -1,6 +1,7 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
@@ -35,7 +36,7 @@ export function useDeletePet(
 ): SWRMutationResponse<DeletePet['response'], DeletePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/${petId}` as const
-  return useSWRMutation<DeletePet['response'], DeletePet['error'], typeof url | null>(
+  return useSWRMutation<DeletePet['response'], DeletePet['error'], Key>(
     shouldFetch ? url : null,
     async (_url) => {
       const res = await client<DeletePet['data'], DeletePet['error']>({

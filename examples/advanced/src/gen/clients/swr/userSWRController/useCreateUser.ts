@@ -1,6 +1,7 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 
 type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
@@ -31,7 +32,7 @@ export function useCreateUser(options?: {
 }): SWRMutationResponse<CreateUser['response'], CreateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/user' as const
-  return useSWRMutation<CreateUser['response'], CreateUser['error'], typeof url | null>(
+  return useSWRMutation<CreateUser['response'], CreateUser['error'], Key>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({

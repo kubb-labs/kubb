@@ -223,7 +223,7 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
 
   return (
     <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-      <File.Import name={["Key"]} path="swr"/>
+      <File.Import name={['Key']} path="swr" isTypeOnly />
       <File.Import name="useSWRMutation" path="swr/mutation" />
       <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
       <File.Import name={'client'} path={importPath} />
