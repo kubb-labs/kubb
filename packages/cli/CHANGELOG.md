@@ -1,5 +1,15 @@
 # @kubb/cli
 
+## 3.0.0-alpha.12
+
+### Patch Changes
+
+- [#1179](https://github.com/kubb-labs/kubb/pull/1179) [`833da08`](https://github.com/kubb-labs/kubb/commit/833da0820d3b91051d829e53ea2b981a74d37e84) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of Set/Map to improve performance in files and barrel generation
+
+- Updated dependencies [[`833da08`](https://github.com/kubb-labs/kubb/commit/833da0820d3b91051d829e53ea2b981a74d37e84)]:
+  - @kubb/core@3.0.0-alpha.12
+  - @kubb/fs@3.0.0-alpha.12
+
 ## 3.0.0-alpha.11
 
 ### Patch Changes
