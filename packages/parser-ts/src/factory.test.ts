@@ -1,6 +1,5 @@
 import ts from 'typescript'
 
-import { format as prettierFormat } from '../mocks/format.ts'
 import {
   appendJSDocToNode,
   createArrayDeclaration,
@@ -15,9 +14,15 @@ import {
   createUnionDeclaration,
   modifiers,
 } from './factory.ts'
+import { format } from './format.ts';
 import { print } from './print.ts'
 
 const { factory } = ts
+
+const formatTS = (elements: ts.Node | (ts.Node | undefined)[]) => {
+  return format(print([elements].flat().filter(Boolean)))
+}
+
 
 describe('codegen', () => {
   const node = factory.createVariableStatement(
@@ -28,9 +33,6 @@ describe('codegen', () => {
     ),
   )
 
-  const formatTS = (elements: ts.Node | (ts.Node | undefined)[]) => {
-    return prettierFormat(print(elements))
-  }
 
   test('createQuestionToken', () => {
     expect(createQuestionToken()).toBeUndefined()
@@ -40,17 +42,17 @@ describe('codegen', () => {
   test('createArrayDeclaration', () => {
     expect(
       print(
-        createArrayDeclaration({
+        [createArrayDeclaration({
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
 
     expect(
       print(
-        createArrayDeclaration({
+        [createArrayDeclaration({
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)],
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
   })
@@ -58,29 +60,29 @@ describe('codegen', () => {
   test('createIntersectionDeclaration', () => {
     expect(
       print(
-        createIntersectionDeclaration({
+        [createIntersectionDeclaration({
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
   })
   test('createUnionDeclaration', () => {
     expect(
       print(
-        createUnionDeclaration({
+        [createUnionDeclaration({
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
   })
   test('createPropertySignature', () => {
     expect(
       print(
-        createPropertySignature({
+       [ createPropertySignature({
           modifiers: [modifiers.const],
           name: 'hello',
           type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
   })
@@ -88,25 +90,25 @@ describe('codegen', () => {
   test('createParameter', () => {
     expect(
       print(
-        createParameterSignature('hello', {
+        [createParameterSignature('hello', {
           type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
     expect(
       print(
-        createParameterSignature('hello', {
+        [createParameterSignature('hello', {
           questionToken: true,
           type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
     expect(
       print(
-        createParameterSignature('hello', {
+        [createParameterSignature('hello', {
           questionToken: true,
           type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
-        }),
+        })].filter(Boolean),
       ),
     ).toMatchSnapshot()
   })

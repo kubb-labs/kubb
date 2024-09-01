@@ -104,7 +104,7 @@ function printCombinedSchema({
     modifiers: [factory.modifiers.export],
   })
 
-  return print(namespaceNode)
+  return print([namespaceNode])
 }
 
 type Props = {

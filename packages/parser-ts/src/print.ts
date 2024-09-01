@@ -24,7 +24,7 @@ const escapeNewLines = (code: string) => code.replace(/\n\n/g, '\n/* :newline: *
 const restoreNewLines = (code: string) => code.replace(/\/\* :newline: \*\//g, '\n')
 
 export function print(
-  elements: ts.Node | Array<ts.Node | undefined> | null,
+  elements: Array<ts.Node>,
   { source = '', baseName = 'print.ts', removeComments, noEmitHelpers, newLine = ts.NewLineKind.LineFeed }: Options = {},
 ): string {
   const sourceFile = ts.createSourceFile(baseName, escapeNewLines(source), ts.ScriptTarget.ES2022, false, ts.ScriptKind.TS)

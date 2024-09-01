@@ -199,8 +199,9 @@ type GetSourceOptions = {
 
 export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions = {}): Promise<string> {
   const parser = await getFileParser(file.extName)
+  const source = await parser.print(file, { logger })
 
-  return parser.print(file, { logger })
+  return parser.format(source)
 }
 
 export function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {

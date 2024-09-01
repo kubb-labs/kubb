@@ -135,12 +135,12 @@ export function Schema(props: Props): ReactNode {
         <Fragment key={[name, nameNode].join('-')}>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
-              {print(nameNode)}
+              {print([nameNode])}
             </File.Source>
           )}
           {
             <File.Source name={typeName} isIndexable isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)} isTypeOnly>
-              {print(typeNode)}
+              {print([typeNode])}
             </File.Source>
           }
         </Fragment>

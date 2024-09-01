@@ -4,13 +4,13 @@ exports[`codegen > appendJSDocToNode 1`] = `
 "/**
  * @description description
  * @example example
- */
-const hello = 'world'
+*/
+const hello = "world";
 "
 `;
 
 exports[`codegen > appendJSDocToNode 2`] = `
-"const hello = 'world'
+"const hello = "world";
 "
 `;
 
@@ -26,102 +26,102 @@ exports[`codegen > createArrayDeclaration 2`] = `
 
 exports[`codegen > createEnumDeclaration 1`] = `
 "export enum Hello {
-  'hello' = 'world',
-  'end' = 2050,
-  'survive' = true,
+    "hello" = "world",
+    "end" = 2050,
+    "survive" = true
 }
 "
 `;
 
 exports[`codegen > createEnumDeclaration 2`] = `
 "export const hello = {
-  hello: 'world',
-  end: 2050,
-  survive: true,
-} as const
-export type Hello = (typeof hello)[keyof typeof hello]
+    "hello": "world",
+    "end": 2050,
+    "survive": true
+} as const;
+export type Hello = (typeof hello)[keyof typeof hello];
 "
 `;
 
 exports[`codegen > createEnumDeclaration 3`] = `
 "export const hello = {
-  'FILE.UPLOADED': 'FILE.UPLOADED',
-  'FILE.PREVIEWE': 'FILE.PREVIEWE',
-} as const
-export type Hello = (typeof hello)[keyof typeof hello]
+    "FILE.UPLOADED": "FILE.UPLOADED",
+    "FILE.PREVIEWE": "FILE.PREVIEWE"
+} as const;
+export type Hello = (typeof hello)[keyof typeof hello];
 "
 `;
 
 exports[`codegen > createEnumDeclaration 4`] = `
 "export const Hello = {
-  hello: 'world',
-  end: 2050,
-  survive: true,
-} as const
-type Hello = (typeof Hello)[keyof typeof Hello]
+    "hello": "world",
+    "end": 2050,
+    "survive": true
+} as const;
+type Hello = (typeof Hello)[keyof typeof Hello];
 "
 `;
 
 exports[`codegen > createEnumDeclaration 5`] = `
 "export const enum Hello {
-  'hello' = 'world',
-  'end' = 2050,
-  'survive' = true,
+    "hello" = "world",
+    "end" = 2050,
+    "survive" = true
 }
 "
 `;
 
 exports[`codegen > createEnumDeclaration 6`] = `
-"export type Hello = 'world' | 2050 | true
+"export type Hello = "world" | 2050 | true;
 "
 `;
 
 exports[`codegen > createEnumDeclaration 7`] = `
 "export enum Hello {
-  'Hello_1' = 'world',
-  'Hello_2' = 2050,
-  'Hello_3' = true,
+    "Hello_1" = "world",
+    "Hello_2" = 2050,
+    "Hello_3" = true
 }
 "
 `;
 
 exports[`codegen > createExportDeclaration 1`] = `
-"export * from './hello.ts'
+"export * from "./hello.ts";
 "
 `;
 
 exports[`codegen > createExportDeclaration 2`] = `
-"export { hello, world } from './hello.ts'
+"export { hello, world } from "./hello.ts";
 "
 `;
 
 exports[`codegen > createExportDeclaration 3`] = `
-"export * as hello from './hello.ts'
+"export * as hello from "./hello.ts";
 "
 `;
 
 exports[`codegen > createImportDeclaration 1`] = `
-"import hello from './hello.ts'
+"import hello from "./hello.ts";
 "
 `;
 
 exports[`codegen > createImportDeclaration 2`] = `
-"import type hello from './hello.ts'
+"import type hello from "./hello.ts";
 "
 `;
 
 exports[`codegen > createImportDeclaration 3`] = `
-"import { hello } from './hello.ts'
+"import { hello } from "./hello.ts";
 "
 `;
 
 exports[`codegen > createImportDeclaration 4`] = `
-"import * as hello from './hello.ts'
+"import * as hello from "./hello.ts";
 "
 `;
 
 exports[`codegen > createImportDeclaration 5`] = `
-"import { hello as helloWorld } from './hello.ts'
+"import { hello as helloWorld } from "./hello.ts";
 "
 `;
 

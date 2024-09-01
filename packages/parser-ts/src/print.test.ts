@@ -1,15 +1,15 @@
-import { format } from '../mocks/format.ts'
+import { format } from './format.ts';
 import { print } from './print.ts'
 
 describe('print', () => {
-  test('print text', async () => {
+  test('print text', () => {
     const source = `
     // comment that should be removed
     const test = 2;
     `
     const text = print([], { source })
-    expect(await format(text)).toStrictEqual(
-      await format(
+    expect(format(text)).toStrictEqual(
+      format(
         `
       // comment that should be removed
       const test = 2;
@@ -18,16 +18,16 @@ describe('print', () => {
     )
   })
 
-  test('remove comments from text', async () => {
+  test('remove comments from text',  () => {
     const source = `
     // comment that should be removed
     const test = 2;
     `
     const text = print([], { removeComments: true, source })
-    expect(await format(text)).toMatchSnapshot()
+    expect(format(text)).toMatchSnapshot()
   })
 
-  test('keep \n', async () => {
+  test('keep \n', () => {
     const source = `
     /**
      * Some comments
@@ -38,6 +38,6 @@ describe('print', () => {
     const test = 3;
     `
     const text = print([], { source, noEmitHelpers: false })
-    expect(await format(text)).toMatchSnapshot()
+    expect(format(text)).toMatchSnapshot()
   })
 })

@@ -68,6 +68,7 @@ export type ParserModule<TMeta extends object = object> = {
    * By default @kubb/react is used
    */
   render: (item: any) => any
+  format:(source:string)=>Promise<string>
   /**
    * Convert a file to string
    */
@@ -85,6 +86,11 @@ type PrintOptions = {
 const typeScriptParser = createFileParser({
   render() {
     return undefined
+  },
+  async format(source){
+    const module = await import('@kubb/parser-ts')
+
+    return module.format(source)
   },
   async print(file) {
     const module = await import('@kubb/parser-ts')
@@ -114,14 +120,16 @@ const typeScriptParser = createFileParser({
       })
       .filter(Boolean)
 
-    // do some basic linting with the ts compiler
-    return module.print([], { source: [module.print([...importNodes, ...exportNodes]), source].join('\n'), noEmitHelpers: false })
+    return [module.print([...importNodes, ...exportNodes]), source].join('\n')
   },
 })
 
 const defaultParser = createFileParser({
   render() {
     return undefined
+  },
+  async format(source){
+    return source
   },
   async print(file, { logger }) {
     return file.sources.map((item) => item.value).join('\n\n')
