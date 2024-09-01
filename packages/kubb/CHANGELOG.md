@@ -1,5 +1,13 @@
 # kubb
 
+## 3.0.0-alpha.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.0.0-alpha.13
+  - @kubb/core@3.0.0-alpha.13
+
 ## 3.0.0-alpha.12
 
 ### Patch Changes
