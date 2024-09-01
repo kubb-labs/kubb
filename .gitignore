@@ -21,6 +21,7 @@ es
 artifacts
 coverage
 *.tgz
+*.js.map
 
 # misc
 .DS_Store
