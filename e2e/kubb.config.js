@@ -29,6 +29,7 @@ const schemas = [
   ['box', './schemas/box.json'],
   ['digitalocean', './schemas/digitalocean.yaml'],
   ['enums', './schemas/enums.yaml'],
+  ['dataset_api', './schemas/dataset_api.yaml'],
 ]
 
 /** @type {import('@kubb/core').UserConfig} */
