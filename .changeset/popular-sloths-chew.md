@@ -1,6 +1,5 @@
 ---
-"@kubb/plugin-swr": minor
-"e2e": patch
+"@kubb/swagger-swr": minor
 ---
 
 Fixes/swr mutations key fn
