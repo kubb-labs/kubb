@@ -6,7 +6,7 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
-    "outDir": "es",
+    "outDir": "dist",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "baseUrl": ".",

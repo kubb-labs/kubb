@@ -18,7 +18,8 @@
     "generate": "kubb generate",
     "generate:bun": "kubb generate --bun",
     "generate:debug": "node --inspect ../packages/cli/bin/kubb.js",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc -p ./tsconfig.strict.json --noEmit --emitDeclarationOnly false",
+    "typecheck:strict": "tsc -p ./tsconfig.strict.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",

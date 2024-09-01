@@ -43,7 +43,7 @@ const baseConfig = {
     clean: true,
   },
   hooks: {
-    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+    done: ['npm run typecheck', 'npm run typecheck:strict', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({

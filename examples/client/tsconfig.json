@@ -15,7 +15,9 @@
     "esModuleInterop": true,
     "allowJs": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "alwaysStrict": true,
+    "strict": true
   },
   "include": ["./src/**/*", "./templates/**/*"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
