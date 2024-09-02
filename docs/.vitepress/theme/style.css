@@ -255,7 +255,7 @@ a.sponsor:hover {
 a.fancy-sponsor {
   border: calc(0.08 * 2rem) solid transparent;
   position: relative;
-  color: var(--vp-c-white);
+  color: var(--vp-c-text-1);
   border-radius: calc(0.7 * 2rem);
   display: flex;
   justify-content: center;
