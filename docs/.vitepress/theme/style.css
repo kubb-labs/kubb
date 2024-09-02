@@ -287,6 +287,6 @@ a.fancy-sponsor::before {
 
 a.fancy-sponsor:hover, a.fancy-sponsor:hover::before {
   animation: spin 0.5s infinite linear;
-  color: var(--vp-c-white);
+  color: var(--vp-c-text-1);
 }
 
