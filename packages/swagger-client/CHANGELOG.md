@@ -1,5 +1,20 @@
 # @kubb/swagger-client
 
+## 2.26.1
+
+### Patch Changes
+
+- [`87370f5`](https://github.com/kubb-labs/kubb/commit/87370f5b09df4429e4ee8e3d40494e66f36c9484) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Resolve issue with serverIndex and baseURL
+
+- Updated dependencies []:
+  - @kubb/core@2.26.1
+  - @kubb/fs@2.26.1
+  - @kubb/oas@2.26.1
+  - @kubb/parser-ts@2.26.1
+  - @kubb/plugin-oas@2.26.1
+  - @kubb/react@2.26.1
+  - @kubb/swagger-ts@2.26.1
+
 ## 2.26.0
 
 ### Patch Changes
