@@ -15,7 +15,7 @@ Optional config name to show in CLI output.
 - **Type:** `string` <br/>
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -30,7 +30,7 @@ export default defineConfig({
 })
 ```
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig([
@@ -64,7 +64,7 @@ Project root directory. Can be an absolute path, or a path relative to the locat
 - **Default:** `process.cwd()` <br/>
 
 ::: code-group
-```typescript twoslash [kubb.config.js]
+```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -89,7 +89,7 @@ Define your Swagger/OpenAPI file. This can be an absolute path or a path relativ
 - **Required:** `true`
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -138,7 +138,7 @@ This can be an absolute path, or a path relative from the defined `root` option.
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -158,7 +158,7 @@ Clean the output directory before each build.
 - **Type:** `boolean` <br/>
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -180,7 +180,7 @@ Write files to the filesystem.
 - **Default:** `true`
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -206,7 +206,7 @@ Sometimes a plugin is dependent on another plugin, if that's the case you will g
 How to use and set up plugins, see [plugins](/plugins/overview).
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -240,7 +240,7 @@ This can be an absolute path, or a path relative from the defined `root` option.
 - **Required:** `true`
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -260,7 +260,7 @@ Clean the output directory before each build.
 - **Type:** `boolean` <br/>
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -282,7 +282,7 @@ Write files to the filesystem.
 - **Default:** `true`
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({

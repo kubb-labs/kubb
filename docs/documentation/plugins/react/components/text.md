@@ -10,7 +10,7 @@ outline: deep
 ## Text
 
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, Text } from '@kubb/react'
 
@@ -37,7 +37,7 @@ export const test = 2
 ## Text with indent
 
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, Text } from '@kubb/react'
 
@@ -63,7 +63,7 @@ export const test = 2
 
 ## API
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { Text } from '@kubb/react'
 

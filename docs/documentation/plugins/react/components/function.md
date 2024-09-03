@@ -7,7 +7,7 @@ outline: deep
 
 # Function
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, Function } from '@kubb/react'
 
@@ -35,7 +35,7 @@ export async function getData() {
 
 ## API
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { Function } from '@kubb/react'
 

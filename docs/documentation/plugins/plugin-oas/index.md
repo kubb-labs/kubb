@@ -53,7 +53,7 @@ Validate your [`input`](/config/input) based on `@readme/openapi-parser`
 Type: `boolean` <br/>
 Default: `true`
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -75,7 +75,7 @@ Default: `'schemas'`
 
 ::: code-group
 
-```typescript twoslash [output string]
+```typescript [output string]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -85,7 +85,7 @@ const plugin = pluginOas({
 })
 ```
 
-```typescript twoslash [output false]
+```typescript [output false]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -123,13 +123,13 @@ servers:
 - url: http://localhost:3000
 ```
 
-```typescript twoslash [serverIndex 0]
+```typescript [serverIndex 0]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 0 })
 ```
 
-```typescript twoslash [serverIndex 1]
+```typescript [serverIndex 1]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 1 })
@@ -152,7 +152,7 @@ export type contentType = 'application/json' | (string & {})
 ::: info
 Type: `contentType` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ contentType: 'application/json' })
@@ -163,7 +163,7 @@ const plugin = pluginOas({ contentType: 'application/json' })
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -178,7 +178,7 @@ const plugin = pluginOas({
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -191,7 +191,7 @@ const plugin = pluginOas({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 

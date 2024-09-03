@@ -42,7 +42,7 @@ Output to save the clients.
 Type: `string` <br/>
 Default: `'clients'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -60,7 +60,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -79,7 +79,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -98,7 +98,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -152,7 +152,7 @@ Default: `'{{tag}}Service'`
 
 ::: code-group
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -177,7 +177,7 @@ so relative path shoule be based on the file being generated.
 Type: `string` <br/>
 Default: `'@kubb/plugin-client/client'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -222,7 +222,7 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -265,7 +265,7 @@ export async function getPetById<TData>(
 Type: `'object' | 'inline'` <br/>
 Default: `'data'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -293,7 +293,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -326,7 +326,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -360,7 +360,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -387,7 +387,7 @@ Override the name of the client that is getting generated, this will also overri
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -426,7 +426,7 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-```tsx twoslash
+```tsx
 import { pluginClient } from '@kubb/plugin-client'
 import { Parser, File, Function } from '@kubb/react'
 import { Client } from '@kubb/plugin/components'
@@ -458,7 +458,7 @@ const plugin = pluginClient({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'

@@ -7,7 +7,7 @@ outline: deep
 
 # Type
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, Type } from '@kubb/react'
 
@@ -33,7 +33,7 @@ type Data = string
 
 ## API
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { Type } from '@kubb/react'
 

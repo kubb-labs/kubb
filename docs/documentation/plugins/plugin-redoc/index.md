@@ -44,7 +44,7 @@ Default: `'docs.html'`
 
 ::: code-group
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -57,7 +57,7 @@ const plugin = pluginOas({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginRedoc } from '@kubb/plugin-redoc'
 
