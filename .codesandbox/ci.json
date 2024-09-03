@@ -31,8 +31,9 @@
     "/examples/vue-query",
     "/examples/vue-query-v5",
     "/examples/zod",
-    "/examples/client"
+    "/examples/client",
+    "/examples/fetch"
   ],
-  "node": "18",
+  "node": "20",
   "installCommand": "install:csb"
 }
