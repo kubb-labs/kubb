@@ -73,7 +73,7 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
          const url = ${client.path.template} as const
          return ${hook.name}<${hook.generics}>(
           shouldFetch ? [url, params]: null,
-          async (_url${client.withData ? ', { arg: data }' : ''}) => {
+          async (${client.fetcherParameterization}) => {
             const res = await client<${client.generics}>({
               ${resolvedClientOptions}
             })
