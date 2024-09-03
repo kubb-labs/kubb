@@ -45,7 +45,8 @@ type TemplateProps = {
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
-    path: URLPath
+    path: URLPath,
+    fetcherParameterization: string
   }
   dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
 }
@@ -66,6 +67,7 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
       <File.Source name={name} isExportable isIndexable>
         <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
           {`
+          // with Query Params
          const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
          const url = ${client.path.template} as const
@@ -90,12 +92,13 @@ function Template({ name, generics, returnType, params, JSDoc, client, hook, dat
     <File.Source name={name} isExportable isIndexable>
       <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
+          // without Query Params
        const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
        const url = ${client.path.template} as const
        return ${hook.name}<${hook.generics}>(
         shouldFetch ? url : null,
-        async (_url${client.withData ? ', { arg: data }' : ''}) => {
+        async (${client.fetcherParameterization}) => {
           const res = await client<${client.generics}>({
             ${resolvedClientOptions}
           })
@@ -137,7 +140,7 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   const params = new FunctionParams()
-  const client = {
+  const client : TemplateProps["client"] = {
     method: operation.method,
     path: new URLPath(operation.path),
     generics: [`${factory.name}["data"]`, `${factory.name}["error"]`, schemas.request?.name ? `${factory.name}["request"]` : ''].filter(Boolean).join(', '),
@@ -145,9 +148,10 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
+    fetcherParameterization: `_url: Key${!!schemas.request?.name ? `, { arg: data } : {arg: ${factory.name}["request"]  }` : ''}`
   }
 
-  const resultGenerics = [`${factory.name}["response"]`, `${factory.name}["error"]`]
+  const resultGenerics = [`${factory.name}["response"]`, `${factory.name}["error"]`, 'Key', `${factory.name}["request"]`]
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
