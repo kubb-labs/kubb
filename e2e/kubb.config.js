@@ -96,7 +96,7 @@ const baseConfig = {
         exportType: false,
       },
       group: { type: 'tag' },
-      typed: false,
+      typed: true,
       typedSchema: true,
       templates: {
         operations: false,
