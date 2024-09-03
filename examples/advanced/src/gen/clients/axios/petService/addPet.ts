@@ -11,6 +11,12 @@ export async function addPet(
   data: AddPetMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<AddPetMutationResponse>> {
-  const res = await client<AddPetMutationResponse, AddPetMutationRequest>({ method: 'post', url: '/pet', data, ...options })
+  const res = await client<AddPetMutationResponse, AddPetMutationRequest>({
+    method: 'post',
+    url: '/pet',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...options,
+  })
   return res
 }

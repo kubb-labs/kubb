@@ -15,6 +15,6 @@ export async function getPetById(
   },
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<GetPetByIdQueryResponse>> {
-  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, ...options })
+  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...options })
   return res
 }

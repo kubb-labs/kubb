@@ -15,6 +15,11 @@ export async function deleteUser(
   },
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<DeleteUserMutationResponse>> {
-  const res = await client<DeleteUserMutationResponse>({ method: 'delete', url: `/user/${username}`, ...options })
+  const res = await client<DeleteUserMutationResponse>({
+    method: 'delete',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...options,
+  })
   return res
 }

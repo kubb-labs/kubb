@@ -54,6 +54,10 @@ const knowledgeBaseSidebar = [
         text: 'Debugging Kubb',
         link: '/knowledge-base/how-tos/debugging',
       },
+      {
+        text: 'Use of Fetch',
+        link: '/knowledge-base/how-tos/fetch',
+      },
     ],
   },
   {
@@ -284,6 +288,10 @@ const examplesSidebar = [
   {
     text: 'Client',
     link: '/examples/client',
+  },
+  {
+    text: 'Fetch',
+    link: '/examples/fetch',
   },
   {
     text: 'Advanced',

@@ -19,7 +19,7 @@ type Props = {
 
 export function Client({ name, options, typedSchemas, operation }: Props): KubbNode {
   const contentType = operation.getContentType()
-  const baseURL = options.client.importPath === '@kubb/plugin-client/client' ? options.baseURL : undefined
+  const baseURL = options.baseURL
   const path = new URLPath(operation.path)
   const isFormData = contentType === 'multipart/form-data'
   const headers = [

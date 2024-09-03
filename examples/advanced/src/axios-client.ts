@@ -9,6 +9,7 @@ declare const AXIOS_HEADERS: string
  * Subset of AxiosRequestConfig
  */
 export type RequestConfig<TData = unknown> = {
+  baseURL?: string
   url?: string
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
   params?: unknown
@@ -33,7 +34,7 @@ export const axiosInstance = axios.create({
 })
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const promise = axiosInstance.request<TVariables, ResponseConfig<TData>>({ ...config }).catch((e: AxiosError<TError>) => {
+  const promise = axiosInstance.request<TVariables, ResponseConfig<TData>>(config).catch((e: AxiosError<TError>) => {
     throw e
   })
 
