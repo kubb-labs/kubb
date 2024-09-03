@@ -45,7 +45,7 @@ type TemplateProps = {
     withPathParams: boolean
     withData: boolean
     withHeaders: boolean
-    path: URLPath,
+    path: URLPath
     fetcherParameterization: string
   }
   dataReturnType: NonNullable<PluginSwr['options']['dataReturnType']>
@@ -140,7 +140,7 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
   const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 
   const params = new FunctionParams()
-  const client : TemplateProps["client"] = {
+  const client: TemplateProps['client'] = {
     method: operation.method,
     path: new URLPath(operation.path),
     generics: [`${factory.name}["data"]`, `${factory.name}["error"]`, schemas.request?.name ? `${factory.name}["request"]` : ''].filter(Boolean).join(', '),
@@ -148,7 +148,7 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
-    fetcherParameterization: `_url: Key${!!schemas.request?.name ? `, { arg: data } : {arg: ${factory.name}["request"]  }` : ''}`
+    fetcherParameterization: `_url: Key${!!schemas.request?.name ? `, { arg: data } : {arg: ${factory.name}["request"]  }` : ''}`,
   }
 
   const resultGenerics = [`${factory.name}["response"]`, `${factory.name}["error"]`, 'Key', `${factory.name}["request"]`]
