@@ -1,14 +1,10 @@
-import { mockedPluginManager } from '@kubb/core/mocks'
-import { createRootServer } from '@kubb/react'
-import { Oas } from '@kubb/plugin-oas/components'
-
-import { OperationGenerator } from '../OperationGenerator.tsx'
-import { Mock } from './Mock.tsx'
+import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import type { Plugin } from '@kubb/core'
-import { App } from '@kubb/react'
-import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import { OperationGenerator } from '@kubb/plugin-oas'
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
+
+import { mockGenerator } from '../generators/mockGenerator.tsx'
 import type { PluginMsw } from '../types.ts'
 
 describe('<Mock/>', async () => {
@@ -18,15 +14,13 @@ describe('<Mock/>', async () => {
     input: { path: 'packages/plugin-msw/mocks/petStore.yaml' },
   })
 
-  const options: GetOperationGeneratorOptions<OperationGenerator> = {
-    templates: {
-      mock: Mock.templates,
-    },
-    extName: undefined,
+  const options: PluginMsw['resolvedOptions'] = {
+    dataReturnType: 'data',
+    pathParamsType: 'object',
+    baseURL: '',
   }
-
   const plugin = { options } as Plugin<PluginMsw>
-  const og = await new OperationGenerator(options, {
+  const og = new OperationGenerator<PluginMsw>(options as any, {
     oas,
     exclude: [],
     include: undefined,
@@ -39,42 +33,23 @@ describe('<Mock/>', async () => {
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
+    const files = await mockGenerator.operation?.({
+      operation,
+      options,
+      instance: og,
+    })
 
-    const Component = () => {
-      return (
-        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
-            <Oas.Operation operation={operation}>
-              <Mock.File />
-            </Oas.Operation>
-          </Oas>
-        </App>
-      )
-    }
-    const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />)
-
-    expect(output).toMatchFileSnapshot('./__snapshots__/Mock/showPetsById.ts')
+    await matchFiles(files)
   })
 
   test('pets', async () => {
     const operation = oas.operation('/pets', 'post')
+    const files = await mockGenerator.operation?.({
+      operation,
+      options,
+      instance: og,
+    })
 
-    const Component = () => {
-      return (
-        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas oas={oas} operations={[operation]} generator={og}>
-            <Oas.Operation operation={operation}>
-              <Mock.File />
-            </Oas.Operation>
-          </Oas>
-        </App>
-      )
-    }
-
-    const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />)
-
-    expect(output).toMatchFileSnapshot('./__snapshots__/Mock/Pets.ts')
+    await matchFiles(files)
   })
 })

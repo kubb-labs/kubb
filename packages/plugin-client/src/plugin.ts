@@ -26,6 +26,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     dataReturnType = 'data',
     pathParamsType = 'inline',
     operations = false,
+    importPath = '@kubb/plugin-client/client',
   } = options
 
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -38,12 +39,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     },
     options: {
       dataReturnType,
-      client: {
-        importPath: '@kubb/plugin-client/client',
-        methods: ['get', 'post', 'delete', 'put'],
-        template: Client,
-        ...options.client,
-      },
+      importPath,
+      template: options.template || Client,
       pathParamsType,
       baseURL: undefined,
     },

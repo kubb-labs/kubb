@@ -118,9 +118,7 @@ export default defineConfig(() => {
           },
         ],
         group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-        client: {
-          importPath: '../../../../axios-client.ts',
-        },
+        importPath: '../../../../axios-client.ts',
         operations: true,
         dataReturnType: 'full',
         pathParamsType: 'object',
@@ -164,6 +162,7 @@ export default defineConfig(() => {
           path: 'msw',
           exportType: false,
         },
+        handlers: true,
         exclude: [
           {
             type: 'tag',

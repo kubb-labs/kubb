@@ -18,11 +18,8 @@ describe('<Operations/>', async () => {
   const options: PluginClient['resolvedOptions'] = {
     dataReturnType: 'data',
     pathParamsType: 'object',
-    client: {
-      importPath: '@kubb/plugin-client/client',
-      methods: ['get', 'post', 'put'],
-      template: Client,
-    },
+    importPath: '@kubb/plugin-client/client',
+    template: Client,
     baseURL: '',
   }
   const plugin = { options } as Plugin<PluginClient>

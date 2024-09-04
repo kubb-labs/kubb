@@ -52,9 +52,7 @@ export default defineConfig(() => {
             type: 'tag',
             pattern: 'user',
             options: {
-              client: {
-                template: Client,
-              },
+              template: Client,
             },
           },
         ],

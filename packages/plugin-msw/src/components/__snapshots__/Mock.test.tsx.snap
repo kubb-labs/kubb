@@ -1,15 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Mock/> > pets 1`] = `
-"export const createPets = rest.post('*/pets', function handler(req, res, ctx) {
-  return res(ctx.json(CreatePetsMutationResponse()))
-})
-"
+"export const createPets = http.post('*/pets', function handler(info) {
+    return new Response(JSON.stringify(createPetsMutationResponse()), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  })"
 `;
 
 exports[`<Mock/> > showPetById 1`] = `
-"export const showPetById = rest.get('*/pets/:petId', function handler(req, res, ctx) {
-  return res(ctx.json(ShowPetByIdQueryResponse()))
-})
-"
+"export const showPetById = http.get('*/pets/:petId', function handler(info) {
+    return new Response(JSON.stringify(showPetByIdQueryResponse()), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  })"
 `;

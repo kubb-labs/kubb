@@ -1,12 +1,9 @@
 import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
-import { Client } from './components/Client.tsx'
-import { Operations } from './components/Operations.tsx'
-
 import type { Plugin } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
-import {  OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator } from '@kubb/plugin-oas'
 
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from './types.ts'
@@ -22,13 +19,7 @@ describe('OperationGenerator', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'inline',
-      templates: {
-        operations: Operations,
-        client: Client,
-      },
-      client: {
-        importPath: '@kubb/plugin-client/client',
-      },
+      importPath: '@kubb/plugin-client/client',
       baseURL: '',
       extName: undefined,
     }
@@ -53,13 +44,7 @@ describe('OperationGenerator', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'object',
-      templates: {
-        operations: Operations,
-        client: Client,
-      },
-      client: {
-        importPath: '@kubb/plugin-client/client',
-      },
+      importPath: '@kubb/plugin-client/client',
       baseURL: '',
       extName: undefined,
     }
@@ -84,13 +69,7 @@ describe('OperationGenerator', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'object',
-      templates: {
-        operations: Operations,
-        client: Client,
-      },
-      client: {
-        importPath: '@kubb/plugin-client/client',
-      },
+      importPath: '@kubb/plugin-client/client',
       baseURL: '',
       extName: undefined,
     }

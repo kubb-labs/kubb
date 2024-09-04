@@ -14,20 +14,18 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     const name = getName(operation, { type: 'function' })
     const typedSchemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
     const file = getFile(operation)
-    const fileType = getFile(operation, { pluginKey: [pluginTsName] })
+    const typedFile = getFile(operation, { pluginKey: [pluginTsName] })
 
-    const hasMethod = options.client.methods?.some((method) => operation.method === method)
-    
-    if (!options.client.template || !hasMethod) {
+    if (!options.template) {
       return null
     }
 
-    const Template = options.client.template || Client
+    const Template = options.template || Client
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={'client'} path={options.client.importPath || '@kubb/plugin-client/client'} />
-        <File.Import name={['ResponseConfig']} path={options.client.importPath || '@kubb/plugin-client/client'} isTypeOnly />
+        <File.Import name={'client'} path={options.importPath || '@kubb/plugin-client/client'} />
+        <File.Import name={['ResponseConfig']} path={options.importPath || '@kubb/plugin-client/client'} isTypeOnly />
         <File.Import
           extName={plugin.output?.extName}
           name={[
@@ -38,7 +36,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
             typedSchemas.headerParams?.name,
           ].filter(Boolean)}
           root={file.path}
-          path={fileType.path}
+          path={typedFile.path}
           isTypeOnly
         />
         <Template name={name} options={options} typedSchemas={typedSchemas} operation={operation} />

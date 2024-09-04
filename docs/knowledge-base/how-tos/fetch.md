@@ -11,7 +11,7 @@ By default, `@kubb/plugin-client` uses the import client from `@kubb/plugin-clie
 However, there are cases where you might want to customize the client. For example, you might prefer to use [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) or [Ky](https://github.com/sindresorhus/ky).
 
 ## Create a `kubb.config.ts` with the following config
-`client.importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/client` will be used).
+`importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/client` will be used).
 
 See [plugins/plugin-client](/documentation/plugins/plugin-client/#client).
 ```typescript twoslash
@@ -33,7 +33,7 @@ export default defineConfig(() => {
     plugins: [
       pluginOas({
         validate: false,
-        output: false,
+        generators: [],
       }),
       pluginTs({
         output: { path: 'models.ts' },
@@ -42,9 +42,7 @@ export default defineConfig(() => {
         output: {
           path: '.',
         },
-        client: {
-          importPath: '../client.ts', // [!code ++]
-        },
+        importPath: '../client.ts', // [!code ++]
       }),
     ],
   }
