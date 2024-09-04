@@ -1,5 +1,19 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.14
+
+### Minor Changes
+
+- [`ede86d6`](https://github.com/kubb-labs/kubb/commit/ede86d69e5083252d80f1b1e2f1c18c55e245937) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Generators to create files based on schema or operation
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.14
+  - @kubb/fs@3.0.0-alpha.14
+  - @kubb/oas@3.0.0-alpha.14
+  - @kubb/react@3.0.0-alpha.14
+
 ## 3.0.0-alpha.13
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 3.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies [[`ede86d6`](https://github.com/kubb-labs/kubb/commit/ede86d69e5083252d80f1b1e2f1c18c55e245937)]:
+  - @kubb/plugin-oas@3.0.0-alpha.14
+  - @kubb/plugin-ts@3.0.0-alpha.14
+  - @kubb/core@3.0.0-alpha.14
+  - @kubb/fs@3.0.0-alpha.14
+  - @kubb/oas@3.0.0-alpha.14
+  - @kubb/parser-ts@3.0.0-alpha.14
+  - @kubb/react@3.0.0-alpha.14
+
 ## 3.0.0-alpha.13
 
 ### Patch Changes
