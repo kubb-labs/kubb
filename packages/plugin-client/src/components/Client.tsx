@@ -4,7 +4,7 @@ import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, createFunctionParams } from '@kubb/react'
-import type { KubbNode, Params } from '@kubb/react/types'
+import type { KubbNode } from '@kubb/react/types'
 import type { PluginClient } from '../types.ts'
 
 type Props = {

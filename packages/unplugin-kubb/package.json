@@ -103,16 +103,16 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "unplugin": "^1.12.3"
+    "unplugin": "^1.13.1"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@nuxt/kit": "^3.13.0",
-    "@nuxt/schema": "^3.13.0",
-    "@types/node": "^20.16.3",
+    "@nuxt/kit": "^3.13.1",
+    "@nuxt/schema": "^3.13.1",
+    "@types/node": "^20.16.4",
     "rimraf": "^5.0.10",
     "rollup": "^4.21.2",
     "tsup": "^8.2.4",

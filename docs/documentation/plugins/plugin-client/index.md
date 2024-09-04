@@ -188,6 +188,73 @@ const plugin = pluginClient({
 ```
 :::
 
+#### client.methods
+
+Define the HttpMethods that the client should use.
+
+::: info
+Type: `Array<HttpMethod>` <br/>
+Default: `['get', 'post', 'put', 'delete']`
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+const plugin = pluginClient({
+  client: {
+    methods: ['get', 'post']
+  },
+})
+```
+:::
+
+#### client.template
+
+::: info
+Type: `typeof Client` <br/>
+Default: `Client`
+
+```tsx
+import { pluginClient } from '@kubb/plugin-client'
+import type { Client as BaseClient } from '@kubb/plugin-client/components'
+
+
+function Client({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof BaseClient>) {
+  const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
+
+  return (
+    <File.Source name={name} isExportable isIndexable>
+  <File.Import name="axios" path="axios" />
+  <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+    {`return axios.${client.method}(${clientParams})`}
+  </Function>
+  </>
+)
+
+const plugin = pluginClient({
+  client: {
+    client: Client,
+  },
+})
+```
+:::
+
+### operations
+
+Create `operations.ts` file with all operations grouped by methods.
+
+::: info
+Type: `boolean` <br/>
+Default: `false`
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+const plugin = pluginClient({
+  operations: true
+})
+```
+:::
+
 ### dataReturnType
 
 ReturnType that needs to be used when calling client().
@@ -395,62 +462,6 @@ const plugin = pluginClient({
     name: (name) => {
       return `${name}Client`
     },
-  },
-})
-```
-:::
-
-### templates
-
-Make it possible to override one of the templates. <br/>
-
-::: tip
-See [templates](/reference/templates) for more information about creating templates.<br/>
-Set `false` to disable a template.
-:::
-
-::: info TYPE
-
-```typescript [Templates]
-import type { Client, Operations } from '@kubb/plugin/components'
-
-export type Templates = {
-  operations?: typeof Operations.templates | false
-  client?: typeof Client.templates | false
-}
-```
-
-:::
-
-::: info
-
-Type: `Templates` <br/>
-
-```tsx
-import { pluginClient } from '@kubb/plugin-client'
-import { Parser, File, Function } from '@kubb/react'
-import { Client } from '@kubb/plugin/components'
-import React from 'react'
-
-export const templates = {
-  ...Client.templates,
-  default: function ({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
-    const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
-
-    return (
-      <>
-        <File.Import name="axios" path="axios" />
-        <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-          {`return axios.${client.method}(${clientParams})`}
-        </Function>
-    </>
-  )
-  },
-} as const
-
-const plugin = pluginClient({
-  templates: {
-    client: templates,
   },
 })
 ```
