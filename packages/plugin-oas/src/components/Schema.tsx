@@ -3,7 +3,6 @@ import { File, createContext, useApp, useFile } from '@kubb/react'
 import { schemaKeywords } from '../SchemaMapper.ts'
 import { useSchema } from '../hooks/useSchema.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react/types'
 import type { ReactNode } from 'react'
@@ -39,7 +38,7 @@ type FileProps = {
   children?: KubbNode
 }
 
-Schema.File = function ({ output, isTypeOnly, children }: FileProps): ReactNode {
+Schema.File = function ({ isTypeOnly, children }: FileProps): ReactNode {
   const { plugin, pluginManager, mode } = useApp<PluginOas>()
   const { name } = useSchema()
 
