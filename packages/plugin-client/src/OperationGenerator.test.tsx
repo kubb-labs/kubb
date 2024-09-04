@@ -5,7 +5,9 @@ import { Operations } from './components/Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
-import { type GetOperationGeneratorOptions, OperationGenerator } from '@kubb/plugin-oas'
+import type { GetOperationGeneratorOptions } from '@kubb/plugin-oas'
+import {  OperationGenerator } from '@kubb/plugin-oas'
+
 import { parseFromConfig } from '@kubb/plugin-oas/utils'
 import type { PluginClient } from './types.ts'
 

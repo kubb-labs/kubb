@@ -16,7 +16,9 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     const file = getFile(operation)
     const fileType = getFile(operation, { pluginKey: [pluginTsName] })
 
-    if (!options.client.template) {
+    const hasMethod = options.client.methods?.some((method) => operation.method === method)
+    
+    if (!options.client.template || !hasMethod) {
       return null
     }
 
