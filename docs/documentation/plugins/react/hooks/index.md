@@ -14,7 +14,7 @@ Some hooks that can be used with `@kubb/react`.
 
 `useParser` will return the current language set by the parent `Parser` component.
 
-```tsx twoslash
+```tsx
 import { useParser } from '@kubb/react'
 
 function Component() {
@@ -29,7 +29,7 @@ function Component() {
 `useApp` will return the current App with plugin, pluginManager, fileManager and mode.
 
 
-```tsx twoslash
+```tsx
 import { useApp } from '@kubb/react'
 
 function Component() {
@@ -43,7 +43,7 @@ function Component() {
 
 With `useFile` you can get the context of the current file(basePath, name, ...)
 
-```tsx twoslash
+```tsx
 import { File, useFile } from '@kubb/react'
 
 function Component() {

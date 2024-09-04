@@ -56,7 +56,7 @@ You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cj
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -80,7 +80,7 @@ Here you can choose between returning the config options synchronously or asynch
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(({ config, watch, logLevel }) => {
@@ -108,7 +108,7 @@ With version `2.x.x` we also support using multiple versions of the same plugin.
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -150,7 +150,7 @@ Since version `2.x.x` we also support using multiple configs.
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 

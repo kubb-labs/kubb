@@ -165,7 +165,7 @@ const oas = {
 
 To infer models from an OpenAPI document, use the Model type.
 
-```typescript twoslash
+```typescript
 import type { Infer, Model } from '@kubb/oas'
 
 const oas = {
@@ -287,7 +287,7 @@ export type Pet = Model<Oas, 'Pet'>
 
 To infer request body parameters from an OpenAPI document, utilize the RequestParams type
 
-```typescript twoslash
+```typescript
 import type { Infer, RequestParams } from '@kubb/oas'
 
 const oas = {
@@ -409,7 +409,7 @@ export type GetPet = RequestParams<Oas, '/pets', 'get'>
 
 To infer the response body of an OpenAPI document, utilize the Response type
 
-```typescript twoslash
+```typescript
 import type { Infer, Response } from '@kubb/oas'
 
 const oas = {

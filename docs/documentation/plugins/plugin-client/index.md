@@ -42,7 +42,7 @@ Output to save the clients.
 Type: `string` <br/>
 Default: `'clients'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -60,7 +60,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -79,7 +79,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -98,7 +98,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -152,7 +152,7 @@ Default: `'{{tag}}Service'`
 
 ::: code-group
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -177,13 +177,80 @@ so relative path shoule be based on the file being generated.
 Type: `string` <br/>
 Default: `'@kubb/plugin-client/client'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   client: {
     importPath: '../../client.ts',
   },
+})
+```
+:::
+
+#### client.methods
+
+Define the HttpMethods that the client should use.
+
+::: info
+Type: `Array<HttpMethod>` <br/>
+Default: `['get', 'post', 'put', 'delete']`
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+const plugin = pluginClient({
+  client: {
+    methods: ['get', 'post']
+  },
+})
+```
+:::
+
+#### client.template
+
+::: info
+Type: `typeof Client` <br/>
+Default: `Client`
+
+```tsx
+import { pluginClient } from '@kubb/plugin-client'
+import type { Client as BaseClient } from '@kubb/plugin-client/components'
+
+
+function Client({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof BaseClient>) {
+  const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
+
+  return (
+    <File.Source name={name} isExportable isIndexable>
+  <File.Import name="axios" path="axios" />
+  <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+    {`return axios.${client.method}(${clientParams})`}
+  </Function>
+  </>
+)
+
+const plugin = pluginClient({
+  client: {
+    client: Client,
+  },
+})
+```
+:::
+
+### operations
+
+Create `operations.ts` file with all operations grouped by methods.
+
+::: info
+Type: `boolean` <br/>
+Default: `false`
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+const plugin = pluginClient({
+  operations: true
 })
 ```
 :::
@@ -222,7 +289,7 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -265,7 +332,7 @@ export async function getPetById<TData>(
 Type: `'object' | 'inline'` <br/>
 Default: `'data'`
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -293,7 +360,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -326,7 +393,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -360,7 +427,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -387,7 +454,7 @@ Override the name of the client that is getting generated, this will also overri
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
@@ -400,65 +467,9 @@ const plugin = pluginClient({
 ```
 :::
 
-### templates
-
-Make it possible to override one of the templates. <br/>
-
-::: tip
-See [templates](/reference/templates) for more information about creating templates.<br/>
-Set `false` to disable a template.
-:::
-
-::: info TYPE
-
-```typescript [Templates]
-import type { Client, Operations } from '@kubb/plugin/components'
-
-export type Templates = {
-  operations?: typeof Operations.templates | false
-  client?: typeof Client.templates | false
-}
-```
-
-:::
-
-::: info
-
-Type: `Templates` <br/>
-
-```tsx twoslash
-import { pluginClient } from '@kubb/plugin-client'
-import { Parser, File, Function } from '@kubb/react'
-import { Client } from '@kubb/plugin/components'
-import React from 'react'
-
-export const templates = {
-  ...Client.templates,
-  default: function ({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
-    const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
-
-    return (
-      <>
-        <File.Import name="axios" path="axios" />
-        <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-          {`return axios.${client.method}(${clientParams})`}
-        </Function>
-    </>
-  )
-  },
-} as const
-
-const plugin = pluginClient({
-  templates: {
-    client: templates,
-  },
-})
-```
-:::
-
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'

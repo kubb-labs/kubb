@@ -42,7 +42,7 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'zod'`
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -59,7 +59,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -78,7 +78,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -97,7 +97,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -150,7 +150,7 @@ Default: `'{{tag}}Schemas'`
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -170,7 +170,7 @@ Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
 Type: `boolean` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -187,7 +187,7 @@ Return Zod generated schema as type with z.infer.
 
 Type: `boolean` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -231,7 +231,7 @@ z.date()
 Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
 Default: `'string'`
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -286,7 +286,7 @@ z.number()
 Type: `boolean` <br/>
 Default: `false`
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -314,7 +314,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -347,7 +347,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -381,7 +381,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -409,7 +409,7 @@ Override the name of the Zod schema that is getting generated, this will also ov
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -432,7 +432,7 @@ the path will be applied as is, so relative path should be based on the file bei
 Type: `string` <br/>
 Default: `'zod'`
 
-```typescript twoslash
+```typescript
 import { pluginZod } from '@kubb/plugin-zod'
 
 const plugin = pluginZod({
@@ -468,7 +468,7 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-```tsx twoslash
+```tsx
 import { pluginZod } from '@kubb/plugin-zod'
 import { Parser, File, Function } from '@kubb/react'
 import { Operations } from '@kubb/plugin-zod/components'
@@ -488,7 +488,7 @@ const plugin = pluginZod({
 
 
 ## Example
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginZod } from '@kubb/plugin-zod'

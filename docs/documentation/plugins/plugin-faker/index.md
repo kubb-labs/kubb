@@ -44,7 +44,7 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'mocks'`
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -62,7 +62,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -81,7 +81,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -100,7 +100,7 @@ Define what needs to be exported, you can also disable the export of barrel file
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -150,7 +150,7 @@ Default: `'{{tag}}Mocks'`
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -187,7 +187,7 @@ faker.date.anytime()
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -242,7 +242,7 @@ moment(faker.date.anytime()).format("HH:mm:ss")
 Type: `'dayjs' | 'moment' | string` <br/>
 Default: `undefined`
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -273,7 +273,7 @@ unknown
 Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -304,7 +304,7 @@ new RandExp(/test/).gen()
 Type: `'faker' | 'randexp'` <br/>
 Default: `'faker'`
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -320,7 +320,7 @@ The use of Seed is intended to allow for consistent values in a test.
 ::: info
 Type: `'number' | 'number[]'` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -348,7 +348,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -381,7 +381,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -416,7 +416,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -443,7 +443,7 @@ Override the name of the faker data that is getting generated, this will also ov
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginFaker } from '@kubb/plugin-faker'
 
 const plugin = pluginFaker({
@@ -459,7 +459,7 @@ const plugin = pluginFaker({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginFaker} from '@kubb/plugin-faker'

@@ -4,7 +4,7 @@ import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, createFunctionParams } from '@kubb/react'
-import type { KubbNode, Params } from '@kubb/react/types'
+import type { KubbNode } from '@kubb/react/types'
 import type { PluginClient } from '../types.ts'
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 
 export function Client({ name, options, typedSchemas, operation }: Props): KubbNode {
   const contentType = operation.getContentType()
-  const baseURL = options.client.importPath === '@kubb/plugin-client/client' ? options.baseURL : undefined
+  const baseURL = options.baseURL
   const path = new URLPath(operation.path)
   const isFormData = contentType === 'multipart/form-data'
   const headers = [

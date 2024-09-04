@@ -1,25 +1,31 @@
-import path from 'node:path'
-
-import { createPlugin } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { FileManager, createPlugin } from '@kubb/core'
 
 import { getSchemas } from './utils/getSchemas.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
+import path from 'node:path'
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
-import type { Oas, OasTypes } from '@kubb/oas'
+import type { Oas } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
+import { OperationGenerator } from './OperationGenerator.ts'
+import { SchemaGenerator } from './SchemaGenerator.ts'
+import { jsonGenerator } from './generators'
 import type { PluginOas } from './types.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
 export const pluginOas = createPlugin<PluginOas>((options) => {
   const {
-    output = { path: 'schemas', export: false },
+    output = {
+      path: 'schemas',
+      export: false,
+      exportType: 'barrelNamed',
+    },
     experimentalFilter: filter,
     experimentalSort: sort,
     validate = true,
+    generators = [jsonGenerator],
     serverIndex = 0,
     contentType,
     oasClass,
@@ -45,16 +51,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
   return {
     name: pluginOasName,
-    output:
-      output === false
-        ? {
-            path: '',
-            exportType: false,
-          }
-        : {
-            exportType: 'barrelNamed',
-            ...output,
-          },
+    output,
     options,
     context() {
       const { config, logger } = this
@@ -69,11 +66,24 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         },
         async getBaseURL() {
           const oasInstance = await this.getOas()
-          const baseURL = oasInstance.api.servers?.at(serverIndex)?.url
-          return baseURL
+          return oasInstance.api.servers?.at(serverIndex)?.url
         },
         contentType,
       }
+    },
+    resolvePath(baseName, pathMode, options) {
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
+
+      if (mode === 'single') {
+        /**
+         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
+         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
+         */
+        return path.resolve(root, output.path)
+      }
+
+      return path.resolve(root, output.path, baseName)
     },
     async buildStart() {
       if (!output) {
@@ -90,32 +100,42 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       })
       await oas.dereference()
 
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const schemas = getSchemas({ oas, contentType })
+      const schemaGenerator = new SchemaGenerator(
+        {
+          unknownType: 'unknown',
+          dateType: 'date',
+          transformers: {},
+          ...this.plugin.options,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          plugin: this.plugin,
+          contentType,
+          include: undefined,
+          override: undefined,
+          mode: 'split',
+          output: output.path,
+        },
+      )
 
-      const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
-        const baseName = `${camelCase(name)}.json` as `${string}.json`
-        const resolvedPath = path.resolve(root, output.path, baseName)
+      const schemaFiles = await schemaGenerator.build(...generators)
+      await this.addFile(...schemaFiles)
 
-        await this.addFile({
-          path: resolvedPath,
-          baseName,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          sources: [
-            {
-              name: camelCase(name),
-              isExportable: false,
-              isIndexable: false,
-              value: JSON.stringify(schema),
-            },
-          ],
-        })
-      }
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType,
+        exclude: undefined,
+        include: undefined,
+        override: undefined,
+        mode: 'split',
+      })
 
-      const promises = Object.entries(schemas).map(mapSchema)
-      await Promise.all(promises)
+      const operationFiles = await operationGenerator.build(...generators)
+
+      await this.addFile(...operationFiles)
     },
   }
 })

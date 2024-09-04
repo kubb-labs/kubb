@@ -47,9 +47,9 @@ yarn add @kubb/core
 
 ## Usage
 
-```typescript twoslash
+```typescript
 import { write } from '@kubb/fs'
-import { build } from '@kubb/core'
+import { build, getSource } from '@kubb/core'
 
 const { error, files, pluginManager } = await build({
   config: {
@@ -63,8 +63,11 @@ const { error, files, pluginManager } = await build({
   },
 })
 
+
 for (const file of files) {
-  await write(file.source, file.path)
+  const source = await getSource(file)
+
+  await write(file, file.path)
 }
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-oas",
-  "version": "3.0.0-alpha.13",
+  "version": "3.0.0-alpha.14",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
@@ -24,6 +24,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
+    },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs",
+      "default": "./dist/generators.cjs"
     },
     "./utils": {
       "import": "./dist/utils.js",
@@ -56,6 +61,9 @@
       ],
       "components": [
         "./dist/components.d.ts"
+      ],
+      "generators": [
+        "./dist/generators.d.ts"
       ]
     }
   },
@@ -83,7 +91,7 @@
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "execa": "^9.3.1",
-    "remeda": "^2.11.0"
+    "remeda": "^2.12.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

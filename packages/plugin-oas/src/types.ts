@@ -4,6 +4,7 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { FormatOptions } from '@kubb/oas/parser'
+import type { Generator } from './generator.tsx'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 export type ResolvePathOptions = {
@@ -25,18 +26,16 @@ export type Options = {
    * @default true
    */
   validate?: boolean
-  output?:
-    | {
-        /**
-         * Relative path to save the JSON models.
-         * False will not generate the schema JSON's.
-         * @default 'schemas'
-         */
-        path: string
-        extName?: KubbFile.Extname
-        exportType?: 'barrel' | 'barrelNamed' | false
-      }
-    | false
+  output?: {
+    /**
+     * Relative path to save the JSON models.
+     * False will not generate the schema JSON's.
+     * @default 'schemas'
+     */
+    path: string
+    extName?: KubbFile.Extname
+    exportType?: 'barrel' | 'barrelNamed' | false
+  }
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example
@@ -52,7 +51,14 @@ export type Options = {
   contentType?: contentType
   experimentalFilter?: FormatOptions['filterSet']
   experimentalSort?: FormatOptions['sortSet']
+  /**
+   * Override some behaviour of the Oas class instance, see '@kubb/oas'
+   */
   oasClass?: typeof Oas
+  /**
+   * Define some generators next to the JSON generation
+   */
+  generators?: Array<Generator<PluginOas>>
 }
 
 /**
