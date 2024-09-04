@@ -7,7 +7,7 @@ outline: deep
 
 # Parser
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { createRoot, Parser } from '@kubb/react'
 
@@ -33,7 +33,7 @@ export const test = 2
 
 ## API
 
-```tsx twoslash
+```tsx
 import React from "react"
 import { Parser } from '@kubb/react'
 

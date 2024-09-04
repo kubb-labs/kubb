@@ -5,7 +5,7 @@ import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-import { Client } from './templates/client/index'
+import { Client } from './templates/Client'
 
 export default defineConfig(() => {
   return {
@@ -46,13 +46,14 @@ export default defineConfig(() => {
           },
         ],
         group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+        operations: true,
         override: [
           {
             type: 'tag',
             pattern: 'user',
             options: {
-              templates: {
-                client: Client,
+              client: {
+                template: Client,
               },
             },
           },

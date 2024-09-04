@@ -44,7 +44,7 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'types'`
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -62,7 +62,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -81,7 +81,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -100,7 +100,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -142,7 +142,7 @@ Default: `'${output}/{{tag}}Controller'`
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -203,7 +203,7 @@ type PetType = 'dog' | 'cat'
 Type: `'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'` <br/>
 Default: `'asConst'`
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -223,7 +223,7 @@ Set a suffix for the generated enums.
 Type: `string` <br/>
 Default: `''`
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -259,7 +259,7 @@ type Pet = {
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -294,7 +294,7 @@ type Pet = {
 Type: `'any' | 'unknown'` <br/>
 Default: `'any'`
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -335,7 +335,7 @@ type Pet = {
 Type: `'questionToken' | 'undefined' | 'questionTokenAndUndefined'` <br/>
 Default: `'questionToken'`
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -352,7 +352,7 @@ See [infer](/plugins/plugin-ts/infer) in how to use the types with `@kubb/plugin
 ::: info
 Type: `'infer' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -381,7 +381,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -414,7 +414,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -448,7 +448,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -475,7 +475,7 @@ Override the name of the TypeScript type that is getting generated, this will al
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
@@ -490,7 +490,7 @@ const plugin = pluginTs({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'

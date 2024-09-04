@@ -45,7 +45,7 @@ Output to save the SWR hooks.
 Type: `string` <br/>
 Default: `'hooks'`
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -64,7 +64,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -84,7 +84,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -104,7 +104,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -157,7 +157,7 @@ Default: `'{{tag}}SWRHooks'`
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -184,7 +184,7 @@ so relative path shoule be based on the file being generated.
 Type: `string` <br/>
 Default: `'@kubb/plugin/client'`
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -228,7 +228,7 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -257,7 +257,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -291,7 +291,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -326,7 +326,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -354,7 +354,7 @@ Override the name of the hook that is getting generated, this will also override
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginSwr } from '@kubb/plugin-swr'
 
 const plugin = pluginSwr({
@@ -395,7 +395,7 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-```tsx twoslash
+```tsx
 import { pluginSwr } from '@kubb/plugin-swr'
 import { Query } from '@kubb/plugin-swr/components'
 import React from 'react'
@@ -415,7 +415,7 @@ const plugin = pluginSwr({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'

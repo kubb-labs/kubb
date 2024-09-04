@@ -31,7 +31,7 @@ Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plug
 
 ::: code-group
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -87,7 +87,7 @@ Your `package.json` will look like this:
 
 ::: code-group
 
-```json twoslash [package.json]
+```json [package.json]
 {
   "name": "your project",
   "scripts": {

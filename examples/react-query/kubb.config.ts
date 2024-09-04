@@ -17,7 +17,7 @@ export const config = {
     clean: true,
   },
   plugins: [
-    pluginOas({ output: false }),
+    pluginOas({ generators: [] }),
     pluginTs({
       output: {
         path: 'models',

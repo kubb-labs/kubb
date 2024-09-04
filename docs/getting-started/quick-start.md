@@ -30,7 +30,7 @@ kubb --config kubb.config.js
 
 ::: code-group
 
-```typescript twoslash [kubb.config.js]
+```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(() => {
@@ -61,7 +61,7 @@ kubb --config kubb.config.js
 
 ::: code-group
 
-```typescript twoslash [kubb.config.js]
+```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'

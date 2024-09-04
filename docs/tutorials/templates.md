@@ -23,7 +23,7 @@ The setup will contain from the beginning the following folder structure:
 
 ::: code-group
 
-```typescript twoslash [@kubb/plugin-client/types]
+```typescript [@kubb/plugin-client/types]
 import { Client, Operations } from '@kubb/plugin-client/components'
 
 type Templates = {
@@ -54,7 +54,7 @@ We also want to import `axios`, to do that we can use `File.Import`. Next to tha
 
 ::: code-group
 
-```tsx twoslash [kubb.config.ts]
+```tsx [kubb.config.ts]
 import React from 'react'
 
 import { File, Function } from '@kubb/react'
@@ -87,7 +87,7 @@ See [examples/python](/examples/python) for an example on how you can do that.
 
 ::: code-group
 
-```tsx twoslash [kubb.config.ts]
+```tsx [kubb.config.ts]
 import React from 'react'
 
 import { File, Function } from '@kubb/react'

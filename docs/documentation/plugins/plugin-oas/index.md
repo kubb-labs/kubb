@@ -53,7 +53,7 @@ Validate your [`input`](/config/input) based on `@readme/openapi-parser`
 Type: `boolean` <br/>
 Default: `true`
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -66,30 +66,21 @@ const plugin = pluginOas({
 
 #### output.path
 
-Relative path to save the JSON models.<br/>
-False will not generate the schema JSONs.
+Relative path to save the generated files(see generators).<br/>
 
 ::: info
-Type: `string | false` <br/>
+Type: `string` <br/>
 Default: `'schemas'`
 
 ::: code-group
 
-```typescript twoslash [output string]
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
   output: {
     path: './json',
   },
-})
-```
-
-```typescript twoslash [output false]
-import { pluginOas } from '@kubb/plugin-oas'
-
-const plugin = pluginOas({
-  output: false
 })
 ```
 
@@ -123,13 +114,13 @@ servers:
 - url: http://localhost:3000
 ```
 
-```typescript twoslash [serverIndex 0]
+```typescript [serverIndex 0]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 0 })
 ```
 
-```typescript twoslash [serverIndex 1]
+```typescript [serverIndex 1]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 1 })
@@ -152,10 +143,55 @@ export type contentType = 'application/json' | (string & {})
 ::: info
 Type: `contentType` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ contentType: 'application/json' })
+```
+:::
+
+
+### oasClass <img src="/icons/experimental.svg"/>
+Override some behaviour of the Oas class instance, see `@kubb/oas`.
+::: info
+
+```typescript
+import { pluginOas } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/oas'
+
+class oasClass extends Oas {
+
+}
+
+const plugin = pluginOas({
+  oasClass
+})
+```
+:::
+
+### generators <img src="/icons/experimental.svg"/>
+Define some generators to create files based on the operation and/or schema. See `createGenerator`.
+
+All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators.
+
+An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
+
+::: info
+
+```typescript
+import { pluginOas, createGenerator, PluginOas } from '@kubb/plugin-oas'
+import { jsonGenerator } from '@kubb/plugin-oas/generators';
+
+export const customGenerator = createGenerator<PluginOas>({
+  name: 'plugin-oas',
+  async schema({ schema, name, instance }) {
+    return []
+  }
+})
+
+const plugin = pluginOas({
+  generators: [jsonGenerator,  customGenerator]
+})
 ```
 :::
 
@@ -163,7 +199,7 @@ const plugin = pluginOas({ contentType: 'application/json' })
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -178,7 +214,7 @@ const plugin = pluginOas({
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -191,7 +227,7 @@ const plugin = pluginOas({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 

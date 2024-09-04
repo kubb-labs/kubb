@@ -46,7 +46,7 @@ When output is a file it will save all models inside that file else it will crea
 Type: `string` <br/>
 Default: `'mocks'`
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -64,7 +64,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -83,7 +83,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -102,7 +102,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -153,7 +153,7 @@ Default: `'{{tag}}Handlers'`
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -184,7 +184,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -218,7 +218,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -252,7 +252,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -279,7 +279,7 @@ Override the name of the MSW data that is getting generated, this will also over
 
 Type: `(name: string) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginMsw } from '@kubb/plugin-msw'
 
 const plugin = pluginMsw({
@@ -318,7 +318,7 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-```tsx twoslash
+```tsx
 import { pluginMsw } from '@kubb/plugin-msw'
 import { Parser, File, Function } from '@kubb/react'
 import { Mock } from '@kubb/plugin-msw/components'
@@ -338,7 +338,7 @@ const plugin = pluginMsw({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginFaker} from '@kubb/plugin-faker'

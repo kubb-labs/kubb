@@ -16,7 +16,7 @@ See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` in
 
 ::: code-group
 
-```tsx twoslash
+```tsx
 import { useOas } from '@kubb/plugin-oas/hooks'
 
 function Component() {
@@ -34,7 +34,7 @@ function Component() {
 
 ::: code-group
 
-```tsx twoslash
+```tsx
 import { useOperation } from '@kubb/plugin-oas/hooks'
 
 function Component() {
@@ -54,7 +54,7 @@ function Component() {
 
 ::: code-group
 
-```tsx twoslash
+```tsx
 import { useOperations } from '@kubb/plugin-oas/hooks'
 
 function Component() {
@@ -73,7 +73,7 @@ function Component() {
 
 ::: code-group
 
-```tsx twoslash
+```tsx
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 
 function Component() {

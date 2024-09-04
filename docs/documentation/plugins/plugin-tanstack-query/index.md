@@ -48,7 +48,7 @@ Output to save the [Tanstack Query](https://tanstack.com/query) hooks.
 Type: `string` <br/>
 Default: `'hooks'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -67,7 +67,7 @@ Name to be used for the `export * as {{exportAs}} from './'`
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -87,7 +87,7 @@ Add an extension to the generated imports and exports, default it will not use a
 ::: info
 Type: `string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -107,7 +107,7 @@ Define what needs to exported, here you can also disable the export of barrel fi
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -160,7 +160,7 @@ Default: `'{{tag}}Hooks'`
 
 ::: info
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -186,7 +186,7 @@ file being generated.
 Type: `string` <br/>
 Default: `'@kubb/plugin/client'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -232,7 +232,7 @@ export async function getPetById<TData>(
 Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -275,7 +275,7 @@ export function getPetByIdQueryOptions() {
 
 Type: `'zod'` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -294,7 +294,7 @@ Framework to be generated for.
 Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
 Default: `'react'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -338,7 +338,7 @@ type Infinite = {
 ::: info
 Type: `Infinite` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -357,7 +357,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
 Type: `string` <br/>
 Default: `'id'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -378,7 +378,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 Type: `string` <br/>
 Default: `'0'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -399,7 +399,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 ::: info
 Type: `string | undefined` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -437,7 +437,7 @@ type Query = {
 ::: info
 Type: `Query` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -458,7 +458,7 @@ When using a string you need to use `JSON.stringify`.
 ::: info
 Type: `(key: unknown[]) => unknown[]` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -482,7 +482,7 @@ When using a string you need to use `JSON.stringify`.
 Type: `Array<HttpMethod>` <br/>
 Default: `['get']` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -505,7 +505,7 @@ the path will be applied as is, so relative path should be based on the file bei
 Type: `string` <br/>
 Default: `'@tanstack/react-query'` if 'framework' is set to 'react'
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -534,7 +534,7 @@ type QueryOptions = {} | false
 ::: info
 Type: `QueryOptions` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -561,7 +561,7 @@ type Suspense = {} | false
 ::: info
 Type: `Suspense` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -619,7 +619,7 @@ mutate()
 Type: `'mutate' | 'hook'` <br/>
 Default: `'hook'`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -643,7 +643,7 @@ Define which HttpMethods can be used for mutations <br/>
 Type: `'Array<HttpMethod>` <br/>
 Default: `['post', 'put', 'delete']`
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -676,7 +676,7 @@ export type Include = {
 
 Type: `Array<Include>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -710,7 +710,7 @@ export type Exclude = {
 
 Type: `Array<Exclude>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -745,7 +745,7 @@ export type Override = {
 
 Type: `Array<Override>` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -773,7 +773,7 @@ Override the name of the hook that is getting generated, this will also override
 
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
-```typescript twoslash
+```typescript
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 
 const plugin = pluginTanstackQuery({
@@ -816,7 +816,7 @@ export type Templates = {
 
 Type: `Templates` <br/>
 
-```tsx twoslash
+```tsx
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { Query } from '@kubb/plugin-tanstack-query/components'
 import React from 'react'
@@ -836,7 +836,7 @@ const plugin = pluginTanstackQuery({
 
 ## Example
 
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
