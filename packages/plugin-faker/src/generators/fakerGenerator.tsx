@@ -85,6 +85,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
+        <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {operationSchemas.map(mapOperationSchema)}
       </File>
@@ -129,6 +130,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
+        <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser && <File.Import path={dateParser} name={dateParser} />}
         {typedName && typedPath && <File.Import isTypeOnly root={file.path} path={typedPath} name={[typedName]} />}

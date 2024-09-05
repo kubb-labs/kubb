@@ -64,25 +64,20 @@ export function Faker({ tree, description, name, typedName, seed, regexGenerator
 
   //TODO use of createFunctionParams
   const params = fakerDefaultOverride ? `data: NonNullable<Partial<${typedName}>> = ${fakerDefaultOverride}` : `data?: NonNullable<Partial<${typedName}>>`
-  const containsFaker = !!fakerTextWithOverride.match(/faker/) || !!seed
 
   return (
-    <>
-      {containsFaker && <File.Import name={['faker']} path="@faker-js/faker" />}
-      <File.Source name={name} isExportable isIndexable>
-        <Function
-          export
-          name={name}
-          JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
-          params={withData ? params : ''}
-          returnType={typedName ? `NonNullable<${typedName}>` : ''}
-        >
-          {seed ? `faker.seed(${JSON.stringify(seed)})` : ''}
-          <br />
-          <Function.Return>{fakerTextWithOverride}</Function.Return>
-        </Function>
+    <File.Source name={name} isExportable isIndexable>
+      <Function
+        export
+        name={name}
+        JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
+        params={withData ? params : ''}
+        returnType={typedName ? `NonNullable<${typedName}>` : ''}
+      >
+        {seed ? `faker.seed(${JSON.stringify(seed)})` : ''}
         <br />
-      </File.Source>
-    </>
+        <Function.Return>{fakerTextWithOverride}</Function.Return>
+      </Function>
+    </File.Source>
   )
 }
