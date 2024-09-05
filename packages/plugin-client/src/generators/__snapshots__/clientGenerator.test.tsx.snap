@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`clientGenerator operation > 'createPet' 1`] = `
+"/**
+ * @summary Create a pet
+ * @link /pets
+ */
+export async function createPets(data: CreatePetsMutationRequest, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<CreatePetsMutationResponse>["data"]> {
+  const res = await client<CreatePetsMutationResponse, CreatePetsMutationRequest>({ method : "post", url : \`/pets\`, data, ... options })
+  return res.data
+}"
+`;
+
+exports[`clientGenerator operation > 'getPets' 1`] = `
+"/**
+ * @summary List all pets
+ * @link /pets
+ */
+export async function listPets(params?: ListPetsQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ListPetsQueryResponse>["data"]> {
+  const res = await client<ListPetsQueryResponse>({ method : "get", url : \`/pets\`, params, ... options })
+  return res.data
+}"
+`;
+
+exports[`clientGenerator operation > 'showPetById' 1`] = `
+"/**
+ * @summary Info for a specific pet
+ * @link /pets/:petId
+ */
+export async function showPetById(petId: ShowPetByIdPathParams["petId"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+  const res = await client<ShowPetByIdQueryResponse>({ method : "get", url : \`/pets/\${petId}\`, ... options })
+  return res.data
+}"
+`;

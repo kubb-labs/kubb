@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Mock/> > pets 1`] = `
+exports[`mockGenerator operation > 'createPet' 1`] = `
 "export const createPets = http.post('*/pets', function handler(info) {
     return new Response(JSON.stringify(createPetsMutationResponse()), {
       headers: {
@@ -10,7 +10,17 @@ exports[`<Mock/> > pets 1`] = `
   })"
 `;
 
-exports[`<Mock/> > showPetById 1`] = `
+exports[`mockGenerator operation > 'getPets' 1`] = `
+"export const listPets = http.get('*/pets', function handler(info) {
+    return new Response(JSON.stringify(listPetsQueryResponse()), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  })"
+`;
+
+exports[`mockGenerator operation > 'showPetById' 1`] = `
 "export const showPetById = http.get('*/pets/:petId', function handler(info) {
     return new Response(JSON.stringify(showPetByIdQueryResponse()), {
       headers: {

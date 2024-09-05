@@ -2,9 +2,12 @@ import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404,
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 
-export function createGetPetByIdPathParams(): NonNullable<GetPetByIdPathParams> {
+export function createGetPetByIdPathParams(data: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
   faker.seed([220])
-  return { petId: faker.number.int() }
+  return {
+    ...{ petId: faker.number.int() },
+    ...data,
+  }
 }
 
 /**

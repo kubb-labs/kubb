@@ -111,7 +111,6 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  extName: KubbFile.Extname | undefined
   dateType: NonNullable<Options['dateType']>
   dateParser: Options['dateParser']
   unknownType: NonNullable<Options['unknownType']>

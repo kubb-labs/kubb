@@ -1,9 +1,12 @@
 import type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse } from '../../models/DeleteOrder'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteOrderPathParams(): NonNullable<DeleteOrderPathParams> {
+export function createDeleteOrderPathParams(data: NonNullable<Partial<DeleteOrderPathParams>> = {}): NonNullable<DeleteOrderPathParams> {
   faker.seed([220])
-  return { orderId: faker.number.int() }
+  return {
+    ...{ orderId: faker.number.int() },
+    ...data,
+  }
 }
 
 /**

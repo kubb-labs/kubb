@@ -37,7 +37,9 @@ type FileProps = {
   output: string | undefined
   children?: KubbNode
 }
-
+/**
+ * @deprecated
+ */
 Schema.File = function ({ isTypeOnly, children }: FileProps): ReactNode {
   const { plugin, pluginManager, mode } = useApp<PluginOas>()
   const { name } = useSchema()
@@ -102,7 +104,9 @@ Schema.File = function ({ isTypeOnly, children }: FileProps): ReactNode {
 type SchemaImportsProps = {
   isTypeOnly?: boolean
 }
-
+/**
+ * @deprecated replace with userSchemamanager.getmports
+ */
 Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
   const { tree } = useSchema()
   const { path: root } = useFile()
@@ -123,4 +127,5 @@ Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
     </>
   )
 }
+
 Schema.Context = SchemaContext

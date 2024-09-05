@@ -1,7 +1,6 @@
 import path from 'node:path'
 
 import { PluginManager, createPlugin } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
 import { pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'

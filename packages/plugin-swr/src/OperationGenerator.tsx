@@ -9,7 +9,7 @@ import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/plugin-oas'
 import type { FileMeta, PluginSwr } from './types.ts'
 
-export class OperationGenerator extends Generator<PluginSwr['resolvedOptions'], PluginSwr, FileMeta> {
+export class OperationGenerator extends Generator<PluginSwr, FileMeta> {
   async get(operation: Operation, options: PluginSwr['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 

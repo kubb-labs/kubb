@@ -1,9 +1,12 @@
 import type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse } from '../../models/DeleteUser'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteUserPathParams(): NonNullable<DeleteUserPathParams> {
+export function createDeleteUserPathParams(data: NonNullable<Partial<DeleteUserPathParams>> = {}): NonNullable<DeleteUserPathParams> {
   faker.seed([220])
-  return { username: faker.string.alpha() }
+  return {
+    ...{ username: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**

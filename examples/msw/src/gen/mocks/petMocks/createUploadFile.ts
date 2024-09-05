@@ -2,14 +2,20 @@ import type { UploadFilePathParams, UploadFileQueryParams, UploadFile200, Upload
 import { createApiResponse } from '../createApiResponse.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUploadFilePathParams(): NonNullable<UploadFilePathParams> {
+export function createUploadFilePathParams(data: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
   faker.seed([220])
-  return { petId: faker.number.int() }
+  return {
+    ...{ petId: faker.number.int() },
+    ...data,
+  }
 }
 
-export function createUploadFileQueryParams(): NonNullable<UploadFileQueryParams> {
+export function createUploadFileQueryParams(data: NonNullable<Partial<UploadFileQueryParams>> = {}): NonNullable<UploadFileQueryParams> {
   faker.seed([220])
-  return { additionalMetadata: faker.string.alpha() }
+  return {
+    ...{ additionalMetadata: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**

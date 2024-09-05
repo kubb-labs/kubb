@@ -1,3 +1,4 @@
+import { pascalCase } from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
 import { SchemaGenerator as Generator } from '@kubb/plugin-oas'
 import type { SchemaMethodResult } from '@kubb/plugin-oas'
@@ -5,7 +6,6 @@ import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'
 import { Schema } from './components/Schema.tsx'
 import type { FileMeta, PluginTs } from './types.ts'
-import { pascalCase } from '@kubb/core/transformers'
 
 export class SchemaGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {
   async schema(name: string, schema: SchemaObject, options: PluginTs['resolvedOptions']): SchemaMethodResult<FileMeta> {

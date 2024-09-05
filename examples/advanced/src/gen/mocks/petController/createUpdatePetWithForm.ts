@@ -6,12 +6,18 @@ import type {
 } from '../../models/ts/petController/UpdatePetWithForm'
 import { faker } from '@faker-js/faker'
 
-export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {
-  return { petId: faker.number.int() }
+export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {
+  return {
+    ...{ petId: faker.number.int() },
+    ...data,
+  }
 }
 
-export function createUpdatePetWithFormQueryParams(): NonNullable<UpdatePetWithFormQueryParams> {
-  return { name: faker.string.alpha(), status: faker.helpers.arrayElement(['working', 'idle']) as any }
+export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {}): NonNullable<UpdatePetWithFormQueryParams> {
+  return {
+    ...{ name: faker.string.alpha(), status: faker.helpers.arrayElement(['working', 'idle']) as any },
+    ...data,
+  }
 }
 
 /**
