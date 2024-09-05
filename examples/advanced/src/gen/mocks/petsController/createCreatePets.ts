@@ -10,16 +10,25 @@ import type {
 import { createPetNotFound } from '../createPetNotFound.ts'
 import { faker } from '@faker-js/faker'
 
-export function createCreatePetsPathParams(): NonNullable<CreatePetsPathParams> {
-  return { uuid: faker.string.alpha() }
+export function createCreatePetsPathParams(data: NonNullable<Partial<CreatePetsPathParams>> = {}): NonNullable<CreatePetsPathParams> {
+  return {
+    ...{ uuid: faker.string.alpha() },
+    ...data,
+  }
 }
 
-export function createCreatePetsQueryParams(): NonNullable<CreatePetsQueryParams> {
-  return { offset: faker.number.int() }
+export function createCreatePetsQueryParams(data: NonNullable<Partial<CreatePetsQueryParams>> = {}): NonNullable<CreatePetsQueryParams> {
+  return {
+    ...{ offset: faker.number.int() },
+    ...data,
+  }
 }
 
-export function createCreatePetsHeaderParams(): NonNullable<CreatePetsHeaderParams> {
-  return { 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) }
+export function createCreatePetsHeaderParams(data: NonNullable<Partial<CreatePetsHeaderParams>> = {}): NonNullable<CreatePetsHeaderParams> {
+  return {
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) },
+    ...data,
+  }
 }
 
 /**
@@ -36,8 +45,11 @@ export function createCreatePetsError(): NonNullable<CreatePetsError> {
   return createPetNotFound()
 }
 
-export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
-  return { name: faker.string.alpha(), tag: faker.string.alpha() }
+export function createCreatePetsMutationRequest(data: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
+  return {
+    ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
+    ...data,
+  }
 }
 
 export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {

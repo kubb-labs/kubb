@@ -8,8 +8,11 @@ import type {
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
-  return { username: faker.string.alpha() }
+export function createGetUserByNamePathParams(data: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
+  return {
+    ...{ username: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**

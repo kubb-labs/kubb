@@ -23,9 +23,11 @@ export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWi
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
+export function createCreateUsersWithListInputMutationRequest(
+  data: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = [],
+): NonNullable<CreateUsersWithListInputMutationRequest> {
   faker.seed([220])
-  return faker.helpers.arrayElements([createUser()]) as any
+  return [...(faker.helpers.arrayElements([createUser()]) as any), ...data]
 }
 
 /**

@@ -5,12 +5,12 @@ import { App, createRoot } from '@kubb/react'
 import { OasType } from './components/OasType.tsx'
 import { OperationSchema } from './components/OperationSchema.tsx'
 
+import { pascalCase } from '@kubb/core/transformers'
 import type { Operation } from '@kubb/oas'
 import type { OperationMethodResult } from '@kubb/plugin-oas'
 import type { FileMeta, PluginTs } from './types.ts'
-import { pascalCase } from '@kubb/core/transformers'
 
-export class OperationGenerator extends Generator<PluginTs['resolvedOptions'], PluginTs> {
+export class OperationGenerator extends Generator<PluginTs> {
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 

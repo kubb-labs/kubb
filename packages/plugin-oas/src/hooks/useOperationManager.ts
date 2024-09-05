@@ -42,10 +42,6 @@ export function useOperationManager(): UseOperationManagerResult {
   const { plugin, pluginManager } = useApp()
   const { generator } = useContext(Oas.Context)
 
-  if (!generator) {
-    throw new Error(`'generator' is not defined`)
-  }
-
   const getName: UseOperationManagerResult['getName'] = (operation, { pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({
       name: operation.getOperationId(),
@@ -58,10 +54,10 @@ export function useOperationManager(): UseOperationManagerResult {
     // needed for the `output.group`
     const tag = operation.getTags().at(0)?.name
     //TODO replace with group
-    const name = getName(operation, { type: 'file', pluginKey })
+    const resolvedName = getName(operation, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({
-      name,
+      name: resolvedName,
       extName,
       pluginKey,
       options: { type: 'file', pluginKey, tag },
@@ -71,7 +67,7 @@ export function useOperationManager(): UseOperationManagerResult {
       ...file,
       meta: {
         ...file.meta,
-        name,
+        name: resolvedName,
         pluginKey,
         tag,
       },
@@ -79,6 +75,10 @@ export function useOperationManager(): UseOperationManagerResult {
   }
 
   const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, type }) => {
+    if (!generator) {
+      throw new Error(`'generator' is not defined`)
+    }
+
     const schemas = generator.getSchemas(operation)
 
     const errors = (schemas.errors || []).reduce(
@@ -149,8 +149,12 @@ export function useOperationManager(): UseOperationManagerResult {
   return {
     getName,
     getFile,
-    getSchemas: (operation, params, forStatusCode) =>
-      generator.getSchemas(operation, {
+    getSchemas: (operation, params, forStatusCode) => {
+      if (!generator) {
+        throw new Error(`'generator' is not defined`)
+      }
+
+      return generator.getSchemas(operation, {
         forStatusCode,
         resolveName: (name) =>
           pluginManager.resolveName({
@@ -158,7 +162,8 @@ export function useOperationManager(): UseOperationManagerResult {
             pluginKey: params?.pluginKey,
             type: params?.type,
           }),
-      }),
+      })
+    },
     groupSchemasByName,
   }
 }

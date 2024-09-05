@@ -2,17 +2,20 @@ import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatus
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 
-export function createFindPetsByStatusQueryParams(): NonNullable<FindPetsByStatusQueryParams> {
+export function createFindPetsByStatusQueryParams(data: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}): NonNullable<FindPetsByStatusQueryParams> {
   faker.seed([220])
-  return { status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) }
+  return {
+    ...{ status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) },
+    ...data,
+  }
 }
 
 /**
  * @description successful operation
  */
-export function createFindPetsByStatus200(): NonNullable<FindPetsByStatus200> {
+export function createFindPetsByStatus200(data: NonNullable<Partial<FindPetsByStatus200>> = []): NonNullable<FindPetsByStatus200> {
   faker.seed([220])
-  return faker.helpers.arrayElements([createPet()]) as any
+  return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
 }
 
 /**
@@ -26,7 +29,9 @@ export function createFindPetsByStatus400(): NonNullable<FindPetsByStatus400> {
 /**
  * @description successful operation
  */
-export function createFindPetsByStatusQueryResponse(): NonNullable<FindPetsByStatusQueryResponse> {
+export function createFindPetsByStatusQueryResponse(
+  data: NonNullable<Partial<FindPetsByStatusQueryResponse>> = [],
+): NonNullable<FindPetsByStatusQueryResponse> {
   faker.seed([220])
-  return faker.helpers.arrayElements([createPet()]) as any
+  return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
 }

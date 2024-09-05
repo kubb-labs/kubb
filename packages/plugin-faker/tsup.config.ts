@@ -7,14 +7,10 @@ export default defineConfig([
   optionsESM,
   {
     ...optionsCJS,
-    entry: { components: './src/components/index.ts' },
-    name: 'components',
-    banner: {},
+    entry: { components: './src/components/index.ts', generators: 'src/generators/index.ts' },
   },
   {
     ...optionsESM,
-    entry: { components: './src/components/index.ts' },
-    name: 'components',
-    banner: {},
+    entry: { components: './src/components/index.ts', generators: 'src/generators/index.ts' },
   },
 ])

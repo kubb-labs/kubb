@@ -14,9 +14,12 @@ export function createAddPet200(): NonNullable<AddPet200> {
 /**
  * @description Pet not found
  */
-export function createAddPet405(): NonNullable<AddPet405> {
+export function createAddPet405(data: NonNullable<Partial<AddPet405>> = {}): NonNullable<AddPet405> {
   faker.seed([220])
-  return { code: faker.number.int(), message: faker.string.alpha() }
+  return {
+    ...{ code: faker.number.int(), message: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**

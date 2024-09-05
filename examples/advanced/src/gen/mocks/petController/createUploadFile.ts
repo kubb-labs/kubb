@@ -8,12 +8,18 @@ import type {
 import { createApiResponse } from '../createApiResponse.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUploadFilePathParams(): NonNullable<UploadFilePathParams> {
-  return { petId: faker.number.int() }
+export function createUploadFilePathParams(data: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
+  return {
+    ...{ petId: faker.number.int() },
+    ...data,
+  }
 }
 
-export function createUploadFileQueryParams(): NonNullable<UploadFileQueryParams> {
-  return { additionalMetadata: faker.string.alpha() }
+export function createUploadFileQueryParams(data: NonNullable<Partial<UploadFileQueryParams>> = {}): NonNullable<UploadFileQueryParams> {
+  return {
+    ...{ additionalMetadata: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**

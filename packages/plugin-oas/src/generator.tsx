@@ -6,6 +6,7 @@ import { App, createRoot } from '@kubb/react'
 import type { KubbNode } from '@kubb/react/types'
 import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
+import type { Schema } from './SchemaMapper.ts'
 import type { OperationsByMethod } from './types.ts'
 
 type OperationsProps<TOptions extends PluginFactoryOptions> = {
@@ -23,6 +24,7 @@ type OperationProps<TOptions extends PluginFactoryOptions> = {
 
 type SchemaProps<TOptions extends PluginFactoryOptions> = {
   instance: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
+  tree: Array<Schema>
   name: string
   schema: SchemaObject
   options: TOptions['resolvedOptions']
@@ -113,7 +115,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
             <Oas.Schema name={name} value={schema} tree={tree}>
-              <parseOptions.Schema schema={schema} options={options} instance={instance} name={name} />
+              <parseOptions.Schema schema={schema} options={options} instance={instance} name={name} tree={tree} />
             </Oas.Schema>
           </Oas>
         </App>,
