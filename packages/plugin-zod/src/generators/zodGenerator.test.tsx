@@ -45,14 +45,14 @@ describe('zodGenerator schema', async () => {
       name: 'OptionalPet',
       input: '../../mocks/petStore.yaml',
       options: {
-        typed: true,
+        infer: true,
       },
     },
     {
       name: 'OptionalPet',
       input: '../../mocks/petStore.yaml',
       options: {
-        typed: true,
+        typedSchema: true,
       },
     },
     {
@@ -162,13 +162,14 @@ describe('zodGenerator schema', async () => {
     const options: PluginZod['resolvedOptions'] = {
       dateType: 'date',
       transformers: {},
-      typed: false,
+      infer: false,
       typedSchema: false,
       unknownType: 'any',
       mapper: {},
       importPath: 'zod',
       coercion: false,
       operations: false,
+      override: [],
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -190,9 +191,11 @@ describe('zodGenerator schema', async () => {
     const tree = instance.parse({ schema, name })
 
     const files = await zodGenerator.schema?.({
-      schema,
-      name,
-      tree,
+      schema: {
+        name,
+        tree,
+        value: schema,
+      },
       options,
       instance,
     })
@@ -254,13 +257,14 @@ describe('zodGenerator operation', async () => {
     const options: PluginZod['resolvedOptions'] = {
       dateType: 'date',
       transformers: {},
-      typed: false,
       typedSchema: false,
+      infer: false,
       unknownType: 'any',
       mapper: {},
       importPath: 'zod',
       coercion: false,
       operations: false,
+      override: [],
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>

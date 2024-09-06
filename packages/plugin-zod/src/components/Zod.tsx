@@ -4,7 +4,7 @@ import transformers from '@kubb/core/transformers'
 import { isKeyword } from '@kubb/plugin-oas'
 import * as parserZod from '../parser/index.ts'
 import type { PluginZod } from '../types.ts'
-import type {KubbNode} from "@kubb/react/types";
+import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   name: string
@@ -16,7 +16,7 @@ type Props = {
   mapper?: PluginZod['options']['mapper']
 }
 
-export function Schema({  name, typedName, tree,inferTypedName,  mapper, coercion, description }: Props): KubbNode {
+export function Zod({ name, typedName, tree, inferTypedName, mapper, coercion, description }: Props): KubbNode {
   if (!tree.length) {
     return (
       <File.Source name={name} isExportable isIndexable>
@@ -58,12 +58,7 @@ export function Schema({  name, typedName, tree,inferTypedName,  mapper, coercio
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
-          {[
-            output,
-            typedName ? ` as z.ZodType<${typedName}>` : '',
-          ]
-            .filter(Boolean)
-            .join('') || ''}
+          {[output, typedName ? ` as z.ZodType<${typedName}>` : ''].filter(Boolean).join('') || ''}
         </Const>
       </File.Source>
       {inferTypedName && (
@@ -76,4 +71,3 @@ export function Schema({  name, typedName, tree,inferTypedName,  mapper, coercio
     </>
   )
 }
-

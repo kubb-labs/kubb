@@ -96,7 +96,11 @@ exports[`zodGenerator schema > 'NumberValueConst' 1`] = `
 export const numberValueConst = z.object({"foobar": z.literal(42)}).describe("its value is equal to the value of the keyword")"
 `;
 
-exports[`zodGenerator schema > 'OptionalPet' 1`] = `"export const optionalPet = z.object({"id": z.number().int().optional(),"name": z.string().optional(),"tag": z.string().optional()}) as z.ZodType<OptionalPet>"`;
+exports[`zodGenerator schema > 'OptionalPet' 1`] = `
+"export const optionalPet = z.object({"id": z.number().int().optional(),"name": z.string().optional(),"tag": z.string().optional()})
+
+export type OptionalPet = z.infer<typeof optionalPet>"
+`;
 
 exports[`zodGenerator schema > 'OptionalPet' 2`] = `"export const optionalPet = z.object({"id": z.number().int().optional(),"name": z.string().optional(),"tag": z.string().optional()}) as z.ZodType<OptionalPet>"`;
 
@@ -126,11 +130,7 @@ exports[`zodGenerator schema > 'PetTupleObject' 1`] = `
 export const petTupleObject = z.object({"tupleProperty": z.tuple([z.string(), z.string()]).optional()}).describe("Tuple of exact length 2 nested in an object")"
 `;
 
-exports[`zodGenerator schema > 'Pets' 1`] = `
-"export const pets = z.array(z.object({"id": z.number().int(),"name": z.string(),"tag": z.string().optional()}))
-
-export type Pets = z.infer<typeof pets>"
-`;
+exports[`zodGenerator schema > 'Pets' 1`] = `"export const pets = z.array(z.object({"id": z.number().int(),"name": z.string(),"tag": z.string().optional()})) as z.ZodType<Pets>"`;
 
 exports[`zodGenerator schema > 'StringValueConst' 1`] = `
 "/**

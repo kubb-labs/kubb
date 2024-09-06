@@ -9,6 +9,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ options, operation }) {
     const {
+      mode,
       plugin: { output },
     } = useApp<PluginClient>()
     const { getSchemas, getName, getFile } = useOperationManager()
@@ -33,19 +34,21 @@ export const clientGenerator = createReactGenerator<PluginClient>({
       <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Import name={'client'} path={options.importPath || '@kubb/plugin-client/client'} />
         <File.Import name={['ResponseConfig']} path={options.importPath || '@kubb/plugin-client/client'} isTypeOnly />
-        <File.Import
-          extName={output?.extName}
-          name={[
-            type.schemas.request?.name,
-            type.schemas.response.name,
-            type.schemas.pathParams?.name,
-            type.schemas.queryParams?.name,
-            type.schemas.headerParams?.name,
-          ].filter(Boolean)}
-          root={client.file.path}
-          path={type.file.path}
-          isTypeOnly
-        />
+        {mode === 'split' && (
+          <File.Import
+            extName={output?.extName}
+            name={[
+              type.schemas.request?.name,
+              type.schemas.response.name,
+              type.schemas.pathParams?.name,
+              type.schemas.queryParams?.name,
+              type.schemas.headerParams?.name,
+            ].filter(Boolean)}
+            root={client.file.path}
+            path={type.file.path}
+            isTypeOnly
+          />
+        )}
         <Template name={client.name} options={options} typedSchemas={type.schemas} operation={operation} />
       </File>
     )

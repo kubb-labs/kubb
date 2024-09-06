@@ -46,10 +46,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
       return (
         <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-          <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />
-          {imports.map((imp, index) => (
-            <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
-          ))}
+          {mode === 'split' && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
+          {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
           <Faker
             name={faker.name}
             typedName={type.name}
@@ -76,6 +74,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
   Schema({ schema, options }) {
     const { dateParser, regexGenerator, seed, mapper } = options
 
+    const { mode } = useApp<PluginFaker>()
+
     const { getName, getFile, getImports } = useSchemaManager()
     const imports = getImports(schema.tree)
 
@@ -94,10 +94,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser && <File.Import path={dateParser} name={dateParser} />}
-        <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />
-        {imports.map((imp, index) => (
-          <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />
-        ))}
+        {mode === 'split' && <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />}
+        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />)}
 
         <Faker
           name={faker.name}

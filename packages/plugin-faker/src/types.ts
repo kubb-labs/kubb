@@ -111,11 +111,12 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  override: NonNullable<Options['override']>
+
   dateType: NonNullable<Options['dateType']>
   dateParser: Options['dateParser']
   unknownType: NonNullable<Options['unknownType']>
   transformers: NonNullable<Options['transformers']>
-  override: NonNullable<Options['override']>
   seed: NonNullable<Options['seed']> | undefined
   mapper: NonNullable<Options['mapper']>
   regexGenerator: NonNullable<Options['regexGenerator']>

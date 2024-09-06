@@ -61,7 +61,7 @@ export default defineConfig(async () => {
           productName: 'z.string().uuid()',
         },
         importPath: '../../zod.ts',
-        typedSchema: true,
+        infer: true,
       }),
     ],
   }

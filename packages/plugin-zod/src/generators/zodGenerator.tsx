@@ -1,80 +1,109 @@
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator } from '@kubb/plugin-oas'
-import { Operations, OperationSchema, Schema } from '../components'
+import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { Zod } from '../components'
 import type { PluginZod } from '../types'
-import {File, useApp} from "@kubb/react";
-import {useSchemaManager} from "@kubb/plugin-oas/hooks";
-import {pluginZodName} from "../plugin.ts";
-import {pluginTsName} from "@kubb/plugin-ts";
+import { File, useApp } from '@kubb/react'
+import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { Oas } from '@kubb/plugin-oas/components'
 
 export const zodGenerator = createReactGenerator<PluginZod>({
-  name: 'plugin-zod',
-  Operations({ options }) {
-    if (!options.operations) {
-      return null
-    }
+  name: 'zod',
+  Operation({ operation, options }) {
+    const { coercion, infer, typedSchema, mapper } = options
 
-    return <Operations.File />
-  },
-  Operation() {
-    return <OperationSchema.File />
-  },
-  Schema({ schema, name, tree }) {
-    const {
+    const { plugin, pluginManager, mode } = useApp<PluginZod>()
+    const oas = useOas()
+    const { getSchemas, getFile } = useOperationManager()
+    const schemaManager = useSchemaManager()
+
+    const file = getFile(operation)
+    const schemas = getSchemas(operation)
+    const schemaGenerator = new SchemaGenerator(options, {
+      oas,
+      plugin,
       pluginManager,
-      plugin: {
-        options: {infer, typed,  mapper, importPath },
-      },
       mode,
-    } = useApp<PluginZod>()
-    const { getFile, getImports } = useSchemaManager()
-
-    const file = getFile(name)
-    const imports = getImports(tree)
-
-    const resolvedName = pluginManager.resolveName({
-      name,
-      pluginKey: [pluginZodName],
-      type: 'function',
+      override: options.override,
     })
 
-    // used for this.options.typed
-    const typedName = pluginManager.resolveName({
-      name,
-      pluginKey: [pluginTsName],
-      type: 'type',
-    })
+    const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
+      .flat()
+      .filter(Boolean)
 
-    const typedBaseName = pluginManager.resolveName({
-      name: name,
-      pluginKey: [pluginTsName],
-      type: 'file',
-    })
+    const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
+      // hack so Params can be optional when needed
+      const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
+      const optional = !required && !!name.includes('Params')
+      const tree = [...schemaGenerator.parse({ schema, name }), optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)
+      const imports = schemaManager.getImports(tree)
 
-    const typedPath = pluginManager.resolvePath({
-      baseName: typedBaseName,
-      pluginKey: [pluginTsName],
-    })
+      const zod = {
+        name: schemaManager.getName(name, { type: 'function' }),
+        inferTypeName: schemaManager.getName(name, { type: 'type' }),
+        file: schemaManager.getFile(name),
+      }
 
+      const type = {
+        name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
+        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], tag: options.operation?.getTags()[0]?.name }),
+      }
 
-    const inferTypedName = pluginManager.resolveName({
-      name,
-      pluginKey: [pluginZodName],
-      type: 'type',
-    })
+      return (
+        <Oas.Schema key={i} name={name} value={schema} tree={tree}>
+          {mode === 'split' && typedSchema && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
+          {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
+          <Zod
+            name={zod.name}
+            typedName={typedSchema ? type.name : undefined}
+            inferTypedName={infer ? zod.inferTypeName : undefined}
+            description={description}
+            tree={tree}
+            mapper={mapper}
+            coercion={coercion}
+          />
+        </Oas.Schema>
+      )
+    }
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['z']} path={importPath} />
-        {typed && typedName && typedPath && <File.Import isTypeOnly root={file.path} path={typedPath} name={[typedName]} />}
+        <File.Import name={['z']} path={plugin.options.importPath} />
+        {operationSchemas.map(mapOperationSchema)}
+      </File>
+    )
+  },
+  Schema({ schema, options }) {
+    const { mode } = useApp<PluginZod>()
 
-        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
-        <Schema
-          name={resolvedName}
-          typedName={typed? typedName: undefined}
-          inferTypedName={infer? inferTypedName: undefined}
-          description={schema.description}
-          tree={tree}
+    const { coercion, infer, typedSchema, mapper, importPath } = options
+    const { getName, getFile, getImports } = useSchemaManager()
+    const imports = getImports(schema.tree)
+
+    const zod = {
+      name: getName(schema.name, { type: 'function' }),
+      inferTypeName: getName(schema.name, { type: 'type' }),
+      file: getFile(schema.name),
+    }
+
+    const type = {
+      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
+      file: getFile(schema.name, { pluginKey: [pluginTsName] }),
+    }
+
+    return (
+      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta}>
+        <File.Import name={['z']} path={importPath} />
+        {mode === 'split' && typedSchema && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
+        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={zod.file.path} path={imp.path} name={imp.name} />)}
+
+        <Zod
+          name={zod.name}
+          typedName={typedSchema ? type.name : undefined}
+          inferTypedName={infer ? zod.inferTypeName : undefined}
+          description={schema.value.description}
+          tree={schema.tree}
           mapper={mapper}
+          coercion={coercion}
         />
       </File>
     )

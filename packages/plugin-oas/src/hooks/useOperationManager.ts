@@ -13,7 +13,7 @@ type FileMeta = FileMetaBase & {
   tag?: string
 }
 
-type SchemaNames = {
+export type SchemaNames = {
   request: string | undefined
   parameters: {
     path: string | undefined

@@ -52,10 +52,6 @@ export function useSchemaManager(): UseSchemaManagerResult {
   }
 
   const getImports: UseSchemaManagerResult['getImports'] = (tree) => {
-    if (mode === 'single') {
-      return []
-    }
-
     const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
     return refs

@@ -2,11 +2,6 @@ import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core
 import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
-import type { Operations } from './components/Operations'
-
-type Templates = {
-  operations?: typeof Operations.templates | false
-}
 
 export type Options = {
   output?: {
@@ -98,7 +93,7 @@ export type Options = {
   /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
-  typed?: boolean
+  typedSchema?: boolean
   /**
    * Return Zod generated schema as type with z.infer<TYPE>
    */
@@ -119,10 +114,12 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  override: NonNullable<Options['override']>
+
   transformers: NonNullable<Options['transformers']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
-  typed: NonNullable<Options['typed']>
+  typedSchema: NonNullable<Options['typedSchema']>
   infer: NonNullable<Options['infer']>
   mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
