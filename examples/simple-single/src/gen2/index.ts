@@ -774,7 +774,7 @@ export const machinesRestartPathParamsSchema = z.object({ app_name: z.string().d
 export const machinesRestartQueryParamsSchema = z
   .object({
     timeout: z.string().describe('Restart timeout as a Go duration string or number of seconds').optional(),
-    signal: z.string().describe('UNIX signal name').optional(),
+    signal: z.string().describe('Unix signal name').optional(),
   })
   .optional()
 

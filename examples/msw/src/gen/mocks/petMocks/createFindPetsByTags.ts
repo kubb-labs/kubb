@@ -1,4 +1,4 @@
-import type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags'
+import type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 

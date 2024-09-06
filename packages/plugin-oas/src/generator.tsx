@@ -24,17 +24,19 @@ type OperationProps<TOptions extends PluginFactoryOptions> = {
 
 type SchemaProps<TOptions extends PluginFactoryOptions> = {
   instance: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
-  tree: Array<Schema>
-  name: string
-  schema: SchemaObject
+  schema: {
+    name: string
+    tree: Array<Schema>
+    value: SchemaObject
+  }
   options: TOptions['resolvedOptions']
 }
 
 export type GeneratorOptions<TOptions extends PluginFactoryOptions> = {
   name: string
-  operations?: (props: OperationsProps<TOptions>) => Promise<KubbFile.File[]>
-  operation?: (props: OperationProps<TOptions>) => Promise<KubbFile.File[]>
-  schema?: (props: SchemaProps<TOptions>) => Promise<KubbFile.File[]>
+  operations?: (this: GeneratorOptions<TOptions>, props: OperationsProps<TOptions>) => Promise<KubbFile.File[]>
+  operation?: (this: GeneratorOptions<TOptions>, props: OperationProps<TOptions>) => Promise<KubbFile.File[]>
+  schema?: (this: GeneratorOptions<TOptions>, props: SchemaProps<TOptions>) => Promise<KubbFile.File[]>
 }
 
 export type Generator<TOptions extends PluginFactoryOptions> = GeneratorOptions<TOptions>
@@ -45,9 +47,9 @@ export function createGenerator<TOptions extends PluginFactoryOptions>(parseOpti
 
 export type ReactGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   name: string
-  Operations?: (props: OperationsProps<TOptions>) => KubbNode
-  Operation?: (props: OperationProps<TOptions>) => KubbNode
-  Schema?: (props: SchemaProps<TOptions>) => KubbNode
+  Operations?: (this: ReactGeneratorOptions<TOptions>, props: OperationsProps<TOptions>) => KubbNode
+  Operation?: (this: ReactGeneratorOptions<TOptions>, props: OperationProps<TOptions>) => KubbNode
+  Schema?: (this: ReactGeneratorOptions<TOptions>, props: SchemaProps<TOptions>) => KubbNode
   /**
    * Combine all react nodes and only render ones(to string or render)
    */
@@ -67,10 +69,12 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         logger: pluginManager.logger,
       })
 
+      const Component = parseOptions.Operations.bind(this)
+
       root.render(
         <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
           <Oas oas={oas} operations={operations} generator={instance}>
-            <parseOptions.Operations operations={operations} instance={instance} operationsByMethod={operationsByMethod} options={options} />
+            <Component operations={operations} instance={instance} operationsByMethod={operationsByMethod} options={options} />
           </Oas>
         </App>,
       )
@@ -87,11 +91,13 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         logger: pluginManager.logger,
       })
 
+      const Component = parseOptions.Operation.bind(this)
+
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas} operations={[operation]} generator={instance}>
             <Oas.Operation operation={operation}>
-              <parseOptions.Operation operation={operation} options={options} instance={instance} />
+              <Component operation={operation} options={options} instance={instance} />
             </Oas.Operation>
           </Oas>
         </App>,
@@ -99,7 +105,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
 
       return root.files
     },
-    async schema({ instance, schema, name, options }) {
+    async schema({ instance, schema, options }) {
       if (!parseOptions.Schema) {
         return []
       }
@@ -109,13 +115,13 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         logger: pluginManager.logger,
       })
 
-      const tree = instance.parse({ schema, name })
+      const Component = parseOptions.Schema.bind(this)
 
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
-            <Oas.Schema name={name} value={schema} tree={tree}>
-              <parseOptions.Schema schema={schema} options={options} instance={instance} name={name} tree={tree} />
+            <Oas.Schema name={schema.name} value={schema.value} tree={schema.tree}>
+              <Component schema={schema} options={options} instance={instance} />
             </Oas.Schema>
           </Oas>
         </App>,

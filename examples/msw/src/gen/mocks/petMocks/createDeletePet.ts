@@ -1,4 +1,4 @@
-import type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse } from '../../models/DeletePet'
+import type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse } from '../../models/DeletePet.ts'
 import { faker } from '@faker-js/faker'
 
 export function createDeletePetPathParams(data: NonNullable<Partial<DeletePetPathParams>> = {}): NonNullable<DeletePetPathParams> {

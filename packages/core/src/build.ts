@@ -79,7 +79,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       })
     })
 
-    await pluginManager.hookParallel({
+    await pluginManager.hookSeq({
       hookName: 'buildStart',
       parameters: [options.config],
       message: 'buildStart',
@@ -141,7 +141,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       logger: pluginManager.logger,
     })
 
-    await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${options.config.name}` })
+    await pluginManager.hookSeq({ hookName: 'buildEnd', message: `Build stopped for ${options.config.name}` })
 
     pluginManager.fileManager.clear()
   } catch (e) {

@@ -4,7 +4,7 @@ import type {
   GetUserByName400,
   GetUserByName404,
   GetUserByNameQueryResponse,
-} from '../../models/ts/userController/GetUserByName'
+} from '../../models/ts/userController/GetUserByName.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 

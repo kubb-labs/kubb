@@ -10,7 +10,7 @@ import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { handlersGenerator, mockGenerator } from './generators'
+import { handlersGenerator, mswGenerator } from './generators'
 import type { PluginMsw } from './types.ts'
 
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
@@ -76,7 +76,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build(...[mockGenerator, handlers ? handlersGenerator : undefined].filter(Boolean))
+      const files = await operationGenerator.build(...[mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean))
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

@@ -3,7 +3,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
-} from '../../models/UpdatePetWithForm'
+} from '../../models/UpdatePetWithForm.ts'
 import { faker } from '@faker-js/faker'
 
 export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {

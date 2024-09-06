@@ -3,7 +3,7 @@ import type {
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from '../../models/ts/userController/CreateUsersWithListInput'
+} from '../../models/ts/userController/CreateUsersWithListInput.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 

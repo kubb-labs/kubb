@@ -3,7 +3,7 @@ import type {
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQueryResponse,
-} from '../../models/ts/petController/FindPetsByStatus'
+} from '../../models/ts/petController/FindPetsByStatus.ts'
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 

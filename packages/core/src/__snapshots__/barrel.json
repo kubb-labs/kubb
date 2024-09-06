@@ -45,6 +45,7 @@
         "isIndexable": false
       }
     ],
+    "meta": {},
     "id": "feabc02536bd6630458e734990f7e2a21a55c469",
     "name": "index",
     "extName": ".ts",
@@ -83,6 +84,7 @@
         "isIndexable": false
       }
     ],
+    "meta": {},
     "id": "c67967bd2363dd9637437671f6fe1ed146debdbf",
     "name": "index",
     "extName": ".ts",

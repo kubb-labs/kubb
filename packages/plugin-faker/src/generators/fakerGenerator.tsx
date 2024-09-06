@@ -4,30 +4,26 @@ import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import { Faker } from '../components'
-import { pluginFakerName } from '../plugin.ts'
 import type { PluginFaker } from '../types'
 
 export const fakerGenerator = createReactGenerator<PluginFaker>({
-  name: 'plugin-faker',
-  Operation({ operation }) {
-    const {
-      plugin: {
-        options: { dateParser, regexGenerator, seed, mapper },
-      },
-    } = useApp<PluginFaker>()
+  name: 'faker',
+  Operation({ operation, options }) {
+    const { dateParser, regexGenerator, seed, mapper } = options
+
     const { plugin, pluginManager, mode } = useApp<PluginFaker>()
     const oas = useOas()
     const { getSchemas, getFile } = useOperationManager()
-    const { getImports } = useSchemaManager()
+    const schemaManager = useSchemaManager()
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
-    const schemaGenerator = new SchemaGenerator(plugin.options, {
+    const schemaGenerator = new SchemaGenerator(options, {
       oas,
       plugin,
       pluginManager,
       mode,
-      override: plugin.options.override,
+      override: options.override,
     })
 
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
@@ -35,43 +31,28 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       .filter(Boolean)
 
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
-      const resolvedName = pluginManager.resolveName({
-        name,
-        pluginKey: [pluginFakerName],
-        type: 'function',
-      })
-
-      // used for this.options.typed
-      const typedName = pluginManager.resolveName({
-        name,
-        pluginKey: [pluginTsName],
-        type: 'type',
-      })
-      const typedFileName = pluginManager.resolveName({
-        name: options.operationName || name,
-        pluginKey: [pluginTsName],
-        type: 'file',
-      })
-
-      // todo replace by getFile
-      const typedPath = pluginManager.resolvePath({
-        baseName: typedFileName,
-        pluginKey: [pluginTsName],
-        options: { tag: options.operation?.getTags()[0]?.name },
-      })
-
       const tree = schemaGenerator.parse({ schema, name })
-      const imports = getImports(tree)
+      const imports = schemaManager.getImports(tree)
+
+      const faker = {
+        name: schemaManager.getName(name, { type: 'function' }),
+        file: schemaManager.getFile(name),
+      }
+
+      const type = {
+        name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
+        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], tag: options.operation?.getTags()[0]?.name }),
+      }
 
       return (
         <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-          {typedName && typedPath && <File.Import isTypeOnly root={file.path} path={typedPath} name={[typedName]} />}
-          {dateParser && <File.Import path={dateParser} name={dateParser} />}
-
-          {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
+          <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />
+          {imports.map((imp, index) => (
+            <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
+          ))}
           <Faker
-            name={resolvedName}
-            typedName={typedName}
+            name={faker.name}
+            typedName={type.name}
             description={description}
             tree={tree}
             regexGenerator={regexGenerator}
@@ -87,59 +68,42 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
+        {dateParser && <File.Import path={dateParser} name={dateParser} />}
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
   },
-  Schema({ schema, name, tree }) {
-    const {
-      pluginManager,
-      plugin: {
-        options: { dateParser, regexGenerator, seed, mapper },
-      },
-      mode,
-    } = useApp<PluginFaker>()
-    const { getFile, getImports } = useSchemaManager()
+  Schema({ schema, options }) {
+    const { dateParser, regexGenerator, seed, mapper } = options
 
-    const file = getFile(name)
-    const imports = getImports(tree)
+    const { getName, getFile, getImports } = useSchemaManager()
+    const imports = getImports(schema.tree)
 
-    const resolvedName = pluginManager.resolveName({
-      name,
-      pluginKey: [pluginFakerName],
-      type: 'function',
-    })
+    const faker = {
+      name: getName(schema.name, { type: 'function' }),
+      file: getFile(schema.name),
+    }
 
-    // used for this.options.typed
-    const typedName = pluginManager.resolveName({
-      name,
-      pluginKey: [pluginTsName],
-      type: 'type',
-    })
-
-    const typedFileName = pluginManager.resolveName({
-      name: name,
-      pluginKey: [pluginTsName],
-      type: 'file',
-    })
-
-    const typedPath = pluginManager.resolvePath({
-      baseName: typedFileName,
-      pluginKey: [pluginTsName],
-    })
+    const type = {
+      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
+      file: getFile(schema.name, { pluginKey: [pluginTsName] }),
+    }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={faker.file.baseName} path={faker.file.path} meta={faker.file.meta}>
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser && <File.Import path={dateParser} name={dateParser} />}
-        {typedName && typedPath && <File.Import isTypeOnly root={file.path} path={typedPath} name={[typedName]} />}
-        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
+        <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />
+        {imports.map((imp, index) => (
+          <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />
+        ))}
+
         <Faker
-          name={resolvedName}
-          typedName={typedName}
-          description={schema.description}
-          tree={tree}
+          name={faker.name}
+          typedName={type.name}
+          description={schema.value.description}
+          tree={schema.tree}
           regexGenerator={regexGenerator}
           dateParser={dateParser}
           mapper={mapper}

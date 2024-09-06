@@ -6,15 +6,22 @@ import { Client } from '../components/Client'
 import type { PluginClient } from '../types'
 
 export const clientGenerator = createReactGenerator<PluginClient>({
-  name: 'plugin-client',
+  name: 'client',
   Operation({ options, operation }) {
-    const { plugin } = useApp<PluginClient>()
+    const {
+      plugin: { output },
+    } = useApp<PluginClient>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const name = getName(operation, { type: 'function' })
-    const typedSchemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-    const file = getFile(operation)
-    const typedFile = getFile(operation, { pluginKey: [pluginTsName] })
+    const client = {
+      name: getName(operation, { type: 'function' }),
+      file: getFile(operation),
+    }
+
+    const type = {
+      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+    }
 
     if (!options.template) {
       return null
@@ -23,23 +30,23 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     const Template = options.template || Client
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Import name={'client'} path={options.importPath || '@kubb/plugin-client/client'} />
         <File.Import name={['ResponseConfig']} path={options.importPath || '@kubb/plugin-client/client'} isTypeOnly />
         <File.Import
-          extName={plugin.output?.extName}
+          extName={output?.extName}
           name={[
-            typedSchemas.request?.name,
-            typedSchemas.response.name,
-            typedSchemas.pathParams?.name,
-            typedSchemas.queryParams?.name,
-            typedSchemas.headerParams?.name,
+            type.schemas.request?.name,
+            type.schemas.response.name,
+            type.schemas.pathParams?.name,
+            type.schemas.queryParams?.name,
+            type.schemas.headerParams?.name,
           ].filter(Boolean)}
-          root={file.path}
-          path={typedFile.path}
+          root={client.file.path}
+          path={type.file.path}
           isTypeOnly
         />
-        <Template name={name} options={options} typedSchemas={typedSchemas} operation={operation} />
+        <Template name={client.name} options={options} typedSchemas={type.schemas} operation={operation} />
       </File>
     )
   },

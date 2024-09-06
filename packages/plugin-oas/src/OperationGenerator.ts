@@ -130,10 +130,8 @@ export class OperationGenerator<
   getSchemas(
     operation: Operation,
     {
-      forStatusCode,
       resolveName = (name) => name,
     }: {
-      forStatusCode?: string | number
       resolveName?: (name: string) => string
     } = {},
   ): OperationSchemas {
@@ -141,8 +139,7 @@ export class OperationGenerator<
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
     const requestSchema = this.context.oas.getRequestSchema(operation)
-    const responseStatusCode =
-      forStatusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
+    const responseStatusCode = (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
     const responseSchema = this.context.oas.getResponseSchema(operation, responseStatusCode)
     const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
       let name = statusCode
@@ -230,7 +227,7 @@ export class OperationGenerator<
 
   #methods = ['get', 'post', 'patch', 'put', 'delete']
 
-  async build(...generators: Array<Generator<Extract<TPluginOptions['resolvedOptions'], PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
     const paths = oas.getPaths()

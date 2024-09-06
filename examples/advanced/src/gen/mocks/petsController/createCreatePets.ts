@@ -6,7 +6,7 @@ import type {
   CreatePetsError,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
-} from '../../models/ts/petsController/CreatePets'
+} from '../../models/ts/petsController/CreatePets.ts'
 import { createPetNotFound } from '../createPetNotFound.ts'
 import { faker } from '@faker-js/faker'
 

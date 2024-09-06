@@ -5,7 +5,7 @@ import type {
   UpdatePet405,
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
-} from '../../models/ts/petController/UpdatePet'
+} from '../../models/ts/petController/UpdatePet.ts'
 import { createPet } from '../createPet.ts'
 
 /**

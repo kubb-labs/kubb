@@ -4,10 +4,10 @@ import type { PluginOas } from '../types.ts'
 
 export const jsonGenerator = createGenerator<PluginOas>({
   name: 'plugin-oas',
-  async schema({ schema, name, instance }) {
+  async schema({ schema, instance }) {
     const { pluginManager, plugin } = instance.context
     const file = pluginManager.getFile({
-      name: camelCase(name),
+      name: camelCase(schema.name),
       extName: '.json',
       mode: 'split',
       pluginKey: plugin.key,
@@ -18,10 +18,10 @@ export const jsonGenerator = createGenerator<PluginOas>({
         ...file,
         sources: [
           {
-            name: camelCase(name),
+            name: camelCase(schema.name),
             isExportable: false,
             isIndexable: false,
-            value: JSON.stringify(schema),
+            value: JSON.stringify(schema.value),
           },
         ],
       },

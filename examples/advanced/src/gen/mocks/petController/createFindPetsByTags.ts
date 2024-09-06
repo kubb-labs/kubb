@@ -4,7 +4,7 @@ import type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsQueryResponse,
-} from '../../models/ts/petController/FindPetsByTags'
+} from '../../models/ts/petController/FindPetsByTags.ts'
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 

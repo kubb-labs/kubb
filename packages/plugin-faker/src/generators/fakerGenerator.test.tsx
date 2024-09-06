@@ -60,9 +60,11 @@ describe('fakerGenerator schema', async () => {
     const tree = instance.parse({ schema, name })
 
     const files = await fakerGenerator.schema?.({
-      schema,
-      name,
-      tree,
+      schema: {
+        name,
+        tree,
+        value: schema,
+      },
       options,
       instance,
     })

@@ -1,4 +1,4 @@
-import type { Pet } from '../models/ts/Pet'
+import type { Pet } from '../models/ts/Pet.ts'
 import { createCategory } from './createCategory.ts'
 import { createTagTag } from './tag/createTag.ts'
 import { faker } from '@faker-js/faker'

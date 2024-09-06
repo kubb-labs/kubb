@@ -1,4 +1,4 @@
-import type { PetNotFound } from '../models/PetNotFound'
+import type { PetNotFound } from '../models/PetNotFound.ts'
 import { faker } from '@faker-js/faker'
 
 export function createPetNotFound(data: NonNullable<Partial<PetNotFound>> = {}): NonNullable<PetNotFound> {

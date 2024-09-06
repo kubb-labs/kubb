@@ -1,4 +1,4 @@
-import type { GetInventory200, GetInventoryQueryResponse } from '../../models/GetInventory'
+import type { GetInventory200, GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 import { faker } from '@faker-js/faker'
 
 /**

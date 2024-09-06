@@ -1,4 +1,4 @@
-import type { Address } from '../models/Address'
+import type { Address } from '../models/Address.ts'
 import { faker } from '@faker-js/faker'
 
 export function createAddress(data: NonNullable<Partial<Address>> = {}): NonNullable<Address> {

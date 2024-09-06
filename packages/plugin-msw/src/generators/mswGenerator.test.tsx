@@ -6,9 +6,9 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import type { PluginMsw } from '../types.ts'
-import { mockGenerator } from './mockGenerator.tsx'
+import { mswGenerator } from './mswGenerator.tsx'
 
-describe('mockGenerator operation', async () => {
+describe('mswGenerator operation', async () => {
   const testData = [
     {
       name: 'showPetById',
@@ -59,10 +59,10 @@ describe('mockGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(mockGenerator)
+    await instance.build(mswGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await mockGenerator.operation?.({
+    const files = await mswGenerator.operation?.({
       operation,
       options,
       instance,

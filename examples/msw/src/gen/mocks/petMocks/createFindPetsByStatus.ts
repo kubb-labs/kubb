@@ -1,4 +1,4 @@
-import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
+import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatus400, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 

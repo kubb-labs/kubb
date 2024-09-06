@@ -1,4 +1,4 @@
-import type { Customer } from '../models/ts/Customer'
+import type { Customer } from '../models/ts/Customer.ts'
 import { createAddress } from './createAddress.ts'
 import { faker } from '@faker-js/faker'
 

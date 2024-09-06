@@ -1,4 +1,10 @@
-import type { UploadFilePathParams, UploadFileQueryParams, UploadFile200, UploadFileMutationRequest, UploadFileMutationResponse } from '../../models/UploadFile'
+import type {
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  UploadFile200,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+} from '../../models/UploadFile.ts'
 import { createApiResponse } from '../createApiResponse.ts'
 import { faker } from '@faker-js/faker'
 

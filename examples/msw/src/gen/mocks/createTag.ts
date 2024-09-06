@@ -1,4 +1,4 @@
-import type { Tag } from '../models/Tag'
+import type { Tag } from '../models/Tag.ts'
 import { faker } from '@faker-js/faker'
 
 export function createTag(data: NonNullable<Partial<Tag>> = {}): NonNullable<Tag> {

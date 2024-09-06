@@ -4,7 +4,7 @@ import type {
   UploadFile200,
   UploadFileMutationRequest,
   UploadFileMutationResponse,
-} from '../../models/ts/petController/UploadFile'
+} from '../../models/ts/petController/UploadFile.ts'
 import { createApiResponse } from '../createApiResponse.ts'
 import { faker } from '@faker-js/faker'
 

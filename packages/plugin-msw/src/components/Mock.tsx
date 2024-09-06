@@ -10,18 +10,18 @@ type Props = {
    */
   name: string
   operation: Operation
-  // custom
-  responseName: string
+
+  fakerName: string
 }
 
-export function Mock({ name, responseName, operation }: Props): ReactNode {
+export function Mock({ name, fakerName, operation }: Props): ReactNode {
   const path = new URLPath(operation.path)
 
   return (
     <File.Source name={name} isIndexable isExportable>
       {`
   export const ${name} = http.${operation.method}('*${path.toURLPath()}', function handler(info) {
-    return new Response(JSON.stringify(${responseName}()), {
+    return new Response(JSON.stringify(${fakerName}()), {
       headers: {
         'Content-Type': 'application/json',
       },
