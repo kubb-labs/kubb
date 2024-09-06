@@ -1,17 +1,17 @@
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components'
+import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { Zod } from '../components'
+import type { PluginZod } from '../types'
+import { File, useApp } from '@kubb/react'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, useApp } from '@kubb/react'
-import { Faker } from '../components'
-import type { PluginFaker } from '../types'
+import { Oas } from '@kubb/plugin-oas/components'
 
-export const fakerGenerator = createReactGenerator<PluginFaker>({
-  name: 'faker',
+export const zodGenerator = createReactGenerator<PluginZod>({
+  name: 'zod',
   Operation({ operation, options }) {
-    const { dateParser, regexGenerator, seed, mapper } = options
+    const { coercion, infer, typedSchema, mapper } = options
 
-    const { plugin, pluginManager, mode } = useApp<PluginFaker>()
+    const { plugin, pluginManager, mode } = useApp<PluginZod>()
     const oas = useOas()
     const { getSchemas, getFile } = useOperationManager()
     const schemaManager = useSchemaManager()
@@ -31,11 +31,15 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       .filter(Boolean)
 
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
-      const tree = schemaGenerator.parse({ schema, name })
+      // hack so Params can be optional when needed
+      const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
+      const optional = !required && !!name.includes('Params')
+      const tree = [...schemaGenerator.parse({ schema, name }), optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)
       const imports = schemaManager.getImports(tree)
 
-      const faker = {
+      const zod = {
         name: schemaManager.getName(name, { type: 'function' }),
+        inferTypeName: schemaManager.getName(name, { type: 'type' }),
         file: schemaManager.getFile(name),
       }
 
@@ -46,17 +50,16 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
       return (
         <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-          {mode === 'split' && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
+          {mode === 'split' && typedSchema && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
-          <Faker
-            name={faker.name}
-            typedName={type.name}
+          <Zod
+            name={zod.name}
+            typedName={typedSchema ? type.name : undefined}
+            inferTypedName={infer ? zod.inferTypeName : undefined}
             description={description}
             tree={tree}
-            regexGenerator={regexGenerator}
-            dateParser={dateParser}
             mapper={mapper}
-            seed={seed}
+            coercion={coercion}
           />
         </Oas.Schema>
       )
@@ -64,23 +67,21 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={['faker']} path="@faker-js/faker" />
-        {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
-        {dateParser && <File.Import path={dateParser} name={dateParser} />}
+        <File.Import name={['z']} path={plugin.options.importPath} />
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
   },
   Schema({ schema, options }) {
-    const { dateParser, regexGenerator, seed, mapper } = options
+    const { mode } = useApp<PluginZod>()
 
-    const { mode } = useApp<PluginFaker>()
-
+    const { coercion, infer, typedSchema, mapper, importPath } = options
     const { getName, getFile, getImports } = useSchemaManager()
     const imports = getImports(schema.tree)
 
-    const faker = {
+    const zod = {
       name: getName(schema.name, { type: 'function' }),
+      inferTypeName: getName(schema.name, { type: 'type' }),
       file: getFile(schema.name),
     }
 
@@ -90,22 +91,19 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     }
 
     return (
-      <File baseName={faker.file.baseName} path={faker.file.path} meta={faker.file.meta}>
-        <File.Import name={['faker']} path="@faker-js/faker" />
-        {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
-        {dateParser && <File.Import path={dateParser} name={dateParser} />}
-        {mode === 'split' && <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />}
-        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />)}
+      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta}>
+        <File.Import name={['z']} path={importPath} />
+        {mode === 'split' && typedSchema && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
+        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={zod.file.path} path={imp.path} name={imp.name} />)}
 
-        <Faker
-          name={faker.name}
-          typedName={type.name}
+        <Zod
+          name={zod.name}
+          typedName={typedSchema ? type.name : undefined}
+          inferTypedName={infer ? zod.inferTypeName : undefined}
           description={schema.value.description}
           tree={schema.tree}
-          regexGenerator={regexGenerator}
-          dateParser={dateParser}
           mapper={mapper}
-          seed={seed}
+          coercion={coercion}
         />
       </File>
     )

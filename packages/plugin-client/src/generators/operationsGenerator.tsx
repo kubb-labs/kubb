@@ -5,7 +5,7 @@ import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 
 export const operationsGenerator = createReactGenerator<PluginClient>({
-  name: 'plugin-client',
+  name: 'client',
   Operations({ operations }) {
     const { pluginManager } = useApp<PluginClient>()
 

@@ -9,9 +9,9 @@ import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { zodParser } from './SchemaGenerator.tsx'
-import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
+import { zodGenerator } from './generators/zodGenerator.tsx'
+import { operationsGenerator } from './generators'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
@@ -25,12 +25,12 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     transformers = {},
     dateType = 'string',
     unknownType = 'any',
-    typed = false,
     typedSchema = false,
     mapper = {},
-    templates,
+    operations = false,
     importPath = 'zod',
     coercion = false,
+    infer = false,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -46,19 +46,16 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       include,
       exclude,
       override,
-      typed,
       typedSchema,
       dateType,
       unknownType,
       mapper,
       importPath,
       coercion,
-      templates: {
-        operations: Operations.templates,
-        ...templates,
-      },
+      operations,
+      infer,
     },
-    pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
+    pre: [pluginOasName, typedSchema ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -113,7 +110,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build(zodParser)
+      const schemaFiles = await schemaGenerator.build(...[zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean))
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -127,7 +124,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build(zodParser)
+      const operationFiles = await operationGenerator.build(...[zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean))
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

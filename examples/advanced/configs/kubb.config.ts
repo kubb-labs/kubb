@@ -135,10 +135,8 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         dateType: 'stringOffset',
-        typed: true,
-        templates: {
-          operations: false,
-        },
+        infer: true,
+        operations: false,
       }),
       pluginFaker({
         output: {

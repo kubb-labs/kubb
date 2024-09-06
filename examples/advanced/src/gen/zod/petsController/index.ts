@@ -1,3 +1,12 @@
+export type {
+  CreatePetsPathParamsSchema,
+  CreatePetsQueryParamsSchema,
+  CreatePetsHeaderParamsSchema,
+  CreatePets201Schema,
+  CreatePetsErrorSchema,
+  CreatePetsMutationRequestSchema,
+  CreatePetsMutationResponseSchema,
+} from './createPetsSchema.ts'
 export {
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,

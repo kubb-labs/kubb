@@ -56,11 +56,12 @@ export default defineConfig(async () => {
             return undefined
           },
         },
+        operations: true,
         mapper: {
           productName: 'z.string().uuid()',
         },
         importPath: '../../zod.ts',
-        typedSchema: true,
+        infer: true,
       }),
     ],
   }

@@ -96,11 +96,9 @@ const baseConfig = {
         exportType: false,
       },
       group: { type: 'tag' },
-      typed: false,
-      typedSchema: true,
-      templates: {
-        operations: false,
-      },
+      infer: true,
+      typedSchema: false,
+      operations: false,
     }),
     pluginFaker({
       output: {

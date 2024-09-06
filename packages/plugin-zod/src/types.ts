@@ -2,11 +2,6 @@ import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core
 import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
-import type { Operations } from './components/Operations'
-
-type Templates = {
-  operations?: typeof Operations.templates | false
-}
 
 export type Options = {
   output?: {
@@ -85,10 +80,6 @@ export type Options = {
   }
   mapper?: Record<string, string>
   /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
-  /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * False will fallback on a simple z.string() format
    * @default 'string' 'stringOffset' will become the default in Kubb v3
@@ -102,11 +93,11 @@ export type Options = {
   /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
-  typed?: boolean
+  typedSchema?: boolean
   /**
    * Return Zod generated schema as type with z.infer<TYPE>
    */
-  typedSchema?: boolean
+  infer?: boolean
   /**
    * Use of z.coerce.string() instead of z.string()
    */
@@ -119,22 +110,21 @@ export type Options = {
    * @default 'zod'
    */
   importPath?: string
+  operations?: boolean
 }
 
 type ResolvedOptions = {
-  extName: KubbFile.Extname | undefined
+  override: NonNullable<Options['override']>
+
   transformers: NonNullable<Options['transformers']>
-  exclude: Options['exclude']
-  include: Options['include']
-  override: Options['override']
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
-  typed: NonNullable<Options['typed']>
   typedSchema: NonNullable<Options['typedSchema']>
-  templates: NonNullable<Templates>
+  infer: NonNullable<Options['infer']>
   mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
+  operations: NonNullable<Options['coercion']>
 }
 
 export type FileMeta = {
