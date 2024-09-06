@@ -67,6 +67,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/aburgel"><img src="https://avatars.githubusercontent.com/u/341478?v=4?s=100" width="100px;" alt="Alex Burgel"/><br /><sub><b>Alex Burgel</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=aburgel" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dgarciamuria"><img src="https://avatars.githubusercontent.com/u/8144333?v=4?s=100" width="100px;" alt="Daniel Garcia"/><br /><sub><b>Daniel Garcia</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=dgarciamuria" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/wuyuanyi135"><img src="https://avatars.githubusercontent.com/u/11760870?v=4?s=100" width="100px;" alt="wuyuanyi135"/><br /><sub><b>wuyuanyi135</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=wuyuanyi135" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/cjthompson"><img src="https://avatars.githubusercontent.com/u/1958266?v=4?s=100" width="100px;" alt="Chris Thompson"/><br /><sub><b>Chris Thompson</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=cjthompson" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
