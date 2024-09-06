@@ -12,11 +12,12 @@ type Props = {
   inferTypedName?: string
   tree: Array<Schema>
   description?: string
-  coercion?: PluginZod['options']['coercion']
-  mapper?: PluginZod['options']['mapper']
+  coercion: PluginZod['resolvedOptions']['coercion']
+  mapper: PluginZod['resolvedOptions']['mapper']
+  keysToOmit?: string[]
 }
 
-export function Zod({ name, typedName, tree, inferTypedName, mapper, coercion, description }: Props): KubbNode {
+export function Zod({ name, typedName, tree, inferTypedName, mapper, coercion, keysToOmit, description }: Props): KubbNode {
   if (!tree.length) {
     return (
       <File.Source name={name} isExportable isIndexable>
@@ -44,9 +45,11 @@ export function Zod({ name, typedName, tree, inferTypedName, mapper, coercion, d
 
       return true
     })
-    .map((item) => parserZod.parse(undefined, item, { name, typeName: typedName, description, mapper, coercion }))
+    .map((item) => parserZod.parse(undefined, item, { name, keysToOmit, typeName: typedName, description, mapper, coercion }))
     .filter(Boolean)
     .join('')
+
+  const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
 
   return (
     <>
@@ -58,7 +61,13 @@ export function Zod({ name, typedName, tree, inferTypedName, mapper, coercion, d
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
-          {[output, typedName ? ` as z.ZodType<${typedName}>` : ''].filter(Boolean).join('') || ''}
+          {[
+            output,
+            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
+            typedName ? ` as z.ZodType<${typedName}>` : '',
+          ]
+            .filter(Boolean)
+            .join('') || ''}
         </Const>
       </File.Source>
       {inferTypedName && (

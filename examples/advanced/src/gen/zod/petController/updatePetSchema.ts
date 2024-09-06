@@ -32,13 +32,13 @@ export type UpdatePet405Schema = z.infer<typeof updatePet405Schema>
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
+export const updatePetMutationRequestSchema = z.lazy(() => petSchema).and(z.object({ id: z.never() }))
 
 export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
 
 /**
  * @description Successful operation
  */
-export const updatePetMutationResponseSchema = z.lazy(() => petSchema)
+export const updatePetMutationResponseSchema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
 
 export type UpdatePetMutationResponseSchema = z.infer<typeof updatePetMutationResponseSchema>

@@ -1,25 +1,19 @@
+import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+
 import path from 'node:path'
-import { SchemaGenerator } from './SchemaGenerator.tsx'
-
 import type { Plugin } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
-
+import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
-import type { PluginTs } from './types'
+import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { getSchemas } from '@kubb/plugin-oas/utils'
+import type { PluginTs } from '../types.ts'
+import { typeGenerator } from './typeGenerator.tsx'
 
-import { mockedPluginManager } from '@kubb/core/mocks'
-
-import type { GetSchemaGeneratorOptions } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components'
-import { App } from '@kubb/react'
-import { createRootServer } from '@kubb/react'
-import { Schema } from './components/Schema.tsx'
-
-describe('TypeScript SchemaGenerator', async () => {
+describe('typeGenerator schema', async () => {
   const testData = [
     {
       name: 'PetQuestionToken',
-      input: '../mocks/petStore.yaml',
+      input: '../../mocks/petStore.yaml',
       path: 'Pet',
       options: {
         optionalType: 'questionToken',
@@ -27,7 +21,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'PetUndefined',
-      input: '../mocks/petStore.yaml',
+      input: '../../mocks/petStore.yaml',
       path: 'Pet',
       options: {
         optionalType: 'undefined',
@@ -35,7 +29,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'PetQuestionTokenAndUndefined',
-      input: '../mocks/petStore.yaml',
+      input: '../../mocks/petStore.yaml',
       path: 'Pet',
       options: {
         optionalType: 'questionTokenAndUndefined',
@@ -43,7 +37,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Pets',
-      input: '../mocks/petStore.yaml',
+      input: '../../mocks/petStore.yaml',
       path: 'Pets',
       options: {
         optionalType: 'questionToken',
@@ -51,7 +45,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'PetsStoreRef',
-      input: '../mocks/petStoreRef.yaml',
+      input: '../../mocks/petStoreRef.yaml',
       path: 'Pets',
       options: {
         optionalType: 'questionToken',
@@ -59,7 +53,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'PetsStoreDiscriminator',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'Petstore',
       options: {
         enumType: 'asConst',
@@ -68,7 +62,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'CatTypeAsConst',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'Cat',
       options: {
         enumType: 'asConst',
@@ -77,7 +71,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'DogTypeAsConst',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'Dog',
       options: {
         enumType: 'asConst',
@@ -86,7 +80,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'NullConstNull',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'NullConst',
       options: {
         enumType: 'asConst',
@@ -95,7 +89,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'StringValueConst',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'StringValueConst',
       options: {
         enumType: 'asConst',
@@ -104,7 +98,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'NumberValueConst',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'NumberValueConst',
       options: {
         enumType: 'asConst',
@@ -113,7 +107,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'MixedValueTypeConst',
-      input: '../mocks/discriminator.yaml',
+      input: '../../mocks/discriminator.yaml',
       path: 'MixedValueTypeConst',
       options: {
         enumType: 'asConst',
@@ -122,7 +116,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumVarNamesType',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enumVarNames.Type',
       options: {
         enumType: 'asConst',
@@ -131,7 +125,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNamesType',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enumNames.Type',
       options: {
         enumType: 'asConst',
@@ -140,7 +134,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumItems',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.Items',
       options: {
         enumType: 'asConst',
@@ -149,7 +143,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumString',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.String',
       options: {
         enumType: 'asConst',
@@ -158,7 +152,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNullableMember',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.NullableMember',
       options: {
         enumType: 'asConst',
@@ -167,7 +161,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNullableType',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.NullableType',
       options: {
         enumType: 'asConst',
@@ -176,7 +170,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumAllOf',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.AllOf',
       options: {
         enumType: 'asConst',
@@ -185,7 +179,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumInObject',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.InObject',
       options: {
         enumType: 'asConst',
@@ -194,7 +188,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumArray',
-      input: '../mocks/enums_2.0.yaml',
+      input: '../../mocks/enums_2.0.yaml',
       path: 'enum.Array',
       options: {
         enumType: 'asConst',
@@ -203,7 +197,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNames',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enumNames.Type',
       options: {
         enumType: 'enum',
@@ -212,7 +206,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNamesPascalConst',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enumNames.Type',
       options: {
         enumType: 'asPascalConst',
@@ -221,7 +215,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNamesConst',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enumNames.Type',
       options: {
         enumType: 'constEnum',
@@ -230,7 +224,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'EnumNamesLiteral',
-      input: '../mocks/enums.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enumNames.Type',
       options: {
         enumType: 'literal',
@@ -239,7 +233,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Body_upload_file_api_assets_post',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Body_upload_file_api_assets_post',
       options: {
         enumType: 'asConst',
@@ -248,7 +242,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Plain_file',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Plain_file',
       options: {
         enumType: 'asConst',
@@ -257,7 +251,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Plain_dateString',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Plain_date',
       options: {
         enumType: 'asConst',
@@ -267,7 +261,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Plain_dateDate',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Plain_date',
       options: {
         enumType: 'asConst',
@@ -277,7 +271,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Plain_timeDate',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Plain_time',
       options: {
         enumType: 'asConst',
@@ -287,7 +281,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Plain_email',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Plain_email',
       options: {
         enumType: 'asConst',
@@ -297,7 +291,7 @@ describe('TypeScript SchemaGenerator', async () => {
     },
     {
       name: 'Plain_uuid',
-      input: '../mocks/typeAssertions.yaml',
+      input: '../../mocks/typeAssertions.yaml',
       path: 'Plain_uuid',
       options: {
         enumType: 'asConst',
@@ -305,22 +299,17 @@ describe('TypeScript SchemaGenerator', async () => {
         optionalType: 'questionToken',
       },
     },
-    {
-      name: 'Nullable',
-      input: '../mocks/typeAssertions.yaml',
-      path: 'Nullable',
-      options: {
-        optionalType: 'questionToken',
-      },
-    },
-  ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    options: Partial<PluginTs['resolvedOptions']>
+  }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
-    const schemas = oas.getDefinition().components?.schemas
-    const schema = schemas?.[props.path]
 
-    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+    const options: PluginTs['resolvedOptions'] = {
       usedEnumNames: {},
       enumType: 'asConst',
       enumSuffix: 'enum',
@@ -330,11 +319,105 @@ describe('TypeScript SchemaGenerator', async () => {
       unknownType: 'any',
       override: [],
       mapper: {},
-      extName: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const generator = new SchemaGenerator(options, {
+    const instance = new SchemaGenerator(options, {
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: 'application/json',
+      include: undefined,
+      override: undefined,
+      mode: 'split',
+      output: './gen',
+    })
+    await instance.build(typeGenerator)
+
+    const schemas = getSchemas({ oas })
+    const name = props.path
+    const schema = schemas[name]!
+    const tree = instance.parse({ schema, name })
+
+    const files = await typeGenerator.schema?.({
+      schema: {
+        name,
+        tree,
+        value: schema,
+      },
+      options,
+      instance,
+    })
+
+    await matchFiles(files)
+  })
+})
+
+describe('typeGenerator operation', async () => {
+  const testData = [
+    {
+      name: 'showPetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
+      options: {},
+    },
+    {
+      name: 'getPets',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {},
+    },
+    {
+      name: 'createPet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {},
+    },
+    {
+      name: 'createPet with unknownType unknown',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        unknownType: 'unknown',
+      },
+    },
+    {
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
+      options: {},
+    },
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginTs['resolvedOptions']>
+  }>
+
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
+
+    const options: PluginTs['resolvedOptions'] = {
+      enumType: 'asConst',
+      enumSuffix: '',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      usedEnumNames: {},
+      transformers: {},
+      oasType: false,
+      unknownType: 'any',
+      override: [],
+      mapper: {},
+      ...props.options,
+    }
+    const plugin = { options } as Plugin<PluginTs>
+    const instance = new OperationGenerator(options, {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
@@ -342,21 +425,15 @@ describe('TypeScript SchemaGenerator', async () => {
       contentType: undefined,
       override: undefined,
       mode: 'split',
+      exclude: [],
     })
-    const tree = generator.parse({ schema, name: props.name })
+    const operation = oas.operation(props.path, props.method)
+    const files = await typeGenerator.operation?.({
+      operation,
+      options,
+      instance,
+    })
 
-    const Component = () => {
-      return (
-        <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
-          <Oas.Schema name={camelCase(props.name)} value={undefined} tree={tree}>
-            <Schema.File />
-          </Oas.Schema>
-        </App>
-      )
-    }
-    const root = createRootServer({ logger: mockedPluginManager.logger })
-    const output = await root.renderToString(<Component />)
-
-    expect(output).toMatchSnapshot()
+    await matchFiles(files)
   })
 })

@@ -30,7 +30,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
+    const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
       // hack so Params can be optional when needed
       const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
       const optional = !required && !!name.includes('Params')
@@ -60,6 +60,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             tree={tree}
             mapper={mapper}
             coercion={coercion}
+            keysToOmit={keysToOmit}
           />
         </Oas.Schema>
       )

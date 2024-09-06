@@ -1,48 +1,25 @@
-import { Oas } from '@kubb/plugin-oas/components'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import { print, type ts } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
-import { SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { useSchema } from '@kubb/plugin-oas/hooks'
+import { type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Fragment, type ReactNode } from 'react'
 import { parse, typeKeywordMapper } from '../parser/index.ts'
-import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types.ts'
 
 type Props = {
+  name: string
+  typedName: string
+  tree: Array<Schema>
+  optionalType: PluginTs['resolvedOptions']['optionalType']
+  enumType: PluginTs['resolvedOptions']['enumType']
+  mapper: PluginTs['resolvedOptions']['mapper']
   description?: string
   keysToOmit?: string[]
 }
 
-export function Schema(props: Props): ReactNode {
-  const { keysToOmit, description } = props
-  const { tree, name } = useSchema()
-  const {
-    pluginManager,
-    plugin: {
-      options: { mapper, enumType, optionalType },
-    },
-  } = useApp<PluginTs>()
-
-  if (enumType === 'asPascalConst') {
-    pluginManager.logger.emit('warning', `enumType '${enumType}' is deprecated`)
-  }
-
-  // all checks are also inside this.schema(React)
-  const resolvedName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginTsName],
-    type: 'function',
-  })
-
-  const typeName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginTsName],
-    type: 'type',
-  })
-
+export function Type({ name, typedName, tree, keysToOmit, optionalType, enumType, mapper, description }: Props): ReactNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -57,8 +34,8 @@ export function Schema(props: Props): ReactNode {
     (tree
       .map((schema) =>
         parse(undefined, schema, {
-          name: resolvedName,
-          typeName,
+          name,
+          typeName: typedName,
           description,
           keysToOmit,
           optionalType,
@@ -89,7 +66,7 @@ export function Schema(props: Props): ReactNode {
 
   const node = factory.createTypeAliasDeclaration({
     modifiers: [factory.modifiers.export],
-    name: resolvedName,
+    name,
     type: keysToOmit?.length
       ? factory.createOmitDeclaration({
           keys: keysToOmit,
@@ -145,24 +122,11 @@ export function Schema(props: Props): ReactNode {
           }
         </Fragment>
       ))}
-      {enums.every((item) => item.typeName !== resolvedName) && (
-        <File.Source name={typeName} isTypeOnly isExportable isIndexable>
+      {enums.every((item) => item.typeName !== name) && (
+        <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {print(typeNodes)}
         </File.Source>
       )}
     </Fragment>
-  )
-}
-
-type FileProps = {}
-
-Schema.File = function ({}: FileProps): ReactNode {
-  const { pluginManager } = useApp<PluginTs>()
-  const { schema } = useSchema()
-
-  return (
-    <Oas.Schema.File isTypeOnly output={pluginManager.config.output.path}>
-      <Schema description={schema?.description} />
-    </Oas.Schema.File>
   )
 }
