@@ -68,10 +68,7 @@ function RootTemplate({ children }: RootTemplateProps) {
   const {
     mode,
     pluginManager,
-    plugin: {
-      key: pluginKey,
-      options: { extName },
-    },
+    plugin: { output, key: pluginKey },
   } = useApp<PluginZod>()
   const { getFile } = useOperationManager()
   const operations = useOperations()

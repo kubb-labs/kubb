@@ -25,13 +25,15 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs",
+      "default": "./dist/generators.cjs"
+    },
     "./components": {
       "import": "./dist/components.js",
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
-    },
-    "./oas": {
-      "types": "./dist/oas.d.ts"
     },
     "./package.json": "./package.json",
     "./*": "./*"
@@ -44,8 +46,8 @@
       "components": [
         "./dist/components.d.ts"
       ],
-      "oas": [
-        "./dist/oas.d.ts"
+      "generators": [
+        "./dist/generators.d.ts"
       ]
     }
   },

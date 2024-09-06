@@ -14,7 +14,7 @@ type Props = {
 }
 
 export function OperationSchema({ description, keysToOmit }: Props): ReactNode {
-  return <Schema keysToOmit={keysToOmit} withTypeAnnotation={false} description={description} />
+  return null
 }
 
 type FileProps = {}
@@ -32,7 +32,7 @@ OperationSchema.File = function ({}: FileProps): ReactNode {
     plugin,
     pluginManager,
     mode,
-    override: plugin.options.override,
+    override: [],
   })
 
   const items = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response].flat().filter(Boolean)

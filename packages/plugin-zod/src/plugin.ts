@@ -9,9 +9,8 @@ import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { zodParser } from './SchemaGenerator.tsx'
-import { Operations } from './components/Operations.tsx'
 import type { PluginZod } from './types.ts'
+import { zodGenerator } from './generators/zodGenerator.tsx'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
@@ -28,7 +27,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     typed = false,
     typedSchema = false,
     mapper = {},
-    templates,
+    operations = false,
     importPath = 'zod',
     coercion = false,
   } = options
@@ -53,10 +52,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       mapper,
       importPath,
       coercion,
-      templates: {
-        operations: Operations.templates,
-        ...templates,
-      },
+      operations,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -113,7 +109,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build(zodParser)
+      const schemaFiles = await schemaGenerator.build(zodGenerator)
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -127,7 +123,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build(zodParser)
+      const operationFiles = await operationGenerator.build(zodGenerator)
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

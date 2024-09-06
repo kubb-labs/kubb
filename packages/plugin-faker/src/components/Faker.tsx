@@ -2,9 +2,9 @@ import { File, Function } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import { type Schema, schemaKeywords } from '@kubb/plugin-oas'
-import type { ReactNode } from 'react'
 import * as parserFaker from '../parser/index.ts'
 import type { PluginFaker } from '../types.ts'
+import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   name: string
@@ -17,7 +17,7 @@ type Props = {
   dateParser?: PluginFaker['options']['dateParser']
 }
 
-export function Faker({ tree, description, name, typedName, seed, regexGenerator, mapper, dateParser }: Props): ReactNode {
+export function Faker({ tree, description, name, typedName, seed, regexGenerator, mapper, dateParser }: Props): KubbNode {
   const withData = tree.some(
     (schema) =>
       schema.keyword === schemaKeywords.array ||

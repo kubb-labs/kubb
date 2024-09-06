@@ -1,0 +1,152 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`zodGenerator operation > 'createPet with unknownType any' 1`] = `
+"/**
+ * @description Null response
+ */
+export const createPets201 = z.any()
+
+/**
+ * @description unexpected error
+ */
+export const createPetsError = z.lazy(() => error)
+
+export const createPetsMutationRequest = z.object({"name": z.string(),"tag": z.string()})
+
+export const createPetsMutationResponse = z.any()"
+`;
+
+exports[`zodGenerator operation > 'createPet' 1`] = `
+"/**
+ * @description Null response
+ */
+export const createPets201 = z.any()
+
+/**
+ * @description unexpected error
+ */
+export const createPetsError = z.lazy(() => error)
+
+export const createPetsMutationRequest = z.object({"name": z.string(),"tag": z.string()})
+
+export const createPetsMutationResponse = z.any()"
+`;
+
+exports[`zodGenerator operation > 'deletePet' 1`] = `"export const deletePetsPetidMutationResponse = z.any()"`;
+
+exports[`zodGenerator operation > 'getPets' 1`] = `
+"export const listPetsQueryParams = z.object({"limit": z.string().describe("How many items to return at one time (max 100)").optional()}).optional()
+
+/**
+ * @description A paged array of pets
+ */
+export const listPets200 = z.lazy(() => pets)
+
+/**
+ * @description unexpected error
+ */
+export const listPetsError = z.lazy(() => error)
+
+/**
+ * @description A paged array of pets
+ */
+export const listPetsQueryResponse = z.lazy(() => pets)"
+`;
+
+exports[`zodGenerator operation > 'showPetById' 1`] = `
+"export const showPetByIdPathParams = z.object({"petId": z.string().describe("The id of the pet to retrieve"),"testId": z.string().describe("The id of the pet to retrieve")})
+
+/**
+ * @description Expected response to a valid request
+ */
+export const showPetById200 = z.lazy(() => pet)
+
+/**
+ * @description unexpected error
+ */
+export const showPetByIdError = z.lazy(() => error)
+
+/**
+ * @description Expected response to a valid request
+ */
+export const showPetByIdQueryResponse = z.lazy(() => pet)"
+`;
+
+exports[`zodGenerator schema > 'Example' 1`] = `"export const example = z.object({"name": z.string(),"children": z.array(z.lazy(() => example))})"`;
+
+exports[`zodGenerator schema > 'Example' 2`] = `"export const example = z.object({"nestedExamples": z.lazy(() => example).optional()})"`;
+
+exports[`zodGenerator schema > 'MixedValueTypeConst' 1`] = `
+"/**
+ * @description This probably should fail miserably
+ */
+export const mixedValueTypeConst = z.object({"foobar": z.literal("foobar")}).describe("This probably should fail miserably")"
+`;
+
+exports[`zodGenerator schema > 'NullableString' 1`] = `"export const nullableString = z.string().nullable()"`;
+
+exports[`zodGenerator schema > 'NullableStringUuid' 1`] = `"export const nullableStringUuid = z.string().uuid().nullable()"`;
+
+exports[`zodGenerator schema > 'NullableStringWithAnyOf' 1`] = `"export const nullableStringWithAnyOf = z.union([z.string(), z.null()])"`;
+
+exports[`zodGenerator schema > 'NumberValueConst' 1`] = `
+"/**
+ * @description its value is equal to the value of the keyword
+ */
+export const numberValueConst = z.object({"foobar": z.literal(42)}).describe("its value is equal to the value of the keyword")"
+`;
+
+exports[`zodGenerator schema > 'OptionalPet' 1`] = `"export const optionalPet = z.object({"id": z.number().int().optional(),"name": z.string().optional(),"tag": z.string().optional()}) as z.ZodType<OptionalPet>"`;
+
+exports[`zodGenerator schema > 'OptionalPet' 2`] = `"export const optionalPet = z.object({"id": z.number().int().optional(),"name": z.string().optional(),"tag": z.string().optional()}) as z.ZodType<OptionalPet>"`;
+
+exports[`zodGenerator schema > 'Order' 1`] = `"export const order = z.object({"id": z.number().int().optional(),"petId": z.number().int().optional(),"quantity": z.number().int().optional(),"shipDate": z.date().optional(),"status": z.enum(["placed", "approved", "delivered"]).describe("Order Status").optional(),"complete": z.boolean().optional()})"`;
+
+exports[`zodGenerator schema > 'Order' 2`] = `"export const order = z.object({"id": z.number().int().optional(),"petId": z.number().int().optional(),"quantity": z.number().int().optional(),"shipDate": z.string().datetime().optional(),"status": z.enum(["placed", "approved", "delivered"]).describe("Order Status").optional(),"complete": z.boolean().optional()})"`;
+
+exports[`zodGenerator schema > 'Order' 3`] = `"export const order = z.object({"id": z.number().int().optional(),"petId": z.number().int().optional(),"quantity": z.number().int().optional(),"shipDate": z.string().optional(),"status": z.enum(["placed", "approved", "delivered"]).describe("Order Status").optional(),"complete": z.boolean().optional()})"`;
+
+exports[`zodGenerator schema > 'Pet' 1`] = `"export const pet = z.object({"id": z.number().int(),"name": z.string(),"date": z.date().optional(),"tag": z.string().min(5).max(100).optional()})"`;
+
+exports[`zodGenerator schema > 'Pet' 2`] = `"export const pet = z.object({"id": z.number().int(),"name": z.string(),"date": z.date().optional(),"tag": z.string().min(5).max(100).optional()})"`;
+
+exports[`zodGenerator schema > 'Pet' 3`] = `"export const pet = z.object({"id": z.coerce.number().int(),"name": z.coerce.string(),"date": z.coerce.date().optional(),"tag": z.coerce.string().min(5).max(100).optional()})"`;
+
+exports[`zodGenerator schema > 'PetArray' 1`] = `
+"/**
+ * @description List of Pet object
+ */
+export const petArray = z.array(z.lazy(() => pet)).min(1).max(3).describe("List of Pet object")"
+`;
+
+exports[`zodGenerator schema > 'PetTupleObject' 1`] = `
+"/**
+ * @description Tuple of exact length 2 nested in an object
+ */
+export const petTupleObject = z.object({"tupleProperty": z.tuple([z.string(), z.string()]).optional()}).describe("Tuple of exact length 2 nested in an object")"
+`;
+
+exports[`zodGenerator schema > 'Pets' 1`] = `
+"export const pets = z.array(z.object({"id": z.number().int(),"name": z.string(),"tag": z.string().optional()}))
+
+export type Pets = z.infer<typeof pets>"
+`;
+
+exports[`zodGenerator schema > 'StringValueConst' 1`] = `
+"/**
+ * @description its value is equal to the value of the keyword
+ */
+export const stringValueConst = z.object({"foobar": z.literal("foobar")}).describe("its value is equal to the value of the keyword")"
+`;
+
+exports[`zodGenerator schema > 'UuidSchema' 1`] = `"export const uuidSchema = z.string().uuid()"`;
+
+exports[`zodGenerator schema > 'enumNames.Type' 1`] = `"export const enumNamesType = z.enum(["0", "1"])"`;
+
+exports[`zodGenerator schema > 'enumNullable' 1`] = `"export const enumNullable = z.enum(["Pending", "Received"]).nullable()"`;
+
+exports[`zodGenerator schema > 'enumVarNames.Type' 1`] = `"export const enumVarNamesType = z.union([z.literal(0), z.literal(1)])"`;
+
+exports[`zodGenerator schema > 'test' 1`] = `"export const test = z.union([z.object({"propertyA": z.string()}).strict(), z.object({"propertyA": z.string(),"propertyB": z.string()}).strict()])"`;
+
+exports[`zodGenerator schema > 'test' 2`] = `"export const test = z.union([z.object({"propertyA": z.string().optional()}), z.object({"propertyA": z.string().optional()})])"`;

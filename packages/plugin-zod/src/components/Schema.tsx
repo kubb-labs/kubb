@@ -1,54 +1,27 @@
-import { Oas } from '@kubb/plugin-oas/components'
-import { Const, File, Type, useApp, useFile } from '@kubb/react'
-import { pluginTsName } from '@kubb/plugin-ts'
-
+import { Const, File, Type } from '@kubb/react'
+import { type Schema, schemaKeywords } from '@kubb/plugin-oas'
 import transformers from '@kubb/core/transformers'
-import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
-import { useSchema } from '@kubb/plugin-oas/hooks'
-import type { ReactNode } from 'react'
+import { isKeyword } from '@kubb/plugin-oas'
 import * as parserZod from '../parser/index.ts'
-import { pluginZodName } from '../plugin.ts'
 import type { PluginZod } from '../types.ts'
+import type {KubbNode} from "@kubb/react/types";
 
 type Props = {
+  name: string
+  typedName?: string
+  inferTypedName?: string
+  tree: Array<Schema>
   description?: string
-  withTypeAnnotation?: boolean
-  keysToOmit?: string[]
+  coercion?: PluginZod['options']['coercion']
+  mapper?: PluginZod['options']['mapper']
 }
 
-export function Schema(props: Props): ReactNode {
-  const { keysToOmit, withTypeAnnotation, description } = props
-  const { tree, name } = useSchema()
-  const {
-    pluginManager,
-    plugin: {
-      options: { mapper, typedSchema, coercion },
-    },
-  } = useApp<PluginZod>()
-
-  // all checks are also inside this.schema(React)
-  const resolvedName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginZodName],
-    type: 'function',
-  })
-  const resolvedTypeName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginZodName],
-    type: 'type',
-  })
-
-  const typeName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginTsName],
-    type: 'type',
-  })
-
+export function Schema({  name, typedName, tree,inferTypedName,  mapper, coercion, description }: Props): KubbNode {
   if (!tree.length) {
     return (
-      <File.Source name={resolvedName} isExportable isIndexable>
+      <File.Source name={name} isExportable isIndexable>
         <Const
-          name={resolvedName}
+          name={name}
           export
           JSDoc={{
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
@@ -71,35 +44,32 @@ export function Schema(props: Props): ReactNode {
 
       return true
     })
-    .map((item) => parserZod.parse(undefined, item, { name, typeName, description, mapper, coercion, keysToOmit }))
+    .map((item) => parserZod.parse(undefined, item, { name, typeName: typedName, description, mapper, coercion }))
     .filter(Boolean)
     .join('')
 
-  const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
-
   return (
     <>
-      <File.Source name={resolvedName} isExportable isIndexable>
+      <File.Source name={name} isExportable isIndexable>
         <Const
           export
-          name={resolvedName}
+          name={name}
           JSDoc={{
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
           {[
             output,
-            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-            withTypeAnnotation && typeName ? ` as z.ZodType<${typeName}>` : '',
+            typedName ? ` as z.ZodType<${typedName}>` : '',
           ]
             .filter(Boolean)
             .join('') || ''}
         </Const>
       </File.Source>
-      {typedSchema && (
-        <File.Source name={resolvedTypeName} isExportable isIndexable isTypeOnly>
-          <Type export name={resolvedTypeName}>
-            {`z.infer<typeof ${resolvedName}>`}
+      {inferTypedName && (
+        <File.Source name={inferTypedName} isExportable isIndexable isTypeOnly>
+          <Type export name={inferTypedName}>
+            {`z.infer<typeof ${name}>`}
           </Type>
         </File.Source>
       )}
@@ -107,60 +77,3 @@ export function Schema(props: Props): ReactNode {
   )
 }
 
-type FileProps = {}
-
-Schema.File = function ({}: FileProps): ReactNode {
-  const {
-    pluginManager,
-    plugin: {
-      options: { typed },
-    },
-  } = useApp<PluginZod>()
-  const { schema } = useSchema()
-
-  const withTypeAnnotation = !!typed
-
-  return (
-    <Oas.Schema.File output={pluginManager.config.output.path}>
-      <Schema.Imports />
-      <Schema withTypeAnnotation={withTypeAnnotation} description={schema?.description} />
-    </Oas.Schema.File>
-  )
-}
-Schema.Imports = (): ReactNode => {
-  const {
-    pluginManager,
-    plugin: {
-      options: { typed, importPath },
-    },
-  } = useApp<PluginZod>()
-  const { path: root } = useFile()
-  const { name, tree, schema } = useSchema()
-
-  // used for this.options.typed
-  const typeName = pluginManager.resolveName({
-    name,
-    pluginKey: [pluginTsName],
-    type: 'type',
-  })
-
-  const typeFileName = pluginManager.resolveName({
-    name: name,
-    pluginKey: [pluginTsName],
-    type: 'file',
-  })
-
-  const typePath = pluginManager.resolvePath({
-    baseName: typeFileName,
-    pluginKey: [pluginTsName],
-  })
-
-  const withTypeAnnotation = !!typed
-
-  return (
-    <>
-      <File.Import name={['z']} path={importPath} />
-      {withTypeAnnotation && typeName && typePath && <File.Import isTypeOnly root={root} path={typePath} name={[typeName]} />}
-    </>
-  )
-}
