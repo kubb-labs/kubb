@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from './models.ts'
 
 /**
@@ -7,16 +7,13 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from './m
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export async function findPetsByTags(
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<FindPetsByTagsQueryResponse>['data']> {
+export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse>({
     method: 'get',
     url: '/pet/findByTags',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
-    ...options,
+    ...config,
   })
   return res.data
 }

@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from './models.ts'
 
 /**
@@ -7,16 +7,13 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } 
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-export async function placeOrderPatch(
-  data?: PlaceOrderPatchMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<PlaceOrderPatchMutationResponse>['data']> {
+export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig> = {}) {
   const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatchMutationRequest>({
     method: 'patch',
     url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
-    ...options,
+    ...config,
   })
   return res.data
 }

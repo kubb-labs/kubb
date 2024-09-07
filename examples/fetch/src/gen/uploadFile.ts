@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
 
 /**
@@ -10,8 +10,8 @@ export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UploadFileMutationResponse>['data']> {
+  config: Partial<RequestConfig> = {},
+) {
   const formData = new FormData()
   if (data) {
     Object.keys(data).forEach((key) => {
@@ -27,8 +27,8 @@ export async function uploadFile(
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...options.headers },
-    ...options,
+    headers: { 'Content-Type': 'multipart/form-data', ...config.headers },
+    ...config,
   })
   return res.data
 }

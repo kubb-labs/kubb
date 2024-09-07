@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
 
 /**
@@ -13,13 +13,13 @@ export async function deleteUser(
   }: {
     username: DeleteUserPathParams['username']
   },
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<DeleteUserMutationResponse>> {
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeleteUserMutationResponse>({
     method: 'delete',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...options,
+    ...config,
   })
   return res
 }

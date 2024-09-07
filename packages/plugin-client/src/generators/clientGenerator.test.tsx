@@ -5,50 +5,40 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
-import { Client } from '../components/Client.tsx'
 import type { PluginClient } from '../types.ts'
 import { clientGenerator } from './clientGenerator.tsx'
 
 describe('clientGenerator operation', async () => {
   const testData = [
     {
-      name: 'showPetById',
+      name: 'findByTags',
       input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
+      path: '/pet/findByTags',
       method: 'get',
       options: {},
     },
     {
-      name: 'getPets',
+      name: 'updatePetById',
       input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'getPetsFull',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
-      options: {
-        dataReturnType: 'full',
-      },
-    },
-    // {
-    //   name: 'getPetsFullPathObject',
-    //   input: '../../mocks/petStore.yaml',
-    //   path: '/pets',
-    //   method: 'get',
-    //   options: {
-    //     pathParamsType: "object"
-    //   },
-    // },
-    {
-      name: 'createPet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
+      path: '/pet/{petId}',
       method: 'post',
       options: {},
+    },
+    {
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'delete',
+      options: {},
+    },
+    {
+      name: 'deletePetObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'delete',
+      options: {
+        pathParamsType: 'object',
+      },
     },
   ] as const satisfies Array<{
     input: string
@@ -66,7 +56,6 @@ describe('clientGenerator operation', async () => {
       pathParamsType: 'inline',
       importPath: '@kubb/plugin-client/client',
       baseURL: '',
-      template: Client,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

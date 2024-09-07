@@ -3,7 +3,7 @@ import { URLPath } from '@kubb/core/utils'
 import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, createFunctionParams } from '@kubb/react'
+import { File, Function, FunctionParams } from '@kubb/react'
 import type { KubbNode } from '@kubb/react/types'
 import type { PluginClient } from '../types.ts'
 
@@ -12,87 +12,78 @@ type Props = {
    * Name of the function
    */
   name: string
-  options: PluginClient['resolvedOptions']
-  typedSchemas: OperationSchemas
+  baseURL?: string
+  dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
+  pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
+  typeSchemas: OperationSchemas
   operation: Operation
 }
 
-export function Client({ name, options, typedSchemas, operation }: Props): KubbNode {
+export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsType, operation }: Props): KubbNode {
   const contentType = operation.getContentType()
-  const baseURL = options.baseURL
   const path = new URLPath(operation.path)
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
     contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
-    typedSchemas.headerParams?.name ? '...headers' : undefined,
+    typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
-  const params = createFunctionParams({
+  const params = FunctionParams.factory({
     pathParams: {
-      mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typedSchemas.pathParams, { typed: true }),
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
     },
-    data: typedSchemas.request?.name
+    data: typeSchemas.request?.name
       ? {
-          type: typedSchemas.request?.name,
-          optional: isOptional(typedSchemas.request?.schema),
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
-    params: typedSchemas.queryParams?.name
+    params: typeSchemas.queryParams?.name
       ? {
-          type: typedSchemas.queryParams?.name,
-          optional: isOptional(typedSchemas.queryParams?.schema),
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
-    headers: typedSchemas.headerParams?.name
+    headers: typeSchemas.headerParams?.name
       ? {
-          type: typedSchemas.headerParams?.name,
-          optional: isOptional(typedSchemas.headerParams?.schema),
+          type: typeSchemas.headerParams?.name,
+          optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
-    options: {
-      type: 'Partial<Parameters<typeof client>[0]>',
+    config: {
+      type: 'Partial<RequestConfig>',
       default: '{}',
     },
   })
 
-  const clientParams = createFunctionParams({
-    data: {
+  const clientParams = FunctionParams.factory({
+    params: {
       mode: 'object',
       children: {
         method: {
-          type: 'string',
           value: JSON.stringify(operation.method),
         },
         url: {
-          type: 'string',
           value: path.template,
         },
         baseURL: baseURL
           ? {
-              type: 'string',
               value: JSON.stringify(baseURL),
             }
           : undefined,
-        params: typedSchemas.queryParams?.name
+        params: typeSchemas.queryParams?.name ? {} : undefined,
+        data: typeSchemas.request?.name
           ? {
-              type: 'any',
-            }
-          : undefined,
-        data: typedSchemas.request?.name
-          ? {
-              type: 'any',
               value: isFormData ? 'formData' : undefined,
             }
           : undefined,
         headers: headers.length
           ? {
-              type: 'any',
-              value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
+              value: headers.length ? `{ ${headers.join(', ')}, ...config.headers }` : undefined,
             }
           : undefined,
-        options: {
-          type: 'any',
+        config: {
           mode: 'inlineSpread',
         },
       },
@@ -111,28 +102,26 @@ export function Client({ name, options, typedSchemas, operation }: Props): KubbN
     })
    }
   `
-    : undefined
+    : ''
 
+  const source = `
+${formData}
+const res = await client<${[typeSchemas.response.name, typeSchemas.request?.name].filter(Boolean).join(', ')}>(${clientParams.toCall()})
+
+return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+  `
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
         name={name}
         async
         export
-        returnType={
-          options.dataReturnType === 'data' ? `ResponseConfig<${typedSchemas.response.name}>["data"]` : `ResponseConfig<${typedSchemas.response.name}>`
-        }
-        params={params}
+        params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
         }}
       >
-        {formData || ''}
-        <Function.Call
-          name="res"
-          to={<Function name="client" async generics={[typedSchemas.response.name, typedSchemas.request?.name].filter(Boolean)} params={clientParams} />}
-        />
-        <Function.Return>{options.dataReturnType === 'data' ? 'res.data' : 'res'}</Function.Return>
+        {source}
       </Function>
     </File.Source>
   )

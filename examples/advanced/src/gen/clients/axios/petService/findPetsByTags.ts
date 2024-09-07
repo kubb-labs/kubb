@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTagsHeaderParams } from '../../../models/ts/petController/FindPetsByTags.ts'
 
 /**
@@ -7,18 +7,14 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export async function findPetsByTags(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<FindPetsByTagsQueryResponse>> {
+export async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse>({
     method: 'get',
     url: '/pet/findByTags',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
-    headers: { ...headers, ...options.headers },
-    ...options,
+    headers: { ...headers, ...config.headers },
+    ...config,
   })
   return res
 }

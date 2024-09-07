@@ -4,23 +4,27 @@ import type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
 export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+  },
   params?: UpdatePetWithFormQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>['data']> {
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<UpdatePetWithFormMutationResponse>({
     method: 'post',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
-    ...options,
+    ...config,
   })
   return res.data
 }

@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from './models.ts'
 
 /**
@@ -7,15 +7,12 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from './model
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export async function deleteOrder(
-  orderId: DeleteOrderPathParams['orderId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<DeleteOrderMutationResponse>['data']> {
+export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteOrderMutationResponse>({
     method: 'delete',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...options,
+    ...config,
   })
   return res.data
 }

@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus.ts'
 
 /**
@@ -7,16 +7,13 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from 
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-export async function findPetsByStatus(
-  params?: FindPetsByStatusQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<FindPetsByStatusQueryResponse>> {
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse>({
     method: 'get',
     url: '/pet/findByStatus',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
-    ...options,
+    ...config,
   })
   return res
 }

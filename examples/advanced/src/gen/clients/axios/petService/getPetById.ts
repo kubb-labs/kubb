@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById.ts'
 
 /**
@@ -13,8 +13,8 @@ export async function getPetById(
   }: {
     petId: GetPetByIdPathParams['petId']
   },
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<GetPetByIdQueryResponse>> {
-  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...options })
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
   return res
 }

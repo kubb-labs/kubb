@@ -126,7 +126,6 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserMutation,
 } from './models/ts/userController/UpdateUser.ts'
-export { operations } from './clients/axios/operations.ts'
 export { addPet } from './clients/axios/petService/addPet.ts'
 export { deletePet } from './clients/axios/petService/deletePet.ts'
 export { findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
@@ -142,6 +141,9 @@ export { getUserByName } from './clients/axios/userService/getUserByName.ts'
 export { loginUser } from './clients/axios/userService/loginUser.ts'
 export { logoutUser } from './clients/axios/userService/logoutUser.ts'
 export { updateUser } from './clients/axios/userService/updateUser.ts'
+export { operations } from './clients/operations.ts'
+export { getInventoryController, placeOrderController, placeOrderPatchController, getOrderByIdController, deleteOrderController } from './clients/tag.ts'
+export { getInventory, placeOrder, placeOrderPatch, getOrderById, deleteOrder } from './clients/tagObject.ts'
 export { addPetRequestStatus } from './models/ts/AddPetRequest.ts'
 export { orderStatus, orderHttpStatus } from './models/ts/Order.ts'
 export { petStatus } from './models/ts/Pet.ts'

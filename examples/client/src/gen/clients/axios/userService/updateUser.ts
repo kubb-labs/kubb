@@ -1,7 +1,6 @@
-import type client from '@kubb/plugin-client/client'
-import axios from 'axios'
+import client from '@kubb/plugin-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description This can only be done by the logged in user.
@@ -9,9 +8,20 @@ import type { ResponseConfig } from '@kubb/plugin-client/client'
  * @link /user/:username
  */
 export async function updateUser(
-  username: UpdateUserPathParams['username'],
+  {
+    username,
+  }: {
+    username: UpdateUserPathParams['username']
+  },
   data?: UpdateUserMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UpdateUserMutationResponse>['data']> {
-  return axios.put(`/user/${username}`, data, options)
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
+    method: 'put',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }

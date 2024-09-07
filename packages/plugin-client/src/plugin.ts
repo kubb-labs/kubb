@@ -5,8 +5,6 @@ import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
-import { Client } from './components/index.ts'
-
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { operationsGenerator } from './generators'
@@ -40,7 +38,6 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     options: {
       dataReturnType,
       importPath,
-      template: options.template || Client,
       pathParamsType,
       baseURL: undefined,
     },

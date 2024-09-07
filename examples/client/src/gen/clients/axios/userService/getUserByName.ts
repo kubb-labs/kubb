@@ -1,15 +1,19 @@
-import type client from '@kubb/plugin-client/client'
-import axios from 'axios'
+import client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName.ts'
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary Get user by user name
  * @link /user/:username
  */
 export async function getUserByName(
-  username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<GetUserByNameQueryResponse>['data']> {
-  return axios.get(`/user/${username}`, options)
+  {
+    username,
+  }: {
+    username: GetUserByNamePathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<GetUserByNameQueryResponse>({ method: 'get', url: `/user/${username}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
+  return res.data
 }
