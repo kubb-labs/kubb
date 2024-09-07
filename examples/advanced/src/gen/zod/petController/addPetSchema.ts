@@ -26,6 +26,6 @@ export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSc
 /**
  * @description Successful operation
  */
-export const addPetMutationResponseSchema = z.lazy(() => petSchema)
+export const addPetMutationResponseSchema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
 
 export type AddPetMutationResponseSchema = z.infer<typeof addPetMutationResponseSchema>

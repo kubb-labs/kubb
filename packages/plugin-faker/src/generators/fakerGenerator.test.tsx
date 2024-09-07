@@ -13,17 +13,20 @@ describe('fakerGenerator schema', async () => {
   const testData = [
     {
       name: 'Pet',
+      path: 'Pet',
       input: '../../mocks/petStore.yaml',
       options: {},
     },
     {
       name: 'Pets',
+      path: 'Pets',
       input: '../../mocks/petStore.yaml',
       options: {},
     },
   ] as const satisfies Array<{
     input: string
     name: string
+    path: string
     options: Partial<PluginFaker['resolvedOptions']>
   }>
 
@@ -55,7 +58,7 @@ describe('fakerGenerator schema', async () => {
     await instance.build(fakerGenerator)
 
     const schemas = getSchemas({ oas })
-    const name = props.name
+    const name = props.path
     const schema = schemas[name]!
     const tree = instance.parse({ schema, name })
 

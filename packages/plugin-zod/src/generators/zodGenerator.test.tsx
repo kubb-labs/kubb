@@ -13,23 +13,21 @@ describe('zodGenerator schema', async () => {
   const testData = [
     {
       name: 'Pet',
+      path: 'Pet',
       input: '../../mocks/petStore.yaml',
       options: {},
     },
     {
       name: 'Pets',
+      path: 'Pets',
       input: '../../mocks/petStore.yaml',
       options: {
         typedSchema: true,
       },
     },
     {
-      name: 'Pet',
-      input: '../../mocks/petStore.yaml',
-      options: {},
-    },
-    {
-      name: 'Pet',
+      name: 'Pet coercion',
+      path: 'Pet',
       input: '../../mocks/petStore.yaml',
       options: {
         coercion: true,
@@ -37,19 +35,21 @@ describe('zodGenerator schema', async () => {
     },
     {
       name: 'PetTupleObject',
+      path: 'PetTupleObject',
       input: '../../mocks/petStore.yaml',
-
       options: {},
     },
     {
-      name: 'OptionalPet',
+      name: 'OptionalPet Infer',
+      path: 'OptionalPet',
       input: '../../mocks/petStore.yaml',
       options: {
         infer: true,
       },
     },
     {
-      name: 'OptionalPet',
+      name: 'OptionalPet Typed',
+      path: 'OptionalPet',
       input: '../../mocks/petStore.yaml',
       options: {
         typedSchema: true,
@@ -57,23 +57,27 @@ describe('zodGenerator schema', async () => {
     },
     {
       name: 'PetArray',
+      path: 'PetArray',
       input: '../../mocks/petStore.yaml',
       options: {},
     },
     {
       name: 'Order',
+      path: 'Order',
       input: '../../mocks/petStore.yaml',
       options: {},
     },
     {
-      name: 'Order',
+      name: 'Order DateTye string',
+      path: 'Order',
       input: '../../mocks/petStore.yaml',
       options: {
         dateType: 'string',
       },
     },
     {
-      name: 'Order',
+      name: 'Order DateType false',
+      path: 'Order',
       input: '../../mocks/petStore.yaml',
       options: {
         dateType: false,
@@ -81,78 +85,92 @@ describe('zodGenerator schema', async () => {
     },
     {
       name: 'UuidSchema',
+      path: 'UuidSchema',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'NullableString',
+      path: 'NullableString',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'NullableStringWithAnyOf',
+      path: 'NullableStringWithAnyOf',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'NullableStringUuid',
+      path: 'NullableStringUuid',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'StringValueConst',
+      path: 'StringValueConst',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'NumberValueConst',
+      path: 'NumberValueConst',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'MixedValueTypeConst',
+      path: 'MixedValueTypeConst',
       input: '../../mocks/constCases.yaml',
       options: {},
     },
     {
       name: 'enumVarNames.Type',
+      path: 'enumVarNames.Type',
       input: '../../mocks/enums.yaml',
-
       options: {},
     },
     {
       name: 'enumNames.Type',
+      path: 'enumNames.Type',
       input: '../../mocks/enums.yaml',
       options: {},
     },
     {
       name: 'enumNullable',
+      path: 'enumNullable',
       input: '../../mocks/enums3_1.yaml',
       options: {},
     },
     {
-      name: 'Example',
+      name: 'Recursive',
+      path: 'Example',
       input: '../../mocks/recursive.yaml',
       options: {},
     },
     {
-      name: 'test',
+      name: 'anyof',
+      path: 'test',
       input: '../../mocks/anyof.yaml',
       options: {},
     },
     {
-      name: 'test',
+      name: 'oneof',
+      path: 'test',
       input: '../../mocks/oneof.yaml',
       options: {},
     },
     {
       name: 'Example',
+      path: 'Example',
       input: '../../mocks/lazy.yaml',
       options: {},
     },
   ] as const satisfies Array<{
     input: string
     name: string
+    path: string
     options: Partial<PluginZod['resolvedOptions']>
   }>
 
@@ -186,7 +204,7 @@ describe('zodGenerator schema', async () => {
     await instance.build(zodGenerator)
 
     const schemas = getSchemas({ oas })
-    const name = props.name
+    const name = props.path
     const schema = schemas[name]!
     const tree = instance.parse({ schema, name })
 
