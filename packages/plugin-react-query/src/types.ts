@@ -3,17 +3,6 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Mutation } from './components/Mutation.tsx'
-import type { Query as QueryTemplate } from './components/Query.tsx'
-import type { QueryKey } from './components/QueryKey.tsx'
-import type { QueryOptions as QueryOptionsTemplate } from './components/QueryOptions.tsx'
-
-type Templates = {
-  mutation?: typeof Mutation.templates | false
-  query?: typeof QueryTemplate.templates | false
-  queryOptions?: typeof QueryOptionsTemplate.templates | false
-  queryKey?: typeof QueryKey.templates | false
-}
 
 export type Suspense = object
 
@@ -35,11 +24,21 @@ export type Query = {
    * @default '@tanstack/react-query'
    */
   importPath?: string
+  /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
 }
 
-export type QueryOptions = object
+export type QueryOptions = {}
 
-export type Mutate = {
+export type Mutation = {
   /**
    * Define the way of passing through the queryParams, headerParams and data.
    * @default `'hook'`
@@ -58,6 +57,16 @@ export type Mutate = {
    * @default '@tanstack/react-query'
    */
   importPath?: string
+  /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
 }
 
 export type Infinite = {
@@ -76,6 +85,16 @@ export type Infinite = {
    * @default `0`
    */
   initialPageParam: unknown
+  /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
 }
 
 export type Options = {
@@ -131,6 +150,16 @@ export type Options = {
      * @default '@kubb/plugin-client/client'
      */
     importPath?: string
+    /**
+     * ReturnType that needs to be used when calling client().
+     *
+     * `Data` will return ResponseConfig[data].
+     *
+     * `Full` will return ResponseConfig.
+     * @default `'data'`
+     * @private
+     */
+    dataReturnType?: 'data' | 'full'
   }
   /**
    * ReturnType that needs to be used when calling client().
@@ -141,31 +170,7 @@ export type Options = {
    * @default `'data'`
    * @private
    */
-  /**
-   * ReturnType that needs to be used when calling client().
-   *
-   * `Data` will return ResponseConfig[data].
-   *
-   * `Full` will return ResponseConfig.
-   * @default `'data'`
-   * @private
-   */
-  dataReturnType?: 'data' | 'full'
-  /**
-   * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
-   */
-  pathParamsType?: 'object' | 'inline'
-  /**
-   * Which parser can be used before returning the data to `@tanstack/query`.
-   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
-   */
-  parser?: 'zod'
+
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -194,33 +199,31 @@ export type Options = {
   /**
    * Override some useMutation behaviours.
    */
-  mutate?: Mutate | false
+  mutation?: Mutation | false
+  /**
+   * Which parser can be used before returning the data to `@tanstack/query`.
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   */
+  parser?: 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
 }
 
 type ResolvedOptions = {
   client: Required<NonNullable<PluginReactQuery['options']['client']>>
-  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
-  pathParamsType: NonNullable<PluginReactQuery['options']['pathParamsType']>
   parser: PluginReactQuery['options']['parser']
   /**
    * Only used of infinite
    */
   infinite: Infinite | false
   suspense: Suspense | false
-  query: Query | false
-  queryOptions: QueryOptions | false
-  mutate: Mutate | false
-  templates: NonNullable<Templates>
+  query: NonNullable<Required<Query>>
+  queryOptions: NonNullable<Required<QueryOptions>>
+  mutation: NonNullable<Required<Mutation>>
 }
 
 export type FileMeta = {

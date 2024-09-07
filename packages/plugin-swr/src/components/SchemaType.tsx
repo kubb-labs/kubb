@@ -2,11 +2,12 @@ import { File, Type } from '@kubb/react'
 
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
+import type { PluginSwr } from '../types.ts'
 
 type Props = {
   typeName: string
   typedSchemas: OperationSchemas
-  dataReturnType: 'data' | 'full'
+  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
 }
 
 export function SchemaType({ typeName, typedSchemas, dataReturnType }: Props): ReactNode {

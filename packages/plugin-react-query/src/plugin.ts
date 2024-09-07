@@ -3,17 +3,14 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
-
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { QueryImports } from './components/QueryImports.tsx'
+import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -29,12 +26,9 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     suspense = {},
     infinite,
     transformers = {},
-    dataReturnType = 'data',
-    pathParamsType = 'inline',
-    mutate = {},
+    mutation = {},
     query = {},
     queryOptions = {},
-    templates,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -47,42 +41,32 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     options: {
       client: {
         importPath: '@kubb/plugin-client/client',
+        dataReturnType: 'data',
+        pathParamsType: 'inline',
         ...options.client,
       },
-      dataReturnType,
-      pathParamsType,
-      infinite: infinite
-        ? {
-            queryParam: 'id',
-            initialPageParam: 0,
-            cursorParam: undefined,
-            ...infinite,
-          }
-        : false,
+      infinite: {
+        queryParam: 'id',
+        initialPageParam: 0,
+        cursorParam: undefined,
+        pathParamsType: 'inline',
+        ...infinite,
+      },
       suspense,
-      query: query
-        ? {
-            queryKey: (key: unknown[]) => key,
-            methods: ['get'],
-            importPath: '@tanstack/react-query',
-            ...query,
-          }
-        : false,
-      queryOptions,
-      mutate: mutate
-        ? {
-            variablesType: 'hook',
-            methods: ['post', 'put', 'patch', 'delete'],
-            ...mutate,
-          }
-        : false,
-      templates: {
-        mutation: Mutation.templates,
-        query: Query.templates,
-        queryOptions: QueryOptions.templates,
-        queryKey: QueryKey.templates,
-        queryImports: QueryImports.templates,
-        ...templates,
+      query: {
+        queryKey: (key: unknown[]) => key,
+        methods: ['get'],
+        importPath: '@tanstack/react-query',
+        pathParamsType: 'inline',
+        ...query,
+      },
+      queryOptions: queryOptions ? {} : false,
+      mutation: {
+        methods: ['post', 'put', 'patch', 'delete'],
+        variablesType: 'hook',
+        pathParamsType: 'inline',
+        importPath: '@tanstack/react-query',
+        ...mutation,
       },
       parser,
     },
@@ -144,7 +128,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build()
+      const files = await operationGenerator.build(queryGenerator, mutationGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {
