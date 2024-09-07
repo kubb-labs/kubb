@@ -26,21 +26,21 @@ type UploadFile = {
 export function useUploadFileHook(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],
-  options: {
+  options?: {
     mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
     client?: UploadFile['client']['parameters']
-  } = {},
+  },
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation({
     mutationFn: async (data) => {
-      const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
+      const res = await client<UploadFile['data'], UploadFile['error']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         params,
         data,
-        headers: { 'Content-Type': 'application/octet-stream', ...clientOptions.headers },
-        ...clientOptions,
+        headers: { 'Content-Type': 'application/octet-stream', ...options.headers },
+        ...options,
       })
       return res.data
     },

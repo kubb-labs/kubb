@@ -24,21 +24,14 @@ type CreateUser = {
  * @summary Create user
  * @link /user
  */
-export function useCreateUserHook(
-  options: {
-    mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
-    client?: CreateUser['client']['parameters']
-  } = {},
-) {
+export function useCreateUserHook(options?: {
+  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
+  client?: CreateUser['client']['parameters']
+}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation({
     mutationFn: async (data) => {
-      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
-        method: 'post',
-        url: '/user',
-        data,
-        ...clientOptions,
-      })
+      const res = await client<CreateUser['data'], CreateUser['error']>({ method: 'post', url: '/user', data, ...options })
       return res.data
     },
     ...mutationOptions,

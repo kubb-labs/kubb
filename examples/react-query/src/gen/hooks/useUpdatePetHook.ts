@@ -24,21 +24,14 @@ type UpdatePet = {
  * @summary Update an existing pet
  * @link /pet
  */
-export function useUpdatePetHook(
-  options: {
-    mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
-    client?: UpdatePet['client']['parameters']
-  } = {},
-) {
+export function useUpdatePetHook(options?: {
+  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
+  client?: UpdatePet['client']['parameters']
+}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation({
     mutationFn: async (data) => {
-      const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
-        method: 'put',
-        url: '/pet',
-        data,
-        ...clientOptions,
-      })
+      const res = await client<UpdatePet['data'], UpdatePet['error']>({ method: 'put', url: '/pet', data, ...options })
       return res.data
     },
     ...mutationOptions,

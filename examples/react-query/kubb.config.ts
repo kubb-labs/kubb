@@ -3,7 +3,7 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
-import * as mutation from './templates/mutate/index'
+// import * as mutation from './templates/mutate/index'
 import * as queryKey from './templates/queryKey/index'
 
 /** @type {import('@kubb/core').UserConfig} */
@@ -39,36 +39,33 @@ export const config = {
         queryKey: (keys) => ['"v5"', ...keys],
       },
       suspense: {},
-      override: [
-        {
-          type: 'operationId',
-          pattern: 'findPetsByTags',
-          options: {
-            dataReturnType: 'full',
-            infinite: {
-              queryParam: 'pageSize',
-              initialPageParam: 0,
-              cursorParam: undefined,
-            },
-            templates: {
-              queryKey: queryKey.templates,
-            },
-          },
-        },
-        {
-          type: 'operationId',
-          pattern: 'updatePetWithForm',
-          options: {
-            query: {
-              queryKey: (key: unknown[]) => key,
-              methods: ['post'],
-            },
-          },
-        },
-      ],
-      templates: {
-        mutation: mutation.templates,
-      },
+      // override: [
+      //   {
+      //     type: 'operationId',
+      //     pattern: 'findPetsByTags',
+      //     options: {
+      //       dataReturnType: 'full',
+      //       infinite: {
+      //         queryParam: 'pageSize',
+      //         initialPageParam: 0,
+      //         cursorParam: undefined,
+      //       },
+      //       templates: {
+      //         // queryKey: queryKey.templates,
+      //       },
+      //     },
+      //   },
+      //   {
+      //     type: 'operationId',
+      //     pattern: 'updatePetWithForm',
+      //     options: {
+      //       query: {
+      //         queryKey: (key: unknown[]) => key,
+      //         methods: ['post'],
+      //       },
+      //     },
+      //   },
+      // ],
     }),
   ],
 }
