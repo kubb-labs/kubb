@@ -21,7 +21,7 @@ type Props = {
 export function QueryOptions({ name, queryTypeName, operation, typedSchemas, zodSchemas, parser, dataReturnType }: Props): ReactNode {
   const contentType = operation.getContentType()
   const path = new URLPath(operation.path)
-  const generics = [`TData = ${queryTypeName}['response'`]
+  const generics = [`TData = ${queryTypeName}['response']`]
   const clientGenerics = ['TData', `${queryTypeName}['error']`]
   const resultGenerics = ['TData', `${queryTypeName}['error']`]
 

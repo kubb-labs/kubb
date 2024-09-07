@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'

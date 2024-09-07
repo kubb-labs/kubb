@@ -1,4 +1,4 @@
-import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -45,7 +45,7 @@ describe('operationsGenerator operations', async () => {
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginManager: createMockedPluginManager(props.name),
       plugin,
       contentType: undefined,
       override: undefined,
