@@ -21,15 +21,11 @@ type GetOrderById = {
 
 export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['parameters'] = {},
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, GetOrderById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetOrderById['error']>({
-        method: 'get',
-        url: `/store/order/${orderId}`,
-        ...options,
-      })
+      const res = await client<TData, GetOrderById['error']>({ method: 'get', url: `/store/order/${orderId}`, ...options })
       return res.data
     },
   }

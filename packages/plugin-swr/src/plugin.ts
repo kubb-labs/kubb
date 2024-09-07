@@ -8,16 +8,15 @@ import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
-
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { queryGenerator } from './generators';
+import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSwr } from './types.ts'
 
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = createPlugin<PluginSwr>((options) => {
-  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, query, mutation, client} = options
+  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, query, mutation, client } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
@@ -29,16 +28,16 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     options: {
       client: {
         importPath: '@kubb/plugin-client/client',
-        dataReturnType: "data",
+        dataReturnType: 'data',
         ...client,
       },
       query: {
         methods: ['get'],
-        ...query
+        ...query,
       },
       mutation: {
-        methods: ['post', 'put', 'delete'],
-        ...mutation
+        methods: ['post', 'put', 'delete', 'patch'],
+        ...mutation,
       },
       parser,
     },
@@ -101,7 +100,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build(queryGenerator)
+      const files = await operationGenerator.build(queryGenerator, mutationGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

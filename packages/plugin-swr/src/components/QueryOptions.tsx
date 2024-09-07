@@ -14,8 +14,8 @@ type Props = {
   typedSchemas: OperationSchemas
   zodSchemas: OperationSchemas
   operation: Operation
-  dataReturnType: PluginSwr['resolvedOptions']["client"]["dataReturnType"]
-  parser?: PluginSwr['resolvedOptions']["parser"]
+  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
+  parser?: PluginSwr['resolvedOptions']['parser']
 }
 
 export function QueryOptions({ name, queryTypeName, operation, typedSchemas, zodSchemas, parser, dataReturnType }: Props): ReactNode {
@@ -25,28 +25,28 @@ export function QueryOptions({ name, queryTypeName, operation, typedSchemas, zod
   const clientGenerics = ['TData', `${queryTypeName}['error']`]
   const resultGenerics = ['TData', `${queryTypeName}['error']`]
 
-  const params  = createFunctionParams({
+  const params = createFunctionParams({
     pathParams: {
-      // mode: options.pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      mode: 'inlineSpread',
       children: getPathParams(typedSchemas.pathParams, { typed: true }),
     },
     data: typedSchemas.request?.name
       ? {
-        type: typedSchemas.request?.name,
-        optional: isOptional(typedSchemas.request?.schema),
-      }
+          type: typedSchemas.request?.name,
+          optional: isOptional(typedSchemas.request?.schema),
+        }
       : undefined,
     params: typedSchemas.queryParams?.name
       ? {
-        type: typedSchemas.queryParams?.name,
-        optional: isOptional(typedSchemas.queryParams?.schema),
-      }
+          type: typedSchemas.queryParams?.name,
+          optional: isOptional(typedSchemas.queryParams?.schema),
+        }
       : undefined,
     headers: typedSchemas.headerParams?.name
       ? {
-        type: typedSchemas.headerParams?.name,
-        optional: isOptional(typedSchemas.headerParams?.schema),
-      }
+          type: typedSchemas.headerParams?.name,
+          optional: isOptional(typedSchemas.headerParams?.schema),
+        }
       : undefined,
     options: {
       type: 'Partial<Parameters<typeof client>[0]>',
@@ -74,20 +74,20 @@ export function QueryOptions({ name, queryTypeName, operation, typedSchemas, zod
         },
         params: typedSchemas.queryParams?.name
           ? {
-            type: 'any',
-          }
+              type: 'any',
+            }
           : undefined,
         data: typedSchemas.request?.name
           ? {
-            type: 'any',
-            value: isFormData ? 'formData' : undefined,
-          }
+              type: 'any',
+              value: isFormData ? 'formData' : undefined,
+            }
           : undefined,
         headers: headers.length
           ? {
-            type: 'any',
-            value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
-          }
+              type: 'any',
+              value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
+            }
           : undefined,
         options: {
           type: 'any',
@@ -133,7 +133,7 @@ export function QueryOptions({ name, queryTypeName, operation, typedSchemas, zod
       return {
         fetcher: async () => {
           ${formData || ''}`}
-          {client}
+        {client}
         {`
         },
       }

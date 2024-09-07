@@ -1,7 +1,7 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { File, Function } from '@kubb/react'
 
-import type { Operation } from '@kubb/oas'
+import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
@@ -28,12 +28,12 @@ export function Query({ name, typeName, queryOptionsName, typedSchemas, operatio
     {
       name: 'params',
       enabled: !!typedSchemas.queryParams?.name,
-      required: false,
+      required: !isOptional(typedSchemas.queryParams?.schema),
     },
     {
       name: 'headers',
       enabled: !!typedSchemas.headerParams?.name,
-      required: false,
+      required: !isOptional(typedSchemas.headerParams?.schema),
     },
     {
       name: 'clientOptions',
@@ -47,13 +47,13 @@ export function Query({ name, typeName, queryOptionsName, typedSchemas, operatio
       name: 'params',
       type: `${typeName}['queryParams']`,
       enabled: !!typedSchemas.queryParams?.name,
-      required: false,
+      required: !isOptional(typedSchemas.queryParams?.schema),
     },
     {
       name: 'headers',
       type: `${typeName}['headerParams']`,
       enabled: !!typedSchemas.headerParams?.name,
-      required: false,
+      required: !isOptional(typedSchemas.headerParams?.schema),
     },
     {
       name: 'options',

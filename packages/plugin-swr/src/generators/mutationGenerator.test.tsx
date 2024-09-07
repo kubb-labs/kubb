@@ -6,26 +6,12 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import type { PluginSwr } from '../types.ts'
-import { queryGenerator } from './queryGenerator.tsx'
+import { mutationGenerator } from './mutationGenerator.tsx'
 
-describe('queryGenerator operation', async () => {
+describe('mutationGenerator operation', async () => {
   const testData = [
     {
-      name: 'showPetById',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'getPets',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'createPet',
+      name: 'createPets',
       input: '../../mocks/petStore.yaml',
       path: '/pets',
       method: 'post',
@@ -67,10 +53,10 @@ describe('queryGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(queryGenerator)
+    await instance.build(mutationGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await queryGenerator.operation?.({
+    const files = await mutationGenerator.operation?.({
       operation,
       options,
       instance,

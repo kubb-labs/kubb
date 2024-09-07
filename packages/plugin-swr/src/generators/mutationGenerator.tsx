@@ -4,28 +4,24 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
-import { Query, QueryOptions } from '../components'
+import { Mutation } from '../components'
 import { SchemaType } from '../components/SchemaType.tsx'
 import type { PluginSwr } from '../types'
 
-export const queryGenerator = createReactGenerator<PluginSwr>({
-  name: 'swr-query',
+export const mutationGenerator = createReactGenerator<PluginSwr>({
+  name: 'swr-mutation',
   Operation({ options, operation }) {
     const {
       plugin: { output },
     } = useApp<PluginSwr>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
+    const isMutate = typeof options.query === 'boolean' ? options.mutation : !!options.mutation.methods?.some((method) => operation.method === method)
 
-    const query = {
+    const mutation = {
       name: getName(operation, { type: 'function' }),
       typeName: getName(operation, { type: 'type' }),
       file: getFile(operation),
-    }
-
-    const queryOptions = {
-      name: transformers.camelCase(`${operation.getOperationId()} QueryOptions`),
     }
 
     const type = {
@@ -39,15 +35,18 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery) {
+    if (!isMutate) {
       return null
     }
 
     return (
-      <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta}>
-        {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name="useSWR" path="swr" />
-        <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
+      <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta}>
+        {options.parser === 'zod' && (
+          <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />
+        )}
+        <File.Import name={['Key']} path="swr" isTypeOnly />
+        <File.Import name="useSWRMutation" path="swr/mutation" />
+        <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
@@ -60,22 +59,19 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
             type.schemas.headerParams?.name,
             ...(type.schemas.statusCodes?.map((item) => item.name) || []),
           ].filter(Boolean)}
-          root={query.file.path}
+          root={mutation.file.path}
           path={type.file.path}
           isTypeOnly
         />
 
-        <SchemaType typeName={query.typeName} typedSchemas={type.schemas} dataReturnType={options.client.dataReturnType} />
-        <QueryOptions
-          name={queryOptions.name}
-          queryTypeName={query.typeName}
-          operation={operation}
+        <SchemaType typeName={mutation.typeName} typedSchemas={type.schemas} dataReturnType={options.client.dataReturnType} />
+        <Mutation
+          name={mutation.name}
+          typeName={mutation.typeName}
           typedSchemas={type.schemas}
-          zodSchemas={zod.schemas}
+          operation={operation}
           dataReturnType={options.client.dataReturnType}
-          parser={options.parser}
         />
-        <Query name={query.name} typeName={query.typeName} queryOptionsName={queryOptions.name} typedSchemas={type.schemas} operation={operation} />
       </File>
     )
   },

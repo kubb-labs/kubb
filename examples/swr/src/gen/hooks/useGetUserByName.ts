@@ -21,15 +21,11 @@ type GetUserByName = {
 
 export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, GetUserByName['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetUserByName['error']>({
-        method: 'get',
-        url: `/user/${username}`,
-        ...options,
-      })
+      const res = await client<TData, GetUserByName['error']>({ method: 'get', url: `/user/${username}`, ...options })
       return res.data
     },
   }
