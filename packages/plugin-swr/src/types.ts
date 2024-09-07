@@ -96,7 +96,7 @@ export type Options = {
   mutation?: {
     /**
      * Define which HttpMethods can be used for queries
-     * @default ['post', 'put', 'delete', 'patch']
+     * @default ['post', 'put', 'delete']
      */
     methods?: Array<HttpMethod>
     /**
@@ -108,17 +108,17 @@ export type Options = {
      */
     importPath?: string
   }
-  /**
-   * Which parser can be used before returning the data to `swr`.
-   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
-   */
-  parser?: 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Which parser can be used before returning the data to `swr`.
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   */
+  parser?: 'zod'
 }
 
 type ResolvedOptions = {
