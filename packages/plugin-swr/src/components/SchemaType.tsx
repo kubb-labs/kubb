@@ -1,62 +1,34 @@
-import { File, Type, useApp } from '@kubb/react'
+import { File, Type } from '@kubb/react'
 
-import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { pluginTsName } from '@kubb/plugin-ts'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
-import type { PluginSwr } from '../types.ts'
 
 type Props = {
-  factory: {
-    name: string
-  }
+  typeName: string
+  typedSchemas: OperationSchemas
+  dataReturnType: 'data' | 'full'
 }
 
-export function SchemaType({ factory }: Props): ReactNode {
-  const {
-    plugin: {
-      options: { dataReturnType },
-    },
-  } = useApp<PluginSwr>()
-  const { getSchemas, getFile } = useOperationManager()
-  const operation = useOperation()
-
-  const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-  const file = getFile(operation)
-  const fileType = getFile(operation, { pluginKey: [pluginTsName] })
-
+export function SchemaType({ typeName, typedSchemas, dataReturnType }: Props): ReactNode {
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
-    schemas.response.name,
-    schemas.errors?.map((item) => item.name).join(' | ') || 'never',
-    schemas.request?.name || 'never',
-    schemas.pathParams?.name || 'never',
-    schemas.queryParams?.name || 'never',
-    schemas.headerParams?.name || 'never',
-    schemas.response.name,
+    typedSchemas.response.name,
+    typedSchemas.errors?.map((item) => item.name).join(' | ') || 'never',
+    typedSchemas.request?.name || 'never',
+    typedSchemas.pathParams?.name || 'never',
+    typedSchemas.queryParams?.name || 'never',
+    typedSchemas.headerParams?.name || 'never',
+    typedSchemas.response.name,
   ]
 
-  const clientType = `${factory.name}Client`
+  const clientType = `${typeName}Client`
 
   return (
     <>
-      <File.Import
-        name={[
-          schemas.request?.name,
-          schemas.response.name,
-          schemas.pathParams?.name,
-          schemas.queryParams?.name,
-          schemas.headerParams?.name,
-          ...(schemas.errors?.map((error) => error.name) || []),
-        ].filter(Boolean)}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
-
       <File.Source name={clientType} isTypeOnly>
         <Type name={clientType}>{`typeof client<${TResponse}, ${TError}, ${TRequest}>`}</Type>
       </File.Source>
-      <File.Source name={factory.name} isTypeOnly>
-        <Type name={factory.name}>
+      <File.Source name={typeName} isTypeOnly>
+        <Type name={typeName}>
           {`
         {
           data: ${TData}

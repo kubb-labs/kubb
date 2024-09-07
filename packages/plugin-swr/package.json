@@ -30,6 +30,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs",
+      "default": "./dist/generators.cjs"
+    },
     "./components": {
       "import": "./dist/components.js",
       "require": "./dist/components.cjs",
@@ -45,6 +50,9 @@
     "*": {
       "components": [
         "./dist/components.d.ts"
+      ],
+      "generators": [
+        "./dist/generators.d.ts"
       ]
     }
   },

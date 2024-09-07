@@ -3,22 +3,21 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mutation, Query, QueryOptions } from './components/index.ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { queryGenerator } from './generators';
 import type { PluginSwr } from './types.ts'
 
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = createPlugin<PluginSwr>((options) => {
-  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, templates, dataReturnType = 'data' } = options
+  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, query, mutation, client} = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
@@ -28,18 +27,19 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       ...output,
     },
     options: {
-      extName: output.extName,
-      templates: {
-        mutation: Mutation.templates,
-        query: Query.templates,
-        queryOptions: QueryOptions.templates,
-        ...templates,
-      },
       client: {
         importPath: '@kubb/plugin-client/client',
-        ...options.client,
+        dataReturnType: "data",
+        ...client,
       },
-      dataReturnType,
+      query: {
+        methods: ['get'],
+        ...query
+      },
+      mutation: {
+        methods: ['post', 'put', 'delete'],
+        ...mutation
+      },
       parser,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
@@ -101,7 +101,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build()
+      const files = await operationGenerator.build(queryGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {
