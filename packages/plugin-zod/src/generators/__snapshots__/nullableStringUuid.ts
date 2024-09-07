@@ -1,0 +1,1 @@
+export const nullableStringUuid = z.string().uuid().nullable()

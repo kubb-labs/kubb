@@ -1,0 +1,1 @@
+export const uuidSchema = z.string().uuid()

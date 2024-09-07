@@ -1,4 +1,4 @@
-import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -47,7 +47,7 @@ describe('fakerGenerator schema', async () => {
     const plugin = { options } as Plugin<PluginFaker>
     const instance = new SchemaGenerator(options, {
       oas,
-      pluginManager: mockedPluginManager,
+      pluginManager: createMockedPluginManager(props.name),
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -125,7 +125,7 @@ describe('fakerGenerator operation', async () => {
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginManager: createMockedPluginManager(props.name),
       plugin,
       contentType: undefined,
       override: undefined,

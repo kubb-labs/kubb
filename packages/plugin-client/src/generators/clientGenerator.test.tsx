@@ -1,4 +1,4 @@
-import { matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -25,6 +25,24 @@ describe('clientGenerator operation', async () => {
       method: 'get',
       options: {},
     },
+    {
+      name: 'getPetsFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        dataReturnType: 'full',
+      },
+    },
+    // {
+    //   name: 'getPetsFullPathObject',
+    //   input: '../../mocks/petStore.yaml',
+    //   path: '/pets',
+    //   method: 'get',
+    //   options: {
+    //     pathParamsType: "object"
+    //   },
+    // },
     {
       name: 'createPet',
       input: '../../mocks/petStore.yaml',
@@ -55,7 +73,7 @@ describe('clientGenerator operation', async () => {
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginManager: createMockedPluginManager(props.name),
       plugin,
       contentType: undefined,
       override: undefined,
