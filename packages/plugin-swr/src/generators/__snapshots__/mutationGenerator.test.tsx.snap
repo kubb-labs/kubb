@@ -1,4 +1,7 @@
-type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mutationGenerator operation > 'createPets' 1`] = `
+"type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
 
 type CreatePets = 
             {
@@ -19,7 +22,7 @@ type CreatePets =
  * @summary Create a pet
  * @link /pets
  */
-export function useCreatePets(options?: {
+export function createPets(options?: {
             mutation?: SWRMutationConfiguration<CreatePets["response"], CreatePets["error"]>,
             client?: CreatePets['client']['parameters'],
             shouldFetch?: boolean,
@@ -27,7 +30,7 @@ export function useCreatePets(options?: {
   
            const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
     
-           const url = `/pets` as const
+           const url = \`/pets\` as const
            return useSWRMutation<CreatePets["response"], CreatePets["error"], Key>(
             shouldFetch ? url : null,
             async (_url, { arg: data }) => {
@@ -43,4 +46,5 @@ export function useCreatePets(options?: {
             mutationOptions
           )
         
-}
+}"
+`;

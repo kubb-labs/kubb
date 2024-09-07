@@ -21,18 +21,13 @@ type LoginUser = {
 }
 
 export function loginUserQueryOptions<TData = LoginUser['response']>(
-  params?: LoginUser['queryParams'],
-  options: LoginUser['client']['parameters'] = {},
+  params?: LoginUserQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, LoginUser['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LoginUser['error']>({
-        method: 'get',
-        url: '/user/login',
-        params,
-        ...options,
-      })
-      return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
+      const res = await client<TData, LoginUser['error']>({ method: 'get', url: '/user/login', params, ...options })
+      return loginUserQueryResponseSchema.parse(res)
     },
   }
 }

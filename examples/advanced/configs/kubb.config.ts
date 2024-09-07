@@ -103,8 +103,8 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           importPath: '../../../../swr-client.ts',
+          dataReturnType: 'full',
         },
-        dataReturnType: 'full',
         parser: 'zod',
       }),
       pluginClient({

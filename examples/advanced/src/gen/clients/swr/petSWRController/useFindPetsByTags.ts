@@ -26,9 +26,9 @@ type FindPetsByTags = {
 }
 
 export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
-  params?: FindPetsByTags['queryParams'],
-  headers?: FindPetsByTags['headerParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
+  headers: FindPetsByTagsHeaderParams,
+  params?: FindPetsByTagsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, FindPetsByTags['error']> {
   return {
     fetcher: async () => {
@@ -39,7 +39,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
         headers: { ...headers, ...options.headers },
         ...options,
       })
-      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
+      return findPetsByTagsQueryResponseSchema.parse(res)
     },
   }
 }
@@ -50,8 +50,8 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
  * @link /pet/findByTags
  */
 export function useFindPetsByTags<TData = FindPetsByTags['response']>(
+  headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
-  headers?: FindPetsByTags['headerParams'],
   options?: {
     query?: SWRConfiguration<TData, FindPetsByTags['error']>
     client?: FindPetsByTags['client']['parameters']
@@ -61,7 +61,7 @@ export function useFindPetsByTags<TData = FindPetsByTags['response']>(
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/pet/findByTags'
   const query = useSWR<TData, FindPetsByTags['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
-    ...findPetsByTagsQueryOptions<TData>(params, headers, clientOptions),
+    ...findPetsByTagsQueryOptions<TData>(headers, params, clientOptions),
     ...queryOptions,
   })
   return query

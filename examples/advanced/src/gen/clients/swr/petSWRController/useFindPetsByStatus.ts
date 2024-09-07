@@ -21,18 +21,13 @@ type FindPetsByStatus = {
 }
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response']>(
-  params?: FindPetsByStatus['queryParams'],
-  options: FindPetsByStatus['client']['parameters'] = {},
+  params?: FindPetsByStatusQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, FindPetsByStatus['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, FindPetsByStatus['error']>({
-        method: 'get',
-        url: '/pet/findByStatus',
-        params,
-        ...options,
-      })
-      return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
+      const res = await client<TData, FindPetsByStatus['error']>({ method: 'get', url: '/pet/findByStatus', params, ...options })
+      return findPetsByStatusQueryResponseSchema.parse(res)
     },
   }
 }
