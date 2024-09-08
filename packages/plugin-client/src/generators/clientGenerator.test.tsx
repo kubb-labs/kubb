@@ -27,6 +27,25 @@ describe('clientGenerator operation', async () => {
       },
     },
     {
+      name: 'findByTagsFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        dataReturnType: 'full',
+      },
+    },
+    {
+      name: 'findByTagsWithZodFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        parser: 'zod',
+        dataReturnType: 'full',
+      },
+    },
+    {
       name: 'importPath',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
