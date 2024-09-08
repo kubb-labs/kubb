@@ -1148,6 +1148,9 @@ importers:
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../plugin-ts
+      '@kubb/plugin-zod':
+        specifier: workspace:*
+        version: link:../plugin-zod
       '@kubb/react':
         specifier: workspace:*
         version: link:../react

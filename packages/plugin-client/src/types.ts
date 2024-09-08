@@ -91,6 +91,12 @@ export type Options = {
    * @private
    */
   pathParamsType?: 'object' | 'inline'
+  /**
+   * Which parser can be used before returning the data
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   * @default 'client'
+   */
+  parser?: 'client'| 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -101,6 +107,7 @@ export type Options = {
 
 type ResolvedOptions = {
   baseURL: string | undefined
+  parser:  NonNullable<Options['parser']>
   importPath: NonNullable<Options['importPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>

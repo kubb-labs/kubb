@@ -67,6 +67,7 @@ export default defineConfig(() => {
           path: './tag.ts',
           exportType: false,
         },
+        parser: 'client',
         include: [
           {
             type: 'tag',

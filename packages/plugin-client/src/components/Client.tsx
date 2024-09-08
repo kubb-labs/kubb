@@ -12,21 +12,73 @@ type Props = {
    * Name of the function
    */
   name: string
-  baseURL?: string
+  baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
+  parser: PluginClient['resolvedOptions']['parser'] | undefined
   typeSchemas: OperationSchemas
+  zodSchemas: OperationSchemas | undefined
   operation: Operation
 }
 
-export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsType, operation }: Props): KubbNode {
-  const contentType = operation.getContentType()
+type GetParamsProps  ={
+  baseURL: string | undefined
+  operation: Operation
+  pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
+  typeSchemas: OperationSchemas
+}
+
+function getParams({
+  operation,
+  baseURL,
+                     pathParamsType,
+                     typeSchemas
+                   }:GetParamsProps){
   const path = new URLPath(operation.path)
+  const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
     contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
+
+  return FunctionParams.factory({
+    config: {
+      mode: 'object',
+      children: {
+        method: {
+          value: JSON.stringify(operation.method),
+        },
+        url: {
+          value: path.template,
+        },
+        baseURL: baseURL
+          ? {
+            value: JSON.stringify(baseURL),
+          }
+          : undefined,
+        params: typeSchemas.queryParams?.name ? {} : undefined,
+        data: typeSchemas.request?.name
+          ? {
+            value: isFormData ? 'formData' : undefined,
+          }
+          : undefined,
+        headers: headers.length
+          ? {
+            value: headers.length ? `{ ${headers.join(', ')}, ...config.headers }` : undefined,
+          }
+          : undefined,
+        config: {
+          mode: 'inlineSpread',
+        },
+      },
+    },
+  })
+}
+export function Client({ name, typeSchemas, baseURL, dataReturnType,parser, zodSchemas, pathParamsType, operation }: Props): KubbNode {
+  const contentType = operation.getContentType()
+  const isFormData = contentType === 'multipart/form-data'
+
 
   const params = FunctionParams.factory({
     pathParams: {
@@ -57,38 +109,27 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
     },
   })
 
-  const clientParams = FunctionParams.factory({
-    config: {
-      mode: 'object',
-      children: {
-        method: {
-          value: JSON.stringify(operation.method),
-        },
-        url: {
-          value: path.template,
-        },
-        baseURL: baseURL
-          ? {
-              value: JSON.stringify(baseURL),
-            }
-          : undefined,
-        params: typeSchemas.queryParams?.name ? {} : undefined,
-        data: typeSchemas.request?.name
-          ? {
-              value: isFormData ? 'formData' : undefined,
-            }
-          : undefined,
-        headers: headers.length
-          ? {
-              value: headers.length ? `{ ${headers.join(', ')}, ...config.headers }` : undefined,
-            }
-          : undefined,
-        config: {
-          mode: 'inlineSpread',
-        },
-      },
-    },
+  const clientParams = getParams({
+    operation,baseURL,pathParamsType,typeSchemas
   })
+
+  const formData = isFormData
+    ? `
+   const formData = new FormData()
+   if(data) {
+    Object.keys(data).forEach((key) => {
+      const value = data[key];
+      if (typeof key === "string" && (typeof value === "string" || value instanceof Blob)) {
+        formData.append(key, value);
+      }
+    })
+   }
+  `
+    : ''
+
+  if(dataReturnType==="full" && parser!=='client'){
+    throw new Error("Set dataReturnType to 'data' if you want to use the Zod parser")
+  }
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -101,23 +142,17 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
           comments: getComments(operation),
         }}
       >
-        {isFormData
-          ? `
-   const formData = new FormData()
-   if(data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key];
-      if (typeof key === "string" && (typeof value === "string" || value instanceof Blob)) {
-        formData.append(key, value);
-      }
-    })
-   }
-  `
-          : undefined}
+        {formData}
         {`const res = await client<${[typeSchemas.response.name, typeSchemas.request?.name].filter(Boolean).join(', ')}>(${clientParams.toCall()})`}
         <br />
-        {dataReturnType === 'data' ? 'return res.data' : 'return res'}
+        {dataReturnType === 'data'
+          ? parser === 'zod' && zodSchemas
+            ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`
+            : 'return res.data'
+          : 'return res'}
       </Function>
     </File.Source>
   )
 }
+
+Client.getParams =getParams

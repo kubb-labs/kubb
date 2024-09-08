@@ -1,3 +1,6 @@
+import client from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId

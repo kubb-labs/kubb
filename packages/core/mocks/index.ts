@@ -5,6 +5,7 @@ import type { File, ResolvedFile } from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
 import type { Logger } from '../src/logger'
+import { createFile } from '../src/utils';
 import { format } from './format'
 
 export const mockedLogger = {
@@ -60,7 +61,7 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined) 
   }
 
   for (const file of files) {
-    const source = await getSource(file as ResolvedFile, { logger: mockedLogger })
+    const source = await getSource(createFile(file), { logger: mockedLogger })
     const formattedSource = await format(source)
     expect(formattedSource).toMatchFileSnapshot(path.join('__snapshots__', file.path))
   }

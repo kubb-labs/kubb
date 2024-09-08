@@ -7,6 +7,7 @@ import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { pluginZodName } from '@kubb/plugin-zod';
 import { operationsGenerator } from './generators'
 import { clientGenerator } from './generators/clientGenerator.tsx'
 import type { PluginClient } from './types.ts'
@@ -25,6 +26,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     pathParamsType = 'inline',
     operations = false,
     importPath = '@kubb/plugin-client/client',
+    parser='client',
   } = options
 
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -36,12 +38,13 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       ...output,
     },
     options: {
+      parser,
       dataReturnType,
       importPath,
       pathParamsType,
       baseURL: undefined,
     },
-    pre: [pluginOasName],
+    pre: [pluginOasName,  parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

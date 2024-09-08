@@ -1,4 +1,4 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles, } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -16,6 +16,24 @@ describe('clientGenerator operation', async () => {
       path: '/pet/findByTags',
       method: 'get',
       options: {},
+    },
+    {
+      name: 'findByTagsWithZod',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        parser: "zod"
+      },
+    },
+    {
+      name: 'importPath',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        importPath: "axios"
+      },
     },
     {
       name: 'updatePetById',
@@ -56,6 +74,7 @@ describe('clientGenerator operation', async () => {
       pathParamsType: 'inline',
       importPath: '@kubb/plugin-client/client',
       baseURL: '',
+      parser: 'client',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

@@ -6,7 +6,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export async function findByTags(params?: FindByTags, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindByTags>({ method: 'get', url: `/pet/findByTags`, params, ...config })
-  return res.data
+export async function findByTagsWithZod(params?: FindByTagsWithZod, config: Partial<RequestConfig> = {}) {
+  const res = await client<FindByTagsWithZod>({ method: 'get', url: `/pet/findByTags`, params, ...config })
+  return { ...res, data: findByTagsWithZod.parse(res.data) }
 }
