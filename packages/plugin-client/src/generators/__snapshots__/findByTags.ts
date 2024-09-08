@@ -5,6 +5,5 @@
  */
 export async function findByTags(params?: FindByTags, config: Partial<RequestConfig> = {}) {
   const res = await client<FindByTags>({ method: 'get', url: `/pet/findByTags`, params, ...config })
-
   return res.data
 }

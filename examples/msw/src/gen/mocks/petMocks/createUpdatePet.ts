@@ -1,11 +1,10 @@
-import type { UpdatePet200, UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet.ts'
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation
  */
-export function createUpdatePet200(): NonNullable<UpdatePet200> {
+export function createUpdatePet200() {
   faker.seed([220])
   return createPet()
 }
@@ -13,7 +12,7 @@ export function createUpdatePet200(): NonNullable<UpdatePet200> {
 /**
  * @description Invalid ID supplied
  */
-export function createUpdatePet400(): NonNullable<UpdatePet400> {
+export function createUpdatePet400() {
   faker.seed([220])
   return undefined
 }
@@ -21,7 +20,7 @@ export function createUpdatePet400(): NonNullable<UpdatePet400> {
 /**
  * @description Pet not found
  */
-export function createUpdatePet404(): NonNullable<UpdatePet404> {
+export function createUpdatePet404() {
   faker.seed([220])
   return undefined
 }
@@ -29,7 +28,7 @@ export function createUpdatePet404(): NonNullable<UpdatePet404> {
 /**
  * @description Validation exception
  */
-export function createUpdatePet405(): NonNullable<UpdatePet405> {
+export function createUpdatePet405() {
   faker.seed([220])
   return undefined
 }
@@ -37,7 +36,7 @@ export function createUpdatePet405(): NonNullable<UpdatePet405> {
 /**
  * @description Update an existent pet in the store
  */
-export function createUpdatePetMutationRequest(): NonNullable<UpdatePetMutationRequest> {
+export function createUpdatePetMutationRequest() {
   faker.seed([220])
   return createPet()
 }
@@ -45,7 +44,7 @@ export function createUpdatePetMutationRequest(): NonNullable<UpdatePetMutationR
 /**
  * @description Successful operation
  */
-export function createUpdatePetMutationResponse(): NonNullable<UpdatePetMutationResponse> {
+export function createUpdatePetMutationResponse() {
   faker.seed([220])
   return createPet()
 }

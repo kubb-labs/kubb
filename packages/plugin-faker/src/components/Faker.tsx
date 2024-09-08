@@ -1,42 +1,34 @@
-import { File, Function } from '@kubb/react'
+import { File, Function, FunctionParams } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
-import { type Schema, schemaKeywords } from '@kubb/plugin-oas'
+import type { Schema } from '@kubb/plugin-oas'
+import type { KubbNode } from '@kubb/react/types'
 import * as parserFaker from '../parser/index.ts'
 import type { PluginFaker } from '../types.ts'
-import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   name: string
-  typedName: string
+  typeName: string
   tree: Array<Schema>
   seed?: PluginFaker['options']['seed']
   description?: string
   regexGenerator?: PluginFaker['options']['regexGenerator']
   mapper?: PluginFaker['options']['mapper']
   dateParser?: PluginFaker['options']['dateParser']
+  canOverride: boolean
 }
 
-export function Faker({ tree, description, name, typedName, seed, regexGenerator, mapper, dateParser }: Props): KubbNode {
-  const withData = tree.some(
-    (schema) =>
-      schema.keyword === schemaKeywords.array ||
-      schema.keyword === schemaKeywords.and ||
-      schema.keyword === schemaKeywords.object ||
-      schema.keyword === schemaKeywords.union ||
-      schema.keyword === schemaKeywords.tuple,
-  )
-
+export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): KubbNode {
   const fakerText = parserFaker.joinItems(
     tree
       .map((schema) =>
         parserFaker.parse(undefined, schema, {
           name,
-          typeName: typedName,
+          typeName,
           seed,
           regexGenerator,
           mapper,
-          withData,
+          canOverride,
           dateParser,
         }),
       )
@@ -46,7 +38,7 @@ export function Faker({ tree, description, name, typedName, seed, regexGenerator
   let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
   let fakerTextWithOverride = fakerText
 
-  if (withData && fakerText.startsWith('{')) {
+  if (canOverride && fakerText.startsWith('{')) {
     fakerDefaultOverride = '{}'
     fakerTextWithOverride = `{
   ...${fakerText},
@@ -54,7 +46,7 @@ export function Faker({ tree, description, name, typedName, seed, regexGenerator
 }`
   }
 
-  if (withData && fakerText.startsWith('faker.helpers.arrayElements')) {
+  if (canOverride && fakerText.startsWith('faker.helpers.arrayElements')) {
     fakerDefaultOverride = '[]'
     fakerTextWithOverride = `[
       ...${fakerText},
@@ -62,8 +54,14 @@ export function Faker({ tree, description, name, typedName, seed, regexGenerator
     ]`
   }
 
-  //TODO use of createFunctionParams
-  const params = fakerDefaultOverride ? `data: NonNullable<Partial<${typedName}>> = ${fakerDefaultOverride}` : `data?: NonNullable<Partial<${typedName}>>`
+  const params = FunctionParams.factory({
+    data: canOverride
+      ? {
+          type: `NonNullable<Partial<${typeName}>>`,
+          default: fakerDefaultOverride,
+        }
+      : undefined,
+  })
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -71,12 +69,11 @@ export function Faker({ tree, description, name, typedName, seed, regexGenerator
         export
         name={name}
         JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
-        params={withData ? params : ''}
-        returnType={typedName ? `NonNullable<${typedName}>` : ''}
+        params={params.toConstructor()}
       >
-        {seed ? `faker.seed(${JSON.stringify(seed)})` : ''}
-        <br />
-        <Function.Return>{fakerTextWithOverride}</Function.Return>
+        {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
+        <br/>
+        {`return ${fakerTextWithOverride}`}
       </Function>
     </File.Source>
   )

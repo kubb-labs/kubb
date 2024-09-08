@@ -18,6 +18,44 @@ describe('fakerGenerator schema', async () => {
       options: {},
     },
     {
+      name: 'PetWithDayjs',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        dateType: 'string',
+        dateParser: 'dayjs',
+      },
+    },
+    {
+      name: 'PetWithDateString',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        dateParser: 'faker',
+        dateType: 'string',
+      },
+    },
+    {
+      name: 'PetWithRandExp',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        regexGenerator: 'randexp',
+      },
+    },
+    {
+      name: 'enumVarNames',
+      input: '../../mocks/enums.yaml',
+      path: 'enumVarNames.Type',
+      options: {},
+    },
+    {
+      name: 'enumNames',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {},
+    },
+    {
       name: 'Pets',
       path: 'Pets',
       input: '../../mocks/petStore.yaml',
@@ -35,7 +73,7 @@ describe('fakerGenerator schema', async () => {
 
     const options: PluginFaker['resolvedOptions'] = {
       dateType: 'date',
-      dateParser: 'dayjs',
+      dateParser: 'faker',
       seed: undefined,
       regexGenerator: 'faker',
       override: [],
@@ -99,6 +137,31 @@ describe('fakerGenerator operation', async () => {
       method: 'post',
       options: {},
     },
+    {
+      name: 'createPetUnknownTypeAny',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        unknownType: 'any',
+      },
+    },
+    {
+      name: 'createPetSeed',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        seed: [222],
+      },
+    },
+    {
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -112,7 +175,7 @@ describe('fakerGenerator operation', async () => {
 
     const options: PluginFaker['resolvedOptions'] = {
       dateType: 'date',
-      dateParser: 'dayjs',
+      dateParser: 'faker',
       seed: undefined,
       regexGenerator: 'faker',
       override: [],

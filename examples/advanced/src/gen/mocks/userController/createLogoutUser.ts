@@ -1,12 +1,10 @@
-import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser.ts'
-
 /**
  * @description successful operation
  */
-export function createLogoutUserError(): NonNullable<LogoutUserError> {
+export function createLogoutUserError() {
   return undefined
 }
 
-export function createLogoutUserQueryResponse(): NonNullable<LogoutUserQueryResponse> {
+export function createLogoutUserQueryResponse() {
   return undefined
 }

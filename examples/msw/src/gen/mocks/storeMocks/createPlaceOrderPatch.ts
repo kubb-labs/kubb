@@ -1,11 +1,10 @@
-import type { PlaceOrderPatch200, PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models/PlaceOrderPatch.ts'
 import { createOrder } from '../createOrder.ts'
 import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation
  */
-export function createPlaceOrderPatch200(): NonNullable<PlaceOrderPatch200> {
+export function createPlaceOrderPatch200() {
   faker.seed([220])
   return createOrder()
 }
@@ -13,12 +12,12 @@ export function createPlaceOrderPatch200(): NonNullable<PlaceOrderPatch200> {
 /**
  * @description Invalid input
  */
-export function createPlaceOrderPatch405(): NonNullable<PlaceOrderPatch405> {
+export function createPlaceOrderPatch405() {
   faker.seed([220])
   return undefined
 }
 
-export function createPlaceOrderPatchMutationRequest(): NonNullable<PlaceOrderPatchMutationRequest> {
+export function createPlaceOrderPatchMutationRequest() {
   faker.seed([220])
   return createOrder()
 }
@@ -26,7 +25,7 @@ export function createPlaceOrderPatchMutationRequest(): NonNullable<PlaceOrderPa
 /**
  * @description successful operation
  */
-export function createPlaceOrderPatchMutationResponse(): NonNullable<PlaceOrderPatchMutationResponse> {
+export function createPlaceOrderPatchMutationResponse() {
   faker.seed([220])
   return createOrder()
 }

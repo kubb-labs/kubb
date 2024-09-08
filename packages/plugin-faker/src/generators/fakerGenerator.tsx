@@ -1,4 +1,4 @@
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator } from '@kubb/plugin-oas'
+import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -44,19 +44,31 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], tag: options.operation?.getTags()[0]?.name }),
       }
 
+      const canOverride = tree.some(
+        ({ keyword }) =>
+          keyword === schemaKeywords.array ||
+          keyword === schemaKeywords.and ||
+          keyword === schemaKeywords.object ||
+          keyword === schemaKeywords.union ||
+          keyword === schemaKeywords.tuple,
+      )
+
       return (
         <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-          {mode === 'split' && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
+          {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
+          {imports.map((imp, index) => (
+            <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
+          ))}
           <Faker
             name={faker.name}
-            typedName={type.name}
+            typeName={type.name}
             description={description}
             tree={tree}
             regexGenerator={regexGenerator}
             dateParser={dateParser}
             mapper={mapper}
             seed={seed}
+            canOverride={canOverride}
           />
         </Oas.Schema>
       )
@@ -66,15 +78,13 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
-        {dateParser && <File.Import path={dateParser} name={dateParser} />}
+        {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
   },
   Schema({ schema, options }) {
     const { dateParser, regexGenerator, seed, mapper } = options
-
-    const { mode } = useApp<PluginFaker>()
 
     const { getName, getFile, getImports } = useSchemaManager()
     const imports = getImports(schema.tree)
@@ -89,23 +99,35 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       file: getFile(schema.name, { pluginKey: [pluginTsName] }),
     }
 
+    const canOverride = schema.tree.some(
+      ({ keyword }) =>
+        keyword === schemaKeywords.array ||
+        keyword === schemaKeywords.and ||
+        keyword === schemaKeywords.object ||
+        keyword === schemaKeywords.union ||
+        keyword === schemaKeywords.tuple,
+    )
+
     return (
       <File baseName={faker.file.baseName} path={faker.file.path} meta={faker.file.meta}>
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
-        {dateParser && <File.Import path={dateParser} name={dateParser} />}
-        {mode === 'split' && <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />}
-        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />)}
+        {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}
+        <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />
+        {imports.map((imp, index) => (
+          <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />
+        ))}
 
         <Faker
           name={faker.name}
-          typedName={type.name}
+          typeName={type.name}
           description={schema.value.description}
           tree={schema.tree}
           regexGenerator={regexGenerator}
           dateParser={dateParser}
           mapper={mapper}
           seed={seed}
+          canOverride={canOverride}
         />
       </File>
     )

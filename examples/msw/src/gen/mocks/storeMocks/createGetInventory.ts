@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createGetInventory200(data: NonNullable<Partial<GetInventory200>> = {}): NonNullable<GetInventory200> {
+export function createGetInventory200(data: NonNullable<Partial<GetInventory200>> = {}) {
   faker.seed([220])
   return {
     ...{},
@@ -15,7 +15,7 @@ export function createGetInventory200(data: NonNullable<Partial<GetInventory200>
 /**
  * @description successful operation
  */
-export function createGetInventoryQueryResponse(data: NonNullable<Partial<GetInventoryQueryResponse>> = {}): NonNullable<GetInventoryQueryResponse> {
+export function createGetInventoryQueryResponse(data: NonNullable<Partial<GetInventoryQueryResponse>> = {}) {
   faker.seed([220])
   return {
     ...{},

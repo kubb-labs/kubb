@@ -1,4 +1,4 @@
-export function showPetById(data: NonNullable<Partial<ShowPetById>> = {}): NonNullable<ShowPetById> {
+export function showPetById(data: NonNullable<Partial<ShowPetById>> = {}) {
   return {
     ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
     ...data,
@@ -8,20 +8,20 @@ export function showPetById(data: NonNullable<Partial<ShowPetById>> = {}): NonNu
 /**
  * @description Expected response to a valid request
  */
-export function showPetById(): NonNullable<ShowPetById> {
+export function showPetById() {
   return showPetById()
 }
 
 /**
  * @description unexpected error
  */
-export function showPetById(): NonNullable<ShowPetById> {
+export function showPetById() {
   return showPetById()
 }
 
 /**
  * @description Expected response to a valid request
  */
-export function showPetById(): NonNullable<ShowPetById> {
+export function showPetById() {
   return showPetById()
 }

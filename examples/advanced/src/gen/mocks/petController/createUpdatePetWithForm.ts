@@ -1,19 +1,14 @@
-import type {
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
-} from '../../models/ts/petController/UpdatePetWithForm.ts'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/ts/petController/UpdatePetWithForm.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {
+export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}) {
   return {
     ...{ petId: faker.number.int() },
     ...data,
   }
 }
 
-export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {}): NonNullable<UpdatePetWithFormQueryParams> {
+export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {}) {
   return {
     ...{ name: faker.string.alpha(), status: faker.helpers.arrayElement(['working', 'idle']) as any },
     ...data,
@@ -23,10 +18,10 @@ export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<Upd
 /**
  * @description Invalid input
  */
-export function createUpdatePetWithForm405(): NonNullable<UpdatePetWithForm405> {
+export function createUpdatePetWithForm405() {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(): NonNullable<UpdatePetWithFormMutationResponse> {
+export function createUpdatePetWithFormMutationResponse() {
   return undefined
 }

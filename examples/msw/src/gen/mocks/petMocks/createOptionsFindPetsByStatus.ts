@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatus200(data: NonNullable<Partial<OptionsFindPetsByStatus200>> = []): NonNullable<OptionsFindPetsByStatus200> {
+export function createOptionsFindPetsByStatus200(data: NonNullable<Partial<OptionsFindPetsByStatus200>> = []) {
   faker.seed([220])
   return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
 }
@@ -13,9 +13,7 @@ export function createOptionsFindPetsByStatus200(data: NonNullable<Partial<Optio
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatusMutationResponse(
-  data: NonNullable<Partial<OptionsFindPetsByStatusMutationResponse>> = [],
-): NonNullable<OptionsFindPetsByStatusMutationResponse> {
+export function createOptionsFindPetsByStatusMutationResponse(data: NonNullable<Partial<OptionsFindPetsByStatusMutationResponse>> = []) {
   faker.seed([220])
   return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
 }

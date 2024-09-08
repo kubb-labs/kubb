@@ -1,8 +1,8 @@
-import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/UpdateUser.ts'
+import type { UpdateUserPathParams } from '../../models/UpdateUser.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUpdateUserPathParams(data: NonNullable<Partial<UpdateUserPathParams>> = {}): NonNullable<UpdateUserPathParams> {
+export function createUpdateUserPathParams(data: NonNullable<Partial<UpdateUserPathParams>> = {}) {
   faker.seed([220])
   return {
     ...{ username: faker.string.alpha() },
@@ -13,7 +13,7 @@ export function createUpdateUserPathParams(data: NonNullable<Partial<UpdateUserP
 /**
  * @description successful operation
  */
-export function createUpdateUserError(): NonNullable<UpdateUserError> {
+export function createUpdateUserError() {
   faker.seed([220])
   return undefined
 }
@@ -21,12 +21,12 @@ export function createUpdateUserError(): NonNullable<UpdateUserError> {
 /**
  * @description Update an existent user in the store
  */
-export function createUpdateUserMutationRequest(): NonNullable<UpdateUserMutationRequest> {
+export function createUpdateUserMutationRequest() {
   faker.seed([220])
   return createUser()
 }
 
-export function createUpdateUserMutationResponse(): NonNullable<UpdateUserMutationResponse> {
+export function createUpdateUserMutationResponse() {
   faker.seed([220])
   return undefined
 }

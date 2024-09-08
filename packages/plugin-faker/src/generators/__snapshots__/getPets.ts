@@ -1,4 +1,4 @@
-export function getPets(data: NonNullable<Partial<GetPets>> = {}): NonNullable<GetPets> {
+export function getPets(data: NonNullable<Partial<GetPets>> = {}) {
   return {
     ...{ limit: faker.string.alpha() },
     ...data,
@@ -8,20 +8,20 @@ export function getPets(data: NonNullable<Partial<GetPets>> = {}): NonNullable<G
 /**
  * @description A paged array of pets
  */
-export function getPets(): NonNullable<GetPets> {
+export function getPets() {
   return getPets()
 }
 
 /**
  * @description unexpected error
  */
-export function getPets(): NonNullable<GetPets> {
+export function getPets() {
   return getPets()
 }
 
 /**
  * @description A paged array of pets
  */
-export function getPets(): NonNullable<GetPets> {
+export function getPets() {
   return getPets()
 }

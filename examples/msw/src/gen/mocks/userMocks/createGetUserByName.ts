@@ -1,8 +1,8 @@
-import type { GetUserByNamePathParams, GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
+import type { GetUserByNamePathParams } from '../../models/GetUserByName.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createGetUserByNamePathParams(data: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
+export function createGetUserByNamePathParams(data: NonNullable<Partial<GetUserByNamePathParams>> = {}) {
   faker.seed([220])
   return {
     ...{ username: faker.string.alpha() },
@@ -13,7 +13,7 @@ export function createGetUserByNamePathParams(data: NonNullable<Partial<GetUserB
 /**
  * @description successful operation
  */
-export function createGetUserByName200(): NonNullable<GetUserByName200> {
+export function createGetUserByName200() {
   faker.seed([220])
   return createUser()
 }
@@ -21,7 +21,7 @@ export function createGetUserByName200(): NonNullable<GetUserByName200> {
 /**
  * @description Invalid username supplied
  */
-export function createGetUserByName400(): NonNullable<GetUserByName400> {
+export function createGetUserByName400() {
   faker.seed([220])
   return undefined
 }
@@ -29,7 +29,7 @@ export function createGetUserByName400(): NonNullable<GetUserByName400> {
 /**
  * @description User not found
  */
-export function createGetUserByName404(): NonNullable<GetUserByName404> {
+export function createGetUserByName404() {
   faker.seed([220])
   return undefined
 }
@@ -37,7 +37,7 @@ export function createGetUserByName404(): NonNullable<GetUserByName404> {
 /**
  * @description successful operation
  */
-export function createGetUserByNameQueryResponse(): NonNullable<GetUserByNameQueryResponse> {
+export function createGetUserByNameQueryResponse() {
   faker.seed([220])
   return createUser()
 }

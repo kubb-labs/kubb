@@ -58,7 +58,7 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
   })
 
   const clientParams = FunctionParams.factory({
-    params: {
+    config: {
       mode: 'object',
       children: {
         method: {
@@ -90,8 +90,19 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
     },
   })
 
-  const formData = isFormData
-    ? `
+  return (
+    <File.Source name={name} isExportable isIndexable>
+      <Function
+        name={ name }
+        async
+        export
+        params={ params.toConstructor() }
+        JSDoc={ {
+          comments: getComments(operation),
+        } }
+      >
+        { isFormData
+          ? `
    const formData = new FormData()
    if(data) {
     Object.keys(data).forEach((key) => {
@@ -102,26 +113,10 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
     })
    }
   `
-    : ''
-
-  const source = `
-${formData}
-const res = await client<${[typeSchemas.response.name, typeSchemas.request?.name].filter(Boolean).join(', ')}>(${clientParams.toCall()})
-
-return ${dataReturnType === 'data' ? 'res.data' : 'res'}
-  `
-  return (
-    <File.Source name={name} isExportable isIndexable>
-      <Function
-        name={name}
-        async
-        export
-        params={params.toConstructor()}
-        JSDoc={{
-          comments: getComments(operation),
-        }}
-      >
-        {source}
+          : undefined }
+        { `const res = await client<${ [ typeSchemas.response.name, typeSchemas.request?.name ].filter(Boolean).join(', ') }>(${ clientParams.toCall() })` }
+        <br/>
+        { dataReturnType === 'data' ? 'return res.data' : 'return res' }
       </Function>
     </File.Source>
   )
