@@ -1,9 +1,9 @@
 import client from '@kubb/plugin-client/client'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/ts/storeController/DeleteOrder.ts'
-import type { GetInventoryQueryResponse } from '../models/ts/storeController/GetInventory.ts'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams } from '../models/ts/storeController/GetOrderById.ts'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/ts/storeController/PlaceOrder.ts'
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models/ts/storeController/PlaceOrderPatch.ts'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from './models/ts/storeController/DeleteOrder.ts'
+import type { GetInventoryQueryResponse } from './models/ts/storeController/GetInventory.ts'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams } from './models/ts/storeController/GetOrderById.ts'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models/ts/storeController/PlaceOrder.ts'
+import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from './models/ts/storeController/PlaceOrderPatch.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

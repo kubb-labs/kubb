@@ -1,14 +1,14 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File, useApp } from '@kubb/react'
 import { Operations } from '../components/Operations'
-import type { PluginZod } from '../types'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginZodName } from '../plugin.ts'
+import type { PluginZod } from '../types'
 
 export const operationsGenerator = createReactGenerator<PluginZod>({
   name: 'operations',
   Operations({ operations, options }) {
-    const { mode, pluginManager } = useApp<PluginZod>()
+    const { pluginManager } = useApp<PluginZod>()
     const { getFile, groupSchemasByName } = useOperationManager()
 
     const name = 'operations'
@@ -26,7 +26,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        {mode === 'split' && imports}
+        {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>
     )

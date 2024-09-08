@@ -1,15 +1,15 @@
-import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { Zod } from '../components'
-import type { PluginZod } from '../types'
-import { File, useApp } from '@kubb/react'
+import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { Oas } from '@kubb/plugin-oas/components'
+import { File, useApp } from '@kubb/react'
+import { Zod } from '../components'
+import type { PluginZod } from '../types'
 
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
   Operation({ operation, options }) {
-    const { coercion, infer, typedSchema, mapper } = options
+    const { coercion, inferred, typed, mapper } = options
 
     const { plugin, pluginManager, mode } = useApp<PluginZod>()
     const oas = useOas()
@@ -50,12 +50,14 @@ export const zodGenerator = createReactGenerator<PluginZod>({
 
       return (
         <Oas.Schema key={i} name={name} value={schema} tree={tree}>
-          {mode === 'split' && typedSchema && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />)}
+          {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
+          {imports.map((imp, index) => (
+            <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
+          ))}
           <Zod
             name={zod.name}
-            typedName={typedSchema ? type.name : undefined}
-            inferTypedName={infer ? zod.inferTypeName : undefined}
+            typeName={typed ? type.name : undefined}
+            inferTypeName={inferred ? zod.inferTypeName : undefined}
             description={description}
             tree={tree}
             mapper={mapper}
@@ -74,9 +76,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     )
   },
   Schema({ schema, options }) {
-    const { mode } = useApp<PluginZod>()
-
-    const { coercion, infer, typedSchema, mapper, importPath } = options
+    const { coercion, inferred, typed, mapper, importPath } = options
     const { getName, getFile, getImports } = useSchemaManager()
     const imports = getImports(schema.tree)
 
@@ -94,13 +94,15 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     return (
       <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta}>
         <File.Import name={['z']} path={importPath} />
-        {mode === 'split' && typedSchema && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
-        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={zod.file.path} path={imp.path} name={imp.name} />)}
+        {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
+        {imports.map((imp, index) => (
+          <File.Import key={index} root={zod.file.path} path={imp.path} name={imp.name} />
+        ))}
 
         <Zod
           name={zod.name}
-          typedName={typedSchema ? type.name : undefined}
-          inferTypedName={infer ? zod.inferTypeName : undefined}
+          typeName={typed ? type.name : undefined}
+          inferTypeName={inferred ? zod.inferTypeName : undefined}
           description={schema.value.description}
           tree={schema.tree}
           mapper={mapper}

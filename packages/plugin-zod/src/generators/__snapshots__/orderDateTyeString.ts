@@ -1,4 +1,4 @@
-export const orderDateTyeString = z.object({
+export const orderDateTyestring = z.object({
   id: z.number().int().optional(),
   petId: z.number().int().optional(),
   quantity: z.number().int().optional(),

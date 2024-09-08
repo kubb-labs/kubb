@@ -93,15 +93,15 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
-        name={ name }
+        name={name}
         async
         export
-        params={ params.toConstructor() }
-        JSDoc={ {
+        params={params.toConstructor()}
+        JSDoc={{
           comments: getComments(operation),
-        } }
+        }}
       >
-        { isFormData
+        {isFormData
           ? `
    const formData = new FormData()
    if(data) {
@@ -113,10 +113,10 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, pathParamsT
     })
    }
   `
-          : undefined }
-        { `const res = await client<${ [ typeSchemas.response.name, typeSchemas.request?.name ].filter(Boolean).join(', ') }>(${ clientParams.toCall() })` }
-        <br/>
-        { dataReturnType === 'data' ? 'return res.data' : 'return res' }
+          : undefined}
+        {`const res = await client<${[typeSchemas.response.name, typeSchemas.request?.name].filter(Boolean).join(', ')}>(${clientParams.toCall()})`}
+        <br />
+        {dataReturnType === 'data' ? 'return res.data' : 'return res'}
       </Function>
     </File.Source>
   )

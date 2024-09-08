@@ -22,15 +22,25 @@ describe('zodGenerator schema', async () => {
       path: 'Pets',
       input: '../../mocks/petStore.yaml',
       options: {
-        typedSchema: true,
+        typed: true,
       },
     },
     {
-      name: 'Pet coercion',
+      name: 'PetCoercion',
       path: 'Pet',
       input: '../../mocks/petStore.yaml',
       options: {
         coercion: true,
+      },
+    },
+    {
+      name: 'PetWithMapper',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        mapper: {
+          name: 'z.string().email()',
+        },
       },
     },
     {
@@ -40,19 +50,19 @@ describe('zodGenerator schema', async () => {
       options: {},
     },
     {
-      name: 'OptionalPet Infer',
+      name: 'OptionalPetInfer',
       path: 'OptionalPet',
       input: '../../mocks/petStore.yaml',
       options: {
-        infer: true,
+        inferred: true,
       },
     },
     {
-      name: 'OptionalPet Typed',
+      name: 'OptionalPetTyped',
       path: 'OptionalPet',
       input: '../../mocks/petStore.yaml',
       options: {
-        typedSchema: true,
+        typed: true,
       },
     },
     {
@@ -68,7 +78,7 @@ describe('zodGenerator schema', async () => {
       options: {},
     },
     {
-      name: 'Order DateTye string',
+      name: 'OrderDateTyestring',
       path: 'Order',
       input: '../../mocks/petStore.yaml',
       options: {
@@ -76,7 +86,7 @@ describe('zodGenerator schema', async () => {
       },
     },
     {
-      name: 'Order DateType false',
+      name: 'OrderDateTypeFalse',
       path: 'Order',
       input: '../../mocks/petStore.yaml',
       options: {
@@ -180,8 +190,8 @@ describe('zodGenerator schema', async () => {
     const options: PluginZod['resolvedOptions'] = {
       dateType: 'date',
       transformers: {},
-      infer: false,
-      typedSchema: false,
+      inferred: false,
+      typed: false,
       unknownType: 'any',
       mapper: {},
       importPath: 'zod',
@@ -246,12 +256,12 @@ describe('zodGenerator operation', async () => {
       options: {},
     },
     {
-      name: 'createPet with unknownType any',
+      name: 'createPet with unknownType unknown',
       input: '../../mocks/petStore.yaml',
       path: '/pets',
       method: 'post',
       options: {
-        unknownType: 'any',
+        unknownType: 'unknown',
       },
     },
     {
@@ -275,8 +285,8 @@ describe('zodGenerator operation', async () => {
     const options: PluginZod['resolvedOptions'] = {
       dateType: 'date',
       transformers: {},
-      typedSchema: false,
-      infer: false,
+      typed: false,
+      inferred: false,
       unknownType: 'any',
       mapper: {},
       importPath: 'zod',

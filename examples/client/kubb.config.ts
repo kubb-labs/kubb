@@ -50,7 +50,8 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
-          path: './clients/tagObject.ts',
+          path: './tagObject.ts',
+          exportType: false,
         },
         include: [
           {
@@ -63,7 +64,8 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
-          path: './clients/tag.ts',
+          path: './tag.ts',
+          exportType: false,
         },
         include: [
           {

@@ -343,6 +343,7 @@ export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './mode
 export { petStatusEnum } from './models/ts/Pet.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './models/ts/petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXExampleEnum } from './models/ts/petsController/CreatePets.ts'
+export { handlers } from './msw/handlers.ts'
 export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export { addressSchema } from './zod/addressSchema.ts'
 export { apiResponseSchema } from './zod/apiResponseSchema.ts'

@@ -28,7 +28,7 @@ module.exports = defineConfig(() => {
       }),
       pluginFaker({
         output: {
-          path: './customMocks',
+          path: './faker',
         },
         transformers: {
           schema: ({ schema, name, parentName }, defaultSchemas) => {
@@ -59,7 +59,12 @@ module.exports = defineConfig(() => {
             pattern: 'updatePet',
           },
         ],
-        exclude: [],
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
         override: [
           {
             type: 'schemaName',
@@ -70,6 +75,20 @@ module.exports = defineConfig(() => {
             },
           },
         ],
+      }),
+      pluginFaker({
+        output: {
+          path: './tag',
+          exportType: false,
+        },
+        include: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        dataReturnType: 'full',
+        pathParamsType: 'object',
       }),
     ],
   }

@@ -55,7 +55,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   }
 
   const params = FunctionParams.factory({
-    data: canOverride
+    data: fakerDefaultOverride
       ? {
           type: `NonNullable<Partial<${typeName}>>`,
           default: fakerDefaultOverride,
@@ -72,7 +72,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
         params={params.toConstructor()}
       >
         {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
-        <br/>
+        <br />
         {`return ${fakerTextWithOverride}`}
       </Function>
     </File.Source>

@@ -9,9 +9,9 @@ import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import type { PluginZod } from './types.ts'
-import { zodGenerator } from './generators/zodGenerator.tsx'
 import { operationsGenerator } from './generators'
+import { zodGenerator } from './generators/zodGenerator.tsx'
+import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
@@ -25,12 +25,12 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     transformers = {},
     dateType = 'string',
     unknownType = 'any',
-    typedSchema = false,
+    typed = false,
     mapper = {},
     operations = false,
     importPath = 'zod',
     coercion = false,
-    infer = false,
+    inferred = false,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -46,16 +46,16 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       include,
       exclude,
       override,
-      typedSchema,
+      typed,
       dateType,
       unknownType,
       mapper,
       importPath,
       coercion,
       operations,
-      infer,
+      inferred,
     },
-    pre: [pluginOasName, typedSchema ? pluginTsName : undefined].filter(Boolean),
+    pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

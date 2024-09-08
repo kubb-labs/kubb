@@ -36,6 +36,17 @@ describe('fakerGenerator schema', async () => {
       },
     },
     {
+      name: 'PetWithMapper',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        mapper: {
+          id: `faker.string.fromCharacters('abc')`,
+          name: `faker.string.alpha({casing: 'lower'})`,
+        },
+      },
+    },
+    {
       name: 'PetWithRandExp',
       input: '../../mocks/petStore.yaml',
       path: 'Pet',

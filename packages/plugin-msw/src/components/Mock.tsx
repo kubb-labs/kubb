@@ -1,7 +1,6 @@
-import { URLPath } from '@kubb/core/utils'
 import { File } from '@kubb/react'
 
-import type { Operation } from '@kubb/oas'
+import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -9,18 +8,16 @@ type Props = {
    * Name of the function
    */
   name: string
-  operation: Operation
-
   fakerName: string
+  url: string
+  method: HttpMethod
 }
 
-export function Mock({ name, fakerName, operation }: Props): ReactNode {
-  const path = new URLPath(operation.path)
-
+export function Mock({ name, fakerName, url, method }: Props): ReactNode {
   return (
     <File.Source name={name} isIndexable isExportable>
       {`
-  export const ${name} = http.${operation.method}('*${path.toURLPath()}', function handler(info) {
+  export const ${name} = http.${method}('*${url}', function handler(info) {
     return new Response(JSON.stringify(${fakerName}()), {
       headers: {
         'Content-Type': 'application/json',

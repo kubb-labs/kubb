@@ -1,19 +1,19 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
-import type { PluginZod } from '../types.ts'
-import { operationsGenerator } from './operationsGenerator.tsx'
+import type { PluginMsw } from '../types.ts'
+import { handlersGenerator } from './handlersGenerator.tsx'
 
-describe('operationsGenerator operations', async () => {
+describe('handlersGenerator operations', async () => {
   const testData = [
     {
-      name: 'showPetById',
+      name: 'findByTags',
       input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
+      path: '/pet/findByTags',
       method: 'get',
       options: {},
     },
@@ -22,26 +22,16 @@ describe('operationsGenerator operations', async () => {
     name: string
     path: string
     method: HttpMethod
-    options: Partial<PluginZod['resolvedOptions']>
+    options: Partial<PluginMsw['resolvedOptions']>
   }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginZod['resolvedOptions'] = {
-      dateType: 'date',
-      transformers: {},
-      inferred: false,
-      typed: false,
-      unknownType: 'any',
-      mapper: {},
-      importPath: 'zod',
-      coercion: false,
-      operations: false,
-      override: [],
+    const options: PluginMsw['resolvedOptions'] = {
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginZod>
+    const plugin = { options } as Plugin<PluginMsw>
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,
@@ -52,18 +42,16 @@ describe('operationsGenerator operations', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(operationsGenerator)
+    await instance.build(handlersGenerator)
 
     const operations = Object.values(instance.operationsByMethod).map((item) => Object.values(item).map((item) => item.operation))
 
-    const files = await operationsGenerator.operations?.({
+    const files = await handlersGenerator.operations?.({
       operations: operations.flat().filter(Boolean),
       operationsByMethod: instance.operationsByMethod,
       options,
       instance,
     })
-
-    console.log(instance.operationsByMethod)
 
     await matchFiles(files)
   })
