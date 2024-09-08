@@ -6,6 +6,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
+import ts, { factory } from 'typescript'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
@@ -25,6 +26,21 @@ describe('typeGenerator schema', async () => {
       path: 'Pet',
       options: {
         optionalType: 'undefined',
+      },
+    },
+    {
+      name: 'PetMapper',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        mapper: {
+          category: factory.createPropertySignature(
+            undefined,
+            factory.createIdentifier('category'),
+            factory.createToken(ts.SyntaxKind.QuestionToken),
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+          ),
+        },
       },
     },
     {
@@ -317,6 +333,7 @@ describe('typeGenerator schema', async () => {
       transformers: {},
       oasType: false,
       unknownType: 'any',
+      optionalType: 'questionToken',
       override: [],
       mapper: {},
       ...props.options,

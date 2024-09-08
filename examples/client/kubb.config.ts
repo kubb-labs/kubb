@@ -1,11 +1,10 @@
 // import '@kubb/react/devtools' // enable/disable devtools
 
 import { defineConfig } from '@kubb/core'
+import transformers from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-
-import { Client } from './templates/Client'
 
 export default defineConfig(() => {
   return {
@@ -37,7 +36,7 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
-          path: './clients/axios',
+          path: './clients',
         },
         exclude: [
           {
@@ -47,15 +46,43 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
         operations: true,
-        override: [
+        pathParamsType: 'object',
+      }),
+      pluginClient({
+        output: {
+          path: './tagObject.ts',
+          exportType: false,
+        },
+        include: [
           {
             type: 'tag',
-            pattern: 'user',
-            options: {
-              template: Client,
-            },
+            pattern: 'store',
           },
         ],
+        dataReturnType: 'full',
+        pathParamsType: 'object',
+      }),
+      pluginClient({
+        output: {
+          path: './tag.ts',
+          exportType: false,
+        },
+        parser: 'client',
+        include: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        transformers: {
+          name(name, type) {
+            if (type === 'function') {
+              return transformers.camelCase(`${name} controller`)
+            }
+
+            return name
+          },
+        },
       }),
     ],
   }

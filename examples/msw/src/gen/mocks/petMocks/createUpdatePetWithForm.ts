@@ -1,12 +1,7 @@
-import type {
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
-} from '../../models/UpdatePetWithForm.ts'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {
+export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}) {
   faker.seed([220])
   return {
     ...{ petId: faker.number.int() },
@@ -14,7 +9,7 @@ export function createUpdatePetWithFormPathParams(data: NonNullable<Partial<Upda
   }
 }
 
-export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {}): NonNullable<UpdatePetWithFormQueryParams> {
+export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<UpdatePetWithFormQueryParams>> = {}) {
   faker.seed([220])
   return {
     ...{ name: faker.string.alpha(), status: faker.string.alpha() },
@@ -25,12 +20,12 @@ export function createUpdatePetWithFormQueryParams(data: NonNullable<Partial<Upd
 /**
  * @description Invalid input
  */
-export function createUpdatePetWithForm405(): NonNullable<UpdatePetWithForm405> {
+export function createUpdatePetWithForm405() {
   faker.seed([220])
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(): NonNullable<UpdatePetWithFormMutationResponse> {
+export function createUpdatePetWithFormMutationResponse() {
   faker.seed([220])
   return undefined
 }

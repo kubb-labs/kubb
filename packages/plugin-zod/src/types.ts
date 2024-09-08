@@ -59,6 +59,40 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
+  /**
+   * Path to Zod
+   * It will be used as `import { z } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default 'zod'
+   */
+  importPath?: string
+
+  /**
+   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * False will fallback on a simple z.string() format
+   * @default 'string' 'stringOffset' will become the default in Kubb v3
+   */
+  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
+  /**
+   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * @default 'any'
+   */
+  unknownType?: 'any' | 'unknown'
+  /**
+   * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
+   */
+  typed?: boolean
+  /**
+   * Return Zod generated schema as type with z.infer<TYPE>
+   */
+  inferred?: boolean
+  /**
+   * Use of z.coerce.string() instead of z.string()
+   */
+  coercion?: boolean
+  operations?: boolean
+  mapper?: Record<string, string>
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -78,39 +112,6 @@ export type Options = {
       defaultSchemas: Schema[],
     ) => Schema[] | undefined
   }
-  mapper?: Record<string, string>
-  /**
-   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-   * False will fallback on a simple z.string() format
-   * @default 'string' 'stringOffset' will become the default in Kubb v3
-   */
-  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information
-   * @default 'any'
-   */
-  unknownType?: 'any' | 'unknown'
-  /**
-   * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
-   */
-  typedSchema?: boolean
-  /**
-   * Return Zod generated schema as type with z.infer<TYPE>
-   */
-  infer?: boolean
-  /**
-   * Use of z.coerce.string() instead of z.string()
-   */
-  coercion?: boolean
-  /**
-   * Path to Zod
-   * It will be used as `import { z } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
-   * @default 'zod'
-   */
-  importPath?: string
-  operations?: boolean
 }
 
 type ResolvedOptions = {
@@ -119,8 +120,8 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
-  typedSchema: NonNullable<Options['typedSchema']>
-  infer: NonNullable<Options['infer']>
+  typed: NonNullable<Options['typed']>
+  inferred: NonNullable<Options['inferred']>
   mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>

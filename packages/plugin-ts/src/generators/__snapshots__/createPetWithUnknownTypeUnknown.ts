@@ -1,16 +1,16 @@
 /**
  * @description Null response
  */
-export type CreatePetWithUnknownTypeUnknown = createPetWithUnknownTypeUnknown & {
-  name?: createPetWithUnknownTypeUnknown
+export type CreatePets201 = error & {
+  name?: errorCode
 }
 
 /**
  * @description unexpected error
  */
-export type CreatePetWithUnknownTypeUnknown = createPetWithUnknownTypeUnknown
+export type CreatePetsError = error
 
-export type CreatePetWithUnknownTypeUnknown = {
+export type CreatePetsMutationRequest = {
   /**
    * @type string
    */
@@ -24,11 +24,11 @@ export type CreatePetWithUnknownTypeUnknown = {
 /**
  * @description Null response
  */
-export type CreatePetWithUnknownTypeUnknown = createPetWithUnknownTypeUnknown & {
-  name?: createPetWithUnknownTypeUnknown
+export type CreatePetsMutationResponse = error & {
+  name?: errorCode
 }
 
-export type createPetWithUnknownTypeUnknownMutation = {
-  Response: createPetWithUnknownTypeUnknown
-  Request: createPetWithUnknownTypeUnknown
+export type createPetsMutation = {
+  Response: createPetsMutationResponse
+  Request: createPetsMutationRequest
 }

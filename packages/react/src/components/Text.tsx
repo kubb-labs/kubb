@@ -13,7 +13,7 @@ type Props = {
 
 export function Text({ indentSize = 0, children }: Props): KubbNode {
   const indentBefore = useIndent({ size: indentSize })
-  const indentChildren = useIndent({ size: 4, children })
+  const indentChildren = useIndent({ size: 2, children })
 
   return (
     <kubb-text>

@@ -1,14 +1,8 @@
-import { File, createContext, useApp, useFile } from '@kubb/react'
-
-import { schemaKeywords } from '../SchemaMapper.ts'
-import { useSchema } from '../hooks/useSchema.ts'
+import { createContext } from '@kubb/react'
 
 import type { SchemaObject } from '@kubb/oas'
 import type { KubbNode } from '@kubb/react/types'
-import type { ReactNode } from 'react'
-import { SchemaGenerator } from '../SchemaGenerator.ts'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
-import type { PluginOas } from '../types.ts'
 
 export type SchemaContextProps = {
   name: string
@@ -30,102 +24,6 @@ const SchemaContext = createContext<SchemaContextProps>({
 
 export function Schema({ name, value, tree = [], children }: Props): KubbNode {
   return <SchemaContext.Provider value={{ name, schema: value, tree }}>{children}</SchemaContext.Provider>
-}
-
-type FileProps = {
-  isTypeOnly?: boolean
-  output: string | undefined
-  children?: KubbNode
-}
-/**
- * @deprecated
- */
-Schema.File = function ({ isTypeOnly, children }: FileProps): ReactNode {
-  const { plugin, pluginManager, mode } = useApp<PluginOas>()
-  const { name } = useSchema()
-
-  if (mode === 'single') {
-    const baseName = `${pluginManager.resolveName({
-      name,
-      pluginKey: plugin.key,
-      type: 'file',
-    })}.ts` as const
-
-    const resolvedPath = pluginManager.resolvePath({
-      baseName: '',
-      pluginKey: plugin.key,
-    })
-
-    if (!resolvedPath) {
-      return null
-    }
-
-    return (
-      <File
-        baseName={baseName}
-        path={resolvedPath}
-        meta={{
-          pluginKey: plugin.key,
-        }}
-      >
-        {children}
-      </File>
-    )
-  }
-
-  const baseName = `${pluginManager.resolveName({
-    name,
-    pluginKey: plugin.key,
-    type: 'file',
-  })}.ts` as const
-  const resolvedPath = pluginManager.resolvePath({
-    baseName,
-    pluginKey: plugin.key,
-  })
-
-  if (!resolvedPath) {
-    return null
-  }
-
-  return (
-    <File
-      baseName={baseName}
-      path={resolvedPath}
-      meta={{
-        pluginKey: plugin.key,
-      }}
-    >
-      <Schema.Imports isTypeOnly={isTypeOnly} />
-      {children}
-    </File>
-  )
-}
-
-type SchemaImportsProps = {
-  isTypeOnly?: boolean
-}
-/**
- * @deprecated replace with userSchemamanager.getmports
- */
-Schema.Imports = ({ isTypeOnly }: SchemaImportsProps): ReactNode => {
-  const { tree } = useSchema()
-  const { path: root } = useFile()
-
-  const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
-
-  return (
-    <>
-      {refs
-        ?.map((item, i) => {
-          if (!item.args.path) {
-            return undefined
-          }
-
-          return <File.Import key={i} root={root} name={[item.args.name]} path={item.args.path} isTypeOnly={isTypeOnly} />
-        })
-        .filter(Boolean)}
-    </>
-  )
 }
 
 Schema.Context = SchemaContext

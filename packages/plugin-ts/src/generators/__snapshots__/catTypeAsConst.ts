@@ -1,4 +1,4 @@
-export type catTypeAsConst = {
+export type cat = {
   /**
    * @type string, uuid
    */

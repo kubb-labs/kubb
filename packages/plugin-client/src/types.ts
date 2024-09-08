@@ -1,9 +1,7 @@
 import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
-import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Client } from './components/index.ts'
 
 export type Options = {
   output?: {
@@ -73,7 +71,6 @@ export type Options = {
    * @default '@kubb/plugin-client/client'
    */
   importPath?: string
-  template?: typeof Client
   /**
    * ReturnType that needs to be used when calling client().
    *
@@ -94,6 +91,12 @@ export type Options = {
    * @private
    */
   pathParamsType?: 'object' | 'inline'
+  /**
+   * Which parser can be used before returning the data
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   * @default 'client'
+   */
+  parser?: 'client' | 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -104,8 +107,8 @@ export type Options = {
 
 type ResolvedOptions = {
   baseURL: string | undefined
+  parser: NonNullable<Options['parser']>
   importPath: NonNullable<Options['importPath']>
-  template: NonNullable<Options['template']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
 }

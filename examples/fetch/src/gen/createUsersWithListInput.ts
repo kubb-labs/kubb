@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from './models.ts'
 
 /**
@@ -9,14 +9,14 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>['data']> {
-  const res = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+) {
+  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
     method: 'post',
     url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
-    ...options,
+    ...config,
   })
   return res.data
 }

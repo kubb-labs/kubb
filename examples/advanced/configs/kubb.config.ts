@@ -5,6 +5,7 @@ import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -31,6 +32,7 @@ export default defineConfig(() => {
         },
         validate: false,
       }),
+      pluginRedoc(),
       pluginTs({
         output: {
           path: 'models/ts',
@@ -103,7 +105,7 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           importPath: '../../../../swr-client.ts',
-          dataReturnType: 'full',
+          dataReturnType: 'data',
         },
         parser: 'zod',
       }),
@@ -135,7 +137,7 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         dateType: 'stringOffset',
-        infer: true,
+        inferred: true,
         operations: false,
       }),
       pluginFaker({

@@ -1,4 +1,6 @@
-export function pet(data: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
+import { faker } from '@faker-js/faker'
+
+export function pet(data: NonNullable<Partial<Pet>> = {}) {
   return {
     ...{
       id: faker.number.int(),

@@ -1,8 +1,8 @@
-import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
+import type { GetPetByIdPathParams } from '../../models/ts/petController/GetPetById.ts'
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 
-export function createGetPetByIdPathParams(data: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
+export function createGetPetByIdPathParams(data: NonNullable<Partial<GetPetByIdPathParams>> = {}) {
   return {
     ...{ petId: faker.number.int() },
     ...data,
@@ -12,27 +12,27 @@ export function createGetPetByIdPathParams(data: NonNullable<Partial<GetPetByIdP
 /**
  * @description successful operation
  */
-export function createGetPetById200(): NonNullable<GetPetById200> {
+export function createGetPetById200() {
   return createPet()
 }
 
 /**
  * @description Invalid ID supplied
  */
-export function createGetPetById400(): NonNullable<GetPetById400> {
+export function createGetPetById400() {
   return undefined
 }
 
 /**
  * @description Pet not found
  */
-export function createGetPetById404(): NonNullable<GetPetById404> {
+export function createGetPetById404() {
   return undefined
 }
 
 /**
  * @description successful operation
  */
-export function createGetPetByIdQueryResponse(): NonNullable<GetPetByIdQueryResponse> {
+export function createGetPetByIdQueryResponse() {
   return createPet()
 }

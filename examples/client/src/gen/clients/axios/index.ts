@@ -1,4 +1,3 @@
-export { operations } from './operations.ts'
 export { addPet } from './petService/addPet.ts'
 export { deletePet } from './petService/deletePet.ts'
 export { findPetsByStatus } from './petService/findPetsByStatus.ts'

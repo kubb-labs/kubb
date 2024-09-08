@@ -16,7 +16,19 @@ import type { PluginSwr } from './types.ts'
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = createPlugin<PluginSwr>((options) => {
-  const { output = { path: 'hooks' }, group, exclude = [], include, override = [], parser, transformers = {}, query, mutation, client } = options
+  const {
+    output = { path: 'hooks' },
+    group,
+    exclude = [],
+    include,
+    override = [],
+    parser = 'client',
+    transformers = {},
+    query,
+    mutation,
+    client,
+    pathParamsType = 'inline',
+  } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
   return {
@@ -26,20 +38,24 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       ...output,
     },
     options: {
+      pathParamsType,
       client: {
         importPath: '@kubb/plugin-client/client',
         dataReturnType: 'data',
         ...client,
       },
       query: {
+        importPath: 'swr',
         methods: ['get'],
         ...query,
       },
       mutation: {
+        importPath: 'swr/mutation',
         methods: ['post', 'put', 'delete', 'patch'],
         ...mutation,
       },
       parser,
+      baseURL: undefined,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -88,17 +104,24 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
+      const baseURL = await swaggerPlugin.context.getBaseURL()
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
-        oas,
-        pluginManager: this.pluginManager,
-        plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
-        exclude,
-        include,
-        override,
-        mode,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          ...this.plugin.options,
+          baseURL,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          plugin: this.plugin,
+          contentType: swaggerPlugin.context.contentType,
+          exclude,
+          include,
+          override,
+          mode,
+        },
+      )
 
       const files = await operationGenerator.build(queryGenerator, mutationGenerator)
       await this.addFile(...files)

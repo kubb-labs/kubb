@@ -1,16 +1,16 @@
 /**
  * @description Null response
  */
-export type CreatePet = createPet & {
-  name?: createPet
+export type CreatePets201 = error & {
+  name?: errorCode
 }
 
 /**
  * @description unexpected error
  */
-export type CreatePet = createPet
+export type CreatePetsError = error
 
-export type CreatePet = {
+export type CreatePetsMutationRequest = {
   /**
    * @type string
    */
@@ -24,11 +24,11 @@ export type CreatePet = {
 /**
  * @description Null response
  */
-export type CreatePet = createPet & {
-  name?: createPet
+export type CreatePetsMutationResponse = error & {
+  name?: errorCode
 }
 
-export type createPetMutation = {
-  Response: createPet
-  Request: createPet
+export type createPetsMutation = {
+  Response: createPetsMutationResponse
+  Request: createPetsMutationRequest
 }

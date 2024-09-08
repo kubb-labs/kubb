@@ -1,10 +1,10 @@
-import transformers from '@kubb/core/transformers'
-import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function } from '@kubb/react'
+import { URLPath } from '@kubb/core/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 
-import type { Operation } from '@kubb/oas'
+import { type Operation, isOptional } from '@kubb/oas'
+import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
 
@@ -14,115 +14,89 @@ type Props = {
    */
   name: string
   typeName: string
-  typedSchemas: OperationSchemas
+  clientName: string
+  typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
+  pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
 }
 
-export function Mutation({ name, typeName, dataReturnType, typedSchemas, operation }: Props): ReactNode {
-  const path = new URLPath(operation.path)
-  const returnType = `SWRMutationResponse<${[`${typeName}["response"]`, `${typeName}["error"]`].join(', ')}>`
-  // TODO use params type
-  const clientOptions = [
-    `method: "${operation.method}"`,
-    'url',
-    typedSchemas.queryParams?.name ? 'params' : undefined,
-    typedSchemas.request?.name ? 'data' : undefined,
-    typedSchemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
-    '...clientOptions',
-  ].filter(Boolean)
+type GetParamsProps = {
+  pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
+  typeSchemas: OperationSchemas
+}
 
-  const params = new FunctionParams()
+function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
-  params.add([
-    ...getASTParams(typedSchemas.pathParams, { typed: true }),
-    {
-      name: 'params',
-      type: `${typeName}['queryParams']`,
-      enabled: !!typedSchemas.queryParams?.name,
-      required: false,
+  return FunctionParams.factory({
+    pathParams: {
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
     },
-    {
-      name: 'headers',
-      type: `${typeName}['headerParams']`,
-      enabled: !!typedSchemas.headerParams?.name,
-      required: false,
-    },
-    {
-      name: 'options',
-      required: false,
-      type: `{
-        mutation?: SWRMutationConfiguration<${[`${typeName}["response"]`, `${typeName}["error"]`].join(', ')}>,
-        client?: ${typeName}['client']['parameters'],
-        shouldFetch?: boolean,
-      }`,
+    params: typeSchemas.queryParams?.name
+      ? {
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
+        }
+      : undefined,
+    headers: typeSchemas.headerParams?.name
+      ? {
+          type: typeSchemas.headerParams?.name,
+          optional: isOptional(typeSchemas.headerParams?.schema),
+        }
+      : undefined,
+    options: {
+      type: `
+{
+  mutation?: SWRMutationConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  shouldFetch?: boolean,
+}
+`,
       default: '{}',
     },
-  ])
+  })
+}
 
-  const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
-  const clientGenerics = [`${typeName}["data"]`, `${typeName}["error"]`, typedSchemas.request?.name ? `${typeName}["request"]` : ''].filter(Boolean).join(', ')
+export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+  const path = new URLPath(operation.path)
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'Key']
 
-  if (typedSchemas.queryParams?.name) {
-    const hookGenerics = [`${typeName}["response"]`, `${typeName}["error"]`, '[typeof url, typeof params] | null'].join(', ')
+  const params = getParams({
+    pathParamsType,
+    dataReturnType,
+    typeSchemas,
+  })
 
-    return (
-      <File.Source name={name} isExportable isIndexable>
-        <Function
-          export
-          name={name}
-          returnType={returnType}
-          params={params.toString()}
-          JSDoc={{
-            comments: getComments(operation),
-          }}
-        >
-          {`
-         const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+  const clientParams = Client.getParams({
+    typeSchemas,
+    pathParamsType,
+  })
 
-         const url = ${path.template} as const
-         return useSWRMutation<${hookGenerics}>(
-          shouldFetch ? [url, params]: null,
-          async (_url${typedSchemas.request?.name ? ', { arg: data }' : ''}) => {
-            const res = await client<${clientGenerics}>({
-              ${resolvedClientOptions}
-            })
-
-            return ${dataReturnType === 'data' ? 'res.data' : 'res'}
-          },
-          mutationOptions
-        )
-      `}
-        </Function>
-      </File.Source>
-    )
-  }
-
-  const hookGenerics = [`${typeName}["response"]`, `${typeName}["error"]`, 'Key'].join(', ')
+  //fixed name, see Query.getParams and params
+  const swrKey = [path.template, typeSchemas.queryParams?.name ? 'params' : undefined].filter(Boolean)
 
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
-        export
         name={name}
-        returnType={returnType}
-        params={params.toString()}
+        export
+        params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
         }}
       >
         {`
-       const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+       const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
 
-       const url = ${path.template} as const
-       return useSWRMutation<${hookGenerics}>(
-        shouldFetch ? url : null,
-        async (_url${typedSchemas.request?.name ? ', { arg: data }' : ''}) => {
-          const res = await client<${clientGenerics}>({
-            ${resolvedClientOptions}
-          })
-
-          return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+        const swrKey = [${swrKey.join(', ')}] as const
+        return useSWRMutation<${hookGenerics}>(
+        shouldFetch ? swrKey : null,
+        async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
+          return ${clientName}(${clientParams.toCall()})
         },
         mutationOptions
       )

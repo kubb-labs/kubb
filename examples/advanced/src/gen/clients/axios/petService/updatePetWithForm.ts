@@ -1,9 +1,10 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 
 /**
@@ -17,14 +18,14 @@ export async function updatePetWithForm(
     petId: UpdatePetWithFormPathParams['petId']
   },
   params?: UpdatePetWithFormQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>> {
-  const res = await client<UpdatePetWithFormMutationResponse>({
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'post',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
-    ...options,
+    ...config,
   })
   return res
 }

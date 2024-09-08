@@ -1,4 +1,4 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -11,10 +11,50 @@ import { mutationGenerator } from './mutationGenerator.tsx'
 describe('mutationGenerator operation', async () => {
   const testData = [
     {
-      name: 'createPets',
+      name: 'getAsMutation',
       input: '../../mocks/petStore.yaml',
-      path: '/pets',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        mutation: {
+          importPath: 'custom-swr/mutation',
+          methods: ['get'],
+        },
+      },
+    },
+    {
+      name: 'clientPostImportPath',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
       method: 'post',
+      options: {
+        client: {
+          dataReturnType: 'data',
+          importPath: 'axios',
+        },
+      },
+    },
+    {
+      name: 'updatePetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
+      options: {},
+    },
+    {
+      name: 'updatePetByIdPathParamsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
+      options: {
+        pathParamsType: 'object',
+      },
+    },
+    {
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'delete',
       options: {},
     },
   ] as const satisfies Array<{
@@ -33,13 +73,17 @@ describe('mutationGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/client',
       },
-      parser: 'zod',
+      parser: 'client',
       query: {
+        importPath: 'swr',
         methods: ['get'],
       },
       mutation: {
+        importPath: 'swr/mutation',
         methods: ['post'],
       },
+      pathParamsType: 'inline',
+      baseURL: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSwr>

@@ -37,7 +37,7 @@ export function SchemaType({ typeName, typedSchemas, dataReturnType }: Props): R
           pathParams: ${TPathParams}
           queryParams: ${TQueryParams}
           headerParams: ${THeaderParams}
-          response: ${dataReturnType === 'data' ? TData : `Awaited<ReturnType<${clientType}>>`}
+          response: ${dataReturnType === 'data' ? typedSchemas.response.name : `Awaited<ReturnType<${clientType}>>`}
           client: {
             parameters: Partial<Parameters<${clientType}>[0]>
             return: Awaited<ReturnType<${clientType}>>

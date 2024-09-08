@@ -1,4 +1,4 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -11,25 +11,65 @@ import { queryGenerator } from './queryGenerator.tsx'
 describe('queryGenerator operation', async () => {
   const testData = [
     {
-      name: 'showPetById',
+      name: 'findByTags',
       input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
+      path: '/pet/findByTags',
       method: 'get',
       options: {},
     },
     {
-      name: 'getPets',
+      name: 'findByTagsPathParamsObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pets',
+      path: '/pet/findByTags',
       method: 'get',
-      options: {},
+      options: {
+        pathParamsType: 'object',
+      },
     },
     {
-      name: 'createPet',
+      name: 'findByTagsWithZod',
       input: '../../mocks/petStore.yaml',
-      path: '/pets',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        parser: 'zod',
+      },
+    },
+    {
+      name: 'clientGetImportPath',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        client: {
+          dataReturnType: 'data',
+          importPath: 'axios',
+        },
+      },
+    },
+    {
+      name: 'clientDataReturnTypeFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        client: {
+          dataReturnType: 'full',
+          importPath: '@kubb/plugin-client/client',
+        },
+      },
+    },
+    {
+      name: 'postAsQuery',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
       method: 'post',
-      options: {},
+      options: {
+        query: {
+          importPath: 'custom-swr',
+          methods: ['post'],
+        },
+      },
     },
   ] as const satisfies Array<{
     input: string
@@ -47,13 +87,17 @@ describe('queryGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/client',
       },
-      parser: 'zod',
       query: {
+        importPath: 'swr',
         methods: ['get'],
       },
       mutation: {
+        importPath: 'swr/mutation',
         methods: ['post'],
       },
+      pathParamsType: 'inline',
+      baseURL: undefined,
+      parser: 'client',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSwr>

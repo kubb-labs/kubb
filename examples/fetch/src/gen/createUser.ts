@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from './models.ts'
 
 /**
@@ -7,16 +7,13 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from './mo
  * @summary Create user
  * @link /user
  */
-export async function createUser(
-  data?: CreateUserMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<CreateUserMutationResponse>['data']> {
-  const res = await client<CreateUserMutationResponse, CreateUserMutationRequest>({
+export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
     method: 'post',
     url: '/user',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
-    ...options,
+    ...config,
   })
   return res.data
 }

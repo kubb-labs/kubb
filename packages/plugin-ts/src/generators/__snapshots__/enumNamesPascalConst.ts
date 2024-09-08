@@ -1,8 +1,8 @@
-export const EnumNamesPascalConst = {
+export const EnumNamesTypeEnum2 = {
   Pending: 0,
   Received: 1,
 } as const
 
-type EnumNamesPascalConst = (typeof EnumNamesPascalConst)[keyof typeof EnumNamesPascalConst]
+type EnumNamesTypeEnum2 = (typeof EnumNamesTypeEnum2)[keyof typeof EnumNamesTypeEnum2]
 
-export type enumNamesPascalConst = EnumNamesPascalConst
+export type enumNamesType = EnumNamesTypeEnum2

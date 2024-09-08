@@ -1,16 +1,18 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from './models.ts'
+import type { RequestConfig } from '../client.ts'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from './models.ts'
 
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export async function getPetById(
-  petId: GetPetByIdPathParams['petId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<GetPetByIdQueryResponse>['data']> {
-  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...options })
+export async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
+  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
+    method: 'get',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
   return res.data
 }

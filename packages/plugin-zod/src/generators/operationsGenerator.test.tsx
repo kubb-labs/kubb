@@ -31,8 +31,8 @@ describe('operationsGenerator operations', async () => {
     const options: PluginZod['resolvedOptions'] = {
       dateType: 'date',
       transformers: {},
-      infer: false,
-      typedSchema: false,
+      inferred: false,
+      typed: false,
       unknownType: 'any',
       mapper: {},
       importPath: 'zod',

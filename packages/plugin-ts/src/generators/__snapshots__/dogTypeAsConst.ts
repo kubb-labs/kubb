@@ -1,4 +1,4 @@
-export type dogTypeAsConst = {
+export type dog = {
   /**
    * @type string, uuid
    */

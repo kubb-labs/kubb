@@ -1,12 +1,17 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export async function logoutUser(options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<LogoutUserQueryResponse>> {
-  const res = await client<LogoutUserQueryResponse>({ method: 'get', url: '/user/logout', baseURL: 'https://petstore3.swagger.io/api/v3', ...options })
+export async function logoutUser(config: Partial<RequestConfig> = {}) {
+  const res = await client<LogoutUserQueryResponse, unknown, unknown>({
+    method: 'get',
+    url: '/user/logout',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
   return res
 }

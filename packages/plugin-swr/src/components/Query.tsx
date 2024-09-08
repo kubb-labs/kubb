@@ -1,135 +1,110 @@
-import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function } from '@kubb/react'
+import { URLPath } from '@kubb/core/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 
 import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
+import type { PluginSwr } from '../types.ts'
+import { QueryOptions } from './QueryOptions.tsx'
 
 type Props = {
   /**
    * Name of the function
    */
   name: string
-  typeName: string
   queryOptionsName: string
-  typedSchemas: OperationSchemas
+  typeSchemas: OperationSchemas
+  pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   operation: Operation
 }
 
-export function Query({ name, typeName, queryOptionsName, typedSchemas, operation }: Props): ReactNode {
-  const path = new URLPath(operation.path)
-  const returnType = `SWRResponse<${['TData', `${typeName}["error"]`].join(', ')}>`
-  const queryParams = new FunctionParams()
-  const params = new FunctionParams()
+type GetParamsProps = {
+  pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
 
-  queryParams.add([
-    ...getASTParams(typedSchemas.pathParams, { typed: false }),
-    {
-      name: 'params',
-      enabled: !!typedSchemas.queryParams?.name,
-      required: !isOptional(typedSchemas.queryParams?.schema),
-    },
-    {
-      name: 'headers',
-      enabled: !!typedSchemas.headerParams?.name,
-      required: !isOptional(typedSchemas.headerParams?.schema),
-    },
-    {
-      name: 'clientOptions',
-      required: false,
-    },
-  ])
+  typeSchemas: OperationSchemas
+}
 
-  params.add([
-    ...getASTParams(typedSchemas.pathParams, { typed: true }),
-    {
-      name: 'params',
-      type: `${typeName}['queryParams']`,
-      enabled: !!typedSchemas.queryParams?.name,
-      required: !isOptional(typedSchemas.queryParams?.schema),
+function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+
+  return FunctionParams.factory({
+    pathParams: {
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
     },
-    {
-      name: 'headers',
-      type: `${typeName}['headerParams']`,
-      enabled: !!typedSchemas.headerParams?.name,
-      required: !isOptional(typedSchemas.headerParams?.schema),
-    },
-    {
-      name: 'options',
-      required: false,
-      type: `{
-        query?: SWRConfiguration<${['TData', `${typeName}["error"]`].join(', ')}>,
-        client?: ${typeName}['client']['parameters'],
-        shouldFetch?: boolean,
-      }`,
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
+        }
+      : undefined,
+    params: typeSchemas.queryParams?.name
+      ? {
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
+        }
+      : undefined,
+    headers: typeSchemas.headerParams?.name
+      ? {
+          type: typeSchemas.headerParams?.name,
+          optional: isOptional(typeSchemas.headerParams?.schema),
+        }
+      : undefined,
+    options: {
+      type: `
+{
+  query?: SWRConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  shouldFetch?: boolean,
+}
+`,
       default: '{}',
     },
-  ])
+  })
+}
 
-  const queryOptions = `${queryOptionsName}<TData>(${queryParams.toString()})`
+export function Query({ name, typeSchemas, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
+  const path = new URLPath(operation.path)
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'Key']
+  const params = getParams({
+    pathParamsType,
+    dataReturnType,
+    typeSchemas,
+  })
 
-  if (typedSchemas.queryParams?.name) {
-    const hookGenerics = ['TData', `${typeName}["error"]`, '[typeof url, typeof params] | null'].join(', ')
+  const queryOptionsParams = QueryOptions.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
 
-    return (
-      <File.Source name={name} isExportable isIndexable>
-        <Function
-          name={name}
-          export
-          generics={[`TData = ${typeName}["response"]`]}
-          returnType={returnType}
-          params={params.toString()}
-          JSDoc={{
-            comments: getComments(operation),
-          }}
-        >
-          {`
-         const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
-         const url = ${path.template}
-         const query = useSWR<${hookGenerics}>(
-          shouldFetch ? [url, params]: null,
-          {
-            ...${queryOptions},
-            ...queryOptions
-          }
-         )
-
-         return query
-         `}
-        </Function>
-      </File.Source>
-    )
-  }
-
-  const hookGenerics = ['TData', `${typeName}["error"]`, 'typeof url | null'].join(', ')
+  //fixed name, see Query.getParams and params
+  const swrKey = [path.template, typeSchemas.queryParams?.name ? 'params' : undefined].filter(Boolean)
 
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
         name={name}
         export
-        generics={[`TData = ${typeName}["response"]`]}
-        returnType={returnType}
-        params={params.toString()}
+        params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
         }}
       >
         {`
-       const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+       const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
 
-       const url = ${path.template}
-       const query = useSWR<${hookGenerics}>(
-        shouldFetch ? url : null,
+       const swrKey = [${swrKey.join(', ')}] as const
+       return useSWR<${hookGenerics.join(', ')}>(
+        shouldFetch ? swrKey : null,
         {
-          ...${queryOptions},
+          ...${queryOptionsName}(${queryOptionsParams.toCall()})
           ...queryOptions
         }
        )
-
-       return query
        `}
       </Function>
     </File.Source>

@@ -1,3 +1,3 @@
-export type EnumNamesLiteral = 0 | 1
+export type EnumNamesTypeEnum2 = 0 | 1
 
-export type enumNamesLiteral = EnumNamesLiteral
+export type enumNamesType = EnumNamesTypeEnum2

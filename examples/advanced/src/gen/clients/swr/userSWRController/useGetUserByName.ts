@@ -1,38 +1,33 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
 } from '../../../models/ts/userController/GetUserByName.ts'
-import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
-type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
-
-type GetUserByName = {
-  data: GetUserByNameQueryResponse
-  error: GetUserByName400 | GetUserByName404
-  request: never
-  pathParams: GetUserByNamePathParams
-  queryParams: never
-  headerParams: never
-  response: Awaited<ReturnType<GetUserByNameClient>>
-  client: {
-    parameters: Partial<Parameters<GetUserByNameClient>[0]>
-    return: Awaited<ReturnType<GetUserByNameClient>>
-  }
+/**
+ * @summary Get user by user name
+ * @link /user/:username
+ */
+async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
+  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
+    method: 'get',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return getUserByNameQueryResponseSchema.parse(res.data)
 }
 
-export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
-  username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<TData, GetUserByName['error']> {
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetUserByName['error']>({ method: 'get', url: `/user/${username}`, ...options })
-      return getUserByNameQueryResponseSchema.parse(res)
+      return getUserByName(username, config)
     },
   }
 }
@@ -41,19 +36,18 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
  * @summary Get user by user name
  * @link /user/:username
  */
-export function useGetUserByName<TData = GetUserByName['response']>(
+export function useGetUserByName(
   username: GetUserByNamePathParams['username'],
-  options?: {
-    query?: SWRConfiguration<TData, GetUserByName['error']>
-    client?: GetUserByName['client']['parameters']
+  options: {
+    query?: SWRConfiguration<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRResponse<TData, GetUserByName['error']> {
-  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/${username}`
-  const query = useSWR<TData, GetUserByName['error'], typeof url | null>(shouldFetch ? url : null, {
-    ...getUserByNameQueryOptions<TData>(username, clientOptions),
+  } = {},
+) {
+  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/user/${username}`] as const
+  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, Key>(shouldFetch ? swrKey : null, {
+    ...getUserByNameQueryOptions(username, config),
     ...queryOptions,
   })
-  return query
 }

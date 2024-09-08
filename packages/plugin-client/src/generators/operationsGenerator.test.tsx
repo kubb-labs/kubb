@@ -1,20 +1,19 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
-import { Client } from '../components/Client.tsx'
 import type { PluginClient } from '../types.ts'
 import { operationsGenerator } from './operationsGenerator.tsx'
 
 describe('operationsGenerator operations', async () => {
   const testData = [
     {
-      name: 'showPetById',
+      name: 'findByTags',
       input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
+      path: '/pet/findByTags',
       method: 'get',
       options: {},
     },
@@ -34,7 +33,7 @@ describe('operationsGenerator operations', async () => {
       pathParamsType: 'inline',
       importPath: '@kubb/plugin-client/client',
       baseURL: '',
-      template: Client,
+      parser: 'client',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

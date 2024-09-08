@@ -1,45 +1,36 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
-import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
-type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
-
-type FindPetsByTags = {
-  data: FindPetsByTagsQueryResponse
-  error: FindPetsByTags400
-  request: never
-  pathParams: never
-  queryParams: FindPetsByTagsQueryParams
-  headerParams: FindPetsByTagsHeaderParams
-  response: Awaited<ReturnType<FindPetsByTagsClient>>
-  client: {
-    parameters: Partial<Parameters<FindPetsByTagsClient>[0]>
-    return: Awaited<ReturnType<FindPetsByTagsClient>>
-  }
+/**
+ * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+ * @summary Finds Pets by tags
+ * @link /pet/findByTags
+ */
+async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
+    method: 'get',
+    url: '/pet/findByTags',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    headers: { ...headers, ...config.headers },
+    ...config,
+  })
+  return findPetsByTagsQueryResponseSchema.parse(res.data)
 }
 
-export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<TData, FindPetsByTags['error']> {
+export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   return {
     fetcher: async () => {
-      const res = await client<TData, FindPetsByTags['error']>({
-        method: 'get',
-        url: '/pet/findByTags',
-        params,
-        headers: { ...headers, ...options.headers },
-        ...options,
-      })
-      return findPetsByTagsQueryResponseSchema.parse(res)
+      return findPetsByTags(headers, params, config)
     },
   }
 }
@@ -49,20 +40,19 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function useFindPetsByTags<TData = FindPetsByTags['response']>(
-  headers: FindPetsByTags['headerParams'],
-  params?: FindPetsByTags['queryParams'],
-  options?: {
-    query?: SWRConfiguration<TData, FindPetsByTags['error']>
-    client?: FindPetsByTags['client']['parameters']
+export function useFindPetsByTags(
+  headers: FindPetsByTagsHeaderParams,
+  params?: FindPetsByTagsQueryParams,
+  options: {
+    query?: SWRConfiguration<FindPetsByTagsQueryResponse, FindPetsByTags400>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRResponse<TData, FindPetsByTags['error']> {
-  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = '/pet/findByTags'
-  const query = useSWR<TData, FindPetsByTags['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
-    ...findPetsByTagsQueryOptions<TData>(headers, params, clientOptions),
+  } = {},
+) {
+  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = ['/pet/findByTags', params] as const
+  return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, Key>(shouldFetch ? swrKey : null, {
+    ...findPetsByTagsQueryOptions(headers, params, config),
     ...queryOptions,
   })
-  return query
 }

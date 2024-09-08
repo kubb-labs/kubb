@@ -3,6 +3,6 @@ export const enumItemsEnum2 = {
   description: 'description',
 } as const
 
-export type EnumItems = (typeof enumItemsEnum2)[keyof typeof enumItemsEnum2]
+export type EnumItemsEnum2 = (typeof enumItemsEnum2)[keyof typeof enumItemsEnum2]
 
-export type enumItems = EnumItems[]
+export type enumItems = EnumItemsEnum2[]

@@ -1,5 +1,5 @@
-export type DeletePet = any
+export type DeletePetsPetidMutationResponse = any
 
-export type deletePetMutation = {
-  Response: deletePet
+export type deletePetsPetidMutation = {
+  Response: deletePetsPetidMutationResponse
 }
