@@ -1,6 +1,6 @@
 import client from '../client.ts'
 import type { RequestConfig } from '../client.ts'
-import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from './models.ts'
+import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithForm405 } from './models.ts'
 
 /**
  * @summary Updates a pet in the store with form data
@@ -11,7 +11,7 @@ export async function updatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse>({
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'post',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

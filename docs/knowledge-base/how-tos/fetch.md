@@ -58,7 +58,7 @@ export type RequestConfig<TData = unknown> = {
   url?: string
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
   params?: object
-  data?: TData
+  data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
   headers?: HeadersInit

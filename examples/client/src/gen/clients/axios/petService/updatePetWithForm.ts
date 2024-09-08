@@ -3,6 +3,7 @@ import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
@@ -19,7 +20,7 @@ export async function updatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse>({
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'post',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

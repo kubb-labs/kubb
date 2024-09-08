@@ -2,31 +2,27 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { SWRConfiguration } from 'swr'
 
-type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
-
-type GetInventory = {
-  data: GetInventoryQueryResponse
-  error: never
-  request: never
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: GetInventoryQueryResponse
-  client: {
-    parameters: Partial<Parameters<GetInventoryClient>[0]>
-    return: Awaited<ReturnType<GetInventoryClient>>
-  }
+/**
+ * @description Returns a map of status codes to quantities
+ * @summary Returns pet inventories by status
+ * @link /store/inventory
+ */
+async function getInventory(config: Partial<RequestConfig> = {}) {
+  const res = await client<GetInventoryQueryResponse, unknown, unknown>({
+    method: 'get',
+    url: '/store/inventory',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return res.data
 }
 
-export function getInventoryQueryOptions<TData = GetInventory['response']>(
-  config: Partial<RequestConfig> = {},
-): SWRConfiguration<TData, GetInventory['error']> {
+export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
   return {
     fetcher: async () => {
-      const res = await client<GetInventoryQueryResponse>({ method: 'get', url: '/store/inventory', baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
-      return res.data
+      return getInventory(config)
     },
   }
 }
@@ -36,16 +32,17 @@ export function getInventoryQueryOptions<TData = GetInventory['response']>(
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function useGetInventory<TData = GetInventory['response']>(options?: {
-  query?: SWRConfiguration<TData, GetInventory['error']>
-  client?: GetInventory['client']['parameters']
-  shouldFetch?: boolean
-}): SWRResponse<TData, GetInventory['error']> {
-  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+export function useGetInventory<TData = GetInventoryQueryResponse>(
+  options: {
+    query?: SWRConfiguration<TData, unknown>
+    client?: Partial<RequestConfig>
+    shouldFetch?: boolean
+  } = {},
+) {
+  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const url = '/store/inventory'
-  const query = useSWR<TData, GetInventory['error'], typeof url | null>(shouldFetch ? url : null, {
-    ...getInventoryQueryOptions<TData>(clientOptions),
+  return useSWR<TData, unknown, typeof url | null>(shouldFetch ? url : null, {
+    ...getInventoryQueryOptions(config),
     ...queryOptions,
   })
-  return query
 }

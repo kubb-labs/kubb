@@ -18,7 +18,7 @@ type CreatePets = {
   pathParams: CreatePetsPathParams
   queryParams: CreatePetsQueryParams
   headerParams: CreatePetsHeaderParams
-  response: Awaited<ReturnType<CreatePetsClient>>
+  response: CreatePetsMutationResponse
   client: {
     parameters: Partial<Parameters<CreatePetsClient>[0]>
     return: Awaited<ReturnType<CreatePetsClient>>
@@ -52,7 +52,7 @@ export function useCreatePets(
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

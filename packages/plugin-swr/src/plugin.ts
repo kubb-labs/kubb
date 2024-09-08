@@ -22,7 +22,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     exclude = [],
     include,
     override = [],
-    parser,
+    parser = 'client',
     transformers = {},
     query,
     mutation,

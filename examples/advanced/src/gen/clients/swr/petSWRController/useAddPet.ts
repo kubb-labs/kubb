@@ -13,7 +13,7 @@ type AddPet = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<AddPetClient>>
+  response: AddPetMutationResponse
   client: {
     parameters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
@@ -41,7 +41,7 @@ export function useAddPet(options?: {
         data,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

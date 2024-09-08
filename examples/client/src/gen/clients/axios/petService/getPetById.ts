@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById.ts'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
@@ -15,6 +15,11 @@ export async function getPetById(
   },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
+  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
+    method: 'get',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
   return res.data
 }

@@ -19,18 +19,6 @@ type FindByTagsWithZod = {
   }
 }
 
-export function findPetsByTagsQueryOptions<TData = FindByTagsWithZod['response']>(
-  params?: FindByTagsWithZod,
-  config: Partial<RequestConfig> = {},
-): SWRConfiguration<TData, FindByTagsWithZod['error']> {
-  return {
-    fetcher: async () => {
-      const res = await client<FindByTagsWithZod>({ method: 'get', url: `/pet/findByTags`, params, ...config })
-      return { ...res, data: findByTagsWithZod.parse(res.data) }
-    },
-  }
-}
-
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -51,4 +39,15 @@ export function findByTagsWithZod<TData = FindByTagsWithZod['response']>(
     ...queryOptions,
   })
   return query
+}
+
+export function findPetsByTagsQueryOptions<TData = FindByTagsWithZod['response']>(
+  params?: FindByTagsWithZod,
+  config: Partial<RequestConfig> = {},
+): SWRConfiguration<TData, FindByTagsWithZod['error']> {
+  return {
+    fetcher: async () => {
+      return findByTagsWithZod(params, config)
+    },
+  }
 }

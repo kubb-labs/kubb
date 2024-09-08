@@ -19,18 +19,6 @@ type ClientGetImportPath = {
   }
 }
 
-export function findPetsByTagsQueryOptions<TData = ClientGetImportPath['response']>(
-  params?: ClientGetImportPath,
-  config: Partial<RequestConfig> = {},
-): SWRConfiguration<TData, ClientGetImportPath['error']> {
-  return {
-    fetcher: async () => {
-      const res = await client<ClientGetImportPath>({ method: 'get', url: `/pet/findByTags`, params, ...config })
-      return res.data
-    },
-  }
-}
-
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -51,4 +39,15 @@ export function clientGetImportPath<TData = ClientGetImportPath['response']>(
     ...queryOptions,
   })
   return query
+}
+
+export function findPetsByTagsQueryOptions<TData = ClientGetImportPath['response']>(
+  params?: ClientGetImportPath,
+  config: Partial<RequestConfig> = {},
+): SWRConfiguration<TData, ClientGetImportPath['error']> {
+  return {
+    fetcher: async () => {
+      return clientGetImportPath(params, config)
+    },
+  }
 }

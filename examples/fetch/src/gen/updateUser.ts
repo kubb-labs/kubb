@@ -7,8 +7,12 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-export async function updateUser(username: UpdateUserPathParams['username'], data?: UpdateUserMutationRequest, config: Partial<RequestConfig> = {}) {
-  const res = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
+export async function updateUser(
+  username: UpdateUserPathParams['username'],
+  data?: UpdateUserMutationRequest,
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
+) {
+  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
     method: 'put',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

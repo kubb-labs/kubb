@@ -19,18 +19,6 @@ type ClientDataReturnTypeFull = {
   }
 }
 
-export function findPetsByTagsQueryOptions<TData = ClientDataReturnTypeFull['response']>(
-  params?: ClientDataReturnTypeFull,
-  config: Partial<RequestConfig> = {},
-): SWRConfiguration<TData, ClientDataReturnTypeFull['error']> {
-  return {
-    fetcher: async () => {
-      const res = await client<ClientDataReturnTypeFull>({ method: 'get', url: `/pet/findByTags`, params, ...config })
-      return res
-    },
-  }
-}
-
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -51,4 +39,15 @@ export function clientDataReturnTypeFull<TData = ClientDataReturnTypeFull['respo
     ...queryOptions,
   })
   return query
+}
+
+export function findPetsByTagsQueryOptions<TData = ClientDataReturnTypeFull['response']>(
+  params?: ClientDataReturnTypeFull,
+  config: Partial<RequestConfig> = {},
+): SWRConfiguration<TData, ClientDataReturnTypeFull['error']> {
+  return {
+    fetcher: async () => {
+      return clientDataReturnTypeFull(params, config)
+    },
+  }
 }

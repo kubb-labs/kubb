@@ -13,7 +13,7 @@ type UpdateUser = {
   pathParams: UpdateUserPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<UpdateUserClient>>
+  response: UpdateUserMutationResponse
   client: {
     parameters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
@@ -44,7 +44,7 @@ export function useUpdateUser(
         data,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

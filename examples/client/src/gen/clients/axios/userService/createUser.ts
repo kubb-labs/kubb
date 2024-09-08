@@ -7,8 +7,8 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @summary Create user
  * @link /user
  */
-export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig> = {}) {
-  const res = await client<CreateUserMutationResponse, CreateUserMutationRequest>({
+export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
     method: 'post',
     url: '/user',
     baseURL: 'https://petstore3.swagger.io/api/v3',

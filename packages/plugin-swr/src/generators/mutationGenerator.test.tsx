@@ -73,7 +73,7 @@ describe('mutationGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/client',
       },
-      parser: 'zod',
+      parser: 'client',
       query: {
         importPath: 'swr',
         methods: ['get'],

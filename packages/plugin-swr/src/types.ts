@@ -122,7 +122,7 @@ export type Options = {
    * Which parser can be used before returning the data to `swr`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
-  parser?: 'zod'
+  parser?: 'client' | 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -134,7 +134,7 @@ export type Options = {
 type ResolvedOptions = {
   baseURL: string | undefined
   client: Required<NonNullable<Options['client']>>
-  parser: Options['parser']
+  parser: Required<NonNullable<Options['parser']>>
   mutation: Required<NonNullable<Options['mutation']>>
   query: Required<NonNullable<Options['query']>>
   pathParamsType: NonNullable<Options['pathParamsType']>

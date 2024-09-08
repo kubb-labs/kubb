@@ -1,9 +1,9 @@
 import client from '@kubb/plugin-client/client'
-import type { DeleteOrderMutationResponseType, DeleteOrderPathParamsType } from './ts/DeleteOrderType.ts'
+import type { DeleteOrderMutationResponseType, DeleteOrderPathParamsType, DeleteOrder400Type, DeleteOrder404Type } from './ts/DeleteOrderType.ts'
 import type { GetInventoryQueryResponseType } from './ts/GetInventoryType.ts'
-import type { GetOrderByIdQueryResponseType, GetOrderByIdPathParamsType } from './ts/GetOrderByIdType.ts'
-import type { PlaceOrderPatchMutationRequestType, PlaceOrderPatchMutationResponseType } from './ts/PlaceOrderPatchType.ts'
-import type { PlaceOrderMutationRequestType, PlaceOrderMutationResponseType } from './ts/PlaceOrderType.ts'
+import type { GetOrderByIdQueryResponseType, GetOrderByIdPathParamsType, GetOrderById400Type, GetOrderById404Type } from './ts/GetOrderByIdType.ts'
+import type { PlaceOrderPatchMutationRequestType, PlaceOrderPatchMutationResponseType, PlaceOrderPatch405Type } from './ts/PlaceOrderPatchType.ts'
+import type { PlaceOrderMutationRequestType, PlaceOrderMutationResponseType, PlaceOrder405Type } from './ts/PlaceOrderType.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import { deleteOrderMutationResponseSchema } from './zod/deleteOrderSchema.gen.ts'
 import { getInventoryQueryResponseSchema } from './zod/getInventorySchema.gen.ts'
@@ -17,7 +17,12 @@ import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
  * @link /store/inventory
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponseType>({ method: 'get', url: '/store/inventory', baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
+  const res = await client<GetInventoryQueryResponseType, unknown, unknown>({
+    method: 'get',
+    url: '/store/inventory',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
   return { ...res, data: getInventoryQueryResponseSchema.parse(res.data) }
 }
 
@@ -26,8 +31,8 @@ export async function getInventory(config: Partial<RequestConfig> = {}) {
  * @summary Place an order for a pet
  * @link /store/order
  */
-export async function placeOrder(data?: PlaceOrderMutationRequestType, config: Partial<RequestConfig> = {}) {
-  const res = await client<PlaceOrderMutationResponseType, PlaceOrderMutationRequestType>({
+export async function placeOrder(data?: PlaceOrderMutationRequestType, config: Partial<RequestConfig<PlaceOrderMutationRequestType>> = {}) {
+  const res = await client<PlaceOrderMutationResponseType, PlaceOrder405Type, PlaceOrderMutationRequestType>({
     method: 'post',
     url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -42,8 +47,8 @@ export async function placeOrder(data?: PlaceOrderMutationRequestType, config: P
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType, config: Partial<RequestConfig> = {}) {
-  const res = await client<PlaceOrderPatchMutationResponseType, PlaceOrderPatchMutationRequestType>({
+export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType, config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> = {}) {
+  const res = await client<PlaceOrderPatchMutationResponseType, PlaceOrderPatch405Type, PlaceOrderPatchMutationRequestType>({
     method: 'patch',
     url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -66,7 +71,7 @@ export async function getOrderById(
   },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<GetOrderByIdQueryResponseType>({
+  const res = await client<GetOrderByIdQueryResponseType, GetOrderById400Type | GetOrderById404Type, unknown>({
     method: 'get',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -88,7 +93,7 @@ export async function deleteOrder(
   },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<DeleteOrderMutationResponseType>({
+  const res = await client<DeleteOrderMutationResponseType, DeleteOrder400Type | DeleteOrder404Type, unknown>({
     method: 'delete',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

@@ -13,7 +13,7 @@ type DeleteUser = {
   pathParams: DeleteUserPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<DeleteUserClient>>
+  response: DeleteUserMutationResponse
   client: {
     parameters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
@@ -43,7 +43,7 @@ export function useDeleteUser(
         url,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

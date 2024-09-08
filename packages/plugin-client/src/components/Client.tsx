@@ -12,6 +12,9 @@ type Props = {
    * Name of the function
    */
   name: string
+  isExportable?: boolean
+  isIndexable?: boolean
+
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
@@ -22,13 +25,53 @@ type Props = {
 }
 
 type GetParamsProps = {
-  baseURL: string | undefined
-  operation: Operation
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ operation, baseURL, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
+  return FunctionParams.factory({
+    pathParams: {
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
+    },
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
+        }
+      : undefined,
+    params: typeSchemas.queryParams?.name
+      ? {
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
+        }
+      : undefined,
+    headers: typeSchemas.headerParams?.name
+      ? {
+          type: typeSchemas.headerParams?.name,
+          optional: isOptional(typeSchemas.headerParams?.schema),
+        }
+      : undefined,
+    config: {
+      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+      default: '{}',
+    },
+  })
+}
+
+export function Client({
+  name,
+  isExportable = true,
+  isIndexable = true,
+  typeSchemas,
+  baseURL,
+  dataReturnType,
+  parser,
+  zodSchemas,
+  pathParamsType,
+  operation,
+}: Props): KubbNode {
   const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
@@ -37,7 +80,13 @@ function getParams({ operation, baseURL, pathParamsType, typeSchemas }: GetParam
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
-  return FunctionParams.factory({
+  const generics = [
+    typeSchemas.response.name,
+    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown',
+    typeSchemas.request?.name || 'unknown',
+  ].filter(Boolean)
+  const params = getParams({ pathParamsType, typeSchemas })
+  const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',
       children: {
@@ -69,46 +118,6 @@ function getParams({ operation, baseURL, pathParamsType, typeSchemas }: GetParam
       },
     },
   })
-}
-export function Client({ name, typeSchemas, baseURL, dataReturnType, parser, zodSchemas, pathParamsType, operation }: Props): KubbNode {
-  const contentType = operation.getContentType()
-  const isFormData = contentType === 'multipart/form-data'
-
-  const params = FunctionParams.factory({
-    pathParams: {
-      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
-    },
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
-    config: {
-      type: 'Partial<RequestConfig>',
-      default: '{}',
-    },
-  })
-
-  const clientParams = getParams({
-    operation,
-    baseURL,
-    pathParamsType,
-    typeSchemas,
-  })
 
   const formData = isFormData
     ? `
@@ -129,18 +138,18 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType, parser, zod
   }
 
   return (
-    <File.Source name={name} isExportable isIndexable>
+    <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function
         name={name}
         async
-        export
+        export={isExportable}
         params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
         }}
       >
         {formData}
-        {`const res = await client<${[typeSchemas.response.name, typeSchemas.request?.name].filter(Boolean).join(', ')}>(${clientParams.toCall()})`}
+        {`const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
         {dataReturnType === 'data'
           ? parser === 'zod' && zodSchemas

@@ -19,19 +19,6 @@ type PostAsQuery = {
   }
 }
 
-export function updatePetWithFormQueryOptions<TData = PostAsQuery['response']>(
-  petId: PostAsQuery['petId'],
-  params?: PostAsQuery,
-  config: Partial<RequestConfig> = {},
-): SWRConfiguration<TData, PostAsQuery['error']> {
-  return {
-    fetcher: async () => {
-      const res = await client<PostAsQuery>({ method: 'post', url: `/pet/${petId}`, params, ...config })
-      return res.data
-    },
-  }
-}
-
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -52,4 +39,16 @@ export function postAsQuery<TData = PostAsQuery['response']>(
     ...queryOptions,
   })
   return query
+}
+
+export function updatePetWithFormQueryOptions<TData = PostAsQuery['response']>(
+  petId: PostAsQuery['petId'],
+  params?: PostAsQuery,
+  config: Partial<RequestConfig> = {},
+): SWRConfiguration<TData, PostAsQuery['error']> {
+  return {
+    fetcher: async () => {
+      return postAsQuery(petId, params, config)
+    },
+  }
 }

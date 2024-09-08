@@ -19,9 +19,9 @@ export async function uploadFile(
   },
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

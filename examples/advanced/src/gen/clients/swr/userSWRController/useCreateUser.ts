@@ -13,7 +13,7 @@ type CreateUser = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<CreateUserClient>>
+  response: CreateUserMutationResponse
   client: {
     parameters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
@@ -41,7 +41,7 @@ export function useCreateUser(options?: {
         data,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

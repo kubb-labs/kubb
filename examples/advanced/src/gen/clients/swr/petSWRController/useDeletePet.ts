@@ -13,7 +13,7 @@ type DeletePet = {
   pathParams: DeletePetPathParams
   queryParams: never
   headerParams: DeletePetHeaderParams
-  response: Awaited<ReturnType<DeletePetClient>>
+  response: DeletePetMutationResponse
   client: {
     parameters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>
@@ -45,7 +45,7 @@ export function useDeletePet(
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

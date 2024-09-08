@@ -17,7 +17,7 @@ type UpdatePetWithForm = {
   pathParams: UpdatePetWithFormPathParams
   queryParams: UpdatePetWithFormQueryParams
   headerParams: never
-  response: Awaited<ReturnType<UpdatePetWithFormClient>>
+  response: UpdatePetWithFormMutationResponse
   client: {
     parameters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
@@ -48,7 +48,7 @@ export function useUpdatePetWithForm(
         params,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

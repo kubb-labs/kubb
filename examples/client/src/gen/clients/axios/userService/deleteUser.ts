@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
@@ -15,7 +15,7 @@ export async function deleteUser(
   },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<DeleteUserMutationResponse>({
+  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
     method: 'delete',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

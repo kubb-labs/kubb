@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams } from '../../../models/ts/petController/DeletePet.ts'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
@@ -16,7 +16,7 @@ export async function deletePet(
   headers?: DeletePetHeaderParams,
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<DeletePetMutationResponse>({
+  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
     method: 'delete',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

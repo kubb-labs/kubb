@@ -17,7 +17,7 @@ type UploadFile = {
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams
   headerParams: never
-  response: Awaited<ReturnType<UploadFileClient>>
+  response: UploadFileMutationResponse
   client: {
     parameters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
@@ -49,7 +49,7 @@ export function useUploadFile(
         data,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

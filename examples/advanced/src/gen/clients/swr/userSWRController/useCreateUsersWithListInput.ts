@@ -16,7 +16,7 @@ type CreateUsersWithListInput = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<CreateUsersWithListInputClient>>
+  response: CreateUsersWithListInputMutationResponse
   client: {
     parameters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
@@ -44,7 +44,7 @@ export function useCreateUsersWithListInput(options?: {
         data,
         ...clientOptions,
       })
-      return res
+      return res.data
     },
     mutationOptions,
   )

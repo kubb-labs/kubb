@@ -10,8 +10,11 @@ import type {
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-export async function createUsersWithListInput(data?: CreateUsersWithListInputMutationRequest, config: Partial<RequestConfig> = {}) {
-  const res = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
+export async function createUsersWithListInput(
+  data?: CreateUsersWithListInputMutationRequest,
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+) {
+  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
     method: 'post',
     url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
