@@ -13,7 +13,15 @@ import { useMutation } from '@tanstack/react-query'
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+async function updatePetWithForm(
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+  },
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'post',
     url: `/pet/${petId}`,
@@ -29,17 +37,28 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
  * @link /pet/:petId
  */
 export function useUpdatePetWithFormHook(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
   options: {
-    mutation?: UseMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>
+    mutation?: UseMutationOptions<
+      UpdatePetWithFormMutationResponse,
+      UpdatePetWithForm405,
+      {
+        petId: UpdatePetWithFormPathParams['petId']
+        params?: UpdatePetWithFormQueryParams
+      }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      return updatePetWithForm(petId, params, config)
+    mutationFn: async ({
+      petId,
+      params,
+    }: {
+      petId: UpdatePetWithFormPathParams['petId']
+      params?: UpdatePetWithFormQueryParams
+    }) => {
+      return updatePetWithForm({ petId }, params, config)
     },
     ...mutationOptions,
   })

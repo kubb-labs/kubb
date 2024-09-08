@@ -9,7 +9,11 @@ import { useMutation } from '@tanstack/react-query'
  * @link /pet/:petId/uploadImage
  */
 async function uploadFile(
-  petId: UploadFilePathParams['petId'],
+  {
+    petId,
+  }: {
+    petId: UploadFilePathParams['petId']
+  },
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
@@ -31,17 +35,31 @@ async function uploadFile(
  * @link /pet/:petId/uploadImage
  */
 export function useUploadFileHook(
-  petId: UploadFilePathParams['petId'],
-  params?: UploadFileQueryParams,
   options: {
-    mutation?: UseMutationOptions<UploadFileMutationResponse, unknown, UploadFileMutationRequest>
+    mutation?: UseMutationOptions<
+      UploadFileMutationResponse,
+      unknown,
+      {
+        petId: UploadFilePathParams['petId']
+        data?: UploadFileMutationRequest
+        params?: UploadFileQueryParams
+      }
+    >
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      return uploadFile(petId, data, params, config)
+    mutationFn: async ({
+      petId,
+      data,
+      params,
+    }: {
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileMutationRequest
+      params?: UploadFileQueryParams
+    }) => {
+      return uploadFile({ petId }, data, params, config)
     },
     ...mutationOptions,
   })

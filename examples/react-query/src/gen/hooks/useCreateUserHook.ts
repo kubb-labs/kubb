@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query'
 async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
   const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
     method: 'post',
-    url: `/user`,
+    url: '/user',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
@@ -27,13 +27,23 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function useCreateUserHook(
   options: {
-    mutation?: UseMutationOptions<CreateUserMutationResponse, unknown, CreateUserMutationRequest>
+    mutation?: UseMutationOptions<
+      CreateUserMutationResponse,
+      unknown,
+      {
+        data?: CreateUserMutationRequest
+      }
+    >
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async ({
+      data,
+    }: {
+      data?: CreateUserMutationRequest
+    }) => {
       return createUser(data, config)
     },
     ...mutationOptions,

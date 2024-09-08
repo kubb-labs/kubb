@@ -28,11 +28,6 @@ export type Query = {
 
 export type Mutation = {
   /**
-   * Define the way of passing through the queryParams, headerParams and data.
-   * @default `'hook'`
-   */
-  variablesType: 'mutate' | 'hook'
-  /**
    * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
    */

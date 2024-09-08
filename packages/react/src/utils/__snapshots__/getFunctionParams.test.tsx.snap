@@ -67,3 +67,37 @@ exports[`[params] getFunctionParams constructor (Function) > 'string' 1`] = `"na
 exports[`[params] getFunctionParams constructor (Function) > 'undefined children param' 1`] = `""`;
 
 exports[`[params] getFunctionParams constructor (Function) > 'undefined' 1`] = `""`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'default string' 1`] = `"name"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'empty children param' 1`] = `"{ age }"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'empty' 1`] = `"name"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'name and address' 1`] = `"name, address"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'name[optional] age, address[optional]…' 1`] = `"age, name, address, country"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'name[optional], age[optional] and add…' 1`] = `"address, name, age"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'optional string' 1`] = `"name"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[with name] with age, address[o…' 1`] = `"{ age, country, address }"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[without name and default] with…' 1`] = `"{ address, age, country }"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[without name and mode inline] …' 1`] = `"data"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[without name and mode inline] …' 2`] = `"data"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[without name and mode inlineSp…' 1`] = `"address, age, country"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[without name] with age, addres…' 1`] = `"{ age, country, address }"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'params[without name] with age[optiona…' 1`] = `"{ address, age, country }"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'string' 1`] = `"name"`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'undefined children param' 1`] = `""`;
+
+exports[`[params] getFunctionParams generic (TypeScript) > 'undefined' 1`] = `""`;

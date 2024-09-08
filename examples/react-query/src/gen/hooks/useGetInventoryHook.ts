@@ -16,7 +16,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 async function getInventory(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, unknown, unknown>({
     method: 'get',
-    url: `/store/inventory`,
+    url: '/store/inventory',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })

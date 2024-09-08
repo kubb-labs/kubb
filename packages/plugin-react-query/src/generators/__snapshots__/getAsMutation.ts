@@ -9,16 +9,21 @@ import { useMutation } from 'custom-swr/mutation'
  * @link /pet/findByTags
  */
 export function findPetsByTags(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
   options: {
-    mutation?: UseMutationOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>
+    mutation?: UseMutationOptions<
+      FindPetsByTagsQueryResponse,
+      FindPetsByTags400,
+      {
+        headers: FindPetsByTagsHeaderParams
+        params?: FindPetsByTagsQueryParams
+      }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async ({ headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams }) => {
       return findPetsByTags(headers, params, config)
     },
     ...mutationOptions,

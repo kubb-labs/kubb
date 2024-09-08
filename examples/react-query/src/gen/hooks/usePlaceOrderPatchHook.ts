@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query'
 async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
     method: 'patch',
-    url: `/store/order`,
+    url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
@@ -27,13 +27,23 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
  */
 export function usePlaceOrderPatchHook(
   options: {
-    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+    mutation?: UseMutationOptions<
+      PlaceOrderPatchMutationResponse,
+      PlaceOrderPatch405,
+      {
+        data?: PlaceOrderPatchMutationRequest
+      }
+    >
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async ({
+      data,
+    }: {
+      data?: PlaceOrderPatchMutationRequest
+    }) => {
       return placeOrderPatch(data, config)
     },
     ...mutationOptions,

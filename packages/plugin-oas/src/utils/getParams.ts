@@ -1,10 +1,10 @@
 import { isParameterObject } from '@kubb/oas'
 
+import { camelCase } from '@kubb/core/transformers'
 import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '@kubb/oas'
 import type { Params } from '@kubb/react/types'
 import type { OperationSchema } from '../types.ts'
-import { camelCase } from '@kubb/core/transformers'
 /**
  *
  * @deprecated

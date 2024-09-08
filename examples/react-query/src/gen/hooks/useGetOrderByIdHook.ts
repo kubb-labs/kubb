@@ -4,8 +4,11 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
 
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
-  ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+export const getOrderByIdQueryKey = ({
+  orderId,
+}: {
+  orderId: GetOrderByIdPathParams['orderId']
+}) => ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 
@@ -14,7 +17,14 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
+async function getOrderById(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({
     method: 'get',
     url: `/store/order/${orderId}`,
@@ -24,12 +34,19 @@ async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: 
   return res.data
 }
 
-export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
-  const queryKey = getOrderByIdQueryKey(orderId)
+export function getOrderByIdQueryOptions(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
+  const queryKey = getOrderByIdQueryKey({ orderId })
   return queryOptions({
     queryKey,
     queryFn: async () => {
-      return getOrderById(orderId, config)
+      return getOrderById({ orderId }, config)
     },
   })
 }
@@ -44,16 +61,20 @@ export function useGetOrderByIdHook<
   TQueryData = GetOrderByIdQueryResponse,
   TQueryKey extends QueryKey = GetOrderByIdQueryKey,
 >(
-  orderId: GetOrderByIdPathParams['orderId'],
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey({ orderId })
   const query = useQuery({
-    ...(getOrderByIdQueryOptions(orderId, config) as unknown as QueryObserverOptions),
+    ...(getOrderByIdQueryOptions({ orderId }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & {

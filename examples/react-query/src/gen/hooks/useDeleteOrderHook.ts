@@ -9,7 +9,14 @@ import { useMutation } from '@tanstack/react-query'
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> = {}) {
+async function deleteOrder(
+  {
+    orderId,
+  }: {
+    orderId: DeleteOrderPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
     method: 'delete',
     url: `/store/order/${orderId}`,
@@ -25,16 +32,25 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
  * @link /store/order/:orderId
  */
 export function useDeleteOrderHook(
-  orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: UseMutationOptions<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>
+    mutation?: UseMutationOptions<
+      DeleteOrderMutationResponse,
+      DeleteOrder400 | DeleteOrder404,
+      {
+        orderId: DeleteOrderPathParams['orderId']
+      }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      return deleteOrder(orderId, config)
+    mutationFn: async ({
+      orderId,
+    }: {
+      orderId: DeleteOrderPathParams['orderId']
+    }) => {
+      return deleteOrder({ orderId }, config)
     },
     ...mutationOptions,
   })

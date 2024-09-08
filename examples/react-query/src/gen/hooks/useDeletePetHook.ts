@@ -9,7 +9,15 @@ import { useMutation } from '@tanstack/react-query'
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
+async function deletePet(
+  {
+    petId,
+  }: {
+    petId: DeletePetPathParams['petId']
+  },
+  headers?: DeletePetHeaderParams,
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
     method: 'delete',
     url: `/pet/${petId}`,
@@ -26,17 +34,28 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
  * @link /pet/:petId
  */
 export function useDeletePetHook(
-  petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
   options: {
-    mutation?: UseMutationOptions<DeletePetMutationResponse, DeletePet400, unknown>
+    mutation?: UseMutationOptions<
+      DeletePetMutationResponse,
+      DeletePet400,
+      {
+        petId: DeletePetPathParams['petId']
+        headers?: DeletePetHeaderParams
+      }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      return deletePet(petId, headers, config)
+    mutationFn: async ({
+      petId,
+      headers,
+    }: {
+      petId: DeletePetPathParams['petId']
+      headers?: DeletePetHeaderParams
+    }) => {
+      return deletePet({ petId }, headers, config)
     },
     ...mutationOptions,
   })

@@ -15,7 +15,7 @@ async function createUsersWithListInput(
 ) {
   const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
     method: 'post',
-    url: `/user/createWithList`,
+    url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
@@ -30,13 +30,23 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInputHook(
   options: {
-    mutation?: UseMutationOptions<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>
+    mutation?: UseMutationOptions<
+      CreateUsersWithListInputMutationResponse,
+      unknown,
+      {
+        data?: CreateUsersWithListInputMutationRequest
+      }
+    >
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async ({
+      data,
+    }: {
+      data?: CreateUsersWithListInputMutationRequest
+    }) => {
       return createUsersWithListInput(data, config)
     },
     ...mutationOptions,

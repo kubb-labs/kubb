@@ -9,7 +9,14 @@ import { useMutation } from '@tanstack/react-query'
  * @summary Delete user
  * @link /user/:username
  */
-async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
+async function deleteUser(
+  {
+    username,
+  }: {
+    username: DeleteUserPathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
     method: 'delete',
     url: `/user/${username}`,
@@ -25,16 +32,25 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
  * @link /user/:username
  */
 export function useDeleteUserHook(
-  username: DeleteUserPathParams['username'],
   options: {
-    mutation?: UseMutationOptions<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>
+    mutation?: UseMutationOptions<
+      DeleteUserMutationResponse,
+      DeleteUser400 | DeleteUser404,
+      {
+        username: DeleteUserPathParams['username']
+      }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      return deleteUser(username, config)
+    mutationFn: async ({
+      username,
+    }: {
+      username: DeleteUserPathParams['username']
+    }) => {
+      return deleteUser({ username }, config)
     },
     ...mutationOptions,
   })

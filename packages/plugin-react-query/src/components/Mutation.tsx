@@ -26,14 +26,15 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-
-  return FunctionParams.factory({
-    pathParams: {
-      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
-    },
+function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
+  const mutateParams = FunctionParams.factory({
+    ...getPathParams(typeSchemas.pathParams, { typed: true }),
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
+        }
+      : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
@@ -46,10 +47,16 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
+  })
+
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TRequest = mutateParams.toConstructor({ valueAsType: true })
+
+  return FunctionParams.factory({
     options: {
       type: `
 {
-  mutation?: UseMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', typeSchemas.request?.name || 'unknown'].join(', ')}>,
+  mutation?: UseMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', `{${TRequest}`].join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
 }
 `,
@@ -70,6 +77,35 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
     pathParamsType,
   })
 
+  const mutationParams = FunctionParams.factory({
+    data: {
+      // No use of pathParams because useMutation can only take one argument in object form,
+      // see https://tanstack.com/query/latest/docs/framework/react/reference/useMutation#usemutation
+      mode: 'object',
+      children: {
+        ...getPathParams(typeSchemas.pathParams, { typed: true }),
+        data: typeSchemas.request?.name
+          ? {
+              type: typeSchemas.request?.name,
+              optional: isOptional(typeSchemas.request?.schema),
+            }
+          : undefined,
+        params: typeSchemas.queryParams?.name
+          ? {
+              type: typeSchemas.queryParams?.name,
+              optional: isOptional(typeSchemas.queryParams?.schema),
+            }
+          : undefined,
+        headers: typeSchemas.headerParams?.name
+          ? {
+              type: typeSchemas.headerParams?.name,
+              optional: isOptional(typeSchemas.headerParams?.schema),
+            }
+          : undefined,
+      },
+    },
+  })
+
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
@@ -84,7 +120,7 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
         const { mutation: mutationOptions, client: config = {} } = options ?? {}
 
         return useMutation({
-          mutationFn: async(data) => {
+          mutationFn: async(${mutationParams.toConstructor()}) => {
             return ${clientName}(${clientParams.toCall()})
           },
           ...mutationOptions

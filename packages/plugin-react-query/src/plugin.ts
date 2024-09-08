@@ -62,7 +62,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       },
       mutation: {
         methods: ['post', 'put', 'patch', 'delete'],
-        variablesType: 'hook',
         importPath: '@tanstack/react-query',
         ...mutation,
       },

@@ -112,7 +112,6 @@ describe('queryGenerator operation', async () => {
       mutation: {
         methods: ['post'],
         importPath: '@tanstack/react-query',
-        variablesType: 'hook',
       },
       suspense: false,
       infinite: false,

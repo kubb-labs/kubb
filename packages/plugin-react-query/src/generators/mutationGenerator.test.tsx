@@ -19,7 +19,6 @@ describe('mutationGenerator operation', async () => {
         mutation: {
           importPath: 'custom-swr/mutation',
           methods: ['get'],
-          variablesType: 'mutate',
         },
       },
     },
@@ -41,19 +40,6 @@ describe('mutationGenerator operation', async () => {
       path: '/pet/{petId}',
       method: 'post',
       options: {},
-    },
-    {
-      name: 'updatePetByIdAsMutate',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
-      options: {
-        mutation: {
-          importPath: 'custom-swr/mutation',
-          methods: ['get'],
-          variablesType: 'mutate',
-        },
-      },
     },
     {
       name: 'updatePetByIdPathParamsObject',
@@ -98,7 +84,6 @@ describe('mutationGenerator operation', async () => {
       mutation: {
         methods: ['post'],
         importPath: '@tanstack/react-query',
-        variablesType: 'hook',
       },
       suspense: false,
       infinite: false,

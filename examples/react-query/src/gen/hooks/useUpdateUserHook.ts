@@ -10,7 +10,11 @@ import { useMutation } from '@tanstack/react-query'
  * @link /user/:username
  */
 async function updateUser(
-  username: UpdateUserPathParams['username'],
+  {
+    username,
+  }: {
+    username: UpdateUserPathParams['username']
+  },
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
@@ -30,16 +34,28 @@ async function updateUser(
  * @link /user/:username
  */
 export function useUpdateUserHook(
-  username: UpdateUserPathParams['username'],
   options: {
-    mutation?: UseMutationOptions<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>
+    mutation?: UseMutationOptions<
+      UpdateUserMutationResponse,
+      unknown,
+      {
+        username: UpdateUserPathParams['username']
+        data?: UpdateUserMutationRequest
+      }
+    >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      return updateUser(username, data, config)
+    mutationFn: async ({
+      username,
+      data,
+    }: {
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserMutationRequest
+    }) => {
+      return updateUser({ username }, data, config)
     },
     ...mutationOptions,
   })

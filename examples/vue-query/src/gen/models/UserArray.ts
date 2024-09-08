@@ -1,3 +1,3 @@
-import type { User } from "./User.ts";
+import type { User } from './User.ts'
 
- export type UserArray = User[];
+export type UserArray = User[]

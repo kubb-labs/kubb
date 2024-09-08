@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query'
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
     method: 'post',
-    url: `/pet`,
+    url: '/pet',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
@@ -27,13 +27,23 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  */
 export function useAddPetHook(
   options: {
-    mutation?: UseMutationOptions<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
+    mutation?: UseMutationOptions<
+      AddPetMutationResponse,
+      AddPet405,
+      {
+        data: AddPetMutationRequest
+      }
+    >
     client?: Partial<RequestConfig<AddPetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async ({
+      data,
+    }: {
+      data: AddPetMutationRequest
+    }) => {
       return addPet(data, config)
     },
     ...mutationOptions,
