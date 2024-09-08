@@ -188,7 +188,3 @@ export class FunctionParams {
     return getFunctionParams(this.#params, { type: 'constructor' })
   }
 }
-
-export function isFunctionParams(items: any): items is Params {
-  return typeof items !== 'string' && items && Object.keys(items)?.length
-}

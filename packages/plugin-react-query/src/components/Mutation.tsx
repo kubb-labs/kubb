@@ -82,6 +82,7 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
       // No use of pathParams because useMutation can only take one argument in object form,
       // see https://tanstack.com/query/latest/docs/framework/react/reference/useMutation#usemutation
       mode: 'object',
+      //TODO rename with value
       children: {
         ...getPathParams(typeSchemas.pathParams, { typed: true }),
         data: typeSchemas.request?.name

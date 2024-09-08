@@ -12,9 +12,3 @@ describe('[params] getFunctionParams constructor (Function)', () => {
     expect(getFunctionParams(params, { type: 'constructor' })).toMatchSnapshot()
   })
 })
-
-describe('[params] getFunctionParams generic (TypeScript)', () => {
-  test.each(mockParams)('$name', async ({ params }) => {
-    expect(getFunctionParams(params, { type: 'generic' })).toMatchSnapshot()
-  })
-})
