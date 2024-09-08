@@ -10,7 +10,6 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 
 type Props = {
   name: string
-  queryTypeName: string
   clientName: string
   typeSchemas: OperationSchemas
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
@@ -52,7 +51,7 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function QueryOptions({ name, clientName, queryTypeName, typeSchemas, pathParamsType }: Props): ReactNode {
+export function QueryOptions({ name, clientName, typeSchemas, pathParamsType }: Props): ReactNode {
   const params = getParams({ pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     typeSchemas,

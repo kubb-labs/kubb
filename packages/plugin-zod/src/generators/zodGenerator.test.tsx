@@ -78,7 +78,7 @@ describe('zodGenerator schema', async () => {
       options: {},
     },
     {
-      name: 'OrderDateTyestring',
+      name: 'OrderDateTypeString',
       path: 'Order',
       input: '../../mocks/petStore.yaml',
       options: {

@@ -1,7 +1,7 @@
 /**
  * @description A project is an analysis project. It has a name, an id, and has a dataset
  */
-export type petsStoreDiscriminator = {
+export type petstore = {
   /**
    * @type integer
    */
@@ -9,5 +9,5 @@ export type petsStoreDiscriminator = {
   /**
    * @type array | undefined
    */
-  pets?: (petsStoreDiscriminator | petsStoreDiscriminator)[]
+  pets?: (cat | dog)[]
 }

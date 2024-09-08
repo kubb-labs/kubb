@@ -1,4 +1,6 @@
-export function getPets(data: NonNullable<Partial<GetPets>> = {}) {
+import { faker } from '@faker-js/faker'
+
+export function listPetsQueryParams(data: NonNullable<Partial<ListPetsQueryParams>> = {}) {
   return {
     ...{ limit: faker.string.alpha() },
     ...data,
@@ -8,20 +10,20 @@ export function getPets(data: NonNullable<Partial<GetPets>> = {}) {
 /**
  * @description A paged array of pets
  */
-export function getPets() {
-  return getPets()
+export function listPets200() {
+  return pets()
 }
 
 /**
  * @description unexpected error
  */
-export function getPets() {
-  return getPets()
+export function listPetsError() {
+  return error()
 }
 
 /**
  * @description A paged array of pets
  */
-export function getPets() {
-  return getPets()
+export function listPetsQueryResponse() {
+  return pets()
 }

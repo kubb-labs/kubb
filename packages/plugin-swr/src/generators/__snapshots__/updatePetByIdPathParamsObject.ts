@@ -1,48 +1,32 @@
 import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-
-type UpdatePetByIdPathParamsObjectClient = typeof client<UpdatePetByIdPathParamsObject, UpdatePetByIdPathParamsObject, never>
-
-type UpdatePetByIdPathParamsObject = {
-  data: UpdatePetByIdPathParamsObject
-  error: UpdatePetByIdPathParamsObject
-  request: never
-  pathParams: UpdatePetByIdPathParamsObject
-  queryParams: UpdatePetByIdPathParamsObject
-  headerParams: never
-  response: UpdatePetByIdPathParamsObject
-  client: {
-    parameters: Partial<Parameters<UpdatePetByIdPathParamsObjectClient>[0]>
-    return: Awaited<ReturnType<UpdatePetByIdPathParamsObjectClient>>
-  }
-}
+import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { Key } from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetByIdPathParamsObject(
-  petId: UpdatePetByIdPathParamsObject['petId'],
-  params?: UpdatePetByIdPathParamsObject['queryParams'],
-  options?: {
-    mutation?: SWRMutationConfiguration<UpdatePetByIdPathParamsObject['response'], UpdatePetByIdPathParamsObject['error']>
-    client?: UpdatePetByIdPathParamsObject['client']['parameters']
-    shouldFetch?: boolean
+export function updatePetWithForm(
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
   },
-): SWRMutationResponse<UpdatePetByIdPathParamsObject['response'], UpdatePetByIdPathParamsObject['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}` as const
-  return useSWRMutation<UpdatePetByIdPathParamsObject['response'], UpdatePetByIdPathParamsObject['error'], [typeof url, typeof params] | null>(
-    shouldFetch ? [url, params] : null,
+  params?: UpdatePetWithFormQueryParams,
+  options: {
+    mutation?: SWRMutationConfiguration<UpdatePetWithFormMutationResponse, UpdatePetWithForm405>
+    client?: Partial<RequestConfig>
+    shouldFetch?: boolean
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/pet/${petId}`, params] as const
+  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(
+    shouldFetch ? swrKey : null,
     async (_url) => {
-      const res = await client<UpdatePetByIdPathParamsObject['data'], UpdatePetByIdPathParamsObject['error']>({
-        method: 'post',
-        url,
-        params,
-        ...clientOptions,
-      })
-      return res.data
+      return updatePetWithForm({ petId }, params, config)
     },
     mutationOptions,
   )

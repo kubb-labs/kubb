@@ -1,4 +1,4 @@
-export type petMapper = {
+export type pet = {
   /**
    * @type integer, int64
    */
@@ -10,6 +10,6 @@ export type petMapper = {
   /**
    * @type string | undefined
    */
-  tag: string
+  tag?: string
   category?: string
 }

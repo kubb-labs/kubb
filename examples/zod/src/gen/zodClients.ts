@@ -23,7 +23,7 @@ export async function getInventory(config: Partial<RequestConfig> = {}) {
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return { ...res, data: getInventoryQueryResponseSchema.parse(res.data) }
+  return getInventoryQueryResponseSchema.parse(res.data)
 }
 
 /**
@@ -39,7 +39,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequestType, config: P
     data,
     ...config,
   })
-  return { ...res, data: placeOrderMutationResponseSchema.parse(res.data) }
+  return placeOrderMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -55,7 +55,7 @@ export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType,
     data,
     ...config,
   })
-  return { ...res, data: placeOrderPatchMutationResponseSchema.parse(res.data) }
+  return placeOrderPatchMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -77,7 +77,7 @@ export async function getOrderById(
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return { ...res, data: getOrderByIdQueryResponseSchema.parse(res.data) }
+  return getOrderByIdQueryResponseSchema.parse(res.data)
 }
 
 /**
@@ -99,5 +99,5 @@ export async function deleteOrder(
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return { ...res, data: deleteOrderMutationResponseSchema.parse(res.data) }
+  return deleteOrderMutationResponseSchema.parse(res.data)
 }

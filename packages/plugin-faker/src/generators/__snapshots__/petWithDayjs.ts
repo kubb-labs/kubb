@@ -1,4 +1,7 @@
-export function petWithDayjs(data: NonNullable<Partial<PetWithDayjs>> = {}) {
+import dayjs from 'dayjs'
+import { faker } from '@faker-js/faker'
+
+export function pet(data: NonNullable<Partial<Pet>> = {}) {
   return {
     ...{
       id: faker.number.int(),

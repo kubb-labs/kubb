@@ -1,27 +1,36 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { Key } from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
 
-type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
-
-type UploadFile = {
-  data: UploadFileMutationResponse
-  error: never
-  request: UploadFileMutationRequest
-  pathParams: UploadFilePathParams
-  queryParams: UploadFileQueryParams
-  headerParams: never
-  response: UploadFileMutationResponse
-  client: {
-    parameters: Partial<Parameters<UploadFileClient>[0]>
-    return: Awaited<ReturnType<UploadFileClient>>
-  }
+/**
+ * @summary uploads an image
+ * @link /pet/:petId/uploadImage
+ */
+async function uploadFile(
+  petId: UploadFilePathParams['petId'],
+  data?: UploadFileMutationRequest,
+  params?: UploadFileQueryParams,
+  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+) {
+  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
+    method: 'post',
+    url: `/pet/${petId}/uploadImage`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    data,
+    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
+    ...config,
+  })
+  return uploadFileMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -30,26 +39,19 @@ type UploadFile = {
  */
 export function useUploadFile(
   petId: UploadFilePathParams['petId'],
-  params?: UploadFile['queryParams'],
-  options?: {
-    mutation?: SWRMutationConfiguration<UploadFile['response'], UploadFile['error']>
-    client?: UploadFile['client']['parameters']
+  params?: UploadFileQueryParams,
+  options: {
+    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, unknown>
+    client?: Partial<RequestConfig<UploadFileMutationRequest>>
     shouldFetch?: boolean
-  },
-): SWRMutationResponse<UploadFile['response'], UploadFile['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}/uploadImage` as const
-  return useSWRMutation<UploadFile['response'], UploadFile['error'], [typeof url, typeof params] | null>(
-    shouldFetch ? [url, params] : null,
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/pet/${petId}/uploadImage`, params] as const
+  return useSWRMutation<UploadFileMutationResponse, unknown, Key>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
-      const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
-        method: 'post',
-        url,
-        params,
-        data,
-        ...clientOptions,
-      })
-      return res.data
+      return uploadFile(petId, data, params, config)
     },
     mutationOptions,
   )

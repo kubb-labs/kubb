@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 
 /**
  * @summary Logs out current logged in user session
@@ -30,16 +30,16 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function useLogoutUser<TData = LogoutUserQueryResponse>(
+export function useLogoutUser(
   options: {
-    query?: SWRConfiguration<TData, unknown>
+    query?: SWRConfiguration<LogoutUserQueryResponse, unknown>
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const url = '/user/logout'
-  return useSWR<TData, unknown, typeof url | null>(shouldFetch ? url : null, {
+  const swrKey = ['/user/logout'] as const
+  return useSWR<LogoutUserQueryResponse, unknown, Key>(shouldFetch ? swrKey : null, {
     ...logoutUserQueryOptions(config),
     ...queryOptions,
   })

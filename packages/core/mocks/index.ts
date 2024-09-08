@@ -17,15 +17,19 @@ export const mockedLogger = {
 export const createMockedPluginManager = (name?: string) =>
   ({
     resolveName: (result) => {
-      if (result.type === 'type') {
-        return pascalCase(name || result.name)
-      }
-
-      if (result.type === 'function') {
+      if (result.type === 'file') {
         return camelCase(name || result.name)
       }
 
-      return camelCase(name || result.name)
+      if (result.type === 'type') {
+        return pascalCase(result.name)
+      }
+
+      if (result.type === 'function') {
+        return camelCase(result.name)
+      }
+
+      return camelCase(result.name)
     },
     config: {
       output: {

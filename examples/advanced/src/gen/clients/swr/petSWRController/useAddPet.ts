@@ -1,23 +1,25 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.ts'
 
-type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
-
-type AddPet = {
-  data: AddPetMutationResponse
-  error: AddPet405
-  request: AddPetMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: AddPetMutationResponse
-  client: {
-    parameters: Partial<Parameters<AddPetClient>[0]>
-    return: Awaited<ReturnType<AddPetClient>>
-  }
+/**
+ * @description Add a new pet to the store
+ * @summary Add a new pet to the store
+ * @link /pet
+ */
+async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
+  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
+    method: 'post',
+    url: '/pet',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return addPetMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -25,23 +27,19 @@ type AddPet = {
  * @summary Add a new pet to the store
  * @link /pet
  */
-export function useAddPet(options?: {
-  mutation?: SWRMutationConfiguration<AddPet['response'], AddPet['error']>
-  client?: AddPet['client']['parameters']
-  shouldFetch?: boolean
-}): SWRMutationResponse<AddPet['response'], AddPet['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = '/pet' as const
-  return useSWRMutation<AddPet['response'], AddPet['error'], Key>(
-    shouldFetch ? url : null,
+export function useAddPet(
+  options: {
+    mutation?: SWRMutationConfiguration<AddPetMutationResponse, AddPet405>
+    client?: Partial<RequestConfig<AddPetMutationRequest>>
+    shouldFetch?: boolean
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = ['/pet'] as const
+  return useSWRMutation<AddPetMutationResponse, AddPet405, Key>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
-      const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
-        method: 'post',
-        url,
-        data,
-        ...clientOptions,
-      })
-      return res.data
+      return addPet(data, config)
     },
     mutationOptions,
   )

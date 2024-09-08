@@ -133,10 +133,6 @@ export function Client({
   `
     : ''
 
-  if (dataReturnType === 'full' && parser !== 'client') {
-    throw new Error("Set dataReturnType to 'data' if you want to use the Zod parser")
-  }
-
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function
@@ -151,11 +147,10 @@ export function Client({
         {formData}
         {`const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
-        {dataReturnType === 'data'
-          ? parser === 'zod' && zodSchemas
-            ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`
-            : 'return res.data'
-          : 'return res'}
+        {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
+        {dataReturnType === 'full' && parser === 'client' && 'return res'}
+        {dataReturnType === 'data' && parser === 'client' && 'return res.data'}
+        {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
       </Function>
     </File.Source>
   )

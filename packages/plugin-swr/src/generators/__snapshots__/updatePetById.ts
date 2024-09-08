@@ -1,48 +1,28 @@
 import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-
-type UpdatePetByIdClient = typeof client<UpdatePetById, UpdatePetById, never>
-
-type UpdatePetById = {
-  data: UpdatePetById
-  error: UpdatePetById
-  request: never
-  pathParams: UpdatePetById
-  queryParams: UpdatePetById
-  headerParams: never
-  response: UpdatePetById
-  client: {
-    parameters: Partial<Parameters<UpdatePetByIdClient>[0]>
-    return: Awaited<ReturnType<UpdatePetByIdClient>>
-  }
-}
+import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { Key } from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetById(
-  petId: UpdatePetById['petId'],
-  params?: UpdatePetById['queryParams'],
-  options?: {
-    mutation?: SWRMutationConfiguration<UpdatePetById['response'], UpdatePetById['error']>
-    client?: UpdatePetById['client']['parameters']
+export function updatePetWithForm(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
+  options: {
+    mutation?: SWRMutationConfiguration<UpdatePetWithFormMutationResponse, UpdatePetWithForm405>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRMutationResponse<UpdatePetById['response'], UpdatePetById['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}` as const
-  return useSWRMutation<UpdatePetById['response'], UpdatePetById['error'], [typeof url, typeof params] | null>(
-    shouldFetch ? [url, params] : null,
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/pet/${petId}`, params] as const
+  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(
+    shouldFetch ? swrKey : null,
     async (_url) => {
-      const res = await client<UpdatePetById['data'], UpdatePetById['error']>({
-        method: 'post',
-        url,
-        params,
-        ...clientOptions,
-      })
-      return res.data
+      return updatePetWithForm(petId, params, config)
     },
     mutationOptions,
   )

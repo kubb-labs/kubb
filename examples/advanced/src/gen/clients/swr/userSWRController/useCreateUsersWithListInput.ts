@@ -1,26 +1,31 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
-type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
-
-type CreateUsersWithListInput = {
-  data: CreateUsersWithListInputMutationResponse
-  error: never
-  request: CreateUsersWithListInputMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: CreateUsersWithListInputMutationResponse
-  client: {
-    parameters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
-    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
-  }
+/**
+ * @description Creates list of users with given input array
+ * @summary Creates list of users with given input array
+ * @link /user/createWithList
+ */
+async function createUsersWithListInput(
+  data?: CreateUsersWithListInputMutationRequest,
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+) {
+  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
+    method: 'post',
+    url: '/user/createWithList',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return createUsersWithListInputMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -28,23 +33,19 @@ type CreateUsersWithListInput = {
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-export function useCreateUsersWithListInput(options?: {
-  mutation?: SWRMutationConfiguration<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']>
-  client?: CreateUsersWithListInput['client']['parameters']
-  shouldFetch?: boolean
-}): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = '/user/createWithList' as const
-  return useSWRMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], Key>(
-    shouldFetch ? url : null,
+export function useCreateUsersWithListInput(
+  options: {
+    mutation?: SWRMutationConfiguration<CreateUsersWithListInputMutationResponse, unknown>
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
+    shouldFetch?: boolean
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = ['/user/createWithList'] as const
+  return useSWRMutation<CreateUsersWithListInputMutationResponse, unknown, Key>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
-      const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
-        method: 'post',
-        url,
-        data,
-        ...clientOptions,
-      })
-      return res.data
+      return createUsersWithListInput(data, config)
     },
     mutationOptions,
   )

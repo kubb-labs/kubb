@@ -1,23 +1,24 @@
 import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
-type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
-
-type PlaceOrderPatch = {
-  data: PlaceOrderPatchMutationResponse
-  error: PlaceOrderPatch405
-  request: PlaceOrderPatchMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: PlaceOrderPatchMutationResponse
-  client: {
-    parameters: Partial<Parameters<PlaceOrderPatchClient>[0]>
-    return: Awaited<ReturnType<PlaceOrderPatchClient>>
-  }
+/**
+ * @description Place a new order in the store with patch
+ * @summary Place an order for a pet with patch
+ * @link /store/order
+ */
+async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
+  const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
+    method: 'patch',
+    url: '/store/order',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -25,23 +26,19 @@ type PlaceOrderPatch = {
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-export function usePlaceOrderPatch(options?: {
-  mutation?: SWRMutationConfiguration<PlaceOrderPatch['response'], PlaceOrderPatch['error']>
-  client?: PlaceOrderPatch['client']['parameters']
-  shouldFetch?: boolean
-}): SWRMutationResponse<PlaceOrderPatch['response'], PlaceOrderPatch['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = '/store/order' as const
-  return useSWRMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], Key>(
-    shouldFetch ? url : null,
+export function usePlaceOrderPatch(
+  options: {
+    mutation?: SWRMutationConfiguration<PlaceOrderPatchMutationResponse, PlaceOrderPatch405>
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
+    shouldFetch?: boolean
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = ['/store/order'] as const
+  return useSWRMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, Key>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
-      const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
-        method: 'patch',
-        url,
-        data,
-        ...clientOptions,
-      })
-      return res.data
+      return placeOrderPatch(data, config)
     },
     mutationOptions,
   )

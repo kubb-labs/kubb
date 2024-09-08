@@ -22,10 +22,14 @@ type Props = {
 
 type GetParamsProps = {
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
+
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
@@ -52,7 +56,7 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
     options: {
       type: `
 {
-  query?: SWRConfiguration<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}>,
+  query?: SWRConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
   shouldFetch?: boolean,
 }
@@ -64,10 +68,11 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
 
 export function Query({ name, typeSchemas, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
   const path = new URLPath(operation.path)
-  const generics = [`TData = ${dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`}`]
-  const hookGenerics = ['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'typeof url | null']
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'Key']
   const params = getParams({
     pathParamsType,
+    dataReturnType,
     typeSchemas,
   })
 
@@ -76,12 +81,14 @@ export function Query({ name, typeSchemas, queryOptionsName, operation, dataRetu
     typeSchemas,
   })
 
+  //fixed name, see Query.getParams and params
+  const swrKey = [path.template, typeSchemas.queryParams?.name ? 'params' : undefined].filter(Boolean)
+
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
         name={name}
         export
-        generics={generics.join(', ')}
         params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
@@ -90,9 +97,9 @@ export function Query({ name, typeSchemas, queryOptionsName, operation, dataRetu
         {`
        const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
 
-       const url = ${path.template}
+       const swrKey = [${swrKey.join(', ')}] as const
        return useSWR<${hookGenerics.join(', ')}>(
-        shouldFetch ? url : null,
+        shouldFetch ? swrKey : null,
         {
           ...${queryOptionsName}(${queryOptionsParams.toCall()})
           ...queryOptions

@@ -1,4 +1,6 @@
-export const showPetById = z.object({
+import { z } from 'zod'
+
+export const showPetByIdPathParams = z.object({
   petId: z.string().describe('The id of the pet to retrieve'),
   testId: z.string().describe('The id of the pet to retrieve'),
 })
@@ -6,14 +8,14 @@ export const showPetById = z.object({
 /**
  * @description Expected response to a valid request
  */
-export const showPetById = z.lazy(() => showPetById)
+export const showPetById200 = z.lazy(() => pet)
 
 /**
  * @description unexpected error
  */
-export const showPetById = z.lazy(() => showPetById)
+export const showPetByIdError = z.lazy(() => error)
 
 /**
  * @description Expected response to a valid request
  */
-export const showPetById = z.lazy(() => showPetById)
+export const showPetByIdQueryResponse = z.lazy(() => pet)

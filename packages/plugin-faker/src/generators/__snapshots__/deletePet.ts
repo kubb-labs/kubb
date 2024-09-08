@@ -1,3 +1,3 @@
-export function deletePet() {
+export function deletePetsPetidMutationResponse() {
   return unknown
 }

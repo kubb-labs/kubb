@@ -1,40 +1,49 @@
+import {
+  listPetsQueryResponse,
+  listPetsQueryParams,
+  createPetsMutationRequest,
+  createPetsMutationResponse,
+  showPetByIdQueryResponse,
+  showPetByIdPathParams,
+} from './showPetById.ts'
+
 export const operations = {
   listPets: {
     request: undefined,
     parameters: {
       path: undefined,
-      query: showPetById,
+      query: listPetsQueryParams,
       header: undefined,
     },
     responses: {
-      200: showPetById,
-      default: showPetById,
+      200: listPetsQueryResponse,
+      default: listPetsQueryResponse,
     },
     errors: {},
   },
   createPets: {
-    request: showPetById,
+    request: createPetsMutationRequest,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      201: showPetById,
-      default: showPetById,
+      201: createPetsMutationResponse,
+      default: createPetsMutationResponse,
     },
     errors: {},
   },
   showPetById: {
     request: undefined,
     parameters: {
-      path: showPetById,
+      path: showPetByIdPathParams,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: showPetById,
-      default: showPetById,
+      200: showPetByIdQueryResponse,
+      default: showPetByIdQueryResponse,
     },
     errors: {},
   },

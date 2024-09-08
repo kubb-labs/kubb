@@ -1,23 +1,29 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
 
-type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
-
-type UpdateUser = {
-  data: UpdateUserMutationResponse
-  error: never
-  request: UpdateUserMutationRequest
-  pathParams: UpdateUserPathParams
-  queryParams: never
-  headerParams: never
-  response: UpdateUserMutationResponse
-  client: {
-    parameters: Partial<Parameters<UpdateUserClient>[0]>
-    return: Awaited<ReturnType<UpdateUserClient>>
-  }
+/**
+ * @description This can only be done by the logged in user.
+ * @summary Update user
+ * @link /user/:username
+ */
+async function updateUser(
+  username: UpdateUserPathParams['username'],
+  data?: UpdateUserMutationRequest,
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
+) {
+  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
+    method: 'put',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return updateUserMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -27,24 +33,18 @@ type UpdateUser = {
  */
 export function useUpdateUser(
   username: UpdateUserPathParams['username'],
-  options?: {
-    mutation?: SWRMutationConfiguration<UpdateUser['response'], UpdateUser['error']>
-    client?: UpdateUser['client']['parameters']
+  options: {
+    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, unknown>
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>>
     shouldFetch?: boolean
-  },
-): SWRMutationResponse<UpdateUser['response'], UpdateUser['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/${username}` as const
-  return useSWRMutation<UpdateUser['response'], UpdateUser['error'], Key>(
-    shouldFetch ? url : null,
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/user/${username}`] as const
+  return useSWRMutation<UpdateUserMutationResponse, unknown, Key>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
-      const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
-        method: 'put',
-        url,
-        data,
-        ...clientOptions,
-      })
-      return res.data
+      return updateUser(username, data, config)
     },
     mutationOptions,
   )

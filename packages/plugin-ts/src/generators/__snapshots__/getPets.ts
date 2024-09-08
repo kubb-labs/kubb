@@ -1,4 +1,4 @@
-export type GetPets = {
+export type ListPetsQueryParams = {
   /**
    * @description How many items to return at one time (max 100)
    * @type string | undefined
@@ -9,19 +9,19 @@ export type GetPets = {
 /**
  * @description A paged array of pets
  */
-export type GetPets = getPets
+export type ListPets200 = pets
 
 /**
  * @description unexpected error
  */
-export type GetPets = getPets
+export type ListPetsError = error
 
 /**
  * @description A paged array of pets
  */
-export type GetPets = getPets
+export type ListPetsQueryResponse = pets
 
-export type getPetsQuery = {
-  Response: getPets
-  QueryParams: getPets
+export type listPetsQuery = {
+  Response: listPetsQueryResponse
+  QueryParams: listPetsQueryParams
 }

@@ -1,1 +1,1 @@
-export type petsStoreRef = petsStoreRef[]
+export type pets = pet[]

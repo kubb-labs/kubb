@@ -7,7 +7,6 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Query, QueryOptions } from '../components'
-import { SchemaType } from '../components/SchemaType.tsx'
 import type { PluginSwr } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginSwr>({
@@ -52,6 +51,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta}>
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
+        <File.Import name={['Key']} path="swr" isTypeOnly />
         <File.Import name="useSWR" path={options.query.importPath} />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
@@ -84,13 +84,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
-        <QueryOptions
-          name={queryOptions.name}
-          clientName={client.name}
-          queryTypeName={query.typeName}
-          typeSchemas={type.schemas}
-          pathParamsType={options.pathParamsType}
-        />
+        <QueryOptions name={queryOptions.name} clientName={client.name} typeSchemas={type.schemas} pathParamsType={options.pathParamsType} />
         <Query
           name={query.name}
           queryOptionsName={queryOptions.name}

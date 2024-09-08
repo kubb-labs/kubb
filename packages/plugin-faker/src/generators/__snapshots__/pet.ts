@@ -1,3 +1,5 @@
+import { faker } from '@faker-js/faker'
+
 export function pet(data: NonNullable<Partial<Pet>> = {}) {
   return {
     ...{

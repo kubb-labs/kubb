@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -32,17 +32,17 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderById<TData = GetOrderByIdQueryResponse>(
+export function useGetOrderById(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: SWRConfiguration<TData, GetOrderById400 | GetOrderById404>
+    query?: SWRConfiguration<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404>
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const url = `/store/order/${orderId}`
-  return useSWR<TData, GetOrderById400 | GetOrderById404, typeof url | null>(shouldFetch ? url : null, {
+  const swrKey = [`/store/order/${orderId}`] as const
+  return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, Key>(shouldFetch ? swrKey : null, {
     ...getOrderByIdQueryOptions(orderId, config),
     ...queryOptions,
   })

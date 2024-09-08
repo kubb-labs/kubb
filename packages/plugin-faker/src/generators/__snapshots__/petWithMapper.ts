@@ -1,4 +1,6 @@
-export function petWithMapper(data: NonNullable<Partial<PetWithMapper>> = {}) {
+import { faker } from '@faker-js/faker'
+
+export function pet(data: NonNullable<Partial<Pet>> = {}) {
   return {
     ...{
       id: faker.string.fromCharacters('abc'),

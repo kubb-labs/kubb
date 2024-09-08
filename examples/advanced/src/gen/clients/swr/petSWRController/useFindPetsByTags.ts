@@ -7,7 +7,7 @@ import type {
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 /**
@@ -24,7 +24,7 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
     headers: { ...headers, ...config.headers },
     ...config,
   })
-  return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
+  return findPetsByTagsQueryResponseSchema.parse(res.data)
 }
 
 export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
@@ -40,18 +40,18 @@ export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, 
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse>(
+export function useFindPetsByTags(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: SWRConfiguration<TData, FindPetsByTags400>
+    query?: SWRConfiguration<FindPetsByTagsQueryResponse, FindPetsByTags400>
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const url = '/pet/findByTags'
-  return useSWR<TData, FindPetsByTags400, typeof url | null>(shouldFetch ? url : null, {
+  const swrKey = ['/pet/findByTags', params] as const
+  return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, Key>(shouldFetch ? swrKey : null, {
     ...findPetsByTagsQueryOptions(headers, params, config),
     ...queryOptions,
   })

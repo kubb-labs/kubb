@@ -1,54 +1,38 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'custom-swr'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { SWRConfiguration, SWRResponse } from 'custom-swr'
-
-type PostAsQueryClient = typeof client<PostAsQuery, PostAsQuery, never>
-
-type PostAsQuery = {
-  data: PostAsQuery
-  error: PostAsQuery
-  request: never
-  pathParams: PostAsQuery
-  queryParams: PostAsQuery
-  headerParams: never
-  response: PostAsQuery
-  client: {
-    parameters: Partial<Parameters<PostAsQueryClient>[0]>
-    return: Awaited<ReturnType<PostAsQueryClient>>
-  }
-}
+import type { SWRConfiguration } from 'custom-swr'
+import type { Key } from 'swr'
 
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function postAsQuery<TData = PostAsQuery['response']>(
-  petId: PostAsQuery['petId'],
-  params?: PostAsQuery['queryParams'],
-  options?: {
-    query?: SWRConfiguration<TData, PostAsQuery['error']>
-    client?: PostAsQuery['client']['parameters']
+export function updatePetWithForm(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
+  options: {
+    query?: SWRConfiguration<UpdatePetWithFormMutationResponse, UpdatePetWithForm405>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRResponse<TData, PostAsQuery['error']> {
-  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}`
-  const query = useSWR<TData, PostAsQuery['error'], typeof url | null>(shouldFetch ? url : null, {
-    ...updatePetWithFormQueryOptions<TData>(petId, params, clientOptions),
+  } = {},
+) {
+  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/pet/${petId}`, params] as const
+  return useSWR<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? swrKey : null, {
+    ...updatePetWithFormQueryOptions(petId, params, config),
     ...queryOptions,
   })
-  return query
 }
 
-export function updatePetWithFormQueryOptions<TData = PostAsQuery['response']>(
-  petId: PostAsQuery['petId'],
-  params?: PostAsQuery,
+export function updatePetWithFormQueryOptions(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
-): SWRConfiguration<TData, PostAsQuery['error']> {
+) {
   return {
     fetcher: async () => {
-      return postAsQuery(petId, params, config)
+      return updatePetWithForm(petId, params, config)
     },
   }
 }

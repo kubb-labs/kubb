@@ -2,7 +2,7 @@ import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 /**
@@ -17,7 +17,7 @@ async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
+  return getPetByIdQueryResponseSchema.parse(res.data)
 }
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
@@ -33,17 +33,17 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function useGetPetById<TData = GetPetByIdQueryResponse>(
+export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: SWRConfiguration<TData, GetPetById400 | GetPetById404>
+    query?: SWRConfiguration<GetPetByIdQueryResponse, GetPetById400 | GetPetById404>
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}`
-  return useSWR<TData, GetPetById400 | GetPetById404, typeof url | null>(shouldFetch ? url : null, {
+  const swrKey = [`/pet/${petId}`] as const
+  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, Key>(shouldFetch ? swrKey : null, {
     ...getPetByIdQueryOptions(petId, config),
     ...queryOptions,
   })

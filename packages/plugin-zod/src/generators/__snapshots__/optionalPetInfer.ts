@@ -1,3 +1,5 @@
-export const optionalPetInfer = z.object({ id: z.number().int().optional(), name: z.string().optional(), tag: z.string().optional() })
+import { z } from 'zod'
 
-export type OptionalPetInfer = z.infer<typeof optionalPetInfer>
+export const optionalPet = z.object({ id: z.number().int().optional(), name: z.string().optional(), tag: z.string().optional() })
+
+export type OptionalPet = z.infer<typeof optionalPet>

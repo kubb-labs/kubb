@@ -1,4 +1,7 @@
-export function petWithRandExp(data: NonNullable<Partial<PetWithRandExp>> = {}) {
+import RandExp from 'randexp'
+import { faker } from '@faker-js/faker'
+
+export function pet(data: NonNullable<Partial<Pet>> = {}) {
   return {
     ...{
       id: faker.number.int(),

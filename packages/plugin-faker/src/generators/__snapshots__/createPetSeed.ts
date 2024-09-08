@@ -1,7 +1,9 @@
+import { faker } from '@faker-js/faker'
+
 /**
  * @description Null response
  */
-export function createPetSeed() {
+export function createPets201() {
   faker.seed([222])
   return unknown
 }
@@ -9,12 +11,12 @@ export function createPetSeed() {
 /**
  * @description unexpected error
  */
-export function createPetSeed() {
+export function createPetsError() {
   faker.seed([222])
-  return createPetSeed()
+  return error()
 }
 
-export function createPetSeed(data: NonNullable<Partial<CreatePetSeed>> = {}) {
+export function createPetsMutationRequest(data: NonNullable<Partial<CreatePetsMutationRequest>> = {}) {
   faker.seed([222])
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
@@ -22,7 +24,7 @@ export function createPetSeed(data: NonNullable<Partial<CreatePetSeed>> = {}) {
   }
 }
 
-export function createPetSeed() {
+export function createPetsMutationResponse() {
   faker.seed([222])
   return unknown
 }

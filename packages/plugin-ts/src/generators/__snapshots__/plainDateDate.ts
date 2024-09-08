@@ -1,1 +1,1 @@
-export type plainDateDate = Date
+export type plainDate = Date

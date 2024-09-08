@@ -1,24 +1,26 @@
+import { faker } from '@faker-js/faker'
+
 /**
  * @description Null response
  */
-export function createPetUnknownTypeAny() {
+export function createPets201() {
   return undefined
 }
 
 /**
  * @description unexpected error
  */
-export function createPetUnknownTypeAny() {
-  return createPetUnknownTypeAny()
+export function createPetsError() {
+  return error()
 }
 
-export function createPetUnknownTypeAny(data: NonNullable<Partial<CreatePetUnknownTypeAny>> = {}) {
+export function createPetsMutationRequest(data: NonNullable<Partial<CreatePetsMutationRequest>> = {}) {
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...data,
   }
 }
 
-export function createPetUnknownTypeAny() {
+export function createPetsMutationResponse() {
   return undefined
 }

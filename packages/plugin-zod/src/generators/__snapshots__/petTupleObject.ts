@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * @description Tuple of exact length 2 nested in an object
  */

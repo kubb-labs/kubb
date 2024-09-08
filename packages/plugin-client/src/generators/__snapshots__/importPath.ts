@@ -6,7 +6,7 @@ import type { RequestConfig } from 'axios'
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export async function importPath(params?: ImportPath, config: Partial<RequestConfig> = {}) {
-  const res = await client<ImportPath>({ method: 'get', url: `/pet/findByTags`, params, ...config })
+export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: 'get', url: `/pet/findByTags`, params, ...config })
   return res.data
 }
