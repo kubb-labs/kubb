@@ -42,6 +42,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
             type.schemas.pathParams?.name,
             type.schemas.queryParams?.name,
             type.schemas.headerParams?.name,
+            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
           ].filter(Boolean)}
           root={client.file.path}
           path={type.file.path}
