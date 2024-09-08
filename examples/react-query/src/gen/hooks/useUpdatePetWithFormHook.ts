@@ -5,23 +5,23 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
-
-type UpdatePetWithForm = {
-  data: UpdatePetWithFormMutationResponse
-  error: UpdatePetWithForm405
-  request: never
-  pathParams: UpdatePetWithFormPathParams
-  queryParams: UpdatePetWithFormQueryParams
-  headerParams: never
-  response: UpdatePetWithFormMutationResponse
-  client: {
-    parameters: Partial<Parameters<UpdatePetWithFormClient>[0]>
-    return: Awaited<ReturnType<UpdatePetWithFormClient>>
-  }
+/**
+ * @summary Updates a pet in the store with form data
+ * @link /pet/:petId
+ */
+async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
+    method: 'post',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -30,17 +30,16 @@ type UpdatePetWithForm = {
  */
 export function useUpdatePetWithFormHook(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithForm['queryParams'],
-  options?: {
-    mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
-    client?: UpdatePetWithForm['client']['parameters']
-  },
+  params?: UpdatePetWithFormQueryParams,
+  options: {
+    mutation?: UseMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>
+    client?: Partial<RequestConfig>
+  } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
     mutationFn: async (data) => {
-      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error']>({ method: 'post', url: `/pet/${petId}`, params, ...options })
-      return res.data
+      return updatePetWithForm(petId, params, config)
     },
     ...mutationOptions,
   })

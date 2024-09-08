@@ -1,8 +1,8 @@
-import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { getASTParams } from '@kubb/plugin-oas/utils'
-import { File, Function, Type } from '@kubb/react'
+import { URLPath } from '@kubb/core/utils'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams, Type } from '@kubb/react'
 
-import { type Operation, isRequired } from '@kubb/oas'
+import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
 import type { PluginReactQuery } from '../types'
@@ -10,48 +10,54 @@ import type { PluginReactQuery } from '../types'
 type Props = {
   name: string
   typeName: string
-  queryTypeName: string
-  typedSchemas: OperationSchemas
+  typeSchemas: OperationSchemas
   operation: Operation
-  pathParamsType: PluginReactQuery['resolvedOptions']['query']['pathParamsType']
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   keysFn: (keys: unknown[]) => unknown[]
 }
 
-export function QueryKey({ name, typedSchemas, queryTypeName, pathParamsType, operation, typeName, keysFn }: Props): ReactNode {
+type GetParamsProps = {
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  typeSchemas: OperationSchemas
+}
+
+function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
+  return FunctionParams.factory({
+    pathParams: {
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
+    },
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
+        }
+      : undefined,
+    params: typeSchemas.queryParams?.name
+      ? {
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
+        }
+      : undefined,
+  })
+}
+
+export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeName, keysFn }: Props): ReactNode {
   const path = new URLPath(operation.path)
-  const params = new FunctionParams()
-  const withQueryParams = !!typedSchemas.queryParams?.name
-  const withRequest = !!typedSchemas.request?.name
-
-  params.add([
-    ...(pathParamsType === 'object' ? [getASTParams(typedSchemas.pathParams, { typed: true })] : getASTParams(typedSchemas.pathParams, { typed: true })),
-    {
-      name: 'params',
-      type: `${queryTypeName}["queryParams"]`,
-      enabled: withQueryParams,
-      required: isRequired(typedSchemas.queryParams?.schema),
-    },
-    {
-      name: 'data',
-      type: `${queryTypeName}["request"]`,
-      enabled: withRequest,
-      required: isRequired(typedSchemas.request?.schema),
-    },
-  ])
-
+  const params = getParams({ pathParamsType, typeSchemas })
   const keys = [
     path.toObject({
       type: 'path',
       stringify: true,
     }),
-    withQueryParams ? '...(params ? [params] : [])' : undefined,
-    withRequest ? '...(data ? [data] : [])' : undefined,
+    typeSchemas.queryParams?.name ? '...(params ? [params] : [])' : undefined,
+    typeSchemas.request?.name ? '...(data ? [data] : [])' : undefined,
   ].filter(Boolean)
 
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
-        <Function.Arrow name={name} export params={params.toString()} singleLine>
+        <Function.Arrow name={name} export params={params.toConstructor()} singleLine>
           {`[${keysFn(keys).join(', ')}] as const`}
         </Function.Arrow>
       </File.Source>
@@ -63,3 +69,5 @@ export function QueryKey({ name, typedSchemas, queryTypeName, pathParamsType, op
     </>
   )
 }
+
+QueryKey.getParams = getParams

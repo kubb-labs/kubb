@@ -1,22 +1,23 @@
 import client from '@kubb/plugin-client/client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
-
-type DeletePet = {
-  data: DeletePetMutationResponse
-  error: DeletePet400
-  request: never
-  pathParams: DeletePetPathParams
-  queryParams: never
-  headerParams: DeletePetHeaderParams
-  response: DeletePetMutationResponse
-  client: {
-    parameters: Partial<Parameters<DeletePetClient>[0]>
-    return: Awaited<ReturnType<DeletePetClient>>
-  }
+/**
+ * @description delete a pet
+ * @summary Deletes a pet
+ * @link /pet/:petId
+ */
+async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+    method: 'delete',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    headers: { ...headers, ...config.headers },
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -26,22 +27,16 @@ type DeletePet = {
  */
 export function useDeletePetHook(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletePet['headerParams'],
-  options?: {
-    mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
-    client?: DeletePet['client']['parameters']
-  },
+  headers?: DeletePetHeaderParams,
+  options: {
+    mutation?: UseMutationOptions<DeletePetMutationResponse, DeletePet400, unknown>
+    client?: Partial<RequestConfig>
+  } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
     mutationFn: async (data) => {
-      const res = await client<DeletePet['data'], DeletePet['error']>({
-        method: 'delete',
-        url: `/pet/${petId}`,
-        headers: { ...headers, ...options.headers },
-        ...options,
-      })
-      return res.data
+      return deletePet(petId, headers, config)
     },
     ...mutationOptions,
   })

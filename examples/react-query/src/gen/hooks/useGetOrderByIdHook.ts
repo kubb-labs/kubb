@@ -1,36 +1,35 @@
 import client from '@kubb/plugin-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
-
-type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
-
-type GetOrderById = {
-  data: GetOrderByIdQueryResponse
-  error: GetOrderById400 | GetOrderById404
-  request: never
-  pathParams: GetOrderByIdPathParams
-  queryParams: never
-  headerParams: never
-  response: GetOrderByIdQueryResponse
-  client: {
-    parameters: Partial<Parameters<GetOrderByIdClient>[0]>
-    return: Awaited<ReturnType<GetOrderByIdClient>>
-  }
-}
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 
-export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: Partial<Parameters<typeof client>[0]> = {}) {
+/**
+ * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
+ * @summary Find purchase order by ID
+ * @link /store/order/:orderId
+ */
+async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
+  const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({
+    method: 'get',
+    url: `/store/order/${orderId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return res.data
+}
+
+export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<GetOrderById['data'], GetOrderById['error']>({ method: 'get', url: `/store/order/${orderId}`, ...options })
-      return res.data
+      return getOrderById(orderId, config)
     },
   })
 }
@@ -40,22 +39,24 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
+export function useGetOrderByIdHook<
+  TData = GetOrderByIdQueryResponse,
+  TQueryData = GetOrderByIdQueryResponse,
+  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
+>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options?: {
-    query?: Partial<QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
-    client?: GetOrderById['client']['parameters']
-  },
-): UseQueryResult<TData, GetOrderById['error']> & {
-  queryKey: TQueryKey
-} {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  options: {
+    query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>
+    client?: Partial<RequestConfig>
+  } = {},
+) {
+  const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
   const query = useQuery({
-    ...(getOrderByIdQueryOptions(orderId, clientOptions) as unknown as QueryObserverOptions),
+    ...(getOrderByIdQueryOptions(orderId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetOrderById['error']> & {
+  }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

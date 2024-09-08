@@ -1,167 +1,78 @@
-import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { getASTParams, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, createFunctionParams } from '@kubb/react'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 
 import type { ReactNode } from 'react'
-import type { PluginReactQuery } from '../types.ts'
 
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional } from '@kubb/oas'
+import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import type { PluginReactQuery } from '../types.ts'
+import { QueryKey } from './QueryKey.tsx'
 
 type Props = {
   name: string
-  queryTypeName: string
+  clientName: string
   queryKeyName: string
-  typedSchemas: OperationSchemas
-  zodSchemas: OperationSchemas
-  operation: Operation
-  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
-  pathParamsType: PluginReactQuery['resolvedOptions']['query']['pathParamsType']
-  parser?: PluginReactQuery['resolvedOptions']['parser']
+  typeSchemas: OperationSchemas
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
 }
 
-export function QueryOptions({
-  name,
-  queryTypeName,
-  queryKeyName,
-  operation,
-  typedSchemas,
-  zodSchemas,
-  parser,
-  pathParamsType,
-  dataReturnType,
-}: Props): ReactNode {
-  const contentType = operation.getContentType()
-  const path = new URLPath(operation.path)
+type GetParamsProps = {
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  typeSchemas: OperationSchemas
+}
 
-  const queryKeyParams = new FunctionParams()
-  const params = createFunctionParams({
+function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
+  return FunctionParams.factory({
     pathParams: {
-      mode: 'inlineSpread',
-      children: getPathParams(typedSchemas.pathParams, { typed: true }),
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
     },
-    data: typedSchemas.request?.name
+    data: typeSchemas.request?.name
       ? {
-          type: typedSchemas.request?.name,
-          optional: isOptional(typedSchemas.request?.schema),
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
-    params: typedSchemas.queryParams?.name
+    params: typeSchemas.queryParams?.name
       ? {
-          type: typedSchemas.queryParams?.name,
-          optional: isOptional(typedSchemas.queryParams?.schema),
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
-    headers: typedSchemas.headerParams?.name
+    headers: typeSchemas.headerParams?.name
       ? {
-          type: typedSchemas.headerParams?.name,
-          optional: isOptional(typedSchemas.headerParams?.schema),
+          type: typeSchemas.headerParams?.name,
+          optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
-    options: {
-      type: 'Partial<Parameters<typeof client>[0]>',
+    config: {
+      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
       default: '{}',
     },
   })
+}
 
-  const isFormData = contentType === 'multipart/form-data'
-  const headers = [
-    contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
-    typedSchemas.headerParams?.name ? '...headers' : undefined,
-  ].filter(Boolean)
-
-  const clientParams = createFunctionParams({
-    data: {
-      mode: 'object',
-      children: {
-        method: {
-          type: 'string',
-          value: JSON.stringify(operation.method),
-        },
-        url: {
-          type: 'string',
-          value: path.template,
-        },
-        params: typedSchemas.queryParams?.name
-          ? {
-              type: 'any',
-            }
-          : undefined,
-        data: typedSchemas.request?.name
-          ? {
-              type: 'any',
-              value: isFormData ? 'formData' : undefined,
-            }
-          : undefined,
-        headers: headers.length
-          ? {
-              type: 'any',
-              value: headers.length ? `{ ${headers.join(', ')}, ...options.headers }` : undefined,
-            }
-          : undefined,
-        options: {
-          type: 'any',
-          mode: 'inlineSpread',
-        },
-      },
-    },
+export function QueryOptions({ name, clientName, typeSchemas, pathParamsType, queryKeyName }: Props): ReactNode {
+  const params = getParams({ pathParamsType, typeSchemas })
+  const clientParams = Client.getParams({
+    typeSchemas,
+    pathParamsType,
   })
-
-  queryKeyParams.add([
-    ...(pathParamsType === 'object' ? [getASTParams(typedSchemas.pathParams)] : getASTParams(typedSchemas.pathParams)),
-    {
-      name: 'params',
-      enabled: !!typedSchemas.queryParams?.name,
-      required: !isOptional(typedSchemas.queryParams?.schema),
-    },
-    {
-      name: 'data',
-      enabled: !!typedSchemas.request?.name,
-      required: !isOptional(typedSchemas.request?.schema),
-    },
-  ])
-
-  const formData = isFormData
-    ? `
-   const formData = new FormData()
-   if(data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key];
-      if (typeof key === "string" && (typeof value === "string" || value instanceof Blob)) {
-        formData.append(key, value);
-      }
-    })
-   }
-  `
-    : undefined
-
-  const clientGenerics = [`${queryTypeName}['data']`, `${queryTypeName}['error']`]
-  const client = (
-    <>
-      <Function.Call name="res" to={<Function name="client" async generics={clientGenerics.join(', ')} params={clientParams} />} />
-      <Function.Return>
-        {dataReturnType === 'data'
-          ? parser === 'zod'
-            ? `{...res, data: ${zodSchemas.response.name}.parse(res.data)}`
-            : 'res.data'
-          : parser === 'zod'
-            ? `${zodSchemas.response.name}.parse(res)`
-            : 'res'}
-      </Function.Return>
-    </>
-  )
+  const queryKeyParams = QueryKey.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export params={params}>
-        <Function.Call name="queryKey" to={<Function name={queryKeyName} params={queryKeyParams.toString()} />} />
+      <Function name={name} export params={params.toConstructor()}>
         {`
+      const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return queryOptions({
        queryKey,
        queryFn: async () => {
-        ${formData || ''}`}
-        {client}
-        {`
+          return ${clientName}(${clientParams.toCall()})
        },
       })
 `}
@@ -169,3 +80,5 @@ export function QueryOptions({
     </File.Source>
   )
 }
+
+QueryOptions.getParams = getParams

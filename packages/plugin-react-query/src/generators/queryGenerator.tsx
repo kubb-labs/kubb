@@ -1,11 +1,12 @@
 import transformers from '@kubb/core/transformers'
+import { pluginClientName } from '@kubb/plugin-client'
+import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Query, QueryKey, QueryOptions } from '../components'
-import { SchemaType } from '../components/SchemaType.tsx'
 import type { PluginReactQuery } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginReactQuery>({
@@ -15,13 +16,16 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
       plugin: { output },
     } = useApp<PluginReactQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
-
     const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
 
     const query = {
       name: getName(operation, { type: 'function' }),
       typeName: getName(operation, { type: 'type' }),
       file: getFile(operation),
+    }
+
+    const client = {
+      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
     }
 
     const queryOptions = {
@@ -55,7 +59,8 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
         <File.Import name={['QueryKey', 'WithRequired']} path={options.query.importPath} isTypeOnly />
         <File.Import name={['QueryObserverOptions', 'UseQueryResult']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
+        {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
           extName={output?.extName}
           name={[
@@ -71,35 +76,42 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           isTypeOnly
         />
 
-        <SchemaType typeName={query.typeName} typedSchemas={type.schemas} operation={operation} dataReturnType={options.client.dataReturnType} />
         <QueryKey
           name={queryKey.name}
-          queryTypeName={query.typeName}
           typeName={queryKey.typeName}
           operation={operation}
-          pathParamsType={options.query.pathParamsType}
-          typedSchemas={type.schemas}
-          keysFn={options.query ? options.query.queryKey : (keys: unknown[]) => keys}
+          pathParamsType={options.pathParamsType}
+          typeSchemas={type.schemas}
+          keysFn={options.query.key}
+        />
+        <Client
+          name={client.name}
+          isExportable={false}
+          isIndexable={false}
+          baseURL={options.baseURL}
+          operation={operation}
+          typeSchemas={type.schemas}
+          zodSchemas={zod.schemas}
+          dataReturnType={options.client.dataReturnType}
+          pathParamsType={options.pathParamsType}
+          parser={options.parser}
         />
         <QueryOptions
           name={queryOptions.name}
+          clientName={client.name}
           queryKeyName={queryKey.name}
-          queryTypeName={query.typeName}
-          operation={operation}
-          typedSchemas={type.schemas}
-          zodSchemas={zod.schemas}
-          dataReturnType={options.client.dataReturnType}
-          pathParamsType={options.query.pathParamsType}
-          parser={options.parser}
+          typeSchemas={type.schemas}
+          pathParamsType={options.pathParamsType}
         />
         <Query
           name={query.name}
-          typeName={query.typeName}
           queryOptionsName={queryOptions.name}
-          queryKeyName={queryKey.name}
-          typedSchemas={type.schemas}
-          pathParamsType={options.query.pathParamsType}
+          typeSchemas={type.schemas}
+          pathParamsType={options.pathParamsType}
           operation={operation}
+          dataReturnType={options.client.dataReturnType}
+          queryKeyName={queryKey.name}
+          queryKeyTypeName={queryKey.typeName}
         />
       </File>
     )

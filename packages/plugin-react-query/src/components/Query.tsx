@@ -1,119 +1,109 @@
-import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function } from '@kubb/react'
+import { File, Function, FunctionParams } from '@kubb/react'
 
 import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
 import type { PluginReactQuery } from '../types.ts'
+import { QueryKey } from './QueryKey.tsx'
+import { QueryOptions } from './QueryOptions.tsx'
 
 type Props = {
   /**
    * Name of the function
    */
   name: string
-  typeName: string
   queryOptionsName: string
   queryKeyName: string
-  typedSchemas: OperationSchemas
+  queryKeyTypeName: string
+  typeSchemas: OperationSchemas
   operation: Operation
-  pathParamsType: PluginReactQuery['resolvedOptions']['query']['pathParamsType']
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
 }
 
-export function Query({ name, typeName, queryOptionsName, queryKeyName, pathParamsType, typedSchemas, operation }: Props): ReactNode {
-  const returnType = `UseQueryResult<${['TData', `${typeName}["error"]`].join(', ')}> & { queryKey: TQueryKey }`
-  const queryOptionsOverrideGenerics = [`${typeName}['response']`, `${typeName}['error']`, 'TData', 'TQueryData', 'TQueryKey']
-  const queryParams = new FunctionParams()
-  const params = new FunctionParams()
-  const queryKeyParams = new FunctionParams()
-  const generics = new FunctionParams()
+type GetParamsProps = {
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  typeSchemas: OperationSchemas
+}
 
-  queryParams.add([
-    ...getASTParams(typedSchemas.pathParams, { typed: false }),
-    {
-      name: 'params',
-      enabled: !!typedSchemas.queryParams?.name,
-      required: !isOptional(typedSchemas.queryParams?.schema),
-    },
-    {
-      name: 'headers',
-      enabled: !!typedSchemas.headerParams?.name,
-      required: !isOptional(typedSchemas.headerParams?.schema),
-    },
-    {
-      name: 'clientOptions',
-      required: false,
-    },
-  ])
+function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
-  generics.add([
-    {
-      type: 'TData',
-      default: `${typeName}["response"]`,
+  return FunctionParams.factory({
+    pathParams: {
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      children: getPathParams(typeSchemas.pathParams, { typed: true }),
     },
-    { type: 'TQueryData', default: `${typeName}["response"]` },
-    { type: 'TQueryKey extends QueryKey', default: `${typeName}QueryKey` },
-  ])
-
-  queryKeyParams.add([
-    ...(pathParamsType === 'object' ? [getASTParams(typedSchemas.pathParams)] : getASTParams(typedSchemas.pathParams)),
-    {
-      name: 'params',
-      enabled: !!typedSchemas.queryParams?.name,
-      required: !isOptional(typedSchemas.queryParams?.schema),
-    },
-    {
-      name: 'data',
-      enabled: !!typedSchemas.request?.name,
-      required: !isOptional(typedSchemas.request?.schema),
-    },
-  ])
-
-  params.add([
-    ...getASTParams(typedSchemas.pathParams, { typed: true }),
-    {
-      name: 'params',
-      type: `${typeName}['queryParams']`,
-      enabled: !!typedSchemas.queryParams?.name,
-      required: !isOptional(typedSchemas.queryParams?.schema),
-    },
-    {
-      name: 'headers',
-      type: `${typeName}['headerParams']`,
-      enabled: !!typedSchemas.headerParams?.name,
-      required: !isOptional(typedSchemas.headerParams?.schema),
-    },
-    {
-      name: 'options',
-      required: false,
-      type: `{
-          query?: Partial<QueryObserverOptions<${queryOptionsOverrideGenerics.join(', ')}>>,
-          client?: ${typeName}['client']['parameters']
-      }`,
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          optional: isOptional(typeSchemas.request?.schema),
+        }
+      : undefined,
+    params: typeSchemas.queryParams?.name
+      ? {
+          type: typeSchemas.queryParams?.name,
+          optional: isOptional(typeSchemas.queryParams?.schema),
+        }
+      : undefined,
+    headers: typeSchemas.headerParams?.name
+      ? {
+          type: typeSchemas.headerParams?.name,
+          optional: isOptional(typeSchemas.headerParams?.schema),
+        }
+      : undefined,
+    options: {
+      type: `
+{
+  query?: Partial<QueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
+}
+`,
       default: '{}',
     },
-  ])
+  })
+}
 
-  const queryOptions = `${queryOptionsName}(${queryParams.toString()})`
+export function Query({ name, queryKeyTypeName, queryOptionsName, queryKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const returnType = `UseQueryResult<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}> & { queryKey: TQueryKey }`
+  const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
+
+  const queryKeyParams = QueryKey.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
+  const queryOptionsParams = QueryOptions.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
+  const params = getParams({
+    pathParamsType,
+    dataReturnType,
+    typeSchemas,
+  })
+
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as QueryObserverOptions`
 
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
         name={name}
         export
-        generics={generics.toString()}
-        returnType={returnType}
-        params={params.toString()}
+        generics={generics.join(', ')}
+        params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
         }}
       >
         {`
-       const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toString()})
+       const { query: queryOptions, client: config = {} } = options ?? {}
+       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useQuery({
-        ...${queryOptions} as unknown as QueryObserverOptions,
+        ...${queryOptions},
         queryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
        }) as ${returnType}
@@ -126,3 +116,5 @@ export function Query({ name, typeName, queryOptionsName, queryKeyName, pathPara
     </File.Source>
   )
 }
+
+Query.getParams = getParams

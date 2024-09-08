@@ -148,9 +148,9 @@ export function Client({
         {`const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
         {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
+        {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
         {dataReturnType === 'full' && parser === 'client' && 'return res'}
         {dataReturnType === 'data' && parser === 'client' && 'return res.data'}
-        {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
       </Function>
     </File.Source>
   )

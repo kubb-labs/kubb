@@ -3,9 +3,6 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
-// import * as mutation from './templates/mutate/index'
-import * as queryKey from './templates/queryKey/index'
-
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
   root: '.',
@@ -15,6 +12,9 @@ export const config = {
   output: {
     path: './src/gen',
     clean: true,
+  },
+  hooks: {
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({ generators: [] }),
@@ -36,7 +36,7 @@ export const config = {
         path: './hooks',
       },
       query: {
-        queryKey: (keys) => ['"v5"', ...keys],
+        key: (keys) => ['"v5"', ...keys],
       },
       suspense: {},
       // override: [
@@ -49,9 +49,6 @@ export const config = {
       //         queryParam: 'pageSize',
       //         initialPageParam: 0,
       //         cursorParam: undefined,
-      //       },
-      //       templates: {
-      //         // queryKey: queryKey.templates,
       //       },
       //     },
       //   },

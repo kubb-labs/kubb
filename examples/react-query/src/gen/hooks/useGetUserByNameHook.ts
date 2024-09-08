@@ -1,36 +1,34 @@
 import client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
-
-type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
-
-type GetUserByName = {
-  data: GetUserByNameQueryResponse
-  error: GetUserByName400 | GetUserByName404
-  request: never
-  pathParams: GetUserByNamePathParams
-  queryParams: never
-  headerParams: never
-  response: GetUserByNameQueryResponse
-  client: {
-    parameters: Partial<Parameters<GetUserByNameClient>[0]>
-    return: Awaited<ReturnType<GetUserByNameClient>>
-  }
-}
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) =>
   ['v5', { url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
-export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: Partial<Parameters<typeof client>[0]> = {}) {
+/**
+ * @summary Get user by user name
+ * @link /user/:username
+ */
+async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
+  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
+    method: 'get',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return res.data
+}
+
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<GetUserByName['data'], GetUserByName['error']>({ method: 'get', url: `/user/${username}`, ...options })
-      return res.data
+      return getUserByName(username, config)
     },
   })
 }
@@ -40,25 +38,23 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
  * @link /user/:username
  */
 export function useGetUserByNameHook<
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
+  TData = GetUserByNameQueryResponse,
+  TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
   username: GetUserByNamePathParams['username'],
-  options?: {
-    query?: Partial<QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
-    client?: GetUserByName['client']['parameters']
-  },
-): UseQueryResult<TData, GetUserByName['error']> & {
-  queryKey: TQueryKey
-} {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  options: {
+    query?: Partial<QueryObserverOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
+    client?: Partial<RequestConfig>
+  } = {},
+) {
+  const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
   const query = useQuery({
-    ...(getUserByNameQueryOptions(username, clientOptions) as unknown as QueryObserverOptions),
+    ...(getUserByNameQueryOptions(username, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetUserByName['error']> & {
+  }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

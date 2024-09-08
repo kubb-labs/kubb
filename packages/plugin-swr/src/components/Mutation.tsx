@@ -90,10 +90,10 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
         }}
       >
         {`
-       const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+      const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
 
-        const swrKey = [${swrKey.join(', ')}] as const
-        return useSWRMutation<${hookGenerics}>(
+      const swrKey = [${swrKey.join(', ')}] as const
+      return useSWRMutation<${hookGenerics}>(
         shouldFetch ? swrKey : null,
         async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
           return ${clientName}(${clientParams.toCall()})

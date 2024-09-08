@@ -1,11 +1,11 @@
-import transformers from '@kubb/core/transformers'
+import { pluginClientName } from '@kubb/plugin-client'
+import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
-import { Mutation, Query, QueryKey, QueryOptions } from '../components'
-import { SchemaType } from '../components/SchemaType.tsx'
+import { Mutation } from '../components'
 import type { PluginReactQuery } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginReactQuery>({
@@ -35,6 +35,10 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
+    const client = {
+      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+    }
+
     if (!isMutation) {
       return null
     }
@@ -47,7 +51,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         <File.Import name={['useMutation']} path={options.mutation.importPath} />
         <File.Import name={['UseMutationOptions', 'UseMutationResult']} path={options.mutation.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           extName={output?.extName}
           name={[
@@ -62,17 +66,26 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
           path={type.file.path}
           isTypeOnly
         />
-
-        <SchemaType typeName={mutation.typeName} typedSchemas={type.schemas} operation={operation} dataReturnType={options.client.dataReturnType} />
+        <Client
+          name={client.name}
+          isExportable={false}
+          isIndexable={false}
+          baseURL={options.baseURL}
+          operation={operation}
+          typeSchemas={type.schemas}
+          zodSchemas={zod.schemas}
+          dataReturnType={options.client.dataReturnType}
+          pathParamsType={options.pathParamsType}
+          parser={options.parser}
+        />
         <Mutation
           name={mutation.name}
+          clientName={client.name}
           typeName={mutation.typeName}
-          dataReturnType={options.client.dataReturnType}
-          parser={options.parser}
-          zodSchemas={zod.schemas}
-          typedSchemas={type.schemas}
-          pathParamsType={options.query.pathParamsType}
+          typeSchemas={type.schemas}
           operation={operation}
+          dataReturnType={options.client.dataReturnType}
+          pathParamsType={options.pathParamsType}
         />
       </File>
     )

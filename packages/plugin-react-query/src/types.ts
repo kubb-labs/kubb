@@ -10,7 +10,7 @@ export type Query = {
   /**
    * Customize the queryKey, here you can specify a suffix.
    */
-  queryKey: (key: unknown[]) => unknown[]
+  key: (key: unknown[]) => unknown[]
   /**
    * Define which HttpMethods can be used for queries
    * @default ['get']
@@ -24,19 +24,7 @@ export type Query = {
    * @default '@tanstack/react-query'
    */
   importPath?: string
-  /**
-   * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
-   */
-  pathParamsType?: 'object' | 'inline'
 }
-
-export type QueryOptions = {}
 
 export type Mutation = {
   /**
@@ -57,16 +45,6 @@ export type Mutation = {
    * @default '@tanstack/react-query'
    */
   importPath?: string
-  /**
-   * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
-   */
-  pathParamsType?: 'object' | 'inline'
 }
 
 export type Infinite = {
@@ -184,6 +162,16 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
+  /**
    * When set, an infiniteQuery hooks will be added.
    */
   infinite?: Partial<Infinite> | false
@@ -195,7 +183,6 @@ export type Options = {
    * Override some useQuery behaviours.
    */
   query?: Partial<Query> | false
-  queryOptions?: Partial<QueryOptions> | false
   /**
    * Override some useMutation behaviours.
    */
@@ -204,7 +191,7 @@ export type Options = {
    * Which parser can be used before returning the data to `@tanstack/query`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
-  parser?: 'zod'
+  parser?: 'client' | 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -214,16 +201,17 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  baseURL: string | undefined
   client: Required<NonNullable<PluginReactQuery['options']['client']>>
-  parser: PluginReactQuery['options']['parser']
+  parser: Required<NonNullable<Options['parser']>>
   /**
    * Only used of infinite
    */
   infinite: Infinite | false
   suspense: Suspense | false
   query: NonNullable<Required<Query>>
-  queryOptions: NonNullable<Required<QueryOptions>>
   mutation: NonNullable<Required<Mutation>>
+  pathParamsType: NonNullable<Options['pathParamsType']>
 }
 
 export type FileMeta = {

@@ -1,22 +1,23 @@
 import client from '@kubb/plugin-client/client'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
-
-type PlaceOrderPatch = {
-  data: PlaceOrderPatchMutationResponse
-  error: PlaceOrderPatch405
-  request: PlaceOrderPatchMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: PlaceOrderPatchMutationResponse
-  client: {
-    parameters: Partial<Parameters<PlaceOrderPatchClient>[0]>
-    return: Awaited<ReturnType<PlaceOrderPatchClient>>
-  }
+/**
+ * @description Place a new order in the store with patch
+ * @summary Place an order for a pet with patch
+ * @link /store/order
+ */
+async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
+  const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
+    method: 'patch',
+    url: `/store/order`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -24,15 +25,16 @@ type PlaceOrderPatch = {
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-export function usePlaceOrderPatchHook(options?: {
-  mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
-  client?: PlaceOrderPatch['client']['parameters']
-}) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+export function usePlaceOrderPatchHook(
+  options: {
+    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
     mutationFn: async (data) => {
-      const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error']>({ method: 'patch', url: '/store/order', data, ...options })
-      return res.data
+      return placeOrderPatch(data, config)
     },
     ...mutationOptions,
   })
