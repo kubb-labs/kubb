@@ -62,7 +62,7 @@ export type Options = {
     /**
      * Path to the client import path that will be used to do the API calls.
      * It will be used as `import client from '${client.importPath}'`.
-     * It allow both relative and absolute path.
+     * It allows both relative and absolute path.
      * the path will be applied as is, so relative path shoule be based on the file being generated.
      * @default '@kubb/plugin-client/client'
      */
@@ -109,6 +109,16 @@ export type Options = {
     importPath?: string
   }
   /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
+  /**
    * Which parser can be used before returning the data to `swr`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
@@ -122,10 +132,12 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  baseURL: string | undefined
   client: Required<NonNullable<Options['client']>>
   parser: Options['parser']
-  mutation: NonNullable<Options['mutation']>
-  query: NonNullable<Options['query']>
+  mutation: Required<NonNullable<Options['mutation']>>
+  query: Required<NonNullable<Options['query']>>
+  pathParamsType: NonNullable<Options['pathParamsType']>
 }
 
 export type FileMeta = {

@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
@@ -21,11 +22,16 @@ type GetUserByName = {
 
 export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, GetUserByName['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetUserByName['error']>({ method: 'get', url: `/user/${username}`, ...options })
+      const res = await client<GetUserByNameQueryResponse>({
+        method: 'get',
+        url: `/user/${username}`,
+        baseURL: 'https://petstore3.swagger.io/api/v3',
+        ...config,
+      })
       return res.data
     },
   }

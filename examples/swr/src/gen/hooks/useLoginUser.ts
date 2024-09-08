@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
@@ -21,11 +22,11 @@ type LoginUser = {
 
 export function loginUserQueryOptions<TData = LoginUser['response']>(
   params?: LoginUserQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, LoginUser['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LoginUser['error']>({ method: 'get', url: '/user/login', params, ...options })
+      const res = await client<LoginUserQueryResponse>({ method: 'get', url: '/user/login', baseURL: 'https://petstore3.swagger.io/api/v3', params, ...config })
       return res.data
     },
   }
@@ -45,7 +46,7 @@ export function useLoginUser<TData = LoginUser['response']>(
 ): SWRResponse<TData, LoginUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/user/login'
-  const query = useSWR<TData, LoginUser['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
+  const query = useSWR<TData, LoginUser['error'], typeof url | null>(shouldFetch ? url : null, {
     ...loginUserQueryOptions<TData>(params, clientOptions),
     ...queryOptions,
   })

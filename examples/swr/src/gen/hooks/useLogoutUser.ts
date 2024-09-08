@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
@@ -19,12 +20,10 @@ type LogoutUser = {
   }
 }
 
-export function logoutUserQueryOptions<TData = LogoutUser['response']>(
-  options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<TData, LogoutUser['error']> {
+export function logoutUserQueryOptions<TData = LogoutUser['response']>(config: Partial<RequestConfig> = {}): SWRConfiguration<TData, LogoutUser['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LogoutUser['error']>({ method: 'get', url: '/user/logout', ...options })
+      const res = await client<LogoutUserQueryResponse>({ method: 'get', url: '/user/logout', baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
       return res.data
     },
   }

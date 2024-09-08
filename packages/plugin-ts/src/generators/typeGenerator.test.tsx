@@ -333,6 +333,7 @@ describe('typeGenerator schema', async () => {
       transformers: {},
       oasType: false,
       unknownType: 'any',
+      optionalType: 'questionToken',
       override: [],
       mapper: {},
       ...props.options,

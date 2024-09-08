@@ -21,19 +21,14 @@ type Props = {
   operation: Operation
 }
 
-type GetParamsProps  ={
+type GetParamsProps = {
   baseURL: string | undefined
   operation: Operation
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({
-  operation,
-  baseURL,
-                     pathParamsType,
-                     typeSchemas
-                   }:GetParamsProps){
+function getParams({ operation, baseURL, pathParamsType, typeSchemas }: GetParamsProps) {
   const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
@@ -54,19 +49,19 @@ function getParams({
         },
         baseURL: baseURL
           ? {
-            value: JSON.stringify(baseURL),
-          }
+              value: JSON.stringify(baseURL),
+            }
           : undefined,
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-            value: isFormData ? 'formData' : undefined,
-          }
+              value: isFormData ? 'formData' : undefined,
+            }
           : undefined,
         headers: headers.length
           ? {
-            value: headers.length ? `{ ${headers.join(', ')}, ...config.headers }` : undefined,
-          }
+              value: headers.length ? `{ ${headers.join(', ')}, ...config.headers }` : undefined,
+            }
           : undefined,
         config: {
           mode: 'inlineSpread',
@@ -75,10 +70,9 @@ function getParams({
     },
   })
 }
-export function Client({ name, typeSchemas, baseURL, dataReturnType,parser, zodSchemas, pathParamsType, operation }: Props): KubbNode {
+export function Client({ name, typeSchemas, baseURL, dataReturnType, parser, zodSchemas, pathParamsType, operation }: Props): KubbNode {
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
-
 
   const params = FunctionParams.factory({
     pathParams: {
@@ -110,7 +104,10 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType,parser, zodS
   })
 
   const clientParams = getParams({
-    operation,baseURL,pathParamsType,typeSchemas
+    operation,
+    baseURL,
+    pathParamsType,
+    typeSchemas,
   })
 
   const formData = isFormData
@@ -127,7 +124,7 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType,parser, zodS
   `
     : ''
 
-  if(dataReturnType==="full" && parser!=='client'){
+  if (dataReturnType === 'full' && parser !== 'client') {
     throw new Error("Set dataReturnType to 'data' if you want to use the Zod parser")
   }
 
@@ -155,4 +152,4 @@ export function Client({ name, typeSchemas, baseURL, dataReturnType,parser, zodS
   )
 }
 
-Client.getParams =getParams
+Client.getParams = getParams

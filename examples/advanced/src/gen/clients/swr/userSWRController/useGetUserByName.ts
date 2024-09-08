@@ -1,5 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
@@ -27,11 +28,16 @@ type GetUserByName = {
 
 export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, GetUserByName['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetUserByName['error']>({ method: 'get', url: `/user/${username}`, ...options })
+      const res = await client<GetUserByNameQueryResponse>({
+        method: 'get',
+        url: `/user/${username}`,
+        baseURL: 'https://petstore3.swagger.io/api/v3',
+        ...config,
+      })
       return getUserByNameQueryResponseSchema.parse(res)
     },
   }

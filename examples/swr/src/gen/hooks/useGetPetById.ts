@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
@@ -21,11 +22,11 @@ type GetPetById = {
 
 export function getPetByIdQueryOptions<TData = GetPetById['response']>(
   petId: GetPetByIdPathParams['petId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, GetPetById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetPetById['error']>({ method: 'get', url: `/pet/${petId}`, ...options })
+      const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
       return res.data
     },
   }

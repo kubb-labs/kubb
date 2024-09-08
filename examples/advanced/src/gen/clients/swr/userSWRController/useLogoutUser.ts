@@ -1,5 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
@@ -20,12 +21,10 @@ type LogoutUser = {
   }
 }
 
-export function logoutUserQueryOptions<TData = LogoutUser['response']>(
-  options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<TData, LogoutUser['error']> {
+export function logoutUserQueryOptions<TData = LogoutUser['response']>(config: Partial<RequestConfig> = {}): SWRConfiguration<TData, LogoutUser['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LogoutUser['error']>({ method: 'get', url: '/user/logout', ...options })
+      const res = await client<LogoutUserQueryResponse>({ method: 'get', url: '/user/logout', baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
       return logoutUserQueryResponseSchema.parse(res)
     },
   }

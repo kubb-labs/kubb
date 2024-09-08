@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
@@ -21,11 +22,17 @@ type FindPetsByStatus = {
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response']>(
   params?: FindPetsByStatusQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, FindPetsByStatus['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, FindPetsByStatus['error']>({ method: 'get', url: '/pet/findByStatus', params, ...options })
+      const res = await client<FindPetsByStatusQueryResponse>({
+        method: 'get',
+        url: '/pet/findByStatus',
+        baseURL: 'https://petstore3.swagger.io/api/v3',
+        params,
+        ...config,
+      })
       return res.data
     },
   }
@@ -46,7 +53,7 @@ export function useFindPetsByStatus<TData = FindPetsByStatus['response']>(
 ): SWRResponse<TData, FindPetsByStatus['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/pet/findByStatus'
-  const query = useSWR<TData, FindPetsByStatus['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
+  const query = useSWR<TData, FindPetsByStatus['error'], typeof url | null>(shouldFetch ? url : null, {
     ...findPetsByStatusQueryOptions<TData>(params, clientOptions),
     ...queryOptions,
   })

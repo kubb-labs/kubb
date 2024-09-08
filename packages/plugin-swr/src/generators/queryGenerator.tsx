@@ -46,10 +46,10 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta}>
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name="useSWR" path="swr" />
-        <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
+        <File.Import name="useSWR" path={options.query.importPath} />
+        <File.Import name={['SWRConfiguration', 'SWRResponse']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           extName={output?.extName}
           name={[
@@ -70,12 +70,21 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           name={queryOptions.name}
           queryTypeName={query.typeName}
           operation={operation}
-          typedSchemas={type.schemas}
+          typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          pathParamsType={options.pathParamsType}
           parser={options.parser}
+          baseURL={options.baseURL}
         />
-        <Query name={query.name} typeName={query.typeName} queryOptionsName={queryOptions.name} typedSchemas={type.schemas} operation={operation} />
+        <Query
+          name={query.name}
+          typeName={query.typeName}
+          queryOptionsName={queryOptions.name}
+          typeSchemas={type.schemas}
+          pathParamsType={options.pathParamsType}
+          operation={operation}
+        />
       </File>
     )
   },

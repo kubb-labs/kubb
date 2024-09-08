@@ -5,7 +5,7 @@ import type { File, ResolvedFile } from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
 import type { Logger } from '../src/logger'
-import { createFile } from '../src/utils';
+import { createFile } from '../src/utils'
 import { format } from './format'
 
 export const mockedLogger = {

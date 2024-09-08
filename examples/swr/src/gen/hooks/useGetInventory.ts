@@ -1,6 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
@@ -20,11 +21,11 @@ type GetInventory = {
 }
 
 export function getInventoryQueryOptions<TData = GetInventory['response']>(
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, GetInventory['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetInventory['error']>({ method: 'get', url: '/store/inventory', ...options })
+      const res = await client<GetInventoryQueryResponse>({ method: 'get', url: '/store/inventory', baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
       return res.data
     },
   }

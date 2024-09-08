@@ -1,4 +1,4 @@
-import { createMockedPluginManager, matchFiles, } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -23,7 +23,7 @@ describe('clientGenerator operation', async () => {
       path: '/pet/findByTags',
       method: 'get',
       options: {
-        parser: "zod"
+        parser: 'zod',
       },
     },
     {
@@ -32,7 +32,7 @@ describe('clientGenerator operation', async () => {
       path: '/pet/findByTags',
       method: 'get',
       options: {
-        importPath: "axios"
+        importPath: 'axios',
       },
     },
     {

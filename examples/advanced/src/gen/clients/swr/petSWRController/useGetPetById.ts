@@ -1,5 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
@@ -22,11 +23,11 @@ type GetPetById = {
 
 export function getPetByIdQueryOptions<TData = GetPetById['response']>(
   petId: GetPetByIdPathParams['petId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, GetPetById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetPetById['error']>({ method: 'get', url: `/pet/${petId}`, ...options })
+      const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...config })
       return getPetByIdQueryResponseSchema.parse(res)
     },
   }

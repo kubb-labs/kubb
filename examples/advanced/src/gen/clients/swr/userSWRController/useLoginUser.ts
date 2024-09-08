@@ -1,5 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
@@ -22,11 +23,11 @@ type LoginUser = {
 
 export function loginUserQueryOptions<TData = LoginUser['response']>(
   params?: LoginUserQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
+  config: Partial<RequestConfig> = {},
 ): SWRConfiguration<TData, LoginUser['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LoginUser['error']>({ method: 'get', url: '/user/login', params, ...options })
+      const res = await client<LoginUserQueryResponse>({ method: 'get', url: '/user/login', baseURL: 'https://petstore3.swagger.io/api/v3', params, ...config })
       return loginUserQueryResponseSchema.parse(res)
     },
   }
@@ -46,7 +47,7 @@ export function useLoginUser<TData = LoginUser['response']>(
 ): SWRResponse<TData, LoginUser['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = '/user/login'
-  const query = useSWR<TData, LoginUser['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
+  const query = useSWR<TData, LoginUser['error'], typeof url | null>(shouldFetch ? url : null, {
     ...loginUserQueryOptions<TData>(params, clientOptions),
     ...queryOptions,
   })
