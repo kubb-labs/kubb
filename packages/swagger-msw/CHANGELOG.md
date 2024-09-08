@@ -1,5 +1,21 @@
 # @kubb/swagger-msw
 
+## 2.26.2
+
+### Patch Changes
+
+- [`452c3eb`](https://github.com/kubb-labs/kubb/commit/452c3eb33579f2a26fff0218a0b194645fdf2d45) Thanks [@cjthompson](https://github.com/cjthompson)! - including extName when generating operations files
+
+- Updated dependencies []:
+  - @kubb/core@2.26.2
+  - @kubb/fs@2.26.2
+  - @kubb/oas@2.26.2
+  - @kubb/parser-ts@2.26.2
+  - @kubb/plugin-oas@2.26.2
+  - @kubb/react@2.26.2
+  - @kubb/swagger-faker@2.26.2
+  - @kubb/swagger-ts@2.26.2
+
 ## 2.26.1
 
 ### Patch Changes
