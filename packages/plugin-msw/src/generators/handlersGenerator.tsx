@@ -8,7 +8,7 @@ import type { PluginMsw } from '../types'
 export const handlersGenerator = createReactGenerator<PluginMsw>({
   name: 'plugin-msw',
   Operations({ operations }) {
-    const { pluginManager } = useApp<PluginMsw>()
+    const { pluginManager, plugin } = useApp<PluginMsw>()
     const { getName, getFile } = useOperationManager()
 
     const file = pluginManager.getFile({ name: 'handlers', extName: '.ts', pluginKey: [pluginMswName] })
@@ -17,7 +17,7 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
       const operationFile = getFile(operation, { pluginKey: [pluginMswName] })
       const operationName = getName(operation, { pluginKey: [pluginMswName], type: 'function' })
 
-      return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
+      return <File.Import extName={plugin.output?.extName} key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
     })
 
     const handlers = operations.map((operation) => getName(operation, { type: 'function', pluginKey: [pluginMswName] }))
