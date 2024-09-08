@@ -1,3 +1,6 @@
+import client from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
