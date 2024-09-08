@@ -1,7 +1,7 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { pluginZodName } from '@kubb/plugin-zod';
+import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Client } from '../components/Client'
 import type { PluginClient } from '../types'
