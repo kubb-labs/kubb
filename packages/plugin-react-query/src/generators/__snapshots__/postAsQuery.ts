@@ -15,7 +15,42 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithForm<
+async function updatePetWithForm(
+  petId: UpdatePetWithFormPathParams['petId'],
+  data?: UpdatePetWithFormMutationRequest,
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+) {
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({
+    method: 'post',
+    url: `/pet/${petId}`,
+    params,
+    data,
+    ...config,
+  })
+  return updatePetWithFormMutationResponse.parse(res.data)
+}
+
+export function updatePetWithFormQueryOptions(
+  petId: UpdatePetWithFormPathParams['petId'],
+  data?: UpdatePetWithFormMutationRequest,
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+) {
+  const queryKey = updatePetWithFormQueryKey(petId, data, params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      return updatePetWithForm(petId, data, params, config)
+    },
+  })
+}
+
+/**
+ * @summary Updates a pet in the store with form data
+ * @link /pet/:petId
+ */
+export function useUpdatePetWithForm<
   TData = UpdatePetWithFormMutationResponse,
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
@@ -39,19 +74,4 @@ export function updatePetWithForm<
   }
   query.queryKey = queryKey as TQueryKey
   return query
-}
-
-export function updatePetWithFormQueryOptions(
-  petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
-) {
-  const queryKey = updatePetWithFormQueryKey(petId, data, params)
-  return queryOptions({
-    queryKey,
-    queryFn: async () => {
-      return updatePetWithForm(petId, data, params, config)
-    },
-  })
 }

@@ -13,7 +13,7 @@ type Props = {
   typeSchemas: OperationSchemas
   operation: Operation
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
-  keysFn: (keys: unknown[]) => unknown[]
+  keysFn: ((keys: unknown[]) => unknown[]) | undefined
 }
 
 type GetParamsProps = {
@@ -42,7 +42,7 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeName, keysFn }: Props): ReactNode {
+export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeName, keysFn = (name) => name }: Props): ReactNode {
   const path = new URLPath(operation.path)
   const params = getParams({ pathParamsType, typeSchemas })
   const keys = [

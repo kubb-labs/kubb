@@ -28,6 +28,8 @@ type UseOperationManagerResult = {
   getName: (
     operation: OperationType,
     params: {
+      prefix?: string
+      suffix?: string
       pluginKey?: Plugin['key']
       type: ResolveNameParams['type']
     },
@@ -43,6 +45,8 @@ type UseOperationManagerResult = {
   getFile: (
     operation: OperationType,
     params?: {
+      prefix?: string
+      suffix?: string
       pluginKey?: Plugin['key']
       extName?: KubbFile.Extname
       tag?: string
@@ -62,12 +66,12 @@ type UseOperationManagerResult = {
  * `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.
  */
 export function useOperationManager(): UseOperationManagerResult {
-  const { plugin, pluginManager, fileManager } = useApp()
+  const { plugin, pluginManager } = useApp()
   const { generator } = useContext(Oas.Context)
 
-  const getName: UseOperationManagerResult['getName'] = (operation, { pluginKey = plugin.key, type }) => {
+  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({
-      name: operation.getOperationId(),
+      name: `${prefix} ${operation.getOperationId()} ${suffix}`,
       pluginKey,
       type,
     })
@@ -104,12 +108,11 @@ export function useOperationManager(): UseOperationManagerResult {
   //TODO replace tag with group
   const getFile: UseOperationManagerResult['getFile'] = (
     operation,
-    { tag = operation.getTags().at(0)?.name, pluginKey = plugin.key, extName = '.ts' } = {},
+    { prefix, suffix, pluginKey = plugin.key, tag = operation.getTags().at(0)?.name, extName = '.ts' } = {},
   ) => {
-    const resolvedName = getName(operation, { type: 'file', pluginKey })
-
+    const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
     const file = pluginManager.getFile({
-      name: resolvedName,
+      name,
       extName,
       pluginKey,
       options: { type: 'file', pluginKey, tag },
@@ -119,7 +122,7 @@ export function useOperationManager(): UseOperationManagerResult {
       ...file,
       meta: {
         ...file.meta,
-        name: resolvedName,
+        name,
         pluginKey,
         tag,
       },

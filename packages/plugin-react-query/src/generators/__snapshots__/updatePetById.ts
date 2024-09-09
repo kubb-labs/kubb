@@ -7,7 +7,27 @@ import { useMutation } from '@tanstack/react-query'
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithForm(
+async function updatePetWithForm(
+  petId: UpdatePetWithFormPathParams['petId'],
+  data?: UpdatePetWithFormMutationRequest,
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+) {
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({
+    method: 'post',
+    url: `/pet/${petId}`,
+    params,
+    data,
+    ...config,
+  })
+  return updatePetWithFormMutationResponse.parse(res.data)
+}
+
+/**
+ * @summary Updates a pet in the store with form data
+ * @link /pet/:petId
+ */
+export function useUpdatePetWithForm(
   options: {
     mutation?: UseMutationOptions<
       UpdatePetWithFormMutationResponse,

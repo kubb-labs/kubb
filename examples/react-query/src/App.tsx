@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider, useQueries } from '@tanstack/react-qu
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 import { findPetsByStatusQueryOptions, useFindPetsByStatusHook } from './gen/hooks/useFindPetsByStatusHook.ts'
-import { useFindPetsByTagsHookInfinite } from './gen/hooks/useFindPetsByTagsHook.ts'
+import { useFindPetsByTagsInfiniteHook } from './gen/hooks/useFindPetsByTagsInfiniteHook.ts'
 import { useUpdatePetWithFormHook } from './gen/hooks/useUpdatePetWithFormHook.ts'
 import type { FindPetsByStatusQueryParamsStatus } from './gen/models/FindPetsByStatus.ts'
 
@@ -51,7 +51,7 @@ function Pets(): JSX.Element {
       },
     },
   )
-  const { data: pagedPets } = useFindPetsByTagsHookInfinite(
+  const { data: pagedPets } = useFindPetsByTagsInfiniteHook(
     {},
     {
       query: {
@@ -64,7 +64,7 @@ function Pets(): JSX.Element {
     },
   )
 
-  const { data: pagedPet } = useFindPetsByTagsHookInfinite(
+  const { data: pagedPet } = useFindPetsByTagsInfiniteHook(
     {},
     {
       query: {

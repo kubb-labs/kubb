@@ -58,16 +58,6 @@ export type Infinite = {
    * @default `0`
    */
   initialPageParam: unknown
-  /**
-   * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
-   */
-  pathParamsType?: 'object' | 'inline'
 }
 
 export type Options = {
@@ -199,14 +189,14 @@ type ResolvedOptions = {
   baseURL: string | undefined
   client: Required<NonNullable<PluginReactQuery['options']['client']>>
   parser: Required<NonNullable<Options['parser']>>
+  pathParamsType: NonNullable<Options['pathParamsType']>
   /**
    * Only used of infinite
    */
-  infinite: Infinite | false
+  infinite: NonNullable<Infinite> | false
   suspense: Suspense | false
-  query: NonNullable<Required<Query>>
-  mutation: NonNullable<Required<Mutation>>
-  pathParamsType: NonNullable<Options['pathParamsType']>
+  query: NonNullable<Required<Query>> | false
+  mutation: NonNullable<Required<Mutation>> | false
 }
 
 export type FileMeta = {

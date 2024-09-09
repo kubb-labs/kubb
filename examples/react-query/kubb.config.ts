@@ -40,30 +40,35 @@ export const config = {
       },
       pathParamsType: 'object',
       suspense: {},
-      // override: [
-      //   {
-      //     type: 'operationId',
-      //     pattern: 'findPetsByTags',
-      //     options: {
-      //       dataReturnType: 'full',
-      //       infinite: {
-      //         queryParam: 'pageSize',
-      //         initialPageParam: 0,
-      //         cursorParam: undefined,
-      //       },
-      //     },
-      //   },
-      //   {
-      //     type: 'operationId',
-      //     pattern: 'updatePetWithForm',
-      //     options: {
-      //       query: {
-      //         queryKey: (key: unknown[]) => key,
-      //         methods: ['post'],
-      //       },
-      //     },
-      //   },
-      // ],
+      override: [
+        {
+          type: 'operationId',
+          pattern: 'findPetsByTags',
+          options: {
+            client: {
+              dataReturnType: 'full',
+              importPath: '@kubb/plugin-client/client',
+            },
+            infinite: {
+              queryParam: 'pageSize',
+              initialPageParam: 0,
+              cursorParam: undefined,
+            },
+          },
+        },
+        {
+          type: 'operationId',
+          pattern: 'updatePetWithForm',
+          options: {
+            query: {
+              importPath: '@tanstack/react-query',
+              key: (key: unknown[]) => key,
+              methods: ['post'],
+            },
+            pathParamsType: 'inline',
+          },
+        },
+      ],
     }),
   ],
 }

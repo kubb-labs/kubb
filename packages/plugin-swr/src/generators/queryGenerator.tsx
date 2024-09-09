@@ -20,9 +20,9 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
 
     const query = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { type: 'function', prefix: 'use' }),
       typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation),
+      file: getFile(operation, { prefix: 'use' }),
     }
 
     const client = {

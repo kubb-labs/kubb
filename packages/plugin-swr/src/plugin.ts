@@ -83,7 +83,6 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
 
       if (type === 'file' || type === 'function') {
         resolvedName = camelCase(name, {
-          prefix: 'use',
           isFile: type === 'file',
         })
       }

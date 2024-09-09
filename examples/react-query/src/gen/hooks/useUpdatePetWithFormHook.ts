@@ -6,22 +6,19 @@ import type {
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
+
+export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
+  [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
+
+export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
 
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-async function updatePetWithForm(
-  {
-    petId,
-  }: {
-    petId: UpdatePetWithFormPathParams['petId']
-  },
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> = {},
-) {
+async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'post',
     url: `/pet/${petId}`,
@@ -32,34 +29,45 @@ async function updatePetWithForm(
   return res.data
 }
 
+export function updatePetWithFormQueryOptions(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig> = {},
+) {
+  const queryKey = updatePetWithFormQueryKey(petId, params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      return updatePetWithForm(petId, params, config)
+    },
+  })
+}
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function useUpdatePetWithFormHook(
+export function useUpdatePetWithFormHook<
+  TData = UpdatePetWithFormMutationResponse,
+  TQueryData = UpdatePetWithFormMutationResponse,
+  TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
+>(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
   options: {
-    mutation?: UseMutationOptions<
-      UpdatePetWithFormMutationResponse,
-      UpdatePetWithForm405,
-      {
-        petId: UpdatePetWithFormPathParams['petId']
-        params?: UpdatePetWithFormQueryParams
-      }
-    >
+    query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
-    mutationFn: async ({
-      petId,
-      params,
-    }: {
-      petId: UpdatePetWithFormPathParams['petId']
-      params?: UpdatePetWithFormQueryParams
-    }) => {
-      return updatePetWithForm({ petId }, params, config)
-    },
-    ...mutationOptions,
-  })
+  const { query: queryOptions, client: config = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
+  const query = useQuery({
+    ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as QueryObserverOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+  }) as UseQueryResult<TData, UpdatePetWithForm405> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
 }

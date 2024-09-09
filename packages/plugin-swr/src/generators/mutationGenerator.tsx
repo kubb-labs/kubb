@@ -19,9 +19,9 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
     const isMutate = typeof options.query === 'boolean' ? options.mutation : !!options.mutation.methods?.some((method) => operation.method === method)
 
     const mutation = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { type: 'function', prefix: 'use' }),
       typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation),
+      file: getFile(operation, { prefix: 'use' }),
     }
 
     const type = {

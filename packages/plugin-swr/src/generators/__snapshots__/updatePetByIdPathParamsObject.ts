@@ -8,7 +8,24 @@ import type { SWRMutationConfiguration } from 'swr/mutation'
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithForm(
+async function updatePetWithForm(
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+  },
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'post', url: `/pet/${petId}`, params, ...config })
+  return res.data
+}
+
+/**
+ * @summary Updates a pet in the store with form data
+ * @link /pet/:petId
+ */
+export function useUpdatePetWithForm(
   {
     petId,
   }: {

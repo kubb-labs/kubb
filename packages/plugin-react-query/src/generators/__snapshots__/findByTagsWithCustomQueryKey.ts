@@ -12,7 +12,33 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function findPetsByTags<
+async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
+    method: 'get',
+    url: `/pet/findByTags`,
+    params,
+    headers: { ...headers, ...config.headers },
+    ...config,
+  })
+  return findPetsByTagsQueryResponse.parse(res.data)
+}
+
+export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+  const queryKey = findPetsByTagsQueryKey(params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      return findPetsByTags(headers, params, config)
+    },
+  })
+}
+
+/**
+ * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+ * @summary Finds Pets by tags
+ * @link /pet/findByTags
+ */
+export function useFindPetsByTags<
   TData = FindPetsByTagsQueryResponse,
   TQueryData = FindPetsByTagsQueryResponse,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
@@ -35,14 +61,4 @@ export function findPetsByTags<
   }
   query.queryKey = queryKey as TQueryKey
   return query
-}
-
-export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-  const queryKey = findPetsByTagsQueryKey(params)
-  return queryOptions({
-    queryKey,
-    queryFn: async () => {
-      return findPetsByTags(headers, params, config)
-    },
-  })
 }

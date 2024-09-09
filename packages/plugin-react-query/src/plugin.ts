@@ -10,7 +10,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { mutationGenerator, queryGenerator } from './generators'
+import { infiniteQueryGenerator, mutationGenerator, queryGenerator } from './generators'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -46,13 +46,14 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         pathParamsType: 'inline',
         ...options.client,
       },
-      infinite: {
-        queryParam: 'id',
-        initialPageParam: 0,
-        cursorParam: undefined,
-        pathParamsType: 'inline',
-        ...infinite,
-      },
+      infinite: infinite
+        ? {
+            queryParam: 'id',
+            initialPageParam: 0,
+            cursorParam: undefined,
+            ...infinite,
+          }
+        : false,
       suspense,
       query: {
         key: (key: unknown[]) => key,
@@ -94,7 +95,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       if (type === 'file' || type === 'function') {
         resolvedName = camelCase(name, {
-          prefix: 'use',
           isFile: type === 'file',
         })
       }
@@ -133,7 +133,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, mutationGenerator)
+      const files = await operationGenerator.build(queryGenerator, mutationGenerator, infiniteQueryGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

@@ -6,82 +6,33 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import type { PluginReactQuery } from '../types.ts'
-import { queryGenerator } from './queryGenerator.tsx'
+import { infiniteQueryGenerator } from './infiniteQueryGenerator.tsx'
 
-describe('queryGenerator operation', async () => {
+describe('infiniteQueryGenerator operation', async () => {
   const testData = [
     {
-      name: 'findByTags',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'findByTagsPathParamsObject',
+      name: 'findInfiniteByTags',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
       method: 'get',
       options: {
-        pathParamsType: 'object',
-      },
-    },
-    {
-      name: 'findByTagsWithZod',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        parser: 'zod',
-      },
-    },
-    {
-      name: 'findByTagsWithCustomQueryKey',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        query: {
-          methods: ['get'],
-          importPath: '@tanstack/react-query',
-          key: (key) => ['test', ...key],
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+          cursorParam: undefined,
         },
       },
     },
     {
-      name: 'clientGetImportPath',
+      name: 'findInfiniteByTagsCursor',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
       method: 'get',
       options: {
-        client: {
-          dataReturnType: 'data',
-          importPath: 'axios',
-        },
-      },
-    },
-    {
-      name: 'clientDataReturnTypeFull',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        client: {
-          dataReturnType: 'full',
-          importPath: '@kubb/plugin-client/client',
-        },
-      },
-    },
-    {
-      name: 'postAsQuery',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
-      options: {
-        query: {
-          importPath: 'custom-query',
-          methods: ['post'],
-          key: (key) => key,
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+          cursorParam: 'cursor',
         },
       },
     },
@@ -114,7 +65,6 @@ describe('queryGenerator operation', async () => {
         importPath: '@tanstack/react-query',
       },
       suspense: false,
-      infinite: false,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>
@@ -128,10 +78,10 @@ describe('queryGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(queryGenerator)
+    await instance.build(infiniteQueryGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await queryGenerator.operation?.({
+    const files = await infiniteQueryGenerator.operation?.({
       operation,
       options,
       instance,

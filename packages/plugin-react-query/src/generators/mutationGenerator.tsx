@@ -16,12 +16,13 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     } = useApp<PluginReactQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const isMutation = typeof options.query === 'boolean' ? options.mutation : !!options.mutation.methods?.some((method) => operation.method === method)
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
 
     const mutation = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { type: 'function', prefix: 'use' }),
       typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation),
+      file: getFile(operation, { prefix: 'use' }),
     }
 
     const type = {
@@ -39,7 +40,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
     }
 
-    if (!isMutation) {
+    if (!isMutation || typeof options.mutation === 'boolean') {
       return null
     }
 
