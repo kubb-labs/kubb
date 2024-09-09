@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -12,14 +12,14 @@ import type {
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>> {
-  const res = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+) {
+  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
     method: 'post',
     url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
-    ...options,
+    ...config,
   })
   return res
 }

@@ -1,15 +1,18 @@
-import type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse } from '../../models/DeleteOrder'
+import type { DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteOrderPathParams(): NonNullable<DeleteOrderPathParams> {
+export function createDeleteOrderPathParams(data: NonNullable<Partial<DeleteOrderPathParams>> = {}) {
   faker.seed([220])
-  return { orderId: faker.number.int() }
+  return {
+    ...{ orderId: faker.number.int() },
+    ...data,
+  }
 }
 
 /**
  * @description Invalid ID supplied
  */
-export function createDeleteOrder400(): NonNullable<DeleteOrder400> {
+export function createDeleteOrder400() {
   faker.seed([220])
   return undefined
 }
@@ -17,12 +20,12 @@ export function createDeleteOrder400(): NonNullable<DeleteOrder400> {
 /**
  * @description Order not found
  */
-export function createDeleteOrder404(): NonNullable<DeleteOrder404> {
+export function createDeleteOrder404() {
   faker.seed([220])
   return undefined
 }
 
-export function createDeleteOrderMutationResponse(): NonNullable<DeleteOrderMutationResponse> {
+export function createDeleteOrderMutationResponse() {
   faker.seed([220])
   return undefined
 }

@@ -9,16 +9,19 @@ describe('TreeNode', () => {
       path: 'src/test.ts',
       baseName: 'test.ts',
       sources: [],
+      meta: {},
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
       sources: [],
+      meta: {},
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
       sources: [],
+      meta: {},
     },
   ]
   const tree = TreeNode.build(files)
@@ -36,6 +39,7 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "test.ts",
+                    "meta": {},
                     "path": "src/test.ts",
                     "sources": [],
                   },
@@ -52,6 +56,7 @@ describe('TreeNode', () => {
                     "data": {
                       "file": {
                         "baseName": "hello.ts",
+                        "meta": {},
                         "path": "src/sub/hello.ts",
                         "sources": [],
                       },
@@ -66,6 +71,7 @@ describe('TreeNode', () => {
                     "data": {
                       "file": {
                         "baseName": "world.ts",
+                        "meta": {},
                         "path": "src/sub/world.ts",
                         "sources": [],
                       },

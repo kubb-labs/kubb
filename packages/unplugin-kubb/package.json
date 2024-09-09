@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "1.0.0-alpha.14",
+  "version": "1.0.0-alpha.16",
   "description": "Unplugin for Kubb",
   "keywords": [
     "unplugin",
@@ -103,7 +103,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "unplugin": "^1.13.1"
+    "unplugin": "^1.14.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -112,11 +112,11 @@
     "@kubb/core": "workspace:*",
     "@nuxt/kit": "^3.13.1",
     "@nuxt/schema": "^3.13.1",
-    "@types/node": "^20.16.4",
+    "@types/node": "^20.16.5",
     "rimraf": "^5.0.10",
     "rollup": "^4.21.2",
     "tsup": "^8.2.4",
-    "typescript": "^5.5.4",
+    "typescript": "^5.6.2",
     "vite": "^5.4.3",
     "webpack": "^5.94.0"
   },

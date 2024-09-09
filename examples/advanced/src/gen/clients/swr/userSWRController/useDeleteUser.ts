@@ -1,23 +1,24 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
-type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
-
-type DeleteUser = {
-  data: DeleteUserMutationResponse
-  error: DeleteUser400 | DeleteUser404
-  request: never
-  pathParams: DeleteUserPathParams
-  queryParams: never
-  headerParams: never
-  response: Awaited<ReturnType<DeleteUserClient>>
-  client: {
-    parameters: Partial<Parameters<DeleteUserClient>[0]>
-    return: Awaited<ReturnType<DeleteUserClient>>
-  }
+/**
+ * @description This can only be done by the logged in user.
+ * @summary Delete user
+ * @link /user/:username
+ */
+async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
+  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
+    method: 'delete',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return deleteUserMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -27,23 +28,18 @@ type DeleteUser = {
  */
 export function useDeleteUser(
   username: DeleteUserPathParams['username'],
-  options?: {
-    mutation?: SWRMutationConfiguration<DeleteUser['response'], DeleteUser['error']>
-    client?: DeleteUser['client']['parameters']
+  options: {
+    mutation?: SWRMutationConfiguration<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRMutationResponse<DeleteUser['response'], DeleteUser['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/user/${username}` as const
-  return useSWRMutation<DeleteUser['response'], DeleteUser['error'], Key>(
-    shouldFetch ? url : null,
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/user/${username}`] as const
+  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, Key>(
+    shouldFetch ? swrKey : null,
     async (_url) => {
-      const res = await client<DeleteUser['data'], DeleteUser['error']>({
-        method: 'delete',
-        url,
-        ...clientOptions,
-      })
-      return res
+      return deleteUser(username, config)
     },
     mutationOptions,
   )

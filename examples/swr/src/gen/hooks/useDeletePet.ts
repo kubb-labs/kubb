@@ -1,23 +1,24 @@
 import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
-type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
-
-type DeletePet = {
-  data: DeletePetMutationResponse
-  error: DeletePet400
-  request: never
-  pathParams: DeletePetPathParams
-  queryParams: never
-  headerParams: DeletePetHeaderParams
-  response: DeletePetMutationResponse
-  client: {
-    parameters: Partial<Parameters<DeletePetClient>[0]>
-    return: Awaited<ReturnType<DeletePetClient>>
-  }
+/**
+ * @description delete a pet
+ * @summary Deletes a pet
+ * @link /pet/:petId
+ */
+async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+    method: 'delete',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    headers: { ...headers, ...config.headers },
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -27,25 +28,19 @@ type DeletePet = {
  */
 export function useDeletePet(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletePet['headerParams'],
-  options?: {
-    mutation?: SWRMutationConfiguration<DeletePet['response'], DeletePet['error']>
-    client?: DeletePet['client']['parameters']
+  headers?: DeletePetHeaderParams,
+  options: {
+    mutation?: SWRMutationConfiguration<DeletePetMutationResponse, DeletePet400>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRMutationResponse<DeletePet['response'], DeletePet['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}` as const
-  return useSWRMutation<DeletePet['response'], DeletePet['error'], Key>(
-    shouldFetch ? url : null,
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/pet/${petId}`] as const
+  return useSWRMutation<DeletePetMutationResponse, DeletePet400, Key>(
+    shouldFetch ? swrKey : null,
     async (_url) => {
-      const res = await client<DeletePet['data'], DeletePet['error']>({
-        method: 'delete',
-        url,
-        headers: { ...headers, ...clientOptions.headers },
-        ...clientOptions,
-      })
-      return res.data
+      return deletePet(petId, headers, config)
     },
     mutationOptions,
   )

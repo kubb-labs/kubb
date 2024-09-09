@@ -1,15 +1,18 @@
-import type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse } from '../../models/DeleteUser'
+import type { DeleteUserPathParams } from '../../models/DeleteUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteUserPathParams(): NonNullable<DeleteUserPathParams> {
+export function createDeleteUserPathParams(data: NonNullable<Partial<DeleteUserPathParams>> = {}) {
   faker.seed([220])
-  return { username: faker.string.alpha() }
+  return {
+    ...{ username: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**
  * @description Invalid username supplied
  */
-export function createDeleteUser400(): NonNullable<DeleteUser400> {
+export function createDeleteUser400() {
   faker.seed([220])
   return undefined
 }
@@ -17,12 +20,12 @@ export function createDeleteUser400(): NonNullable<DeleteUser400> {
 /**
  * @description User not found
  */
-export function createDeleteUser404(): NonNullable<DeleteUser404> {
+export function createDeleteUser404() {
   faker.seed([220])
   return undefined
 }
 
-export function createDeleteUserMutationResponse(): NonNullable<DeleteUserMutationResponse> {
+export function createDeleteUserMutationResponse() {
   faker.seed([220])
   return undefined
 }

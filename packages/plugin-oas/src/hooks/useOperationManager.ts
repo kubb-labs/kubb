@@ -13,7 +13,7 @@ type FileMeta = FileMetaBase & {
   tag?: string
 }
 
-type SchemaNames = {
+export type SchemaNames = {
   request: string | undefined
   parameters: {
     path: string | undefined
@@ -25,14 +25,41 @@ type SchemaNames = {
 }
 
 type UseOperationManagerResult = {
-  getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getFile: (operation: OperationType, params?: { pluginKey?: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
-  groupSchemasByName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => SchemaNames
-  getSchemas: (
+  getName: (
+    operation: OperationType,
+    params: {
+      prefix?: string
+      suffix?: string
+      pluginKey?: Plugin['key']
+      type: ResolveNameParams['type']
+    },
+  ) => string
+  getSchemaName: (
     operation: Operation,
-    params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] },
-    forStatusCode?: string | number,
-  ) => OperationSchemas
+    key: keyof Omit<OperationSchemas, 'errors' | 'statusCodes'>,
+    params?: {
+      pluginKey?: Plugin['key']
+      type?: ResolveNameParams['type']
+    },
+  ) => string
+  getFile: (
+    operation: OperationType,
+    params?: {
+      prefix?: string
+      suffix?: string
+      pluginKey?: Plugin['key']
+      extName?: KubbFile.Extname
+      tag?: string
+    },
+  ) => KubbFile.File<FileMeta>
+  groupSchemasByName: (
+    operation: OperationType,
+    params: {
+      pluginKey?: Plugin['key']
+      type: ResolveNameParams['type']
+    },
+  ) => SchemaNames
+  getSchemas: (operation: Operation, params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] }) => OperationSchemas
 }
 
 /**
@@ -42,24 +69,48 @@ export function useOperationManager(): UseOperationManagerResult {
   const { plugin, pluginManager } = useApp()
   const { generator } = useContext(Oas.Context)
 
-  if (!generator) {
-    throw new Error(`'generator' is not defined`)
-  }
-
-  const getName: UseOperationManagerResult['getName'] = (operation, { pluginKey = plugin.key, type }) => {
+  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({
-      name: operation.getOperationId(),
+      name: `${prefix} ${operation.getOperationId()} ${suffix}`,
       pluginKey,
       type,
     })
   }
 
-  const getFile: UseOperationManagerResult['getFile'] = (operation, { pluginKey = plugin.key, extName = '.ts' } = {}) => {
-    // needed for the `output.group`
-    const tag = operation.getTags().at(0)?.name
-    //TODO replace with group
-    const name = getName(operation, { type: 'file', pluginKey })
+  const getSchemas: UseOperationManagerResult['getSchemas'] = (operation, params) => {
+    if (!generator) {
+      throw new Error(`'generator' is not defined`)
+    }
 
+    return generator.getSchemas(operation, {
+      resolveName: (name) =>
+        pluginManager.resolveName({
+          name,
+          pluginKey: params?.pluginKey,
+          type: params?.type,
+        }),
+    })
+  }
+
+  const getSchemaName: UseOperationManagerResult['getSchemaName'] = (operation, key, { pluginKey = plugin.key, type } = {}) => {
+    const schemas = getSchemas(operation)
+
+    if (!schemas[key]?.name) {
+      throw new Error(`SchemaName not found for ${operation.getOperationId()}`)
+    }
+
+    return pluginManager.resolveName({
+      name: schemas[key]?.name,
+      pluginKey,
+      type,
+    })
+  }
+  //TODO replace tag with group
+  const getFile: UseOperationManagerResult['getFile'] = (
+    operation,
+    { prefix, suffix, pluginKey = plugin.key, tag = operation.getTags().at(0)?.name, extName = '.ts' } = {},
+  ) => {
+    const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
     const file = pluginManager.getFile({
       name,
       extName,
@@ -79,6 +130,10 @@ export function useOperationManager(): UseOperationManagerResult {
   }
 
   const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, type }) => {
+    if (!generator) {
+      throw new Error(`'generator' is not defined`)
+    }
+
     const schemas = generator.getSchemas(operation)
 
     const errors = (schemas.errors || []).reduce(
@@ -149,16 +204,8 @@ export function useOperationManager(): UseOperationManagerResult {
   return {
     getName,
     getFile,
-    getSchemas: (operation, params, forStatusCode) =>
-      generator.getSchemas(operation, {
-        forStatusCode,
-        resolveName: (name) =>
-          pluginManager.resolveName({
-            name,
-            pluginKey: params?.pluginKey,
-            type: params?.type,
-          }),
-      }),
+    getSchemas,
+    getSchemaName,
     groupSchemasByName,
   }
 }

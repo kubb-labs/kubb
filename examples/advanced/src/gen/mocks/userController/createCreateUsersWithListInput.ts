@@ -1,33 +1,28 @@
-import type {
-  CreateUsersWithListInput200,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../models/ts/userController/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutationRequest } from '../../models/ts/userController/CreateUsersWithListInput.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInput200(): NonNullable<CreateUsersWithListInput200> {
+export function createCreateUsersWithListInput200() {
   return createUser()
 }
 
 /**
  * @description successful operation
  */
-export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWithListInputError> {
+export function createCreateUsersWithListInputError() {
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
-  return faker.helpers.arrayElements([createUser()]) as any
+export function createCreateUsersWithListInputMutationRequest(data: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = []) {
+  return [...(faker.helpers.arrayElements([createUser()]) as any), ...data]
 }
 
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInputMutationResponse(): NonNullable<CreateUsersWithListInputMutationResponse> {
+export function createCreateUsersWithListInputMutationResponse() {
   return createUser()
 }

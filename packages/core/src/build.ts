@@ -106,7 +106,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
               // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
               const plugin = [...pluginManager.plugins].find((item) => {
                 const meta = file.meta as any
-                return item.name === meta?.pluginKey?.[0]
+                return item.key === meta?.pluginKey
               })
 
               if (plugin?.output?.exportType === false) {

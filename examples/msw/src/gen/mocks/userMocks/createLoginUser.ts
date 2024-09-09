@@ -1,15 +1,18 @@
-import type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse } from '../../models/LoginUser'
+import type { LoginUserQueryParams } from '../../models/LoginUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createLoginUserQueryParams(): NonNullable<LoginUserQueryParams> {
+export function createLoginUserQueryParams(data: NonNullable<Partial<LoginUserQueryParams>> = {}) {
   faker.seed([220])
-  return { username: faker.string.alpha(), password: faker.string.alpha() }
+  return {
+    ...{ username: faker.string.alpha(), password: faker.string.alpha() },
+    ...data,
+  }
 }
 
 /**
  * @description successful operation
  */
-export function createLoginUser200(): NonNullable<LoginUser200> {
+export function createLoginUser200() {
   faker.seed([220])
   return faker.string.alpha()
 }
@@ -17,7 +20,7 @@ export function createLoginUser200(): NonNullable<LoginUser200> {
 /**
  * @description Invalid username/password supplied
  */
-export function createLoginUser400(): NonNullable<LoginUser400> {
+export function createLoginUser400() {
   faker.seed([220])
   return undefined
 }
@@ -25,7 +28,7 @@ export function createLoginUser400(): NonNullable<LoginUser400> {
 /**
  * @description successful operation
  */
-export function createLoginUserQueryResponse(): NonNullable<LoginUserQueryResponse> {
+export function createLoginUserQueryResponse() {
   faker.seed([220])
   return faker.string.alpha()
 }

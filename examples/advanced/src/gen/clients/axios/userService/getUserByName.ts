@@ -1,6 +1,11 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
+import type {
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
+  GetUserByName400,
+  GetUserByName404,
+} from '../../../models/ts/userController/GetUserByName.ts'
 
 /**
  * @summary Get user by user name
@@ -12,8 +17,13 @@ export async function getUserByName(
   }: {
     username: GetUserByNamePathParams['username']
   },
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<GetUserByNameQueryResponse>> {
-  const res = await client<GetUserByNameQueryResponse>({ method: 'get', url: `/user/${username}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...options })
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
+    method: 'get',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
   return res
 }

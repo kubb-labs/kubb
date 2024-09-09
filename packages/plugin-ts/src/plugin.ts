@@ -3,14 +3,12 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
-
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { SchemaGenerator } from './SchemaGenerator.tsx'
+import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import type { PluginTs } from './types.ts'
+import { oasGenerator, typeGenerator } from './generators'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
@@ -39,7 +37,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       ...output,
     },
     options: {
-      extName: output.extName,
       transformers,
       dateType,
       optionalType,
@@ -100,7 +97,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build()
+      const schemaFiles = await schemaGenerator.build(...[typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean))
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -114,7 +111,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build()
+      const operationFiles = await operationGenerator.build(...[typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean))
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

@@ -2,11 +2,6 @@ import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core
 import type * as KubbFile from '@kubb/fs/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
-import type { Operations } from './components/Operations'
-
-type Templates = {
-  operations?: typeof Operations.templates | false
-}
 
 export type Options = {
   output?: {
@@ -64,6 +59,40 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
+  /**
+   * Path to Zod
+   * It will be used as `import { z } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default 'zod'
+   */
+  importPath?: string
+
+  /**
+   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * False will fallback on a simple z.string() format
+   * @default 'string' 'stringOffset' will become the default in Kubb v3
+   */
+  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
+  /**
+   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * @default 'any'
+   */
+  unknownType?: 'any' | 'unknown'
+  /**
+   * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
+   */
+  typed?: boolean
+  /**
+   * Return Zod generated schema as type with z.infer<TYPE>
+   */
+  inferred?: boolean
+  /**
+   * Use of z.coerce.string() instead of z.string()
+   */
+  coercion?: boolean
+  operations?: boolean
+  mapper?: Record<string, string>
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -83,58 +112,20 @@ export type Options = {
       defaultSchemas: Schema[],
     ) => Schema[] | undefined
   }
-  mapper?: Record<string, string>
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
-  /**
-   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-   * False will fallback on a simple z.string() format
-   * @default 'string' 'stringOffset' will become the default in Kubb v3
-   */
-  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information
-   * @default 'any'
-   */
-  unknownType?: 'any' | 'unknown'
-  /**
-   * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
-   */
-  typed?: boolean
-  /**
-   * Return Zod generated schema as type with z.infer<TYPE>
-   */
-  typedSchema?: boolean
-  /**
-   * Use of z.coerce.string() instead of z.string()
-   */
-  coercion?: boolean
-  /**
-   * Path to Zod
-   * It will be used as `import { z } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
-   * @default 'zod'
-   */
-  importPath?: string
 }
 
 type ResolvedOptions = {
-  extName: KubbFile.Extname | undefined
+  override: NonNullable<Options['override']>
+
   transformers: NonNullable<Options['transformers']>
-  exclude: Options['exclude']
-  include: Options['include']
-  override: Options['override']
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
-  typedSchema: NonNullable<Options['typedSchema']>
-  templates: NonNullable<Templates>
+  inferred: NonNullable<Options['inferred']>
   mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
+  operations: NonNullable<Options['coercion']>
 }
 
 export type FileMeta = {

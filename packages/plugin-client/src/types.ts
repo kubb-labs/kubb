@@ -1,9 +1,7 @@
 import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
-import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Client } from './components/index.ts'
 
 export type Options = {
   output?: {
@@ -60,27 +58,19 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  client?: {
-    /**
-     * Path to the client import path that will be used to do the API calls.
-     * It will be used as `import client from '${client.importPath}'`.
-     * It allows both relative and absolute path.
-     * the path will be applied as is, so relative path should be based on the file being generated.
-     * @default '@kubb/plugin-client/client'
-     */
-    importPath?: string
-    /**
-     * Define which HttpMethods can be used for queries
-     * @default ['get', 'post', 'put', 'delete']
-     */
-    methods?: Array<HttpMethod>
-    template?: typeof Client
-  }
   /**
    * Create `operations.ts` file with all operations grouped by methods.
    * @default `false`
    */
   operations?: boolean
+  /**
+   * Path to the client import path that will be used to do the API calls.
+   * It will be used as `import client from '${client.importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default '@kubb/plugin-client/client'
+   */
+  importPath?: string
   /**
    * ReturnType that needs to be used when calling client().
    *
@@ -101,6 +91,12 @@ export type Options = {
    * @private
    */
   pathParamsType?: 'object' | 'inline'
+  /**
+   * Which parser can be used before returning the data
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   * @default 'client'
+   */
+  parser?: 'client' | 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -111,7 +107,8 @@ export type Options = {
 
 type ResolvedOptions = {
   baseURL: string | undefined
-  client: NonNullable<Options['client']>
+  parser: NonNullable<Options['parser']>
+  importPath: NonNullable<Options['importPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
 }

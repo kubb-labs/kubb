@@ -1,5 +1,39 @@
 # @kubb/plugin-react-query
 
+## 3.0.0-alpha.16
+
+### Minor Changes
+
+- [#1205](https://github.com/kubb-labs/kubb/pull/1205) [`de16d9d`](https://github.com/kubb-labs/kubb/commit/de16d9dd7321199378058d6e33a07536db80c6c5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of 'variablesType'
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.16
+  - @kubb/fs@3.0.0-alpha.16
+  - @kubb/oas@3.0.0-alpha.16
+  - @kubb/parser-ts@3.0.0-alpha.16
+  - @kubb/plugin-faker@3.0.0-alpha.16
+  - @kubb/plugin-oas@3.0.0-alpha.16
+  - @kubb/plugin-ts@3.0.0-alpha.16
+  - @kubb/plugin-zod@3.0.0-alpha.16
+  - @kubb/react@3.0.0-alpha.16
+
+## 3.0.0-alpha.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.15
+  - @kubb/fs@3.0.0-alpha.15
+  - @kubb/oas@3.0.0-alpha.15
+  - @kubb/parser-ts@3.0.0-alpha.15
+  - @kubb/plugin-faker@3.0.0-alpha.15
+  - @kubb/plugin-oas@3.0.0-alpha.15
+  - @kubb/plugin-ts@3.0.0-alpha.15
+  - @kubb/plugin-zod@3.0.0-alpha.15
+  - @kubb/react@3.0.0-alpha.15
+
 ## 3.0.0-alpha.14
 
 ### Patch Changes

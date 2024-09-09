@@ -5,6 +5,7 @@ import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -31,6 +32,7 @@ export default defineConfig(() => {
         },
         validate: false,
       }),
+      pluginRedoc(),
       pluginTs({
         output: {
           path: 'models/ts',
@@ -103,8 +105,8 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           importPath: '../../../../swr-client.ts',
+          dataReturnType: 'data',
         },
-        dataReturnType: 'full',
         parser: 'zod',
       }),
       pluginClient({
@@ -118,9 +120,7 @@ export default defineConfig(() => {
           },
         ],
         group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-        client: {
-          importPath: '../../../../axios-client.ts',
-        },
+        importPath: '../../../../axios-client.ts',
         operations: true,
         dataReturnType: 'full',
         pathParamsType: 'object',
@@ -137,10 +137,8 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         dateType: 'stringOffset',
-        typed: true,
-        templates: {
-          operations: false,
-        },
+        inferred: true,
+        operations: false,
       }),
       pluginFaker({
         output: {
@@ -164,6 +162,7 @@ export default defineConfig(() => {
           path: 'msw',
           exportType: false,
         },
+        handlers: true,
         exclude: [
           {
             type: 'tag',

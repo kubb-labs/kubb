@@ -41,9 +41,7 @@ export default defineConfig([
         output: {
           path: './zod.ts',
         },
-        templates: {
-          operations: false,
-        },
+        operations: false,
       }),
     ],
   },
@@ -63,9 +61,7 @@ export default defineConfig([
         output: {
           path: 'index.ts',
         },
-        templates: {
-          operations: false,
-        },
+        operations: false,
       }),
     ],
   },

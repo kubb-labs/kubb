@@ -7,7 +7,8 @@
     "name": "test",
     "extName": ".ts",
     "imports": [],
-    "exports": []
+    "exports": [],
+    "meta": {}
   },
   {
     "path": "src/axios/file2.ts",
@@ -17,7 +18,8 @@
     "name": "file2",
     "extName": ".ts",
     "imports": [],
-    "exports": []
+    "exports": [],
+    "meta": {}
   },
   {
     "path": "src/axios/file1.ts",
@@ -27,7 +29,8 @@
     "name": "file2",
     "extName": ".ts",
     "imports": [],
-    "exports": []
+    "exports": [],
+    "meta": {}
   },
   {
     "path": "src/axios/index.ts",
@@ -37,7 +40,8 @@
     "name": "index",
     "extName": ".ts",
     "imports": [],
-    "exports": []
+    "exports": [],
+    "meta": {}
   },
   {
     "path": "src/controller/test.ts",
@@ -47,7 +51,8 @@
     "name": "test",
     "extName": ".ts",
     "imports": [],
-    "exports": []
+    "exports": [],
+    "meta": {}
   },
   {
     "path": "src/axios/controller/pet.ts",
@@ -57,6 +62,7 @@
     "name": "pet",
     "extName": ".ts",
     "imports": [],
-    "exports": []
+    "exports": [],
+    "meta": {}
   }
 ]

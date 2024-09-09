@@ -1,23 +1,25 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
-
-type CreateUser = {
-  data: CreateUserMutationResponse
-  error: never
-  request: CreateUserMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: Awaited<ReturnType<CreateUserClient>>
-  client: {
-    parameters: Partial<Parameters<CreateUserClient>[0]>
-    return: Awaited<ReturnType<CreateUserClient>>
-  }
+/**
+ * @description This can only be done by the logged in user.
+ * @summary Create user
+ * @link /user
+ */
+async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
+    method: 'post',
+    url: '/user',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return createUserMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -25,23 +27,19 @@ type CreateUser = {
  * @summary Create user
  * @link /user
  */
-export function useCreateUser(options?: {
-  mutation?: SWRMutationConfiguration<CreateUser['response'], CreateUser['error']>
-  client?: CreateUser['client']['parameters']
-  shouldFetch?: boolean
-}): SWRMutationResponse<CreateUser['response'], CreateUser['error']> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = '/user' as const
-  return useSWRMutation<CreateUser['response'], CreateUser['error'], Key>(
-    shouldFetch ? url : null,
+export function useCreateUser(
+  options: {
+    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, unknown>
+    client?: Partial<RequestConfig<CreateUserMutationRequest>>
+    shouldFetch?: boolean
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = ['/user'] as const
+  return useSWRMutation<CreateUserMutationResponse, unknown, Key>(
+    shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
-      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
-        method: 'post',
-        url,
-        data,
-        ...clientOptions,
-      })
-      return res
+      return createUser(data, config)
     },
     mutationOptions,
   )

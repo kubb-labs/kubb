@@ -5,18 +5,22 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
 export async function uploadFile(
-  petId: UploadFilePathParams['petId'],
+  {
+    petId,
+  }: {
+    petId: UploadFilePathParams['petId']
+  },
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UploadFileMutationResponse>['data']> {
+  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+) {
   const formData = new FormData()
   if (data) {
     Object.keys(data).forEach((key) => {
@@ -26,14 +30,14 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...options.headers },
-    ...options,
+    headers: { 'Content-Type': 'multipart/form-data', ...config.headers },
+    ...config,
   })
   return res.data
 }

@@ -149,6 +149,102 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserMutation,
 } from './models/ts/userController/UpdateUser.ts'
+export type { AddPetRequestSchema } from './zod/addPetRequestSchema.ts'
+export type { AddressSchema } from './zod/addressSchema.ts'
+export type { ApiResponseSchema } from './zod/apiResponseSchema.ts'
+export type { CategorySchema } from './zod/categorySchema.ts'
+export type { CustomerSchema } from './zod/customerSchema.ts'
+export type { OrderSchema } from './zod/orderSchema.ts'
+export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
+export type {
+  DeletePetPathParamsSchema,
+  DeletePetHeaderParamsSchema,
+  DeletePet400Schema,
+  DeletePetMutationResponseSchema,
+} from './zod/petController/deletePetSchema.ts'
+export type {
+  FindPetsByStatusQueryParamsSchema,
+  FindPetsByStatus200Schema,
+  FindPetsByStatus400Schema,
+  FindPetsByStatusQueryResponseSchema,
+} from './zod/petController/findPetsByStatusSchema.ts'
+export type {
+  FindPetsByTagsQueryParamsSchema,
+  FindPetsByTagsHeaderParamsSchema,
+  FindPetsByTags200Schema,
+  FindPetsByTags400Schema,
+  FindPetsByTagsQueryResponseSchema,
+} from './zod/petController/findPetsByTagsSchema.ts'
+export type {
+  GetPetByIdPathParamsSchema,
+  GetPetById200Schema,
+  GetPetById400Schema,
+  GetPetById404Schema,
+  GetPetByIdQueryResponseSchema,
+} from './zod/petController/getPetByIdSchema.ts'
+export type {
+  UpdatePet200Schema,
+  UpdatePet400Schema,
+  UpdatePet404Schema,
+  UpdatePet405Schema,
+  UpdatePetMutationRequestSchema,
+  UpdatePetMutationResponseSchema,
+} from './zod/petController/updatePetSchema.ts'
+export type {
+  UpdatePetWithFormPathParamsSchema,
+  UpdatePetWithFormQueryParamsSchema,
+  UpdatePetWithForm405Schema,
+  UpdatePetWithFormMutationResponseSchema,
+} from './zod/petController/updatePetWithFormSchema.ts'
+export type {
+  UploadFilePathParamsSchema,
+  UploadFileQueryParamsSchema,
+  UploadFile200Schema,
+  UploadFileMutationRequestSchema,
+  UploadFileMutationResponseSchema,
+} from './zod/petController/uploadFileSchema.ts'
+export type { PetNotFoundSchema } from './zod/petNotFoundSchema.ts'
+export type { PetSchema } from './zod/petSchema.ts'
+export type {
+  CreatePetsPathParamsSchema,
+  CreatePetsQueryParamsSchema,
+  CreatePetsHeaderParamsSchema,
+  CreatePets201Schema,
+  CreatePetsErrorSchema,
+  CreatePetsMutationRequestSchema,
+  CreatePetsMutationResponseSchema,
+} from './zod/petsController/createPetsSchema.ts'
+export type { TagTagSchema } from './zod/tag/tagSchema.ts'
+export type { UserArraySchema } from './zod/userArraySchema.ts'
+export type { CreateUserErrorSchema, CreateUserMutationRequestSchema, CreateUserMutationResponseSchema } from './zod/userController/createUserSchema.ts'
+export type {
+  CreateUsersWithListInput200Schema,
+  CreateUsersWithListInputErrorSchema,
+  CreateUsersWithListInputMutationRequestSchema,
+  CreateUsersWithListInputMutationResponseSchema,
+} from './zod/userController/createUsersWithListInputSchema.ts'
+export type {
+  DeleteUserPathParamsSchema,
+  DeleteUser400Schema,
+  DeleteUser404Schema,
+  DeleteUserMutationResponseSchema,
+} from './zod/userController/deleteUserSchema.ts'
+export type {
+  GetUserByNamePathParamsSchema,
+  GetUserByName200Schema,
+  GetUserByName400Schema,
+  GetUserByName404Schema,
+  GetUserByNameQueryResponseSchema,
+} from './zod/userController/getUserByNameSchema.ts'
+export type { LoginUserQueryParamsSchema, LoginUser200Schema, LoginUser400Schema, LoginUserQueryResponseSchema } from './zod/userController/loginUserSchema.ts'
+export type { LogoutUserErrorSchema, LogoutUserQueryResponseSchema } from './zod/userController/logoutUserSchema.ts'
+export type {
+  UpdateUserPathParamsSchema,
+  UpdateUserErrorSchema,
+  UpdateUserMutationRequestSchema,
+  UpdateUserMutationResponseSchema,
+} from './zod/userController/updateUserSchema.ts'
+export type { UserSchema } from './zod/userSchema.ts'
 export { operations } from './clients/axios/operations.ts'
 export { addPet } from './clients/axios/petService/addPet.ts'
 export { deletePet } from './clients/axios/petService/deletePet.ts'
@@ -247,6 +343,7 @@ export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './mode
 export { petStatusEnum } from './models/ts/Pet.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './models/ts/petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXExampleEnum } from './models/ts/petsController/CreatePets.ts'
+export { handlers } from './msw/handlers.ts'
 export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export { addressSchema } from './zod/addressSchema.ts'
 export { apiResponseSchema } from './zod/apiResponseSchema.ts'

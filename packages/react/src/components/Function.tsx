@@ -1,11 +1,8 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
 
-import { getFunctionParams, isFunctionParams } from '../utils/getFunctionParams.ts'
 import { Text } from './Text.tsx'
 
-import type { ReactElement } from 'react'
 import type { JSDoc, KubbNode } from '../types.ts'
-import type { Params } from '../utils/getFunctionParams.ts'
 
 type Props = {
   /**
@@ -15,7 +12,7 @@ type Props = {
   /**
    * Parameters/options/props that need to be used.
    */
-  params?: string | Params
+  params?: string
   /**
    * Does this function need to be exported.
    */
@@ -70,7 +67,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <Text>{'>'}</Text>
         </>
       )}
-      {isFunctionParams(params) ? <Text>({getFunctionParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
+      <Text>({params})</Text>
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -129,7 +126,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <Text>{'>'}</Text>
         </>
       )}
-      {isFunctionParams(params) ? <Text>({getFunctionParams(params, { type: 'constructor' })})</Text> : <Text>({params})</Text>}
+      <Text>({params})</Text>
       {returnType && !async && <Text>: {returnType}</Text>}
       {returnType && async && (
         <Text>
@@ -161,79 +158,4 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
 }
 
 ArrowFunction.displayName = 'KubbArrowFunction'
-
-/**
- *
- * @deprecated
- */
-type CallFunctionProps = {
-  /**
-   * Name of the caller.
-   */
-  name: string
-  to: ReactElement<Props>
-}
-
-/**
- *
- * @deprecated
- */
-export function CallFunction({ name, to }: CallFunctionProps) {
-  const { params, name: fnName, generics, async } = to.props
-
-  return (
-    <>
-      const <Text>{name}</Text>
-      <Text> = </Text>
-      {async && (
-        <Text>
-          await
-          <Text.Space />
-        </Text>
-      )}
-      {fnName}
-      {generics && (
-        <>
-          <Text>{'<'}</Text>
-          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
-          <Text>{'>'}</Text>
-        </>
-      )}
-      {isFunctionParams(params) ? <Text>({getFunctionParams(params, { type: 'call' })})</Text> : <Text>({params})</Text>}
-      <br />
-    </>
-  )
-}
-
-CallFunction.displayName = 'KubbCallFunction'
-
-/**
- *
- * @deprecated
- */
-type ReturnFunctionProps = {
-  children: KubbNode
-}
-/**
- *
- * @deprecated
- */
-export function ReturnFunction({ children }: ReturnFunctionProps) {
-  return (
-    <Text indentSize={2}>
-      return <Text>{children}</Text>
-    </Text>
-  )
-}
-
 Function.Arrow = ArrowFunction
-/**
- *
- * @deprecated
- */
-Function.Call = CallFunction
-/**
- *
- * @deprecated
- */
-Function.Return = ReturnFunction
