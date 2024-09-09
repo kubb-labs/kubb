@@ -10,7 +10,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { infiniteQueryGenerator, mutationGenerator, queryGenerator } from './generators'
+import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseQueryGenerator } from './generators'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -133,7 +133,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, mutationGenerator, infiniteQueryGenerator)
+      const files = await operationGenerator.build(queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {
