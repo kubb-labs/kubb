@@ -807,7 +807,7 @@ export abstract class SchemaGenerator<
         ].filter(Boolean)
       }
 
-      if (!['boolean', 'object', 'number', 'string', 'integer'].includes(schema.type)) {
+      if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(schema.type)) {
         this.context.pluginManager.logger.emit('warning', `Schema type '${schema.type}' is not valid for schema ${parentName}.${name}`)
       }
 
