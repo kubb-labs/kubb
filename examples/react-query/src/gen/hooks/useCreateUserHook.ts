@@ -1,22 +1,23 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
-
-type CreateUser = {
-  data: CreateUserMutationResponse
-  error: never
-  request: CreateUserMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: CreateUserMutationResponse
-  client: {
-    parameters: Partial<Parameters<CreateUserClient>[0]>
-    return: Awaited<ReturnType<CreateUserClient>>
-  }
+/**
+ * @description This can only be done by the logged in user.
+ * @summary Create user
+ * @link /user
+ */
+async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
+    method: 'post',
+    url: '/user',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -26,20 +27,24 @@ type CreateUser = {
  */
 export function useCreateUserHook(
   options: {
-    mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
-    client?: CreateUser['client']['parameters']
+    mutation?: UseMutationOptions<
+      CreateUserMutationResponse,
+      unknown,
+      {
+        data?: CreateUserMutationRequest
+      }
+    >
+    client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
-        method: 'post',
-        url: '/user',
-        data,
-        ...clientOptions,
-      })
-      return res.data
+    mutationFn: async ({
+      data,
+    }: {
+      data?: CreateUserMutationRequest
+    }) => {
+      return createUser(data, config)
     },
     ...mutationOptions,
   })

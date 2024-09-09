@@ -3,9 +3,6 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
-import * as mutation from './templates/mutate/index'
-import * as queryKey from './templates/queryKey/index'
-
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
   root: '.',
@@ -15,6 +12,9 @@ export const config = {
   output: {
     path: './src/gen',
     clean: true,
+  },
+  hooks: {
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({ generators: [] }),
@@ -36,22 +36,23 @@ export const config = {
         path: './hooks',
       },
       query: {
-        queryKey: (keys) => ['"v5"', ...keys],
+        key: (keys) => ['"v5"', ...keys],
       },
+      pathParamsType: 'object',
       suspense: {},
       override: [
         {
           type: 'operationId',
           pattern: 'findPetsByTags',
           options: {
-            dataReturnType: 'full',
+            client: {
+              dataReturnType: 'full',
+              importPath: '@kubb/plugin-client/client',
+            },
             infinite: {
               queryParam: 'pageSize',
               initialPageParam: 0,
               cursorParam: undefined,
-            },
-            templates: {
-              queryKey: queryKey.templates,
             },
           },
         },
@@ -60,15 +61,14 @@ export const config = {
           pattern: 'updatePetWithForm',
           options: {
             query: {
-              queryKey: (key: unknown[]) => key,
+              importPath: '@tanstack/react-query',
+              key: (key: unknown[]) => key,
               methods: ['post'],
             },
+            pathParamsType: 'inline',
           },
         },
       ],
-      templates: {
-        mutation: mutation.templates,
-      },
     }),
   ],
 }

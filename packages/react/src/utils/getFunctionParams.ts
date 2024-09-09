@@ -39,7 +39,7 @@ type ParamItem =
 export type Params = Record<string, Param | undefined>
 
 type Options = {
-  type: 'constructor' | 'call'
+  type: 'constructor' | 'call' | 'generics'
 }
 
 function order(items: Array<[key: string, item?: ParamItem]>) {
@@ -82,14 +82,13 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
   })
 
   const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : ''
-
   const type = item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined
 
   return parseItem(
     name,
     {
-      type: options.type === 'constructor' ? type : undefined,
-      default: item.default ? item.default : undefined,
+      type,
+      default: item.default,
       optional: !item.default ? optional : undefined,
     } as ParamItem,
     options,
@@ -166,15 +165,26 @@ export class FunctionParams {
     return this.#params
   }
 
-  toCall() {
+  toCall(): string {
     return getFunctionParams(this.#params, { type: 'call' })
   }
 
-  toConstructor() {
+  toConstructor({ valueAsType }: { valueAsType: boolean } = { valueAsType: false }): string {
+    if (valueAsType) {
+      Object.entries(this.#params).reduce((acc, [key, item]) => {
+        if (item) {
+          acc[key] = {
+            ...item,
+            value: item?.type,
+            type: undefined,
+          }
+        }
+
+        return acc
+      }, {} as Params)
+
+      return getFunctionParams(this.#params, { type: 'constructor' })
+    }
     return getFunctionParams(this.#params, { type: 'constructor' })
   }
-}
-
-export function isFunctionParams(items: any): items is Params {
-  return typeof items !== 'string' && items && Object.keys(items)?.length
 }

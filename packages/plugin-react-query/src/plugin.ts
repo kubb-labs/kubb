@@ -3,17 +3,14 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
-
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { QueryImports } from './components/QueryImports.tsx'
+import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseQueryGenerator } from './generators'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -25,16 +22,13 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     exclude = [],
     include,
     override = [],
-    parser,
+    parser = 'client',
     suspense = {},
     infinite,
     transformers = {},
-    dataReturnType = 'data',
     pathParamsType = 'inline',
-    mutate = {},
+    mutation = {},
     query = {},
-    queryOptions = {},
-    templates,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -45,12 +39,13 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       ...output,
     },
     options: {
+      baseURL: undefined,
       client: {
         importPath: '@kubb/plugin-client/client',
+        dataReturnType: 'data',
+        pathParamsType: 'inline',
         ...options.client,
       },
-      dataReturnType,
-      pathParamsType,
       infinite: infinite
         ? {
             queryParam: 'id',
@@ -60,30 +55,18 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
           }
         : false,
       suspense,
-      query: query
-        ? {
-            queryKey: (key: unknown[]) => key,
-            methods: ['get'],
-            importPath: '@tanstack/react-query',
-            ...query,
-          }
-        : false,
-      queryOptions,
-      mutate: mutate
-        ? {
-            variablesType: 'hook',
-            methods: ['post', 'put', 'patch', 'delete'],
-            ...mutate,
-          }
-        : false,
-      templates: {
-        mutation: Mutation.templates,
-        query: Query.templates,
-        queryOptions: QueryOptions.templates,
-        queryKey: QueryKey.templates,
-        queryImports: QueryImports.templates,
-        ...templates,
+      query: {
+        key: (key: unknown[]) => key,
+        methods: ['get'],
+        importPath: '@tanstack/react-query',
+        ...query,
       },
+      mutation: {
+        methods: ['post', 'put', 'patch', 'delete'],
+        importPath: '@tanstack/react-query',
+        ...mutation,
+      },
+      pathParamsType,
       parser,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
@@ -112,7 +95,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       if (type === 'file' || type === 'function') {
         resolvedName = camelCase(name, {
-          prefix: 'use',
           isFile: type === 'file',
         })
       }
@@ -132,19 +114,26 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
+      const baseURL = await swaggerPlugin.context.getBaseURL()
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
-        oas,
-        pluginManager: this.pluginManager,
-        plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
-        exclude,
-        include,
-        override,
-        mode,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          ...this.plugin.options,
+          baseURL,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          plugin: this.plugin,
+          contentType: swaggerPlugin.context.contentType,
+          exclude,
+          include,
+          override,
+          mode,
+        },
+      )
 
-      const files = await operationGenerator.build()
+      const files = await operationGenerator.build(queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {
