@@ -1,4 +1,5 @@
 import { defineConfig } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas, schemaKeywords } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
@@ -56,11 +57,27 @@ export default defineConfig(async () => {
             return undefined
           },
         },
+        operations: true,
         mapper: {
           productName: 'z.string().uuid()',
         },
         importPath: '../../zod.ts',
-        typedSchema: true,
+        inferred: true,
+      }),
+      pluginClient({
+        output: {
+          path: './zodClients.ts',
+          exportType: false,
+        },
+        include: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        parser: 'zod',
+        dataReturnType: 'data',
+        pathParamsType: 'object',
       }),
     ],
   }

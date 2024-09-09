@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "3.0.0-alpha.14",
+  "version": "3.0.0-alpha.16",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -56,7 +56,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "handlebars": "^4.7.8",
-    "mobx": "^6.13.1",
+    "mobx": "^6.13.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "redoc": "^2.1.5",
@@ -69,7 +69,7 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*"

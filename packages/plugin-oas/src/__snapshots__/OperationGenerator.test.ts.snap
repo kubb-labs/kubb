@@ -4,6 +4,7 @@ exports[`OperationGenerator exclude > if exclude is filtered out for method 1`] 
 [
   {
     "baseName": "createPets.ts",
+    "meta": {},
     "path": "createPets.ts",
     "sources": [],
   },
@@ -14,11 +15,13 @@ exports[`OperationGenerator exclude > if exclude is filtered out for operationId
 [
   {
     "baseName": "createPets.ts",
+    "meta": {},
     "path": "createPets.ts",
     "sources": [],
   },
   {
     "baseName": "showPetById.ts",
+    "meta": {},
     "path": "showPetById.ts",
     "sources": [],
   },
@@ -29,11 +32,13 @@ exports[`OperationGenerator exclude > if exclude is filtered out for path 1`] = 
 [
   {
     "baseName": "listPets.ts",
+    "meta": {},
     "path": "listPets.ts",
     "sources": [],
   },
   {
     "baseName": "createPets.ts",
+    "meta": {},
     "path": "createPets.ts",
     "sources": [],
   },
@@ -44,6 +49,7 @@ exports[`OperationGenerator exclude > if exclude is filtered out for path and op
 [
   {
     "baseName": "createPets.ts",
+    "meta": {},
     "path": "createPets.ts",
     "sources": [],
   },
@@ -56,11 +62,13 @@ exports[`OperationGenerator include > if include is only selecting for method 1`
 [
   {
     "baseName": "listPets.ts",
+    "meta": {},
     "path": "listPets.ts",
     "sources": [],
   },
   {
     "baseName": "showPetById.ts",
+    "meta": {},
     "path": "showPetById.ts",
     "sources": [],
   },
@@ -71,6 +79,7 @@ exports[`OperationGenerator include > if include is only selecting for operation
 [
   {
     "baseName": "listPets.ts",
+    "meta": {},
     "path": "listPets.ts",
     "sources": [],
   },
@@ -81,6 +90,7 @@ exports[`OperationGenerator include > if include is only selecting for path 1`] 
 [
   {
     "baseName": "showPetById.ts",
+    "meta": {},
     "path": "showPetById.ts",
     "sources": [],
   },
@@ -91,11 +101,13 @@ exports[`OperationGenerator include > if include is only selecting path and oper
 [
   {
     "baseName": "listPets.ts",
+    "meta": {},
     "path": "listPets.ts",
     "sources": [],
   },
   {
     "baseName": "showPetById.ts",
+    "meta": {},
     "path": "showPetById.ts",
     "sources": [],
   },
@@ -106,16 +118,19 @@ exports[`OperationGenerator include > if include is only selecting tag 1`] = `
 [
   {
     "baseName": "listPets.ts",
+    "meta": {},
     "path": "listPets.ts",
     "sources": [],
   },
   {
     "baseName": "createPets.ts",
+    "meta": {},
     "path": "createPets.ts",
     "sources": [],
   },
   {
     "baseName": "showPetById.ts",
+    "meta": {},
     "path": "showPetById.ts",
     "sources": [],
   },
@@ -126,6 +141,7 @@ exports[`OperationGenerator include and exclude > if include is only selecting p
 [
   {
     "baseName": "listPets.ts",
+    "meta": {},
     "path": "listPets.ts",
     "sources": [],
   },

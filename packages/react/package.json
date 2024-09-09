@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "3.0.0-alpha.14",
+  "version": "3.0.0-alpha.16",
   "description": "Generator react",
   "keywords": [
     "typescript",
@@ -103,7 +103,7 @@
     "@types/signal-exit": "^3.0.4",
     "@types/ws": "^8.5.12",
     "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   },
   "engines": {
     "node": ">=20"

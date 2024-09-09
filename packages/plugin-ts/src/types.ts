@@ -109,13 +109,13 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  extName: KubbFile.Extname | undefined
+  override: NonNullable<Options['override']>
+
   enumType: NonNullable<Options['enumType']>
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   optionalType: NonNullable<Options['optionalType']>
-  override: NonNullable<Options['override']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>
@@ -129,6 +129,3 @@ export type FileMeta = {
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
-
-// external packages
-export * as Oas from './oas/index.ts'

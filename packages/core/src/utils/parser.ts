@@ -29,6 +29,7 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
     imports: imports.map((item) => createFileImport(item)),
     exports: exports.map((item) => createFileExport(item)),
     sources: sources.map((item) => createFileSource(item)),
+    meta: file.meta || ({} as TMeta),
   }
 }
 

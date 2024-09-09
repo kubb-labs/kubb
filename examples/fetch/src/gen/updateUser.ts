@@ -1,5 +1,5 @@
 import client from '../client.ts'
-import type { ResponseConfig } from '../client.ts'
+import type { RequestConfig } from '../client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './models.ts'
 
 /**
@@ -10,14 +10,14 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 export async function updateUser(
   username: UpdateUserPathParams['username'],
   data?: UpdateUserMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UpdateUserMutationResponse>['data']> {
-  const res = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
+) {
+  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
     method: 'put',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
-    ...options,
+    ...config,
   })
   return res.data
 }

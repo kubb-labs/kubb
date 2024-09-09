@@ -1,10 +1,9 @@
-import type client from '@kubb/plugin-client/client'
-import axios from 'axios'
+import client from '@kubb/plugin-client/client'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description Creates list of users with given input array
@@ -13,7 +12,14 @@ import type { ResponseConfig } from '@kubb/plugin-client/client'
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>['data']> {
-  return axios.post('/user/createWithList', data, options)
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+) {
+  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
+    method: 'post',
+    url: '/user/createWithList',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }

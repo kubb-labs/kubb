@@ -12,7 +12,7 @@ import type { OperationMethodResult } from '@kubb/plugin-oas'
 import { QueryImports } from './components/QueryImports.tsx'
 import type { FileMeta, PluginTanstackQuery } from './types.ts'
 
-export class OperationGenerator extends Generator<PluginTanstackQuery['resolvedOptions'], PluginTanstackQuery, FileMeta> {
+export class OperationGenerator extends Generator<PluginTanstackQuery, FileMeta> {
   async operation(operation: Operation, options: PluginTanstackQuery['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode } = this.context
 

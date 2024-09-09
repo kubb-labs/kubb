@@ -74,26 +74,14 @@ export type Options = {
    * - Schema with format 'time' will use ISO time format (HH:mm:ss[.SSSSSS])
    *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("HH:mm:ss")`.
    *   - `undefined` will use `faker.date.anytime().toString()`
-   * * @default undefined
+   * * @default 'faker'
    */
-  dateParser?: 'dayjs' | 'moment' | (string & {})
+  dateParser?: 'faker' | 'dayjs' | 'moment' | (string & {})
   /**
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'
    */
   unknownType?: 'any' | 'unknown'
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-    /**
-     * Receive schema and baseName(propertName) and return FakerMeta array
-     * TODO TODO add docs
-     * @beta
-     */
-    schema?: (props: { schema?: SchemaObject; name?: string; parentName?: string }, defaultSchemas: Schema[]) => Schema[] | undefined
-  }
   /**
    * Choose which generator to use when using Regexp.
    *
@@ -108,15 +96,27 @@ export type Options = {
    * The use of Seed is intended to allow for consistent values in a test.
    */
   seed?: number | number[]
+  transformers?: {
+    /**
+     * Customize the names based on the type that is provided by the plugin.
+     */
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    /**
+     * Receive schema and baseName(propertName) and return FakerMeta array
+     * TODO TODO add docs
+     * @beta
+     */
+    schema?: (props: { schema?: SchemaObject; name?: string; parentName?: string }, defaultSchemas: Schema[]) => Schema[] | undefined
+  }
 }
 
 type ResolvedOptions = {
-  extName: KubbFile.Extname | undefined
+  override: NonNullable<Options['override']>
+
   dateType: NonNullable<Options['dateType']>
-  dateParser: Options['dateParser']
+  dateParser: NonNullable<Options['dateParser']>
   unknownType: NonNullable<Options['unknownType']>
   transformers: NonNullable<Options['transformers']>
-  override: NonNullable<Options['override']>
   seed: NonNullable<Options['seed']> | undefined
   mapper: NonNullable<Options['mapper']>
   regexGenerator: NonNullable<Options['regexGenerator']>

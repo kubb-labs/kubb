@@ -68,13 +68,18 @@ export const fakerKeywordMapper = {
    * Type `'string'` ISO date format (YYYY-MM-DD)
    * @default ISO date format (YYYY-MM-DD)
    */
-  date: (type: 'date' | 'string' = 'string', parser?: string) => {
+  date: (type: 'date' | 'string' = 'string', parser: Options['dateParser'] = 'faker') => {
     if (type === 'string') {
-      if (parser) {
+      if (parser !== 'faker') {
         return `${parser}(faker.date.anytime()).format("YYYY-MM-DD")`
       }
       return 'faker.date.anytime().toString()'
     }
+
+    if (parser !== 'faker') {
+      throw new Error(`type '${type}' and parser '${parser}' can not work together`)
+    }
+
     return 'faker.date.anytime()'
   },
   /**
@@ -82,13 +87,18 @@ export const fakerKeywordMapper = {
    * Type `'string'` ISO time format (HH:mm:ss[.SSSSSS])
    * @default ISO time format (HH:mm:ss[.SSSSSS])
    */
-  time: (type: 'date' | 'string' = 'string', parser?: string) => {
+  time: (type: 'date' | 'string' = 'string', parser: Options['dateParser'] = 'faker') => {
     if (type === 'string') {
-      if (parser) {
+      if (parser !== 'faker') {
         return `${parser}(faker.date.anytime()).format("HH:mm:ss")`
       }
       return 'faker.date.anytime().toString()'
     }
+
+    if (parser !== 'faker') {
+      throw new Error(`type '${type}' and parser '${parser}' can not work together`)
+    }
+
     return 'faker.date.anytime()'
   },
   uuid: () => 'faker.string.uuid()',
@@ -155,7 +165,7 @@ type ParserOptions = {
 
   seed?: number | number[]
   regexGenerator?: 'faker' | 'randexp'
-  withData?: boolean
+  canOverride?: boolean
   dateParser?: Options['dateParser']
   mapper?: Record<string, string>
 }
@@ -168,15 +178,15 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return fakerKeywordMapper.union(current.args.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.union(current.args.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return fakerKeywordMapper.and(current.args.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.and(current.args.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return fakerKeywordMapper.array(current.args.items.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
+    return fakerKeywordMapper.array(current.args.items.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
@@ -195,7 +205,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
       throw new Error(`Name not defined for keyword ${current.keyword}`)
     }
 
-    if (options.withData) {
+    if (options.canOverride) {
       return `${current.args.name}(data)`
     }
 
@@ -220,7 +230,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordsorter)
-            .map((schema) => parse(current, schema, { ...options, withData: false }))
+            .map((schema) => parse(current, schema, { ...options, canOverride: false }))
             .filter(Boolean),
         )}`
       })
@@ -231,10 +241,10 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     if (Array.isArray(current.args.items)) {
-      return fakerKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, { ...options, withData: false })).filter(Boolean))
+      return fakerKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
     }
 
-    return parse(current, current.args.items, { ...options, withData: false })
+    return parse(current, current.args.items, { ...options, canOverride: false })
   }
 
   if (isKeyword(current, schemaKeywords.const)) {

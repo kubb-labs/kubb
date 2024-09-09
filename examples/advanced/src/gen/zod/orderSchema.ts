@@ -1,4 +1,3 @@
-import type { Order } from '../models/ts/Order'
 import { z } from 'zod'
 
 export const orderSchema = z.object({
@@ -14,4 +13,6 @@ export const orderSchema = z.object({
     .describe('HTTP Status')
     .optional(),
   complete: z.boolean().optional(),
-}) as z.ZodType<Order>
+})
+
+export type OrderSchema = z.infer<typeof orderSchema>

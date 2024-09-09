@@ -1,6 +1,6 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 
 /**
  * @description This can only be done by the logged in user.
@@ -13,13 +13,13 @@ export async function deleteUser(
   }: {
     username: DeleteUserPathParams['username']
   },
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<DeleteUserMutationResponse>> {
-  const res = await client<DeleteUserMutationResponse>({
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
     method: 'delete',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...options,
+    ...config,
   })
   return res
 }

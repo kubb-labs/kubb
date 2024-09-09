@@ -819,14 +819,18 @@ export class SchemaGenerator<
     return [{ keyword: unknownReturn }]
   }
 
-  async build(...generators: Array<Generator<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     const schemas = getSchemas({ oas, contentType, includes: include })
 
-    const promises = Object.entries(schemas).reduce((acc, [name, schema]) => {
+    const promises = Object.entries(schemas).reduce((acc, [name, value]) => {
+      if (!value) {
+        return acc
+      }
+
       const options = this.#getOptions({ name })
-      const promiseOperation = this.schema.call(this, name, schema, {
+      const promiseOperation = this.schema.call(this, name, value, {
         ...this.options,
         ...options,
       })
@@ -836,10 +840,15 @@ export class SchemaGenerator<
       }
 
       generators?.forEach((generator) => {
+        const tree = this.parse({ schema: value, name: name })
+
         const promise = generator.schema?.({
           instance: this,
-          name,
-          schema,
+          schema: {
+            name,
+            value,
+            tree,
+          },
           options: {
             ...this.options,
             ...options,

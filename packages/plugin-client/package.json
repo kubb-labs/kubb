@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.0.0-alpha.14",
+  "version": "3.0.0-alpha.16",
   "description": "Generator plugin-client",
   "keywords": [
     "typescript",
@@ -89,6 +89,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
@@ -99,7 +100,7 @@
     "axios": "^1.7.7",
     "react": "^18.3.1",
     "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*",

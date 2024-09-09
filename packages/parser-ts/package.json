@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "3.0.0-alpha.14",
+  "version": "3.0.0-alpha.16",
   "description": "TypeScript parser",
   "keywords": [
     "typescript",
@@ -61,7 +61,7 @@
   "dependencies": {
     "remeda": "^2.12.0",
     "ts-morph": "^23.0.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",

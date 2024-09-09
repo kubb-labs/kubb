@@ -21,7 +21,7 @@ export default defineConfig(() => {
     plugins: [
       pluginOas({
         validate: false,
-        output: false,
+        generators: [],
         serverIndex: 0,
       }),
       pluginTs({
@@ -31,9 +31,7 @@ export default defineConfig(() => {
         output: {
           path: '.',
         },
-        client: {
-          importPath: '../client.ts',
-        },
+        importPath: '../client.ts',
       }),
     ],
   }

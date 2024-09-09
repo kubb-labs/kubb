@@ -39,7 +39,7 @@ type ParamItem =
 export type Params = Record<string, Param | undefined>
 
 type Options = {
-  type: 'constructor' | 'call'
+  type: 'constructor' | 'call' | 'generics'
 }
 
 function order(items: Array<[key: string, item?: ParamItem]>) {
@@ -73,45 +73,38 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
 
   entries.forEach(([key, entryItem]) => {
     if (entryItem) {
-      if (options.type === 'call') {
-        names.push(...parseItem(key, { ...entryItem, type: undefined }))
-      } else {
-        names.push(
-          ...parseItem(key, {
-            ...entryItem,
-            type: undefined,
-            value: undefined,
-          }),
-        )
-      }
+      names.push(...parseItem(key, { ...entryItem, type: undefined }, options))
 
       if (entries.some(([_key, item]) => item?.type)) {
-        types.push(...parseItem(key, { ...entryItem, default: undefined }))
+        types.push(...parseItem(key, { ...entryItem, default: undefined }, options))
       }
     }
   })
 
   const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : ''
-
   const type = item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined
 
-  return parseItem(name, {
-    type: options.type === 'constructor' ? type : undefined,
-    default: item.default ? item.default : undefined,
-    optional: !item.default ? optional : undefined,
-  } as ParamItem)
+  return parseItem(
+    name,
+    {
+      type,
+      default: item.default,
+      optional: !item.default ? optional : undefined,
+    } as ParamItem,
+    options,
+  )
 }
 
-function parseItem(name: string, item: ParamItem): string[] {
+function parseItem(name: string, item: ParamItem, options: Options): string[] {
   const acc = []
 
-  if (item.type) {
+  if (item.type && options.type === 'constructor') {
     if (item.optional) {
       acc.push(`${name}?: ${item.type}`)
     } else {
       acc.push(`${name}: ${item.type}${item.default ? ` = ${item.default}` : ''}`)
     }
-  } else if (item.default) {
+  } else if (item.default && options.type === 'constructor') {
     acc.push(`${name} = ${item.default}`)
   } else if (item.value) {
     acc.push(`${name} : ${item.value}`)
@@ -124,8 +117,8 @@ function parseItem(name: string, item: ParamItem): string[] {
   return acc
 }
 
-export function getFunctionParams(items: Params, options: Options): string {
-  const entries = order(Object.entries(items as Record<string, ParamItem | undefined>))
+export function getFunctionParams(params: Params, options: Options): string {
+  const entries = order(Object.entries(params as Record<string, ParamItem | undefined>))
 
   return entries
     .reduce((acc, [key, item]) => {
@@ -147,7 +140,7 @@ export function getFunctionParams(items: Params, options: Options): string {
         return [...acc, ...parsedItem]
       }
 
-      const parsedItem = parseItem(camelCase(key), item)
+      const parsedItem = parseItem(camelCase(key), item, options)
 
       return [...acc, ...parsedItem]
     }, [] as string[])
@@ -158,6 +151,40 @@ export function createFunctionParams(params: Params): Params {
   return params
 }
 
-export function isFunctionParams(items: any): items is Params {
-  return typeof items !== 'string' && items && Object.keys(items)?.length
+export class FunctionParams {
+  #params: Params
+
+  static factory(params: Params) {
+    return new FunctionParams(params)
+  }
+  constructor(params: Params) {
+    this.#params = params
+  }
+
+  get params() {
+    return this.#params
+  }
+
+  toCall(): string {
+    return getFunctionParams(this.#params, { type: 'call' })
+  }
+
+  toConstructor({ valueAsType }: { valueAsType: boolean } = { valueAsType: false }): string {
+    if (valueAsType) {
+      Object.entries(this.#params).reduce((acc, [key, item]) => {
+        if (item) {
+          acc[key] = {
+            ...item,
+            value: item?.type,
+            type: undefined,
+          }
+        }
+
+        return acc
+      }, {} as Params)
+
+      return getFunctionParams(this.#params, { type: 'constructor' })
+    }
+    return getFunctionParams(this.#params, { type: 'constructor' })
+  }
 }

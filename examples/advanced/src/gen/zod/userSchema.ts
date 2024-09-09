@@ -1,4 +1,3 @@
-import type { User } from '../models/ts/User'
 import { z } from 'zod'
 
 export const userSchema = z.object({
@@ -10,4 +9,6 @@ export const userSchema = z.object({
   password: z.string().optional(),
   phone: z.string().optional(),
   userStatus: z.number().int().describe('User Status').optional(),
-}) as z.ZodType<User>
+})
+
+export type UserSchema = z.infer<typeof userSchema>

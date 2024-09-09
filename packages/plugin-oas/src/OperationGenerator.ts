@@ -12,7 +12,7 @@ import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override }
 /**
  * @deprecated
  */
-export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
+export type GetOperationGeneratorOptions<T = any> = any
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -31,10 +31,9 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 }
 
 export class OperationGenerator<
-  TOptions = unknown,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
-> extends BaseGenerator<TOptions, Context<TOptions, TPluginOptions>> {
+> extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
   #operationsByMethod: OperationsByMethod = {}
   get operationsByMethod(): OperationsByMethod {
     return this.#operationsByMethod
@@ -44,7 +43,7 @@ export class OperationGenerator<
     this.#operationsByMethod = paths
   }
 
-  #getOptions(operation: Operation, method: HttpMethod): Partial<TOptions> {
+  #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
 
     return (
@@ -131,10 +130,8 @@ export class OperationGenerator<
   getSchemas(
     operation: Operation,
     {
-      forStatusCode,
       resolveName = (name) => name,
     }: {
-      forStatusCode?: string | number
       resolveName?: (name: string) => string
     } = {},
   ): OperationSchemas {
@@ -142,8 +139,7 @@ export class OperationGenerator<
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
     const requestSchema = this.context.oas.getRequestSchema(operation)
-    const responseStatusCode =
-      forStatusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
+    const responseStatusCode = (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
     const responseSchema = this.context.oas.getResponseSchema(operation, responseStatusCode)
     const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
       let name = statusCode
@@ -231,7 +227,7 @@ export class OperationGenerator<
 
   #methods = ['get', 'post', 'patch', 'put', 'delete']
 
-  async build(...generators: Array<Generator<Extract<TOptions, PluginFactoryOptions>>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
     const paths = oas.getPaths()
@@ -336,41 +332,41 @@ export class OperationGenerator<
   /**
    * Operation
    */
-  async operation(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+  async operation(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
 
   /**
    * GET
    */
-  async get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+  async get(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
 
   /**
    * POST
    */
-  async post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+  async post(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
   /**
    * PATCH
    */
-  async patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+  async patch(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
 
   /**
    * PUT
    */
-  async put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+  async put(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
 
   /**
    * DELETE
    */
-  async delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta> {
+  async delete(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
 

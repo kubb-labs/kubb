@@ -1,20 +1,19 @@
-import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser'
 import { createUser } from '../createUser.ts'
 
 /**
  * @description successful operation
  */
-export function createCreateUserError(): NonNullable<CreateUserError> {
+export function createCreateUserError() {
   return createUser()
 }
 
 /**
  * @description Created user object
  */
-export function createCreateUserMutationRequest(): NonNullable<CreateUserMutationRequest> {
+export function createCreateUserMutationRequest() {
   return createUser()
 }
 
-export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
+export function createCreateUserMutationResponse() {
   return undefined
 }

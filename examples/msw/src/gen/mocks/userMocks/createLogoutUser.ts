@@ -1,15 +1,14 @@
-import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/LogoutUser'
 import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation
  */
-export function createLogoutUserError(): NonNullable<LogoutUserError> {
+export function createLogoutUserError() {
   faker.seed([220])
   return undefined
 }
 
-export function createLogoutUserQueryResponse(): NonNullable<LogoutUserQueryResponse> {
+export function createLogoutUserQueryResponse() {
   faker.seed([220])
   return undefined
 }

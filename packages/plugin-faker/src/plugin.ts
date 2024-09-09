@@ -3,15 +3,13 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, SchemaGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { SchemaGenerator } from './SchemaGenerator.tsx'
-
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
+import { fakerGenerator } from './generators/fakerGenerator.tsx'
 import type { PluginFaker } from './types.ts'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
@@ -26,9 +24,9 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     override = [],
     transformers = {},
     mapper = {},
-    dateType = 'string',
     unknownType = 'any',
-    dateParser,
+    dateType = 'string',
+    dateParser = 'faker',
     regexGenerator = 'faker',
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -40,10 +38,9 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       ...output,
     },
     options: {
-      extName: output.extName,
       transformers,
-      dateType,
       seed,
+      dateType,
       unknownType,
       dateParser,
       mapper,
@@ -101,7 +98,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build()
+      const schemaFiles = await schemaGenerator.build(fakerGenerator)
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -115,7 +112,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build()
+      const operationFiles = await operationGenerator.build(fakerGenerator)
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

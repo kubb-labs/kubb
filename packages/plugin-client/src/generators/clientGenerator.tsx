@@ -1,47 +1,64 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Client } from '../components/Client'
 import type { PluginClient } from '../types'
 
 export const clientGenerator = createReactGenerator<PluginClient>({
-  name: 'plugin-client',
+  name: 'client',
   Operation({ options, operation }) {
-    const { plugin } = useApp<PluginClient>()
+    const {
+      plugin: { output },
+    } = useApp<PluginClient>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const name = getName(operation, { type: 'function' })
-    const typedSchemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
-    const file = getFile(operation)
-    const fileType = getFile(operation, { pluginKey: [pluginTsName] })
-
-    const hasMethod = options.client.methods?.some((method) => operation.method === method)
-    
-    if (!options.client.template || !hasMethod) {
-      return null
+    const client = {
+      name: getName(operation, { type: 'function' }),
+      file: getFile(operation),
     }
 
-    const Template = options.client.template || Client
+    const type = {
+      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+    }
+
+    const zod = {
+      file: getFile(operation, { pluginKey: [pluginZodName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+    }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
-        <File.Import name={'client'} path={options.client.importPath || '@kubb/plugin-client/client'} />
-        <File.Import name={['ResponseConfig']} path={options.client.importPath || '@kubb/plugin-client/client'} isTypeOnly />
+      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
+        <File.Import name={'client'} path={options.importPath} />
+        <File.Import name={['RequestConfig']} path={options.importPath} isTypeOnly />
+        {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={client.file.path} path={zod.file.path} />}
         <File.Import
-          extName={plugin.output?.extName}
+          extName={output?.extName}
           name={[
-            typedSchemas.request?.name,
-            typedSchemas.response.name,
-            typedSchemas.pathParams?.name,
-            typedSchemas.queryParams?.name,
-            typedSchemas.headerParams?.name,
+            type.schemas.request?.name,
+            type.schemas.response.name,
+            type.schemas.pathParams?.name,
+            type.schemas.queryParams?.name,
+            type.schemas.headerParams?.name,
+            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
           ].filter(Boolean)}
-          root={file.path}
-          path={fileType.path}
+          root={client.file.path}
+          path={type.file.path}
           isTypeOnly
         />
-        <Template name={name} options={options} typedSchemas={typedSchemas} operation={operation} />
+
+        <Client
+          name={client.name}
+          baseURL={options.baseURL}
+          dataReturnType={options.dataReturnType}
+          pathParamsType={options.pathParamsType}
+          typeSchemas={type.schemas}
+          operation={operation}
+          parser={options.parser}
+          zodSchemas={zod.schemas}
+        />
       </File>
     )
   },

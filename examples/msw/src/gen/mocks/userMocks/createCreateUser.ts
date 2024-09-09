@@ -1,11 +1,10 @@
-import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation
  */
-export function createCreateUserError(): NonNullable<CreateUserError> {
+export function createCreateUserError() {
   faker.seed([220])
   return createUser()
 }
@@ -13,12 +12,12 @@ export function createCreateUserError(): NonNullable<CreateUserError> {
 /**
  * @description Created user object
  */
-export function createCreateUserMutationRequest(): NonNullable<CreateUserMutationRequest> {
+export function createCreateUserMutationRequest() {
   faker.seed([220])
   return createUser()
 }
 
-export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
+export function createCreateUserMutationResponse() {
   faker.seed([220])
   return undefined
 }

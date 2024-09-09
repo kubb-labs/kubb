@@ -1,6 +1,6 @@
 import client from '../../../../axios-client.ts'
-import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 
 /**
  * @description Returns a single pet
@@ -13,8 +13,13 @@ export async function getPetById(
   }: {
     petId: GetPetByIdPathParams['petId']
   },
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<GetPetByIdQueryResponse>> {
-  const res = await client<GetPetByIdQueryResponse>({ method: 'get', url: `/pet/${petId}`, baseURL: 'https://petstore3.swagger.io/api/v3', ...options })
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
+    method: 'get',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
   return res
 }

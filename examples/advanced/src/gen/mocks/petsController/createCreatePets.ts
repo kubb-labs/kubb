@@ -2,44 +2,53 @@ import type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-  CreatePets201,
-  CreatePetsError,
   CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
-} from '../../models/ts/petsController/CreatePets'
+} from '../../models/ts/petsController/CreatePets.ts'
 import { createPetNotFound } from '../createPetNotFound.ts'
 import { faker } from '@faker-js/faker'
 
-export function createCreatePetsPathParams(): NonNullable<CreatePetsPathParams> {
-  return { uuid: faker.string.alpha() }
+export function createCreatePetsPathParams(data: NonNullable<Partial<CreatePetsPathParams>> = {}) {
+  return {
+    ...{ uuid: faker.string.alpha() },
+    ...data,
+  }
 }
 
-export function createCreatePetsQueryParams(): NonNullable<CreatePetsQueryParams> {
-  return { offset: faker.number.int() }
+export function createCreatePetsQueryParams(data: NonNullable<Partial<CreatePetsQueryParams>> = {}) {
+  return {
+    ...{ offset: faker.number.int() },
+    ...data,
+  }
 }
 
-export function createCreatePetsHeaderParams(): NonNullable<CreatePetsHeaderParams> {
-  return { 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) }
+export function createCreatePetsHeaderParams(data: NonNullable<Partial<CreatePetsHeaderParams>> = {}) {
+  return {
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) },
+    ...data,
+  }
 }
 
 /**
  * @description Null response
  */
-export function createCreatePets201(): NonNullable<CreatePets201> {
+export function createCreatePets201() {
   return undefined
 }
 
 /**
  * @description unexpected error
  */
-export function createCreatePetsError(): NonNullable<CreatePetsError> {
+export function createCreatePetsError() {
   return createPetNotFound()
 }
 
-export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
-  return { name: faker.string.alpha(), tag: faker.string.alpha() }
+export function createCreatePetsMutationRequest(data: NonNullable<Partial<CreatePetsMutationRequest>> = {}) {
+  return {
+    ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
+    ...data,
+  }
 }
 
-export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
+export function createCreatePetsMutationResponse() {
   return undefined
 }

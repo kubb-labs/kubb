@@ -13,7 +13,7 @@ export type RequestConfig<TData = unknown> = {
   url?: string
   method: 'get' | 'put' | 'patch' | 'post' | 'delete' | 'options'
   params?: unknown
-  data?: TData
+  data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
   headers?: AxiosRequestConfig['headers']

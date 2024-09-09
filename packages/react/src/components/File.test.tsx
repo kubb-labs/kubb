@@ -47,7 +47,7 @@ describe('<File/>', () => {
               "root": undefined,
             },
           ],
-          "meta": undefined,
+          "meta": {},
           "override": undefined,
           "path": "path",
           "sources": [],
@@ -103,7 +103,7 @@ describe('<File/>', () => {
             },
           ],
           "imports": [],
-          "meta": undefined,
+          "meta": {},
           "override": undefined,
           "path": "path",
           "sources": [
@@ -156,7 +156,7 @@ describe('<File/>', () => {
           "baseName": "test.ts",
           "exports": [],
           "imports": [],
-          "meta": undefined,
+          "meta": {},
           "override": undefined,
           "path": "path",
           "sources": [
@@ -299,7 +299,7 @@ describe('<File.Import/>', () => {
               "root": undefined,
             },
           ],
-          "meta": undefined,
+          "meta": {},
           "override": undefined,
           "path": "path",
           "sources": [
@@ -344,7 +344,7 @@ describe('<File.Import/>', () => {
               "root": undefined,
             },
           ],
-          "meta": undefined,
+          "meta": {},
           "override": undefined,
           "path": "path",
           "sources": [

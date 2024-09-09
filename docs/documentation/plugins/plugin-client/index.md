@@ -164,9 +164,8 @@ const plugin = pluginClient({
 ```
 :::
 
-### client
 
-#### client.importPath
+### importPath
 
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${client.importPath}'`.<br/>
@@ -188,26 +187,7 @@ const plugin = pluginClient({
 ```
 :::
 
-#### client.methods
-
-Define the HttpMethods that the client should use.
-
-::: info
-Type: `Array<HttpMethod>` <br/>
-Default: `['get', 'post', 'put', 'delete']`
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  client: {
-    methods: ['get', 'post']
-  },
-})
-```
-:::
-
-#### client.template
+### template
 
 ::: info
 Type: `typeof Client` <br/>

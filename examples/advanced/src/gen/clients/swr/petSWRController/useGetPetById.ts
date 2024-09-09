@@ -1,37 +1,29 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
-import type { SWRConfiguration, SWRResponse } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
-type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
-
-type GetPetById = {
-  data: GetPetByIdQueryResponse
-  error: GetPetById400 | GetPetById404
-  request: never
-  pathParams: GetPetByIdPathParams
-  queryParams: never
-  headerParams: never
-  response: Awaited<ReturnType<GetPetByIdClient>>
-  client: {
-    parameters: Partial<Parameters<GetPetByIdClient>[0]>
-    return: Awaited<ReturnType<GetPetByIdClient>>
-  }
+/**
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * @link /pet/:petId
+ */
+async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
+  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
+    method: 'get',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return getPetByIdQueryResponseSchema.parse(res.data)
 }
 
-export function getPetByIdQueryOptions<TData = GetPetById['response']>(
-  petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['parameters'] = {},
-): SWRConfiguration<TData, GetPetById['error']> {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetPetById['error']>({
-        method: 'get',
-        url: `/pet/${petId}`,
-        ...options,
-      })
-      return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
+      return getPetById(petId, config)
     },
   }
 }
@@ -41,19 +33,18 @@ export function getPetByIdQueryOptions<TData = GetPetById['response']>(
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function useGetPetById<TData = GetPetById['response']>(
+export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
-  options?: {
-    query?: SWRConfiguration<TData, GetPetById['error']>
-    client?: GetPetById['client']['parameters']
+  options: {
+    query?: SWRConfiguration<GetPetByIdQueryResponse, GetPetById400 | GetPetById404>
+    client?: Partial<RequestConfig>
     shouldFetch?: boolean
-  },
-): SWRResponse<TData, GetPetById['error']> {
-  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = `/pet/${petId}`
-  const query = useSWR<TData, GetPetById['error'], typeof url | null>(shouldFetch ? url : null, {
-    ...getPetByIdQueryOptions<TData>(petId, clientOptions),
+  } = {},
+) {
+  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const swrKey = [`/pet/${petId}`] as const
+  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, Key>(shouldFetch ? swrKey : null, {
+    ...getPetByIdQueryOptions(petId, config),
     ...queryOptions,
   })
-  return query
 }

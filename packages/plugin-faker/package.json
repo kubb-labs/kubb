@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-faker",
-  "version": "3.0.0-alpha.14",
+  "version": "3.0.0-alpha.16",
   "description": "Generator plugin-faker",
   "keywords": [
     "faker",
@@ -28,6 +28,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs",
+      "default": "./dist/generators.cjs"
+    },
     "./components": {
       "import": "./dist/components.js",
       "require": "./dist/components.cjs",
@@ -43,6 +48,9 @@
     "*": {
       "components": [
         "./dist/components.d.ts"
+      ],
+      "generators": [
+        "./dist/generators.d.ts"
       ]
     }
   },
@@ -79,7 +87,7 @@
     "@types/react": "^18.3.5",
     "react": "^18.3.1",
     "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*"

@@ -1,11 +1,9 @@
-import { useOas } from '@kubb/plugin-oas/hooks'
-import { File, Type, useApp } from '@kubb/react'
+import { File, Type } from '@kubb/react'
 
 import type { OasTypes } from '@kubb/oas'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginTs } from '../types.ts'
 
-type TemplateProps = {
+type Props = {
   /**
    * Name of the function
    */
@@ -14,7 +12,7 @@ type TemplateProps = {
   api: OasTypes.OASDocument
 }
 
-function Template({ name, typeName, api }: TemplateProps): ReactNode {
+export function OasType({ name, typeName, api }: Props): ReactNode {
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
@@ -29,48 +27,3 @@ function Template({ name, typeName, api }: TemplateProps): ReactNode {
     </>
   )
 }
-
-const defaultTemplates = { default: Template } as const
-
-type Props = {
-  name: string
-  typeName: string
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
-}
-
-export function OasType({ name, typeName, Template = defaultTemplates.default }: Props): ReactNode {
-  const oas = useOas()
-
-  return <Template name={name} typeName={typeName} api={oas.api} />
-}
-
-type FileProps = {
-  name: string
-  typeName: string
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  templates?: typeof defaultTemplates
-}
-
-OasType.File = function ({ name, typeName, templates = defaultTemplates }: FileProps): ReactNode {
-  const {
-    pluginManager,
-    plugin: { key: pluginKey },
-  } = useApp<PluginTs>()
-  const file = pluginManager.getFile({ name, extName: '.ts', pluginKey })
-
-  const Template = templates.default
-
-  return (
-    <File<FileMeta> baseName={file.baseName} path={file.path} meta={file.meta}>
-      <File.Import name={['Infer']} path="@kubb/oas" isTypeOnly />
-      <OasType Template={Template} name={name} typeName={typeName} />
-    </File>
-  )
-}
-
-OasType.templates = defaultTemplates

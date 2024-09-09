@@ -1,7 +1,6 @@
-import type client from '@kubb/plugin-client/client'
-import axios from 'axios'
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
-import type { ResponseConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/client'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @description This can only be done by the logged in user.
@@ -9,8 +8,18 @@ import type { ResponseConfig } from '@kubb/plugin-client/client'
  * @link /user/:username
  */
 export async function deleteUser(
-  username: DeleteUserPathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<DeleteUserMutationResponse>['data']> {
-  return axios.delete(`/user/${username}`, options)
+  {
+    username,
+  }: {
+    username: DeleteUserPathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
+  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
+    method: 'delete',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return res.data
 }

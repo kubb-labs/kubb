@@ -136,7 +136,7 @@ export class FileManager {
     this.#filesByPath.delete(path)
   }
 
-  async getBarrelFiles({ files, meta, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
+  async getBarrelFiles({ files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
     const { exportType = 'barrelNamed' } = output
     const barrelManager = new BarrelManager({ logger })
 

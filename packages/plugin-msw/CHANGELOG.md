@@ -1,5 +1,37 @@
 # @kubb/plugin-msw
 
+## 3.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.16
+  - @kubb/fs@3.0.0-alpha.16
+  - @kubb/oas@3.0.0-alpha.16
+  - @kubb/parser-ts@3.0.0-alpha.16
+  - @kubb/plugin-faker@3.0.0-alpha.16
+  - @kubb/plugin-oas@3.0.0-alpha.16
+  - @kubb/plugin-ts@3.0.0-alpha.16
+  - @kubb/react@3.0.0-alpha.16
+
+## 3.0.0-alpha.15
+
+### Minor Changes
+
+- [`0930ed4`](https://github.com/kubb-labs/kubb/commit/0930ed4d0be8b6faf454902380e7a7d5f90b3cd3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - refactor msw plugin with generators
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.15
+  - @kubb/fs@3.0.0-alpha.15
+  - @kubb/oas@3.0.0-alpha.15
+  - @kubb/parser-ts@3.0.0-alpha.15
+  - @kubb/plugin-faker@3.0.0-alpha.15
+  - @kubb/plugin-oas@3.0.0-alpha.15
+  - @kubb/plugin-ts@3.0.0-alpha.15
+  - @kubb/react@3.0.0-alpha.15
+
 ## 3.0.0-alpha.14
 
 ### Patch Changes

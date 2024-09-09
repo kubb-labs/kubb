@@ -3,17 +3,6 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Mutation } from './components/Mutation.tsx'
-import type { Query as QueryTemplate } from './components/Query.tsx'
-import type { QueryKey } from './components/QueryKey.tsx'
-import type { QueryOptions as QueryOptionsTemplate } from './components/QueryOptions.tsx'
-
-type Templates = {
-  mutation?: typeof Mutation.templates | false
-  query?: typeof QueryTemplate.templates | false
-  queryOptions?: typeof QueryOptionsTemplate.templates | false
-  queryKey?: typeof QueryKey.templates | false
-}
 
 export type Suspense = object
 
@@ -21,7 +10,7 @@ export type Query = {
   /**
    * Customize the queryKey, here you can specify a suffix.
    */
-  queryKey: (key: unknown[]) => unknown[]
+  key: (key: unknown[]) => unknown[]
   /**
    * Define which HttpMethods can be used for queries
    * @default ['get']
@@ -37,14 +26,7 @@ export type Query = {
   importPath?: string
 }
 
-export type QueryOptions = object
-
-export type Mutate = {
-  /**
-   * Define the way of passing through the queryParams, headerParams and data.
-   * @default `'hook'`
-   */
-  variablesType: 'mutate' | 'hook'
+export type Mutation = {
   /**
    * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
@@ -131,6 +113,16 @@ export type Options = {
      * @default '@kubb/plugin-client/client'
      */
     importPath?: string
+    /**
+     * ReturnType that needs to be used when calling client().
+     *
+     * `Data` will return ResponseConfig[data].
+     *
+     * `Full` will return ResponseConfig.
+     * @default `'data'`
+     * @private
+     */
+    dataReturnType?: 'data' | 'full'
   }
   /**
    * ReturnType that needs to be used when calling client().
@@ -141,31 +133,7 @@ export type Options = {
    * @default `'data'`
    * @private
    */
-  /**
-   * ReturnType that needs to be used when calling client().
-   *
-   * `Data` will return ResponseConfig[data].
-   *
-   * `Full` will return ResponseConfig.
-   * @default `'data'`
-   * @private
-   */
-  dataReturnType?: 'data' | 'full'
-  /**
-   * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
-   */
-  pathParamsType?: 'object' | 'inline'
-  /**
-   * Which parser can be used before returning the data to `@tanstack/query`.
-   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
-   */
-  parser?: 'zod'
+
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -179,6 +147,16 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
+  /**
    * When set, an infiniteQuery hooks will be added.
    */
   infinite?: Partial<Infinite> | false
@@ -190,37 +168,35 @@ export type Options = {
    * Override some useQuery behaviours.
    */
   query?: Partial<Query> | false
-  queryOptions?: Partial<QueryOptions> | false
   /**
    * Override some useMutation behaviours.
    */
-  mutate?: Mutate | false
+  mutation?: Mutation | false
+  /**
+   * Which parser can be used before returning the data to `@tanstack/query`.
+   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   */
+  parser?: 'client' | 'zod'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
-  /**
-   * Make it possible to override one of the templates
-   */
-  templates?: Partial<Templates>
 }
 
 type ResolvedOptions = {
+  baseURL: string | undefined
   client: Required<NonNullable<PluginReactQuery['options']['client']>>
-  dataReturnType: NonNullable<PluginReactQuery['options']['dataReturnType']>
-  pathParamsType: NonNullable<PluginReactQuery['options']['pathParamsType']>
-  parser: PluginReactQuery['options']['parser']
+  parser: Required<NonNullable<Options['parser']>>
+  pathParamsType: NonNullable<Options['pathParamsType']>
   /**
    * Only used of infinite
    */
-  infinite: Infinite | false
+  infinite: NonNullable<Infinite> | false
   suspense: Suspense | false
-  query: Query | false
-  queryOptions: QueryOptions | false
-  mutate: Mutate | false
-  templates: NonNullable<Templates>
+  query: NonNullable<Required<Query>> | false
+  mutation: NonNullable<Required<Mutation>> | false
 }
 
 export type FileMeta = {

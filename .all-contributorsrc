@@ -94,6 +94,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/11760870?v=4",
       "profile": "https://github.com/wuyuanyi135",
       "contributions": ["code"]
+    },
+    {
+      "login": "cjthompson",
+      "name": "Chris Thompson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1958266?v=4",
+      "profile": "https://github.com/cjthompson",
+      "contributions": ["code"]
     }
   ],
   "contributorsPerLine": 7,

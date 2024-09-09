@@ -29,14 +29,14 @@ class DummyOperationGenerator extends OperationGenerator {
   get(operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
       const baseName: `${string}.ts` = `${operation.getOperationId()}.ts`
-      resolve({ baseName, path: baseName, sources: [] })
+      resolve({ baseName, path: baseName, sources: [], meta: {} })
     })
   }
 
   post(operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
       const baseName: `${string}.ts` = `${operation.getOperationId()}.ts`
-      resolve({ baseName, path: baseName, sources: [] })
+      resolve({ baseName, path: baseName, sources: [], meta: {} })
     })
   }
   patch(_operation: Operation): Promise<KubbFile.File | null> {

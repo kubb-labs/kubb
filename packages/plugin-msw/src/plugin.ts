@@ -3,22 +3,20 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { pluginTsName } from '@kubb/plugin-ts'
 
-import { OperationGenerator } from './OperationGenerator.tsx'
-import { Mock, Operations } from './components/index.ts'
-
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { handlersGenerator, mswGenerator } from './generators'
 import type { PluginMsw } from './types.ts'
 
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
 export const pluginMsw = createPlugin<PluginMsw>((options) => {
-  const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, templates } = options
+  const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, handlers = false } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -27,14 +25,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       exportType: 'barrelNamed',
       ...output,
     },
-    options: {
-      extName: output.extName,
-      templates: {
-        operations: Operations.templates,
-        mock: Mock.templates,
-        ...templates,
-      },
-    },
+    options: {},
     pre: [pluginOasName, pluginTsName, pluginFakerName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -85,7 +76,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build()
+      const files = await operationGenerator.build(...[mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean))
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

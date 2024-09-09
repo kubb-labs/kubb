@@ -1,3 +1,46 @@
+export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './addPetSchema.ts'
+export type { DeletePetPathParamsSchema, DeletePetHeaderParamsSchema, DeletePet400Schema, DeletePetMutationResponseSchema } from './deletePetSchema.ts'
+export type {
+  FindPetsByStatusQueryParamsSchema,
+  FindPetsByStatus200Schema,
+  FindPetsByStatus400Schema,
+  FindPetsByStatusQueryResponseSchema,
+} from './findPetsByStatusSchema.ts'
+export type {
+  FindPetsByTagsQueryParamsSchema,
+  FindPetsByTagsHeaderParamsSchema,
+  FindPetsByTags200Schema,
+  FindPetsByTags400Schema,
+  FindPetsByTagsQueryResponseSchema,
+} from './findPetsByTagsSchema.ts'
+export type {
+  GetPetByIdPathParamsSchema,
+  GetPetById200Schema,
+  GetPetById400Schema,
+  GetPetById404Schema,
+  GetPetByIdQueryResponseSchema,
+} from './getPetByIdSchema.ts'
+export type {
+  UpdatePet200Schema,
+  UpdatePet400Schema,
+  UpdatePet404Schema,
+  UpdatePet405Schema,
+  UpdatePetMutationRequestSchema,
+  UpdatePetMutationResponseSchema,
+} from './updatePetSchema.ts'
+export type {
+  UpdatePetWithFormPathParamsSchema,
+  UpdatePetWithFormQueryParamsSchema,
+  UpdatePetWithForm405Schema,
+  UpdatePetWithFormMutationResponseSchema,
+} from './updatePetWithFormSchema.ts'
+export type {
+  UploadFilePathParamsSchema,
+  UploadFileQueryParamsSchema,
+  UploadFile200Schema,
+  UploadFileMutationRequestSchema,
+  UploadFileMutationResponseSchema,
+} from './uploadFileSchema.ts'
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
 export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './deletePetSchema.ts'
 export {
