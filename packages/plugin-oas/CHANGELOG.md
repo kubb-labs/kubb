@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.17
+
+### Patch Changes
+
+- [`4ae54c7`](https://github.com/kubb-labs/kubb/commit/4ae54c7b0a2ab52701b1215f341595a9d1e7903d) Thanks [@aburgel](https://github.com/aburgel)! - Include 'null' in list of valid types
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.17
+  - @kubb/fs@3.0.0-alpha.17
+  - @kubb/oas@3.0.0-alpha.17
+  - @kubb/react@3.0.0-alpha.17
+
 ## 3.0.0-alpha.16
 
 ### Patch Changes
