@@ -1,4 +1,4 @@
-import { basename, extname, relative } from 'node:path'
+import { relative } from 'node:path'
 
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'

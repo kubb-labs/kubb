@@ -6,7 +6,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
-import { InfiniteQuery, InfiniteQueryOptions, Query, QueryKey, QueryOptions, SuspenseQuery } from '../components'
+import { QueryKey, QueryOptions, SuspenseQuery } from '../components'
 import type { PluginReactQuery } from '../types'
 
 export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
