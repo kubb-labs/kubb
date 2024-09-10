@@ -36,7 +36,7 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
 /**
  * Helper to create a fileImport with extName set
  */
-export function createFileSource(source: KubbFile.Source): KubbFile.Source {
+function createFileSource(source: KubbFile.Source): KubbFile.Source {
   return source
 }
 
@@ -159,7 +159,7 @@ export async function getFileParser<TMeta extends object = object>(extName: Kubb
   return parser || defaultParser
 }
 
-export function trimExtName(text: string): string {
+function trimExtName(text: string): string {
   const extName = text.split('.').pop()
 
   return text.replace(`.${extName}`, '')

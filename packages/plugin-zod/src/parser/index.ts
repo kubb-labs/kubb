@@ -3,7 +3,7 @@ import { type SchemaKeywordMapper, isKeyword, schemaKeywords } from '@kubb/plugi
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 
-export const zodKeywordMapper = {
+const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
   number: (coercion?: boolean, min?: number, max?: number) => {

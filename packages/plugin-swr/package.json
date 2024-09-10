@@ -77,7 +77,6 @@
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
@@ -85,7 +84,6 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.5",

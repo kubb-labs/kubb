@@ -63,7 +63,6 @@
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
-    "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.5",

@@ -128,9 +128,4 @@ type ResolvedOptions = {
   operations: NonNullable<Options['coercion']>
 }
 
-export type FileMeta = {
-  pluginKey?: Plugin['key']
-  tag?: string
-}
-
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>

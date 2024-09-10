@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "bundle-require": "^5.0.0",
     "chokidar": "^3.6.0",
     "citty": "^0.1.6",
@@ -61,7 +60,6 @@
     "cosmiconfig": "^9.0.0",
     "esbuild": "^0.23.1",
     "execa": "^9.3.1",
-    "js-runtime": "^0.0.8",
     "latest-version": "^9.0.0",
     "p-queue": "^8.0.1",
     "semver": "^7.6.3",

@@ -7,7 +7,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { FileMetaBase } from './FileManager.ts'
 import type { Logger } from './logger.ts'
 
-export type BarrelManagerOptions = {
+type BarrelManagerOptions = {
   logger?: Logger
 }
 

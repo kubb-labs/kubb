@@ -1,4 +1,4 @@
-import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type { ts } from '@kubb/parser-ts'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
@@ -120,12 +120,6 @@ type ResolvedOptions = {
   oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>
   mapper: Record<string, any>
-}
-
-export type FileMeta = {
-  pluginKey?: Plugin['key']
-  name?: string
-  tag?: string
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>

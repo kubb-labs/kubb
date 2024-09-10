@@ -95,7 +95,6 @@
     "ws": "8.15.0"
   },
   "devDependencies": {
-    "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.5",

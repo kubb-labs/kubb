@@ -32,7 +32,7 @@ declare global {
 
 export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-file' | 'kubb-source' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
 
-export type Node = {
+type Node = {
   parentNode: DOMElement | undefined
   internal_static?: boolean
 }
@@ -69,7 +69,7 @@ export type DOMElement = {
   onImmediateRender?: () => void
 } & Node
 
-export type NodeNames = ElementNames | TextName
+type NodeNames = ElementNames | TextName
 
 export type KubbNode = ReactNode
 

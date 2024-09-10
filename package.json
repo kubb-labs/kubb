@@ -22,7 +22,7 @@
     "//changeset:beta:enter": "changeset pre enter beta",
     "//changeset:beta:exit": "changeset pre exit",
     "build": "turbo run build --filter=./packages/*",
-    "build:docs": "pnpm run build && cd docs && pnpm run build",
+    "build:docs": "cd docs && pnpm run build",
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
     "clean": "turbo run clean",

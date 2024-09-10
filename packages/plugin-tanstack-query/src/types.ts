@@ -41,7 +41,7 @@ export type Query = {
 
 export type QueryOptions = object
 
-export type Mutate = {
+type Mutate = {
   /**
    * Define the way of passing through the queryParams, headerParams and data.
    * @default `'hook'`
@@ -206,7 +206,7 @@ export type Options = {
   templates?: Partial<Templates>
 }
 
-export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
+type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
 type ResolvedOptions = {
   extName: KubbFile.Extname | undefined

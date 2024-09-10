@@ -5,7 +5,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { KubbNode } from '../types.ts'
 import { RootContext } from './Root.tsx'
 
-export type AppContextProps = {
+type AppContextProps = {
   /**
    * Exit (unmount)
    */

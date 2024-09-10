@@ -121,10 +121,4 @@ type ResolvedOptions = {
   mapper: NonNullable<Options['mapper']>
   regexGenerator: NonNullable<Options['regexGenerator']>
 }
-
-export type FileMeta = {
-  pluginKey?: Plugin['key']
-  tag?: string
-}
-
 export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, ResolvedOptions, never, ResolvePathOptions>

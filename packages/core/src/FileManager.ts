@@ -204,7 +204,7 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file:
   return parser.format(source)
 }
 
-export function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {
+function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {
   return {
     ...a,
     sources: [...(a.sources || []), ...(b.sources || [])],

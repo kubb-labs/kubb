@@ -42,7 +42,7 @@ export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
   return !!result && typeof (result as Promise<unknown>)?.then === 'function'
 }
 
-export function isPromiseFulfilledResult<T = unknown>(result: PromiseSettledResult<unknown>): result is PromiseFulfilledResult<T> {
+function isPromiseFulfilledResult<T = unknown>(result: PromiseSettledResult<unknown>): result is PromiseFulfilledResult<T> {
   return result.status === 'fulfilled'
 }
 

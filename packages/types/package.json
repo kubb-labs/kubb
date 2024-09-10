@@ -50,7 +50,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "tsup": "^8.2.4",

@@ -818,9 +818,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fs':
-        specifier: workspace:*
-        version: link:../fs
       bundle-require:
         specifier: ^5.0.0
         version: 5.0.0(esbuild@0.23.1)
@@ -845,9 +842,6 @@ importers:
       execa:
         specifier: ^9.3.1
         version: 9.3.1
-      js-runtime:
-        specifier: ^0.0.8
-        version: 0.0.8
       latest-version:
         specifier: ^9.0.0
         version: 9.0.0
@@ -905,12 +899,6 @@ importers:
       '@microsoft/api-extractor':
         specifier: ^7.47.8
         version: 7.47.8(@types/node@20.16.5)
-      fast-glob:
-        specifier: ^3.3.2
-        version: 3.3.2
-      tinyrainbow:
-        specifier: ^1.2.0
-        version: 1.2.0
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -957,13 +945,7 @@ importers:
       semver:
         specifier: ^7.6.3
         version: 7.6.3
-      unraw:
-        specifier: ^3.0.0
-        version: 3.0.0
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -973,9 +955,6 @@ importers:
       '@types/object-hash':
         specifier: ^3.0.6
         version: 3.0.6
-      '@types/react':
-        specifier: ^18.3.5
-        version: 18.3.5
       '@types/seedrandom':
         specifier: ^3.0.8
         version: 3.0.8
@@ -1007,9 +986,6 @@ importers:
         specifier: ^0.0.8
         version: 0.0.8
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1019,9 +995,6 @@ importers:
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
-      prettier:
-        specifier: ^3.3.3
-        version: 3.3.3
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.8(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.44)(typescript@5.6.2)(yaml@2.4.5)
@@ -1084,9 +1057,6 @@ importers:
         specifier: ^9.6.0
         version: 9.6.0
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1114,16 +1084,10 @@ importers:
       remeda:
         specifier: ^2.12.0
         version: 2.12.0
-      ts-morph:
-        specifier: ^23.0.0
-        version: 23.0.0
       typescript:
         specifier: ^5.6.2
         version: 5.6.2
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1145,9 +1109,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
@@ -1161,24 +1122,15 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.5
-        version: 18.3.5
       axios:
         specifier: ^1.7.7
         version: 1.7.7
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.8(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.44)(typescript@5.6.2)(yaml@2.4.5)
@@ -1197,9 +1149,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
@@ -1210,21 +1159,12 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.5
-        version: 18.3.5
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.8(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.44)(typescript@5.6.2)(yaml@2.4.5)
@@ -1243,9 +1183,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../plugin-faker
@@ -1259,9 +1196,6 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1271,9 +1205,6 @@ importers:
       '@types/react':
         specifier: ^18.3.5
         version: 18.3.5
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1301,16 +1232,10 @@ importers:
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
-      execa:
-        specifier: ^9.3.1
-        version: 9.3.1
       remeda:
         specifier: ^2.12.0
         version: 2.12.0
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1320,9 +1245,6 @@ importers:
       '@types/react':
         specifier: ^18.3.5
         version: 18.3.5
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1344,12 +1266,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
-      '@kubb/plugin-faker':
-        specifier: workspace:*
-        version: link:../plugin-faker
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
@@ -1363,9 +1279,6 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1418,9 +1331,6 @@ importers:
         specifier: ^6.1.13
         version: 6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1451,9 +1361,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
@@ -1470,9 +1377,6 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1503,12 +1407,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
-      '@kubb/plugin-client':
-        specifier: workspace:*
-        version: link:../plugin-client
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
@@ -1522,9 +1420,6 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1565,9 +1460,6 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1577,9 +1469,6 @@ importers:
       '@types/react':
         specifier: ^18.3.5
         version: 18.3.5
-      prettier:
-        specifier: ^3.3.3
-        version: 3.3.3
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1610,28 +1499,13 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/types':
-        specifier: workspace:*
-        version: link:../types
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.5
-        version: 18.3.5
-      prettier:
-        specifier: ^3.3.3
-        version: 3.3.3
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.8(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.44)(typescript@5.6.2)(yaml@2.4.5)
@@ -1672,9 +1546,6 @@ importers:
         specifier: 8.15.0
         version: 8.15.0(bufferutil@4.0.8)
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1702,9 +1573,6 @@ importers:
 
   packages/types:
     devDependencies:
-      '@kubb/config-biome':
-        specifier: workspace:*
-        version: link:../config-biome
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -3390,9 +3258,6 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  '@ts-morph/common@0.24.0':
-    resolution: {integrity: sha512-c1xMmNHWpNselmpIqursHeOHHBTIsJLbB+NuovbTTRCNiTLEr/U9dbJ8qy0jd/O2x5pc3seWuOUN5R2IoOTp8A==}
-
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
 
@@ -4126,9 +3991,6 @@ packages:
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
-
-  code-block-writer@13.0.1:
-    resolution: {integrity: sha512-c5or4P6erEA69TxaxTNcHUNcIn+oyxSRTOWV+pSYF+z4epXqNvwvJ70XPGjPNgue83oAFAPBRQYwpAJ/Hpe/Sg==}
 
   code-error-fragment@0.0.230:
     resolution: {integrity: sha512-cadkfKp6932H8UkhzE/gcUqhRMNf8jHzkAN7+5Myabswaghu4xABTgPHDCjW+dBAJxj/SpkTYokpzDqY4pCzQw==}
@@ -5527,11 +5389,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  mkdirp@3.0.1:
-    resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   mlly@1.7.1:
     resolution: {integrity: sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==}
 
@@ -6672,9 +6529,6 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  ts-morph@23.0.0:
-    resolution: {integrity: sha512-FcvFx7a9E8TUe6T3ShihXJLiJOiqyafzFKUO4aqIHDUCIvADdGNShcbc2W5PMr3LerXRv7mafvFZ9lRENxJmug==}
-
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
@@ -6893,9 +6747,6 @@ packages:
     peerDependenciesMeta:
       webpack-sources:
         optional: true
-
-  unraw@3.0.0:
-    resolution: {integrity: sha512-08/DA66UF65OlpUDIQtbJyrqTR0jTAlJ+jsnkQ4jxR7+K5g5YG1APZKQSMCE1vqqmD+2pv6+IdEjmopFatacvg==}
 
   untyped@1.4.2:
     resolution: {integrity: sha512-nC5q0DnPEPVURPhfPQLahhSTnemVtPzdx7ofiRxXpOB2SYnb3MfdU3DVGyJdS8Lx+tBWeAePO8BfU/3EgksM7Q==}
@@ -8758,13 +8609,6 @@ snapshots:
       vue: 3.5.4(typescript@5.6.2)
       vue-demi: 0.14.10(vue@3.5.4(typescript@5.6.2))
 
-  '@ts-morph/common@0.24.0':
-    dependencies:
-      fast-glob: 3.3.2
-      minimatch: 9.0.4
-      mkdirp: 3.0.1
-      path-browserify: 1.0.1
-
   '@tsconfig/node10@1.0.11': {}
 
   '@tsconfig/node12@1.0.11': {}
@@ -9655,8 +9499,6 @@ snapshots:
   clone@1.0.4: {}
 
   clsx@2.1.1: {}
-
-  code-block-writer@13.0.1: {}
 
   code-error-fragment@0.0.230: {}
 
@@ -11351,8 +11193,6 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
-  mkdirp@3.0.1: {}
-
   mlly@1.7.1:
     dependencies:
       acorn: 8.12.1
@@ -12582,11 +12422,6 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-morph@23.0.0:
-    dependencies:
-      '@ts-morph/common': 0.24.0
-      code-block-writer: 13.0.1
-
   ts-node@10.9.2(@swc/core@1.7.22)(@types/node@20.16.5)(typescript@5.6.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
@@ -12857,8 +12692,6 @@ snapshots:
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
       webpack-sources: 3.2.3
-
-  unraw@3.0.0: {}
 
   untyped@1.4.2:
     dependencies:

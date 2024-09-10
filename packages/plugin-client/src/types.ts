@@ -1,4 +1,4 @@
-import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
@@ -111,11 +111,6 @@ type ResolvedOptions = {
   importPath: NonNullable<Options['importPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
-}
-
-export type FileMeta = {
-  pluginKey?: Plugin['key']
-  tag?: string
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>

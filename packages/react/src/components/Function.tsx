@@ -95,7 +95,7 @@ type ArrowFunctionProps = Props & {
   singleLine?: boolean
 }
 
-export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps): KubbNode {
+function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps): KubbNode {
   return (
     <>
       {JSDoc?.comments && (

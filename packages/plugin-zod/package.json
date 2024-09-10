@@ -74,16 +74,11 @@
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@kubb/types": "workspace:*"
+    "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.5",
-    "prettier": "^3.3.3",
-    "react": "^18.3.1",
     "tsup": "^8.2.4"
   },
   "peerDependencies": {

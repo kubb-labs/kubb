@@ -4,9 +4,9 @@ import type * as KubbFile from '@kubb/fs/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
-export type Suspense = object
+type Suspense = object
 
-export type Query = {
+type Query = {
   /**
    * Customize the queryKey, here you can specify a suffix.
    */
@@ -26,7 +26,7 @@ export type Query = {
   importPath?: string
 }
 
-export type Mutation = {
+type Mutation = {
   /**
    * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
@@ -197,11 +197,6 @@ type ResolvedOptions = {
   suspense: Suspense | false
   query: NonNullable<Required<Query>> | false
   mutation: NonNullable<Required<Mutation>> | false
-}
-
-export type FileMeta = {
-  pluginKey?: Plugin['key']
-  tag?: string
 }
 
 export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>

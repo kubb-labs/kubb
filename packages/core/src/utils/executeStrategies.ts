@@ -1,8 +1,8 @@
 type PromiseFunc<T = unknown, T2 = never> = (state?: T) => T2 extends never ? Promise<T> : Promise<T> | T2
 
-export type ValueOfPromiseFuncArray<TInput extends Array<unknown>> = TInput extends Array<PromiseFunc<infer X, infer Y>> ? X | Y : never
+type ValueOfPromiseFuncArray<TInput extends Array<unknown>> = TInput extends Array<PromiseFunc<infer X, infer Y>> ? X | Y : never
 
-export function noReturn(): void {}
+function noReturn(): void {}
 
 type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promise<Array<Awaited<ValueOfPromiseFuncArray<TInput>>>>
 

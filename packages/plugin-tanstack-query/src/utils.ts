@@ -1,4 +1,4 @@
-export const reactQueryDepRegex = /@tanstack\/(react|solid|vue|svelte)-query/
+const reactQueryDepRegex = /@tanstack\/(react|solid|vue|svelte)-query/
 
 export function getImportNames() {
   return {
