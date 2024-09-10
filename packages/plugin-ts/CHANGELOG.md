@@ -1,5 +1,17 @@
 # @kubb/plugin-ts
 
+## 3.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies [[`4ae54c7`](https://github.com/kubb-labs/kubb/commit/4ae54c7b0a2ab52701b1215f341595a9d1e7903d)]:
+  - @kubb/plugin-oas@3.0.0-alpha.17
+  - @kubb/core@3.0.0-alpha.17
+  - @kubb/fs@3.0.0-alpha.17
+  - @kubb/oas@3.0.0-alpha.17
+  - @kubb/parser-ts@3.0.0-alpha.17
+  - @kubb/react@3.0.0-alpha.17
+
 ## 3.0.0-alpha.16
 
 ### Patch Changes
