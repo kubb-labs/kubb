@@ -1,22 +1,24 @@
 import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
-
-type CreateUser = {
-  data: CreateUserMutationResponse
-  error: never
-  request: CreateUserMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: Awaited<ReturnType<CreateUserClient>>
-  client: {
-    parameters: Partial<Parameters<CreateUserClient>[0]>
-    return: Awaited<ReturnType<CreateUserClient>>
-  }
+/**
+ * @description This can only be done by the logged in user.
+ * @summary Create user
+ * @link /user
+ */
+async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
+    method: 'post',
+    url: '/user',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return createUserMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -26,20 +28,24 @@ type CreateUser = {
  */
 export function useCreateUser(
   options: {
-    mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
-    client?: CreateUser['client']['parameters']
+    mutation?: UseMutationOptions<
+      CreateUserMutationResponse,
+      unknown,
+      {
+        data?: CreateUserMutationRequest
+      }
+    >
+    client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
-        method: 'post',
-        url: '/user',
-        data,
-        ...clientOptions,
-      })
-      return res
+    mutationFn: async ({
+      data,
+    }: {
+      data?: CreateUserMutationRequest
+    }) => {
+      return createUser(data, config)
     },
     ...mutationOptions,
   })

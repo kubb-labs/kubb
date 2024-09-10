@@ -5,9 +5,9 @@ import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -54,7 +54,7 @@ export default defineConfig(() => {
           },
         ],
       }),
-      pluginTanstackQuery({
+      pluginReactQuery({
         output: {
           path: './clients/hooks',
         },
@@ -66,16 +66,16 @@ export default defineConfig(() => {
         ],
         override: [
           {
-            type: 'tag',
-            pattern: 'pet',
+            type: 'operationId',
+            pattern: 'findPetsByTags',
             options: {
               infinite: {
-                queryParam: 'test',
-                initialPageParam: '0',
+                queryParam: 'pageSize',
+                initialPageParam: 0,
               },
-              mutate: {
+              mutation: {
+                importPath: '@tanstack/react-query',
                 methods: ['post', 'put', 'delete'],
-                variablesType: 'mutate',
               },
             },
           },
@@ -87,7 +87,8 @@ export default defineConfig(() => {
         query: {
           importPath: '../../../../tanstack-query-hook.ts',
         },
-        infinite: {},
+        infinite: false,
+        suspense: false,
         dataReturnType: 'full',
         parser: 'zod',
       }),

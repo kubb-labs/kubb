@@ -189,8 +189,8 @@ const mainSidebar = [
         link: '/docs/plugins/plugin-zod/',
       },
       {
-        text: '@kubb/plugin-tanstack-query',
-        link: '/docs/plugins/plugin-tanstack-query/',
+        text: '@kubb/plugin-react-query',
+        link: '/docs/plugins/plugin-react-query/',
       },
       {
         text: '@kubb/plugin-swr',
@@ -485,8 +485,8 @@ export default defineConfig({
               '@kubb/plugin-redoc': ['../packages/plugin-redoc/src/index.ts'],
               '@kubb/plugin-swr/components': ['../packages/plugin-swr/src/components/index.ts'],
               '@kubb/plugin-msw/components': ['../packages/plugin-msw/src/components/index.ts'],
-              '@kubb/plugin-tanstack-query': ['../packages/plugin-tanstack-query/src/index.ts'],
-              '@kubb/plugin-tanstack-query/components': ['../packages/plugin-tanstack-query/src/components/index.ts'],
+              '@kubb/plugin-react-query': ['../packages/plugin-react-query/src/index.ts'],
+              '@kubb/plugin-react-query/components': ['../packages/plugin-react-query/src/components/index.ts'],
               '@kubb/plugin-ts': ['../packages/plugin-ts/src/index.ts'],
               '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
               '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],

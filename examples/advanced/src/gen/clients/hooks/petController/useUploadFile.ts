@@ -1,4 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -6,22 +7,29 @@ import type {
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
-type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
-
-type UploadFile = {
-  data: UploadFileMutationResponse
-  error: never
-  request: UploadFileMutationRequest
-  pathParams: UploadFilePathParams
-  queryParams: UploadFileQueryParams
-  headerParams: never
-  response: Awaited<ReturnType<UploadFileClient>>
-  client: {
-    parameters: Partial<Parameters<UploadFileClient>[0]>
-    return: Awaited<ReturnType<UploadFileClient>>
-  }
+/**
+ * @summary uploads an image
+ * @link /pet/:petId/uploadImage
+ */
+async function uploadFile(
+  petId: UploadFilePathParams['petId'],
+  data?: UploadFileMutationRequest,
+  params?: UploadFileQueryParams,
+  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+) {
+  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
+    method: 'post',
+    url: `/pet/${petId}/uploadImage`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    data,
+    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
+    ...config,
+  })
+  return uploadFileMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -31,29 +39,29 @@ type UploadFile = {
 export function useUploadFile(
   options: {
     mutation?: UseMutationOptions<
-      UploadFile['response'],
-      UploadFile['error'],
+      UploadFileMutationResponse,
+      unknown,
       {
         petId: UploadFilePathParams['petId']
-        params?: UploadFile['queryParams']
-        data?: UploadFile['request']
+        data?: UploadFileMutationRequest
+        params?: UploadFileQueryParams
       }
     >
-    client?: UploadFile['client']['parameters']
+    client?: Partial<RequestConfig<UploadFileMutationRequest>>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async ({ petId, params, data }) => {
-      const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
-        method: 'post',
-        url: `/pet/${petId}/uploadImage`,
-        params,
-        data,
-        headers: { 'Content-Type': 'application/octet-stream', ...clientOptions.headers },
-        ...clientOptions,
-      })
-      return res
+    mutationFn: async ({
+      petId,
+      data,
+      params,
+    }: {
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileMutationRequest
+      params?: UploadFileQueryParams
+    }) => {
+      return uploadFile(petId, data, params, config)
     },
     ...mutationOptions,
   })

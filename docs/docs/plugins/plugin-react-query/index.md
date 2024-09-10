@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-tanstack-query
+title: \@kubb/plugin-react-query
 outline: deep
 ---
 
-# @kubb/plugin-tanstack-query
+# @kubb/plugin-react-query
 
 
 With the Swagger Tanstack Query plugin you can create:
@@ -20,19 +20,19 @@ With the Swagger Tanstack Query plugin you can create:
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/plugin-tanstack-query
+bun add @kubb/plugin-react-query
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/plugin-tanstack-query
+pnpm add @kubb/plugin-react-query
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/plugin-tanstack-query
+npm install @kubb/plugin-react-query
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/plugin-tanstack-query
+yarn add @kubb/plugin-react-query
 ```
 
 :::
@@ -49,9 +49,9 @@ Type: `string` <br/>
 Default: `'hooks'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   output: {
     path: './hooks',
   },
@@ -68,9 +68,9 @@ Name to be used for the `export * as {{exportAs}} from './'`
 Type: `string` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   output: {
     path: './hooks',
     exportAs: 'hooks',
@@ -88,9 +88,9 @@ Add an extension to the generated imports and exports, default it will not use a
 Type: `string` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   output: {
     path: './hooks',
     extName: '.js',
@@ -108,9 +108,9 @@ Define what needs to exported, here you can also disable the export of barrel fi
 Type: `'barrel' | 'barrelNamed' | false` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   output: {
     path: './hooks',
     exportType: 'barrel',
@@ -161,9 +161,9 @@ Default: `'{{tag}}Hooks'`
 ::: info
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   output: {
     path: './hooks'
   },
@@ -187,9 +187,9 @@ Type: `string` <br/>
 Default: `'@kubb/plugin/client'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   client: {
     importPath: '../../client.ts',
   },
@@ -233,9 +233,9 @@ Type: `'data' | 'full'` <br/>
 Default: `'data'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   dataReturnType: 'data',
 })
 ```
@@ -276,9 +276,9 @@ export function getPetByIdQueryOptions() {
 Type: `'zod'` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   parser: 'zod',
 })
 ```
@@ -295,9 +295,9 @@ Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
 Default: `'react'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   framework: 'react',
 })
 ```
@@ -339,9 +339,9 @@ type Infinite = {
 Type: `Infinite` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   infinite: {}
 })
 ```
@@ -358,9 +358,9 @@ Type: `string` <br/>
 Default: `'id'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   infinite: {
     queryParam: 'next_page',
   }
@@ -379,9 +379,9 @@ Type: `string` <br/>
 Default: `'0'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   infinite: {
     queryParam: 'next_page',
     initialPageParam: 0,
@@ -400,9 +400,9 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 Type: `string | undefined` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   infinite: {
     queryParam: 'next_page',
     cursorParam: 'nextCursor',
@@ -438,9 +438,9 @@ type Query = {
 Type: `Query` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   query: {}
 })
 ```
@@ -459,9 +459,9 @@ When using a string you need to use `JSON.stringify`.
 Type: `(key: unknown[]) => unknown[]` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   query: {
     queryKey: (key) => [ JSON.stringify('SUFFIX'), ...key ],
   }
@@ -483,9 +483,9 @@ Type: `Array<HttpMethod>` <br/>
 Default: `['get']` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   query: {
     methods: [ 'get' ],
   }
@@ -506,9 +506,9 @@ Type: `string` <br/>
 Default: `'@tanstack/react-query'` if 'framework' is set to 'react'
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   query: {
     importPath: "@kubb/react-query"
   }
@@ -535,9 +535,9 @@ type QueryOptions = {} | false
 Type: `QueryOptions` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   queryOptions: {}
 })
 ```
@@ -562,9 +562,9 @@ type Suspense = {} | false
 Type: `Suspense` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   suspense: {}
 })
 ```
@@ -620,9 +620,9 @@ Type: `'mutate' | 'hook'` <br/>
 Default: `'hook'`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   mutate: {
     variablesType: 'mutate',
     methods: [ 'post', 'put', 'delete' ],
@@ -644,9 +644,9 @@ Type: `'Array<HttpMethod>` <br/>
 Default: `['post', 'put', 'delete']`
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   mutate: {
     variablesType: 'hook',
     methods: [ 'post', 'put', 'delete' ],
@@ -677,9 +677,9 @@ export type Include = {
 Type: `Array<Include>` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   include: [
     {
       type: 'tag',
@@ -711,9 +711,9 @@ export type Exclude = {
 Type: `Array<Exclude>` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   exclude: [
     {
       type: 'tag',
@@ -746,9 +746,9 @@ export type Override = {
 Type: `Array<Override>` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   override: [
     {
       type: 'tag',
@@ -774,9 +774,9 @@ Override the name of the hook that is getting generated, this will also override
 Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ```typescript
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   transformers: {
     name: (name) => {
       return `${ name }Hook`
@@ -799,7 +799,7 @@ Set `false` to disable a template.
 ::: info TYPE
 
 ```typescript [Templates]
-import type { Mutation, Query, QueryOptions, QueryKey, QueryImports } from '@kubb/plugin-tanstack-query/components'
+import type { Mutation, Query, QueryOptions, QueryKey, QueryImports } from '@kubb/plugin-react-query/components'
 
 export type Templates = {
   mutation: typeof Mutation.templates | false
@@ -817,15 +817,15 @@ export type Templates = {
 Type: `Templates` <br/>
 
 ```tsx
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
-import { Query } from '@kubb/plugin-tanstack-query/components'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { Query } from '@kubb/plugin-react-query/components'
 import React from 'react'
 
 export const templates = {
   ...Query.templates,
 } as const
 
-const plugin = pluginTanstackQuery({
+const plugin = pluginReactQuery({
   templates: {
     query: templates,
   },
@@ -839,7 +839,7 @@ const plugin = pluginTanstackQuery({
 ```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -852,7 +852,7 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs(),
-    pluginTanstackQuery({
+    pluginReactQuery({
       output: {
         path: './hooks',
       },

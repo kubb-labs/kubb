@@ -114,7 +114,7 @@ export default defineConfig(() => {
 ```typescript twoslash [multiple]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig(() => {
@@ -130,7 +130,7 @@ export default defineConfig(() => {
       plugins: [
         pluginOas({}),
         pluginTs({}),
-        pluginTanstackQuery({}),
+        pluginReactQuery({}),
       ],
     },
     {
@@ -144,7 +144,7 @@ export default defineConfig(() => {
       plugins: [
         pluginOas({}),
         pluginTs({}),
-        pluginTanstackQuery({}),
+        pluginReactQuery({}),
       ],
     },
   ]

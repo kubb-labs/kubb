@@ -10,7 +10,6 @@
     "packages/plugin-msw",
     "packages/plugin-swr",
     "packages/plugin-react-query",
-    "packages/plugin-tanstack-query",
     "packages/plugin-ts",
     "packages/plugin-zod",
     "packages/parser-ts",

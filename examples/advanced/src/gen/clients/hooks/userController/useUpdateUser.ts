@@ -1,22 +1,28 @@
 import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
-type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
-
-type UpdateUser = {
-  data: UpdateUserMutationResponse
-  error: never
-  request: UpdateUserMutationRequest
-  pathParams: UpdateUserPathParams
-  queryParams: never
-  headerParams: never
-  response: Awaited<ReturnType<UpdateUserClient>>
-  client: {
-    parameters: Partial<Parameters<UpdateUserClient>[0]>
-    return: Awaited<ReturnType<UpdateUserClient>>
-  }
+/**
+ * @description This can only be done by the logged in user.
+ * @summary Update user
+ * @link /user/:username
+ */
+async function updateUser(
+  username: UpdateUserPathParams['username'],
+  data?: UpdateUserMutationRequest,
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
+) {
+  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
+    method: 'put',
+    url: `/user/${username}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return updateUserMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -25,22 +31,28 @@ type UpdateUser = {
  * @link /user/:username
  */
 export function useUpdateUser(
-  username: UpdateUserPathParams['username'],
   options: {
-    mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
-    client?: UpdateUser['client']['parameters']
+    mutation?: UseMutationOptions<
+      UpdateUserMutationResponse,
+      unknown,
+      {
+        username: UpdateUserPathParams['username']
+        data?: UpdateUserMutationRequest
+      }
+    >
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
-        method: 'put',
-        url: `/user/${username}`,
-        data,
-        ...clientOptions,
-      })
-      return res
+    mutationFn: async ({
+      username,
+      data,
+    }: {
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserMutationRequest
+    }) => {
+      return updateUser(username, data, config)
     },
     ...mutationOptions,
   })

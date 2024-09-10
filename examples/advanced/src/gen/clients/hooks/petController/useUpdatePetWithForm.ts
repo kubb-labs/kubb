@@ -1,4 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -6,22 +7,22 @@ import type {
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
+import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
-type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
-
-type UpdatePetWithForm = {
-  data: UpdatePetWithFormMutationResponse
-  error: UpdatePetWithForm405
-  request: never
-  pathParams: UpdatePetWithFormPathParams
-  queryParams: UpdatePetWithFormQueryParams
-  headerParams: never
-  response: Awaited<ReturnType<UpdatePetWithFormClient>>
-  client: {
-    parameters: Partial<Parameters<UpdatePetWithFormClient>[0]>
-    return: Awaited<ReturnType<UpdatePetWithFormClient>>
-  }
+/**
+ * @summary Updates a pet in the store with form data
+ * @link /pet/:petId
+ */
+async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
+    method: 'post',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    ...config,
+  })
+  return updatePetWithFormMutationResponseSchema.parse(res.data)
 }
 
 /**
@@ -31,26 +32,26 @@ type UpdatePetWithForm = {
 export function useUpdatePetWithForm(
   options: {
     mutation?: UseMutationOptions<
-      UpdatePetWithForm['response'],
-      UpdatePetWithForm['error'],
+      UpdatePetWithFormMutationResponse,
+      UpdatePetWithForm405,
       {
         petId: UpdatePetWithFormPathParams['petId']
-        params?: UpdatePetWithForm['queryParams']
+        params?: UpdatePetWithFormQueryParams
       }
     >
-    client?: UpdatePetWithForm['client']['parameters']
+    client?: Partial<RequestConfig>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async ({ petId, params }) => {
-      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
-        method: 'post',
-        url: `/pet/${petId}`,
-        params,
-        ...clientOptions,
-      })
-      return res
+    mutationFn: async ({
+      petId,
+      params,
+    }: {
+      petId: UpdatePetWithFormPathParams['petId']
+      params?: UpdatePetWithFormQueryParams
+    }) => {
+      return updatePetWithForm(petId, params, config)
     },
     ...mutationOptions,
   })

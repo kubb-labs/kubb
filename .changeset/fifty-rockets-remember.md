@@ -19,7 +19,6 @@
 "@kubb/plugin-zod": major
 "@kubb/plugin-zodios": major
 "@kubb/react": major
-"@kubb/plugin-tanstack-query": major
 "@kubb/types": major
 "unplugin-kubb": major
 ---

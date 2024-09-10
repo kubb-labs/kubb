@@ -1,13 +1,10 @@
-export type {
-  FindPetsByStatusQueryKey,
-  FindPetsByStatusInfiniteQueryKey,
-  FindPetsByStatusSuspenseQueryKey,
-} from './clients/hooks/petController/useFindPetsByStatus.ts'
-export type { FindPetsByTagsQueryKey, FindPetsByTagsInfiniteQueryKey, FindPetsByTagsSuspenseQueryKey } from './clients/hooks/petController/useFindPetsByTags.ts'
-export type { GetPetByIdQueryKey, GetPetByIdInfiniteQueryKey, GetPetByIdSuspenseQueryKey } from './clients/hooks/petController/useGetPetById.ts'
-export type { GetUserByNameQueryKey, GetUserByNameInfiniteQueryKey, GetUserByNameSuspenseQueryKey } from './clients/hooks/userController/useGetUserByName.ts'
-export type { LoginUserQueryKey, LoginUserInfiniteQueryKey, LoginUserSuspenseQueryKey } from './clients/hooks/userController/useLoginUser.ts'
-export type { LogoutUserQueryKey, LogoutUserInfiniteQueryKey, LogoutUserSuspenseQueryKey } from './clients/hooks/userController/useLogoutUser.ts'
+export type { FindPetsByStatusQueryKey } from './clients/hooks/petController/useFindPetsByStatus.ts'
+export type { FindPetsByTagsQueryKey } from './clients/hooks/petController/useFindPetsByTags.ts'
+export type { FindPetsByTagsInfiniteQueryKey } from './clients/hooks/petController/useFindPetsByTagsInfinite.ts'
+export type { GetPetByIdQueryKey } from './clients/hooks/petController/useGetPetById.ts'
+export type { GetUserByNameQueryKey } from './clients/hooks/userController/useGetUserByName.ts'
+export type { LoginUserQueryKey } from './clients/hooks/userController/useLoginUser.ts'
+export type { LogoutUserQueryKey } from './clients/hooks/userController/useLogoutUser.ts'
 export type { AddPetRequestStatusEnum, AddPetRequest } from './models/ts/AddPetRequest.ts'
 export type { Address } from './models/ts/Address.ts'
 export type { ApiResponse } from './models/ts/ApiResponse.ts'
@@ -264,39 +261,14 @@ export { logoutUser } from './clients/axios/userService/logoutUser.ts'
 export { updateUser } from './clients/axios/userService/updateUser.ts'
 export { useAddPet } from './clients/hooks/petController/useAddPet.ts'
 export { useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
+export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './clients/hooks/petController/useFindPetsByStatus.ts'
+export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTags } from './clients/hooks/petController/useFindPetsByTags.ts'
 export {
-  findPetsByStatusQueryKey,
-  findPetsByStatusQueryOptions,
-  useFindPetsByStatus,
-  findPetsByStatusInfiniteQueryKey,
-  findPetsByStatusInfiniteQueryOptions,
-  useFindPetsByStatusInfinite,
-  findPetsByStatusSuspenseQueryKey,
-  findPetsByStatusSuspenseQueryOptions,
-  useFindPetsByStatusSuspense,
-} from './clients/hooks/petController/useFindPetsByStatus.ts'
-export {
-  findPetsByTagsQueryKey,
-  findPetsByTagsQueryOptions,
-  useFindPetsByTags,
   findPetsByTagsInfiniteQueryKey,
   findPetsByTagsInfiniteQueryOptions,
   useFindPetsByTagsInfinite,
-  findPetsByTagsSuspenseQueryKey,
-  findPetsByTagsSuspenseQueryOptions,
-  useFindPetsByTagsSuspense,
-} from './clients/hooks/petController/useFindPetsByTags.ts'
-export {
-  getPetByIdQueryKey,
-  getPetByIdQueryOptions,
-  useGetPetById,
-  getPetByIdInfiniteQueryKey,
-  getPetByIdInfiniteQueryOptions,
-  useGetPetByIdInfinite,
-  getPetByIdSuspenseQueryKey,
-  getPetByIdSuspenseQueryOptions,
-  useGetPetByIdSuspense,
-} from './clients/hooks/petController/useGetPetById.ts'
+} from './clients/hooks/petController/useFindPetsByTagsInfinite.ts'
+export { getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetById } from './clients/hooks/petController/useGetPetById.ts'
 export { useUpdatePet } from './clients/hooks/petController/useUpdatePet.ts'
 export { useUpdatePetWithForm } from './clients/hooks/petController/useUpdatePetWithForm.ts'
 export { useUploadFile } from './clients/hooks/petController/useUploadFile.ts'
@@ -304,39 +276,9 @@ export { useCreatePets } from './clients/hooks/petsController/useCreatePets.ts'
 export { useCreateUser } from './clients/hooks/userController/useCreateUser.ts'
 export { useCreateUsersWithListInput } from './clients/hooks/userController/useCreateUsersWithListInput.ts'
 export { useDeleteUser } from './clients/hooks/userController/useDeleteUser.ts'
-export {
-  getUserByNameQueryKey,
-  getUserByNameQueryOptions,
-  useGetUserByName,
-  getUserByNameInfiniteQueryKey,
-  getUserByNameInfiniteQueryOptions,
-  useGetUserByNameInfinite,
-  getUserByNameSuspenseQueryKey,
-  getUserByNameSuspenseQueryOptions,
-  useGetUserByNameSuspense,
-} from './clients/hooks/userController/useGetUserByName.ts'
-export {
-  loginUserQueryKey,
-  loginUserQueryOptions,
-  useLoginUser,
-  loginUserInfiniteQueryKey,
-  loginUserInfiniteQueryOptions,
-  useLoginUserInfinite,
-  loginUserSuspenseQueryKey,
-  loginUserSuspenseQueryOptions,
-  useLoginUserSuspense,
-} from './clients/hooks/userController/useLoginUser.ts'
-export {
-  logoutUserQueryKey,
-  logoutUserQueryOptions,
-  useLogoutUser,
-  logoutUserInfiniteQueryKey,
-  logoutUserInfiniteQueryOptions,
-  useLogoutUserInfinite,
-  logoutUserSuspenseQueryKey,
-  logoutUserSuspenseQueryOptions,
-  useLogoutUserSuspense,
-} from './clients/hooks/userController/useLogoutUser.ts'
+export { getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByName } from './clients/hooks/userController/useGetUserByName.ts'
+export { loginUserQueryKey, loginUserQueryOptions, useLoginUser } from './clients/hooks/userController/useLoginUser.ts'
+export { logoutUserQueryKey, logoutUserQueryOptions, useLogoutUser } from './clients/hooks/userController/useLogoutUser.ts'
 export { useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.ts'

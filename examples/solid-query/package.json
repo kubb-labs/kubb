@@ -24,7 +24,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-tanstack-query": "workspace:*",
+    "@kubb/plugin-tanstack-query": "latest",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/solid-query": "^5.55.4",

@@ -1,5 +1,4 @@
 ---
-"@kubb/plugin-tanstack-query": minor
 "@kubb/plugin-react-query": minor
 "@kubb/plugin-client": minor
 "unplugin-kubb": minor

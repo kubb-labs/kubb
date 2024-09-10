@@ -28,7 +28,7 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-redoc": "workspace:*",
-    "@kubb/plugin-tanstack-query": "workspace:*",
+    "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/react-query": "^5.55.4",

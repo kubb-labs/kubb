@@ -1,5 +1,4 @@
 ---
-"@kubb/plugin-tanstack-query": patch
 "@kubb/plugin-react-query": patch
 "@kubb/plugin-client": patch
 "@kubb/plugin-faker": patch

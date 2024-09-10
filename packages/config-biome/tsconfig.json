@@ -21,7 +21,7 @@
       "path": "../plugin-msw"
     },
     {
-      "path": "../plugin-tanstack-query"
+      "path": "../plugin-react-query"
     },
     {
       "path": "../plugin-ts"

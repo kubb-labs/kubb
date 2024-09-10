@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginRedoc } from '@kubb/plugin-redoc'
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -32,7 +32,7 @@ export default defineConfig([
       pluginTs({
         output: { path: 'models.ts' },
       }),
-      pluginTanstackQuery({
+      pluginReactQuery({
         output: {
           path: './hooks.ts',
         },

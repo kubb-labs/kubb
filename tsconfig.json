@@ -19,6 +19,7 @@
       "@kubb/plugin-ts": ["packages/plugin-ts/src/index.ts"],
       "@kubb/react/jsx-runtime": ["packages/react/src/jsx-runtime.ts"],
       "@kubb/plugin-client": ["packages/plugin-client/src/index.ts"],
+      "@kubb/plugin-react-query": ["packages/plugin-react-query/src/index.ts"],
       "@kubb/plugin-client/client": ["packages/plugin-client/src/client.ts"],
       "@kubb/plugin-client/components": ["packages/plugin-client/src/components/index.ts"],
       "@kubb/plugin-redoc": ["packages/plugin-redoc/src/index.ts"],

@@ -72,8 +72,7 @@ const baseConfig = {
         path: './clients/hooks',
       },
       group: { type: 'tag' },
-      mutate: {
-        variablesType: 'mutate',
+      mutation: {
         methods: ['post', 'put', 'delete'],
       },
     }),

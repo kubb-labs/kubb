@@ -102,8 +102,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/plugin-swr
       '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../packages/plugin-tanstack-query
+        specifier: latest
+        version: 3.0.0-alpha.17(@kubb/react@packages+react)(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../packages/plugin-ts
@@ -161,9 +161,6 @@ importers:
       '@kubb/plugin-swr':
         specifier: workspace:*
         version: link:../packages/plugin-swr
-      '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../packages/plugin-tanstack-query
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../packages/plugin-ts
@@ -246,15 +243,15 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
+      '@kubb/plugin-react-query':
+        specifier: workspace:*
+        version: link:../../packages/plugin-react-query
       '@kubb/plugin-redoc':
         specifier: workspace:*
         version: link:../../packages/plugin-redoc
       '@kubb/plugin-swr':
         specifier: workspace:*
         version: link:../../packages/plugin-swr
-      '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/plugin-tanstack-query
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -552,12 +549,12 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
+      '@kubb/plugin-react-query':
+        specifier: workspace:*
+        version: link:../../packages/plugin-react-query
       '@kubb/plugin-redoc':
         specifier: workspace:*
         version: link:../../packages/plugin-redoc
-      '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/plugin-tanstack-query
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -595,8 +592,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-oas
       '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/plugin-tanstack-query
+        specifier: latest
+        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -635,8 +632,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-oas
       '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/plugin-tanstack-query
+        specifier: latest
+        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -739,8 +736,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-oas
       '@kubb/plugin-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/plugin-tanstack-query
+        specifier: latest
+        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -1364,49 +1361,6 @@ importers:
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
-      '@kubb/plugin-ts':
-        specifier: workspace:*
-        version: link:../plugin-ts
-      '@kubb/plugin-zod':
-        specifier: workspace:*
-        version: link:../plugin-zod
-      '@kubb/react':
-        specifier: workspace:*
-        version: link:../react
-    devDependencies:
-      '@kubb/config-ts':
-        specifier: workspace:*
-        version: link:../config-ts
-      '@kubb/config-tsup':
-        specifier: workspace:*
-        version: link:../config-tsup
-      '@types/react':
-        specifier: ^18.3.5
-        version: 18.3.5
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      tsup:
-        specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.8(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.44)(typescript@5.6.2)(yaml@2.4.5)
-      typescript:
-        specifier: ^5.6.2
-        version: 5.6.2
-
-  packages/plugin-tanstack-query:
-    dependencies:
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
-      '@kubb/fs':
-        specifier: workspace:*
-        version: link:../fs
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
@@ -2784,6 +2738,64 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
+  '@kubb/core@3.0.0-alpha.17':
+    resolution: {integrity: sha512-aRrg0gcjphqfO2ecB6fA2n8n685bjZ1w+0q3PAs/jf6c8zs1w/PsNFDuAQ7YqC849RnHrFUYdC/WYTTLFBzxiQ==}
+    engines: {node: '>=20'}
+
+  '@kubb/fs@3.0.0-alpha.17':
+    resolution: {integrity: sha512-OY/EQ3+jCzmXQGSE6IvNXVMNCzD3CO//do88Pf2c5lyfbscgzref9rio08R/nGFz4N59OYhopJms1HtbNYwdWA==}
+    engines: {node: '>=20'}
+
+  '@kubb/oas@3.0.0-alpha.17':
+    resolution: {integrity: sha512-5QF1VEXO11e/++thCKjMyqeNh8i/N98zZSFeMse6R1pzFah7MKvIEbON794C71Fo+OLOEpQvLqoLjVgyZUn9QA==}
+    engines: {node: '>=20'}
+
+  '@kubb/parser-ts@3.0.0-alpha.17':
+    resolution: {integrity: sha512-kbx8GgerEb/2rb8Z5Z+BCIq4dUpHUaMr4STDsNDCxVuD6/fTdu3u8ZaaLvC6KC9QtZ5284j/mnhqHVAEcchXPA==}
+    engines: {node: '>=20'}
+
+  '@kubb/plugin-client@3.0.0-alpha.17':
+    resolution: {integrity: sha512-eT65cwcXAyzO5+i4H8NfZ4jaBAQ8ArUrEwaPoD/Kk0JY0xKKKSSrvCvzGcsB/bDNbVzLx0JGzlG5xWxXgTunTw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@kubb/react': 3.0.0-alpha.17
+      axios: ^1.7.2
+    peerDependenciesMeta:
+      axios:
+        optional: true
+
+  '@kubb/plugin-oas@3.0.0-alpha.17':
+    resolution: {integrity: sha512-LRb4EeNGranDdr3T2A/l20NN+y2svyx76uVklPZlHQjMs3orS+YuaUMPsYTnnGtHZLGXj/vQ0UoOJLyLRUHYEg==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@kubb/react': 3.0.0-alpha.17
+
+  '@kubb/plugin-tanstack-query@3.0.0-alpha.17':
+    resolution: {integrity: sha512-9ZMcGvGoO9HDpKn5xcpSoooVsXBp/BG/W8C6b4u1SCW5b7dGCHEfsgVrpQviX+hlCrW1T4TQVLftEnpiBU92xA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@kubb/react': 3.0.0-alpha.17
+
+  '@kubb/plugin-ts@3.0.0-alpha.17':
+    resolution: {integrity: sha512-PgGfBRYIrsAYprsl4aMHDbHzpRx2H08X6XiGLT7TkwD7yqRMCa/1Fkg6VK4cRiVBa+sIYQFkacD6x1rN8hXmJg==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@kubb/react': 3.0.0-alpha.17
+
+  '@kubb/plugin-zod@3.0.0-alpha.17':
+    resolution: {integrity: sha512-z5tgNC/wRgk7UGR+VZv5xkRDezsAcZyheB2NQvYsJ0F8iooTL1y6YctueY2ZfPNjls2FnMETic/wIWHq5FwcLA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@kubb/react': 3.0.0-alpha.17
+
+  '@kubb/react@3.0.0-alpha.17':
+    resolution: {integrity: sha512-ZgOXiDBzoc/khjvXbGfXcjF2HsWPin+dtRrDL+GelEfuxTvFF/ZKrNn0/fTQCdcomj/S+SsTewBhpsCZbMPFBA==}
+    engines: {node: '>=20'}
+
+  '@kubb/types@3.0.0-alpha.17':
+    resolution: {integrity: sha512-nMSVmnlv6pnyLcc4Woa7fQCOB0FUi9T7dkYVkzC/UPzu5twd+AGjOTkcUfhEButw0bxB5BFS91zwZKo2vJszXQ==}
+    engines: {node: '>=20'}
+
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
 
@@ -3257,6 +3269,9 @@ packages:
     peerDependenciesMeta:
       '@vue/composition-api':
         optional: true
+
+  '@ts-morph/common@0.24.0':
+    resolution: {integrity: sha512-c1xMmNHWpNselmpIqursHeOHHBTIsJLbB+NuovbTTRCNiTLEr/U9dbJ8qy0jd/O2x5pc3seWuOUN5R2IoOTp8A==}
 
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
@@ -3991,6 +4006,9 @@ packages:
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
+
+  code-block-writer@13.0.2:
+    resolution: {integrity: sha512-XfXzAGiStXSmCIwrkdfvc7FS5Dtj8yelCtyOf2p2skCAfvLd6zu0rGzuS9NSCO3bq1JKpFZ7tbKdKlcd5occQA==}
 
   code-error-fragment@0.0.230:
     resolution: {integrity: sha512-cadkfKp6932H8UkhzE/gcUqhRMNf8jHzkAN7+5Myabswaghu4xABTgPHDCjW+dBAJxj/SpkTYokpzDqY4pCzQw==}
@@ -5389,6 +5407,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  mkdirp@3.0.1:
+    resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   mlly@1.7.1:
     resolution: {integrity: sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==}
 
@@ -6529,6 +6552,9 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
+  ts-morph@23.0.0:
+    resolution: {integrity: sha512-FcvFx7a9E8TUe6T3ShihXJLiJOiqyafzFKUO4aqIHDUCIvADdGNShcbc2W5PMr3LerXRv7mafvFZ9lRENxJmug==}
+
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
@@ -6747,6 +6773,9 @@ packages:
     peerDependenciesMeta:
       webpack-sources:
         optional: true
+
+  unraw@3.0.0:
+    resolution: {integrity: sha512-08/DA66UF65OlpUDIQtbJyrqTR0jTAlJ+jsnkQ4jxR7+K5g5YG1APZKQSMCE1vqqmD+2pv6+IdEjmopFatacvg==}
 
   untyped@1.4.2:
     resolution: {integrity: sha512-nC5q0DnPEPVURPhfPQLahhSTnemVtPzdx7ofiRxXpOB2SYnb3MfdU3DVGyJdS8Lx+tBWeAePO8BfU/3EgksM7Q==}
@@ -8074,6 +8103,207 @@ snapshots:
     dependencies:
       jsep: 1.3.8
 
+  '@kubb/core@3.0.0-alpha.17':
+    dependencies:
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/types': 3.0.0-alpha.17
+      change-case: 5.4.4
+      find-up: 7.0.0
+      natural-orderby: 3.0.2
+      object-hash: 3.0.0
+      p-queue: 8.0.1
+      remeda: 2.12.0
+      seedrandom: 3.0.5
+      semver: 7.6.3
+      unraw: 3.0.0
+
+  '@kubb/fs@3.0.0-alpha.17':
+    dependencies:
+      fs-extra: 11.2.0
+      js-runtime: 0.0.8
+
+  '@kubb/oas@3.0.0-alpha.17':
+    dependencies:
+      '@redocly/openapi-core': 1.24.0
+      hotscript: 1.0.13
+      json-schema-to-ts: 3.1.1
+      oas: 24.9.0
+      oas-normalize: 11.1.2
+      openapi-format: 1.23.0
+      openapi-types: 12.1.3
+      remeda: 2.12.0
+      swagger2openapi: 7.0.8
+      ts-toolbelt: 9.6.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/parser-ts@3.0.0-alpha.17':
+    dependencies:
+      remeda: 2.12.0
+      ts-morph: 23.0.0
+      typescript: 5.6.2
+
+  '@kubb/plugin-client@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+    optionalDependencies:
+      axios: 1.7.7
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-client@3.0.0-alpha.17(@kubb/react@packages+react)(axios@1.7.7)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/react': link:packages/react
+    optionalDependencies:
+      axios: 1.7.7
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-oas@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@stoplight/yaml': 4.3.0
+      execa: 9.3.1
+      remeda: 2.12.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-oas@3.0.0-alpha.17(@kubb/react@packages+react)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/react': link:packages/react
+      '@stoplight/yaml': 4.3.0
+      execa: 9.3.1
+      remeda: 2.12.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-tanstack-query@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-client': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+    transitivePeerDependencies:
+      - axios
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-tanstack-query@3.0.0-alpha.17(@kubb/react@packages+react)(axios@1.7.7)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-client': 3.0.0-alpha.17(@kubb/react@packages+react)(axios@1.7.7)
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/react': link:packages/react
+    transitivePeerDependencies:
+      - axios
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-ts@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-ts@3.0.0-alpha.17(@kubb/react@packages+react)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/react': link:packages/react
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-zod@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@kubb/types': 3.0.0-alpha.17
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/plugin-zod@3.0.0-alpha.17(@kubb/react@packages+react)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/oas': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@packages+react)
+      '@kubb/react': link:packages/react
+      '@kubb/types': 3.0.0-alpha.17
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8)':
+    dependencies:
+      '@kubb/core': 3.0.0-alpha.17
+      '@kubb/fs': 3.0.0-alpha.17
+      '@kubb/parser-ts': 3.0.0-alpha.17
+      auto-bind: 5.0.1
+      execa: 9.3.1
+      natural-orderby: 3.0.2
+      react: 18.3.1
+      react-devtools-core: 5.3.1(bufferutil@4.0.8)
+      react-reconciler: 0.29.2(react@18.3.1)
+      signal-exit: 4.1.0
+      ws: 8.15.0(bufferutil@4.0.8)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@kubb/types@3.0.0-alpha.17': {}
+
   '@manypkg/find-root@1.1.0':
     dependencies:
       '@babel/runtime': 7.24.7
@@ -8608,6 +8838,13 @@ snapshots:
       '@vue/devtools-api': 6.6.3
       vue: 3.5.4(typescript@5.6.2)
       vue-demi: 0.14.10(vue@3.5.4(typescript@5.6.2))
+
+  '@ts-morph/common@0.24.0':
+    dependencies:
+      fast-glob: 3.3.2
+      minimatch: 9.0.4
+      mkdirp: 3.0.1
+      path-browserify: 1.0.1
 
   '@tsconfig/node10@1.0.11': {}
 
@@ -9499,6 +9736,8 @@ snapshots:
   clone@1.0.4: {}
 
   clsx@2.1.1: {}
+
+  code-block-writer@13.0.2: {}
 
   code-error-fragment@0.0.230: {}
 
@@ -11193,6 +11432,8 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
+  mkdirp@3.0.1: {}
+
   mlly@1.7.1:
     dependencies:
       acorn: 8.12.1
@@ -12422,6 +12663,11 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
+  ts-morph@23.0.0:
+    dependencies:
+      '@ts-morph/common': 0.24.0
+      code-block-writer: 13.0.2
+
   ts-node@10.9.2(@swc/core@1.7.22)(@types/node@20.16.5)(typescript@5.6.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
@@ -12692,6 +12938,8 @@ snapshots:
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
       webpack-sources: 3.2.3
+
+  unraw@3.0.0: {}
 
   untyped@1.4.2:
     dependencies:
