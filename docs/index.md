@@ -3,11 +3,10 @@ layout: home
 sidebar: false
 
 title: Kubb
-titleTemplate: Generate SDKs for all your APIs
+titleTemplate: The ultimate toolkit for working with APIs
 
 hero:
-  name: Kubb
-  text: Generate SDKs for all your APIs
+  text: The ultimate toolkit for working with APIs
   tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW and Axios.
   image:
     src: /logo.png
@@ -15,7 +14,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /getting-started/introduction
+      link: /getting-started/at-glance
     - theme: alt
       text: Playground
       link: /playground
@@ -25,60 +24,70 @@ hero:
 
 features:
   - icon:
+      src: ./feature/openapi.svg
+      height: 24
+    title: OpenAPI/Swagger
+    details: Supports OpenAPI 2.0, 3.0, and 3.1.
+    link: /docs/plugins/plugin-oas/
+    linkText: Learn more
+  - icon:
       src: ./feature/typescript.svg
       height: 24
     title: TypeScript
-    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support. <div class="learn-more"><a href="/plugins/plugin-ts">Learn more</a></div>
+    details: Out-of-the-box support for<a href="https://www.typescriptlang.org/">TypeScript</a> with JSDoc integration.
+    link: /plugins/plugin-ts
+    linkText: Learn more
   - icon:
       src: ./feature/tanstack.svg
       height: 24
     title: Tanstack Query
-    details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue). <div class="learn-more"><a href="/plugins/plugin-tanstack-query">Learn more</a></div>
+    details: Generate query keys, query options and hooks with support for React, Solid, Svelte, Vue.
+    link: /plugins/plugin-tanstack-query
+    linkText: Learn more
   - icon:
       dark: ./feature/swr-dark.svg
       light: ./feature/swr-light.svg
       height: 24
     title: SWR
-    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>. <div class="learn-more"><a href="/plugins/plugin-swr">Learn more</a></div>
+    details: Creates React Hooks for <a href="https://swr.vercel.app/">SWR</a>.
+    link: /plugins/plugin-swr
+    linkText: Learn more
   - icon:
       src: ./feature/axios.svg
     title: Axios
-    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/plugin/">Learn more</a></div>
+    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with override possibilities for Fetch, ky,...
+    link: /plugins/plugin/
+    linkText: Learn more
   - icon:
       src: ./feature/msw.svg
     title: MSW
-    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/plugin-msw">Learn more</a></div>
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on the faker generated data.
+    link: /plugins/plugin-msw
+    linkText: Learn more
   - icon:
       src: ./feature/zod.svg
       height: 24
     title: Zod
-    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/plugin-zod">Learn more</a></div>
+    details: Create <a href="https://zod.dev/">Zod</a> schemas that could be use to validate your data.
+    link: /plugins/plugin-zod
+    linkText: Learn more
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker
-    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. <div class="learn-more"><a href="/plugins/plugin-faker">Learn more</a></div>
+    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data for testing and development of APIs.
+    link: /plugins/plugin-faker
+    linkText: Learn more
   - icon:
       src: ./feature/json.svg
     title: JSON Schemas
-    details: Reuse the JSON schemas that are created inside your Swagger/OpenAPI file. <div class="learn-more"><a href="/plugins/swagger">Learn more</a></div>
-  - icon:
-      src: ./feature/cli.svg
-    title: CLI support
-    details: Log in and see what is happening with the <span class="code">Kubb</span> CLI command. <div class="learn-more"><a href="/plugins/cli">Learn more</a></div>
+    details: Export your OpenAPI schema's as JSON schema's.
+    link: /plugins/plugin-swagger
+    linkText: Learn more
   - icon:
       dark: ./feature/plugins-dark.svg
       light: ./feature/plugins-light.svg
     title: Extensible with plugins
-    details: Create your own plugin or fork and change one of the default plugins with your flavor(without a Kubb fork). <div class="learn-more"><a href="/plugins/overview">Learn more</a></div>
-  - icon:
-      src: ./feature/react.svg
-      height: 24
-    title: Templates
-    details: Customize the generated files/output based on a custom-defined JSX(React) template. <div class="learn-more"><a href="/knowledge-base/templates">Learn more</a></div>
-
+    details: Build your own plugin or modify one of the default plugins to suit your needs.
+    link: /plugins/overview
+    linkText: Learn more
 ---
-<!--
-Ideas
- https://github.com/elysiajs/documentation/blob/14601f322b42023ea8b50edd3584545915bbda0e/docs/index.md?plain=1
- https://github.com/elysiajs/documentation/blob/14601f322b42023ea8b50edd3584545915bbda0e/components/midori/index.vue
--->

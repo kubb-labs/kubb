@@ -13,7 +13,7 @@ However, there are cases where you might want to customize the client. For examp
 ## Create a `kubb.config.ts` with the following config
 `importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/client` will be used).
 
-See [plugins/plugin-client](/documentation/plugins/plugin-client/#client).
+See [plugins/plugin-client](/docs/plugins/plugin-client/#client).
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'

@@ -28,6 +28,7 @@
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-msw": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/plugin-tanstack-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
@@ -44,7 +45,7 @@
     "svelte": "^3.59.2",
     "swr": "^2.2.5",
     "tsup": "^8.2.4",
-    "vue": "^3.5.3",
+    "vue": "^3.5.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

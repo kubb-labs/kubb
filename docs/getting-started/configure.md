@@ -1,39 +1,34 @@
 ---
 layout: doc
 
-title: kubb.config.ts
+title: Configure
 outline: deep
 ---
 
-# Configuring Kubb
-
-Kubb is configured with a configuation file (preferably with `kubb.config.ts`).
+# Configure
+Kubb is configured with a configuation file (preferably with `kubb.config.ts`) with [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) being used to load the config.
 
 ## Usage
 
-When you use the CLI of Kubb, Kubb will automatically read the configuration file in the root directory of the current project and resolve it in the following order:
-
+When you use Kubb’s CLI, it will automatically read the configuration file from the root directory of your project and process it in the following order:
 - `kubb.config.ts`
 - `kubb.config.js`
 - `kubb.config.mjs`
 - `kubb.config.cjs`
-
-We recommend using the .ts format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`. It provides friendly TypeScript type hints and autocompletion, which can help you avoid errors in the configuration.
-
-In the background Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) which means you can als use the following:
-
 - A `"kubb"` key in your package.json file.
 - A `.kubbrc` file written in JSON or YAML.
 - A `.kubbrc.json` file.
 - A `.kubbrc.yaml` or `.kubbrc.yml` file.
 
-::: tip
-You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
-:::
+We recommend using the .ts format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`.
+This helper provides TypeScript friendly type hints and autocompletion, which can help you avoid errors in the configuration.
+
+> [!TIP]
+> You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
 
 ## DefineConfig
 
-When using TypeScript/JavaScript you need to use `defineConfig` to create your config.
+When using TypeScript/JavaScript you should consider using `defineConfig`.
 
 ```typescript
 export const defineConfig = (
@@ -48,15 +43,12 @@ export const defineConfig = (
 
 ## Basic
 
-::: tip
-When using an `import` statement you need to set `"type": "module"` in your `package.json`.
-
-You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
-:::
+> [!TIP]
+> When using an `import` statement you need to set `"type": "module"` in your `package.json`.
+> You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
 
 ::: code-group
-
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -75,7 +67,8 @@ export default defineConfig({
 
 ## Conditional
 
-If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.<br/>
+If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.
+
 Here you can choose between returning the config options synchronously or asynchronously.
 
 ::: code-group
@@ -101,12 +94,8 @@ export default defineConfig(({ config, watch, logLevel }) => {
 
 ## Multiple plugins
 
-::: tip
-With version `2.x.x` we also support using multiple versions of the same plugin.
-
-:::
-
-::: code-group
+> [!TIP]
+> With version `2.x.x` or higher we also support using multiple versions of the same plugin.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
@@ -143,12 +132,8 @@ export default defineConfig(() => {
 
 ## Multiple configs
 
-::: tip
-Since version `2.x.x` we also support using multiple configs.
-
-:::
-
-::: code-group
+> [!TIP]
+> Since version `2.x.x` or higher we also support using multiple configs.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'

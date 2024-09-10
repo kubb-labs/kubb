@@ -2,6 +2,7 @@ import TwoslashFloatingVue from '@shikijs/vitepress-twoslash/client'
 import type { EnhanceAppContext } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
+import type { Theme } from 'vitepress'
 
 import HomePage from './HomePage.vue'
 
@@ -22,4 +23,4 @@ export default {
     DefaultTheme.enhanceApp(ctx)
     ctx.app.use(TwoslashFloatingVue)
   },
-}
+} satisfies Theme

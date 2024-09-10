@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-redoc
 
-With the Redoc plugin you can create beautiful documentation pages.
+With the Redoc plugin you can create beautiful docs pages.
 <hr/>
 ## Installation
 
