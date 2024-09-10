@@ -1,5 +1,18 @@
 # @kubb/swagger-client
 
+## 2.26.3
+
+### Patch Changes
+
+- Updated dependencies [[`39e85f7`](https://github.com/kubb-labs/kubb/commit/39e85f7ed79c34bdbabe95cfa29be51f57939f63)]:
+  - @kubb/plugin-oas@2.26.3
+  - @kubb/swagger-ts@2.26.3
+  - @kubb/core@2.26.3
+  - @kubb/fs@2.26.3
+  - @kubb/oas@2.26.3
+  - @kubb/parser-ts@2.26.3
+  - @kubb/react@2.26.3
+
 ## 2.26.2
 
 ### Patch Changes
