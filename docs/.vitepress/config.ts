@@ -210,7 +210,7 @@ const mainSidebar = [
       {
         text: 'unplugin-kubb <span class="new">new</span>',
         collapsed: false,
-        link: '/build/unplugin/',
+        link: '/builders/unplugin/',
       },
     ],
   },
@@ -391,7 +391,7 @@ const documentationMenu = [
     items: [
       {
         text: 'unplugin-kubb',
-        link: '/build/unplugin/',
+        link: '/builders/unplugin/',
       },
     ],
   },
@@ -443,6 +443,7 @@ export default defineConfig({
     await new Promise((r) => writeStream.on('finish', r))
   },
   cleanUrls: true,
+  outDir: 'dist',
   ignoreDeadLinks: true,
   lastUpdated: true,
   markdown: {
