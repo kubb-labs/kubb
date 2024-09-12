@@ -1,9 +1,10 @@
-import { File, useApp } from '@kubb/react'
+import { useApp } from '@kubb/react'
 
 import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 import type { Mode } from '@kubb/fs/types'
-import { type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { SchemaGenerator } from '../SchemaGenerator.ts'
+import { type Schema, schemaKeywords } from '../SchemaMapper'
 
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']

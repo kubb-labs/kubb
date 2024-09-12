@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
     "jsxImportSource": "@kubb/react"
   },
   "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
