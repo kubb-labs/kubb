@@ -1,0 +1,527 @@
+[
+  {
+    "text": "@kubb/cli",
+    "link": "/api/@kubb/cli/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [{ "text": "generate", "link": "/api/@kubb/cli/functions/generate.md" }, { "text": "run", "link": "/api/@kubb/cli/functions/run.md" }]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/core",
+    "link": "/api/@kubb/core/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Classes",
+        "collapsed": true,
+        "items": [
+          { "text": "BaseGenerator", "link": "/api/@kubb/core/classes/BaseGenerator.md" },
+          { "text": "FileManager", "link": "/api/@kubb/core/classes/FileManager.md" },
+          { "text": "PackageManager", "link": "/api/@kubb/core/classes/PackageManager.md" },
+          { "text": "PluginManager", "link": "/api/@kubb/core/classes/PluginManager.md" },
+          { "text": "PromiseManager", "link": "/api/@kubb/core/classes/PromiseManager.md" }
+        ]
+      },
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [
+          { "text": "FileMetaBase", "link": "/api/@kubb/core/type-aliases/FileMetaBase.md" },
+          { "text": "GetPluginFactoryOptions", "link": "/api/@kubb/core/type-aliases/GetPluginFactoryOptions.md" },
+          { "text": "InputData", "link": "/api/@kubb/core/type-aliases/InputData.md" },
+          { "text": "InputPath", "link": "/api/@kubb/core/type-aliases/InputPath.md" },
+          { "text": "Plugin", "link": "/api/@kubb/core/type-aliases/Plugin.md" },
+          { "text": "PluginCache", "link": "/api/@kubb/core/type-aliases/PluginCache.md" },
+          { "text": "PluginContext", "link": "/api/@kubb/core/type-aliases/PluginContext.md" },
+          { "text": "PluginFactoryOptions", "link": "/api/@kubb/core/type-aliases/PluginFactoryOptions.md" },
+          { "text": "PluginKey", "link": "/api/@kubb/core/type-aliases/PluginKey.md" },
+          { "text": "PluginLifecycle", "link": "/api/@kubb/core/type-aliases/PluginLifecycle.md" },
+          { "text": "PluginLifecycleHooks", "link": "/api/@kubb/core/type-aliases/PluginLifecycleHooks.md" },
+          { "text": "PluginParameter", "link": "/api/@kubb/core/type-aliases/PluginParameter.md" },
+          { "text": "PluginWithLifeCycle", "link": "/api/@kubb/core/type-aliases/PluginWithLifeCycle.md" },
+          { "text": "ResolveNameParams", "link": "/api/@kubb/core/type-aliases/ResolveNameParams.md" },
+          { "text": "ResolvePathParams", "link": "/api/@kubb/core/type-aliases/ResolvePathParams.md" },
+          { "text": "UserConfig", "link": "/api/@kubb/core/type-aliases/UserConfig.md" },
+          { "text": "UserPlugin", "link": "/api/@kubb/core/type-aliases/UserPlugin.md" },
+          { "text": "UserPluginWithLifeCycle", "link": "/api/@kubb/core/type-aliases/UserPluginWithLifeCycle.md" }
+        ]
+      },
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [
+          { "text": "build", "link": "/api/@kubb/core/functions/build.md" },
+          { "text": "createPlugin", "link": "/api/@kubb/core/functions/createPlugin.md" },
+          { "text": "defineConfig", "link": "/api/@kubb/core/functions/defineConfig.md" },
+          { "text": "getSource", "link": "/api/@kubb/core/functions/getSource.md" },
+          { "text": "isInputPath", "link": "/api/@kubb/core/functions/isInputPath.md" },
+          { "text": "safeBuild", "link": "/api/@kubb/core/functions/safeBuild.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/fs",
+    "link": "/api/@kubb/fs/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [
+          { "text": "clean", "link": "/api/@kubb/fs/functions/clean.md" },
+          { "text": "getRelativePath", "link": "/api/@kubb/fs/functions/getRelativePath.md" },
+          { "text": "read", "link": "/api/@kubb/fs/functions/read.md" },
+          { "text": "readSync", "link": "/api/@kubb/fs/functions/readSync.md" },
+          { "text": "trimExtName", "link": "/api/@kubb/fs/functions/trimExtName.md" },
+          { "text": "write", "link": "/api/@kubb/fs/functions/write.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/oas",
+    "link": "/api/@kubb/oas/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Namespaces",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "OasTypes",
+            "link": "/api/@kubb/oas/namespaces/OasTypes/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "Interfaces",
+                "collapsed": true,
+                "items": [
+                  { "text": "DataForHAR", "link": "/api/@kubb/oas/namespaces/OasTypes/interfaces/DataForHAR.md" },
+                  { "text": "Servers", "link": "/api/@kubb/oas/namespaces/OasTypes/interfaces/Servers.md" },
+                  { "text": "User", "link": "/api/@kubb/oas/namespaces/OasTypes/interfaces/User.md" }
+                ]
+              },
+              {
+                "text": "Type Aliases",
+                "collapsed": true,
+                "items": [
+                  { "text": "CallbackObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/CallbackObject.md" },
+                  { "text": "ComponentsObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ComponentsObject.md" },
+                  { "text": "ExampleObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ExampleObject.md" },
+                  { "text": "HeaderObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/HeaderObject.md" },
+                  { "text": "JSONSchema", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/JSONSchema.md" },
+                  { "text": "KeyedSecuritySchemeObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/KeyedSecuritySchemeObject.md" },
+                  { "text": "MediaTypeObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/MediaTypeObject.md" },
+                  { "text": "OAS31Document", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/OAS31Document.md" },
+                  { "text": "OASDocument", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/OASDocument.md" },
+                  { "text": "OperationObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/OperationObject.md" },
+                  { "text": "ParameterObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ParameterObject.md" },
+                  { "text": "PathItemObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/PathItemObject.md" },
+                  { "text": "PathsObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/PathsObject.md" },
+                  { "text": "RequestBodyObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/RequestBodyObject.md" },
+                  { "text": "ResponseObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ResponseObject.md" },
+                  { "text": "SchemaObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/SchemaObject.md" },
+                  { "text": "SecurityRequirementObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/SecurityRequirementObject.md" },
+                  { "text": "SecuritySchemeObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/SecuritySchemeObject.md" },
+                  { "text": "SecuritySchemesObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/SecuritySchemesObject.md" },
+                  { "text": "SecurityType", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/SecurityType.md" },
+                  { "text": "ServerObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ServerObject.md" },
+                  { "text": "ServerVariable", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ServerVariable.md" },
+                  { "text": "ServerVariableObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ServerVariableObject.md" },
+                  { "text": "ServerVariablesObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/ServerVariablesObject.md" },
+                  { "text": "TagObject", "link": "/api/@kubb/oas/namespaces/OasTypes/type-aliases/TagObject.md" }
+                ]
+              },
+              {
+                "text": "Functions",
+                "collapsed": true,
+                "items": [
+                  { "text": "isOAS31", "link": "/api/@kubb/oas/namespaces/OasTypes/functions/isOAS31.md" },
+                  { "text": "isRef", "link": "/api/@kubb/oas/namespaces/OasTypes/functions/isRef.md" },
+                  { "text": "isSchema", "link": "/api/@kubb/oas/namespaces/OasTypes/functions/isSchema.md" }
+                ]
+              }
+            ]
+          },
+          {
+            "text": "OpenAPIV3",
+            "link": "/api/@kubb/oas/namespaces/OpenAPIV3/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "Enumerations",
+                "collapsed": true,
+                "items": [{ "text": "HttpMethods", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/enumerations/HttpMethods.md" }]
+              },
+              {
+                "text": "Interfaces",
+                "collapsed": true,
+                "items": [
+                  { "text": "ApiKeySecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ApiKeySecurityScheme.md" },
+                  { "text": "ArraySchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ArraySchemaObject.md" },
+                  { "text": "BaseSchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/BaseSchemaObject.md" },
+                  { "text": "CallbackObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/CallbackObject.md" },
+                  { "text": "ComponentsObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ComponentsObject.md" },
+                  { "text": "ContactObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ContactObject.md" },
+                  { "text": "DiscriminatorObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/DiscriminatorObject.md" },
+                  { "text": "Document", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/Document.md" },
+                  { "text": "EncodingObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/EncodingObject.md" },
+                  { "text": "ExampleObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ExampleObject.md" },
+                  { "text": "ExternalDocumentationObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ExternalDocumentationObject.md" },
+                  { "text": "HeaderObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/HeaderObject.md" },
+                  { "text": "HttpSecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/HttpSecurityScheme.md" },
+                  { "text": "InfoObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/InfoObject.md" },
+                  { "text": "LicenseObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/LicenseObject.md" },
+                  { "text": "LinkObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/LinkObject.md" },
+                  { "text": "MediaTypeObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/MediaTypeObject.md" },
+                  { "text": "NonArraySchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/NonArraySchemaObject.md" },
+                  { "text": "OAuth2SecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/OAuth2SecurityScheme.md" },
+                  { "text": "OpenIdSecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/OpenIdSecurityScheme.md" },
+                  { "text": "ParameterBaseObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ParameterBaseObject.md" },
+                  { "text": "ParameterObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ParameterObject.md" },
+                  { "text": "PathsObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/PathsObject.md" },
+                  { "text": "ReferenceObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ReferenceObject.md" },
+                  { "text": "RequestBodyObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/RequestBodyObject.md" },
+                  { "text": "ResponseObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ResponseObject.md" },
+                  { "text": "ResponsesObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ResponsesObject.md" },
+                  { "text": "SecurityRequirementObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/SecurityRequirementObject.md" },
+                  { "text": "ServerObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ServerObject.md" },
+                  { "text": "ServerVariableObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/ServerVariableObject.md" },
+                  { "text": "TagObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/TagObject.md" },
+                  { "text": "XMLObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/interfaces/XMLObject.md" }
+                ]
+              },
+              {
+                "text": "Type Aliases",
+                "collapsed": true,
+                "items": [
+                  { "text": "ArraySchemaObjectType", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/type-aliases/ArraySchemaObjectType.md" },
+                  { "text": "NonArraySchemaObjectType", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/type-aliases/NonArraySchemaObjectType.md" },
+                  { "text": "OperationObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/type-aliases/OperationObject.md" },
+                  { "text": "PathItemObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/type-aliases/PathItemObject.md" },
+                  { "text": "SchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/type-aliases/SchemaObject.md" },
+                  { "text": "SecuritySchemeObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3/type-aliases/SecuritySchemeObject.md" }
+                ]
+              }
+            ]
+          },
+          {
+            "text": "OpenAPIV3_1",
+            "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "Interfaces",
+                "collapsed": true,
+                "items": [
+                  { "text": "ArraySchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/interfaces/ArraySchemaObject.md" },
+                  { "text": "NonArraySchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/interfaces/NonArraySchemaObject.md" }
+                ]
+              },
+              {
+                "text": "Type Aliases",
+                "collapsed": true,
+                "items": [
+                  { "text": "ApiKeySecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ApiKeySecurityScheme.md" },
+                  { "text": "ArraySchemaObjectType", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ArraySchemaObjectType.md" },
+                  { "text": "BaseSchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/BaseSchemaObject.md" },
+                  { "text": "CallbackObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/CallbackObject.md" },
+                  { "text": "ComponentsObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ComponentsObject.md" },
+                  { "text": "ContactObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ContactObject.md" },
+                  { "text": "DiscriminatorObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/DiscriminatorObject.md" },
+                  { "text": "Document", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/Document.md" },
+                  { "text": "EncodingObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/EncodingObject.md" },
+                  { "text": "ExampleObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ExampleObject.md" },
+                  { "text": "ExternalDocumentationObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ExternalDocumentationObject.md" },
+                  { "text": "HeaderObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/HeaderObject.md" },
+                  { "text": "HttpMethods", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/HttpMethods.md" },
+                  { "text": "HttpSecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/HttpSecurityScheme.md" },
+                  { "text": "InfoObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/InfoObject.md" },
+                  { "text": "LicenseObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/LicenseObject.md" },
+                  { "text": "LinkObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/LinkObject.md" },
+                  { "text": "MediaTypeObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/MediaTypeObject.md" },
+                  { "text": "NonArraySchemaObjectType", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/NonArraySchemaObjectType.md" },
+                  { "text": "OAuth2SecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/OAuth2SecurityScheme.md" },
+                  { "text": "OpenIdSecurityScheme", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/OpenIdSecurityScheme.md" },
+                  { "text": "OperationObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/OperationObject.md" },
+                  { "text": "ParameterBaseObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ParameterBaseObject.md" },
+                  { "text": "ParameterObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ParameterObject.md" },
+                  { "text": "PathItemObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/PathItemObject.md" },
+                  { "text": "PathsObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/PathsObject.md" },
+                  { "text": "ReferenceObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ReferenceObject.md" },
+                  { "text": "RequestBodyObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/RequestBodyObject.md" },
+                  { "text": "ResponseObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ResponseObject.md" },
+                  { "text": "ResponsesObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ResponsesObject.md" },
+                  { "text": "SchemaObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/SchemaObject.md" },
+                  { "text": "SecurityRequirementObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/SecurityRequirementObject.md" },
+                  { "text": "SecuritySchemeObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/SecuritySchemeObject.md" },
+                  { "text": "ServerObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ServerObject.md" },
+                  { "text": "ServerVariableObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/ServerVariableObject.md" },
+                  { "text": "TagObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/TagObject.md" },
+                  { "text": "XMLObject", "link": "/api/@kubb/oas/namespaces/OpenAPIV3_1/type-aliases/XMLObject.md" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": "Classes",
+        "collapsed": true,
+        "items": [{ "text": "Oas", "link": "/api/@kubb/oas/classes/Oas.md" }, { "text": "Operation", "link": "/api/@kubb/oas/classes/Operation.md" }]
+      },
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [
+          { "text": "contentType", "link": "/api/@kubb/oas/type-aliases/contentType.md" },
+          { "text": "HttpMethod", "link": "/api/@kubb/oas/type-aliases/HttpMethod.md" },
+          { "text": "Infer", "link": "/api/@kubb/oas/type-aliases/Infer.md" },
+          { "text": "Model", "link": "/api/@kubb/oas/type-aliases/Model.md" },
+          { "text": "RequestParams", "link": "/api/@kubb/oas/type-aliases/RequestParams.md" },
+          { "text": "Response", "link": "/api/@kubb/oas/type-aliases/Response.md" },
+          { "text": "SchemaObject", "link": "/api/@kubb/oas/type-aliases/SchemaObject.md" }
+        ]
+      },
+      {
+        "text": "Variables",
+        "collapsed": true,
+        "items": [
+          { "text": "HttpMethods", "link": "/api/@kubb/oas/variables/HttpMethods.md" },
+          { "text": "matchesMimeType", "link": "/api/@kubb/oas/variables/matchesMimeType.md" }
+        ]
+      },
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [
+          { "text": "findSchemaDefinition", "link": "/api/@kubb/oas/functions/findSchemaDefinition.md" },
+          { "text": "isOpenApiV3_1Document", "link": "/api/@kubb/oas/functions/isOpenApiV3_1Document.md" },
+          { "text": "isOptional", "link": "/api/@kubb/oas/functions/isOptional.md" },
+          { "text": "isParameterObject", "link": "/api/@kubb/oas/functions/isParameterObject.md" },
+          { "text": "isReference", "link": "/api/@kubb/oas/functions/isReference.md" },
+          { "text": "isRequired", "link": "/api/@kubb/oas/functions/isRequired.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-client",
+    "link": "/api/@kubb/plugin-client/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginClient", "link": "/api/@kubb/plugin-client/type-aliases/PluginClient.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginClientName", "link": "/api/@kubb/plugin-client/variables/pluginClientName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginClient", "link": "/api/@kubb/plugin-client/functions/pluginClient.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-faker",
+    "link": "/api/@kubb/plugin-faker/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginFaker", "link": "/api/@kubb/plugin-faker/type-aliases/PluginFaker.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginFakerName", "link": "/api/@kubb/plugin-faker/variables/pluginFakerName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginFaker", "link": "/api/@kubb/plugin-faker/functions/pluginFaker.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-msw",
+    "link": "/api/@kubb/plugin-msw/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginMsw", "link": "/api/@kubb/plugin-msw/type-aliases/PluginMsw.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginMswName", "link": "/api/@kubb/plugin-msw/variables/pluginMswName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginMsw", "link": "/api/@kubb/plugin-msw/functions/pluginMsw.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-oas",
+    "link": "/api/@kubb/plugin-oas/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Classes",
+        "collapsed": true,
+        "items": [
+          { "text": "OperationGenerator", "link": "/api/@kubb/plugin-oas/classes/OperationGenerator.md" },
+          { "text": "SchemaGenerator", "link": "/api/@kubb/plugin-oas/classes/SchemaGenerator.md" }
+        ]
+      },
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [
+          { "text": "API", "link": "/api/@kubb/plugin-oas/type-aliases/API.md" },
+          { "text": "Exclude", "link": "/api/@kubb/plugin-oas/type-aliases/Exclude.md" },
+          { "text": "Generator", "link": "/api/@kubb/plugin-oas/type-aliases/Generator.md" },
+          { "text": "GeneratorOptions", "link": "/api/@kubb/plugin-oas/type-aliases/GeneratorOptions.md" },
+          { "text": "GetOperationGeneratorOptions", "link": "/api/@kubb/plugin-oas/type-aliases/GetOperationGeneratorOptions.md" },
+          { "text": "GetSchemaGeneratorOptions", "link": "/api/@kubb/plugin-oas/type-aliases/GetSchemaGeneratorOptions.md" },
+          { "text": "Include", "link": "/api/@kubb/plugin-oas/type-aliases/Include.md" },
+          { "text": "OperationMethodResult", "link": "/api/@kubb/plugin-oas/type-aliases/OperationMethodResult.md" },
+          { "text": "OperationsByMethod", "link": "/api/@kubb/plugin-oas/type-aliases/OperationsByMethod.md" },
+          { "text": "OperationSchema", "link": "/api/@kubb/plugin-oas/type-aliases/OperationSchema.md" },
+          { "text": "OperationSchemas", "link": "/api/@kubb/plugin-oas/type-aliases/OperationSchemas.md" },
+          { "text": "Options", "link": "/api/@kubb/plugin-oas/type-aliases/Options.md" },
+          { "text": "Override", "link": "/api/@kubb/plugin-oas/type-aliases/Override.md" },
+          { "text": "PluginOas", "link": "/api/@kubb/plugin-oas/type-aliases/PluginOas.md" },
+          { "text": "ReactGeneratorOptions", "link": "/api/@kubb/plugin-oas/type-aliases/ReactGeneratorOptions.md" },
+          { "text": "Ref", "link": "/api/@kubb/plugin-oas/type-aliases/Ref.md" },
+          { "text": "Refs", "link": "/api/@kubb/plugin-oas/type-aliases/Refs.md" },
+          { "text": "ResolvePathOptions", "link": "/api/@kubb/plugin-oas/type-aliases/ResolvePathOptions.md" },
+          { "text": "Resolver", "link": "/api/@kubb/plugin-oas/type-aliases/Resolver.md" },
+          { "text": "Schema", "link": "/api/@kubb/plugin-oas/type-aliases/Schema.md" },
+          { "text": "SchemaGeneratorBuildOptions", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaGeneratorBuildOptions.md" },
+          { "text": "SchemaGeneratorOptions", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaGeneratorOptions.md" },
+          { "text": "SchemaKeyword", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaKeyword.md" },
+          { "text": "SchemaKeywordBase", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaKeywordBase.md" },
+          { "text": "SchemaKeywordMapper", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaKeywordMapper.md" },
+          { "text": "SchemaMapper", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaMapper.md" },
+          { "text": "SchemaMethodResult", "link": "/api/@kubb/plugin-oas/type-aliases/SchemaMethodResult.md" }
+        ]
+      },
+      {
+        "text": "Variables",
+        "collapsed": true,
+        "items": [
+          { "text": "pluginOasName", "link": "/api/@kubb/plugin-oas/variables/pluginOasName.md" },
+          { "text": "schemaKeywords", "link": "/api/@kubb/plugin-oas/variables/schemaKeywords.md" }
+        ]
+      },
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [
+          { "text": "createGenerator", "link": "/api/@kubb/plugin-oas/functions/createGenerator.md" },
+          { "text": "createReactGenerator", "link": "/api/@kubb/plugin-oas/functions/createReactGenerator.md" },
+          { "text": "isKeyword", "link": "/api/@kubb/plugin-oas/functions/isKeyword.md" },
+          { "text": "pluginOas", "link": "/api/@kubb/plugin-oas/functions/pluginOas.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-react-query",
+    "link": "/api/@kubb/plugin-react-query/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [{ "text": "PluginReactQuery", "link": "/api/@kubb/plugin-react-query/type-aliases/PluginReactQuery.md" }]
+      },
+      {
+        "text": "Variables",
+        "collapsed": true,
+        "items": [{ "text": "pluginReactQueryName", "link": "/api/@kubb/plugin-react-query/variables/pluginReactQueryName.md" }]
+      },
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [{ "text": "pluginReactQuery", "link": "/api/@kubb/plugin-react-query/functions/pluginReactQuery.md" }]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-redoc",
+    "link": "/api/@kubb/plugin-redoc/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginRedoc", "link": "/api/@kubb/plugin-redoc/type-aliases/PluginRedoc.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginRedocName", "link": "/api/@kubb/plugin-redoc/variables/pluginRedocName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginRedoc", "link": "/api/@kubb/plugin-redoc/functions/pluginRedoc.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-swr",
+    "link": "/api/@kubb/plugin-swr/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginSwr", "link": "/api/@kubb/plugin-swr/type-aliases/PluginSwr.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginSwrName", "link": "/api/@kubb/plugin-swr/variables/pluginSwrName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginSwr", "link": "/api/@kubb/plugin-swr/functions/pluginSwr.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-ts",
+    "link": "/api/@kubb/plugin-ts/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginTs", "link": "/api/@kubb/plugin-ts/type-aliases/PluginTs.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginTsName", "link": "/api/@kubb/plugin-ts/variables/pluginTsName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginTs", "link": "/api/@kubb/plugin-ts/functions/pluginTs.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/plugin-zod",
+    "link": "/api/@kubb/plugin-zod/",
+    "collapsed": true,
+    "items": [
+      { "text": "Type Aliases", "collapsed": true, "items": [{ "text": "PluginZod", "link": "/api/@kubb/plugin-zod/type-aliases/PluginZod.md" }] },
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "pluginZodName", "link": "/api/@kubb/plugin-zod/variables/pluginZodName.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "pluginZod", "link": "/api/@kubb/plugin-zod/functions/pluginZod.md" }] }
+    ]
+  },
+  {
+    "text": "@kubb/react",
+    "link": "/api/@kubb/react/",
+    "collapsed": true,
+    "items": [
+      { "text": "Classes", "collapsed": true, "items": [{ "text": "FunctionParams", "link": "/api/@kubb/react/classes/FunctionParams.md" }] },
+      {
+        "text": "Functions",
+        "collapsed": true,
+        "items": [
+          { "text": "App", "link": "/api/@kubb/react/functions/App.md" },
+          { "text": "Const", "link": "/api/@kubb/react/functions/Const.md" },
+          { "text": "createContext", "link": "/api/@kubb/react/functions/createContext.md" },
+          { "text": "createFunctionParams", "link": "/api/@kubb/react/functions/createFunctionParams.md" },
+          { "text": "createRoot", "link": "/api/@kubb/react/functions/createRoot.md" },
+          { "text": "File", "link": "/api/@kubb/react/functions/File.md" },
+          { "text": "Function", "link": "/api/@kubb/react/functions/Function.md" },
+          { "text": "Text", "link": "/api/@kubb/react/functions/Text.md" },
+          { "text": "Type", "link": "/api/@kubb/react/functions/Type.md" },
+          { "text": "useApp", "link": "/api/@kubb/react/functions/useApp.md" },
+          { "text": "useContext", "link": "/api/@kubb/react/functions/useContext.md" },
+          { "text": "useFile", "link": "/api/@kubb/react/functions/useFile.md" },
+          { "text": "useIndent", "link": "/api/@kubb/react/functions/useIndent.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "@kubb/types",
+    "link": "/api/@kubb/types/",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [
+          { "text": "GreaterThan", "link": "/api/@kubb/types/type-aliases/GreaterThan.md" },
+          { "text": "ObjValueTuple", "link": "/api/@kubb/types/type-aliases/ObjValueTuple.md" },
+          { "text": "PossiblePromise", "link": "/api/@kubb/types/type-aliases/PossiblePromise.md" },
+          { "text": "Prettify", "link": "/api/@kubb/types/type-aliases/Prettify.md" },
+          { "text": "SplitByDelimiter", "link": "/api/@kubb/types/type-aliases/SplitByDelimiter.md" },
+          { "text": "TupleToUnion", "link": "/api/@kubb/types/type-aliases/TupleToUnion.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "unplugin-kubb",
+    "link": "/api/unplugin-kubb/",
+    "collapsed": true,
+    "items": [
+      { "text": "Variables", "collapsed": true, "items": [{ "text": "unplugin", "link": "/api/unplugin-kubb/variables/unplugin.md" }] },
+      { "text": "Functions", "collapsed": true, "items": [{ "text": "unpluginFactory", "link": "/api/unplugin-kubb/functions/unpluginFactory.md" }] }
+    ]
+  }
+]

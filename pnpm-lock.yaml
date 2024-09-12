@@ -43,9 +43,6 @@ importers:
       bun-types:
         specifier: ^1.1.27
         version: 1.1.27
-      cross-env:
-        specifier: ^7.0.3
-        version: 7.0.3
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -599,7 +596,7 @@ importers:
         version: link:../../packages/plugin-oas
       '@kubb/plugin-tanstack-query':
         specifier: latest
-        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
+        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -639,7 +636,7 @@ importers:
         version: link:../../packages/plugin-oas
       '@kubb/plugin-tanstack-query':
         specifier: latest
-        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
+        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -743,7 +740,7 @@ importers:
         version: link:../../packages/plugin-oas
       '@kubb/plugin-tanstack-query':
         specifier: latest
-        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
+        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))(axios@1.7.7)
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -2748,8 +2745,16 @@ packages:
     resolution: {integrity: sha512-aRrg0gcjphqfO2ecB6fA2n8n685bjZ1w+0q3PAs/jf6c8zs1w/PsNFDuAQ7YqC849RnHrFUYdC/WYTTLFBzxiQ==}
     engines: {node: '>=20'}
 
+  '@kubb/core@3.0.0-alpha.18':
+    resolution: {integrity: sha512-w6ERvQXsQOIz8pIDaQkWYkeurRJpioz6OXoyc5KIEiYvQv3ECochM547QB2U3+qRylMCRWHN0FkGNW49qBhXgg==}
+    engines: {node: '>=20'}
+
   '@kubb/fs@3.0.0-alpha.17':
     resolution: {integrity: sha512-OY/EQ3+jCzmXQGSE6IvNXVMNCzD3CO//do88Pf2c5lyfbscgzref9rio08R/nGFz4N59OYhopJms1HtbNYwdWA==}
+    engines: {node: '>=20'}
+
+  '@kubb/fs@3.0.0-alpha.18':
+    resolution: {integrity: sha512-VVRcPDha4tdFQaSWvHQp7bK4msBbDNSJqjczivgNwlRnRLy0RBQeEkJVINvWmtAyE5AHlBQN4Yhg2WyZH2nYrw==}
     engines: {node: '>=20'}
 
   '@kubb/oas@3.0.0-alpha.17':
@@ -2758,6 +2763,10 @@ packages:
 
   '@kubb/parser-ts@3.0.0-alpha.17':
     resolution: {integrity: sha512-kbx8GgerEb/2rb8Z5Z+BCIq4dUpHUaMr4STDsNDCxVuD6/fTdu3u8ZaaLvC6KC9QtZ5284j/mnhqHVAEcchXPA==}
+    engines: {node: '>=20'}
+
+  '@kubb/parser-ts@3.0.0-alpha.18':
+    resolution: {integrity: sha512-l255UOaDke3V+RsBkWnR8qyzGAVHxMD6iPyYl+d0Lh3rh1KLHu0KoWM02b44eIgD+ZaDaGknlXa9lTkEE/oYTA==}
     engines: {node: '>=20'}
 
   '@kubb/plugin-client@3.0.0-alpha.17':
@@ -2794,12 +2803,16 @@ packages:
     peerDependencies:
       '@kubb/react': 3.0.0-alpha.17
 
-  '@kubb/react@3.0.0-alpha.17':
-    resolution: {integrity: sha512-ZgOXiDBzoc/khjvXbGfXcjF2HsWPin+dtRrDL+GelEfuxTvFF/ZKrNn0/fTQCdcomj/S+SsTewBhpsCZbMPFBA==}
+  '@kubb/react@3.0.0-alpha.18':
+    resolution: {integrity: sha512-y0ob2478EA+iCQXm4UnL47j1fwy/79CF2k4USmfPuOweXclWuA3BE23KIeqJ1M+BnAzzYGgbJIMusUke7Ad+cQ==}
     engines: {node: '>=20'}
 
   '@kubb/types@3.0.0-alpha.17':
     resolution: {integrity: sha512-nMSVmnlv6pnyLcc4Woa7fQCOB0FUi9T7dkYVkzC/UPzu5twd+AGjOTkcUfhEButw0bxB5BFS91zwZKo2vJszXQ==}
+    engines: {node: '>=20'}
+
+  '@kubb/types@3.0.0-alpha.18':
+    resolution: {integrity: sha512-HKnMFKOddHRX7qb9izSDEfaF70MLNAbE2Sp42Kb8EiQqHbx3HvhC5WoiX5wL1AB8HCyOibug5lJOhpV+Pvq1xA==}
     engines: {node: '>=20'}
 
   '@manypkg/find-root@1.1.0':
@@ -4136,11 +4149,6 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
-
-  cross-env@7.0.3:
-    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
-    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
-    hasBin: true
 
   cross-spawn@5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
@@ -8240,7 +8248,26 @@ snapshots:
       semver: 7.6.3
       unraw: 3.0.0
 
+  '@kubb/core@3.0.0-alpha.18':
+    dependencies:
+      '@kubb/fs': 3.0.0-alpha.18
+      '@kubb/parser-ts': 3.0.0-alpha.18
+      '@kubb/types': 3.0.0-alpha.18
+      change-case: 5.4.4
+      find-up: 7.0.0
+      natural-orderby: 3.0.2
+      object-hash: 3.0.0
+      p-queue: 8.0.1
+      remeda: 2.12.0
+      seedrandom: 3.0.5
+      semver: 7.6.3
+
   '@kubb/fs@3.0.0-alpha.17':
+    dependencies:
+      fs-extra: 11.2.0
+      js-runtime: 0.0.8
+
+  '@kubb/fs@3.0.0-alpha.18':
     dependencies:
       fs-extra: 11.2.0
       js-runtime: 0.0.8
@@ -8267,16 +8294,21 @@ snapshots:
       ts-morph: 23.0.0
       typescript: 5.6.2
 
-  '@kubb/plugin-client@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)':
+  '@kubb/parser-ts@3.0.0-alpha.18':
+    dependencies:
+      remeda: 2.12.0
+      typescript: 5.6.2
+
+  '@kubb/plugin-client@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))(axios@1.7.7)':
     dependencies:
       '@kubb/core': 3.0.0-alpha.17
       '@kubb/fs': 3.0.0-alpha.17
       '@kubb/oas': 3.0.0-alpha.17
       '@kubb/parser-ts': 3.0.0-alpha.17
-      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.18(bufferutil@4.0.8)
     optionalDependencies:
       axios: 1.7.7
     transitivePeerDependencies:
@@ -8299,12 +8331,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@kubb/plugin-oas@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))':
+  '@kubb/plugin-oas@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))':
     dependencies:
       '@kubb/core': 3.0.0-alpha.17
       '@kubb/fs': 3.0.0-alpha.17
       '@kubb/oas': 3.0.0-alpha.17
-      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@kubb/react': 3.0.0-alpha.18(bufferutil@4.0.8)
       '@stoplight/yaml': 4.3.0
       execa: 9.3.1
       remeda: 2.12.0
@@ -8325,17 +8357,17 @@ snapshots:
       - encoding
       - supports-color
 
-  '@kubb/plugin-tanstack-query@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)':
+  '@kubb/plugin-tanstack-query@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))(axios@1.7.7)':
     dependencies:
       '@kubb/core': 3.0.0-alpha.17
       '@kubb/fs': 3.0.0-alpha.17
       '@kubb/oas': 3.0.0-alpha.17
       '@kubb/parser-ts': 3.0.0-alpha.17
-      '@kubb/plugin-client': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))(axios@1.7.7)
-      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@kubb/plugin-client': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))(axios@1.7.7)
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/plugin-ts': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/plugin-zod': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.18(bufferutil@4.0.8)
     transitivePeerDependencies:
       - axios
       - encoding
@@ -8357,14 +8389,14 @@ snapshots:
       - encoding
       - supports-color
 
-  '@kubb/plugin-ts@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))':
+  '@kubb/plugin-ts@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))':
     dependencies:
       '@kubb/core': 3.0.0-alpha.17
       '@kubb/fs': 3.0.0-alpha.17
       '@kubb/oas': 3.0.0-alpha.17
       '@kubb/parser-ts': 3.0.0-alpha.17
-      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.18(bufferutil@4.0.8)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -8381,14 +8413,14 @@ snapshots:
       - encoding
       - supports-color
 
-  '@kubb/plugin-zod@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))':
+  '@kubb/plugin-zod@3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))':
     dependencies:
       '@kubb/core': 3.0.0-alpha.17
       '@kubb/fs': 3.0.0-alpha.17
       '@kubb/oas': 3.0.0-alpha.17
       '@kubb/parser-ts': 3.0.0-alpha.17
-      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8))
-      '@kubb/react': 3.0.0-alpha.17(bufferutil@4.0.8)
+      '@kubb/plugin-oas': 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8))
+      '@kubb/react': 3.0.0-alpha.18(bufferutil@4.0.8)
       '@kubb/types': 3.0.0-alpha.17
     transitivePeerDependencies:
       - encoding
@@ -8407,11 +8439,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@kubb/react@3.0.0-alpha.17(bufferutil@4.0.8)':
+  '@kubb/react@3.0.0-alpha.18(bufferutil@4.0.8)':
     dependencies:
-      '@kubb/core': 3.0.0-alpha.17
-      '@kubb/fs': 3.0.0-alpha.17
-      '@kubb/parser-ts': 3.0.0-alpha.17
+      '@kubb/core': 3.0.0-alpha.18
+      '@kubb/fs': 3.0.0-alpha.18
+      '@kubb/parser-ts': 3.0.0-alpha.18
       auto-bind: 5.0.1
       execa: 9.3.1
       natural-orderby: 3.0.2
@@ -8425,6 +8457,8 @@ snapshots:
       - utf-8-validate
 
   '@kubb/types@3.0.0-alpha.17': {}
+
+  '@kubb/types@3.0.0-alpha.18': {}
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -9955,10 +9989,6 @@ snapshots:
       typescript: 5.6.2
 
   create-require@1.1.1: {}
-
-  cross-env@7.0.3:
-    dependencies:
-      cross-spawn: 7.0.3
 
   cross-spawn@5.1.0:
     dependencies:
