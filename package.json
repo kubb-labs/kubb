@@ -22,7 +22,7 @@
     "//changeset:beta:enter": "changeset pre enter beta",
     "//changeset:beta:exit": "changeset pre exit",
     "build": "turbo run build --filter=./packages/*",
-    "build:docs": "turbo run build --filter=./docs",
+    "build:docs": "cross-env NODE_OPTIONS=--max_old_space_size=2000 turbo run build --concurrency=1 --filter=./docs",
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
