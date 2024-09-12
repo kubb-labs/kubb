@@ -1,5 +1,17 @@
 # @kubb/plugin-redoc
 
+## 3.0.0-alpha.18
+
+### Patch Changes
+
+- [`5b7852b`](https://github.com/kubb-labs/kubb/commit/5b7852b461886f3ae6e7ee75c195013be8d7859c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Reduce package size
+
+- Updated dependencies [[`5b7852b`](https://github.com/kubb-labs/kubb/commit/5b7852b461886f3ae6e7ee75c195013be8d7859c)]:
+  - @kubb/core@3.0.0-alpha.18
+  - @kubb/oas@3.0.0-alpha.18
+  - @kubb/plugin-oas@3.0.0-alpha.18
+  - @kubb/react@3.0.0-alpha.18
+
 ## 3.0.0-alpha.17
 
 ### Patch Changes
