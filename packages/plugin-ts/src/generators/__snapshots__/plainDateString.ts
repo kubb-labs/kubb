@@ -1,1 +1,1 @@
-export type plainDate = string
+export type plainDate = string;

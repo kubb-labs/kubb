@@ -1,3 +1,3 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-export const nullableStringUuid = z.string().uuid().nullable()
+ export const nullableStringUuid = z.string().uuid().nullable();

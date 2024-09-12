@@ -1,1 +1,1 @@
-export type plainFile = Blob
+export type plainFile = Blob;

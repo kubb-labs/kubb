@@ -1,3 +1,3 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-export const enumNullable = z.enum(['Pending', 'Received']).nullable()
+ export const enumNullable = z.enum(["Pending", "Received"]).nullable();

@@ -18,6 +18,7 @@ export const options: Options = {
   minify: false,
   clean: true,
   platform: 'node',
+  // skipNodeModulesBundle: true,
   // minimal support for Kubb is node 20
   target: 'node20',
   shims: true,

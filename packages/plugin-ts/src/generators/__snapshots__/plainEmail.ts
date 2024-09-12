@@ -1,1 +1,1 @@
-export type plainEmail = string
+export type plainEmail = string;

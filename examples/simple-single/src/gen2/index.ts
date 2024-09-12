@@ -98,7 +98,7 @@ export const listAppSchema = z.object({
 
 export const listAppsResponseSchema = z.object({ apps: z.array(z.lazy(() => listAppSchema)).optional(), total_apps: z.number().int().optional() })
 
-export const listSecretSchema = z.object({ label: z.string().optional(), type: z.string().optional() })
+export const listSecretSchema = z.object({ label: z.string().optional(), publickey: z.array(z.number().int()).optional(), type: z.string().optional() })
 
 export const listenSocketSchema = z.object({ address: z.string().optional(), proto: z.string().optional() })
 
@@ -905,11 +905,6 @@ export const secretDeletePathParamsSchema = z.object({ app_name: z.string().desc
  * @description OK
  */
 export const secretDelete200Schema = z.any()
-
-/**
- * @description Not Found
- */
-export const secretDelete404Schema = z.any()
 
 export const secretDeleteMutationResponseSchema = z.any()
 

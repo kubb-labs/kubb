@@ -1,6 +1,6 @@
 export type bodyUploadFileApiAssetsPost = {
-  /**
-   * @type string, binary
-   */
-  file: Blob
-}
+    /**
+     * @type string, binary
+    */
+    file: Blob;
+};

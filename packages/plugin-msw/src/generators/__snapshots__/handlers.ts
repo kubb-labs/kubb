@@ -1,3 +1,3 @@
-import { listPets, createPets, showPetById } from './findByTags.ts'
+import { listPets, createPets, showPetById } from "./findByTags.ts";
 
-export const handlers = [listPets, createPets, showPetById] as const
+ export const handlers = [listPets, createPets, showPetById] as const;
