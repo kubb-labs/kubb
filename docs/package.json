@@ -17,6 +17,7 @@
     "prestart": "typedoc",
     "clean": "npx rimraf ./dist",
     "build": "vitepress build",
+    "build:ci": "vitepress build",
     "start": "vitepress dev --port=3000 --cors",
     "preview": "vitepress preview",
     "serve": "vitepress serve"
