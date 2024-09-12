@@ -64,7 +64,8 @@ function order(items: Array<[key: string, item?: ParamItem]>) {
 }
 
 function parseChild(key: string, item: ParamItem, options: Options): string[] {
-  const entries = order(Object.entries(item.children as ParamItem))
+  // @ts-ignore
+  const entries = order(Object.entries(item.children))
 
   const types: string[] = []
   const names: string[] = []
@@ -76,6 +77,7 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
       names.push(...parseItem(key, { ...entryItem, type: undefined }, options))
 
       if (entries.some(([_key, item]) => item?.type)) {
+        // @ts-ignore
         types.push(...parseItem(key, { ...entryItem, default: undefined }, options))
       }
     }

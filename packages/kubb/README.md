@@ -7,9 +7,6 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-</p>
 
 <h4>
     <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/alpha/examples/typescript" target="_blank">View Demo</a>

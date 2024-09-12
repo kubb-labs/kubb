@@ -11,8 +11,6 @@
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
 
-</p>
-
 <h4>
     <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/alpha/examples/typescript" target="_blank">View Demo</a>
     <span> · </span>

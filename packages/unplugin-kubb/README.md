@@ -13,10 +13,6 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-</p>
-
 <h4>
     <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/alpha/examples/typescript" target="_blank">View Demo</a>
     <span> · </span>
@@ -34,11 +30,7 @@
 npm i -D unplugin-kubb @kubb/core
 ```
 
-<details>
-<summary>Vite</summary><br>
-
-```ts
-// vite.config.ts
+```typescript
 import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
@@ -48,13 +40,7 @@ export default defineConfig({
 })
 ```
 
-<br></details>
-
-<details>
-<summary>Rollup</summary><br>
-
-```ts
-// rollup.config.js
+```typescript
 import kubb from 'unplugin-kubb/rollup'
 
 export default {
@@ -64,13 +50,7 @@ export default {
 }
 ```
 
-<br></details>
-
-<details>
-<summary>webpack</summary><br>
-
-```ts
-// webpack.config.js
+```typescript
 module.exports = {
   /* ... */
   plugins: [
@@ -79,13 +59,7 @@ module.exports = {
 }
 ```
 
-<br></details>
-
-<details>
-<summary>Nuxt</summary><br>
-
-```ts
-// nuxt.config.js
+```typescript
 export default defineNuxtConfig({
   modules: [
     ['unplugin-kubb/nuxt', {/* options */}],
@@ -95,13 +69,7 @@ export default defineNuxtConfig({
 
 > This module works for both Nuxt 2 and [Nuxt Vite](https://github.com/nuxt/vite)
 
-<br></details>
-
-<details>
-<summary>Vue CLI</summary><br>
-
-```ts
-// vue.config.js
+```typescript
 module.exports = {
   configureWebpack: {
     plugins: [
@@ -111,13 +79,7 @@ module.exports = {
 }
 ```
 
-<br></details>
-
-<details>
-<summary>esbuild</summary><br>
-
-```ts
-// esbuild.config.js
+```typescript
 import { build } from 'esbuild'
 import kubb from 'unplugin-kubb/esbuild'
 
@@ -126,15 +88,11 @@ build({
 })
 ```
 
-<br></details>
-
 ## Options
 
 ### config
 
 Define the options for Kubb.
-
-::: info TYPE
 
 ```typescript [Options]
 type Options = {

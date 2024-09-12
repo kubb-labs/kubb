@@ -95,9 +95,9 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.2.4",
     "@types/react": "^18.3.5",
     "react": "^18.3.1",
+    "tsup": "^8.2.4",
     "typescript": "^5.6.2"
   },
   "peerDependencies": {

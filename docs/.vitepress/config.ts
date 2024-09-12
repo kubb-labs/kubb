@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
+import apiSidebar from '../api/typedoc-sidebar.json'
 
 import { version } from '../../packages/core/package.json'
 
@@ -16,11 +17,10 @@ const links: Array<{ url: string; lastmod: number | undefined }> = []
 const knowledgeBaseSidebar = [
   {
     text: 'Overview',
-    link: '/knowledge-base/overview',
+    link: '/knowledge-base/index',
   },
   {
     text: 'How tos',
-    link: '/knowledge-base/how-tos',
     items: [
       {
         text: 'Debugging Kubb',
@@ -92,7 +92,7 @@ const mainSidebar = [
     items: [
       {
         text: '@kubb/parser-ts',
-        link: '/docs/plugins/parser-ts/',
+        link: '/parsers/parser-ts/',
       },
     ],
   },
@@ -102,53 +102,46 @@ const mainSidebar = [
     items: [
       {
         text: '@kubb/cli',
-        link: '/docs/plugins/cli/',
+        link: '/helpers/cli/',
       },
       {
         text: '@kubb/oas',
-        link: '/docs/plugins/oas/',
-        collapsed: true,
-        items: [
-          {
-            text: 'Infer <img src="/icons/experimental.svg"/> <span class="new">new</span>',
-            link: '/docs/plugins/oas/infer',
-          },
-        ],
+        link: '/helpers/oas/',
       },
       {
         text: '@kubb/react',
-        link: '/docs/plugins/react/',
+        link: '/helpers/react/',
         collapsed: true,
         items: [
           {
             text: 'Components',
-            link: '/docs/plugins/react/components/',
+            link: '/helpers/react/components/',
             items: [
               {
                 text: 'Text',
-                link: '/docs/plugins/react/components/text',
+                link: '/helpers/react/components/text',
               },
               {
                 text: 'Function',
-                link: '/docs/plugins/react/components/function',
+                link: '/helpers/react/components/function',
               },
               {
                 text: 'Parser',
-                link: '/docs/plugins/react/components/parser',
+                link: '/helpers/react/components/parser',
               },
               {
                 text: 'Type',
-                link: '/docs/plugins/react/components/type',
+                link: '/helpers/react/components/type',
               },
               {
                 text: 'File',
-                link: '/docs/plugins/react/components/file',
+                link: '/helpers/react/components/file',
               },
             ],
           },
           {
             text: 'Hooks',
-            link: '/docs/plugins/react/hooks/',
+            link: '/helpers/react/hooks/',
             items: [],
           },
         ],
@@ -162,51 +155,51 @@ const mainSidebar = [
       {
         text: '@kubb/core',
         collapsed: true,
-        link: '/docs/plugins/core/',
+        link: '/plugins/core/',
       },
       {
         text: '@kubb/plugin-oas',
-        link: '/docs/plugins/plugin-oas/',
+        link: '/plugins/plugin-oas/',
         collapsed: true,
         items: [
           {
             text: 'Hooks',
-            link: '/docs/plugins/plugin-oas/hooks/',
+            link: '/plugins/plugin-oas/hooks/',
           },
         ],
       },
       {
         text: '@kubb/plugin-client',
-        link: '/docs/plugins/plugin-client/',
+        link: '/plugins/plugin-client/',
         collapsed: true,
       },
       {
         text: '@kubb/plugin-ts',
-        link: '/docs/plugins/plugin-ts/',
+        link: '/plugins/plugin-ts/',
       },
       {
         text: '@kubb/plugin-zod',
-        link: '/docs/plugins/plugin-zod/',
+        link: '/plugins/plugin-zod/',
       },
       {
         text: '@kubb/plugin-react-query',
-        link: '/docs/plugins/plugin-react-query/',
+        link: '/plugins/plugin-react-query/',
       },
       {
         text: '@kubb/plugin-swr',
-        link: '/docs/plugins/plugin-swr/',
+        link: '/plugins/plugin-swr/',
       },
       {
         text: '@kubb/plugin-faker',
-        link: '/docs/plugins/plugin-faker/',
+        link: '/plugins/plugin-faker/',
       },
       {
         text: '@kubb/plugin-msw',
-        link: '/docs/plugins/plugin-msw/',
+        link: '/plugins/plugin-msw/',
       },
       {
         text: '@kubb/plugin-redoc',
-        link: '/docs/plugins/plugin-redoc/',
+        link: '/plugins/plugin-redoc/',
       },
     ],
   },
@@ -217,7 +210,7 @@ const mainSidebar = [
       {
         text: 'unplugin-kubb <span class="new">new</span>',
         collapsed: false,
-        link: '/docs/plugins/unplugin/',
+        link: '/build/unplugin/',
       },
     ],
   },
@@ -327,7 +320,7 @@ const documentationMenu = [
     items: [
       {
         text: '@kubb/parser-ts',
-        link: '/docs/plugins/parser-ts/',
+        link: '/parsers/parser-ts/',
       },
     ],
   },
@@ -336,15 +329,15 @@ const documentationMenu = [
     items: [
       {
         text: '@kubb/cli',
-        link: '/docs/plugins/cli/',
+        link: '/helpers/cli/',
       },
       {
         text: '@kubb/oas',
-        link: '/docs/plugins/oas/',
+        link: '/helpers/oas/',
       },
       {
         text: '@kubb/react',
-        link: '/docs/plugins/react/',
+        link: '/helpers/react/',
       },
     ],
   },
@@ -353,43 +346,43 @@ const documentationMenu = [
     items: [
       {
         text: '@kubb/core',
-        link: '/docs/plugins/core/',
+        link: '/plugins/core/',
       },
       {
         text: '@kubb/plugin-oas',
-        link: '/docs/plugins/plugin-oas/',
+        link: '/plugins/plugin-oas/',
       },
       {
         text: '@kubb/plugin-client',
-        link: '/docs/plugins/plugin-client/',
+        link: '/plugins/plugin-client/',
       },
       {
         text: '@kubb/plugin-ts',
-        link: '/docs/plugins/plugin-ts/',
+        link: '/plugins/plugin-ts/',
       },
       {
         text: '@kubb/plugin-zod',
-        link: '/docs/plugins/plugin-zod/',
+        link: '/plugins/plugin-zod/',
       },
       {
         text: '@kubb/plugin-tanstack-query',
-        link: '/docs/plugins/plugin-tanstack-query/',
+        link: '/plugins/plugin-tanstack-query/',
       },
       {
         text: '@kubb/plugin-swr',
-        link: '/docs/plugins/plugin-swr/',
+        link: '/plugins/plugin-swr/',
       },
       {
         text: '@kubb/plugin-faker',
-        link: '/docs/plugins/plugin-faker/',
+        link: '/plugins/plugin-faker/',
       },
       {
         text: '@kubb/plugin-msw',
-        link: '/docs/plugins/plugin-msw/',
+        link: '/plugins/plugin-msw/',
       },
       {
         text: '@kubb/plugin-redoc',
-        link: '/docs/plugins/plugin-redoc/',
+        link: '/plugins/plugin-redoc/',
       },
     ],
   },
@@ -398,7 +391,7 @@ const documentationMenu = [
     items: [
       {
         text: 'unplugin-kubb',
-        link: '/docs/plugins/unplugin/',
+        link: '/build/unplugin/',
       },
     ],
   },
@@ -511,14 +504,18 @@ export default defineConfig({
     },
     nav: [
       {
-        text: 'Documentation',
-        activeMatch: 'documentation',
+        text: 'Docs',
         items: [...(documentationMenu as any)],
       },
       {
         text: 'Knowledge base',
-        link: '/knowledge-base/overview',
+        link: '/knowledge-base/index',
         activeMatch: 'knowledge-base',
+      },
+      {
+        text: 'API',
+        link: '/api',
+        activeMatch: 'api',
       },
       {
         text: 'Try Out',
@@ -606,9 +603,13 @@ export default defineConfig({
     },
     sidebar: {
       '/getting-started': mainSidebar,
-      '/docs': mainSidebar,
+      '/plugins': mainSidebar,
+      '/parsers': mainSidebar,
+      '/helpers': mainSidebar,
+      '/build': mainSidebar,
       '/changelog': mainSidebar,
       '/knowledge-base': knowledgeBaseSidebar,
+      '/api/': apiSidebar,
       '/examples': examplesSidebar,
       '/blog': blogSidebar,
       '/tutorials': tutorialsSidebar,

@@ -33,6 +33,6 @@
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }
   },
-  "include": ["./package.json", "./tsup.config.ts", "./vitest.config.ts"],
+  "include": ["./package.json", "./tsup.config.ts", "./vitest.config.ts", "./src/**/*"],
   "exclude": ["**/node_modules/**", "**/__snapshots__/**"]
 }
