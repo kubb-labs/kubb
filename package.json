@@ -23,6 +23,7 @@
     "//changeset:beta:exit": "changeset pre exit",
     "build": "turbo run build --filter=./packages/*",
     "build:docs": "turbo run build --filter=./docs",
+    "build:docs:ci": "cross-env NODE_OPTIONS=--max_old_space_size=3000 turbo run build --filter=./docs",
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
     "clean": "turbo run clean",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
+    "cross-env": "^7.0.3",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.8",
     "@kubb/config-biome": "workspace:*",

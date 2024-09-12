@@ -15,6 +15,7 @@
   "scripts": {
     "prebuild": "typedoc",
     "prestart": "typedoc",
+    "clean": "npx rimraf ./dist",
     "build": "vitepress build",
     "start": "vitepress dev --port=3000 --cors",
     "preview": "vitepress preview",
