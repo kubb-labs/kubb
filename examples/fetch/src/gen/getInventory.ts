@@ -8,8 +8,8 @@ import type { GetInventoryQueryResponse } from './models.ts'
  * @link /store/inventory
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponse, Error, unknown>({
-    method: 'get',
+  const res = await client<GetInventoryQueryResponse, unknown, unknown>({
+    method: 'GET',
     url: '/store/inventory',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,

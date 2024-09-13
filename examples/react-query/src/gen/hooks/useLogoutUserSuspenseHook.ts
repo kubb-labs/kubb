@@ -14,7 +14,7 @@ export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQue
  */
 async function logoutUser(config: Partial<RequestConfig> = {}) {
   const res = await client<LogoutUserQueryResponse, unknown, unknown>({
-    method: 'get',
+    method: 'GET',
     url: '/user/logout',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,

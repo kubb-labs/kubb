@@ -91,7 +91,7 @@ export function Client({
       mode: 'object',
       children: {
         method: {
-          value: JSON.stringify(operation.method),
+          value: JSON.stringify(operation.method.toUpperCase()),
         },
         url: {
           value: path.template,

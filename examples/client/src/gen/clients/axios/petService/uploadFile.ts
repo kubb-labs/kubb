@@ -1,4 +1,3 @@
-/* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
 import type {
   UploadFileMutationRequest,
@@ -31,8 +30,8 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
-    method: 'post',
+  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
+    method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,

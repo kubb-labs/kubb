@@ -17,8 +17,8 @@ import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
  * @link /store/inventory
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponseType, Error, unknown>({
-    method: 'get',
+  const res = await client<GetInventoryQueryResponseType, unknown, unknown>({
+    method: 'GET',
     url: '/store/inventory',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
@@ -33,7 +33,7 @@ export async function getInventory(config: Partial<RequestConfig> = {}) {
  */
 export async function placeOrder(data?: PlaceOrderMutationRequestType, config: Partial<RequestConfig<PlaceOrderMutationRequestType>> = {}) {
   const res = await client<PlaceOrderMutationResponseType, PlaceOrder405Type, PlaceOrderMutationRequestType>({
-    method: 'post',
+    method: 'POST',
     url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
@@ -49,7 +49,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequestType, config: P
  */
 export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType, config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponseType, PlaceOrderPatch405Type, PlaceOrderPatchMutationRequestType>({
-    method: 'patch',
+    method: 'PATCH',
     url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
@@ -72,7 +72,7 @@ export async function getOrderById(
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<GetOrderByIdQueryResponseType, GetOrderById400Type | GetOrderById404Type, unknown>({
-    method: 'get',
+    method: 'GET',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
@@ -94,7 +94,7 @@ export async function deleteOrder(
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<DeleteOrderMutationResponseType, DeleteOrder400Type | DeleteOrder404Type, unknown>({
-    method: 'delete',
+    method: 'DELETE',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,

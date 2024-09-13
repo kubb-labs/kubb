@@ -59,7 +59,7 @@ In the background, every POST, PUT, GET, PATCH, and DELETE request will utilize 
 ```typescript client.ts
 export type RequestConfig<TData = unknown> = {
   url?: string
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   params?: object
   data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'

@@ -1,10 +1,10 @@
-export enum OrderStatus {
+export const enum OrderStatus {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
 }
 
-export enum OrderHttpStatus {
+export const enum OrderHttpStatus {
   OrderHttpStatus_200 = 200,
   OrderHttpStatus_400 = 400,
   OrderHttpStatus_500 = 500,
@@ -135,7 +135,7 @@ export type Tag = {
   name?: string
 }
 
-export enum PetStatus {
+export const enum PetStatus {
   available = 'available',
   pending = 'pending',
   sold = 'sold',
@@ -169,7 +169,7 @@ export type Pet = {
   status?: PetStatus
 }
 
-export enum AddPetRequestStatus {
+export const enum AddPetRequestStatus {
   available = 'available',
   pending = 'pending',
   sold = 'sold',
@@ -302,7 +302,7 @@ export type AddPetMutation = {
   Errors: AddPet405
 }
 
-export enum FindPetsByStatusQueryParamsStatus {
+export const enum FindPetsByStatusQueryParamsStatus {
   available = 'available',
   pending = 'pending',
   sold = 'sold',

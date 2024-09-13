@@ -51,7 +51,7 @@ import axios from 'axios'
 import type { AxiosError, AxiosRequestConfig} from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   url: string
   params?: unknown
   data?: TVariables
@@ -147,7 +147,7 @@ import axios from 'axios'
 import type { AxiosError, AxiosRequestConfig } from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   url: string
   params?: unknown
   data?: TVariables
@@ -207,7 +207,7 @@ import axios from 'axios'
 import type { AxiosError, AxiosRequestConfig } from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   url: string
   params?: unknown
   data?: TVariables
@@ -248,7 +248,7 @@ declare const AXIOS_BASE: string
 declare const AXIOS_HEADERS: string
 
 export type RequestConfig<TVariables = unknown> = {
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   url: string
   params?: unknown
   data?: TVariables

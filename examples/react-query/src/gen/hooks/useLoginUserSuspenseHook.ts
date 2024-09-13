@@ -14,7 +14,7 @@ export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQuery
  */
 async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
-    method: 'get',
+    method: 'GET',
     url: '/user/login',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,

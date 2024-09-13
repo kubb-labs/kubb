@@ -9,7 +9,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  */
 export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
-    method: 'post',
+    method: 'POST',
     url: '/pet',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,

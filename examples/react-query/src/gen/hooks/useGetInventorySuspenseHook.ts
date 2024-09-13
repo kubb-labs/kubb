@@ -15,7 +15,7 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
  */
 async function getInventory(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, unknown, unknown>({
-    method: 'get',
+    method: 'GET',
     url: '/store/inventory',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
