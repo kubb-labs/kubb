@@ -45,5 +45,5 @@ export function defineConfig(
 }
 
 export function isInputPath(result: Config | undefined): result is Config<InputPath> {
-  return !!result && 'path' in (result as any)
+  return !!result && 'path' in (result?.input as any)
 }
