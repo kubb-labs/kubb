@@ -1,5 +1,7 @@
 # @kubb/types
 
+## 3.0.0-alpha.19
+
 ## 3.0.0-alpha.18
 
 ### Patch Changes
