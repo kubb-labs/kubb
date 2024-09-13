@@ -1,5 +1,18 @@
 # @kubb/react
 
+## 3.0.0-alpha.19
+
+### Minor Changes
+
+- [`8e7a819`](https://github.com/kubb-labs/kubb/commit/8e7a819e72abc1a2abb570947a73c8f72c89a069) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - banner and footer for every file
+
+### Patch Changes
+
+- Updated dependencies [[`8e7a819`](https://github.com/kubb-labs/kubb/commit/8e7a819e72abc1a2abb570947a73c8f72c89a069)]:
+  - @kubb/core@3.0.0-alpha.19
+  - @kubb/fs@3.0.0-alpha.19
+  - @kubb/parser-ts@3.0.0-alpha.19
+
 ## 3.0.0-alpha.18
 
 ### Patch Changes
