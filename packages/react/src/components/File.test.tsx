@@ -1,3 +1,4 @@
+import { expect } from 'vitest'
 import { createRoot } from '../createRoot.ts'
 import { File } from './File.tsx'
 
@@ -27,6 +28,7 @@ describe('<File/>', () => {
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
+          "banner": undefined,
           "baseName": "test.ts",
           "exports": [
             {
@@ -37,6 +39,7 @@ describe('<File/>', () => {
               "path": "./index.ts",
             },
           ],
+          "footer": undefined,
           "imports": [
             {
               "extName": undefined,
@@ -92,6 +95,7 @@ describe('<File/>', () => {
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
+          "banner": undefined,
           "baseName": "test.ts",
           "exports": [
             {
@@ -102,6 +106,7 @@ describe('<File/>', () => {
               "path": "",
             },
           ],
+          "footer": undefined,
           "imports": [],
           "meta": {},
           "override": undefined,
@@ -123,15 +128,63 @@ describe('<File/>', () => {
   test('render File with source', () => {
     const Component = () => {
       return (
-        <File baseName="test.ts" path="path">
-          <File.Source>test</File.Source>
-        </File>
+        <>
+          ignore
+          <File baseName="test.ts" path="path">
+            banner
+            <File.Source>
+              test
+              <div>sdfs</div>
+            </File.Source>
+          </File>
+        </>
+      )
+    }
+    const root = createRoot()
+
+    expect(() => root.render(<Component />)).toThrowError()
+  })
+
+  test('render File with source', () => {
+    const Component = () => {
+      return (
+        <>
+          ignore
+          <File baseName="test.ts" path="path">
+            <File.Source>
+              test<div>sdfs</div>
+            </File.Source>
+          </File>
+        </>
       )
     }
     const root = createRoot()
     root.render(<Component />)
 
     expect(root.output).toMatchInlineSnapshot(`"test"`)
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "banner": undefined,
+          "baseName": "test.ts",
+          "exports": [],
+          "footer": undefined,
+          "imports": [],
+          "meta": {},
+          "override": undefined,
+          "path": "path",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isIndexable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "test",
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('render File with multiple sources', async () => {
@@ -153,8 +206,10 @@ describe('<File/>', () => {
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
+          "banner": undefined,
           "baseName": "test.ts",
           "exports": [],
+          "footer": undefined,
           "imports": [],
           "meta": {},
           "override": undefined,
@@ -287,8 +342,10 @@ describe('<File.Import/>', () => {
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
+          "banner": undefined,
           "baseName": "test.ts",
           "exports": [],
+          "footer": undefined,
           "imports": [
             {
               "extName": undefined,
@@ -332,8 +389,10 @@ describe('<File.Import/>', () => {
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
+          "banner": undefined,
           "baseName": "test.ts",
           "exports": [],
+          "footer": undefined,
           "imports": [
             {
               "extName": undefined,

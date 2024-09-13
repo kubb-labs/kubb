@@ -994,7 +994,7 @@ static init(oas, user?): Oas
 ```
 
 This will initialize a new instance of the `Oas` class. This method is useful if you're using
-Typescript and are attempting to supply an untyped JSON object into `Oas` as it will force-type
+TypeScript and are attempting to supply an untyped JSON object into `Oas` as it will force-type
 that object to an `OASDocument` for you.
 
 #### Parameters

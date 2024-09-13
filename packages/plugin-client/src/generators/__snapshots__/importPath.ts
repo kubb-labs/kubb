@@ -1,3 +1,4 @@
+/* eslint-disable no-alert, no-console */
 import client from "axios";
 import type { RequestConfig } from "axios";
 

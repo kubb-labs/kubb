@@ -216,7 +216,7 @@ function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<T
 export function combineSources(sources: Array<KubbFile.Source>): Array<KubbFile.Source> {
   return sources.reduce(
     (prev, curr) => {
-      const prevByName = prev.findLast((imp) => imp.name === curr.name)
+      const prevByName = prev.findLast((imp) => imp.name && imp.name === curr.name)
       const prevByPathAndIsExportable = prev.findLast((imp) => imp.name === curr.name && imp.isExportable)
 
       if (prevByPathAndIsExportable) {

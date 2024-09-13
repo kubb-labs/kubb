@@ -69,7 +69,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.output?.banner} footer={plugin.output?.footer}>
         <File.Import name={['z']} path={plugin.options.importPath} />
         {operationSchemas.map(mapOperationSchema)}
       </File>
@@ -77,7 +77,12 @@ export const zodGenerator = createReactGenerator<PluginZod>({
   },
   Schema({ schema, options }) {
     const { coercion, inferred, typed, mapper, importPath } = options
+
     const { getName, getFile, getImports } = useSchemaManager()
+    const {
+      plugin: { output },
+    } = useApp<PluginZod>()
+
     const imports = getImports(schema.tree)
 
     const zod = {
@@ -92,7 +97,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     return (
-      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta}>
+      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta} banner={output?.banner} footer={output?.footer}>
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {imports.map((imp, index) => (

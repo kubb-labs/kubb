@@ -1,3 +1,4 @@
+/* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'

@@ -96,7 +96,7 @@ describe('clientGenerator operation', async () => {
       parser: 'client',
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginClient>
+    const plugin = { options, output: { banner: '/* eslint-disable no-alert, no-console */' } } as Plugin<PluginClient>
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,

@@ -45,7 +45,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     return (
-      <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta}>
+      <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && (
           <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />
         )}

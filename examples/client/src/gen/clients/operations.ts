@@ -1,3 +1,5 @@
+/* eslint-disable no-alert, no-console */
+
 export const operations = {
   updatePet: {
     path: '/pet',

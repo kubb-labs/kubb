@@ -24,6 +24,8 @@ export const jsonGenerator = createGenerator<PluginOas>({
             value: JSON.stringify(schema.value),
           },
         ],
+        banner: plugin.output?.banner,
+        format: plugin.output?.footer,
       },
     ]
   },

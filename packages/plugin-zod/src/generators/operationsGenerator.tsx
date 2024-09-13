@@ -7,8 +7,11 @@ import type { PluginZod } from '../types'
 
 export const operationsGenerator = createReactGenerator<PluginZod>({
   name: 'operations',
-  Operations({ operations, options }) {
-    const { pluginManager } = useApp<PluginZod>()
+  Operations({ operations }) {
+    const {
+      pluginManager,
+      plugin: { output },
+    } = useApp<PluginZod>()
     const { getFile, groupSchemasByName } = useOperationManager()
 
     const name = 'operations'
@@ -25,7 +28,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       .filter(Boolean)
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={output?.banner} footer={output?.footer}>
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>

@@ -1,30 +1,12 @@
-import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
-  output?: {
-    /**
-     * Relative path to save the MSW mocks.
-     * When output is a file it will save all models inside that file else it will create a file per schema item.
-     * @default 'mocks'
-     */
-    path: string
-    /**
-     * Name to be used for the `export * as {{exportAs}} from './'`
-     */
-    exportAs?: string
-    /**
-     * Add an extension to the generated imports and exports, default it will not use an extension
-     */
-    extName?: KubbFile.Extname
-    /**
-     * Define what needs to exported, here you can also disable the export of barrel files
-     * @default `'barrel'`
-     */
-    exportType?: 'barrel' | 'barrelNamed' | false
-  }
+  /**
+   * @default 'mocks'
+   */
+  output?: Output
   /**
    * Group the MSW mocks based on the provided name.
    */

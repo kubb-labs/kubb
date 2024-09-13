@@ -1,3 +1,4 @@
+/* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'

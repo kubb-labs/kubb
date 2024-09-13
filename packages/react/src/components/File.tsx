@@ -50,6 +50,8 @@ type Props<TMeta extends FileMetaBase = FileMetaBase> = BaseProps & {
    */
   override?: KubbFile.File['override']
   meta?: TMeta
+  banner?: string
+  footer?: string
   children?: KubbNode
 }
 

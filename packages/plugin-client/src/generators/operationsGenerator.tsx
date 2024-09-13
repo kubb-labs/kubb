@@ -7,13 +7,16 @@ import type { PluginClient } from '../types'
 export const operationsGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operations({ operations }) {
-    const { pluginManager } = useApp<PluginClient>()
+    const {
+      pluginManager,
+      plugin: { output },
+    } = useApp<PluginClient>()
 
     const name = 'operations'
     const file = pluginManager.getFile({ name, extName: '.ts', pluginKey: [pluginClientName] })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={output?.banner} footer={output?.footer}>
         <Operations name={name} operations={operations} />
       </File>
     )

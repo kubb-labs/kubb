@@ -54,7 +54,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     return (
-      <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta}>
+      <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
         <File.Import name={['useInfiniteQuery', 'infiniteQueryOptions']} path={options.query.importPath} />
         <File.Import name={['QueryKey', 'WithRequired']} path={options.query.importPath} isTypeOnly />

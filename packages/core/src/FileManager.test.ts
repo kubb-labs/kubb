@@ -102,9 +102,9 @@ describe('FileManager', () => {
     expect(file.sources).toMatchInlineSnapshot(`
       [
         {
-          "isExportable": undefined,
-          "isIndexable": undefined,
-          "isTypeOnly": undefined,
+          "value": "const file1 ='file1';",
+        },
+        {
           "value": "const file1Bis ='file1Bis';",
         },
       ]

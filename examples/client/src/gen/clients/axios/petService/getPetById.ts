@@ -1,3 +1,4 @@
+/* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'

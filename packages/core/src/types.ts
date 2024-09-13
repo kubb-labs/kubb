@@ -144,6 +144,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * @example @kubb/typescript
    */
   name: TOptions['name']
+  output?: Output
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
@@ -180,21 +181,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * @private
    */
   key: TOptions['key']
-  output?: {
-    /**
-     * Output to save the clients.
-     */
-    path: string
-    /**
-     * Add an extension to the generated imports and exports, default it will not use an extension
-     */
-    extName?: KubbFile.Extname
-    /**
-     * Define what needs to exported, here you can also disable the export of barrel files
-     * @default `'barrelNamed'`
-     */
-    exportType?: 'barrel' | 'barrelNamed' | false
-  }
+  output?: Output
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
    * Can be used to validate dependent plugins.
@@ -291,4 +278,32 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Current plugin
    */
   plugin: Plugin<TOptions>
+}
+
+export type Output = {
+  /**
+   * Output to save the generated files.
+   */
+  path: string
+  /**
+   * Name to be used for the `export * as {{exportAs}} from './'`
+   */
+  exportAs?: string
+  /**
+   * Add an extension to the generated imports and exports, default it will not use an extension
+   */
+  extName?: KubbFile.Extname
+  /**
+   * Define what needs to exported, here you can also disable the export of barrel files
+   * @default `'barrelNamed'`
+   */
+  exportType?: 'barrel' | 'barrelNamed' | false
+  /**
+   * Add a footer text in the beginning of every file
+   */
+  footer?: string
+  /**
+   * Add a banner text in the beginning of every file
+   */
+  banner?: string
 }

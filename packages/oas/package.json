@@ -28,6 +28,11 @@
       "require": "./dist/parser.cjs",
       "default": "./dist/parser.cjs"
     },
+    "./infer": {
+      "import": "./dist/infer.js",
+      "require": "./dist/infer.cjs",
+      "default": "./dist/infer.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -38,6 +43,9 @@
     "*": {
       "parser": [
         "./dist/parser.d.ts"
+      ],
+      "infer": [
+        "./dist/infer.d.ts"
       ]
     }
   },

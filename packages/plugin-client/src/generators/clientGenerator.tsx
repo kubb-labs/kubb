@@ -30,7 +30,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     }
 
     return (
-      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
+      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta} banner={output?.banner} footer={output?.footer}>
         <File.Import name={'client'} path={options.importPath} />
         <File.Import name={['RequestConfig']} path={options.importPath} isTypeOnly />
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={client.file.path} path={zod.file.path} />}

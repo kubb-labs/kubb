@@ -1,14 +1,14 @@
-import { createReactGenerator, type OperationSchema as OperationSchemaType, type OperationSchemas, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { Type } from '../components'
-import type { PluginTs } from '../types'
-import { File, useApp } from '@kubb/react'
-import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { Oas } from '@kubb/plugin-oas/components'
 import type { PluginManager } from '@kubb/core'
+import transformers from '@kubb/core/transformers'
 import { print, type ts } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
-import transformers from '@kubb/core/transformers'
+import { type OperationSchema as OperationSchemaType, type OperationSchemas, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { Oas } from '@kubb/plugin-oas/components'
+import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { File, useApp } from '@kubb/react'
+import { Type } from '../components'
+import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
   const properties: Record<string, ts.TypeNode> = {}
@@ -150,7 +150,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.output?.banner} footer={plugin.output?.footer}>
         {operationSchemas.map(mapOperationSchema)}
 
         <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
@@ -161,7 +161,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   },
   Schema({ schema, options }) {
     const { mapper, enumType, optionalType } = options
-    const { mode } = useApp<PluginTs>()
+    const {
+      mode,
+      plugin: { output },
+    } = useApp<PluginTs>()
 
     const { getName, getImports, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
@@ -177,7 +180,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={output?.banner} footer={output?.footer}>
         {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
         <Type
           name={type.name}

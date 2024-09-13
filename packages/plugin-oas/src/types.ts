@@ -1,4 +1,4 @@
-import type { Plugin } from '@kubb/core'
+import type { Output, Plugin } from '@kubb/core'
 import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
@@ -26,16 +26,10 @@ export type Options = {
    * @default true
    */
   validate?: boolean
-  output?: {
-    /**
-     * Relative path to save the JSON models.
-     * False will not generate the schema JSON's.
-     * @default 'schemas'
-     */
-    path: string
-    extName?: KubbFile.Extname
-    exportType?: 'barrel' | 'barrelNamed' | false
-  }
+  /**
+   * @default 'schemas'
+   */
+  output?: Output
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example

@@ -37,6 +37,7 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './clients',
+          banner: '/* eslint-disable no-alert, no-console */',
         },
         exclude: [
           {

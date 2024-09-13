@@ -116,6 +116,8 @@ export type File<TMeta extends object = object> = {
    * Use extra meta, this is getting used to generate the barrel/index files.
    */
   meta?: TMeta
+  banner?: string
+  footer?: string
 }
 
 export type ResolvedImport = Import

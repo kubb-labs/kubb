@@ -42,7 +42,9 @@ const diff = (before: Record<string, unknown>, after: Record<string, unknown>): 
 type Props = Record<string, unknown>
 
 type HostContext = {
-  isInsideText: boolean
+  type: ElementNames
+  isFile: boolean
+  isSource: boolean
 }
 
 type UpdatePayload = {
@@ -72,7 +74,9 @@ export const KubbRenderer = createReconciler<
   unknown
 >({
   getRootHostContext: () => ({
-    isInsideText: false,
+    type: 'kubb-root',
+    isFile: false,
+    isSource: false,
   }),
   prepareForCommit: () => null,
   preparePortalMount: () => null,
@@ -99,14 +103,12 @@ export const KubbRenderer = createReconciler<
     }
   },
   getChildHostContext(parentHostContext, type) {
-    const previousIsInsideText = parentHostContext.isInsideText
     const isInsideText = type === 'kubb-text'
+    const isFile = type === 'kubb-file' || parentHostContext.isFile
 
-    if (previousIsInsideText === isInsideText) {
-      return parentHostContext
-    }
+    const isSource = type === 'kubb-source' || parentHostContext.isSource
 
-    return { isInsideText }
+    return { isInsideText, isFile, isSource, type }
   },
   shouldSetTextContent: () => false,
   createInstance(originalType, newProps, _root) {
@@ -123,9 +125,8 @@ export const KubbRenderer = createReconciler<
     return node
   },
   createTextInstance(text, _root, hostContext) {
-    if (!hostContext.isInsideText) {
-      // TODO check if needed
-      // throw new Error(`[react] Text string "${text}" must be rendered inside <Text> component`)
+    if (hostContext.isFile && !hostContext.isSource) {
+      throw new Error('[react] `${text}` should be part of <File.Source> component when using the <File/> component.')
     }
 
     return createTextNode(text)

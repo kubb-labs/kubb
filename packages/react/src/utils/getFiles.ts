@@ -36,6 +36,8 @@ export function getFiles(node: DOMElement): Set<KubbFile.File> {
           imports: [...squashImportNodes(childNode)],
           override: attributes.override,
           meta: attributes.meta || {},
+          footer: attributes.footer,
+          banner: attributes.banner,
         }
 
         files.add(file)

@@ -1,3 +1,4 @@
+/* eslint-disable no-alert, no-console */
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
 

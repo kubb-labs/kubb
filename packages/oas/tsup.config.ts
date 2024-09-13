@@ -8,6 +8,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       parser: 'src/parser/index.ts',
+      infer: 'src/infer/index.ts',
     },
     noExternal: [/whatwg-url/],
   },
@@ -16,6 +17,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       parser: 'src/parser/index.ts',
+      infer: 'src/infer/index.ts',
     },
     noExternal: [/whatwg-url/],
   },
