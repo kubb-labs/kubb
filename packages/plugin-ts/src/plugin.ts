@@ -3,12 +3,12 @@ import path from 'node:path'
 import { FileManager, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, SchemaGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import type { PluginTs } from './types.ts'
 import { oasGenerator, typeGenerator } from './generators'
+import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
@@ -32,11 +32,11 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   return {
     name: pluginTsName,
-    output: {
-      exportType: 'barrelNamed',
-      ...output,
-    },
     options: {
+      output: {
+        exportType: 'barrelNamed',
+        ...output,
+      },
       transformers,
       dateType,
       optionalType,

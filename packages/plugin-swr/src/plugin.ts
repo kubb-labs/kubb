@@ -33,11 +33,11 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
 
   return {
     name: pluginSwrName,
-    output: {
-      exportType: 'barrelNamed',
-      ...output,
-    },
     options: {
+      output: {
+        exportType: 'barrelNamed',
+        ...output,
+      },
       pathParamsType,
       client: {
         importPath: '@kubb/plugin-client/client',

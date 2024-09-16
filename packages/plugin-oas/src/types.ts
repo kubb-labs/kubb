@@ -148,4 +148,8 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
   options: Partial<TOptions>
 }
 
-export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, Options, API, never>
+type ResolvedOptions = Options & {
+  output: Output
+}
+
+export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, never>

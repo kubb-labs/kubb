@@ -198,6 +198,9 @@ describe('zodGenerator schema', async () => {
       coercion: false,
       operations: false,
       override: [],
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -293,6 +296,9 @@ describe('zodGenerator operation', async () => {
       coercion: false,
       operations: false,
       override: [],
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>

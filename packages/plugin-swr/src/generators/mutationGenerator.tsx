@@ -12,7 +12,9 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
   name: 'swr-mutation',
   Operation({ options, operation }) {
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginSwr>()
     const { getSchemas, getName, getFile } = useOperationManager()
 

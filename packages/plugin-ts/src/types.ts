@@ -91,8 +91,8 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  output: Output
   override: NonNullable<Options['override']>
-
   enumType: NonNullable<Options['enumType']>
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>

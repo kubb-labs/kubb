@@ -144,7 +144,6 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * @example @kubb/typescript
    */
   name: TOptions['name']
-  output?: Output
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
@@ -181,7 +180,6 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * @private
    */
   key: TOptions['key']
-  output?: Output
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
    * Can be used to validate dependent plugins.

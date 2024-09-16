@@ -10,7 +10,9 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
   Operations({ operations }) {
     const {
       pluginManager,
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginZod>()
     const { getFile, groupSchemasByName } = useOperationManager()
 

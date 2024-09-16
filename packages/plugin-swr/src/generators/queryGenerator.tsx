@@ -13,7 +13,9 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
   name: 'swr-query',
   Operation({ options, operation }) {
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginSwr>()
     const { getSchemas, getName, getFile } = useOperationManager()
 

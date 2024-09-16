@@ -10,7 +10,9 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
   name: 'msw',
   Operation({ operation }) {
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginMsw>()
     const { getSchemaName, getName, getFile } = useOperationManager()
 

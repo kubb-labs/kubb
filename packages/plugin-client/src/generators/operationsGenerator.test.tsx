@@ -34,6 +34,9 @@ describe('operationsGenerator operations', async () => {
       importPath: '@kubb/plugin-client/client',
       baseURL: '',
       parser: 'client',
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

@@ -29,6 +29,9 @@ describe('handlersGenerator operations', async () => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginMsw['resolvedOptions'] = {
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMsw>

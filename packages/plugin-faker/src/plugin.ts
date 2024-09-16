@@ -33,11 +33,11 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
   return {
     name: pluginFakerName,
-    output: {
-      exportType: 'barrelNamed',
-      ...output,
-    },
     options: {
+      output: {
+        exportType: 'barrelNamed',
+        ...output,
+      },
       transformers,
       seed,
       dateType,

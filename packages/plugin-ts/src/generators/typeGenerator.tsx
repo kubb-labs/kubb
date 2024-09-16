@@ -150,7 +150,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.output?.banner} footer={plugin.output?.footer}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
         {operationSchemas.map(mapOperationSchema)}
 
         <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
@@ -163,7 +163,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { mapper, enumType, optionalType } = options
     const {
       mode,
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginTs>()
 
     const { getName, getImports, getFile } = useSchemaManager()

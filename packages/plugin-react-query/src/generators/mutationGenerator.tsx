@@ -12,7 +12,9 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
   name: 'react-query',
   Operation({ options, operation }) {
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginReactQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
 

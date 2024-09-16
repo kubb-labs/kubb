@@ -34,11 +34,11 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
   return {
     name: pluginReactQueryName,
-    output: {
-      exportType: 'barrelNamed',
-      ...output,
-    },
     options: {
+      output: {
+        exportType: 'barrelNamed',
+        ...output,
+      },
       baseURL: undefined,
       client: {
         importPath: '@kubb/plugin-client/client',

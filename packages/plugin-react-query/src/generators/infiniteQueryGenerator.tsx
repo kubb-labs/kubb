@@ -13,7 +13,9 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
   name: 'react-infinite-query',
   Operation({ options, operation }) {
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginReactQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
     const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)

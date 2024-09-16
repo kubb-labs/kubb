@@ -51,8 +51,10 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
   return {
     name: pluginOasName,
-    output,
-    options,
+    options: {
+      output,
+      ...options,
+    },
     context() {
       const { config, logger } = this
 

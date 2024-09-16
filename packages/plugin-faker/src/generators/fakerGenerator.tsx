@@ -75,7 +75,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.output?.banner} footer={plugin.output?.footer}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}
@@ -88,7 +88,9 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginFaker>()
     const imports = getImports(schema.tree)
 

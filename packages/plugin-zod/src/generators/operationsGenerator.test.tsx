@@ -39,6 +39,9 @@ describe('operationsGenerator operations', async () => {
       coercion: false,
       operations: false,
       override: [],
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>

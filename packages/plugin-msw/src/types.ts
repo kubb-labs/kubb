@@ -53,6 +53,8 @@ export type Options = {
    */
   handlers?: boolean
 }
-type ResolvedOptions = {}
+type ResolvedOptions = {
+  output: Output
+}
 
 export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOptions, never, ResolvePathOptions>

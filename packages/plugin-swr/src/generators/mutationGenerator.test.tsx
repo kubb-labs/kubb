@@ -84,6 +84,9 @@ describe('mutationGenerator operation', async () => {
       },
       pathParamsType: 'inline',
       baseURL: undefined,
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSwr>

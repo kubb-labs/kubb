@@ -115,6 +115,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  output: Output
   baseURL: string | undefined
   client: Required<NonNullable<Options['client']>>
   parser: Required<NonNullable<Options['parser']>>

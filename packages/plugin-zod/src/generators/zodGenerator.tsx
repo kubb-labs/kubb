@@ -69,7 +69,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.output?.banner} footer={plugin.output?.footer}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
         <File.Import name={['z']} path={plugin.options.importPath} />
         {operationSchemas.map(mapOperationSchema)}
       </File>
@@ -80,7 +80,9 @@ export const zodGenerator = createReactGenerator<PluginZod>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginZod>()
 
     const imports = getImports(schema.tree)

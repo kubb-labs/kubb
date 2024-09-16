@@ -10,7 +10,9 @@ export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ options, operation }) {
     const {
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginClient>()
     const { getSchemas, getName, getFile } = useOperationManager()
 

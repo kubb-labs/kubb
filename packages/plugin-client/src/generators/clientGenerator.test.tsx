@@ -94,9 +94,13 @@ describe('clientGenerator operation', async () => {
       importPath: '@kubb/plugin-client/client',
       baseURL: '',
       parser: 'client',
+      output: {
+        path: '.',
+        banner: '/* eslint-disable no-alert, no-console */',
+      },
       ...props.options,
     }
-    const plugin = { options, output: { banner: '/* eslint-disable no-alert, no-console */' } } as Plugin<PluginClient>
+    const plugin = { options } as Plugin<PluginClient>
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,

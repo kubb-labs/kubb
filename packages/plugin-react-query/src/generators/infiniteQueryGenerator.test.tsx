@@ -65,6 +65,9 @@ describe('infiniteQueryGenerator operation', async () => {
         importPath: '@tanstack/react-query',
       },
       suspense: false,
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>

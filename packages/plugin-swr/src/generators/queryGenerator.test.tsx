@@ -98,6 +98,9 @@ describe('queryGenerator operation', async () => {
       pathParamsType: 'inline',
       baseURL: undefined,
       parser: 'client',
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSwr>

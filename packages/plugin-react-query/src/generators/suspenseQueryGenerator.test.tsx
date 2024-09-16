@@ -48,6 +48,9 @@ describe('suspenseQueryGenerator operation', async () => {
         importPath: '@tanstack/react-query',
       },
       infinite: false,
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>

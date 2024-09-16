@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { Output, PluginFactoryOptions } from '@kubb/core'
 
 export type Options = {
   output?: {
@@ -10,6 +10,8 @@ export type Options = {
   }
 }
 
-type ResolveOptions = {}
+type ResolveOptions = {
+  output: Output
+}
 
 export type PluginRedoc = PluginFactoryOptions<'plugin-redoc', Options, ResolveOptions, never>

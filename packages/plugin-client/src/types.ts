@@ -86,6 +86,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  output: Output
   baseURL: string | undefined
   parser: NonNullable<Options['parser']>
   importPath: NonNullable<Options['importPath']>

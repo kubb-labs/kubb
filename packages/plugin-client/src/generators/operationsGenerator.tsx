@@ -9,7 +9,9 @@ export const operationsGenerator = createReactGenerator<PluginClient>({
   Operations({ operations }) {
     const {
       pluginManager,
-      plugin: { output },
+      plugin: {
+        options: { output },
+      },
     } = useApp<PluginClient>()
 
     const name = 'operations'

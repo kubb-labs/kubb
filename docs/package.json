@@ -29,7 +29,7 @@
     "typedoc-plugin-markdown": "^4.2.7",
     "typedoc-vitepress-theme": "^1.0.1",
     "vitepress": "^1.3.4",
-    "vue": "^3.5.5"
+    "vue": "^3.5.6"
   },
   "devDependencies": {
     "@kubb/cli": "workspace:*",
@@ -45,7 +45,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@types/node": "^20.16.5",
-    "@types/react": "^18.3.5",
+    "@types/react": "^18.3.6",
     "react": "^18.3.1",
     "unplugin-kubb": "workspace:^"
   },

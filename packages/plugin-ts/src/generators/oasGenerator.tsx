@@ -9,7 +9,10 @@ export const oasGenerator = createReactGenerator<PluginTs>({
   Operations() {
     const {
       pluginManager,
-      plugin: { output, key: pluginKey },
+      plugin: {
+        options: { output },
+        key: pluginKey,
+      },
     } = useApp<PluginTs>()
     const oas = useOas()
 

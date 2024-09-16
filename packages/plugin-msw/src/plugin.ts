@@ -21,11 +21,12 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
   return {
     name: pluginMswName,
-    output: {
-      exportType: 'barrelNamed',
-      ...output,
+    options: {
+      output: {
+        exportType: 'barrelNamed',
+        ...output,
+      },
     },
-    options: {},
     pre: [pluginOasName, pluginTsName, pluginFakerName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

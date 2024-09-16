@@ -9,7 +9,7 @@ import { URLPath } from './utils/URLPath.ts'
 import { join, resolve } from 'node:path'
 import { getRelativePath } from '@kubb/fs'
 import type { Logger } from './logger.ts'
-import type { PluginContext } from './types.ts'
+import type { Output, PluginContext } from './types.ts'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -108,16 +108,17 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
                 const meta = file.meta as any
                 return item.key === meta?.pluginKey
               })
+              const options = (plugin?.options as { output?: Output }) ?? {}
 
-              if (plugin?.output?.exportType === false) {
+              if (options.output?.exportType === false) {
                 return undefined
               }
 
-              if (FileManager.getMode(plugin?.output?.path) === 'single') {
+              if (FileManager.getMode(options.output?.path) === 'single') {
                 return undefined
               }
               return {
-                name: options.config.output.exportType === 'barrel' ? undefined : [source.name],
+                name: options.output?.exportType === 'barrel' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
                 isTypeOnly: source.isTypeOnly,
               } as KubbFile.Export

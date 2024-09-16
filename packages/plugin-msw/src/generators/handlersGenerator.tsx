@@ -17,13 +17,13 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
       const operationFile = getFile(operation, { pluginKey: [pluginMswName] })
       const operationName = getName(operation, { pluginKey: [pluginMswName], type: 'function' })
 
-      return <File.Import extName={plugin.output?.extName} key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
+      return <File.Import extName={plugin.options.output?.extName} key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
     })
 
     const handlers = operations.map((operation) => getName(operation, { type: 'function', pluginKey: [pluginMswName] }))
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.output?.banner} footer={plugin.output?.footer}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
         {imports}
         <Handlers name={'handlers'} handlers={handlers} />
       </File>

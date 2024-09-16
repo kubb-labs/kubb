@@ -87,6 +87,9 @@ describe('mutationGenerator operation', async () => {
       },
       suspense: false,
       infinite: false,
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>

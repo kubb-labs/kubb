@@ -91,6 +91,9 @@ describe('fakerGenerator schema', async () => {
       transformers: {},
       unknownType: 'unknown',
       mapper: {},
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
@@ -193,6 +196,9 @@ describe('fakerGenerator operation', async () => {
       transformers: {},
       unknownType: 'unknown',
       mapper: {},
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>

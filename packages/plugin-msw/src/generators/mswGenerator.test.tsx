@@ -50,9 +50,9 @@ describe('mswGenerator operation', async () => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginMsw['resolvedOptions'] = {
-      dataReturnType: 'data',
-      pathParamsType: 'object',
-      baseURL: '',
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMsw>

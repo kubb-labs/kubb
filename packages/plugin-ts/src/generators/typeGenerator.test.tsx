@@ -336,6 +336,9 @@ describe('typeGenerator schema', async () => {
       optionalType: 'questionToken',
       override: [],
       mapper: {},
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
@@ -431,6 +434,9 @@ describe('typeGenerator operation', async () => {
       unknownType: 'any',
       override: [],
       mapper: {},
+      output: {
+        path: '.',
+      },
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
