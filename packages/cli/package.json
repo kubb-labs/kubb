@@ -29,7 +29,6 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "bkubb": "bin/bkubb.cjs",
     "kubb": "bin/kubb.cjs"
   },
   "files": [
