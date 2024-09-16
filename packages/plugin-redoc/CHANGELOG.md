@@ -1,5 +1,15 @@
 # @kubb/plugin-redoc
 
+## 3.0.0-alpha.20
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.20
+  - @kubb/oas@3.0.0-alpha.20
+  - @kubb/plugin-oas@3.0.0-alpha.20
+  - @kubb/react@3.0.0-alpha.20
+
 ## 3.0.0-alpha.19
 
 ### Patch Changes
