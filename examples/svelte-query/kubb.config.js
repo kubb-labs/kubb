@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -22,12 +22,39 @@ export default defineConfig({
     pluginTs({
       output: { path: 'models' },
     }),
-    pluginTanstackQuery({
+    pluginSvelteQuery({
       output: {
         path: './hooks',
       },
-      framework: 'svelte',
-      infinite: {},
+      override: [
+        {
+          type: 'operationId',
+          pattern: 'findPetsByTags',
+          options: {
+            client: {
+              dataReturnType: 'full',
+              importPath: '@kubb/plugin-client/client',
+            },
+            infinite: {
+              queryParam: 'pageSize',
+              initialPageParam: 0,
+              cursorParam: undefined,
+            },
+          },
+        },
+        {
+          type: 'operationId',
+          pattern: 'updatePetWithForm',
+          options: {
+            query: {
+              importPath: '@tanstack/svelte-query',
+              key: (key) => key,
+              methods: ['post'],
+            },
+            pathParamsType: 'inline',
+          },
+        },
+      ],
     }),
   ],
 })

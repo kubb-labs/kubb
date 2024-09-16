@@ -1,22 +1,26 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
-type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
-
-type CreateUsersWithListInput = {
-  data: CreateUsersWithListInputMutationResponse
-  error: never
-  request: CreateUsersWithListInputMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: CreateUsersWithListInputMutationResponse
-  client: {
-    parameters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
-    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
-  }
+/**
+ * @description Creates list of users with given input array
+ * @summary Creates list of users with given input array
+ * @link /user/createWithList
+ */
+async function createUsersWithListInput(
+  data?: CreateUsersWithListInputMutationRequest,
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+) {
+  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
+    method: 'post',
+    url: '/user/createWithList',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -26,20 +30,24 @@ type CreateUsersWithListInput = {
  */
 export function createUsersWithListInputQuery(
   options: {
-    mutation?: CreateMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
-    client?: CreateUsersWithListInput['client']['parameters']
+    mutation?: CreateMutationOptions<
+      CreateUsersWithListInputMutationResponse,
+      unknown,
+      {
+        data?: CreateUsersWithListInputMutationRequest
+      }
+    >
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return createMutation({
-    mutationFn: async (data) => {
-      const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
-        method: 'post',
-        url: '/user/createWithList',
-        data,
-        ...clientOptions,
-      })
-      return res.data
+    mutationFn: async ({
+      data,
+    }: {
+      data?: CreateUsersWithListInputMutationRequest
+    }) => {
+      return createUsersWithListInput(data, config)
     },
     ...mutationOptions,
   })

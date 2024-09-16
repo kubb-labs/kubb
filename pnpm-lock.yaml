@@ -634,9 +634,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../../packages/plugin-oas
-      '@kubb/plugin-tanstack-query':
-        specifier: latest
-        version: 3.0.0-alpha.17(@kubb/react@3.0.0-alpha.19(bufferutil@4.0.8))(axios@1.7.7)
+      '@kubb/plugin-svelte-query':
+        specifier: workspace:*
+        version: link:../../packages/plugin-svelte-query
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -1343,6 +1343,49 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
+      tsup:
+        specifier: ^8.2.4
+        version: 8.2.4(@microsoft/api-extractor@7.47.9(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.47)(typescript@5.6.2)(yaml@2.5.1)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.2
+
+  packages/plugin-svelte-query:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/fs':
+        specifier: workspace:*
+        version: link:../fs
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
+      '@kubb/plugin-zod':
+        specifier: workspace:*
+        version: link:../plugin-zod
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
+    devDependencies:
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
+      '@types/react':
+        specifier: ^18.3.6
+        version: 18.3.6
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.9(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.47)(typescript@5.6.2)(yaml@2.5.1)

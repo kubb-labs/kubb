@@ -1,11 +1,13 @@
-export type { FindPetsByStatusQueryKey, FindPetsByStatusInfiniteQueryKey } from './hooks/findPetsByStatusQuery.ts'
-export type { FindPetsByTagsQueryKey, FindPetsByTagsInfiniteQueryKey } from './hooks/findPetsByTagsQuery.ts'
-export type { GetInventoryQueryKey, GetInventoryInfiniteQueryKey } from './hooks/getInventoryQuery.ts'
-export type { GetOrderByIdQueryKey, GetOrderByIdInfiniteQueryKey } from './hooks/getOrderByIdQuery.ts'
-export type { GetPetByIdQueryKey, GetPetByIdInfiniteQueryKey } from './hooks/getPetByIdQuery.ts'
-export type { GetUserByNameQueryKey, GetUserByNameInfiniteQueryKey } from './hooks/getUserByNameQuery.ts'
-export type { LoginUserQueryKey, LoginUserInfiniteQueryKey } from './hooks/loginUserQuery.ts'
-export type { LogoutUserQueryKey, LogoutUserInfiniteQueryKey } from './hooks/logoutUserQuery.ts'
+export type { FindPetsByStatusQueryKey } from './hooks/findPetsByStatusQuery.ts'
+export type { FindPetsByTagsInfiniteQueryKey } from './hooks/findPetsByTagsInfiniteQuery.ts'
+export type { FindPetsByTagsQueryKey } from './hooks/findPetsByTagsQuery.ts'
+export type { GetInventoryQueryKey } from './hooks/getInventoryQuery.ts'
+export type { GetOrderByIdQueryKey } from './hooks/getOrderByIdQuery.ts'
+export type { GetPetByIdQueryKey } from './hooks/getPetByIdQuery.ts'
+export type { GetUserByNameQueryKey } from './hooks/getUserByNameQuery.ts'
+export type { LoginUserQueryKey } from './hooks/loginUserQuery.ts'
+export type { LogoutUserQueryKey } from './hooks/logoutUserQuery.ts'
+export type { UpdatePetWithFormQueryKey } from './hooks/updatePetWithFormQuery.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/AddPet.ts'
 export type { AddPetRequestStatus, AddPetRequest } from './models/AddPetRequest.ts'
 export type { Address } from './models/Address.ts'
@@ -103,74 +105,19 @@ export { createUsersWithListInputQuery } from './hooks/createUsersWithListInputQ
 export { deleteOrderQuery } from './hooks/deleteOrderQuery.ts'
 export { deletePetQuery } from './hooks/deletePetQuery.ts'
 export { deleteUserQuery } from './hooks/deleteUserQuery.ts'
-export {
-  findPetsByStatusQueryKey,
-  findPetsByStatusQueryOptions,
-  findPetsByStatusQuery,
-  findPetsByStatusInfiniteQueryKey,
-  findPetsByStatusInfiniteQueryOptions,
-  findPetsByStatusQueryInfinite,
-} from './hooks/findPetsByStatusQuery.ts'
-export {
-  findPetsByTagsQueryKey,
-  findPetsByTagsQueryOptions,
-  findPetsByTagsQuery,
-  findPetsByTagsInfiniteQueryKey,
-  findPetsByTagsInfiniteQueryOptions,
-  findPetsByTagsQueryInfinite,
-} from './hooks/findPetsByTagsQuery.ts'
-export {
-  getInventoryQueryKey,
-  getInventoryQueryOptions,
-  getInventoryQuery,
-  getInventoryInfiniteQueryKey,
-  getInventoryInfiniteQueryOptions,
-  getInventoryQueryInfinite,
-} from './hooks/getInventoryQuery.ts'
-export {
-  getOrderByIdQueryKey,
-  getOrderByIdQueryOptions,
-  getOrderByIdQuery,
-  getOrderByIdInfiniteQueryKey,
-  getOrderByIdInfiniteQueryOptions,
-  getOrderByIdQueryInfinite,
-} from './hooks/getOrderByIdQuery.ts'
-export {
-  getPetByIdQueryKey,
-  getPetByIdQueryOptions,
-  getPetByIdQuery,
-  getPetByIdInfiniteQueryKey,
-  getPetByIdInfiniteQueryOptions,
-  getPetByIdQueryInfinite,
-} from './hooks/getPetByIdQuery.ts'
-export {
-  getUserByNameQueryKey,
-  getUserByNameQueryOptions,
-  getUserByNameQuery,
-  getUserByNameInfiniteQueryKey,
-  getUserByNameInfiniteQueryOptions,
-  getUserByNameQueryInfinite,
-} from './hooks/getUserByNameQuery.ts'
-export {
-  loginUserQueryKey,
-  loginUserQueryOptions,
-  loginUserQuery,
-  loginUserInfiniteQueryKey,
-  loginUserInfiniteQueryOptions,
-  loginUserQueryInfinite,
-} from './hooks/loginUserQuery.ts'
-export {
-  logoutUserQueryKey,
-  logoutUserQueryOptions,
-  logoutUserQuery,
-  logoutUserInfiniteQueryKey,
-  logoutUserInfiniteQueryOptions,
-  logoutUserQueryInfinite,
-} from './hooks/logoutUserQuery.ts'
+export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, findPetsByStatusQuery } from './hooks/findPetsByStatusQuery.ts'
+export { findPetsByTagsInfiniteQueryKey, findPetsByTagsInfiniteQueryOptions, findPetsByTagsInfiniteQuery } from './hooks/findPetsByTagsInfiniteQuery.ts'
+export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, findPetsByTagsQuery } from './hooks/findPetsByTagsQuery.ts'
+export { getInventoryQueryKey, getInventoryQueryOptions, getInventoryQuery } from './hooks/getInventoryQuery.ts'
+export { getOrderByIdQueryKey, getOrderByIdQueryOptions, getOrderByIdQuery } from './hooks/getOrderByIdQuery.ts'
+export { getPetByIdQueryKey, getPetByIdQueryOptions, getPetByIdQuery } from './hooks/getPetByIdQuery.ts'
+export { getUserByNameQueryKey, getUserByNameQueryOptions, getUserByNameQuery } from './hooks/getUserByNameQuery.ts'
+export { loginUserQueryKey, loginUserQueryOptions, loginUserQuery } from './hooks/loginUserQuery.ts'
+export { logoutUserQueryKey, logoutUserQueryOptions, logoutUserQuery } from './hooks/logoutUserQuery.ts'
 export { placeOrderPatchQuery } from './hooks/placeOrderPatchQuery.ts'
 export { placeOrderQuery } from './hooks/placeOrderQuery.ts'
 export { updatePetQuery } from './hooks/updatePetQuery.ts'
-export { updatePetWithFormQuery } from './hooks/updatePetWithFormQuery.ts'
+export { updatePetWithFormQueryKey, updatePetWithFormQueryOptions, updatePetWithFormQuery } from './hooks/updatePetWithFormQuery.ts'
 export { updateUserQuery } from './hooks/updateUserQuery.ts'
 export { uploadFileQuery } from './hooks/uploadFileQuery.ts'
 export { addPetRequestStatus } from './models/AddPetRequest.ts'
