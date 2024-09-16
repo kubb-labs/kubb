@@ -1,5 +1,7 @@
 # @kubb/config-tsup
 
+## 3.0.0-alpha.20
+
 ## 3.0.0-alpha.19
 
 ## 3.0.0-alpha.18
