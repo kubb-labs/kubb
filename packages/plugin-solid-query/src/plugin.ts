@@ -10,12 +10,12 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { mutationGenerator, queryGenerator } from './generators'
-import type { PluginSvelteQuery } from './types.ts'
+import { queryGenerator } from './generators'
+import type { PluginSolidQuery } from './types.ts'
 
-export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelteQuery['name']
+export const pluginSolidQueryName = 'plugin-solid-query' satisfies PluginSolidQuery['name']
 
-export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
+export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
   const {
     output = { path: 'hooks' },
     group,
@@ -25,13 +25,12 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     parser = 'client',
     transformers = {},
     pathParamsType = 'inline',
-    mutation = {},
     query = {},
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
-    name: pluginSvelteQueryName,
+    name: pluginSolidQueryName,
     options: {
       output: {
         exportType: 'barrelNamed',
@@ -47,13 +46,8 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       query: {
         key: (key: unknown[]) => key,
         methods: ['get'],
-        importPath: '@tanstack/svelte-query',
+        importPath: '@tanstack/solid-query',
         ...query,
-      },
-      mutation: {
-        methods: ['post', 'put', 'patch', 'delete'],
-        importPath: '@tanstack/svelte-query',
-        ...mutation,
       },
       pathParamsType,
       parser,
@@ -122,7 +116,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, mutationGenerator)
+      const files = await operationGenerator.build(queryGenerator)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

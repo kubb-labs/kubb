@@ -23,22 +23,6 @@ type Query = {
   importPath?: string
 }
 
-type Mutation = {
-  /**
-   * Define which HttpMethods can be used for mutations
-   * @default ['post', 'put', 'delete']
-   */
-  methods: Array<HttpMethod>
-  /**
-   * Path to the useQuery that will be used to do the useQuery functionality.
-   * It will be used as `import { useQuery } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
-   * @default '@tanstack/svelte-query'
-   */
-  importPath?: string
-}
-
 export type Options = {
   /**
    * @default 'hooks'
@@ -124,10 +108,6 @@ export type Options = {
    */
   query?: Partial<Query> | false
   /**
-   * Override some useMutation behaviours.
-   */
-  mutation?: Mutation | false
-  /**
    * Which parser can be used before returning the data to `@tanstack/query`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
@@ -143,11 +123,10 @@ export type Options = {
 type ResolvedOptions = {
   output: Output
   baseURL: string | undefined
-  client: Required<NonNullable<PluginSvelteQuery['options']['client']>>
+  client: Required<NonNullable<PluginSolidQuery['options']['client']>>
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
   query: NonNullable<Required<Query>> | false
-  mutation: NonNullable<Required<Mutation>> | false
 }
 
-export type PluginSvelteQuery = PluginFactoryOptions<'plugin-svelte-query', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginSolidQuery = PluginFactoryOptions<'plugin-solid-query', Options, ResolvedOptions, never, ResolvePathOptions>

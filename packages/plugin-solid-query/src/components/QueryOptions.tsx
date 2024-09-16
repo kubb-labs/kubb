@@ -6,7 +6,7 @@ import type { ReactNode } from 'react'
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import type { Infinite, PluginSvelteQuery } from '../types.ts'
+import type { PluginSolidQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
 type Props = {
@@ -14,15 +14,11 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
-  pathParamsType: PluginSvelteQuery['resolvedOptions']['pathParamsType']
-  dataReturnType: PluginSvelteQuery['resolvedOptions']['client']['dataReturnType']
-  initialPageParam: Infinite['initialPageParam']
-  cursorParam: Infinite['cursorParam']
-  queryParam: Infinite['queryParam']
+  pathParamsType: PluginSolidQuery['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
-  pathParamsType: PluginSvelteQuery['resolvedOptions']['pathParamsType']
+  pathParamsType: PluginSolidQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
@@ -57,17 +53,7 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function InfiniteQueryOptions({
-  name,
-  clientName,
-  initialPageParam,
-  cursorParam,
-  typeSchemas,
-  dataReturnType,
-  pathParamsType,
-  queryParam,
-  queryKeyName,
-}: Props): ReactNode {
+export function QueryOptions({ name, clientName, typeSchemas, pathParamsType, queryKeyName }: Props): ReactNode {
   const params = getParams({ pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     typeSchemas,
@@ -78,39 +64,16 @@ export function InfiniteQueryOptions({
     typeSchemas,
   })
 
-  const queryOptions = [
-    `initialPageParam: ${typeof initialPageParam === 'string' ? JSON.stringify(initialPageParam) : initialPageParam}`,
-    cursorParam ? `getNextPageParam: (lastPage) => lastPage['${cursorParam}']` : undefined,
-    cursorParam ? `getPreviousPageParam: (firstPage) => firstPage['${cursorParam}']` : undefined,
-    !cursorParam && dataReturnType === 'full'
-      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
-      : undefined,
-    !cursorParam && dataReturnType === 'data'
-      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
-      : undefined,
-    !cursorParam ? 'getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1' : undefined,
-  ].filter(Boolean)
-
-  const infiniteOverrideParams =
-    queryParam && typeSchemas.queryParams?.name
-      ? `
-          if(params) {
-           params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']
-          }`
-      : ''
-
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions({
+      return queryOptions({
        queryKey,
-       queryFn: async ({ pageParam }) => {
-          ${infiniteOverrideParams}
+       queryFn: async () => {
           return ${clientName}(${clientParams.toCall()})
        },
-       ${queryOptions.join('\n')}
       })
 `}
       </Function>
@@ -118,4 +81,4 @@ export function InfiniteQueryOptions({
   )
 }
 
-InfiniteQueryOptions.getParams = getParams
+QueryOptions.getParams = getParams

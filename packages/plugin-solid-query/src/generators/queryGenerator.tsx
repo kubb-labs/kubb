@@ -6,25 +6,25 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
-import { InfiniteQuery, InfiniteQueryOptions, QueryKey } from '../components'
-import type { PluginSvelteQuery } from '../types'
+import { Query, QueryKey, QueryOptions } from '../components'
+import type { PluginSolidQuery } from '../types'
 
-export const infiniteQueryGenerator = createReactGenerator<PluginSvelteQuery>({
-  name: 'svelte-infinite-query',
+export const queryGenerator = createReactGenerator<PluginSolidQuery>({
+  name: 'svelte-query',
   Operation({ options, operation }) {
     const {
       plugin: {
         options: { output },
       },
-    } = useApp<PluginSvelteQuery>()
+    } = useApp<PluginSolidQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
-    const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
-    const isInfinite = isQuery && !!options.infinite
+
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
 
     const query = {
-      name: getName(operation, { type: 'function', prefix: 'create', suffix: 'infinite' }),
+      name: getName(operation, { type: 'function', prefix: 'create' }),
       typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation, { prefix: 'create', suffix: 'infinite' }),
+      file: getFile(operation, { prefix: 'create' }),
     }
 
     const client = {
@@ -32,12 +32,12 @@ export const infiniteQueryGenerator = createReactGenerator<PluginSvelteQuery>({
     }
 
     const queryOptions = {
-      name: transformers.camelCase(`${operation.getOperationId()} InfiniteQueryOptions`),
+      name: transformers.camelCase(`${operation.getOperationId()} QueryOptions`),
     }
 
     const queryKey = {
-      name: transformers.camelCase(`${operation.getOperationId()} InfiniteQueryKey`),
-      typeName: transformers.pascalCase(`${operation.getOperationId()} InfiniteQueryKey`),
+      name: transformers.camelCase(`${operation.getOperationId()} QueryKey`),
+      typeName: transformers.pascalCase(`${operation.getOperationId()} QueryKey`),
     }
 
     const type = {
@@ -51,19 +51,15 @@ export const infiniteQueryGenerator = createReactGenerator<PluginSvelteQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery || !isInfinite || typeof options.query === 'boolean' || typeof options.infinite === 'boolean') {
+    if (!isQuery || typeof options.query === 'boolean') {
       return null
     }
 
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={['createInfiniteQuery', 'infiniteQueryOptions']} path={options.query.importPath} />
-        <File.Import
-          name={['QueryKey', 'WithRequired', 'CreateInfiniteQueryOptions', 'CreateInfiniteQueryResult']}
-          path={options.query.importPath}
-          isTypeOnly
-        />
+        <File.Import name={['createQuery', 'queryOptions']} path={options.query.importPath} />
+        <File.Import name={['QueryKey', 'WithRequired', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
@@ -102,18 +98,14 @@ export const infiniteQueryGenerator = createReactGenerator<PluginSvelteQuery>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
-        <InfiniteQueryOptions
+        <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
           queryKeyName={queryKey.name}
           typeSchemas={type.schemas}
           pathParamsType={options.pathParamsType}
-          dataReturnType={options.client.dataReturnType}
-          cursorParam={options.infinite.cursorParam}
-          initialPageParam={options.infinite.initialPageParam}
-          queryParam={options.infinite.queryParam}
         />
-        <InfiniteQuery
+        <Query
           name={query.name}
           queryOptionsName={queryOptions.name}
           typeSchemas={type.schemas}
