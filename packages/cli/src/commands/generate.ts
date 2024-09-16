@@ -36,12 +36,6 @@ const args = {
     alias: 'w',
     default: false,
   },
-  bun: {
-    type: 'boolean',
-    description: 'Run Kubb with Bun',
-    alias: 'b',
-    default: false,
-  },
   debug: {
     type: 'boolean',
     description: 'Override logLevel to debug',
@@ -75,13 +69,6 @@ const command = defineCommand({
 
     if (args.debug) {
       args.logLevel = 'debug'
-    }
-
-    if (args.bun) {
-      const command = process.argv.splice(2).filter((item) => item !== '--bun')
-
-      await execa('bkubb', command, { stdout: process.stdout, stderr: process.stderr })
-      return
     }
 
     const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3

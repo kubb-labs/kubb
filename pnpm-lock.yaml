@@ -1496,6 +1496,9 @@ importers:
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
