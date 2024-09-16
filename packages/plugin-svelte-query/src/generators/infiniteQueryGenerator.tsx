@@ -22,9 +22,9 @@ export const infiniteQueryGenerator = createReactGenerator<PluginSvelteQuery>({
     const isInfinite = isQuery && !!options.infinite
 
     const query = {
-      name: getName(operation, { type: 'function', suffix: 'infiniteQuery' }),
+      name: getName(operation, { type: 'function', prefix: 'create', suffix: 'infinite' }),
       typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation, { suffix: 'infiniteQuery' }),
+      file: getFile(operation, { prefix: 'create', suffix: 'infinite' }),
     }
 
     const client = {

@@ -29,7 +29,7 @@ async function updateUser(
  * @summary Update user
  * @link /user/:username
  */
-export function updateUserQuery(
+export function createUpdateUser(
   options: {
     mutation?: CreateMutationOptions<
       UpdateUserMutationResponse,

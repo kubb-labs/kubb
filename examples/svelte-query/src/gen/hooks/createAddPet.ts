@@ -25,7 +25,7 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  * @summary Add a new pet to the store
  * @link /pet
  */
-export function addPetQuery(
+export function createAddPet(
   options: {
     mutation?: CreateMutationOptions<
       AddPetMutationResponse,

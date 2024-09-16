@@ -25,7 +25,7 @@ async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<Requ
  * @summary Place an order for a pet
  * @link /store/order
  */
-export function placeOrderQuery(
+export function createPlaceOrder(
   options: {
     mutation?: CreateMutationOptions<
       PlaceOrderMutationResponse,

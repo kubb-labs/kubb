@@ -25,7 +25,7 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
  * @summary Update an existing pet
  * @link /pet
  */
-export function updatePetQuery(
+export function createUpdatePet(
   options: {
     mutation?: CreateMutationOptions<
       UpdatePetMutationResponse,

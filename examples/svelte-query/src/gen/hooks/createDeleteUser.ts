@@ -24,7 +24,7 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
  * @summary Delete user
  * @link /user/:username
  */
-export function deleteUserQuery(
+export function createDeleteUser(
   options: {
     mutation?: CreateMutationOptions<
       DeleteUserMutationResponse,

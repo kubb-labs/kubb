@@ -39,7 +39,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-export function findPetsByStatusQuery<
+export function createFindPetsByStatus<
   TData = FindPetsByStatusQueryResponse,
   TQueryData = FindPetsByStatusQueryResponse,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,

@@ -30,7 +30,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithFormQuery<TData = UpdatePetWithFormMutationResponse, TQueryData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, options: {
+export function createUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TQueryData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, options: {
     query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>;
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>;
 } = {}) {

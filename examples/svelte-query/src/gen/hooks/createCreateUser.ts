@@ -25,7 +25,7 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  * @summary Create user
  * @link /user
  */
-export function createUserQuery(
+export function createCreateUser(
   options: {
     mutation?: CreateMutationOptions<
       CreateUserMutationResponse,

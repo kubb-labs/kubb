@@ -25,7 +25,7 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-export function placeOrderPatchQuery(
+export function createPlaceOrderPatch(
   options: {
     mutation?: CreateMutationOptions<
       PlaceOrderPatchMutationResponse,

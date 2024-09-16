@@ -37,7 +37,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
  * @summary Logs user into the system
  * @link /user/login
  */
-export function loginUserQuery<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
+export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUserQueryParams,
   options: {
     query?: Partial<CreateBaseQueryOptions<LoginUserQueryResponse, LoginUser400, TData, TQueryData, TQueryKey>>

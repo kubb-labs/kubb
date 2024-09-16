@@ -38,7 +38,7 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function findPetsByTagsInfiniteQuery<TData = FindPetsByTagsQueryResponse, TQueryData = FindPetsByTagsQueryResponse, TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey>(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, options: {
+export function createFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, TQueryData = FindPetsByTagsQueryResponse, TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey>(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, options: {
     query?: Partial<CreateInfiniteQueryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, TData, TQueryData, TQueryKey>>;
     client?: Partial<RequestConfig>;
 } = {}) {

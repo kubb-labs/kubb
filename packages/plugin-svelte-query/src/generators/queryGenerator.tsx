@@ -23,9 +23,9 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
     const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
 
     const query = {
-      name: getName(operation, { type: 'function', suffix: 'query' }),
+      name: getName(operation, { type: 'function', prefix: 'create' }),
       typeName: getName(operation, { type: 'type' }),
-      file: getFile(operation, { suffix: 'query' }),
+      file: getFile(operation, { prefix: 'create' }),
     }
 
     const client = {

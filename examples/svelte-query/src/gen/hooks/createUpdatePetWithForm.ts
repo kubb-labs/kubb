@@ -47,7 +47,7 @@ export function updatePetWithFormQueryOptions(
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithFormQuery<
+export function createUpdatePetWithForm<
   TData = UpdatePetWithFormMutationResponse,
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,

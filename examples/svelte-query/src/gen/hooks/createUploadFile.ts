@@ -30,7 +30,7 @@ async function uploadFile(
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-export function uploadFileQuery(
+export function createUploadFile(
   options: {
     mutation?: CreateMutationOptions<
       UploadFileMutationResponse,

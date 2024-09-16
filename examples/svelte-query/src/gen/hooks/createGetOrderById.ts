@@ -38,7 +38,11 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function getOrderByIdQuery<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
+export function createGetOrderById<
+  TData = GetOrderByIdQueryResponse,
+  TQueryData = GetOrderByIdQueryResponse,
+  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
+>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: Partial<CreateBaseQueryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>

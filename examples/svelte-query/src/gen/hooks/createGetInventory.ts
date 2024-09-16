@@ -38,7 +38,11 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function getInventoryQuery<TData = GetInventoryQueryResponse, TQueryData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventoryQueryKey>(
+export function createGetInventory<
+  TData = GetInventoryQueryResponse,
+  TQueryData = GetInventoryQueryResponse,
+  TQueryKey extends QueryKey = GetInventoryQueryKey,
+>(
   options: {
     query?: Partial<CreateBaseQueryOptions<GetInventoryQueryResponse, unknown, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>

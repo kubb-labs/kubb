@@ -45,7 +45,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTagsQueryP
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function findPetsByTagsInfiniteQuery<
+export function createFindPetsByTagsInfinite<
   TData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,

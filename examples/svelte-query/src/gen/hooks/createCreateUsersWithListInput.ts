@@ -28,7 +28,7 @@ async function createUsersWithListInput(
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-export function createUsersWithListInputQuery(
+export function createCreateUsersWithListInput(
   options: {
     mutation?: CreateMutationOptions<
       CreateUsersWithListInputMutationResponse,

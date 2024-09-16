@@ -16,7 +16,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithFormQuery(options: {
+export function createUpdatePetWithForm(options: {
     mutation?: CreateMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
         petId: UpdatePetWithFormPathParams["petId"];
         data?: UpdatePetWithFormMutationRequest;

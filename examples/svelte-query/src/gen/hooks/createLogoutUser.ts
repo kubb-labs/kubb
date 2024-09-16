@@ -36,7 +36,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function logoutUserQuery<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
+export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
     query?: Partial<CreateBaseQueryOptions<LogoutUserQueryResponse, unknown, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>

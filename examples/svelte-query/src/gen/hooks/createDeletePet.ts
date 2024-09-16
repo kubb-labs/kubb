@@ -25,7 +25,7 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function deletePetQuery(
+export function createDeletePet(
   options: {
     mutation?: CreateMutationOptions<
       DeletePetMutationResponse,

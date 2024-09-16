@@ -39,7 +39,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function findPetsByTagsQuery<
+export function createFindPetsByTags<
   TData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,

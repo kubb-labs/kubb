@@ -24,7 +24,7 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export function deleteOrderQuery(
+export function createDeleteOrder(
   options: {
     mutation?: CreateMutationOptions<
       DeleteOrderMutationResponse,

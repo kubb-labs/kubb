@@ -36,7 +36,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
  * @summary Get user by user name
  * @link /user/:username
  */
-export function getUserByNameQuery<
+export function createGetUserByName<
   TData = GetUserByNameQueryResponse,
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
