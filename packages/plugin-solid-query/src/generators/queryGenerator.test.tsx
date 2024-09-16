@@ -5,7 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
-import type { PluginSvelteQuery } from '../types.ts'
+import type { PluginSolidQuery } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
 
 describe('queryGenerator operation', async () => {
@@ -90,13 +90,13 @@ describe('queryGenerator operation', async () => {
     name: string
     path: string
     method: HttpMethod
-    options: Partial<PluginSvelteQuery['resolvedOptions']>
+    options: Partial<PluginSolidQuery['resolvedOptions']>
   }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginSvelteQuery['resolvedOptions'] = {
+    const options: PluginSolidQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/client',
@@ -105,21 +105,16 @@ describe('queryGenerator operation', async () => {
       baseURL: undefined,
       pathParamsType: 'inline',
       query: {
-        importPath: '@tanstack/svelte-query',
         key: (key) => key,
+        importPath: '@tanstack/svelte-query',
         methods: ['get'],
       },
-      mutation: {
-        methods: ['post'],
-        importPath: '@tanstack/svelte-query',
-      },
-      infinite: false,
       output: {
         path: '.',
       },
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginSvelteQuery>
+    const plugin = { options } as Plugin<PluginSolidQuery>
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,

@@ -113,7 +113,6 @@ describe('queryGenerator operation', async () => {
         methods: ['post'],
         importPath: '@tanstack/svelte-query',
       },
-      infinite: false,
       output: {
         path: '.',
       },

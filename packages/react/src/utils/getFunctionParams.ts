@@ -40,6 +40,8 @@ export type Params = Record<string, Param | undefined>
 
 type Options = {
   type: 'constructor' | 'call' | 'generics'
+  transformName?: (name: string) => string
+  transformType?: (type: string) => string
 }
 
 function order(items: Array<[key: string, item?: ParamItem]>) {
@@ -99,21 +101,23 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
 
 function parseItem(name: string, item: ParamItem, options: Options): string[] {
   const acc = []
+  const transformedName = options.transformName ? options.transformName(name) : name
+  const transformedType = options.transformType && item.type ? options.transformType(item.type) : item.type
 
   if (item.type && options.type === 'constructor') {
     if (item.optional) {
-      acc.push(`${name}?: ${item.type}`)
+      acc.push(`${transformedName}?: ${transformedType}`)
     } else {
-      acc.push(`${name}: ${item.type}${item.default ? ` = ${item.default}` : ''}`)
+      acc.push(`${transformedName}: ${transformedType}${item.default ? ` = ${item.default}` : ''}`)
     }
   } else if (item.default && options.type === 'constructor') {
-    acc.push(`${name} = ${item.default}`)
+    acc.push(`${transformedName} = ${item.default}`)
   } else if (item.value) {
-    acc.push(`${name} : ${item.value}`)
+    acc.push(`${transformedName} : ${item.value}`)
   } else if (item.mode === 'inlineSpread') {
-    acc.push(`... ${name}`)
+    acc.push(`... ${transformedName}`)
   } else {
-    acc.push(name)
+    acc.push(transformedName)
   }
 
   return acc
@@ -133,8 +137,8 @@ export function getFunctionParams(params: Params, options: Options): string {
           return acc
         }
 
-        if (item.mode === 'inlineSpread') {
-          return [...acc, getFunctionParams(item.children!, options)]
+        if (item.mode === 'inlineSpread' && item.children) {
+          return [...acc, getFunctionParams(item.children, options)]
         }
 
         const parsedItem = parseChild(key, item, options)
@@ -167,8 +171,8 @@ export class FunctionParams {
     return this.#params
   }
 
-  toCall(): string {
-    return getFunctionParams(this.#params, { type: 'call' })
+  toCall({ transformName, transformType }: Pick<Options, 'transformName' | 'transformType'> = {}): string {
+    return getFunctionParams(this.#params, { type: 'call', transformName, transformType })
   }
 
   toConstructor({ valueAsType }: { valueAsType: boolean } = { valueAsType: false }): string {

@@ -1,6 +1,6 @@
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'
 import { pluginTs } from '@kubb/plugin-ts'
+import { pluginVueQuery } from '@kubb/plugin-vue-query'
 import vue from '@vitejs/plugin-vue'
 import kubb from 'unplugin-kubb/vite'
 import { defineConfig } from 'vite'
@@ -28,11 +28,10 @@ export default defineConfig({
               path: 'models',
             },
           }),
-          pluginTanstackQuery({
+          pluginVueQuery({
             output: {
               path: './hooks',
             },
-            framework: 'vue',
           }),
         ],
       },

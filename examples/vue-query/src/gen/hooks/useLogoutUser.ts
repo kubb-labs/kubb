@@ -1,39 +1,34 @@
 import client from '@kubb/plugin-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
-
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
-
-type LogoutUser = {
-  data: LogoutUserQueryResponse
-  error: never
-  request: never
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: LogoutUserQueryResponse
-  client: {
-    parameters: Partial<Parameters<LogoutUserClient>[0]>
-    return: Awaited<ReturnType<LogoutUserClient>>
-  }
-}
+import { unref } from 'vue'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 
-export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
+/**
+ * @summary Logs out current logged in user session
+ * @link /user/logout
+ */
+async function logoutUser(config: Partial<RequestConfig> = {}) {
+  const res = await client<LogoutUserQueryResponse, unknown, unknown>({
+    method: 'get',
+    url: '/user/logout',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    ...config,
+  })
+  return res.data
+}
+
+export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<LogoutUser['data'], LogoutUser['error']>({
-        method: 'get',
-        url: '/user/logout',
-        ...options,
-      })
-      return res.data
+      return logoutUser(unref(config))
     },
   })
 }
@@ -42,19 +37,19 @@ export function logoutUserQueryOptions(options: LogoutUser['client']['parameters
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
+export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<QueryObserverOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>>
-    client?: LogoutUser['client']['parameters']
+    query?: Partial<QueryObserverOptions<LogoutUserQueryResponse, unknown, TData, TQueryData, TQueryKey>>
+    client?: Partial<RequestConfig>
   } = {},
-): UseQueryReturnType<TData, LogoutUser['error']> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+) {
+  const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...(logoutUserQueryOptions(clientOptions) as unknown as QueryObserverOptions),
+    ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, LogoutUser['error']> & {
+  }) as UseQueryReturnType<TData, unknown> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

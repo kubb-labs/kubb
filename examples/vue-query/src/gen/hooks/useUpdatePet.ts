@@ -1,22 +1,23 @@
 import client from '@kubb/plugin-client/client'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 
-type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
-
-type UpdatePet = {
-  data: UpdatePetMutationResponse
-  error: UpdatePet400 | UpdatePet404 | UpdatePet405
-  request: UpdatePetMutationRequest
-  pathParams: never
-  queryParams: never
-  headerParams: never
-  response: UpdatePetMutationResponse
-  client: {
-    parameters: Partial<Parameters<UpdatePetClient>[0]>
-    return: Awaited<ReturnType<UpdatePetClient>>
-  }
+/**
+ * @description Update an existing pet by Id
+ * @summary Update an existing pet
+ * @link /pet
+ */
+async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
+  const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
+    method: 'put',
+    url: '/pet',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
 }
 
 /**
@@ -26,20 +27,24 @@ type UpdatePet = {
  */
 export function useUpdatePet(
   options: {
-    mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request'], unknown>
-    client?: UpdatePet['client']['parameters']
+    mutation?: UseMutationOptions<
+      UpdatePetMutationResponse,
+      UpdatePet400 | UpdatePet404 | UpdatePet405,
+      {
+        data: MaybeRef<UpdatePetMutationRequest>
+      }
+    >
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>>
   } = {},
 ) {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
-      const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
-        method: 'put',
-        url: '/pet',
-        data,
-        ...clientOptions,
-      })
-      return res.data
+    mutationFn: async ({
+      data,
+    }: {
+      data: UpdatePetMutationRequest
+    }) => {
+      return updatePet(data, config)
     },
     ...mutationOptions,
   })
