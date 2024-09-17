@@ -48,29 +48,8 @@ Override some behaviour of the Oas class instance, see '@kubb/oas'
 ### output?
 
 ```ts
-optional output: object;
+optional output: Output;
 ```
-
-### output.exportType?
-
-```ts
-optional output.exportType: "barrel" | "barrelNamed" | false;
-```
-
-### output.extName?
-
-```ts
-optional output.extName: KubbFile.Extname;
-```
-
-### output.path
-
-```ts
-output.path: string;
-```
-
-Relative path to save the JSON models.
-False will not generate the schema JSON's.
 
 #### Default
 
@@ -115,4 +94,4 @@ true
 
 ## Defined in
 
-[plugin-oas/src/types.ts:23](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-oas/src/types.ts#L23)
+[plugin-oas/src/types.ts:23](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-oas/src/types.ts#L23)

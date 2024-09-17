@@ -13,19 +13,19 @@ With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema'
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-zod
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-zod
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-zod
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-zod
 ```
 
@@ -122,9 +122,8 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
-::: tip
-When defining a custom output path, you should also update `output.path` to contain the same root path.
-:::
+> [!TIP]
+> When defining a custom output path, you should also update `output.path` to contain the same root path.
 
 ::: v-pre
 Relative path to save the grouped Zod schemas.

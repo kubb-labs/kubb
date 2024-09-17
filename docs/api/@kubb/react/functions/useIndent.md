@@ -16,4 +16,4 @@ function useIndent(__namedParameters): KubbNode
 
 ## Defined in
 
-[packages/react/src/hooks/useIndent.ts:13](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/react/src/hooks/useIndent.ts#L13)
+[packages/react/src/hooks/useIndent.ts:13](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/hooks/useIndent.ts#L13)

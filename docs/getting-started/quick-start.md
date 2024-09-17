@@ -31,43 +31,75 @@ If you are using an older TypeScript version, please migrate to version 4.7 or l
 You can install Kubb via [bun](https://bun.sh/), [pnpm](https://pnpm.io/), [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/).
 
 ::: code-group
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/cli @kubb/core
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/cli @kubb/core
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/cli @kubb/core
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/cli @kubb/core
 ```
 :::
 
 ## Usage with the CLI
-The simplest way to get started with Kubb is to configure the following in your `package.json` and Kubb will automatically determine which file or configuration to use based on the [order specified](/getting-started/configure#usage).
-
-```json
-"scripts": {
-  "generate": "kubb generate"
-}
-```
 
 > [!TIP]
 > When using an `import` statement you need to set `"type": "module"` in your `package.json`.
 > You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
 >
-> If you’re using a configuration file other than the default `kubb.config.ts`, specify it with `--config kubb.config.js`.
+> If you’re using a custom configuration, specify it with `--config kubb.config.js` or `--config FILE_NAME.js`.
 
-Run `pnpm run generate` or `npx kubb generate`.
+The simplest way to get started with Kubb is to configure your `package.json` to include Kubb. Create a `kubb.config.ts` setup file and run the **Kubb generate command**.
+Kubb will automatically determine which file or configuration to use based on the [order](/getting-started/configure#usage).
+
+::: code-group
+```json [package.json]
+"scripts": {
+  "generate": "kubb generate"
+}
+```
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(() => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    plugins: [],
+  }
+})
+```
+```shell [bash]
+bun run generate
+# or
+pnpm run generate
+# or
+npm run generate
+# or
+yarn run generate
+# or
+npx kubb generate
+```
+:::
+
+![React-DevTools](/screenshots/cli.gif)
 
 ## Usage with Node.js
-
-```typescript [index.js]
+When the cli is not an option, you could use the `@kubb/core` package to trigger the generation. This is the same as the cli but without an interface or progressbar.
+```typescript [index.ts]
 import { write } from '@kubb/fs'
 import { build, getSource } from '@kubb/core'
 

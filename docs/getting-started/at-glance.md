@@ -6,7 +6,17 @@ outline: deep
 ---
 
 # At Glance
-Kubb is a library and toolkit that transforms your Swagger/OpenAPI specification into various client libraries, including TypeScript, React-Query, Zod, Zodios, Faker.js, and Axios.
+Kubb is a library and toolkit that transforms your [Swagger/OpenAPI](/knowledge-base/oas) specification into various client libraries, including:
+- [TypeScript](/plugins/plugin-ts/)
+- [React-Query](/plugins/plugin-react-query/)
+- [Vue-Query](/plugins/plugin-vue-query/)
+- [Solid-Query](/plugins/plugin-solid-query/)
+- [Svelte-Query](/plugins/plugin-svelte-query/)
+- [Zod](/plugins/plugin-zod/)
+- [Faker.js](/plugins/plugin-faker/)
+- [Axios](/plugins/plugin-client/)
+- [Redoc](/plugins/plugin-redoc/)
+- ...
 
 Additionally, Kubb features a plugin system, enabling you to build custom implementations and integrate other libraries.
 
@@ -18,7 +28,7 @@ Additionally, Kubb features a plugin system, enabling you to build custom implem
 - Plugin Ecosystem of Kubb to extend beyond the default plugins we provide.
 - CLI support with progressbar and logs.
 - Debug tools with [React DevTools](/knowledge-base/how-tos/debugging).
-- Generate barrel files(`index.ts`).
+- Generate barrel files(index.ts).
 - And so much more ...
 
 ## Philosophy
@@ -27,7 +37,7 @@ Imagine that your backend team is writing an API in Java/Kotlin, how do you conn
 This is not a new problem and has already been resolved with the use of a Swagger/OpenAPI specification combined with a <a href="https://tools.openapis.org/categories/code-generators.html">code generator</a>.
 
 The problem is that most of them are good at one _thing_: generating TypeScript types or generating React-Query hooks.
-Kubb is trying to resolve that with a plugin system where we already provide you with some <a href="/plugins/overview">generation plugins</a> but also giving you the possibilty to create your own custom plugin without the need of forking the full project.
+Kubb is trying to resolve that with a plugin system where we already provide you with some plugins but also giving you the possibility to create [your own plugin](/knowledge-base/plugins).
 
 
 ## Sponsoring
@@ -35,4 +45,5 @@ Kubb is open source and build by the community, help us building Kubb by [sponso
 
 ## Our Community
 
-Come and chat with us on [Discord](https://discord.gg/shfBFeczrm)! We're always looking for some contributions.
+Come and chat with us on [Discord](https://discord.gg/shfBFeczrm)!
+We're always looking for some contributions.

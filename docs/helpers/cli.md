@@ -5,85 +5,70 @@ title: \@kubb/cli
 outline: deep
 ---
 
-# @kubb/cli <a href="https://paka.dev/npm/@kubb/cli@latest/api">🦙</a>
+# @kubb/cli
+
+The Kubb CLI allows you to generate files based on the `kubb.config.ts` configuration file.
+Upon startup, Kubb displays the progress of the plugin execution, the file writing, and the results of each hook once the generation process is complete.
+
+![React-DevTools](/screenshots/cli.gif)
 
 ## Installation
 
 ::: code-group
-
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/cli
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/cli
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/cli
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/cli
 ```
-
 :::
 
 ## Usage
 
-::: code-group
-
-```shell [bun <img src="/feature/bun.svg"/>]
-kubb --bun --config kubb.config.js
-bkubb --config kubb.config.js
-```
-```sh [node]
+```shell [node]
 kubb --config kubb.config.js
 ```
-:::
 
 ```mdx
-kubb/1.2.1
+USAGE kubb generate
 
-Usage:
-  $ kubb [input]
+COMMANDS
 
-Commands:
-  [input]           Path of the input file(overrides the one in `kubb.config.js`)
-  generate [input]  Path of the input file(overrides the one in `kubb.config.js`)
+  generate    [input] Generate files based on a 'kubb.config.ts' file
 
-For more info, run any command with the `--help` flag:
-  $ kubb --help
-  $ kubb generate --help
-
-Options:
-  -h, --help     Display this message
-  -v, --version  Display version number
+Use kubb <command> --help for more information about a command.
 ```
 
 ## Generate
 
-::: tip
-`kubb generate` and `kubb` is the same.
-:::
+> [!TIP]
+> `kubb generate` and `kubb` will call the same generate functionality.
 
 ```mdx
-kubb/1.2.1
+USAGE kubb generate [OPTIONS]
 
-Usage:
-  $ kubb generate [input]
+OPTIONS
 
-Options:
-  -c, --config <path>     Path to the Kubb config
-  -l, --log-level <type>  Info, silent or debug
-  -w, --watch             Watch mode based on the input file
-  -h, --help              Display this message
-  -b, --bun               Run Kubb with Bun
+                        -c, --config    Path to the Kubb config
+  -l, --logLevel=<silent|info|debug>    Info, silent or debug
+                         -w, --watch    Watch mode based on the input file
+                         -d, --debug    Override logLevel to debug
+                          -h, --help    Show help
+
 ```
 
 Path of the input file(overrides the one in `kubb.config.js`)
 
-```sh
+```shell [node]
 kubb petStore.yaml
 ```
 
@@ -94,7 +79,7 @@ kubb petStore.yaml
 ::: info
 Path to the Kubb config.
 
-```sh
+```shell [node]
 kubb --config kubb.config.ts
 ```
 
@@ -105,23 +90,26 @@ kubb --config kubb.config.ts
 ::: info
 Type of the logging(overrides the one in `kubb.config.js`).
 
-`silent` will hide all information that is not relevant
+`silent` will suppresses all log messages, warnings, and errors, minimizing console output.
+`info` will log all warnings, errors and info messages.
+`debug` will show all message from `info` and every plugin being executed(with meta-data being written to log files).
 
-`info` will show all information possible(not related to the PluginManager)
-
-`debug` will show all information possible(related to the PluginManager), handy for seeing logs
-
-```sh
+```shell [node]
 kubb --log-level info
 ```
 
 :::
 
 #### --debug
+> [!TIP]
+> Debug mode will create 2 log files:
+> - `.kubb/kubb-DATE_STRING.log`
+> - `.kubb/kubb-files.log`
+
 
 ::: info
-Alias for `kubb generate log-level debug`
-```sh
+Alias for `kubb generate --log-level debug`
+```shell [node]
 kubb --debug
 ```
 
@@ -132,7 +120,7 @@ kubb --debug
 Watch mode based on the input file.
 ::: info
 
-```sh
+```shell [node]
 kubb --watch
 ```
 
@@ -143,7 +131,7 @@ kubb --watch
 Output the version number.
 ::: info
 
-```sh
+```shell [node]
 kubb --version
 ```
 
@@ -154,19 +142,7 @@ kubb --version
 Display the help.
 ::: info
 
-```sh
+```shell [node]
 kubb --help
 ```
-
 :::
-
-#### --bun (-b)
-
-Run with Bun
-::: info
-
-```sh
-kubb --bun
-```
-:::
-See [getting-started](/guide/introduction) on how to configure Kubb.

@@ -104,4 +104,4 @@ Options can als be included.
 
 ## Defined in
 
-[types.ts:224](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/types.ts#L224)
+[types.ts:209](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/types.ts#L209)

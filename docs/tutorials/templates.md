@@ -80,10 +80,9 @@ function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: R
 ## Step two
 
 Update your `kubb.config.ts` file to include the custom template.
-::: tip
-If you want to use another language than JavaScript/TypeScript, override the root template with your own.
-See [examples/python](/examples/python) for an example on how you can do that.
-:::
+> [!TIP]
+> If you want to use another language than JavaScript/TypeScript, override the root template with your own.
+> See [examples/python](/examples/python) for an example on how you can do that.
 
 ::: code-group
 
@@ -156,19 +155,19 @@ Run the Kubb script with the following command.
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun run generate
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm run generate
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm run generate
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn run generate
 ```
 
@@ -178,9 +177,9 @@ yarn run generate
 
 The end result of a generated client based on the custom template.
 
-::: tip
-See [examples/react-query](/examples/tanstack-query/react-query) or [examples/python](/examples/python) for are more in depth example.
-:::
+> [!TIP]
+> See [examples/react-query](/examples/tanstack-query/react-query) or [examples/python](/examples/python) for are more in depth example.
+
 ```typescript
 import client from '@kubb/plugin-client/client'
 import axios from 'axios'

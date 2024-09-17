@@ -1,10 +1,12 @@
 import { createWriteStream } from 'node:fs'
 import { resolve } from 'node:path'
 
+import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 import apiSidebar from '../api/typedoc-sidebar.json'
+import { transposeTables } from "./transposeTables.ts"
 
 import { version } from '../../packages/core/package.json'
 
@@ -60,10 +62,6 @@ const knowledgeBaseSidebar = [
         link: '/knowledge-base/pluginManager/lifecycle',
       },
     ],
-  },
-  {
-    text: 'Templates <img src="/icons/experimental.svg"/>',
-    link: '/knowledge-base/templates',
   },
 ]
 
@@ -208,7 +206,7 @@ const mainSidebar = [
     collapsed: false,
     items: [
       {
-        text: 'unplugin-kubb <span class="new">new</span>',
+        text: 'unplugin-kubb',
         collapsed: false,
         link: '/builders/unplugin/',
       },
@@ -451,6 +449,10 @@ export default defineConfig({
       light: 'github-light',
       dark: 'nord',
     },
+    config(md) {
+      transposeTables(md);
+      md.use(groupIconMdPlugin)
+    },
     lineNumbers: false,
     codeTransformers: [
       transformerTwoslash({
@@ -631,4 +633,14 @@ export default defineConfig({
     //   indexName: "",
     // },
   },
+  vite: {
+    plugins: [
+      groupIconVitePlugin({
+        customIcon: {
+          'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.svg'),
+          'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
+        }
+      })
+    ],
+  }
 })

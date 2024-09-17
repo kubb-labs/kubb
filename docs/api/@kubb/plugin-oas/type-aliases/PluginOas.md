@@ -3,9 +3,9 @@
 # PluginOas
 
 ```ts
-type PluginOas: PluginFactoryOptions<"plugin-oas", Options, Options, API, never>;
+type PluginOas: PluginFactoryOptions<"plugin-oas", Options, ResolvedOptions, API, never>;
 ```
 
 ## Defined in
 
-[plugin-oas/src/types.ts:157](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-oas/src/types.ts#L157)
+[plugin-oas/src/types.ts:155](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-oas/src/types.ts#L155)

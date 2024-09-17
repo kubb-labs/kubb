@@ -23,6 +23,9 @@ const escapeNewLines = (code: string) => code.replace(/\n\n/g, '\n/* :newline: *
  */
 const restoreNewLines = (code: string) => code.replace(/\/\* :newline: \*\//g, '\n')
 
+/**
+ * Convert AST TypeScript nodes to a string based on the TypeScript printer.
+ */
 export function print(
   elements: Array<ts.Node>,
   { source = '', baseName = 'print.ts', removeComments, noEmitHelpers, newLine = ts.NewLineKind.LineFeed }: Options = {},

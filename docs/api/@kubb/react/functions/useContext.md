@@ -31,4 +31,4 @@ context value, as given by the nearest context provider for the given context.
 
 ## Defined in
 
-node\_modules/.pnpm/@types+react@18.3.5/node\_modules/@types/react/index.d.ts:1862
+node\_modules/.pnpm/@types+react@18.3.7/node\_modules/@types/react/index.d.ts:1868

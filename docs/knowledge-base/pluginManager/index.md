@@ -9,9 +9,8 @@ outline: deep
 
 The `PluginManager` instance contains the building blocks for executing plugins(in a specific order). This contains a queue system, the `FileManager`, `resolvePath` that will be used to retrieve a path needed for plugin x and also `resolveName` to retrieve a name that can be used for a function/file/type.
 
-::: tip
-Here we also create the core plugin with the link(see `this.`) to the `PluginManager`.
-:::
+> [!TIP]
+> Here we also create the core plugin with the link(see `this.`) to the `PluginManager`.
 
 ### pluginManager.plugins
 

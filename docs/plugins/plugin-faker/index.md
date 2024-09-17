@@ -13,19 +13,19 @@ With the Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-faker
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-faker
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-faker
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-faker
 ```
 
@@ -124,9 +124,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
-::: tip
-When defining a custom output path, you should also update `output.path` to contain the same root path.
-:::
+> [!TIP]
+> When defining a custom output path, you should also update `output.path` to contain the same root path.
+
 
 ::: v-pre
 Relative path to save the grouped Faker mocks.
@@ -200,11 +200,9 @@ const plugin = pluginFaker({
 
 Which parser should be used when dateType is set to 'string'.
 
-::: tip
-You can use any other library. For example, when you want to use `moment` you can pass `moment` and Kubb will add the import for moment: `import moment from 'moment'`.
-
-This only works when the package is using default exports like Dayjs and Moment.
-:::
+> [!TIP]
+> You can use any other library. For example, when you want to use `moment` you can pass `moment` and Kubb will add the import for moment: `import moment from 'moment'`.
+> This only works when the package is using default exports like Dayjs and Moment.
 
 ::: info TYPE
 

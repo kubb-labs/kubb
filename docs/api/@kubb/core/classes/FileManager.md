@@ -16,7 +16,7 @@ new FileManager(): FileManager
 
 #### Defined in
 
-[FileManager.ts:52](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L52)
+[FileManager.ts:52](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L52)
 
 ## Accessors
 
@@ -32,7 +32,7 @@ get files(): ResolvedFile[]
 
 #### Defined in
 
-[FileManager.ts:56](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L56)
+[FileManager.ts:56](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L56)
 
 ***
 
@@ -48,7 +48,7 @@ get groupedFiles(): null | DirectoryTree
 
 #### Defined in
 
-[FileManager.ts:73](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L73)
+[FileManager.ts:73](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L73)
 
 ***
 
@@ -64,7 +64,7 @@ get orderedFiles(): ResolvedFile[]
 
 #### Defined in
 
-[FileManager.ts:60](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L60)
+[FileManager.ts:60](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L60)
 
 ***
 
@@ -80,7 +80,7 @@ get treeNode(): null | TreeNode
 
 #### Defined in
 
-[FileManager.ts:77](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L77)
+[FileManager.ts:77](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L77)
 
 ## Methods
 
@@ -104,7 +104,7 @@ add<T>(...files): AddResult<T>
 
 #### Defined in
 
-[FileManager.ts:81](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L81)
+[FileManager.ts:81](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L81)
 
 ***
 
@@ -120,7 +120,7 @@ clear(): void
 
 #### Defined in
 
-[FileManager.ts:107](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L107)
+[FileManager.ts:107](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L107)
 
 ***
 
@@ -140,7 +140,7 @@ deleteByPath(path): void
 
 #### Defined in
 
-[FileManager.ts:130](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L130)
+[FileManager.ts:130](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L130)
 
 ***
 
@@ -160,7 +160,7 @@ getBarrelFiles(__namedParameters): Promise<File[]>
 
 #### Defined in
 
-[FileManager.ts:139](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L139)
+[FileManager.ts:139](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L139)
 
 ***
 
@@ -180,7 +180,7 @@ getByPath(path): undefined | ResolvedFile
 
 #### Defined in
 
-[FileManager.ts:126](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L126)
+[FileManager.ts:126](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L126)
 
 ***
 
@@ -200,7 +200,7 @@ getCacheById(id): undefined | File
 
 #### Defined in
 
-[FileManager.ts:122](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L122)
+[FileManager.ts:122](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L122)
 
 ***
 
@@ -220,7 +220,7 @@ read(...params): Promise<string>
 
 #### Defined in
 
-[FileManager.ts:183](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L183)
+[FileManager.ts:183](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L183)
 
 ***
 
@@ -240,7 +240,7 @@ write(...params): Promise<undefined | string>
 
 #### Defined in
 
-[FileManager.ts:179](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L179)
+[FileManager.ts:179](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L179)
 
 ***
 
@@ -260,4 +260,4 @@ static getMode(path): Mode
 
 #### Defined in
 
-[FileManager.ts:188](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/FileManager.ts#L188)
+[FileManager.ts:188](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/FileManager.ts#L188)

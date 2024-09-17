@@ -14,19 +14,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks bas
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-msw
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-msw
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-msw
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-msw
 ```
 
@@ -127,9 +127,8 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
-::: tip
-When defining a custom output path, you should also update `output.path` to contain the same root path.
-:::
+> [!TIP]
+> When defining a custom output path, you should also update `output.path` to contain the same root path.
 
 ::: v-pre
 Relative path to save the grouped MSW mocks.
@@ -296,10 +295,10 @@ const plugin = pluginMsw({
 
 Make it possible to override one of the templates. <br/>
 
-::: tip
-See [templates](/reference/templates) for more information about creating templates.<br/>
-Set `false` to disable a template.
-:::
+> [!TIP]
+> See [templates](/reference/templates) for more information about creating templates.<br/>
+> Set `false` to disable a template.
+
 
 ::: info TYPE
 

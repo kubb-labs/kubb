@@ -7,30 +7,29 @@ outline: deep
 
 # Infer <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
 
-With the type `Infer` you can infer your Swagger/OpenAPI schema without the need of creating the types. This gives you the TypeScript power with autocomplete of specific paths and methods related to that path. <br/>
+With the type `Infer` you can infer your [Swagger/OpenAPI](/knowledge-base/oas) schema without the need of creating the types.
+This gives you TypeScript power with autocompletion of specific paths, methods and schemas.
 
-
-::: tip
-This can also be used as a standalone solution without the CLI generation.
-:::
+> [!TIP]
+> This can also be used as a standalone solution without the CLI generation.
 
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/oas
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/oas
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/oas
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/oas
 ```
 
@@ -165,7 +164,7 @@ const oas = {
 
 To infer models from an OpenAPI document, use the Model type.
 
-```typescript
+```typescript twoslash
 import type { Infer, Model } from '@kubb/oas'
 
 const oas = {
@@ -287,7 +286,7 @@ export type Pet = Model<Oas, 'Pet'>
 
 To infer request body parameters from an OpenAPI document, utilize the RequestParams type
 
-```typescript
+```typescript twoslash
 import type { Infer, RequestParams } from '@kubb/oas'
 
 const oas = {
@@ -403,13 +402,14 @@ export type Oas = Infer<typeof oas>
 
 export type AddPet = RequestParams<Oas, '/pets', 'post'>
 export type GetPet = RequestParams<Oas, '/pets', 'get'>
+//          ^?
 ```
 
 ### Response
 
 To infer the response body of an OpenAPI document, utilize the Response type
 
-```typescript
+```typescript twoslash
 import type { Infer, Response } from '@kubb/oas'
 
 const oas = {
@@ -524,4 +524,5 @@ const oas = {
 export type Oas = Infer<typeof oas>
 
 export type AddPetResponse = Response<Oas, '/pets', 'post'>
+//            ^?
 ```

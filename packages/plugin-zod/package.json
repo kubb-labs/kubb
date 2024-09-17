@@ -71,16 +71,16 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.2.4"
+    "tsup": "^8.3.0"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*"

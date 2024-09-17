@@ -22,4 +22,4 @@ optional x-nullable: boolean;
 
 ## Defined in
 
-[packages/oas/src/types.ts:11](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/types.ts#L11)
+[packages/oas/src/types.ts:11](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/types.ts#L11)

@@ -16,4 +16,4 @@ function pluginRedoc(options?): UserPluginWithLifeCycle<PluginRedoc>
 
 ## Defined in
 
-[plugin-redoc/src/plugin.ts:14](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-redoc/src/plugin.ts#L14)
+[plugin-redoc/src/plugin.ts:14](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-redoc/src/plugin.ts#L14)

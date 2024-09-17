@@ -8,4 +8,4 @@ type PluginFaker: PluginFactoryOptions<"plugin-faker", Options, ResolvedOptions,
 
 ## Defined in
 
-[plugin-faker/src/types.ts:124](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-faker/src/types.ts#L124)
+[plugin-faker/src/types.ts:105](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-faker/src/types.ts#L105)

@@ -48,7 +48,10 @@ By setting the following options you can override the default behavior of Kubb a
 ### name
 Optional config name to show in CLI output.
 
-- **Type:** `string` <br/>
+|       |          |
+| ----: |:---------|
+| Type: | `string` |
+| Required: | `false`  |
 
 ::: code-group
 ```typescript [kubb.config.ts]
@@ -92,14 +95,18 @@ export default defineConfig([
   },
 ])
 ```
+:::
 
 ### root
-Project root directory. Can be an absolute path, or a path relative to the location of the config file itself.
+Project root directory. This can be an absolute path or a path relative to the location of your `kubb.config.ts` file.
 
-- **Type:** `string` <br/>
-- **Default:** `process.cwd()` <br/>
+|          |                |
+|---------:|:---------------|
+|    Type: | `string`       |
+| Required: | `false`  |
+| Default: | `process.cwd()` |
 
-::: code-group
+
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 
@@ -113,7 +120,6 @@ export default defineConfig({
   },
 })
 ```
-:::
 
 ### input
 You can use `input.path` or `input.data` depending on the needs you have.
@@ -121,10 +127,11 @@ You can use `input.path` or `input.data` depending on the needs you have.
 #### input.path
 Define your Swagger/OpenAPI file. This can be an absolute path or a path relative to the `root`.
 
-- **Type:** `string` <br/>
-- **Required:** `true`
+|           |                 |
+|----------:|:----------------|
+|     Type: | `string`        |
+| Required: | `true`            |
 
-::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -137,16 +144,17 @@ export default defineConfig({
   },
 })
 ```
-:::
 
 #### input.data
 
-`string` or `object` containing your Swagger/OpenAPI
+`string` or `object` containing your Swagger/OpenAPI data.
 
-- **Type:** `string | unknown` <br/>
-- **Required:** `true`
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `string \| unknown` |
+| Required: | `true`              |
 
-::: code-group
+
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -161,18 +169,18 @@ export default defineConfig({
   },
 })
 ```
-:::
 
 ### output
 
 #### output.path
-Path to be used to export all generated files.<br/>
-This can be an absolute path, or a path relative from the defined `root` option.
+The path where all generated files will be exported.
+This can be an absolute path or a path relative to the specified `root` option.
 
-- **Type:** `string` <br/>
-- **Required:** `true`
+|           |                 |
+|----------:|:----------------|
+|     Type: | `string`        |
+| Required: | `true`            |
 
-::: code-group
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
@@ -186,14 +194,15 @@ export default defineConfig({
   },
 })
 ```
-:::
 
 #### output.clean
 Clean the output directory before each build.
 
-- **Type:** `boolean` <br/>
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
 
-::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -207,15 +216,17 @@ export default defineConfig({
   },
 })
 ```
-:::
 
 #### output.write
-Write files to the filesystem.
+Save files to the file system.
 
-- **Type:** `boolean` <br/>
-- **Default:** `true`
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `true`    |
+|  Default: | `true`     |
 
-::: code-group
+
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -230,18 +241,46 @@ export default defineConfig({
   },
 })
 ```
-:::
 
+#### output.exportType
+Define what needs to exported, here you can also disable the export of barrel files.
+
+|           |                                      |
+|----------:|:-------------------------------------|
+|     Type: | `'barrel' \| 'barrelNamed' \| false` |
+| Required: | `false`                              |
+|  Default: | `'barrelNamed'`                      |
+
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+    clean: true,
+    exportType: 'barrel',
+  },
+})
+```
 
 ### plugins
-- **Type:** `Array<KubbUserPlugin>` <br/>
 
-An array of Kubb plugins to use. The plugin/package can have some extra options defined by the plugin.
-Sometimes a plugin is dependent on another plugin, if that's the case you will get an error back from the plugin you installed.([see pre](/reference/pluginManager/)).<br/><br/>
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `Array<KubbUserPlugin>` |
+| Required: | `false`                 |
 
-How to use and set up plugins, see [plugins](/plugins/overview).
 
-::: code-group
+An array of Kubb plugins that will be used in the generation.
+Each plugin may include additional configurable options(defined in the plugin itself).
+If a plugin depends on another plugin, an error will be returned if the required dependency is missing. See pre for more details.
+
+How to use and set up plugins, see [plugins](/knowledge-base/plugins).
+
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -263,7 +302,6 @@ export default defineConfig({
   ],
 })
 ```
-:::
 
 ## Examples
 
@@ -273,7 +311,6 @@ export default defineConfig({
 > When using an `import` statement you need to set `"type": "module"` in your `package.json`.
 > You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
 
-::: code-group
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -289,15 +326,9 @@ export default defineConfig({
 })
 ```
 
-:::
-
 ### Conditional
-
 If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.
-
-Here you can choose between returning the config options synchronously or asynchronously.
-
-::: code-group
+Here you can choose between returning the config options **synchronously** or **asynchronously**.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
@@ -315,8 +346,6 @@ export default defineConfig(({ config, watch, logLevel }) => {
   }
 })
 ```
-
-:::
 
 ### Multiple plugins
 

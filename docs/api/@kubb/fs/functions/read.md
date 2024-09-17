@@ -16,4 +16,4 @@ function read(path): Promise<string>
 
 ## Defined in
 
-[read.ts:62](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/fs/src/read.ts#L62)
+[read.ts:62](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/fs/src/read.ts#L62)

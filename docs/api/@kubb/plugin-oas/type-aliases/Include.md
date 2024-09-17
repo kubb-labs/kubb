@@ -8,4 +8,4 @@ type Include: ByTag | ByOperationId | ByPath | ByMethod;
 
 ## Defined in
 
-[plugin-oas/src/types.ts:151](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-oas/src/types.ts#L151)
+[plugin-oas/src/types.ts:145](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-oas/src/types.ts#L145)

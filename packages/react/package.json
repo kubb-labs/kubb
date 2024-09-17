@@ -86,7 +86,7 @@
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "auto-bind": "^5.0.1",
-    "execa": "^9.3.1",
+    "execa": "^9.4.0",
     "natural-orderby": "^3.0.2",
     "react": "^18.3.1",
     "react-devtools-core": "^5.3.1",
@@ -97,11 +97,11 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.6",
+    "@types/react": "^18.3.7",
     "@types/react-reconciler": "^0.28.8",
     "@types/signal-exit": "^3.0.4",
     "@types/ws": "^8.5.12",
-    "tsup": "^8.2.4",
+    "tsup": "^8.3.0",
     "typescript": "^5.6.2"
   },
   "engines": {

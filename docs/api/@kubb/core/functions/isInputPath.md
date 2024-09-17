@@ -16,4 +16,4 @@ function isInputPath(result): result is Config<InputPath>
 
 ## Defined in
 
-[config.ts:47](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/config.ts#L47)
+[config.ts:45](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/config.ts#L45)

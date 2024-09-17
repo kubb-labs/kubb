@@ -19,19 +19,19 @@ With the Swagger Tanstack Query plugin you can create:
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-react-query
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-react-query
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-react-query
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-react-query
 ```
 
@@ -132,9 +132,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
-::: tip
-When defining a custom output path, you should also update `output.path` to contain the same root path.
-:::
+> [!TIP]
+> When defining a custom output path, you should also update `output.path` to contain the same root path.
+
 
 ::: v-pre
 Relative path to save the grouped [Tanstack Query](https://tanstack.com/query) hooks.

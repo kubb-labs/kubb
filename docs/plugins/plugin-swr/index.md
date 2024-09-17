@@ -14,19 +14,19 @@ file.
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-swr
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-swr
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-swr
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-swr
 ```
 
@@ -129,9 +129,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
-::: tip
-When defining a custom output path, you should also update `output.path` to contain the same root path.
-:::
+
+> [!TIP]
+> When defining a custom output path, you should also update `output.path` to contain the same root path.
 
 ::: v-pre
 Relative path to save the grouped SWR hooks.

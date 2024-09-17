@@ -20,7 +20,7 @@ new FunctionParams(params): FunctionParams
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:162](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/react/src/utils/getFunctionParams.ts#L162)
+[packages/react/src/utils/getFunctionParams.ts:166](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/utils/getFunctionParams.ts#L166)
 
 ## Accessors
 
@@ -36,15 +36,19 @@ get params(): Params
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:166](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/react/src/utils/getFunctionParams.ts#L166)
+[packages/react/src/utils/getFunctionParams.ts:170](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/utils/getFunctionParams.ts#L170)
 
 ## Methods
 
 ### toCall()
 
 ```ts
-toCall(): string
+toCall(__namedParameters): string
 ```
+
+#### Parameters
+
+• **\_\_namedParameters**: `Pick`\<`Options`, `"transformName"` \| `"transformType"`\> = `{}`
 
 #### Returns
 
@@ -52,7 +56,7 @@ toCall(): string
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:170](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/react/src/utils/getFunctionParams.ts#L170)
+[packages/react/src/utils/getFunctionParams.ts:174](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/utils/getFunctionParams.ts#L174)
 
 ***
 
@@ -74,7 +78,7 @@ toConstructor(__namedParameters): string
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:174](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/react/src/utils/getFunctionParams.ts#L174)
+[packages/react/src/utils/getFunctionParams.ts:178](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/utils/getFunctionParams.ts#L178)
 
 ***
 
@@ -94,4 +98,4 @@ static factory(params): FunctionParams
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:159](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/react/src/utils/getFunctionParams.ts#L159)
+[packages/react/src/utils/getFunctionParams.ts:163](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/utils/getFunctionParams.ts#L163)

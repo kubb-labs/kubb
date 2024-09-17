@@ -6,9 +6,7 @@
 function defineConfig(options): typeof options
 ```
 
-Type helper to make it easier to use kubb.config.js
-accepts a direct Config object, or a function that returns it.
-The function receives a ConfigEnv object that exposes two properties:
+Type helper to make it easier to use vite.config.ts accepts a direct UserConfig object, or a function that returns it. The function receives a ConfigEnv object.
 
 ## Parameters
 
@@ -20,4 +18,4 @@ The function receives a ConfigEnv object that exposes two properties:
 
 ## Defined in
 
-[config.ts:36](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/config.ts#L36)
+[config.ts:34](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/config.ts#L34)

@@ -26,6 +26,7 @@ Renames and re-exports [build](functions/build.md)
 | [GetPluginFactoryOptions](type-aliases/GetPluginFactoryOptions.md) | - |
 | [InputData](type-aliases/InputData.md) | - |
 | [InputPath](type-aliases/InputPath.md) | - |
+| [Output](type-aliases/Output.md) | - |
 | [Plugin](type-aliases/Plugin.md) | - |
 | [PluginCache](type-aliases/PluginCache.md) | - |
 | [PluginContext](type-aliases/PluginContext.md) | - |
@@ -47,7 +48,7 @@ Renames and re-exports [build](functions/build.md)
 | ------ | ------ |
 | [build](functions/build.md) | - |
 | [createPlugin](functions/createPlugin.md) | - |
-| [defineConfig](functions/defineConfig.md) | Type helper to make it easier to use kubb.config.js accepts a direct Config object, or a function that returns it. The function receives a ConfigEnv object that exposes two properties: |
+| [defineConfig](functions/defineConfig.md) | Type helper to make it easier to use vite.config.ts accepts a direct UserConfig object, or a function that returns it. The function receives a ConfigEnv object. |
 | [getSource](functions/getSource.md) | - |
 | [isInputPath](functions/isInputPath.md) | - |
 | [safeBuild](functions/safeBuild.md) | - |

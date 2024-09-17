@@ -8,4 +8,4 @@ type PluginReactQuery: PluginFactoryOptions<"plugin-react-query", Options, Resol
 
 ## Defined in
 
-[plugin-react-query/src/types.ts:202](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-react-query/src/types.ts#L202)
+[plugin-react-query/src/types.ts:186](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-react-query/src/types.ts#L186)

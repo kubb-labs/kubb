@@ -8,4 +8,4 @@ type PluginZod: PluginFactoryOptions<"plugin-zod", Options, ResolvedOptions, nev
 
 ## Defined in
 
-[plugin-zod/src/types.ts:131](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/plugin-zod/src/types.ts#L131)
+[plugin-zod/src/types.ts:113](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-zod/src/types.ts#L113)

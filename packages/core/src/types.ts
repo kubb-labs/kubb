@@ -29,14 +29,14 @@ export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
 
 export type InputPath = {
   /**
-   * Path to be used as the input. This can be an absolute path or a path relative to the `root`.
+   * Define your Swagger/OpenAPI file. This can be an absolute path or a path relative to the `root`.
    */
   path: string
 }
 
 export type InputData = {
   /**
-   * `string` or `object` containing the data.
+   * `string` or `object` containing your Swagger/OpenAPI data.
    */
   data: string | unknown
 }
@@ -52,38 +52,38 @@ export type Config<TInput = Input> = {
    */
   name?: string
   /**
-   * Project root directory. Can be an absolute path, or a path relative from
-   * the location of the config file itself.
+   * Project root directory. This can be an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
    */
   root: string
+  /**
+   * You can use `input.path` or `input.data` depending on the needs you have.
+   */
   input: TInput
   output: {
     /**
-     * Path to be used to export all generated files.
-     * This can be an absolute path, or a path relative based of the defined `root` option.
+     * The path where all generated files will be exported. This can be an absolute path or a path relative to the specified root option.
      */
     path: string
     /**
-     * Clean output directory before each build.
+     * Clean the output directory before each build.
      */
     clean?: boolean
     /**
-     * Write files to the fileSystem
-     * This is being used for the playground.
+     * Save files to the file system.
      * @default true
      */
     write?: boolean
     /**
-     * Define what needs to exported, here you can also disable the export of barrel files
+     * Define what needs to exported, here you can also disable the export of barrel files.
      * @default `'barrelNamed'`
      */
     exportType?: 'barrel' | 'barrelNamed' | false
   }
   /**
-   * Array of Kubb plugins to use.
-   * The plugin/package can forsee some options that you need to pass through.
-   * Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.
+   * An array of Kubb plugins that will be used in the generation.
+   * Each plugin may include additional configurable options(defined in the plugin itself).
+   * If a plugin depends on another plugin, an error will be returned if the required dependency is missing. See pre for more details.
    */
   plugins?: Array<Plugin>
   /**
@@ -297,11 +297,11 @@ export type Output = {
    */
   exportType?: 'barrel' | 'barrelNamed' | false
   /**
-   * Add a footer text in the beginning of every file
-   */
-  footer?: string
-  /**
    * Add a banner text in the beginning of every file
    */
   banner?: string
+  /**
+   * Add a footer text in the beginning of every file
+   */
+  footer?: string
 }

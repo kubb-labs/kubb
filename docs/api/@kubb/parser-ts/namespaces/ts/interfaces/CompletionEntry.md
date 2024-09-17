@@ -1,0 +1,287 @@
+[API](../../../../../packages.md) / [@kubb/parser-ts](../../../index.md) / [ts](../index.md) / CompletionEntry
+
+# CompletionEntry
+
+## Properties
+
+### commitCharacters?
+
+```ts
+optional commitCharacters: string[];
+```
+
+If this completion entry is selected, typing a commit character will cause the entry to be accepted.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10907
+
+***
+
+### data?
+
+```ts
+optional data: CompletionEntryData;
+```
+
+A property to be sent back to TS Server in the CompletionDetailsRequest, along with `name`,
+that allows TS Server to look up the symbol represented by the completion item, disambiguating
+items with the same name. Currently only defined for auto-import completions, but the type is
+`unknown` in the protocol, so it can be changed as needed to support other kinds of completions.
+The presence of this property should generally not be used to assume that this completion entry
+is an auto-import.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10903
+
+***
+
+### filterText?
+
+```ts
+optional filterText: string;
+```
+
+A string that should be used when filtering a set of
+completion items.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10840
+
+***
+
+### hasAction?
+
+```ts
+optional hasAction: true;
+```
+
+Indicates whether commiting this completion entry will require additional code actions to be
+made to avoid errors. The CompletionEntryDetails will have these actions.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10855
+
+***
+
+### insertText?
+
+```ts
+optional insertText: string;
+```
+
+Text to insert instead of `name`.
+This is used to support bracketed completions; If `name` might be "a-b" but `insertText` would be `["a-b"]`,
+coupled with `replacementSpan` to replace a dotted access with a bracket access.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10835
+
+***
+
+### isFromUncheckedFile?
+
+```ts
+optional isFromUncheckedFile: true;
+```
+
+If true, this completion was generated from traversing the name table of an unchecked JS file,
+and therefore may not be accurate.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10878
+
+***
+
+### isImportStatementCompletion?
+
+```ts
+optional isImportStatementCompletion: true;
+```
+
+If true, this completion was an auto-import-style completion of an import statement (i.e., the
+module specifier was inserted along with the imported identifier). Used for telemetry reporting.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10888
+
+***
+
+### isPackageJsonImport?
+
+```ts
+optional isPackageJsonImport: true;
+```
+
+If true, this completion was for an auto-import of a module not yet in the program, but listed
+in the project package.json. Used for telemetry reporting.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10883
+
+***
+
+### isRecommended?
+
+```ts
+optional isRecommended: true;
+```
+
+If true, this completion should be highlighted as recommended. There will only be one of these.
+This will be set when we know the user should write an expression with a certain type and that type is an enum or constructable class.
+Then either that enum/class or a namespace containing it will be the recommended symbol.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10873
+
+***
+
+### isSnippet?
+
+```ts
+optional isSnippet: true;
+```
+
+`insertText` should be interpreted as a snippet if true.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10844
+
+***
+
+### kind
+
+```ts
+kind: ScriptElementKind;
+```
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10823
+
+***
+
+### kindModifiers?
+
+```ts
+optional kindModifiers: string;
+```
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10824
+
+***
+
+### labelDetails?
+
+```ts
+optional labelDetails: CompletionEntryLabelDetails;
+```
+
+Additional details for the label.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10867
+
+***
+
+### name
+
+```ts
+name: string;
+```
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10822
+
+***
+
+### replacementSpan?
+
+```ts
+optional replacementSpan: TextSpan;
+```
+
+An optional span that indicates the text to be replaced by this completion item.
+If present, this span should be used instead of the default one.
+It will be set if the required span differs from the one generated by the default replacement behavior.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10850
+
+***
+
+### sortText
+
+```ts
+sortText: string;
+```
+
+A string that is used for comparing completion items so that they can be ordered. This
+is often the same as the name but may be different in certain circumstances.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10829
+
+***
+
+### source?
+
+```ts
+optional source: string;
+```
+
+Identifier (not necessarily human-readable) identifying where this completion came from.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10859
+
+***
+
+### sourceDisplay?
+
+```ts
+optional sourceDisplay: SymbolDisplayPart[];
+```
+
+Human-readable description of the `source`.
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10863
+
+***
+
+### symbol?
+
+```ts
+optional symbol: Symbol;
+```
+
+For API purposes.
+Included for non-string completions only when `includeSymbol: true` option is passed to `getCompletionsAtPosition`.
+
+#### Example
+
+```ts
+Get declaration of completion: `symbol.valueDeclaration`
+```
+
+#### Defined in
+
+node\_modules/.pnpm/typescript@5.6.2/node\_modules/typescript/lib/typescript.d.ts:10894

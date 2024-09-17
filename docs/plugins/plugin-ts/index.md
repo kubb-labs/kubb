@@ -13,19 +13,19 @@ With the TypeScript plugin you can create [TypeScript](https://www.typescriptlan
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-ts
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-ts
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-ts
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-ts
 ```
 
@@ -125,9 +125,8 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
-::: tip
-When defining a custom output path, you should also update `output.path` to contain the same root path.
-:::
+> [!TIP]
+> When defining a custom output path, you should also update `output.path` to contain the same root path.
 
 ::: v-pre
 Relative path to save the grouped TypeScript Types.

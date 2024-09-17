@@ -7,6 +7,7 @@ import type { Theme } from 'vitepress'
 import HomePage from './HomePage.vue'
 
 import '@shikijs/vitepress-twoslash/style.css'
+import 'virtual:group-icons.css'
 import './style.css'
 
 import allContributorsStr from '../../../.all-contributorsrc?raw'

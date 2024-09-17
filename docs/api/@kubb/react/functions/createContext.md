@@ -39,4 +39,4 @@ const ThemeContext = createContext('light');
 
 ## Defined in
 
-node\_modules/.pnpm/@types+react@18.3.5/node\_modules/@types/react/index.d.ts:774
+node\_modules/.pnpm/@types+react@18.3.7/node\_modules/@types/react/index.d.ts:774

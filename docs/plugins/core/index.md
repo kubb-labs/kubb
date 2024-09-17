@@ -5,7 +5,7 @@ title: \@kubb/core
 outline: deep
 ---
 
-# @kubb/core <a href="https://paka.dev/npm/@kubb/core@latest/api">🦙</a>
+# @kubb/core
 
 The core contains the building blocks for all plugins.
 
@@ -27,19 +27,19 @@ The core contains the building blocks for all plugins.
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/core
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/core
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/core
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/core
 ```
 

@@ -38,7 +38,7 @@ new Oas<TOAS>(__namedParameters, options): Oas<TOAS>
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:19](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L19)
+[packages/oas/src/Oas.ts:19](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L19)
 
 ## Properties
 
@@ -105,7 +105,7 @@ document: TOAS;
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:17](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L17)
+[packages/oas/src/Oas.ts:17](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L17)
 
 ***
 
@@ -218,7 +218,7 @@ dereferenceWithRef(schema?): any
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:30](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L30)
+[packages/oas/src/Oas.ts:30](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L30)
 
 ***
 
@@ -519,7 +519,7 @@ getParametersSchema(operation, inKey): null | SchemaObject
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:153](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L153)
+[packages/oas/src/Oas.ts:153](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L153)
 
 ***
 
@@ -567,7 +567,7 @@ getRequestSchema(operation): undefined | SchemaObject
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:131](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L131)
+[packages/oas/src/Oas.ts:131](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L131)
 
 ***
 
@@ -589,7 +589,7 @@ getResponseSchema(operation, statusCode): SchemaObject
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:98](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L98)
+[packages/oas/src/Oas.ts:98](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L98)
 
 ***
 
@@ -895,7 +895,7 @@ valdiate(): Promise<void>
 
 #### Defined in
 
-[packages/oas/src/Oas.ts:190](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/oas/src/Oas.ts#L190)
+[packages/oas/src/Oas.ts:190](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/oas/src/Oas.ts#L190)
 
 ***
 
@@ -994,7 +994,7 @@ static init(oas, user?): Oas
 ```
 
 This will initialize a new instance of the `Oas` class. This method is useful if you're using
-TypeScript and are attempting to supply an untyped JSON object into `Oas` as it will force-type
+Typescript and are attempting to supply an untyped JSON object into `Oas` as it will force-type
 that object to an `OASDocument` for you.
 
 #### Parameters

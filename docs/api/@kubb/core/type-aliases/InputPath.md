@@ -14,8 +14,8 @@ type InputPath: object;
 path: string;
 ```
 
-Path to be used as the input. This can be an absolute path or a path relative to the `root`.
+Define your Swagger/OpenAPI file. This can be an absolute path or a path relative to the `root`.
 
 ## Defined in
 
-[types.ts:30](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/types.ts#L30)
+[types.ts:30](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/types.ts#L30)

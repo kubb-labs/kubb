@@ -9,16 +9,17 @@
 
 :root {
   --vp-c-brand: #f58517;
-  --vp-c-brand-light: #f58517;
-  --vp-c-brand-lighter: #f58517;
-  --vp-c-brand-lightest: #f58517;
+  --vp-c-brand-light:  var(--vp-c-brand);
+  --vp-c-brand-lighter: var(--vp-c-brand);
+  --vp-c-brand-lightest: var(--vp-c-brand);
   --vp-c-brand-dark: #854811;
   --vp-c-brand-darker: #854811;
   --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
   --vp-c-brand-1: var(--vp-c-brand);
+  --vp-c-brand-2: #f3c796;
   --vp-badge-tip-text: var(--vp-c-indigo-1);
 
-  --twoslash-popup-bg: #f58517;
+  --twoslash-popup-bg: var(--vp-c-brand);
 }
 
 .dark {
@@ -215,6 +216,18 @@
   display: inline-block;
   margin-left: 0.3rem;
   height: 16px;
+}
+
+.vp-doc tr.transposed-table:nth-child(2n) {
+  background: transparent;
+}
+
+.vp-doc tr.transposed-table:nth-child(2n + 1) {
+  background: var(--vp-c-bg-soft);
+}
+
+.vp-doc tr.transposed-table > th {
+  white-space: nowrap;
 }
 
 .dark #VPSidebarNav > .group:nth-child(-n + 9):not(:first-child) > .VPSidebarItem > .item > .text::before {

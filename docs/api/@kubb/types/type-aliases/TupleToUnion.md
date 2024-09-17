@@ -12,4 +12,4 @@ type TupleToUnion<T>: T extends any[] ? T[number] : never;
 
 ## Defined in
 
-[index.ts:20](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/types/src/index.ts#L20)
+[index.ts:20](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/types/src/index.ts#L20)

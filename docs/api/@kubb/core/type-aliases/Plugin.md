@@ -30,40 +30,6 @@ options: TOptions["resolvedOptions"];
 
 Options set for a specific plugin(see kubb.config.js), passthrough of options.
 
-### output?
-
-```ts
-optional output: object;
-```
-
-### output.exportType?
-
-```ts
-optional output.exportType: "barrel" | "barrelNamed" | false;
-```
-
-Define what needs to exported, here you can also disable the export of barrel files
-
-#### Default
-
-`'barrelNamed'`
-
-### output.extName?
-
-```ts
-optional output.extName: KubbFile.Extname;
-```
-
-Add an extension to the generated imports and exports, default it will not use an extension
-
-### output.path
-
-```ts
-output.path: string;
-```
-
-Output to save the clients.
-
 ### post?
 
 ```ts
@@ -87,4 +53,4 @@ Can be used to validate dependent plugins.
 
 ## Defined in
 
-[types.ts:172](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/types.ts#L172)
+[types.ts:172](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/types.ts#L172)

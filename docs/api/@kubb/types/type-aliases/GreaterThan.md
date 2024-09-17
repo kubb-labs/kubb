@@ -14,4 +14,4 @@ type GreaterThan<T, U>: ArrayWithLength<U> extends [...ArrayWithLength<T>, ...(i
 
 ## Defined in
 
-[index.ts:24](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/types/src/index.ts#L24)
+[index.ts:24](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/types/src/index.ts#L24)

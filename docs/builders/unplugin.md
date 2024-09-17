@@ -5,31 +5,31 @@ title: unplugin-kubb
 outline: deep
 ---
 
-# unplugin-kubb <a href="https://paka.dev/npm/unplugin-kubb@latest/api">🦙</a>
+# unplugin-kubb
 
-Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
+Kubb plugin for Vite, Webpack, EsBuild, Rollup, Nuxt, Astro and Rspack.
 
-::: tip
-The `hook` option will not work with Unplugin. If you need to run Prettier or ESLint after the generation, use Kubb CLI instead.
-:::
+> [!TIP]
+> The `hook` option will not work with Unplugin. If you need to run Prettier or ESLint after the generation, use Kubb CLI instead.
+
 
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add unplugin-kubb @kubb/core
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add unplugin-kubb @kubb/core
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install unplugin-kubb @kubb/core
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add unplugin-kubb @kubb/core
 ```
 
@@ -41,9 +41,9 @@ yarn add unplugin-kubb @kubb/core
 
 Define the options for Kubb.
 
-::: info TYPE
 
-```typescript [Options]
+::: code-group
+```typescript twoslash [Options]
 import type { UserConfig } from "@kubb/core"
 
 type Options = {
@@ -51,14 +51,7 @@ type Options = {
 }
 ```
 
-:::
-
-::: info
-
-Type: `Options` <br/>
-
-
-```typescript [vite.config.ts]
+```typescript twoslash [vite.config.ts]
 import kubb from 'unplugin-kubb/vite'
 import { defineConfig as defineViteConfig } from 'vite'
 import { defineConfig, UserConfig } from '@kubb/core'
@@ -75,7 +68,7 @@ export const config: UserConfig = {
     clean: true,
   },
   plugins: [
-    pluginOas({ output: false }),
+    pluginOas(),
     pluginTs({
       output: {
         path: 'models',
@@ -97,9 +90,11 @@ export default defineViteConfig({
 
 ## Examples
 
-### Vite
 
-```ts
+
+::: code-group
+
+```ts [Vite]
 // vite.config.ts
 import kubb from 'unplugin-kubb/vite'
 
@@ -110,9 +105,7 @@ export default defineConfig({
 })
 ```
 
-### Rollup
-
-```ts
+```js [Rollup]
 // rollup.config.js
 import kubb from 'unplugin-kubb/rollup'
 
@@ -123,9 +116,7 @@ export default {
 }
 ```
 
-### webpack
-
-```ts
+```js [webpack]
 // webpack.config.js
 module.exports = {
   /* ... */
@@ -135,22 +126,29 @@ module.exports = {
 }
 ```
 
-### Nuxt
+```js [Rspack]
+// rspack.config.js
+module.exports = {
+  /* ... */
+  plugins: [
+    require('unplugin-kubb/rspack')({ /* options */ })
+  ]
+}
+```
 
-```ts
-// nuxt.config.js
-export default defineNuxtConfig({
-  modules: [
-    ['unplugin-kubb/nuxt', {/* options */}],
+```js [esbuild]
+// esbuild.config.js
+import { build } from 'esbuild'
+import kubb from 'unplugin-kubb/esbuild'
+
+build({
+  plugins: [
+    kubb({/* options */}),
   ],
 })
 ```
 
-> This module works for both Nuxt 2 and [Nuxt Vite](https://github.com/nuxt/vite)
-
-### Vue CLI
-
-```ts
+```js [Vue-CLI]
 // vue.config.js
 module.exports = {
   configureWebpack: {
@@ -161,17 +159,28 @@ module.exports = {
 }
 ```
 
-### esbuild
-
-```ts
-// esbuild.config.js
-import { build } from 'esbuild'
-import kubb from 'unplugin-kubb/esbuild'
-
-build({
-  plugins: [kubb()],
+```js [Nuxt]
+// nuxt.config.js
+export default defineNuxtConfig({
+  modules: [
+    ['unplugin-kubb/nuxt', {/* options */}],
+  ],
 })
 ```
+```js [Astro]
+// astro.config.mjs
+import { defineConfig } from 'astro/config'
+import Kubb from 'unplugin-kubb/astro'
+
+// https://astro.build/config
+export default defineConfig({
+  integrations: [
+    Kubb({/* options */})
+  ]
+})
+```
+:::
+
 
 ## Links
 

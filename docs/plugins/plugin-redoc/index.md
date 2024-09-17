@@ -7,28 +7,27 @@ outline: deep
 
 # @kubb/plugin-redoc
 
-With the Redoc plugin you can create beautiful docs pages.
-<hr/>
+With the Redoc plugin you can create beautiful documentation.
+
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/plugin-redoc
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/plugin-redoc
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/plugin-redoc
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/plugin-redoc
 ```
-
 :::
 
 ## Options
@@ -36,15 +35,15 @@ yarn add @kubb/plugin-redoc
 ### output
 #### output.path
 
-Output for the generated doc, we are using [https://redocly.com/](https://redocly.com/) for the generation<br/>
+Output for the generated doc, [https://redocly.com/](https://redocly.com/) is being used for the generation.
 
-::: info
-Type: `string | false` <br/>
-Default: `'docs.html'`
+|           |                |
+|----------:|:---------------|
+|     Type: | `string`       |
+| Required: | `false`        |
+|  Default: | `'docs.html'`  |
 
-::: code-group
-
-```typescript
+```typescript twoslash
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({
@@ -53,11 +52,10 @@ const plugin = pluginOas({
   },
 })
 ```
-:::
 
 ## Example
 
-```typescript
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginRedoc } from '@kubb/plugin-redoc'
 
@@ -79,3 +77,5 @@ export default defineConfig({
 ```
 
 ## Links
+
+- [https://redocly.com/](https://redocly.com/)

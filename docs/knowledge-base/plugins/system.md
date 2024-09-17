@@ -134,9 +134,9 @@ To get started with creating plugins you need to set some options for the `Plugi
 More info about the lifecycle: [PluginManager Lifecycle](/reference/pluginManager/lifecycle)<br/>
 More info about the `PluginContext` or `this`: [Plugin Core](/plugins/development/core)
 
-::: tip
-When using type PluginOptions with `PluginFactoryOptions` you will already receive better types, name will be what you have defined as the first parameter to `PluginFactoryOptions` instead of string.
-:::
+> [!TIP]
+> When using type PluginOptions with `PluginFactoryOptions` you will already receive better types, name will be what you have defined as the first parameter to `PluginFactoryOptions` instead of string.
+
 
 - **Type:** `KubbUserPluginWithLifeCycle` <br/>
 

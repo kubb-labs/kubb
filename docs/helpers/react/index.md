@@ -5,29 +5,27 @@ title: \@kubb/react
 outline: deep
 ---
 
-# @kubb/react <a href="https://paka.dev/npm/@kubb/react@latest/api">🦙</a>
+# @kubb/react
 
 Use React to create templates/variants for any plugin.
-
-<hr/>
 
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>]
+```shell [bun]
 bun add @kubb/react
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
+```shell [pnpm]
 pnpm add @kubb/react
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>]
+```shell [npm]
 npm install @kubb/react
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>]
+```shell [yarn]
 yarn add @kubb/react
 ```
 

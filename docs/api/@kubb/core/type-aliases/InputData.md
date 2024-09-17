@@ -14,8 +14,8 @@ type InputData: object;
 data: string | unknown;
 ```
 
-`string` or `object` containing the data.
+`string` or `object` containing your Swagger/OpenAPI data.
 
 ## Defined in
 
-[types.ts:37](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/types.ts#L37)
+[types.ts:37](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/types.ts#L37)

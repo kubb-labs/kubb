@@ -29,9 +29,7 @@ type Args = {
 }
 
 /**
- * Type helper to make it easier to use kubb.config.js
- * accepts a direct {@link Config} object, or a function that returns it.
- * The function receives a {@link ConfigEnv} object that exposes two properties:
+ * Type helper to make it easier to use vite.config.ts accepts a direct UserConfig object, or a function that returns it. The function receives a ConfigEnv object.
  */
 export function defineConfig(
   options:

@@ -9,9 +9,8 @@ outline: deep
 
 The `FileManager` instance contains the building blocks in writing files, combining excludes or includes, creating barrel files.
 
-::: tip
-What has been written is managed by the [PluginManager](/reference/pluginManager/). The `FileManager` has no idea what has been processed and what not.
-:::
+> [!TIP]
+> What has been written is managed by the [PluginManager](/reference/pluginManager/). The `FileManager` has no idea what has been processed and what not.
 
 ### fileManager.files
 
@@ -33,9 +32,9 @@ When creating a new instance you can set a `task` and that will be used in the q
 
 Here we will also check if the file already exists and if so we will append(combining the import, exports and source). You can disable this behavior by setting `override` on the file object(`KubbFile.File`).
 
-::: tip
-`name` will be added, this is based on the baseName but without the extension.
-:::
+> [!TIP]
+> `name` will be added, this is based on the baseName but without the extension.
+
 
 - **Type:** `(...files: Array<KubbFile.File>): Promise<Array<KubbFile.File>>` <br/>
 
@@ -43,9 +42,9 @@ Here we will also check if the file already exists and if so we will append(comb
 
 Add `index.ts` files, we use `BarrelManager` to create all the index files needed for the folder tree(based on the output). The `BarrelManager` will go through your folder structure(based on the output) and create an index file for every folder.
 
-::: tip
-By setting the `output.exportType` to `false` you can disable the creation of barrel files.
-:::
+> [!TIP]
+> By setting the `output.exportType` to `false` you can disable the creation of barrel files.
+
 
 - **Type:** `(AddIndexesProps): Promise<Array<KubbFile.File> | undefined>)` <br/>
 

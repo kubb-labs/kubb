@@ -20,7 +20,7 @@ new PackageManager(workspace?): PackageManager
 
 #### Defined in
 
-[PackageManager.ts:24](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L24)
+[PackageManager.ts:24](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L24)
 
 ## Accessors
 
@@ -44,7 +44,7 @@ set workspace(workspace): void
 
 #### Defined in
 
-[PackageManager.ts:36](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L36)
+[PackageManager.ts:36](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L36)
 
 ## Methods
 
@@ -64,7 +64,7 @@ getLocation(path): string
 
 #### Defined in
 
-[PackageManager.ts:48](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L48)
+[PackageManager.ts:48](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L48)
 
 ***
 
@@ -80,7 +80,7 @@ getPackageJSON(): Promise<undefined | PackageJSON>
 
 #### Defined in
 
-[PackageManager.ts:76](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L76)
+[PackageManager.ts:76](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L76)
 
 ***
 
@@ -96,7 +96,7 @@ getPackageJSONSync(): undefined | PackageJSON
 
 #### Defined in
 
-[PackageManager.ts:89](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L89)
+[PackageManager.ts:89](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L89)
 
 ***
 
@@ -116,7 +116,7 @@ getVersion(dependency): Promise<undefined | string>
 
 #### Defined in
 
-[PackageManager.ts:121](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L121)
+[PackageManager.ts:121](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L121)
 
 ***
 
@@ -136,7 +136,7 @@ getVersionSync(dependency): undefined | string
 
 #### Defined in
 
-[PackageManager.ts:135](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L135)
+[PackageManager.ts:135](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L135)
 
 ***
 
@@ -156,7 +156,7 @@ import(path): Promise<any>
 
 #### Defined in
 
-[PackageManager.ts:59](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L59)
+[PackageManager.ts:59](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L59)
 
 ***
 
@@ -178,7 +178,7 @@ isValid(dependency, version): Promise<boolean>
 
 #### Defined in
 
-[PackageManager.ts:149](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L149)
+[PackageManager.ts:149](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L149)
 
 ***
 
@@ -200,7 +200,7 @@ isValidSync(dependency, version): boolean
 
 #### Defined in
 
-[PackageManager.ts:168](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L168)
+[PackageManager.ts:168](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L168)
 
 ***
 
@@ -220,7 +220,7 @@ normalizeDirectory(directory): string
 
 #### Defined in
 
-[PackageManager.ts:40](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L40)
+[PackageManager.ts:40](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L40)
 
 ***
 
@@ -242,4 +242,4 @@ static setVersion(dependency, version): void
 
 #### Defined in
 
-[PackageManager.ts:102](https://github.com/kubb-project/kubb/blob/dcebbafbee668a7722775212bce85eec29e39573/packages/core/src/PackageManager.ts#L102)
+[PackageManager.ts:102](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PackageManager.ts#L102)
