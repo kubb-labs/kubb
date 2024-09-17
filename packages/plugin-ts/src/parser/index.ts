@@ -2,8 +2,8 @@ import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
-import type { ts } from '@kubb/parser-ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import type ts from 'typescript'
 
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,

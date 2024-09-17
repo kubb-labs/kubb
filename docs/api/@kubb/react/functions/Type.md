@@ -16,4 +16,4 @@ function Type(__namedParameters): KubbNode
 
 ## Defined in
 
-[packages/react/src/components/Type.tsx:23](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/react/src/components/Type.tsx#L23)
+[packages/react/src/components/Type.tsx:23](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/components/Type.tsx#L23)

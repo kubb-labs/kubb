@@ -10,18 +10,18 @@ function createTypeAliasDeclaration(__namedParameters): TypeAliasDeclaration
 
 • **\_\_namedParameters**
 
-• **\_\_namedParameters.modifiers?**: [`Modifier`](../../ts/type-aliases/Modifier.md)[]
+• **\_\_namedParameters.modifiers?**: `Modifier`[]
 
-• **\_\_namedParameters.name**: `string` \| [`Identifier`](../../ts/interfaces/Identifier.md)
+• **\_\_namedParameters.name**: `string` \| `Identifier`
 
-• **\_\_namedParameters.type**: [`TypeNode`](../../ts/interfaces/TypeNode.md)
+• **\_\_namedParameters.type**: `TypeNode`
 
-• **\_\_namedParameters.typeParameters?**: [`TypeParameterDeclaration`](../../ts/interfaces/TypeParameterDeclaration.md)[]
+• **\_\_namedParameters.typeParameters?**: `TypeParameterDeclaration`[]
 
 ## Returns
 
-[`TypeAliasDeclaration`](../../ts/interfaces/TypeAliasDeclaration.md)
+`TypeAliasDeclaration`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:237](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L237)
+[packages/parser-ts/src/factory.ts:237](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L237)

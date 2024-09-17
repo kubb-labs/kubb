@@ -14,12 +14,12 @@ function createOmitDeclaration(__namedParameters): TypeReferenceNode
 
 • **\_\_namedParameters.nonNullable?**: `boolean`
 
-• **\_\_namedParameters.type**: [`TypeNode`](../../ts/interfaces/TypeNode.md)
+• **\_\_namedParameters.type**: `TypeNode`
 
 ## Returns
 
-[`TypeReferenceNode`](../../ts/interfaces/TypeReferenceNode.md)
+`TypeReferenceNode`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:506](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L506)
+[packages/parser-ts/src/factory.ts:506](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L506)

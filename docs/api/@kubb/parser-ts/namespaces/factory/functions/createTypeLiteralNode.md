@@ -8,12 +8,12 @@ function createTypeLiteralNode(members): TypeLiteralNode
 
 ## Parameters
 
-• **members**: `undefined` \| readonly [`TypeElement`](../../ts/interfaces/TypeElement.md)[]
+• **members**: `undefined` \| readonly `TypeElement`[]
 
 ## Returns
 
-[`TypeLiteralNode`](../../ts/interfaces/TypeLiteralNode.md)
+`TypeLiteralNode`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:543](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L543)
+[packages/parser-ts/src/factory.ts:543](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L543)

@@ -8,12 +8,12 @@ function createQuestionToken(token?): undefined | PunctuationToken<QuestionToken
 
 ## Parameters
 
-• **token?**: `boolean` \| [`QuestionToken`](../../ts/type-aliases/QuestionToken.md)
+• **token?**: `boolean` \| `QuestionToken`
 
 ## Returns
 
-`undefined` \| [`PunctuationToken`](../../ts/interfaces/PunctuationToken.md)\<[`QuestionToken`](../../ts/enumerations/SyntaxKind.md#questiontoken)\>
+`undefined` \| `PunctuationToken`\<`QuestionToken`\>
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:33](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L33)
+[packages/parser-ts/src/factory.ts:33](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L33)

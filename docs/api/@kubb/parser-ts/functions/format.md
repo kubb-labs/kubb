@@ -18,4 +18,4 @@ Format the generated code based on the TypeScript printer.
 
 ## Defined in
 
-[packages/parser-ts/src/format.ts:6](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/format.ts#L6)
+[packages/parser-ts/src/format.ts:6](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/format.ts#L6)

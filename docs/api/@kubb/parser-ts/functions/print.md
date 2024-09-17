@@ -10,7 +10,7 @@ Convert AST TypeScript nodes to a string based on the TypeScript printer.
 
 ## Parameters
 
-• **elements**: [`Node`](../namespaces/ts/interfaces/Node.md)[]
+• **elements**: `Node`[]
 
 • **\_\_namedParameters**: `Options` = `{}`
 
@@ -20,4 +20,4 @@ Convert AST TypeScript nodes to a string based on the TypeScript printer.
 
 ## Defined in
 
-[packages/parser-ts/src/print.ts:29](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/print.ts#L29)
+[packages/parser-ts/src/print.ts:29](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/print.ts#L29)

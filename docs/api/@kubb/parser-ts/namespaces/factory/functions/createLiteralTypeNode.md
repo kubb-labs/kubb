@@ -8,12 +8,12 @@ function createLiteralTypeNode(literal): LiteralTypeNode
 
 ## Parameters
 
-• **literal**: [`LiteralExpression`](../../ts/interfaces/LiteralExpression.md) \| [`NullLiteral`](../../ts/interfaces/NullLiteral.md) \| [`BooleanLiteral`](../../ts/type-aliases/BooleanLiteral.md) \| [`PrefixUnaryExpression`](../../ts/interfaces/PrefixUnaryExpression.md)
+• **literal**: `LiteralExpression` \| `NullLiteral` \| `BooleanLiteral` \| `PrefixUnaryExpression`
 
 ## Returns
 
-[`LiteralTypeNode`](../../ts/interfaces/LiteralTypeNode.md)
+`LiteralTypeNode`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:551](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L551)
+[packages/parser-ts/src/factory.ts:551](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L551)

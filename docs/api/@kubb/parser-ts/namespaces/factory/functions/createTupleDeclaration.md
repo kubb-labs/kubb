@@ -3,7 +3,7 @@
 # createTupleDeclaration()
 
 ```ts
-function createTupleDeclaration(__namedParameters): TypeNode | null
+function createTupleDeclaration(__namedParameters): ts.TypeNode | null
 ```
 
 Minimum nodes length of 2
@@ -12,13 +12,13 @@ Minimum nodes length of 2
 
 • **\_\_namedParameters**
 
-• **\_\_namedParameters.nodes**: [`TypeNode`](../../ts/interfaces/TypeNode.md)[]
+• **\_\_namedParameters.nodes**: `TypeNode`[]
 
 • **\_\_namedParameters.withParentheses?**: `boolean`
 
 ## Returns
 
-[`TypeNode`](../../ts/interfaces/TypeNode.md) \| `null`
+`ts.TypeNode` \| `null`
 
 ## Example
 
@@ -28,4 +28,4 @@ Minimum nodes length of 2
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:71](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L71)
+[packages/parser-ts/src/factory.ts:71](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L71)

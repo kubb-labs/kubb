@@ -10,20 +10,20 @@ function createPropertySignature(__namedParameters): PropertySignature
 
 • **\_\_namedParameters**
 
-• **\_\_namedParameters.modifiers?**: [`Modifier`](../../ts/type-aliases/Modifier.md)[] = `[]`
+• **\_\_namedParameters.modifiers?**: `Modifier`[] = `[]`
 
-• **\_\_namedParameters.name**: `string` \| [`PropertyName`](../../ts/type-aliases/PropertyName.md)
+• **\_\_namedParameters.name**: `string` \| `PropertyName`
 
-• **\_\_namedParameters.questionToken?**: `boolean` \| [`QuestionToken`](../../ts/type-aliases/QuestionToken.md)
+• **\_\_namedParameters.questionToken?**: `boolean` \| `QuestionToken`
 
 • **\_\_namedParameters.readOnly?**: `boolean`
 
-• **\_\_namedParameters.type?**: [`TypeNode`](../../ts/interfaces/TypeNode.md)
+• **\_\_namedParameters.type?**: `TypeNode`
 
 ## Returns
 
-[`PropertySignature`](../../ts/interfaces/PropertySignature.md)
+`PropertySignature`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:139](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L139)
+[packages/parser-ts/src/factory.ts:139](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L139)

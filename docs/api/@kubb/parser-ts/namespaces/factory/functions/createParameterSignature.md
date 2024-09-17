@@ -3,31 +3,31 @@
 # createParameterSignature()
 
 ```ts
-function createParameterSignature(name, __namedParameters): ParameterDeclaration
+function createParameterSignature(name, __namedParameters): ts.ParameterDeclaration
 ```
 
 ## Parameters
 
-• **name**: `string` \| [`BindingName`](../../ts/type-aliases/BindingName.md)
+• **name**: `string` \| `BindingName`
 
 • **\_\_namedParameters**
 
-• **\_\_namedParameters.decorators?**: [`Decorator`](../../ts/interfaces/Decorator.md)[]
+• **\_\_namedParameters.decorators?**: `Decorator`[]
 
-• **\_\_namedParameters.dotDotDotToken?**: [`DotDotDotToken`](../../ts/type-aliases/DotDotDotToken.md)
+• **\_\_namedParameters.dotDotDotToken?**: `DotDotDotToken`
 
-• **\_\_namedParameters.initializer?**: [`Expression`](../../ts/interfaces/Expression.md)
+• **\_\_namedParameters.initializer?**: `Expression`
 
-• **\_\_namedParameters.modifiers?**: [`Modifier`](../../ts/type-aliases/Modifier.md)[]
+• **\_\_namedParameters.modifiers?**: `Modifier`[]
 
-• **\_\_namedParameters.questionToken?**: `boolean` \| [`QuestionToken`](../../ts/type-aliases/QuestionToken.md)
+• **\_\_namedParameters.questionToken?**: `boolean` \| `QuestionToken`
 
-• **\_\_namedParameters.type?**: [`TypeNode`](../../ts/interfaces/TypeNode.md)
+• **\_\_namedParameters.type?**: `TypeNode`
 
 ## Returns
 
-[`ParameterDeclaration`](../../ts/interfaces/ParameterDeclaration.md)
+`ts.ParameterDeclaration`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:160](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L160)
+[packages/parser-ts/src/factory.ts:160](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L160)

@@ -8,4 +8,4 @@ const pluginSvelteQueryName: "plugin-svelte-query";
 
 ## Defined in
 
-[plugin-svelte-query/src/plugin.ts:16](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-svelte-query/src/plugin.ts#L16)
+[plugin-svelte-query/src/plugin.ts:16](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-svelte-query/src/plugin.ts#L16)

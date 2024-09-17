@@ -1,6 +1,6 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { ts } from '@kubb/parser-ts'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type ts from 'typescript'
 
 export type Options = {
   /**

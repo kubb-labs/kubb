@@ -50,4 +50,4 @@ import a type(plugin-ts) for a mock file(swagger-faker)
 
 ## Defined in
 
-[plugin-oas/src/types.ts:68](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/plugin-oas/src/types.ts#L68)
+[plugin-oas/src/types.ts:68](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/types.ts#L68)

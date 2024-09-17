@@ -14,8 +14,8 @@ function createJSDoc(__namedParameters): null | JSDoc
 
 ## Returns
 
-`null` \| [`JSDoc`](../../ts/interfaces/JSDoc.md)
+`null` \| `JSDoc`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:180](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L180)
+[packages/parser-ts/src/factory.ts:180](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L180)

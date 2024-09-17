@@ -22,7 +22,7 @@ new PluginManager(config, options): PluginManager
 
 #### Defined in
 
-[PluginManager.ts:90](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L90)
+[PluginManager.ts:90](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L90)
 
 ## Properties
 
@@ -34,7 +34,7 @@ readonly config: Config;
 
 #### Defined in
 
-[PluginManager.ts:80](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L80)
+[PluginManager.ts:80](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L80)
 
 ***
 
@@ -46,7 +46,7 @@ readonly events: EventEmitter<Events>;
 
 #### Defined in
 
-[PluginManager.ts:78](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L78)
+[PluginManager.ts:78](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L78)
 
 ***
 
@@ -58,7 +58,7 @@ readonly executed: Executer<keyof PluginLifecycle<PluginFactoryOptions<string, o
 
 #### Defined in
 
-[PluginManager.ts:82](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L82)
+[PluginManager.ts:82](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L82)
 
 ***
 
@@ -70,7 +70,7 @@ readonly fileManager: FileManager;
 
 #### Defined in
 
-[PluginManager.ts:77](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L77)
+[PluginManager.ts:77](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L77)
 
 ***
 
@@ -82,7 +82,7 @@ readonly logger: Logger;
 
 #### Defined in
 
-[PluginManager.ts:83](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L83)
+[PluginManager.ts:83](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L83)
 
 ***
 
@@ -94,7 +94,7 @@ readonly options: Options;
 
 #### Defined in
 
-[PluginManager.ts:84](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L84)
+[PluginManager.ts:84](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L84)
 
 ***
 
@@ -106,7 +106,7 @@ readonly plugins: Set<Plugin<PluginFactoryOptions<string, object, object, any, o
 
 #### Defined in
 
-[PluginManager.ts:76](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L76)
+[PluginManager.ts:76](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L76)
 
 ## Accessors
 
@@ -122,7 +122,7 @@ readonly [`"buildStart"`, `"resolvePath"`, `"resolveName"`, `"buildEnd"`]
 
 #### Defined in
 
-[PluginManager.ts:730](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L730)
+[PluginManager.ts:730](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L730)
 
 ## Methods
 
@@ -152,7 +152,7 @@ pluginKey: PluginKey<string>;
 
 #### Defined in
 
-[PluginManager.ts:120](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L120)
+[PluginManager.ts:120](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L120)
 
 ***
 
@@ -174,7 +174,7 @@ getPluginsByKey(hookName, pluginKey): Plugin[]
 
 #### Defined in
 
-[PluginManager.ts:492](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L492)
+[PluginManager.ts:492](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L492)
 
 ***
 
@@ -208,7 +208,7 @@ First non-null result stops and will return it's value.
 
 #### Defined in
 
-[PluginManager.ts:277](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L277)
+[PluginManager.ts:277](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L277)
 
 ***
 
@@ -242,7 +242,7 @@ First non-null result stops and will return it's value.
 
 #### Defined in
 
-[PluginManager.ts:321](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L321)
+[PluginManager.ts:321](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L321)
 
 ***
 
@@ -276,7 +276,7 @@ Run a specific hookName for plugin x.
 
 #### Defined in
 
-[PluginManager.ts:209](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L209)
+[PluginManager.ts:209](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L209)
 
 ***
 
@@ -310,7 +310,7 @@ Run a specific hookName for plugin x.
 
 #### Defined in
 
-[PluginManager.ts:246](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L246)
+[PluginManager.ts:246](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L246)
 
 ***
 
@@ -344,7 +344,7 @@ Run all plugins in parallel(order will be based on `this.plugin` and if `pre` or
 
 #### Defined in
 
-[PluginManager.ts:360](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L360)
+[PluginManager.ts:360](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L360)
 
 ***
 
@@ -378,7 +378,7 @@ Chain all plugins, `reduce` can be passed through to handle every returned value
 
 #### Defined in
 
-[PluginManager.ts:401](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L401)
+[PluginManager.ts:401](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L401)
 
 ***
 
@@ -410,7 +410,7 @@ Chains plugins
 
 #### Defined in
 
-[PluginManager.ts:437](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L437)
+[PluginManager.ts:437](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L437)
 
 ***
 
@@ -438,7 +438,7 @@ Instead of calling `pluginManager.events.on` you can use `pluginManager.on`. Thi
 
 #### Defined in
 
-[PluginManager.ts:202](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L202)
+[PluginManager.ts:202](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L202)
 
 ***
 
@@ -458,7 +458,7 @@ resolveName(params): string
 
 #### Defined in
 
-[PluginManager.ts:167](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L167)
+[PluginManager.ts:167](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L167)
 
 ***
 
@@ -482,7 +482,7 @@ resolvePath<TOptions>(params): OptionalPath
 
 #### Defined in
 
-[PluginManager.ts:138](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L138)
+[PluginManager.ts:138](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L138)
 
 ***
 
@@ -514,4 +514,4 @@ static getDependedPlugins<T1, T2, T3, TOutput>(plugins, dependedPluginNames): TO
 
 #### Defined in
 
-[PluginManager.ts:708](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/core/src/PluginManager.ts#L708)
+[PluginManager.ts:708](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PluginManager.ts#L708)

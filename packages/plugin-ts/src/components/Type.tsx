@@ -1,10 +1,11 @@
 import { File } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
-import { print, type ts } from '@kubb/parser-ts'
+import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Fragment, type ReactNode } from 'react'
+import type ts from 'typescript'
 import { parse, typeKeywordMapper } from '../parser/index.ts'
 import type { PluginTs } from '../types.ts'
 

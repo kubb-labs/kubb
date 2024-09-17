@@ -7,7 +7,6 @@
 | Namespace | Description |
 | ------ | ------ |
 | [factory](namespaces/factory/index.md) | - |
-| [ts](namespaces/ts/index.md) | - |
 
 ## Functions
 

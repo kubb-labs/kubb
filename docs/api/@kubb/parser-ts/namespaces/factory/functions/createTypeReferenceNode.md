@@ -8,14 +8,14 @@ function createTypeReferenceNode(typeName, typeArguments?): TypeReferenceNode
 
 ## Parameters
 
-• **typeName**: `string` \| [`EntityName`](../../ts/type-aliases/EntityName.md)
+• **typeName**: `string` \| `EntityName`
 
-• **typeArguments?**: readonly [`TypeNode`](../../ts/interfaces/TypeNode.md)[]
+• **typeArguments?**: readonly `TypeNode`[]
 
 ## Returns
 
-[`TypeReferenceNode`](../../ts/interfaces/TypeReferenceNode.md)
+`TypeReferenceNode`
 
 ## Defined in
 
-[packages/parser-ts/src/factory.ts:545](https://github.com/kubb-project/kubb/blob/41d5fcbd23d143293d72542efcb650e62fa3a210/packages/parser-ts/src/factory.ts#L545)
+[packages/parser-ts/src/factory.ts:545](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/factory.ts#L545)
