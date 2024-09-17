@@ -16,4 +16,4 @@ function createFunctionParams(params): Params
 
 ## Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:156](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/utils/getFunctionParams.ts#L156)
+[packages/react/src/utils/getFunctionParams.ts:156](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/utils/getFunctionParams.ts#L156)

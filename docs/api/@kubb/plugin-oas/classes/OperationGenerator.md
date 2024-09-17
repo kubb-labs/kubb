@@ -42,7 +42,7 @@ new OperationGenerator<TPluginOptions, TFileMeta>(options?, context?): Operation
 
 #### Defined in
 
-[core/src/BaseGenerator.ts:9](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L9)
+[core/src/BaseGenerator.ts:9](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L9)
 
 ## Accessors
 
@@ -62,7 +62,7 @@ get context(): TContext
 
 #### Defined in
 
-[core/src/BaseGenerator.ts:25](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L25)
+[core/src/BaseGenerator.ts:25](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L25)
 
 ***
 
@@ -86,7 +86,7 @@ set operationsByMethod(paths): void
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:38](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L38)
+[plugin-oas/src/OperationGenerator.ts:38](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L38)
 
 ***
 
@@ -114,7 +114,7 @@ set options(options): void
 
 #### Defined in
 
-[core/src/BaseGenerator.ts:21](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L21)
+[core/src/BaseGenerator.ts:21](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L21)
 
 ## Methods
 
@@ -138,7 +138,7 @@ Combination of GET, POST, PATCH, PUT, DELETE
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:376](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L376)
+[plugin-oas/src/OperationGenerator.ts:376](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L376)
 
 ***
 
@@ -162,7 +162,7 @@ build(...generators): Promise<File<TFileMeta>[]>
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:230](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L230)
+[plugin-oas/src/OperationGenerator.ts:230](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L230)
 
 ***
 
@@ -186,7 +186,7 @@ DELETE
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:369](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L369)
+[plugin-oas/src/OperationGenerator.ts:369](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L369)
 
 ***
 
@@ -210,7 +210,7 @@ GET
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:342](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L342)
+[plugin-oas/src/OperationGenerator.ts:342](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L342)
 
 ***
 
@@ -234,7 +234,7 @@ getSchemas(operation, __namedParameters): OperationSchemas
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:130](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L130)
+[plugin-oas/src/OperationGenerator.ts:130](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L130)
 
 ***
 
@@ -258,7 +258,7 @@ Operation
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:335](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L335)
+[plugin-oas/src/OperationGenerator.ts:335](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L335)
 
 ***
 
@@ -282,7 +282,7 @@ PATCH
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:355](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L355)
+[plugin-oas/src/OperationGenerator.ts:355](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L355)
 
 ***
 
@@ -306,7 +306,7 @@ POST
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:349](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L349)
+[plugin-oas/src/OperationGenerator.ts:349](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L349)
 
 ***
 
@@ -330,4 +330,4 @@ PUT
 
 #### Defined in
 
-[plugin-oas/src/OperationGenerator.ts:362](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L362)
+[plugin-oas/src/OperationGenerator.ts:362](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L362)

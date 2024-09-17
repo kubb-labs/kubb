@@ -20,4 +20,4 @@ Convert AST TypeScript nodes to a string based on the TypeScript printer.
 
 ## Defined in
 
-[packages/parser-ts/src/print.ts:29](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/parser-ts/src/print.ts#L29)
+[packages/parser-ts/src/print.ts:29](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/parser-ts/src/print.ts#L29)

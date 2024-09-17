@@ -18,4 +18,4 @@ Define your Swagger/OpenAPI file. This can be an absolute path or a path relativ
 
 ## Defined in
 
-[types.ts:30](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/types.ts#L30)
+[types.ts:30](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/types.ts#L30)

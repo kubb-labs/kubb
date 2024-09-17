@@ -12,4 +12,4 @@ type OperationMethodResult<TFileMeta>: Promise<KubbFile.File<TFileMeta> | KubbFi
 
 ## Defined in
 
-[plugin-oas/src/OperationGenerator.ts:17](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/OperationGenerator.ts#L17)
+[plugin-oas/src/OperationGenerator.ts:17](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/OperationGenerator.ts#L17)

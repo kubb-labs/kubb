@@ -24,7 +24,7 @@ new PromiseManager<TState>(options): PromiseManager<TState>
 
 #### Defined in
 
-[PromiseManager.ts:15](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PromiseManager.ts#L15)
+[PromiseManager.ts:15](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/PromiseManager.ts#L15)
 
 ## Methods
 
@@ -56,4 +56,4 @@ run<TInput, TValue, TStrategy, TOutput>(strategy, promises): TOutput
 
 #### Defined in
 
-[PromiseManager.ts:21](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/PromiseManager.ts#L21)
+[PromiseManager.ts:21](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/PromiseManager.ts#L21)

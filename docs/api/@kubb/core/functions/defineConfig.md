@@ -18,4 +18,4 @@ Type helper to make it easier to use vite.config.ts accepts a direct UserConfig 
 
 ## Defined in
 
-[config.ts:34](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/config.ts#L34)
+[config.ts:34](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/config.ts#L34)

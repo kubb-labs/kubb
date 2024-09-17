@@ -20,7 +20,7 @@ new FunctionParams(params): FunctionParams
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:166](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/utils/getFunctionParams.ts#L166)
+[packages/react/src/utils/getFunctionParams.ts:166](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/utils/getFunctionParams.ts#L166)
 
 ## Accessors
 
@@ -36,7 +36,7 @@ get params(): Params
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:170](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/utils/getFunctionParams.ts#L170)
+[packages/react/src/utils/getFunctionParams.ts:170](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/utils/getFunctionParams.ts#L170)
 
 ## Methods
 
@@ -56,7 +56,7 @@ toCall(__namedParameters): string
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:174](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/utils/getFunctionParams.ts#L174)
+[packages/react/src/utils/getFunctionParams.ts:174](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/utils/getFunctionParams.ts#L174)
 
 ***
 
@@ -78,7 +78,7 @@ toConstructor(__namedParameters): string
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:178](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/utils/getFunctionParams.ts#L178)
+[packages/react/src/utils/getFunctionParams.ts:178](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/utils/getFunctionParams.ts#L178)
 
 ***
 
@@ -98,4 +98,4 @@ static factory(params): FunctionParams
 
 #### Defined in
 
-[packages/react/src/utils/getFunctionParams.ts:163](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/utils/getFunctionParams.ts#L163)
+[packages/react/src/utils/getFunctionParams.ts:163](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/utils/getFunctionParams.ts#L163)

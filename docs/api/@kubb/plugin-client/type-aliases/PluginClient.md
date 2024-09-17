@@ -8,4 +8,4 @@ type PluginClient: PluginFactoryOptions<"plugin-client", Options, ResolvedOption
 
 ## Defined in
 
-[plugin-client/src/types.ts:97](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-client/src/types.ts#L97)
+[plugin-client/src/types.ts:97](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-client/src/types.ts#L97)

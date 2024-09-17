@@ -44,7 +44,7 @@ new SchemaGenerator<TOptions, TPluginOptions, TFileMeta>(options?, context?): Sc
 
 #### Defined in
 
-[core/src/BaseGenerator.ts:9](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L9)
+[core/src/BaseGenerator.ts:9](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L9)
 
 ## Properties
 
@@ -56,7 +56,7 @@ refs: Refs = {};
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:73](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L73)
+[plugin-oas/src/SchemaGenerator.ts:73](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L73)
 
 ## Accessors
 
@@ -76,7 +76,7 @@ get context(): TContext
 
 #### Defined in
 
-[core/src/BaseGenerator.ts:25](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L25)
+[core/src/BaseGenerator.ts:25](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L25)
 
 ***
 
@@ -104,7 +104,7 @@ set options(options): void
 
 #### Defined in
 
-[core/src/BaseGenerator.ts:21](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L21)
+[core/src/BaseGenerator.ts:21](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L21)
 
 ## Methods
 
@@ -128,7 +128,7 @@ build(...generators): Promise<File<TFileMeta>[]>
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:822](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L822)
+[plugin-oas/src/SchemaGenerator.ts:822](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L822)
 
 ***
 
@@ -154,7 +154,7 @@ deepSearch<T>(tree, keyword): SchemaKeywordMapper[T][]
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:92](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L92)
+[plugin-oas/src/SchemaGenerator.ts:92](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L92)
 
 ***
 
@@ -180,7 +180,7 @@ find<T>(tree, keyword): undefined | SchemaKeywordMapper[T]
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:96](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L96)
+[plugin-oas/src/SchemaGenerator.ts:96](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L96)
 
 ***
 
@@ -204,7 +204,7 @@ optionally adds a union with null.
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:83](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L83)
+[plugin-oas/src/SchemaGenerator.ts:83](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L83)
 
 ***
 
@@ -233,7 +233,7 @@ Schema
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:875](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L875)
+[plugin-oas/src/SchemaGenerator.ts:875](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L875)
 
 ***
 
@@ -259,7 +259,7 @@ static deepSearch<T>(tree, keyword): SchemaKeywordMapper[T][]
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:100](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L100)
+[plugin-oas/src/SchemaGenerator.ts:100](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L100)
 
 ***
 
@@ -285,7 +285,7 @@ static find<T>(tree, keyword): undefined | SchemaKeywordMapper[T]
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:184](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L184)
+[plugin-oas/src/SchemaGenerator.ts:184](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L184)
 
 ***
 
@@ -311,4 +311,4 @@ static findInObject<T>(tree, keyword): undefined | SchemaKeywordMapper[T]
 
 #### Defined in
 
-[plugin-oas/src/SchemaGenerator.ts:156](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-oas/src/SchemaGenerator.ts#L156)
+[plugin-oas/src/SchemaGenerator.ts:156](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-oas/src/SchemaGenerator.ts#L156)

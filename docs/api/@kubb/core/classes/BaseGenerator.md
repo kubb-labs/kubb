@@ -36,7 +36,7 @@ new BaseGenerator<TOptions, TContext>(options?, context?): BaseGenerator<TOption
 
 #### Defined in
 
-[BaseGenerator.ts:9](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L9)
+[BaseGenerator.ts:9](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L9)
 
 ## Accessors
 
@@ -52,7 +52,7 @@ get context(): TContext
 
 #### Defined in
 
-[BaseGenerator.ts:25](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L25)
+[BaseGenerator.ts:25](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L25)
 
 ***
 
@@ -76,7 +76,7 @@ set options(options): void
 
 #### Defined in
 
-[BaseGenerator.ts:21](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L21)
+[BaseGenerator.ts:21](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L21)
 
 ## Methods
 
@@ -96,4 +96,4 @@ abstract build(...params): unknown
 
 #### Defined in
 
-[BaseGenerator.ts:33](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/BaseGenerator.ts#L33)
+[BaseGenerator.ts:33](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/BaseGenerator.ts#L33)

@@ -22,4 +22,4 @@ function getSource<TMeta>(file, __namedParameters): Promise<string>
 
 ## Defined in
 
-[FileManager.ts:200](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/core/src/FileManager.ts#L200)
+[FileManager.ts:200](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/core/src/FileManager.ts#L200)

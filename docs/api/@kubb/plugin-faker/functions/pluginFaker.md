@@ -16,4 +16,4 @@ function pluginFaker(options?): UserPluginWithLifeCycle<PluginFaker>
 
 ## Defined in
 
-[plugin-faker/src/plugin.ts:17](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-faker/src/plugin.ts#L17)
+[plugin-faker/src/plugin.ts:17](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-faker/src/plugin.ts#L17)

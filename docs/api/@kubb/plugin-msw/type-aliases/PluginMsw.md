@@ -8,4 +8,4 @@ type PluginMsw: PluginFactoryOptions<"plugin-msw", Options, ResolvedOptions, nev
 
 ## Defined in
 
-[plugin-msw/src/types.ts:60](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-msw/src/types.ts#L60)
+[plugin-msw/src/types.ts:60](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-msw/src/types.ts#L60)

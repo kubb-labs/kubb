@@ -23,4 +23,4 @@ options): Promise<string | undefined>
 
 ## Defined in
 
-[write.ts:64](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/fs/src/write.ts#L64)
+[write.ts:64](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/fs/src/write.ts#L64)

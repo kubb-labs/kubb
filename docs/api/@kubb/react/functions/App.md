@@ -16,4 +16,4 @@ function App(__namedParameters): KubbNode
 
 ## Defined in
 
-[packages/react/src/components/App.tsx:27](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/components/App.tsx#L27)
+[packages/react/src/components/App.tsx:27](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/components/App.tsx#L27)

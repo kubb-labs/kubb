@@ -20,4 +20,4 @@ function File<TMeta>(__namedParameters): KubbNode
 
 ## Defined in
 
-[packages/react/src/components/File.tsx:58](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/react/src/components/File.tsx#L58)
+[packages/react/src/components/File.tsx:58](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/react/src/components/File.tsx#L58)

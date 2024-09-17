@@ -17,13 +17,13 @@
     "prestart": "typedoc",
     "clean": "npx rimraf ./dist",
     "build": "vitepress build",
-    "build:ci": "vitepress build",
+    "build:ci": "cross-env NODE_OPTIONS=--max_old_space_size=2048 vitepress build",
     "start": "vitepress dev --port=3000 --cors",
     "preview": "vitepress preview",
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "~1.14.1",
+    "@shikijs/vitepress-twoslash": "^1.17.7",
     "sitemap": "^8.0.0",
     "typedoc": "^0.26.7",
     "typedoc-plugin-markdown": "^4.2.7",
@@ -50,6 +50,7 @@
     "@kubb/react": "workspace:*",
     "@types/node": "^20.16.5",
     "@types/react": "^18.3.7",
+    "cross-env": "^7.0.3",
     "react": "^18.3.1",
     "unplugin-kubb": "workspace:^",
     "vite": "^5.4.6"

@@ -8,4 +8,4 @@ type PluginTs: PluginFactoryOptions<"plugin-ts", Options, ResolvedOptions, never
 
 ## Defined in
 
-[plugin-ts/src/types.ts:107](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-ts/src/types.ts#L107)
+[plugin-ts/src/types.ts:107](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-ts/src/types.ts#L107)

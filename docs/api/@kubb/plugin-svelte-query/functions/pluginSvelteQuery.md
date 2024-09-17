@@ -16,4 +16,4 @@ function pluginSvelteQuery(options?): UserPluginWithLifeCycle<PluginSvelteQuery>
 
 ## Defined in
 
-[plugin-svelte-query/src/plugin.ts:18](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/plugin-svelte-query/src/plugin.ts#L18)
+[plugin-svelte-query/src/plugin.ts:18](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/plugin-svelte-query/src/plugin.ts#L18)

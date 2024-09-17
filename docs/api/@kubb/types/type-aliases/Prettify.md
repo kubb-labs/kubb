@@ -12,4 +12,4 @@ type Prettify<T>: { [K in keyof T]: T[K] } & object;
 
 ## Defined in
 
-[index.ts:1](https://github.com/kubb-project/kubb/blob/7f30045af96d8c89b6cda0a30f7535f095a0cb45/packages/types/src/index.ts#L1)
+[index.ts:1](https://github.com/kubb-project/kubb/blob/ff80665146ae086e044807d0072fda660e72e1fd/packages/types/src/index.ts#L1)
