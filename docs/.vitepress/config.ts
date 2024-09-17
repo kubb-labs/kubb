@@ -5,7 +5,6 @@ import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepre
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
-import apiSidebar from '../api/typedoc-sidebar.json'
 import { transposeTables } from "./transposeTables.ts"
 
 import { version } from '../../packages/core/package.json'
@@ -522,11 +521,6 @@ export default defineConfig({
         activeMatch: 'knowledge-base',
       },
       {
-        text: 'API',
-        link: '/api',
-        activeMatch: 'api',
-      },
-      {
         text: 'Try Out',
         items: [
           {
@@ -618,7 +612,6 @@ export default defineConfig({
       '/build': mainSidebar,
       '/changelog': mainSidebar,
       '/knowledge-base': knowledgeBaseSidebar,
-      '/api/': apiSidebar,
       '/examples': examplesSidebar,
       '/blog': blogSidebar,
       '/tutorials': tutorialsSidebar,
