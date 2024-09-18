@@ -13,7 +13,7 @@
   --vp-c-brand-lighter: var(--vp-c-brand);
   --vp-c-brand-lightest: var(--vp-c-brand);
   --vp-c-brand-dark: #854811;
-  --vp-c-brand-darker: #854811;
+  --vp-c-brand-darker: var(--vp-c-brand-dark);
   --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
   --vp-c-brand-1: var(--vp-c-brand);
   --vp-c-brand-2: #f3c796;
@@ -233,6 +233,39 @@
 .dark #VPSidebarNav > .group:nth-child(-n + 9):not(:first-child) > .VPSidebarItem > .item > .text::before {
   filter: invert(1);
 }
+
+svg[id^='mermaid-'] {
+  line-height: 1.5;
+  background-color: transparent !important;
+}
+
+svg[id^='mermaid-'] .edgeLabel {
+  padding: 0 !important;
+}
+
+svg[id^='mermaid-'] .cluster rect {
+  fill: rgba(185, 185, 185, 0.14) !important;
+  stroke: rgba(185, 185, 185, 0.54) !important;
+}
+
+.dark svg[id^='mermaid-'] .flowchart-link {
+  stroke: lightgrey !important;
+}
+
+.dark svg[id^='mermaid-'] .marker {
+  stroke: lightgrey !important;
+  fill: lightgrey !important;
+}
+
+.dark svg[id^='mermaid-'] .edgeLabel p {
+  background-color: #585858 !important;
+}
+
+.dark svg[id^='mermaid-'] span {
+  color: #ccc !important;
+}
+
+
 /*#VPSidebarNav > .group > .VPSidebarItem > .item > .text {*/
 /*  display: flex;*/
 /*  align-items: center;*/

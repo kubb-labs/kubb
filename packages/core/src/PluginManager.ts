@@ -28,13 +28,7 @@ import type {
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
-/**
- * Get the type of the first argument in a function.
- * @example Arg0<(a: string, b: number) => void> -> string
- */
-type Argument0<H extends keyof PluginLifecycle> = Parameters<RequiredPluginLifecycle[H]>[0]
-
-type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookReduceArg0' | 'hookSeq'
+type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookSeq'
 
 type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   message: string
@@ -393,42 +387,6 @@ export class PluginManager {
     this.logger.emit('progress_stop', { id: hookName })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
-  }
-
-  /**
-   * Chain all plugins, `reduce` can be passed through to handle every returned value. The return value of the first plugin will be used as the first parameter for the plugin after that.
-   */
-  hookReduceArg0<H extends PluginLifecycleHooks>({
-    hookName,
-    parameters,
-    reduce,
-    message,
-  }: {
-    hookName: H
-    parameters: PluginParameter<H>
-    reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: Plugin) => PossiblePromise<Argument0<H> | null>
-    message: string
-  }): Promise<Argument0<H>> {
-    const [argument0, ...rest] = parameters
-    const plugins = this.#getSortedPlugins(hookName)
-
-    let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
-    for (const plugin of plugins) {
-      promise = promise
-        .then((arg0) => {
-          const value = this.#execute({
-            strategy: 'hookReduceArg0',
-            hookName,
-            parameters: [arg0, ...rest] as PluginParameter<H>,
-            plugin,
-            message,
-          })
-          return value
-        })
-        .then((result) => reduce.call(this.#core.context, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
-    }
-
-    return promise
   }
 
   /**

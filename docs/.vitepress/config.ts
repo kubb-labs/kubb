@@ -5,6 +5,10 @@ import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepre
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
+import { withMermaid } from "vitepress-plugin-mermaid";
+
+import { renderMermaidGraphsPlugin } from './mermaid';
+import { transposeTables } from "./transposeTables.ts"
 import { transposeTables } from './transposeTables.ts'
 
 import { version } from '../../packages/core/package.json'
@@ -36,6 +40,7 @@ const knowledgeBaseSidebar = [
   {
     text: 'Plugins',
     collapsed: false,
+    link: '/knowledge-base/plugins/',
     items: [
       {
         text: 'Plugin system',
@@ -658,6 +663,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      renderMermaidGraphsPlugin(),
       groupIconVitePlugin({
         customIcon: {
           'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.svg'),
