@@ -14,7 +14,7 @@ exports[`faker parse > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) a
 
 exports[`faker parse > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
 
-exports[`faker parse > 'blob' 1`] = `"faker.image.imageUrl() as unknown as Blob"`;
+exports[`faker parse > 'blob' 1`] = `"faker.image.url() as unknown as Blob"`;
 
 exports[`faker parse > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
