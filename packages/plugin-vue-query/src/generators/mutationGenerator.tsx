@@ -53,6 +53,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
         )}
         <File.Import name={['useMutation']} path={options.mutation.importPath} />
         <File.Import name={['UseMutationOptions']} path={options.mutation.importPath} isTypeOnly />
+        <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import

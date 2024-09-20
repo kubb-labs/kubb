@@ -97,7 +97,7 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.7",
+    "@types/react": "^18.3.8",
     "@types/react-reconciler": "^0.28.8",
     "@types/signal-exit": "^3.0.4",
     "@types/ws": "^8.5.12",
