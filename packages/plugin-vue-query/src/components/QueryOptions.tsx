@@ -26,7 +26,15 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
+      children: getPathParams(typeSchemas.pathParams, {
+        typed: true,
+        override(item) {
+          return {
+            ...item,
+            type: `MaybeRef<${item.type}>`,
+          }
+        },
+      }),
     },
     data: typeSchemas.request?.name
       ? {

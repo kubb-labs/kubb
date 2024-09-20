@@ -25,7 +25,7 @@ async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<
   return res.data
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
+export function getPetByIdQueryOptions(petId: MaybeRef<GetPetByIdPathParams['petId']>, config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
     queryKey,
