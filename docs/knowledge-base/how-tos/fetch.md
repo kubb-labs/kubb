@@ -51,7 +51,10 @@ export default defineConfig(() => {
 ```
 
 ## Add `client.ts` with the following config
-In the background, every POST, PUT, GET, PATCH, and DELETE request will utilize the **importPath** and invoke the default export of that file with a configuration shaped by RequestConfig, which is modeled after the AxiosRequest interface/config.
+In the background, every POST, PUT, GET, PATCH, and DELETE request will utilize the **importPath** and invoke the default export of that file with a configuration shaped by `RequestConfig`, which is modeled after the AxiosRequest interface/config.
+
+> [!IMPORTANT]
+> The client should always return an object in the shape of `ResponseConfig`, even if you change the  `dataReturnType` with  `dataReturnType: 'data'`.
 
 ```typescript client.ts
 export type RequestConfig<TData = unknown> = {
