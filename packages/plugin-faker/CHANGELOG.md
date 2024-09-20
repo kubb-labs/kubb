@@ -1,5 +1,21 @@
 # @kubb/plugin-faker
 
+## 3.0.0-alpha.21
+
+### Minor Changes
+
+- [`959da15`](https://github.com/kubb-labs/kubb/commit/959da15e8bd20779fbbd791c566ca81b19173bac) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of `faker.image.url()` instead of `faker.image.imageUrl()`
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.21
+  - @kubb/fs@3.0.0-alpha.21
+  - @kubb/oas@3.0.0-alpha.21
+  - @kubb/plugin-oas@3.0.0-alpha.21
+  - @kubb/plugin-ts@3.0.0-alpha.21
+  - @kubb/react@3.0.0-alpha.21
+
 ## 3.0.0-alpha.20
 
 ### Patch Changes
