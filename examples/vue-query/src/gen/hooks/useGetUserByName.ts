@@ -25,7 +25,7 @@ async function getUserByName(username: GetUserByNamePathParams['username'], conf
   return res.data
 }
 
-export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
+export function getUserByNameQueryOptions(username: MaybeRef<GetUserByNamePathParams['username']>, config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
     queryKey,

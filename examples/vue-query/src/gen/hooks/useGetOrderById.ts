@@ -26,7 +26,7 @@ async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: 
   return res.data
 }
 
-export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
+export function getOrderByIdQueryOptions(orderId: MaybeRef<GetOrderByIdPathParams['orderId']>, config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
     queryKey,
