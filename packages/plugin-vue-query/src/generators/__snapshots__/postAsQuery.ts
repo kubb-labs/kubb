@@ -18,7 +18,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
     return updatePetWithFormMutationResponse.parse(res.data);
 }
 
- export function updatePetWithFormQueryOptions(petId: UpdatePetWithFormPathParams["petId"], data?: MaybeRef<UpdatePetWithFormMutationRequest>, params?: MaybeRef<UpdatePetWithFormQueryParams>, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
+ export function updatePetWithFormQueryOptions(petId: MaybeRef<UpdatePetWithFormPathParams["petId"]>, data?: MaybeRef<UpdatePetWithFormMutationRequest>, params?: MaybeRef<UpdatePetWithFormQueryParams>, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
     const queryKey = updatePetWithFormQueryKey(petId, data, params);
     return queryOptions({
         queryKey,
