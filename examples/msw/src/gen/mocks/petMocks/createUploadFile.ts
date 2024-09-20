@@ -28,7 +28,7 @@ export function createUploadFile200() {
 
 export function createUploadFileMutationRequest() {
   faker.seed([220])
-  return faker.image.imageUrl() as unknown as Blob
+  return faker.image.url() as unknown as Blob
 }
 
 /**
