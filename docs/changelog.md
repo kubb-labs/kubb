@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.21
+- [`plugin-faker`](/plugins/plugin-faker): use of `faker.image.url()` instead of `faker.image.imageUrl()`
+
 ## 3.0.0-alpha.20
 
 - Separate plugin/package for Solid-Query: `@kubb/plugin-solid-query`
