@@ -191,8 +191,8 @@ const mainSidebar = [
         link: '/plugins/plugin-solid-query/',
       },
       {
-        text: '@kubb/plugin-vue-query',
-        link: '/plugins/plugin-vue-query/',
+        text: '@kubb/plugin-svelte-query',
+        link: '/plugins/plugin-svelte-query/',
       },
       {
         text: '@kubb/plugin-swr',
@@ -386,8 +386,8 @@ const documentationMenu = [
         link: '/plugins/plugin-solid-query/',
       },
       {
-        text: '@kubb/plugin-vue-query',
-        link: '/plugins/plugin-vue-query/',
+        text: '@kubb/plugin-svelte-query',
+        link: '/plugins/plugin-svelte-query/',
       },
       {
         text: '@kubb/plugin-swr',
