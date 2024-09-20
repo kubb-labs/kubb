@@ -543,7 +543,11 @@ export const appsDeleteMutationResponseSchema = z.any()
 export const machinesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
 export const machinesListQueryParamsSchema = z
-  .object({ include_deleted: z.boolean().describe('Include deleted machines').optional(), region: z.string().describe('Region filter').optional() })
+  .object({
+    include_deleted: z.boolean().describe('Include deleted machines').optional(),
+    region: z.string().describe('Region filter').optional(),
+    summary: z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)').optional(),
+  })
   .optional()
 
 /**
@@ -938,6 +942,10 @@ export const secretGenerate400Schema = z.lazy(() => errorResponseSchema)
 export const secretGenerateMutationResponseSchema = z.any()
 
 export const volumesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
+export const volumesListQueryParamsSchema = z
+  .object({ summary: z.boolean().describe('Only return summary info about volumes (omit blocks, block size, etc)').optional() })
+  .optional()
 
 /**
  * @description OK

@@ -5,7 +5,7 @@ import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepre
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
-import { transposeTables } from "./transposeTables.ts"
+import { transposeTables } from './transposeTables.ts'
 
 import { version } from '../../packages/core/package.json'
 
@@ -181,6 +181,18 @@ const mainSidebar = [
       {
         text: '@kubb/plugin-react-query',
         link: '/plugins/plugin-react-query/',
+      },
+      {
+        text: '@kubb/plugin-vue-query',
+        link: '/plugins/plugin-vue-query/',
+      },
+      {
+        text: '@kubb/plugin-solid-query',
+        link: '/plugins/plugin-solid-query/',
+      },
+      {
+        text: '@kubb/plugin-vue-query',
+        link: '/plugins/plugin-vue-query/',
       },
       {
         text: '@kubb/plugin-swr',
@@ -362,8 +374,20 @@ const documentationMenu = [
         link: '/plugins/plugin-zod/',
       },
       {
-        text: '@kubb/plugin-tanstack-query',
-        link: '/plugins/plugin-tanstack-query/',
+        text: '@kubb/plugin-react-query',
+        link: '/plugins/plugin-react-query/',
+      },
+      {
+        text: '@kubb/plugin-vue-query',
+        link: '/plugins/plugin-vue-query/',
+      },
+      {
+        text: '@kubb/plugin-solid-query',
+        link: '/plugins/plugin-solid-query/',
+      },
+      {
+        text: '@kubb/plugin-vue-query',
+        link: '/plugins/plugin-vue-query/',
       },
       {
         text: '@kubb/plugin-swr',
@@ -449,7 +473,7 @@ export default defineConfig({
       dark: 'nord',
     },
     config(md) {
-      transposeTables(md);
+      transposeTables(md)
       md.use(groupIconMdPlugin)
     },
     lineNumbers: false,
@@ -638,8 +662,8 @@ export default defineConfig({
         customIcon: {
           'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.svg'),
           'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
-        }
-      })
+        },
+      }),
     ],
-  }
+  },
 })

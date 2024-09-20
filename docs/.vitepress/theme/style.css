@@ -9,7 +9,7 @@
 
 :root {
   --vp-c-brand: #f58517;
-  --vp-c-brand-light:  var(--vp-c-brand);
+  --vp-c-brand-light: var(--vp-c-brand);
   --vp-c-brand-lighter: var(--vp-c-brand);
   --vp-c-brand-lightest: var(--vp-c-brand);
   --vp-c-brand-dark: #854811;

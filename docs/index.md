@@ -42,7 +42,7 @@ features:
       height: 24
     title: Tanstack Query
     details: Generate query keys, query options and hooks with support for React, Solid, Svelte, Vue.
-    link: /plugins/plugin-tanstack-query
+    link: /plugins/plugin-react-query
     linkText: Learn more
   - icon:
       dark: ./feature/swr-dark.svg
@@ -56,7 +56,7 @@ features:
       src: ./feature/axios.svg
     title: Axios
     details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with override possibilities for Fetch, ky,...
-    link: /plugins/plugin/
+    link: /plugins/plugin-client/
     linkText: Learn more
   - icon:
       src: ./feature/msw.svg
@@ -81,13 +81,13 @@ features:
       src: ./feature/json.svg
     title: JSON Schemas
     details: Export your OpenAPI schema's as JSON schema's.
-    link: /plugins/plugin-swagger
+    link: /plugins/plugin-oas
     linkText: Learn more
   - icon:
       dark: ./feature/plugins-dark.svg
       light: ./feature/plugins-light.svg
     title: Extensible with plugins
     details: Build your own plugin or modify one of the default plugins to suit your needs.
-    link: /plugins/overview
+    link: /plugins/
     linkText: Learn more
 ---
