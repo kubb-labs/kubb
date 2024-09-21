@@ -7,7 +7,6 @@ import path from 'node:path'
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas } from '@kubb/oas'
-import type { FormatOptions } from '@kubb/oas/parser'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import { jsonGenerator } from './generators'
@@ -22,8 +21,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       export: false,
       exportType: 'barrelNamed',
     },
-    experimentalFilter: filter,
-    experimentalSort: sort,
     validate = true,
     generators = [jsonGenerator],
     serverIndex = 0,
@@ -31,10 +28,10 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     oasClass,
   } = options
 
-  const getOas = async ({ config, logger, formatOptions }: { config: Config; logger: Logger; formatOptions?: FormatOptions }): Promise<Oas> => {
+  const getOas = async ({ config, logger }: { config: Config; logger: Logger }): Promise<Oas> => {
     try {
       // needs to be in a different variable or the catch here will not work(return of a promise instead)
-      const oas = await parseFromConfig(config, formatOptions, oasClass)
+      const oas = await parseFromConfig(config, oasClass)
 
       if (validate) {
         await oas.valdiate()
@@ -45,7 +42,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const error = e as Error
 
       logger.emit('warning', error?.message)
-      return parseFromConfig(config, {}, oasClass)
+      return parseFromConfig(config, oasClass)
     }
   }
 
@@ -59,8 +56,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const { config, logger } = this
 
       return {
-        getOas(formatOptions) {
-          return getOas({ config, logger, formatOptions })
+        getOas() {
+          return getOas({ config, logger })
         },
         async getSchemas({ includes } = {}) {
           const oas = await this.getOas()
@@ -95,10 +92,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const oas = await getOas({
         config: this.config,
         logger: this.logger,
-        formatOptions: {
-          filterSet: filter,
-          sortSet: sort,
-        },
       })
       await oas.dereference()
 

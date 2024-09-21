@@ -5,6 +5,7 @@
     "username": { "type": "string", "example": "fehguy" },
     "address": {
       "type": "array",
+      "xml": { "name": "addresses", "wrapped": true },
       "items": {
         "type": "object",
         "properties": {
@@ -15,8 +16,7 @@
         },
         "xml": { "name": "address" },
         "x-readme-ref-name": "Address"
-      },
-      "xml": { "name": "addresses", "wrapped": true }
+      }
     }
   },
   "xml": { "name": "customer" },

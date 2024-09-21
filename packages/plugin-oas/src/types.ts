@@ -3,7 +3,6 @@ import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
-import type { FormatOptions } from '@kubb/oas/parser'
 import type { Generator } from './generator.tsx'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
@@ -14,7 +13,7 @@ export type ResolvePathOptions = {
 }
 
 export type API = {
-  getOas: (formatOptions?: FormatOptions) => Promise<Oas>
+  getOas: () => Promise<Oas>
   getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
   contentType?: contentType
@@ -43,8 +42,6 @@ export type Options = {
    * By default, this is set based on the first used contentType..
    */
   contentType?: contentType
-  experimentalFilter?: FormatOptions['filterSet']
-  experimentalSort?: FormatOptions['sortSet']
   /**
    * Override some behaviour of the Oas class instance, see '@kubb/oas'
    */
