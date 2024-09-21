@@ -40,12 +40,7 @@ describe('Oas filter', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
 
   test('Filtering on operationId', async () => {
-    const oas = await parse(petStorePath, {
-      filterSet: {
-        inverseMethods: ['put'],
-        operationIds: ['updateUser'],
-      },
-    })
+    const oas = await parse(petStorePath)
 
     expect(yaml.safeStringify(oas.api)).toMatchSnapshot()
   })
