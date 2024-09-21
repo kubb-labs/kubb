@@ -1,1 +1,1 @@
-{ "properties": { "code": { "type": "integer", "format": "int32" }, "message": { "type": "string" } } }
+{ "properties": { "code": { "format": "int32", "type": "integer" }, "message": { "type": "string" } } }

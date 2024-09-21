@@ -98,7 +98,7 @@ export const listAppSchema = z.object({
 
 export const listAppsResponseSchema = z.object({ apps: z.array(z.lazy(() => listAppSchema)).optional(), total_apps: z.number().int().optional() })
 
-export const listSecretSchema = z.object({ label: z.string().optional(), type: z.string().optional() })
+export const listSecretSchema = z.object({ label: z.string().optional(), publickey: z.array(z.number().int()).optional(), type: z.string().optional() })
 
 export const listenSocketSchema = z.object({ address: z.string().optional(), proto: z.string().optional() })
 
@@ -536,7 +536,11 @@ export const appsDeleteMutationResponseSchema = z.any()
 export const machinesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
 export const machinesListQueryParamsSchema = z
-  .object({ include_deleted: z.boolean().describe('Include deleted machines').optional(), region: z.string().describe('Region filter').optional() })
+  .object({
+    include_deleted: z.boolean().describe('Include deleted machines').optional(),
+    region: z.string().describe('Region filter').optional(),
+    summary: z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)').optional(),
+  })
   .optional()
 /**
  * @description OK
@@ -848,10 +852,6 @@ export const secretDeletePathParamsSchema = z.object({ app_name: z.string().desc
  * @description OK
  */
 export const secretDelete200Schema = z.any()
-/**
- * @description Not Found
- */
-export const secretDelete404Schema = z.any()
 
 export const secretDeleteMutationResponseSchema = z.any()
 
@@ -882,6 +882,10 @@ export const secretGenerate400Schema = z.lazy(() => errorResponseSchema)
 export const secretGenerateMutationResponseSchema = z.any()
 
 export const volumesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
+export const volumesListQueryParamsSchema = z
+  .object({ summary: z.boolean().describe('Only return summary info about volumes (omit blocks, block size, etc)').optional() })
+  .optional()
 /**
  * @description OK
  */
@@ -1402,12 +1406,9 @@ export const operations = {
     },
     responses: {
       200: secretDeleteMutationResponseSchema,
-      404: secretDelete404Schema,
       default: secretDeleteMutationResponseSchema,
     },
-    errors: {
-      404: secretDelete404Schema,
-    },
+    errors: {},
   },
   Secret_create: {
     request: secretCreateMutationRequestSchema,
@@ -1445,7 +1446,7 @@ export const operations = {
     request: undefined,
     parameters: {
       path: volumesListPathParamsSchema,
-      query: undefined,
+      query: volumesListQueryParamsSchema,
       header: undefined,
     },
     responses: {
