@@ -28,7 +28,6 @@ function RootTemplate({ children }: ParserTemplateProps) {
       key: pluginKey,
       options: { extName },
     },
-
   } = useApp<PluginMsw>()
 
   const { getName, getFile } = useOperationManager()
