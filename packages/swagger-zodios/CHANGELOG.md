@@ -1,5 +1,18 @@
 # @kubb/swagger-zodios
 
+## 2.26.4
+
+### Patch Changes
+
+- Updated dependencies [[`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c)]:
+  - @kubb/plugin-oas@2.26.4
+  - @kubb/oas@2.26.4
+  - @kubb/swagger-zod@2.26.4
+  - @kubb/core@2.26.4
+  - @kubb/fs@2.26.4
+  - @kubb/parser-ts@2.26.4
+  - @kubb/react@2.26.4
+
 ## 2.26.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.26.4
+
+### Patch Changes
+
+- [#1234](https://github.com/kubb-labs/kubb/pull/1234) [`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove experimentalSort and experimentalFilter
+
 ## 2.26.3
 
 ## 2.26.2
