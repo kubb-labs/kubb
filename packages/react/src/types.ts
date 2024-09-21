@@ -1,10 +1,5 @@
 import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
-/**
- * TODO add for Server Components
- * import type {} from 'react/experimental'
- */
-
 type ReactElementNames = 'br'
 
 declare global {

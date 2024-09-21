@@ -22,9 +22,6 @@ export default defineConfig(() => {
     plugins: [
       pluginOas({
         validate: false,
-        experimentalFilter: {
-          tags: ['store'],
-        },
       }),
       pluginTs({
         output: { path: 'models/ts' },
