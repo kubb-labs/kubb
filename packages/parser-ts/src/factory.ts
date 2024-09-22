@@ -553,3 +553,5 @@ export const createNull = factory.createNull
 export const createIdentifier = factory.createIdentifier
 
 export const createTupleTypeNode = factory.createTupleTypeNode
+export const createTrue = factory.createTrue
+export const createFalse = factory.createFalse
