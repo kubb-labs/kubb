@@ -158,7 +158,29 @@ const basic: Array<{ name: string; schema: Schema }> = [
       },
     },
   },
-
+  {
+    name: 'enumLiteralBoolean',
+    schema: {
+      keyword: schemaKeywords.enum,
+      args: {
+        asConst: true,
+        items: [
+          {
+            format: 'boolean',
+            name: 'true',
+            value: true,
+          },
+          {
+            format: 'boolean',
+            name: 'false',
+            value: false,
+          },
+        ],
+        name: 'PetEnumLiteral',
+        typeName: 'PetEnumLiteral',
+      },
+    },
+  },
   {
     name: 'tuple',
     schema: {

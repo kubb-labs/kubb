@@ -1,6 +1,6 @@
 import { trimQuotes } from './trim'
 
-export function stringify(value: string | number | undefined): string {
+export function stringify(value: string | number | boolean | undefined): string {
   if (value === undefined || value === null) {
     return '""'
   }

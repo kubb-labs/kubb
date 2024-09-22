@@ -118,6 +118,11 @@ components:
           additionalProperties:
             x-nullable: true
             type: string
+        enumLiteral:
+          type: boolean
+          enum:
+            - true
+            - false
     Pets:
       type: array
       items:

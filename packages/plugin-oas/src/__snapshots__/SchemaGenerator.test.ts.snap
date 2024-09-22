@@ -33,6 +33,42 @@ exports[`SchemaGenerator core > 'Pet' 1`] = `
     "args": {
       "additionalProperties": [],
       "properties": {
+        "enumLiteral": [
+          {
+            "args": {
+              "asConst": true,
+              "items": [
+                {
+                  "format": "boolean",
+                  "name": true,
+                  "value": true,
+                },
+                {
+                  "format": "boolean",
+                  "name": false,
+                  "value": false,
+                },
+              ],
+              "name": "PetEnumLiteral",
+              "typeName": "PetEnumLiteral",
+            },
+            "keyword": "enum",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "boolean",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "enumLiteral",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
         "id": [
           {
             "keyword": "integer",
