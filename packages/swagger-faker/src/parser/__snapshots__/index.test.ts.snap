@@ -30,6 +30,10 @@ exports[`faker parse > 'default' 2`] = `undefined`;
 
 exports[`faker parse > 'enum' 1`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
 
+exports[`faker parse > 'enumLiteralBoolean' 1`] = `"faker.helpers.arrayElement<any>(["true", "false"])"`;
+
+exports[`faker parse > 'integer' 1`] = `"faker.number.int()"`;
+
 exports[`faker parse > 'matches' 1`] = `"faker.helpers.fromRegExp(new RegExp('^[A-Z]{2}$'))"`;
 
 exports[`faker parse > 'matchesReg' 1`] = `"faker.helpers.fromRegExp(new RegExp('node_modules'))"`;
@@ -39,6 +43,8 @@ exports[`faker parse > 'max' 1`] = `undefined`;
 exports[`faker parse > 'min' 1`] = `undefined`;
 
 exports[`faker parse > 'nullable' 1`] = `undefined`;
+
+exports[`faker parse > 'nullableAdditionalProperties' 1`] = `"{}"`;
 
 exports[`faker parse > 'number' 1`] = `"faker.number.float()"`;
 

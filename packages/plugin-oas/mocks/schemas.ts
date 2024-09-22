@@ -14,15 +14,21 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: schemaKeywords.string,
+    name: 'string',
     schema: {
       keyword: schemaKeywords.string,
     },
   },
   {
-    name: schemaKeywords.number,
+    name: 'number',
     schema: {
       keyword: schemaKeywords.number,
+    },
+  },
+  {
+    name: 'integer',
+    schema: {
+      keyword: schemaKeywords.integer,
     },
   },
   {
@@ -98,7 +104,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
-    name: schemaKeywords.min,
+    name: 'min',
     schema: {
       keyword: schemaKeywords.min,
       args: 2,
@@ -152,7 +158,29 @@ const basic: Array<{ name: string; schema: Schema }> = [
       },
     },
   },
-
+  {
+    name: 'enumLiteralBoolean',
+    schema: {
+      keyword: schemaKeywords.enum,
+      args: {
+        asConst: true,
+        items: [
+          {
+            format: 'boolean',
+            name: 'true',
+            value: true,
+          },
+          {
+            format: 'boolean',
+            name: 'false',
+            value: false,
+          },
+        ],
+        name: 'PetEnumLiteral',
+        typeName: 'PetEnumLiteral',
+      },
+    },
+  },
   {
     name: 'tuple',
     schema: {
@@ -437,6 +465,30 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.blob,
     },
   },
+  {
+    name: 'nullableAdditionalProperties',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {},
+        additionalProperties: [
+          {
+            keyword: schemaKeywords.string,
+          },
+          {
+            args: {
+              format: undefined,
+              type: schemaKeywords.string,
+            },
+            keyword: schemaKeywords.schema,
+          },
+          {
+            keyword: schemaKeywords.nullable,
+          },
+        ],
+      },
+    },
+  },
 ]
 
 const full: Array<{ name: string; schema: Schema[] }> = [
@@ -445,6 +497,30 @@ const full: Array<{ name: string; schema: Schema[] }> = [
     schema: [
       {
         keyword: schemaKeywords.blob,
+      },
+    ],
+  },
+  {
+    name: 'PageSizeNumber',
+    schema: [
+      {
+        keyword: schemaKeywords.number,
+      },
+      {
+        keyword: schemaKeywords.default,
+        args: 10,
+      },
+    ],
+  },
+  {
+    name: 'PageSizeInteger',
+    schema: [
+      {
+        keyword: schemaKeywords.integer,
+      },
+      {
+        keyword: schemaKeywords.default,
+        args: 10,
       },
     ],
   },
@@ -522,6 +598,32 @@ const full: Array<{ name: string; schema: Schema[] }> = [
             ],
           },
           additionalProperties: [],
+        },
+      },
+    ],
+  },
+  {
+    name: 'nullableAdditionalProperties',
+    schema: [
+      {
+        keyword: schemaKeywords.object,
+        args: {
+          properties: {},
+          additionalProperties: [
+            {
+              keyword: schemaKeywords.string,
+            },
+            {
+              args: {
+                format: undefined,
+                type: schemaKeywords.string,
+              },
+              keyword: schemaKeywords.schema,
+            },
+            {
+              keyword: schemaKeywords.number,
+            },
+          ],
         },
       },
     ],

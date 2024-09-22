@@ -1,5 +1,115 @@
 # @kubb/core
 
+## 2.26.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.7
+  - @kubb/parser-ts@2.26.7
+  - @kubb/types@2.26.7
+
+## 2.26.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.6
+  - @kubb/parser-ts@2.26.6
+  - @kubb/types@2.26.6
+
+## 2.26.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.5
+  - @kubb/parser-ts@2.26.5
+  - @kubb/types@2.26.5
+
+## 2.26.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.4
+  - @kubb/parser-ts@2.26.4
+  - @kubb/types@2.26.4
+
+## 2.26.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.3
+  - @kubb/parser-ts@2.26.3
+  - @kubb/types@2.26.3
+
+## 2.26.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.2
+  - @kubb/parser-ts@2.26.2
+  - @kubb/types@2.26.2
+
+## 2.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.1
+  - @kubb/parser-ts@2.26.1
+  - @kubb/types@2.26.1
+
+## 2.26.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.26.0
+  - @kubb/parser-ts@2.26.0
+  - @kubb/types@2.26.0
+
+## 2.25.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.25.5
+  - @kubb/parser-ts@2.25.5
+  - @kubb/types@2.25.5
+
+## 2.25.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.25.4
+  - @kubb/parser-ts@2.25.4
+  - @kubb/types@2.25.4
+
+## 2.25.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@2.25.3
+  - @kubb/parser-ts@2.25.3
+  - @kubb/types@2.25.3
+
+## 2.25.2
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/fs@2.25.2
+  - @kubb/parser-ts@2.25.2
+  - @kubb/types@2.25.2
+
 ## 2.25.1
 
 ### Patch Changes

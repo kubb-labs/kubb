@@ -1,0 +1,207 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SchemaGenerator core > 'PageSize' 1`] = `
+[
+  {
+    "keyword": "integer",
+  },
+  {
+    "args": 1,
+    "keyword": "min",
+  },
+  {
+    "args": 10,
+    "keyword": "max",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "integer",
+    },
+    "keyword": "schema",
+  },
+  {
+    "args": 20,
+    "keyword": "default",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > 'Pet' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "enumLiteral": [
+          {
+            "args": {
+              "asConst": true,
+              "items": [
+                {
+                  "format": "boolean",
+                  "name": true,
+                  "value": true,
+                },
+                {
+                  "format": "boolean",
+                  "name": false,
+                  "value": false,
+                },
+              ],
+              "name": "PetEnumLiteral",
+              "typeName": "PetEnumLiteral",
+            },
+            "keyword": "enum",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "boolean",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "enumLiteral",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "id": [
+          {
+            "keyword": "integer",
+          },
+          {
+            "args": {
+              "format": "int64",
+              "type": "integer",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "id",
+            "keyword": "name",
+          },
+        ],
+        "name": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "name",
+            "keyword": "name",
+          },
+        ],
+        "schema": [
+          {
+            "args": {
+              "additionalProperties": [
+                {
+                  "keyword": "string",
+                },
+                {
+                  "args": {
+                    "format": undefined,
+                    "type": "string",
+                  },
+                  "keyword": "schema",
+                },
+                {
+                  "keyword": "nullable",
+                },
+              ],
+              "properties": {},
+            },
+            "keyword": "object",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "object",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "schema",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "tag": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "tag",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > 'Pets' 1`] = `
+[
+  {
+    "args": {
+      "items": [
+        {
+          "args": {
+            "name": "pet",
+            "path": "pet.ts",
+          },
+          "keyword": "ref",
+        },
+        {
+          "args": {
+            "format": undefined,
+            "type": "object",
+          },
+          "keyword": "schema",
+        },
+      ],
+      "max": undefined,
+      "min": undefined,
+    },
+    "keyword": "array",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "array",
+    },
+    "keyword": "schema",
+  },
+]
+`;

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import type { AddPetRequest } from '../models/ts/AddPetRequest'
 
 export const addPetRequestSchema = z.object({
-  id: z.number().optional(),
+  id: z.number().int().optional(),
   name: z.string(),
   category: z.lazy(() => categorySchema).optional(),
   photoUrls: z.array(z.string()),

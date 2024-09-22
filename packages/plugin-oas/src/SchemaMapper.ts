@@ -12,6 +12,7 @@ export type SchemaKeywordMapper = {
   strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
+  writeOnly: { keyword: 'writeOnly' }
   uuid: { keyword: 'uuid' }
   email: { keyword: 'email' }
   firstName: { keyword: 'firstName' }
@@ -34,8 +35,8 @@ export type SchemaKeywordMapper = {
       asConst: boolean
       items: Array<{
         name: string | number
-        format: 'string' | 'number'
-        value?: string | number
+        format: 'string' | 'number' | 'boolean'
+        value?: string | number | boolean
       }>
     }
   }
@@ -44,14 +45,14 @@ export type SchemaKeywordMapper = {
     keyword: 'const'
     args: {
       name: string | number
-      format: 'string' | 'number'
-      value?: string | number
+      format: 'string' | 'number' | 'boolean'
+      value?: string | number | boolean
     }
   }
   union: { keyword: 'union'; args: Schema[] }
   ref: {
     keyword: 'ref'
-    args: { name: string; path: KubbFile.OptionalPath; isTypeOnly?: boolean }
+    args: { name: string; path: KubbFile.OptionalPath }
   }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }
@@ -107,6 +108,7 @@ export const schemaKeywords = {
   max: 'max',
   optional: 'optional',
   readOnly: 'readOnly',
+  writeOnly: 'writeOnly',
 
   // custom ones
   object: 'object',

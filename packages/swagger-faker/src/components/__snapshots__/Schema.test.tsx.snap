@@ -26,6 +26,26 @@ export function Order(data: NonNullable<Partial<Order>> = {}): NonNullable<Order
 "
 `;
 
+exports[`<Schema/>  > 'PageSizeInteger' 1`] = `
+"
+export function PageSizeInteger(): NonNullable<PageSizeInteger> {
+  
+  return faker.number.int()
+}
+
+"
+`;
+
+exports[`<Schema/>  > 'PageSizeNumber' 1`] = `
+"
+export function PageSizeNumber(): NonNullable<PageSizeNumber> {
+  
+  return faker.number.float()
+}
+
+"
+`;
+
 exports[`<Schema/>  > 'Record' 1`] = `
 "
 export function Record(data: NonNullable<Partial<Record>> = {}): NonNullable<Record> {
@@ -44,6 +64,19 @@ exports[`<Schema/>  > 'Upload' 1`] = `
 export function Upload(): NonNullable<Upload> {
   
   return faker.image.imageUrl() as unknown as Blob
+}
+
+"
+`;
+
+exports[`<Schema/>  > 'nullableAdditionalProperties' 1`] = `
+"
+export function nullableAdditionalProperties(data: NonNullable<Partial<NullableAdditionalProperties>> = {}): NonNullable<NullableAdditionalProperties> {
+  
+  return {
+      ...{},
+      ...data
+    }
 }
 
 "

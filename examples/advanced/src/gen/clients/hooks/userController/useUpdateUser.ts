@@ -3,10 +3,10 @@ import { useMutation } from '@tanstack/react-query'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>
 type UpdateUser = {
   data: UpdateUserMutationResponse
-  error: never
+  error: Error
   request: UpdateUserMutationRequest
   pathParams: UpdateUserPathParams
   queryParams: never

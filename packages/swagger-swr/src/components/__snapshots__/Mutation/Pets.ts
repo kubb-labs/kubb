@@ -1,7 +1,7 @@
-type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
+type CreatePetsClient = typeof client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>
 type CreatePets = {
   data: CreatePetsMutationResponse
-  error: never
+  error: Error
   request: CreatePetsMutationRequest
   pathParams: never
   queryParams: never
@@ -25,7 +25,7 @@ export function useCreatePets(options?: {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = `/pets` as const
-  return useSWRMutation<CreatePets['response'], CreatePets['error'], typeof url | null>(
+  return useSWRMutation<CreatePets['response'], CreatePets['error'], Key>(
     shouldFetch ? url : null,
     async (_url, { arg: data }) => {
       const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({

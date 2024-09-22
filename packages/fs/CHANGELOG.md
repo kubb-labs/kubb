@@ -1,5 +1,33 @@
 # @kubb/fs
 
+## 2.26.7
+
+## 2.26.6
+
+## 2.26.5
+
+## 2.26.4
+
+## 2.26.3
+
+## 2.26.2
+
+## 2.26.1
+
+## 2.26.0
+
+## 2.25.5
+
+## 2.25.4
+
+## 2.25.3
+
+## 2.25.2
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
 ## 2.25.1
 
 ### Patch Changes

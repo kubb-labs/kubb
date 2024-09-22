@@ -623,6 +623,11 @@ export default defineConfig({
             target: '_blank',
           },
           {
+            text: 'v3 beta',
+            link: 'https://v3.kubb.dev',
+            target: '_blank',
+          },
+          {
             text: 'Blog',
             link: '/blog/v2',
           },
@@ -631,7 +636,6 @@ export default defineConfig({
             link: 'https://github.com/kubb-labs/kubb/releases',
             target: '_blank',
           },
-
           {
             text: 'Sponsor Kubb',
             link: 'https://github.com/sponsors/stijnvanhulle/',
@@ -648,9 +652,8 @@ export default defineConfig({
         ],
       },
       {
-        text: `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="25" width="90" style="border: 0; border-radius: 6px;"></iframe>
-      `,
-        link: '',
+        text: `Sponsor Kubb`,
+        link: 'https://github.com/sponsors/stijnvanhulle',
       },
     ],
     editLink: {

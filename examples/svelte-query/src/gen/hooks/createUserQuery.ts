@@ -3,10 +3,10 @@ import { createMutation } from '@tanstack/svelte-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
+type CreateUserClient = typeof client<CreateUserMutationResponse, Error, CreateUserMutationRequest>
 type CreateUser = {
   data: CreateUserMutationResponse
-  error: never
+  error: Error
   request: CreateUserMutationRequest
   pathParams: never
   queryParams: never

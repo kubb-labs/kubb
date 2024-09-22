@@ -1,6 +1,6 @@
 {
   "name": "@kubb/config-biome",
-  "version": "2.25.1",
+  "version": "2.26.7",
   "private": true,
   "type": "module",
   "exports": {

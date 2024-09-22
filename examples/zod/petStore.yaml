@@ -822,7 +822,11 @@ components:
           type: string
       xml:
         name: tag
-
+    PageSize:
+      type: integer
+      minimum: 1
+      maximum: 10
+      default: 20
     Pet:
       required:
         - name

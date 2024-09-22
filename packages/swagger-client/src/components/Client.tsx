@@ -1,8 +1,8 @@
 import { URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, Parser, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 import { isOptional } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
@@ -221,8 +221,7 @@ export function Client({ baseURL, Template = defaultTemplates.default }: ClientP
         comments: getComments(operation),
       }}
       client={{
-        // only set baseURL from serverIndex(swagger) when no custom client(default) is used
-        baseURL: client.importPath === '@kubb/swagger-client/client' ? baseURL : undefined,
+        baseURL,
         generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
         dataReturnType,
         withQueryParams: !!schemas.queryParams?.name,

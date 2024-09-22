@@ -1,5 +1,5 @@
-import type { AddPetRequestType } from './AddPetRequestType'
 import type { PetType } from './PetType'
+import type { AddPetRequestType } from './AddPetRequestType'
 
 /**
  * @description Successful operation

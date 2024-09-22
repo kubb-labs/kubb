@@ -24,7 +24,10 @@ type ParserTemplateProps = {
 function RootTemplate({ children }: ParserTemplateProps) {
   const {
     pluginManager,
-    plugin: { key: pluginKey },
+    plugin: {
+      key: pluginKey,
+      options: { extName },
+    },
   } = useApp<PluginMsw>()
 
   const { getName, getFile } = useOperationManager()
@@ -37,7 +40,7 @@ function RootTemplate({ children }: ParserTemplateProps) {
       const operationFile = getFile(operation, { pluginKey })
       const operationName = getName(operation, { pluginKey, type: 'function' })
 
-      return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
+      return <File.Import extName={extName} key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
     })
     .filter(Boolean)
 

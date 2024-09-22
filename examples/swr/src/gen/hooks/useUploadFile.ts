@@ -3,10 +3,10 @@ import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 
-type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFileClient = typeof client<UploadFileMutationResponse, Error, UploadFileMutationRequest>
 type UploadFile = {
   data: UploadFileMutationResponse
-  error: never
+  error: Error
   request: UploadFileMutationRequest
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams

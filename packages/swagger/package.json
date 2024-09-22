@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger",
-  "version": "2.25.1",
+  "version": "2.26.7",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
@@ -83,11 +83,11 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
     "react": "^18.3.1",
-    "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*"

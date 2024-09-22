@@ -8,10 +8,10 @@ import type {
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
 
-type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFileClient = typeof client<UploadFileMutationResponse, Error, UploadFileMutationRequest>
 type UploadFile = {
   data: UploadFileMutationResponse
-  error: never
+  error: Error
   request: UploadFileMutationRequest
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams

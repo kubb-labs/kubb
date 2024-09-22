@@ -16,6 +16,9 @@ export type AddPetRequestType = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: CategoryType
   /**
    * @type array

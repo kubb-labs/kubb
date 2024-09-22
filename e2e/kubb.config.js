@@ -11,7 +11,7 @@ import { pluginZodios } from '@kubb/swagger-zodios'
 
 const schemas = [
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
-  ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'],
+  // ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'], // invalid
   ['optionalParameters', './schemas/optionalParameters.json'],
   ['allOf', './schemas/allOf.json'],
   ['anyOf', './schemas/anyOf.json'],
@@ -27,6 +27,7 @@ const schemas = [
   ['box', './schemas/box.json'],
   ['digitalocean', './schemas/digitalocean.yaml'],
   ['enums', './schemas/enums.yaml'],
+  ['dataset_api', './schemas/dataset_api.yaml'],
 ]
 
 /** @type {import('@kubb/core').UserConfig} */

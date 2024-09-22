@@ -1,5 +1,169 @@
 # @kubb/swagger-zod
 
+## 2.26.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.7
+  - @kubb/fs@2.26.7
+  - @kubb/oas@2.26.7
+  - @kubb/parser-ts@2.26.7
+  - @kubb/plugin-oas@2.26.7
+  - @kubb/react@2.26.7
+  - @kubb/swagger-ts@2.26.7
+
+## 2.26.6
+
+### Patch Changes
+
+- Updated dependencies [[`9b8dac9`](https://github.com/kubb-labs/kubb/commit/9b8dac948b0d1d1bbe891ac331f0cb579062c9d3)]:
+  - @kubb/plugin-oas@2.26.6
+  - @kubb/swagger-ts@2.26.6
+  - @kubb/core@2.26.6
+  - @kubb/fs@2.26.6
+  - @kubb/oas@2.26.6
+  - @kubb/parser-ts@2.26.6
+  - @kubb/react@2.26.6
+
+## 2.26.5
+
+### Patch Changes
+
+- [`ae1cdf4`](https://github.com/kubb-labs/kubb/commit/ae1cdf4a92ac382d2404a929f3dee9057b2f9212) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Enums should use `z.literal` when format is set to number, string or boolean
+
+- Updated dependencies [[`981ee87`](https://github.com/kubb-labs/kubb/commit/981ee87ec3d2e6122f82d11e5837c5c56df75c30), [`ae1cdf4`](https://github.com/kubb-labs/kubb/commit/ae1cdf4a92ac382d2404a929f3dee9057b2f9212)]:
+  - @kubb/plugin-oas@2.26.5
+  - @kubb/swagger-ts@2.26.5
+  - @kubb/core@2.26.5
+  - @kubb/fs@2.26.5
+  - @kubb/oas@2.26.5
+  - @kubb/parser-ts@2.26.5
+  - @kubb/react@2.26.5
+
+## 2.26.4
+
+### Patch Changes
+
+- Updated dependencies [[`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c)]:
+  - @kubb/plugin-oas@2.26.4
+  - @kubb/oas@2.26.4
+  - @kubb/swagger-ts@2.26.4
+  - @kubb/core@2.26.4
+  - @kubb/fs@2.26.4
+  - @kubb/parser-ts@2.26.4
+  - @kubb/react@2.26.4
+
+## 2.26.3
+
+### Patch Changes
+
+- Updated dependencies [[`39e85f7`](https://github.com/kubb-labs/kubb/commit/39e85f7ed79c34bdbabe95cfa29be51f57939f63)]:
+  - @kubb/plugin-oas@2.26.3
+  - @kubb/swagger-ts@2.26.3
+  - @kubb/core@2.26.3
+  - @kubb/fs@2.26.3
+  - @kubb/oas@2.26.3
+  - @kubb/parser-ts@2.26.3
+  - @kubb/react@2.26.3
+
+## 2.26.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.2
+  - @kubb/fs@2.26.2
+  - @kubb/oas@2.26.2
+  - @kubb/parser-ts@2.26.2
+  - @kubb/plugin-oas@2.26.2
+  - @kubb/react@2.26.2
+  - @kubb/swagger-ts@2.26.2
+
+## 2.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.1
+  - @kubb/fs@2.26.1
+  - @kubb/oas@2.26.1
+  - @kubb/parser-ts@2.26.1
+  - @kubb/plugin-oas@2.26.1
+  - @kubb/react@2.26.1
+  - @kubb/swagger-ts@2.26.1
+
+## 2.26.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.0
+  - @kubb/fs@2.26.0
+  - @kubb/oas@2.26.0
+  - @kubb/parser-ts@2.26.0
+  - @kubb/plugin-oas@2.26.0
+  - @kubb/react@2.26.0
+  - @kubb/swagger-ts@2.26.0
+
+## 2.25.5
+
+### Patch Changes
+
+- [`7018149`](https://github.com/kubb-labs/kubb/commit/701814979285b6b0753b7183157f2b77f1b2db97) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct integer parser when used together with coerce
+
+- [`7018149`](https://github.com/kubb-labs/kubb/commit/701814979285b6b0753b7183157f2b77f1b2db97) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Set default property for schema AST when type of default is not string or boolean
+
+- Updated dependencies [[`7018149`](https://github.com/kubb-labs/kubb/commit/701814979285b6b0753b7183157f2b77f1b2db97)]:
+  - @kubb/plugin-oas@2.25.5
+  - @kubb/swagger-ts@2.25.5
+  - @kubb/core@2.25.5
+  - @kubb/fs@2.25.5
+  - @kubb/oas@2.25.5
+  - @kubb/parser-ts@2.25.5
+  - @kubb/react@2.25.5
+
+## 2.25.4
+
+### Patch Changes
+
+- Updated dependencies [[`ddb9882`](https://github.com/kubb-labs/kubb/commit/ddb9882325f1c96e6a12953d03ada439734f4c97)]:
+  - @kubb/plugin-oas@2.25.4
+  - @kubb/swagger-ts@2.25.4
+  - @kubb/core@2.25.4
+  - @kubb/fs@2.25.4
+  - @kubb/oas@2.25.4
+  - @kubb/parser-ts@2.25.4
+  - @kubb/react@2.25.4
+
+## 2.25.3
+
+### Patch Changes
+
+- Updated dependencies [[`c8d41d9`](https://github.com/kubb-labs/kubb/commit/c8d41d99aeeae2e92751a63e25ac89f30abaf597)]:
+  - @kubb/plugin-oas@2.25.3
+  - @kubb/swagger-ts@2.25.3
+  - @kubb/core@2.25.3
+  - @kubb/fs@2.25.3
+  - @kubb/oas@2.25.3
+  - @kubb/parser-ts@2.25.3
+  - @kubb/react@2.25.3
+
+## 2.25.2
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/core@2.25.2
+  - @kubb/fs@2.25.2
+  - @kubb/oas@2.25.2
+  - @kubb/parser-ts@2.25.2
+  - @kubb/plugin-oas@2.25.2
+  - @kubb/react@2.25.2
+  - @kubb/swagger-ts@2.25.2
+
 ## 2.25.1
 
 ### Patch Changes

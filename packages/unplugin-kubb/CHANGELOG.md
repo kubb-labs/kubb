@@ -1,5 +1,91 @@
 # unplugin-kubb
 
+## 0.1.84
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.7
+
+## 0.1.83
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.6
+
+## 0.1.82
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.5
+
+## 0.1.81
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.4
+
+## 0.1.80
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.3
+
+## 0.1.79
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.2
+
+## 0.1.78
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.1
+
+## 0.1.77
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.0
+
+## 0.1.76
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.5
+
+## 0.1.75
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.4
+
+## 0.1.74
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.3
+
+## 0.1.73
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/core@2.25.2
+
 ## 0.1.72
 
 ### Patch Changes

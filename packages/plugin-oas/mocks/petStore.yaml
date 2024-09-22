@@ -113,10 +113,27 @@ components:
           type: string
         tag:
           type: string
+        enumLiteral:
+          type: boolean
+          enum:
+            - true
+            - false
+        schema:
+          type: object
+          additionalProperties:
+            x-nullable: true
+            type: string
     Pets:
       type: array
       items:
         $ref: '#/components/schemas/Pet'
+
+    PageSize:
+      type: integer
+      minimum: 1
+      maximum: 10
+      default: 20
+
     Error:
       type: object
       required:
