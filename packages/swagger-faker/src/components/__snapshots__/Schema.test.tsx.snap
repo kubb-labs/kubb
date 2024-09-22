@@ -68,3 +68,16 @@ export function Upload(): NonNullable<Upload> {
 
 "
 `;
+
+exports[`<Schema/>  > 'nullableAdditionalProperties' 1`] = `
+"
+export function nullableAdditionalProperties(data: NonNullable<Partial<NullableAdditionalProperties>> = {}): NonNullable<NullableAdditionalProperties> {
+  
+  return {
+      ...{},
+      ...data
+    }
+}
+
+"
+`;

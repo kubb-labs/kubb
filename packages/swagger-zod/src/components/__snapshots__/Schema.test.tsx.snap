@@ -26,12 +26,18 @@ export const PageSizeNumber = z.number().default(10)
 
 exports[`<Schema/>  > 'Record' 1`] = `
 "
-export const Record = z.object({}).catchall(z.number().int()).optional()
+export const Record = z.object({}).catchall(z.number().int().optional()).optional()
 "
 `;
 
 exports[`<Schema/>  > 'Upload' 1`] = `
 "
 export const Upload = z.string()
+"
+`;
+
+exports[`<Schema/>  > 'nullableAdditionalProperties' 1`] = `
+"
+export const nullableAdditionalProperties = z.object({}).catchall(z.string()z.number())
 "
 `;

@@ -113,6 +113,11 @@ components:
           type: string
         tag:
           type: string
+        enumLiteral:
+          type: boolean
+          enum:
+            - true
+            - false
         schema:
           type: object
           additionalProperties:

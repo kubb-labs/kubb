@@ -30,6 +30,8 @@ exports[`zod parse > 'default' 2`] = `".default(default)"`;
 
 exports[`zod parse > 'enum' 1`] = `"z.enum(["A", "B", "C", "2"])"`;
 
+exports[`zod parse > 'enumLiteralBoolean' 1`] = `"z.union([z.literal(true), z.literal(false)])"`;
+
 exports[`zod parse > 'integer' 1`] = `"z.number().int()"`;
 
 exports[`zod parse > 'matches' 1`] = `".regex(new RegExp('^[A-Z]{2}$'))"`;

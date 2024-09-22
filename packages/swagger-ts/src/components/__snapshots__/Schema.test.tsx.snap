@@ -52,3 +52,10 @@ exports[`<Schema/>  > 'Upload' 1`] = `
 "export type Upload = Blob;
 "
 `;
+
+exports[`<Schema/>  > 'nullableAdditionalProperties' 1`] = `
+"export type nullableAdditionalProperties = {
+    [key: string]: string;
+};
+"
+`;

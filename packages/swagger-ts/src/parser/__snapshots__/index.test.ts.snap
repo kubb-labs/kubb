@@ -444,6 +444,36 @@ NodeObject {
 }
 `;
 
+exports[`type parse > 'enumLiteralBoolean' 1`] = `
+NodeObject {
+  "emitNode": undefined,
+  "end": -1,
+  "flags": 16,
+  "id": 0,
+  "kind": 183,
+  "modifierFlagsCache": 0,
+  "original": undefined,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "typeArguments": undefined,
+  "typeName": IdentifierObject {
+    "emitNode": undefined,
+    "end": -1,
+    "escapedText": "PetEnumLiteral",
+    "flags": 16,
+    "flowNode": undefined,
+    "id": 0,
+    "jsDoc": undefined,
+    "kind": 80,
+    "parent": undefined,
+    "pos": -1,
+    "symbol": undefined,
+    "transformFlags": 0,
+  },
+}
+`;
+
 exports[`type parse > 'integer' 1`] = `
 TokenObject {
   "emitNode": undefined,

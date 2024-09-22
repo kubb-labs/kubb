@@ -13,6 +13,15 @@ components:
       - Pending
       - Received
       - null
+    enumBooleanLiteral:
+      type: boolean
+      enum:
+        - true
+        - false
+    enumSingleLiteral:
+      type: number
+      enum:
+        - 0
 
 paths:
   /var-names:
