@@ -127,6 +127,7 @@ const fakerKeywordMapper = {
   nullish: undefined,
   optional: undefined,
   readOnly: undefined,
+  writeOnly: undefined,
   strict: undefined,
   deprecated: undefined,
   example: undefined,

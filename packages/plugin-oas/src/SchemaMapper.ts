@@ -12,6 +12,7 @@ export type SchemaKeywordMapper = {
   strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
+  writeOnly: { keyword: 'writeOnly' }
   uuid: { keyword: 'uuid' }
   email: { keyword: 'email' }
   firstName: { keyword: 'firstName' }
@@ -107,6 +108,7 @@ export const schemaKeywords = {
   max: 'max',
   optional: 'optional',
   readOnly: 'readOnly',
+  writeOnly: 'writeOnly',
 
   // custom ones
   object: 'object',

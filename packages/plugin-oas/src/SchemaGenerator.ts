@@ -453,10 +453,16 @@ export class SchemaGenerator<
       baseItems.push({ keyword: schemaKeywords.readOnly })
     }
 
+    if (schema.writeOnly) {
+      baseItems.push({ keyword: schemaKeywords.writeOnly })
+    }
+
     if (isReference(schema)) {
       return [
         ...this.#getRefAlias(schema),
         nullable && { keyword: schemaKeywords.nullable },
+        schema.readOnly && { keyword: schemaKeywords.readOnly },
+        schema.writeOnly && { keyword: schemaKeywords.writeOnly },
         {
           keyword: schemaKeywords.schema,
           args: {

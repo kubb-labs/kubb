@@ -1,0 +1,31 @@
+openapi: 3.0.0
+
+components:
+  schemas:
+    Demo:
+      type: object
+      required:
+        - attribute_readonly_required
+        - attribute_required
+        - attribute
+        - attribute_with_ref_readonly_required
+      additionalProperties: false
+      properties:
+        attribute_readonly:
+          type: integer
+          readOnly: true
+        attribute_writeOnly:
+          description: not required
+          type: integer
+          writeOnly:  true
+        attribute_with_ref:
+          $ref: '#/components/schemas/attribute_readonly'
+        attribute_with_ref_readonly:
+          $ref: '#/components/schemas/attribute_writeOnly'
+    attribute_readonly:
+      type: integer
+      readOnly: true
+    attribute_writeOnly:
+      description: not required
+      type: integer
+      writeOnly: true

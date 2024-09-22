@@ -102,6 +102,7 @@ const zodKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
+  writeOnly: undefined,
   ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
   blob: () => 'z.string()',
   deprecated: undefined,

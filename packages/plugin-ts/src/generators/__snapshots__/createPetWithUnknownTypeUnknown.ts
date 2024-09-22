@@ -1,7 +1,11 @@
-/**
+
+ /**
  * @description Null response
 */
 export type CreatePets201 = (error & {
+    /**
+     * @type object | undefined
+    */
     name?: errorCode;
 });
 
@@ -25,6 +29,9 @@ export type CreatePetsError = error;
  * @description Null response
 */
 export type CreatePetsMutationResponse = (error & {
+    /**
+     * @type object | undefined
+    */
     name?: errorCode;
 });
 
