@@ -1,5 +1,19 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.22
+
+### Patch Changes
+
+- [#1236](https://github.com/kubb-labs/kubb/pull/1236) [`8413897`](https://github.com/kubb-labs/kubb/commit/8413897bdc8511090cfdebd7783ad4823a6abf30) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of `x-nullable` and `nullable` for additionalProperties.
+
+- [#1238](https://github.com/kubb-labs/kubb/pull/1238) [`ebfcb48`](https://github.com/kubb-labs/kubb/commit/ebfcb48dd59e0dc5ec28582b94035d8e25c9ea8d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Enums should use `z.literal` when format is set to number, string or boolean
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.22
+  - @kubb/fs@3.0.0-alpha.22
+  - @kubb/oas@3.0.0-alpha.22
+  - @kubb/react@3.0.0-alpha.22
+
 ## 3.0.0-alpha.21
 
 ### Patch Changes
