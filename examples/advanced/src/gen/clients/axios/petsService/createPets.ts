@@ -23,7 +23,7 @@ export async function createPets(
   params?: CreatePetsQueryParams,
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
-  const res = await client<CreatePetsMutationResponse, unknown, CreatePetsMutationRequest>({
+  const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
     method: 'post',
     url: `/pets/${uuid}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

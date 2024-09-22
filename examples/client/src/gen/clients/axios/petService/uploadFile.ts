@@ -31,7 +31,7 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

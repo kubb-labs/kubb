@@ -17,7 +17,7 @@ import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
  * @link /store/inventory
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponseType, unknown, unknown>({
+  const res = await client<GetInventoryQueryResponseType, Error, unknown>({
     method: 'get',
     url: '/store/inventory',
     baseURL: 'https://petstore3.swagger.io/api/v3',

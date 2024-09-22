@@ -8,7 +8,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @link /user/logout
  */
 export async function logoutUser(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, unknown, unknown>({
+  const res = await client<LogoutUserQueryResponse, Error, unknown>({
     method: 'get',
     url: '/user/logout',
     baseURL: 'https://petstore3.swagger.io/api/v3',

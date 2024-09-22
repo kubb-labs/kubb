@@ -22,6 +22,7 @@ z.union([z.literal(true), z.literal(false)]) // [!code ++]
 ```
 :::
 - [`plugin-ts`](/plugins/plugin-ts): Use of `readonly` for references($ref)
+- [`plugin-client`](/plugins/plugin-client): Use of type `Error` when no errors are set for an operation
 
 
 ## 3.0.0-alpha.21

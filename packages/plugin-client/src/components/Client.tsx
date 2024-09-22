@@ -82,7 +82,7 @@ export function Client({
 
   const generics = [
     typeSchemas.response.name,
-    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown',
+    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
     typeSchemas.request?.name || 'unknown',
   ].filter(Boolean)
   const params = getParams({ pathParamsType, typeSchemas })
