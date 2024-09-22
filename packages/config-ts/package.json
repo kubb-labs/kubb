@@ -1,6 +1,6 @@
 {
   "name": "@kubb/config-ts",
-  "version": "2.26.5",
+  "version": "2.26.6",
   "private": true,
   "types": "./reset.d.ts",
   "files": [
