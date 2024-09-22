@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.22
+- [`plugin-zod`](/plugins/plugin-zod): Use of `x-nullable` and `nullable` for additionalProperties.
+
+
 ## 3.0.0-alpha.21
 - [`plugin-faker`](/plugins/plugin-faker): use of `faker.image.url()` instead of `faker.image.imageUrl()`
 

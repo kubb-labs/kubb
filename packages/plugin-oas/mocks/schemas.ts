@@ -443,6 +443,30 @@ const basic: Array<{ name: string; schema: Schema }> = [
       keyword: schemaKeywords.blob,
     },
   },
+  {
+    name: 'nullableAdditionalProperties',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {},
+        additionalProperties: [
+          {
+            keyword: schemaKeywords.string,
+          },
+          {
+            args: {
+              format: undefined,
+              type: schemaKeywords.string,
+            },
+            keyword: schemaKeywords.schema,
+          },
+          {
+            keyword: schemaKeywords.nullable,
+          },
+        ],
+      },
+    },
+  },
 ]
 
 const full: Array<{ name: string; schema: Schema[] }> = [
@@ -552,6 +576,32 @@ const full: Array<{ name: string; schema: Schema[] }> = [
             ],
           },
           additionalProperties: [],
+        },
+      },
+    ],
+  },
+  {
+    name: 'nullableAdditionalProperties',
+    schema: [
+      {
+        keyword: schemaKeywords.object,
+        args: {
+          properties: {},
+          additionalProperties: [
+            {
+              keyword: schemaKeywords.string,
+            },
+            {
+              args: {
+                format: undefined,
+                type: schemaKeywords.string,
+              },
+              keyword: schemaKeywords.schema,
+            },
+            {
+              keyword: schemaKeywords.number,
+            },
+          ],
         },
       },
     ],
