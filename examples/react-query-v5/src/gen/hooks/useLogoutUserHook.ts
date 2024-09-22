@@ -3,10 +3,10 @@ import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, Error, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never

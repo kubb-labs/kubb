@@ -1,7 +1,7 @@
-type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
+type CreatePetsClient = typeof client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>
 type CreatePets = {
   data: CreatePetsMutationResponse
-  error: never
+  error: Error
   request: CreatePetsMutationRequest
   pathParams: never
   queryParams: never

@@ -4,10 +4,10 @@ import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation
 import type { Key } from 'swr'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
-type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>
 type UpdateUser = {
   data: UpdateUserMutationResponse
-  error: never
+  error: Error
   request: UpdateUserMutationRequest
   pathParams: UpdateUserPathParams
   queryParams: never

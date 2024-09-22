@@ -4,10 +4,10 @@ import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, Error, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never

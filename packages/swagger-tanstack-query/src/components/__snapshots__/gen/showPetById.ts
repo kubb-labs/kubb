@@ -1,7 +1,7 @@
-type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, never, never>
+type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, Error, never>
 type GetPetsUuid = {
   data: GetPetsUuidQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never

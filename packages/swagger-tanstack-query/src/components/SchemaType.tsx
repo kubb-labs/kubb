@@ -1,9 +1,9 @@
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { Type, useApp } from '@kubb/react'
 
+import { pluginTsName } from '@kubb/swagger-ts'
 import type { ReactNode } from 'react'
 import type { PluginTanstackQuery } from '../types.ts'
-import { pluginTsName } from '@kubb/swagger-ts'
 
 type Props = {
   factory: {
@@ -24,7 +24,7 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,
-    schemas.errors?.map((item) => item.name).join(' | ') || 'never',
+    schemas.errors?.map((item) => item.name).join(' | ') || 'Error',
     schemas.request?.name || 'never',
     schemas.pathParams?.name || 'never',
     schemas.queryParams?.name || 'never',

@@ -6,10 +6,10 @@ import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { MaybeRef } from 'vue'
 
-type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>
 type UpdateUser = {
   data: UpdateUserMutationResponse
-  error: never
+  error: Error
   request: UpdateUserMutationRequest
   pathParams: UpdateUserPathParams
   queryParams: never

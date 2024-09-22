@@ -421,10 +421,10 @@ export function useDeletePet(
   })
 }
 
-type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFileClient = typeof client<UploadFileMutationResponse, Error, UploadFileMutationRequest>
 type UploadFile = {
   data: UploadFileMutationResponse
-  error: never
+  error: Error
   request: UploadFileMutationRequest
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams
@@ -464,10 +464,10 @@ export function useUploadFile(
   })
 }
 
-type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, Error, never>
 type GetInventory = {
   data: GetInventoryQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never
@@ -702,10 +702,10 @@ export function useDeleteOrder(
   })
 }
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
+type CreateUserClient = typeof client<CreateUserMutationResponse, Error, CreateUserMutationRequest>
 type CreateUser = {
   data: CreateUserMutationResponse
-  error: never
+  error: Error
   request: CreateUserMutationRequest
   pathParams: never
   queryParams: never
@@ -742,10 +742,10 @@ export function useCreateUser(
   })
 }
 
-type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: never
+  error: Error
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never
@@ -842,10 +842,10 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
   return query
 }
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, Error, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never
@@ -958,10 +958,10 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
   return query
 }
 
-type UpdateUserClient = typeof client<UpdateUserMutationResponse, never, UpdateUserMutationRequest>
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>
 type UpdateUser = {
   data: UpdateUserMutationResponse
-  error: never
+  error: Error
   request: UpdateUserMutationRequest
   pathParams: UpdateUserPathParams
   queryParams: never

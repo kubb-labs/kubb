@@ -4,10 +4,10 @@ import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation
 import type { Key } from 'swr'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 
-type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: never
+  error: Error
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

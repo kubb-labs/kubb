@@ -3,10 +3,10 @@ import { createMutation } from '@tanstack/svelte-query'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
-type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: never
+  error: Error
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

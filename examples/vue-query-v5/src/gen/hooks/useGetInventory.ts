@@ -3,10 +3,10 @@ import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 
-type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, Error, never>
 type GetInventory = {
   data: GetInventoryQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never

@@ -12,10 +12,10 @@ import type {
   InfiniteData,
 } from '@tanstack/react-query'
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, Error, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never

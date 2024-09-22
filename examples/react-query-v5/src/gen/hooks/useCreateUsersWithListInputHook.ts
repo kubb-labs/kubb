@@ -4,10 +4,10 @@ import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
-type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: never
+  error: Error
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

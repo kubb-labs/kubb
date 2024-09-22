@@ -11,10 +11,10 @@ import type {
   InfiniteData,
 } from '@tanstack/react-query'
 
-type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, Error, never>
 type GetInventory = {
   data: GetInventoryQueryResponse
-  error: never
+  error: Error
   request: never
   pathParams: never
   queryParams: never

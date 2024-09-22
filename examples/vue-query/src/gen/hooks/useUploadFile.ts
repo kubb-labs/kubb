@@ -6,10 +6,10 @@ import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { MaybeRef } from 'vue'
 
-type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFileClient = typeof client<UploadFileMutationResponse, Error, UploadFileMutationRequest>
 type UploadFile = {
   data: UploadFileMutationResponse
-  error: never
+  error: Error
   request: UploadFileMutationRequest
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams
