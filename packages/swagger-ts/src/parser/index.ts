@@ -2,8 +2,8 @@ import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
-import type { ts } from '@kubb/parser-ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import type ts from 'typescript'
 
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
@@ -54,12 +54,20 @@ export const typeKeywordMapper = {
       nodes,
     })
   },
-  const: (name?: string | number, format?: 'string' | 'number') => {
+  const: (name?: string | number | boolean, format?: 'string' | 'number' | 'boolean') => {
     if (!name) {
       return undefined
     }
 
-    if (format === 'number') {
+    if (format === 'boolean') {
+      if (name === true) {
+        return factory.createLiteralTypeNode(factory.createTrue())
+      }
+
+      return factory.createLiteralTypeNode(factory.createFalse())
+    }
+
+    if (format === 'number' && typeof name === 'number') {
       return factory.createLiteralTypeNode(factory.createNumericLiteral(name))
     }
 
@@ -120,6 +128,7 @@ type ParserOptions = {
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
    * @default `'asConst'`
+   * asPascalConst is deprecated
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   keysToOmit?: string[]
