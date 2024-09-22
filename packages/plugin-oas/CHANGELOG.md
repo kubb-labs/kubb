@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 2.26.4
+
+### Patch Changes
+
+- [#1234](https://github.com/kubb-labs/kubb/pull/1234) [`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove experimentalSort and experimentalFilter
+
+- Updated dependencies [[`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c)]:
+  - @kubb/oas@2.26.4
+  - @kubb/core@2.26.4
+  - @kubb/fs@2.26.4
+  - @kubb/react@2.26.4
+
 ## 2.26.3
 
 ### Patch Changes

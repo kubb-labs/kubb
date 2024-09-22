@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "2.26.3",
+  "version": "2.26.4",
   "description": "Generator react",
   "keywords": [
     "typescript",
@@ -88,13 +88,13 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.8",
     "@types/react-reconciler": "^0.28.8",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "react-reconciler": "^0.29.2",
-    "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
   },
   "engines": {
     "node": ">=18"

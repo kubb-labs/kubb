@@ -1,6 +1,6 @@
 {
   "name": "@kubb/types",
-  "version": "2.26.3",
+  "version": "2.26.4",
   "description": "Generator types",
   "keywords": [
     "typescript",
@@ -53,8 +53,8 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
   },
   "engines": {
     "node": ">=18"

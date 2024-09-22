@@ -29,21 +29,21 @@
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@tanstack/react-query": "^5.52.2",
+    "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "5.0.0",
-    "axios": "^1.7.5",
+    "axios": "^1.7.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "msw": "^1.3.3",
-    "tsup": "^8.2.4",
+    "msw": "^1.3.4",
+    "tsup": "^8.3.0",
     "typescript": "~5.2.2",
     "unplugin-kubb": "workspace:*",
-    "vite": "^4.5.3"
+    "vite": "^4.5.5"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

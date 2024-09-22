@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "2.26.3",
+  "version": "2.26.4",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -97,7 +97,7 @@
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^2.11.0",
+    "remeda": "^2.14.0",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.3",
     "unraw": "^3.0.0"
@@ -106,15 +106,15 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.8",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "consola": "^3.2.3",
     "ora": "^8.1.0",
     "prettier": "^3.3.3",
     "tinyrainbow": "^1.2.0",
-    "tsup": "^8.2.4",
-    "typescript": "^5.5.4"
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
   },
   "engines": {
     "node": ">=18"

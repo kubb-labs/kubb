@@ -7,7 +7,7 @@
  * Colors
  * -------------------------------------------------------------------------- */
 
- :root {
+:root {
   --vp-c-brand: #f58517;
   --vp-c-brand-light: #f58517;
   --vp-c-brand-lighter: #f58517;
@@ -33,8 +33,6 @@
   --twoslash-popup-bg: rgba(35, 39, 47, 0.9);
 }
 
-
-
 /**
  * Component: Button
  * -------------------------------------------------------------------------- */
@@ -57,11 +55,7 @@
 
 :root {
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: -webkit-linear-gradient(
-    120deg,
-    #f58517 30%,
-    #f7797d
-  );
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #f58517 30%, #f7797d);
 
   --vp-home-hero-image-background-image: linear-gradient(-45deg, rgb(245, 133, 23) 50%, rgb(227, 192, 157) 50%);
   --vp-home-hero-image-background-image-invert: linear-gradient(-90deg, rgb(245, 133, 23) 50%, rgb(227, 192, 157) 50%);
