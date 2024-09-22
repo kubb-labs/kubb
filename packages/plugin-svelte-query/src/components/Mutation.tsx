@@ -56,7 +56,7 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
     options: {
       type: `
 {
-  mutation?: CreateMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', `{${TRequest}`].join(', ')}>,
+  mutation?: CreateMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}`].join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
 }
 `,

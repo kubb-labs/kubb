@@ -57,7 +57,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
 }
 `,
@@ -77,7 +77,7 @@ export function InfiniteQuery({
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const returnType = `UseInfiniteQueryResult<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}> & { queryKey: TQueryKey }`
+  const returnType = `UseInfiniteQueryResult<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({

@@ -57,7 +57,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  query?: Partial<UseSuspenseQueryOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown', 'TData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<UseSuspenseQueryOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryKey'].join(', ')}>>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
 }
 `,
@@ -77,7 +77,7 @@ export function SuspenseQuery({
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const returnType = `UseSuspenseQueryResult<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'unknown'].join(', ')}> & { queryKey: TQueryKey }`
+  const returnType = `UseSuspenseQueryResult<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({
