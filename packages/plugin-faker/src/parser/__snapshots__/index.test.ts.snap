@@ -42,6 +42,8 @@ exports[`faker parse > 'min' 1`] = `undefined`;
 
 exports[`faker parse > 'nullable' 1`] = `undefined`;
 
+exports[`faker parse > 'nullableAdditionalProperties' 1`] = `"{}"`;
+
 exports[`faker parse > 'number' 1`] = `"faker.number.float()"`;
 
 exports[`faker parse > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;

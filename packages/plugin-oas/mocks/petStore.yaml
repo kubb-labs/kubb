@@ -113,6 +113,11 @@ components:
           type: string
         tag:
           type: string
+        schema:
+          type: object
+          additionalProperties:
+            x-nullable: true
+            type: string
     Pets:
       type: array
       items:

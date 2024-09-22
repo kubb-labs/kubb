@@ -42,6 +42,8 @@ exports[`zod parse > 'min' 1`] = `".min(2)"`;
 
 exports[`zod parse > 'nullable' 1`] = `".nullable()"`;
 
+exports[`zod parse > 'nullableAdditionalProperties' 1`] = `"z.object({}).catchall(z.string().nullable())"`;
+
 exports[`zod parse > 'number' 1`] = `"z.number()"`;
 
 exports[`zod parse > 'object' 1`] = `"z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})"`;

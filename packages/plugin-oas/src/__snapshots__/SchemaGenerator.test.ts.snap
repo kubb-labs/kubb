@@ -65,6 +65,43 @@ exports[`SchemaGenerator core > 'Pet' 1`] = `
             "keyword": "name",
           },
         ],
+        "schema": [
+          {
+            "args": {
+              "additionalProperties": [
+                {
+                  "keyword": "string",
+                },
+                {
+                  "args": {
+                    "format": undefined,
+                    "type": "string",
+                  },
+                  "keyword": "schema",
+                },
+                {
+                  "keyword": "nullable",
+                },
+              ],
+              "properties": {},
+            },
+            "keyword": "object",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "object",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "schema",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
         "tag": [
           {
             "keyword": "string",

@@ -263,7 +263,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
       ? current.args.additionalProperties
           .map((schema) => parse(current, schema, options))
           .filter(Boolean)
-          .at(0)
+          .join('')
       : undefined
 
     const text = [
