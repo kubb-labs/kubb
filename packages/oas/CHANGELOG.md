@@ -1,5 +1,63 @@
 # @kubb/oas
 
+## 2.26.7
+
+## 2.26.6
+
+## 2.26.5
+
+## 2.26.4
+
+### Patch Changes
+
+- [#1234](https://github.com/kubb-labs/kubb/pull/1234) [`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove experimentalSort and experimentalFilter
+
+## 2.26.3
+
+## 2.26.2
+
+## 2.26.1
+
+## 2.26.0
+
+## 2.25.5
+
+## 2.25.4
+
+## 2.25.3
+
+## 2.25.2
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+## 2.25.1
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+## 2.25.0
+
+## 2.24.0
+
+### Minor Changes
+
+- [#1092](https://github.com/kubb-labs/kubb/pull/1092) [`cb0b748`](https://github.com/kubb-labs/kubb/commit/cb0b7485646a9448cbdc55b77e2c02c5b7a4900c) Thanks [@rajp33](https://github.com/rajp33)! - Allow overriding of oas class as Plugin Option
+
+## 2.23.4
+
+### Patch Changes
+
+- [`4970e0d`](https://github.com/kubb-labs/kubb/commit/4970e0dd0288028b03d18719e4c68b435fd5e74c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - validation for oas 3.1
+
+## 2.23.3
+
+## 2.23.2
+
+## 2.23.1
+
 ## 2.23.0
 
 ## 2.22.1

@@ -1,6 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/swagger-ts'
+import ts, { factory } from 'typescript'
 
 export default defineConfig({
   root: '.',
@@ -54,6 +55,14 @@ export default defineConfig({
         exportType: 'barrelNamed',
       },
       oasType: 'infer',
+      mapper: {
+        category: factory.createPropertySignature(
+          undefined,
+          factory.createIdentifier('category'),
+          factory.createToken(ts.SyntaxKind.QuestionToken),
+          factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        ),
+      },
     }),
   ],
 })

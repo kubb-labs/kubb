@@ -122,6 +122,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   transformers: NonNullable<Options['transformers']>
   exclude: Options['exclude']
   include: Options['include']
@@ -131,7 +132,7 @@ type ResolvedOptions = {
   typed: NonNullable<Options['typed']>
   typedSchema: NonNullable<Options['typedSchema']>
   templates: NonNullable<Templates>
-  mapper: Record<string, string>
+  mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
 }

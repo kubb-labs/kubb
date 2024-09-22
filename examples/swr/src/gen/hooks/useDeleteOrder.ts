@@ -1,6 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { Key } from 'swr'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
 type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
@@ -32,7 +33,7 @@ export function useDeleteOrder(
 ): SWRMutationResponse<DeleteOrder['response'], DeleteOrder['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/store/order/${orderId}` as const
-  return useSWRMutation<DeleteOrder['response'], DeleteOrder['error'], typeof url | null>(
+  return useSWRMutation<DeleteOrder['response'], DeleteOrder['error'], Key>(
     shouldFetch ? url : null,
     async (_url) => {
       const res = await client<DeleteOrder['data'], DeleteOrder['error']>({

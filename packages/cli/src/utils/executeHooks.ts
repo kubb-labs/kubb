@@ -39,8 +39,9 @@ export async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Pr
 
       const subProcess = await execa(cmd, _args, {
         detached: true,
-        signal: abortController.signal,
-      }).pipeStdout?.(oraWritable as Writable)
+        cancelSignal: abortController.signal,
+        stdout: ['pipe', oraWritable],
+      })
       spinner.suffixText = ''
 
       if (logLevel === LogLevel.silent) {

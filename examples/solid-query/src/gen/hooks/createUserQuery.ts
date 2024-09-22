@@ -3,10 +3,10 @@ import { createMutation } from '@tanstack/solid-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
+type CreateUserClient = typeof client<CreateUserMutationResponse, Error, CreateUserMutationRequest>
 type CreateUser = {
   data: CreateUserMutationResponse
-  error: never
+  error: Error
   request: CreateUserMutationRequest
   pathParams: never
   queryParams: never

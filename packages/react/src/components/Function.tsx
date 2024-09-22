@@ -157,7 +157,10 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
     </>
   )
 }
-
+/**
+ *
+ * @deprecated
+ */
 type CallFunctionProps = {
   /**
    * Name of the caller.
@@ -166,6 +169,10 @@ type CallFunctionProps = {
   to: ReactElement<Props>
 }
 
+/**
+ *
+ * @deprecated
+ */
 export function CallFunction({ name, to }: CallFunctionProps) {
   const { params, name: fnName, generics, async } = to.props
 
@@ -192,11 +199,17 @@ export function CallFunction({ name, to }: CallFunctionProps) {
     </>
   )
 }
-
+/**
+ *
+ * @deprecated
+ */
 type ReturnFunctionProps = {
   children: KubbNode
 }
-
+/**
+ *
+ * @deprecated
+ */
 export function ReturnFunction({ children }: ReturnFunctionProps) {
   return (
     <Text indentSize={2}>
@@ -206,7 +219,15 @@ export function ReturnFunction({ children }: ReturnFunctionProps) {
 }
 
 Function.Arrow = ArrowFunction
+/**
+ *
+ * @deprecated
+ */
 Function.Call = CallFunction
+/**
+ *
+ * @deprecated
+ */
 Function.Return = ReturnFunction
 
 export const Fun = Function

@@ -2,8 +2,8 @@ import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
-import type { ts } from '@kubb/parser-ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import type ts from 'typescript'
 
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
@@ -54,12 +54,20 @@ export const typeKeywordMapper = {
       nodes,
     })
   },
-  const: (name?: string | number, format?: 'string' | 'number') => {
+  const: (name?: string | number | boolean, format?: 'string' | 'number' | 'boolean') => {
     if (!name) {
       return undefined
     }
 
-    if (format === 'number') {
+    if (format === 'boolean') {
+      if (name === true) {
+        return factory.createLiteralTypeNode(factory.createTrue())
+      }
+
+      return factory.createLiteralTypeNode(factory.createFalse())
+    }
+
+    if (format === 'number' && typeof name === 'number') {
       return factory.createLiteralTypeNode(factory.createNumericLiteral(name))
     }
 
@@ -95,6 +103,7 @@ export const typeKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
+  writeOnly: undefined,
   ref: (propertyName?: string) => {
     if (!propertyName) {
       return undefined
@@ -120,10 +129,11 @@ type ParserOptions = {
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
    * @default `'asConst'`
+   * asPascalConst is deprecated
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   keysToOmit?: string[]
-  mapper?: SchemaMapper
+  mapper?: Record<string, ts.PropertySignature>
 }
 
 export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): ts.Node | null | undefined {
@@ -171,12 +181,13 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
         const schemas = item[1]
         return schemas && typeof schemas.map === 'function'
       })
-      .map(([_name, schemas]) => {
-        let name = _name
+      .map(([name, schemas]) => {
         const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+        const mappedName = nameSchema?.args || name
 
-        if (nameSchema) {
-          name = nameSchema.args
+        // custom mapper(pluginOptions)
+        if (options.mapper?.[mappedName]) {
+          return options.mapper?.[mappedName]
         }
 
         const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
@@ -211,7 +222,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
         const propertySignature = factory.createPropertySignature({
           questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
-          name,
+          name: mappedName,
           type,
           readOnly: isReadonly,
         })

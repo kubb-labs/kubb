@@ -147,6 +147,9 @@ export type Pet = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array
@@ -177,6 +180,9 @@ export type AddPetRequest = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array

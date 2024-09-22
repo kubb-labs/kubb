@@ -9,10 +9,10 @@ import type {
 } from '../../../models/ts/petsController/CreatePets'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
+type CreatePetsClient = typeof client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>
 type CreatePets = {
   data: CreatePetsMutationResponse
-  error: never
+  error: Error
   request: CreatePetsMutationRequest
   pathParams: CreatePetsPathParams
   queryParams: CreatePetsQueryParams

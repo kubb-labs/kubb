@@ -51,6 +51,7 @@
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dmitry-blackwave"><img src="https://avatars.githubusercontent.com/u/5526543?v=4?s=100" width="100px;" alt="Dmitry Belov"/><br /><sub><b>Dmitry Belov</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=dmitry-blackwave" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/aburgel"><img src="https://avatars.githubusercontent.com/u/341478?v=4?s=100" width="100px;" alt="Alex Burgel"/><br /><sub><b>Alex Burgel</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=aburgel" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dgarciamuria"><img src="https://avatars.githubusercontent.com/u/8144333?v=4?s=100" width="100px;" alt="Daniel Garcia"/><br /><sub><b>Daniel Garcia</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=dgarciamuria" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wuyuanyi135"><img src="https://avatars.githubusercontent.com/u/11760870?v=4?s=100" width="100px;" alt="wuyuanyi135"/><br /><sub><b>wuyuanyi135</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=wuyuanyi135" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
@@ -76,6 +77,20 @@
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
   </picture>
 </a>
+
+## Supporting Kubb
+
+Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+
+<p align="center">
+  <a href="https://github.com/sponsors/stijnvanhulle">
+    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+  </a>
+</p>
+
+
 
 ## Example generation
 

@@ -27,6 +27,8 @@ describe('<Operations/>', async () => {
     client: {
       importPath: '@kubb/swagger-client/client',
     },
+    baseURL: '',
+    extName: undefined,
   }
   const plugin = { options } as Plugin<PluginClient>
   const og = await new OperationGenerator(options, {
@@ -48,7 +50,7 @@ describe('<Operations/>', async () => {
         <App plugin={plugin} pluginManager={mockedPluginManager} mode="split">
           <Oas oas={oas} operations={[operation]} generator={og}>
             <Oas.Operation operation={operation}>
-              <Operations.File />
+              <Operations.File baseURL="" />
             </Oas.Operation>
           </Oas>
         </App>

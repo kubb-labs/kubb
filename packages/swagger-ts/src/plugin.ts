@@ -28,12 +28,14 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     optionalType = 'questionToken',
     transformers = {},
     oasType = false,
+    mapper = {},
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginTsName,
     options: {
+      extName: output.extName,
       transformers,
       dateType,
       optionalType,
@@ -44,6 +46,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       usedEnumNames: {},
       unknownType,
       override,
+      mapper,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {

@@ -140,6 +140,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped [Tanstack Query](https://tanstack.com/query) hooks.
@@ -169,6 +172,9 @@ Default: `'{{tag}}Hooks'`
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
 
 const plugin = pluginTanstackQuery({
+  output: {
+    path: './hooks'
+  },
   group: { type: 'tag', output: './hooks/{{tag}}Hooks' },
 })
 ```

@@ -21,12 +21,7 @@ export function squashImportNodes(node: DOMElement): Array<KubbFile.Import> {
 
     if (childNode.nodeName === 'kubb-import' && !childNode.attributes.print) {
       const attributes = childNode.attributes as React.ComponentProps<typeof File.Import>
-      imports.push({
-        name: attributes.name,
-        path: attributes.path,
-        isTypeOnly: attributes.isTypeOnly,
-        root: attributes.root,
-      })
+      imports.push(attributes)
     }
   }
 

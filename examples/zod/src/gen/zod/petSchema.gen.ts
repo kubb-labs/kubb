@@ -3,7 +3,7 @@ import { tagSchema } from './tagSchema.gen'
 import { z } from '../../zod.ts'
 
 export const petSchema = z.object({
-  id: z.number().optional(),
+  id: z.number().int().optional(),
   name: z.string().uuid(),
   category: z.lazy(() => categorySchema).optional(),
   photoUrls: z.array(z.string()),

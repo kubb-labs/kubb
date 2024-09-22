@@ -52,6 +52,7 @@ describe('<Mutation/>', async () => {
       query: false,
       queryOptions: false,
       mutate: { variablesType: 'hook', methods: ['post'] },
+      extName: undefined,
     }
 
     const plugin = { options } as Plugin<PluginTanstackQuery>
@@ -105,6 +106,7 @@ describe('<Mutation/>', async () => {
       query: false,
       queryOptions: false,
       mutate: { variablesType: 'mutate', methods: ['post'] },
+      extName: undefined,
     }
 
     const plugin = { options } as Plugin<PluginTanstackQuery>

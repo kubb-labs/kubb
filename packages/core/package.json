@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "2.23.0",
+  "version": "2.26.7",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -93,28 +93,28 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/types": "workspace:*",
     "change-case": "^5.4.4",
-    "directory-tree": "^3.5.1",
+    "directory-tree": "^3.5.2",
     "find-up": "^7.0.0",
     "natural-orderby": "^3.0.2",
     "p-queue": "^8.0.1",
-    "remeda": "^2.3.0",
+    "remeda": "^2.14.0",
     "seedrandom": "^3.0.5",
-    "semver": "^7.6.2",
+    "semver": "^7.6.3",
     "unraw": "^3.0.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.8",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "consola": "^3.2.3",
-    "ora": "^8.0.1",
-    "prettier": "^3.3.2",
-    "tinyrainbow": "^1.1.1",
-    "tsup": "^8.1.0",
-    "typescript": "^5.5.3"
+    "ora": "^8.1.0",
+    "prettier": "^3.3.3",
+    "tinyrainbow": "^1.2.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
   },
   "engines": {
     "node": ">=18"

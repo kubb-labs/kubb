@@ -1,5 +1,262 @@
 # @kubb/swagger-ts
 
+## 2.26.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.7
+  - @kubb/fs@2.26.7
+  - @kubb/oas@2.26.7
+  - @kubb/parser-ts@2.26.7
+  - @kubb/plugin-oas@2.26.7
+  - @kubb/react@2.26.7
+  - @kubb/types@2.26.7
+
+## 2.26.6
+
+### Patch Changes
+
+- [`9b8dac9`](https://github.com/kubb-labs/kubb/commit/9b8dac948b0d1d1bbe891ac331f0cb579062c9d3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of `readonly` for references($ref)
+
+- Updated dependencies [[`9b8dac9`](https://github.com/kubb-labs/kubb/commit/9b8dac948b0d1d1bbe891ac331f0cb579062c9d3)]:
+  - @kubb/plugin-oas@2.26.6
+  - @kubb/core@2.26.6
+  - @kubb/fs@2.26.6
+  - @kubb/oas@2.26.6
+  - @kubb/parser-ts@2.26.6
+  - @kubb/react@2.26.6
+  - @kubb/types@2.26.6
+
+## 2.26.5
+
+### Patch Changes
+
+- Updated dependencies [[`981ee87`](https://github.com/kubb-labs/kubb/commit/981ee87ec3d2e6122f82d11e5837c5c56df75c30), [`ae1cdf4`](https://github.com/kubb-labs/kubb/commit/ae1cdf4a92ac382d2404a929f3dee9057b2f9212)]:
+  - @kubb/plugin-oas@2.26.5
+  - @kubb/core@2.26.5
+  - @kubb/fs@2.26.5
+  - @kubb/oas@2.26.5
+  - @kubb/parser-ts@2.26.5
+  - @kubb/react@2.26.5
+  - @kubb/types@2.26.5
+
+## 2.26.4
+
+### Patch Changes
+
+- Updated dependencies [[`0570178`](https://github.com/kubb-labs/kubb/commit/0570178ae90d1c2b5bdd23369d13bb63f1cd059c)]:
+  - @kubb/plugin-oas@2.26.4
+  - @kubb/oas@2.26.4
+  - @kubb/core@2.26.4
+  - @kubb/fs@2.26.4
+  - @kubb/parser-ts@2.26.4
+  - @kubb/react@2.26.4
+  - @kubb/types@2.26.4
+
+## 2.26.3
+
+### Patch Changes
+
+- Updated dependencies [[`39e85f7`](https://github.com/kubb-labs/kubb/commit/39e85f7ed79c34bdbabe95cfa29be51f57939f63)]:
+  - @kubb/plugin-oas@2.26.3
+  - @kubb/core@2.26.3
+  - @kubb/fs@2.26.3
+  - @kubb/oas@2.26.3
+  - @kubb/parser-ts@2.26.3
+  - @kubb/react@2.26.3
+  - @kubb/types@2.26.3
+
+## 2.26.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.2
+  - @kubb/fs@2.26.2
+  - @kubb/oas@2.26.2
+  - @kubb/parser-ts@2.26.2
+  - @kubb/plugin-oas@2.26.2
+  - @kubb/react@2.26.2
+  - @kubb/types@2.26.2
+
+## 2.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.1
+  - @kubb/fs@2.26.1
+  - @kubb/oas@2.26.1
+  - @kubb/parser-ts@2.26.1
+  - @kubb/plugin-oas@2.26.1
+  - @kubb/react@2.26.1
+  - @kubb/types@2.26.1
+
+## 2.26.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.0
+  - @kubb/fs@2.26.0
+  - @kubb/oas@2.26.0
+  - @kubb/parser-ts@2.26.0
+  - @kubb/plugin-oas@2.26.0
+  - @kubb/react@2.26.0
+  - @kubb/types@2.26.0
+
+## 2.25.5
+
+### Patch Changes
+
+- Updated dependencies [[`7018149`](https://github.com/kubb-labs/kubb/commit/701814979285b6b0753b7183157f2b77f1b2db97)]:
+  - @kubb/plugin-oas@2.25.5
+  - @kubb/core@2.25.5
+  - @kubb/fs@2.25.5
+  - @kubb/oas@2.25.5
+  - @kubb/parser-ts@2.25.5
+  - @kubb/react@2.25.5
+  - @kubb/types@2.25.5
+
+## 2.25.4
+
+### Patch Changes
+
+- [`ddb9882`](https://github.com/kubb-labs/kubb/commit/ddb9882325f1c96e6a12953d03ada439734f4c97) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always isTypeOnly for all typescript types
+
+- Updated dependencies [[`ddb9882`](https://github.com/kubb-labs/kubb/commit/ddb9882325f1c96e6a12953d03ada439734f4c97)]:
+  - @kubb/plugin-oas@2.25.4
+  - @kubb/core@2.25.4
+  - @kubb/fs@2.25.4
+  - @kubb/oas@2.25.4
+  - @kubb/parser-ts@2.25.4
+  - @kubb/react@2.25.4
+  - @kubb/types@2.25.4
+
+## 2.25.3
+
+### Patch Changes
+
+- Updated dependencies [[`c8d41d9`](https://github.com/kubb-labs/kubb/commit/c8d41d99aeeae2e92751a63e25ac89f30abaf597)]:
+  - @kubb/plugin-oas@2.25.3
+  - @kubb/core@2.25.3
+  - @kubb/fs@2.25.3
+  - @kubb/oas@2.25.3
+  - @kubb/parser-ts@2.25.3
+  - @kubb/react@2.25.3
+  - @kubb/types@2.25.3
+
+## 2.25.2
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/core@2.25.2
+  - @kubb/fs@2.25.2
+  - @kubb/oas@2.25.2
+  - @kubb/parser-ts@2.25.2
+  - @kubb/plugin-oas@2.25.2
+  - @kubb/react@2.25.2
+  - @kubb/types@2.25.2
+
+## 2.25.1
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
+  - @kubb/plugin-oas@2.25.1
+  - @kubb/parser-ts@2.25.1
+  - @kubb/react@2.25.1
+  - @kubb/types@2.25.1
+  - @kubb/core@2.25.1
+  - @kubb/oas@2.25.1
+  - @kubb/fs@2.25.1
+
+## 2.25.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.0
+  - @kubb/fs@2.25.0
+  - @kubb/oas@2.25.0
+  - @kubb/parser-ts@2.25.0
+  - @kubb/plugin-oas@2.25.0
+  - @kubb/react@2.25.0
+  - @kubb/types@2.25.0
+
+## 2.24.0
+
+### Patch Changes
+
+- Updated dependencies [[`cb0b748`](https://github.com/kubb-labs/kubb/commit/cb0b7485646a9448cbdc55b77e2c02c5b7a4900c)]:
+  - @kubb/plugin-oas@2.24.0
+  - @kubb/oas@2.24.0
+  - @kubb/core@2.24.0
+  - @kubb/fs@2.24.0
+  - @kubb/parser-ts@2.24.0
+  - @kubb/react@2.24.0
+  - @kubb/types@2.24.0
+
+## 2.23.4
+
+### Patch Changes
+
+- Updated dependencies [[`4970e0d`](https://github.com/kubb-labs/kubb/commit/4970e0dd0288028b03d18719e4c68b435fd5e74c)]:
+  - @kubb/oas@2.23.4
+  - @kubb/plugin-oas@2.23.4
+  - @kubb/core@2.23.4
+  - @kubb/fs@2.23.4
+  - @kubb/parser-ts@2.23.4
+  - @kubb/react@2.23.4
+  - @kubb/types@2.23.4
+
+## 2.23.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.3
+  - @kubb/fs@2.23.3
+  - @kubb/oas@2.23.3
+  - @kubb/parser-ts@2.23.3
+  - @kubb/plugin-oas@2.23.3
+  - @kubb/react@2.23.3
+  - @kubb/types@2.23.3
+
+## 2.23.2
+
+### Patch Changes
+
+- [#1075](https://github.com/kubb-labs/kubb/pull/1075) [`da3cb26`](https://github.com/kubb-labs/kubb/commit/da3cb26148fde6205ef7773e78c88c1d92ffbd37) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Experimental mapper for plugin-ts
+
+- Updated dependencies []:
+  - @kubb/core@2.23.2
+  - @kubb/fs@2.23.2
+  - @kubb/oas@2.23.2
+  - @kubb/parser-ts@2.23.2
+  - @kubb/plugin-oas@2.23.2
+  - @kubb/react@2.23.2
+  - @kubb/types@2.23.2
+
+## 2.23.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.1
+  - @kubb/fs@2.23.1
+  - @kubb/oas@2.23.1
+  - @kubb/parser-ts@2.23.1
+  - @kubb/plugin-oas@2.23.1
+  - @kubb/react@2.23.1
+  - @kubb/types@2.23.1
+
 ## 2.23.0
 
 ### Patch Changes

@@ -5,6 +5,9 @@ exports[`OperationGenerator > 'createPet with unknownType unknown' 1`] = `
  * @description Null response
  */
 export type CreatePets201 = Error & {
+  /**
+   * @type object | undefined
+   */
   name?: ErrorCode
 }
 /**
@@ -25,6 +28,9 @@ export type CreatePetsMutationRequest = {
  * @description Null response
  */
 export type CreatePetsMutationResponse = Error & {
+  /**
+   * @type object | undefined
+   */
   name?: ErrorCode
 }
 export type CreatePetsMutation = {
@@ -39,6 +45,9 @@ exports[`OperationGenerator > 'createPet' 1`] = `
  * @description Null response
  */
 export type CreatePets201 = Error & {
+  /**
+   * @type object | undefined
+   */
   name?: ErrorCode
 }
 /**
@@ -59,6 +68,9 @@ export type CreatePetsMutationRequest = {
  * @description Null response
  */
 export type CreatePetsMutationResponse = Error & {
+  /**
+   * @type object | undefined
+   */
   name?: ErrorCode
 }
 export type CreatePetsMutation = {

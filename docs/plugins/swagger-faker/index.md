@@ -124,6 +124,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped Faker mocks.
@@ -151,6 +154,9 @@ Default: `'{{tag}}Mocks'`
 import { pluginFaker } from '@kubb/swagger-faker'
 
 const plugin = pluginFaker({
+  output: {
+    path: './mocks'
+  },
   group: {
     type: 'tag',
     output: './mocks/{{tag}}Mocks',

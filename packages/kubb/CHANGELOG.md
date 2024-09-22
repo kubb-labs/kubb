@@ -1,5 +1,161 @@
 # kubb
 
+## 2.18.42
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.7
+  - @kubb/core@2.26.7
+
+## 2.18.41
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.6
+  - @kubb/core@2.26.6
+
+## 2.18.40
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.5
+  - @kubb/core@2.26.5
+
+## 2.18.39
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.4
+  - @kubb/core@2.26.4
+
+## 2.18.38
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.3
+  - @kubb/core@2.26.3
+
+## 2.18.37
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.2
+  - @kubb/core@2.26.2
+
+## 2.18.36
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.1
+  - @kubb/core@2.26.1
+
+## 2.18.35
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.26.0
+  - @kubb/core@2.26.0
+
+## 2.18.34
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.25.5
+  - @kubb/core@2.25.5
+
+## 2.18.33
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.25.4
+  - @kubb/core@2.25.4
+
+## 2.18.32
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.25.3
+  - @kubb/core@2.25.3
+
+## 2.18.31
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/cli@2.25.2
+  - @kubb/core@2.25.2
+
+## 2.18.30
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
+  - @kubb/core@2.25.1
+  - @kubb/cli@2.25.1
+
+## 2.18.29
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.25.0
+  - @kubb/core@2.25.0
+
+## 2.18.28
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.24.0
+  - @kubb/core@2.24.0
+
+## 2.18.27
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.23.4
+  - @kubb/core@2.23.4
+
+## 2.18.26
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.23.3
+  - @kubb/core@2.23.3
+
+## 2.18.25
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.23.2
+  - @kubb/core@2.23.2
+
+## 2.18.24
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.23.1
+  - @kubb/core@2.23.1
+
 ## 2.18.23
 
 ### Patch Changes

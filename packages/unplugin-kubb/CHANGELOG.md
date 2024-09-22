@@ -1,5 +1,142 @@
 # unplugin-kubb
 
+## 0.1.84
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.7
+
+## 0.1.83
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.6
+
+## 0.1.82
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.5
+
+## 0.1.81
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.4
+
+## 0.1.80
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.3
+
+## 0.1.79
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.2
+
+## 0.1.78
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.1
+
+## 0.1.77
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.0
+
+## 0.1.76
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.5
+
+## 0.1.75
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.4
+
+## 0.1.74
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.3
+
+## 0.1.73
+
+### Patch Changes
+
+- [`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix latest tag
+
+- Updated dependencies [[`eb84cc8`](https://github.com/kubb-labs/kubb/commit/eb84cc89acfe31d99bd60f18fe5bbd9ff32305aa)]:
+  - @kubb/core@2.25.2
+
+## 0.1.72
+
+### Patch Changes
+
+- [#1110](https://github.com/kubb-labs/kubb/pull/1110) [`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - always add extName to import when defined
+
+- Updated dependencies [[`3f27fab`](https://github.com/kubb-labs/kubb/commit/3f27fab6ce329d86fd432fc8933890efe07f8319)]:
+  - @kubb/core@2.25.1
+
+## 0.1.71
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.25.0
+
+## 0.1.70
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.24.0
+
+## 0.1.69
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.4
+
+## 0.1.68
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.3
+
+## 0.1.67
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.2
+
+## 0.1.66
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.23.1
+
 ## 0.1.65
 
 ### Patch Changes

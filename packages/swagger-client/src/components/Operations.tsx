@@ -13,6 +13,7 @@ type TemplateProps = {
    */
   name: string
   operations: Operation[]
+  baseURL: string | undefined
 }
 
 function Template({ name, operations }: TemplateProps): KubbNode {
@@ -56,26 +57,28 @@ const defaultTemplates = { default: Template, root: RootTemplate } as const
 type Templates = Partial<typeof defaultTemplates>
 
 type Props = {
+  baseURL: string | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Operations({ Template = defaultTemplates.default }: Props): KubbNode {
+export function Operations({ baseURL, Template = defaultTemplates.default }: Props): KubbNode {
   const operations = useOperations()
 
-  return <Template name="operations" operations={operations} />
+  return <Template baseURL={baseURL} name="operations" operations={operations} />
 }
 
 type FileProps = {
+  baseURL: string | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: Templates
 }
 
-Operations.File = function (props: FileProps): KubbNode {
+Operations.File = function ({ baseURL, ...props }: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
@@ -83,7 +86,7 @@ Operations.File = function (props: FileProps): KubbNode {
 
   return (
     <RootTemplate>
-      <Operations Template={Template} />
+      <Operations baseURL={baseURL} Template={Template} />
     </RootTemplate>
   )
 }

@@ -11,6 +11,12 @@ export async function findPetsByStatus(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<FindPetsByStatusQueryResponse>['data']> {
-  const res = await client<FindPetsByStatusQueryResponse>({ method: 'get', url: '/pet/findByStatus', params, ...options })
+  const res = await client<FindPetsByStatusQueryResponse>({
+    method: 'get',
+    url: '/pet/findByStatus',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    ...options,
+  })
   return res.data
 }

@@ -53,6 +53,7 @@ describe('OperationGenerator', async () => {
           methods: ['get'],
         },
         mutate: false,
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -82,6 +83,7 @@ describe('OperationGenerator', async () => {
           methods: ['get'],
         },
         mutate: false,
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -108,6 +110,7 @@ describe('OperationGenerator', async () => {
           methods: ['get'],
         },
         mutate: false,
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -135,6 +138,7 @@ describe('OperationGenerator', async () => {
         },
         queryOptions: false,
         mutate: false,
+        extName: undefined,
       },
       method: 'get',
       operation: oas.operation('/pet/{petId}', 'get'),
@@ -162,6 +166,7 @@ describe('OperationGenerator', async () => {
           variablesType: 'mutate',
           methods: ['delete'],
         },
+        extName: undefined,
       },
       method: 'delete',
       operation: oas.operation('/pet/{petId}', 'delete'),
@@ -189,6 +194,7 @@ describe('OperationGenerator', async () => {
         },
         queryOptions: {},
         mutate: false,
+        extName: undefined,
       },
       method: 'post',
       operation: oas.operation('/pet/{petId}', 'post'),
@@ -216,6 +222,7 @@ describe('OperationGenerator', async () => {
         },
         queryOptions: {},
         mutate: false,
+        extName: undefined,
       },
       method: 'post',
       operation: oas.operation('/upload', 'post'),
@@ -241,6 +248,7 @@ describe('OperationGenerator', async () => {
           methods: ['post'],
           variablesType: 'mutate',
         },
+        extName: undefined,
         queryOptions: {},
         query: false,
       },
@@ -266,7 +274,7 @@ describe('OperationGenerator', async () => {
     for (const file of files) {
       const source = await FileManager.getSource(file)
 
-      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file}`)
+      expect(source).toMatchFileSnapshot(`./__snapshots__/${name}/${file.baseName}`)
     }
   })
 })

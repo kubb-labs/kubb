@@ -226,6 +226,9 @@ exports[`TypeScript SchemaGenerator > 'PetQuestionToken' 1`] = `
    * @type string | undefined
    */
   tag?: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
 }
 "
@@ -245,6 +248,9 @@ exports[`TypeScript SchemaGenerator > 'PetQuestionTokenAndUndefined' 1`] = `
    * @type string | undefined
    */
   tag?: string | undefined
+  /**
+   * @type object | undefined
+   */
   category?: Category | undefined
 }
 "
@@ -264,6 +270,9 @@ exports[`TypeScript SchemaGenerator > 'PetUndefined' 1`] = `
    * @type string | undefined
    */
   tag: string | undefined
+  /**
+   * @type object | undefined
+   */
   category: Category | undefined
 }
 "

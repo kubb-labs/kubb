@@ -1,9 +1,9 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { File, Function, Parser, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 import { SchemaType } from './SchemaType.tsx'
 
@@ -172,7 +172,7 @@ export function Mutation({ factory, Template = defaultTemplates.default }: Props
 
   const hook = {
     name: 'useSWRMutation',
-    generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'typeof url | null'].join(', '),
+    generics: [...resultGenerics, client.withQueryParams ? '[typeof url, typeof params] | null' : 'Key'].join(', '),
   }
 
   return (
@@ -199,6 +199,7 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
   const {
     plugin: {
       options: {
+        extName,
         client: { importPath },
       },
     },
@@ -223,8 +224,10 @@ Mutation.File = function ({ templates = defaultTemplates }: FileProps): ReactNod
         <File.Import name="useSWRMutation" path="swr/mutation" />
         <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
         <File.Import name={'client'} path={importPath} />
+        <File.Import name={['Key']} path="swr" isTypeOnly />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
+          extName={extName}
           name={[
             schemas.request?.name,
             schemas.response.name,

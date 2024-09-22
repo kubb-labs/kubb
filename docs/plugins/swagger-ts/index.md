@@ -125,6 +125,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped TypeScript Types.
@@ -143,6 +146,9 @@ Default: `'${output}/{{tag}}Controller'`
 import { pluginTs } from '@kubb/swagger-ts'
 
 const plugin = pluginTs({
+  output: {
+    path: './types'
+  },
   group: { type: 'tag', output: './types/{{tag}}Controller' },
 })
 ```

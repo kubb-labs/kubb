@@ -104,6 +104,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
+  extName: KubbFile.Extname | undefined
   client: Required<NonNullable<Options['client']>>
   dataReturnType: NonNullable<Options['dataReturnType']>
   templates: NonNullable<Templates>

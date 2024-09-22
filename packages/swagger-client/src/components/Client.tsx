@@ -1,8 +1,8 @@
 import { URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, Parser, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/swagger-ts'
 
 import { isOptional } from '@kubb/oas'
 import type { HttpMethod } from '@kubb/oas'
@@ -34,6 +34,7 @@ type TemplateProps = {
     comments: string[]
   }
   client: {
+    baseURL: string | undefined
     generics: string | string[]
     method: HttpMethod
     path: URLPath
@@ -65,6 +66,12 @@ function Template({ name, generics, returnType, params, JSDoc, client }: Templat
           type: 'string',
           value: client.path.template,
         },
+        baseURL: client.baseURL
+          ? {
+              type: 'string',
+              value: JSON.stringify(client.baseURL),
+            }
+          : undefined,
         params: client.withQueryParams
           ? {
               type: 'any',
@@ -122,6 +129,7 @@ function RootTemplate({ children }: RootTemplateProps) {
     plugin: {
       options: {
         client: { importPath },
+        extName,
       },
     },
   } = useApp<PluginClient>()
@@ -139,6 +147,7 @@ function RootTemplate({ children }: RootTemplateProps) {
         <File.Import name={'client'} path={importPath} />
         <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
+          extName={extName}
           name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean)}
           root={file.path}
           path={fileType.path}
@@ -155,16 +164,17 @@ const defaultTemplates = { default: Template, root: RootTemplate } as const
 type Templates = Partial<typeof defaultTemplates>
 
 type ClientProps = {
+  baseURL: string | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
   Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
-export function Client({ Template = defaultTemplates.default }: ClientProps): KubbNode {
+export function Client({ baseURL, Template = defaultTemplates.default }: ClientProps): KubbNode {
   const {
     plugin: {
-      options: { dataReturnType, pathParamsType },
+      options: { client, dataReturnType, pathParamsType },
     },
   } = useApp<PluginClient>()
 
@@ -211,6 +221,7 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
         comments: getComments(operation),
       }}
       client={{
+        baseURL,
         generics: [schemas.response.name, schemas.request?.name].filter(Boolean),
         dataReturnType,
         withQueryParams: !!schemas.queryParams?.name,
@@ -225,13 +236,14 @@ export function Client({ Template = defaultTemplates.default }: ClientProps): Ku
 }
 
 type FileProps = {
+  baseURL: string | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: Templates
 }
 
-Client.File = function (props: FileProps): KubbNode {
+Client.File = function ({ baseURL, ...props }: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
@@ -239,7 +251,7 @@ Client.File = function (props: FileProps): KubbNode {
 
   return (
     <RootTemplate>
-      <Client Template={Template} />
+      <Client baseURL={baseURL} Template={Template} />
     </RootTemplate>
   )
 }

@@ -107,7 +107,7 @@ const plugin = pluginClient({
     exportType: 'barrel',
   },
 })
-
+```
 :::
 
 ### group
@@ -122,6 +122,9 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### group.output
+::: tip
+When defining a custom output path, you should also update `output.path` to contain the same root path.
+:::
 
 ::: v-pre
 Relative path to save the grouped clients.
@@ -153,6 +156,9 @@ Default: `'{{tag}}Service'`
 import { pluginClient } from '@kubb/swagger-client'
 
 const plugin = pluginClient({
+  output: {
+    path: './clients/axios'
+  },
   group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
 })
 ```

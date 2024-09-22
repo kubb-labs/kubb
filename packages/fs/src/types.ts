@@ -17,9 +17,10 @@ export type Import = {
       >
   /**
    * Path for the import
-   * @xample '@kubb/core'
+   * @example '@kubb/core'
    */
   path: string
+  extName?: Extname
   /**
    * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
    */
@@ -44,9 +45,10 @@ export type Export = {
   name?: string | Array<string>
   /**
    * Path for the import.
-   * @xample '@kubb/core'
+   * @example '@kubb/core'
    */
   path: string
+  extName?: Extname
   /**
    * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`.
    */

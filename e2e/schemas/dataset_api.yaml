@@ -1,0 +1,188 @@
+openapi: 3.1.0
+paths:
+  /api/datasets/{dataset_id}:
+    delete:
+      operationId: delete_dataset_api_datasets__dataset_id__delete
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid
+            title: Dataset Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Dataset
+      tags:
+        - datasets
+    get:
+      operationId: read_dataset_api_datasets__dataset_id__get
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid
+            title: Dataset Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetWithoutData'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Read Dataset
+      tags:
+        - datasets
+    put:
+      operationId: update_dataset_api_datasets__dataset_id__put
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid
+            title: Dataset Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dataset-Input'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset-Output'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Dataset
+      tags:
+        - datasets
+
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    DatasetWithoutData:
+      properties:
+        assets:
+          items:
+            format: uuid
+            type: string
+          title: Assets
+          type: array
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+        - name
+        - assets
+        - id
+      title: DatasetWithoutData
+      type: object
+    Dataset-Input:
+      properties:
+        assets:
+          items:
+            format: uuid
+            type: string
+          title: Assets
+          type: array
+        data:
+          type: object
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+        - name
+        - data
+        - assets
+        - id
+      title: Dataset
+      type: object
+    Dataset-Output:
+      properties:
+        assets:
+          items:
+            format: uuid
+            type: string
+          title: Assets
+          type: array
+        data:
+          type: object
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+        - name
+        - data
+        - assets
+        - id
+      title: Dataset
+      type: object

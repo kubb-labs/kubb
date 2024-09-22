@@ -12,7 +12,11 @@ export const zodKeywordMapper = {
       .join('')
   },
   integer: (coercion?: boolean, min?: number, max?: number) => {
-    return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+    return [
+      coercion ? 'z.coerce.number().int()' : 'z.number().int()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+    ]
       .filter(Boolean)
       .join('')
   },
@@ -35,7 +39,7 @@ export const zodKeywordMapper = {
   tuple: (items: string[] = []) => `z.tuple([${items?.join(', ')}])`,
   enum: (items: string[] = []) => `z.enum([${items?.join(', ')}])`,
   union: (items: string[] = []) => `z.union([${items?.join(', ')}])`,
-  const: (value?: string | number) => `z.literal(${value ?? ''})`,
+  const: (value?: string | number | boolean) => `z.literal(${value ?? ''})`,
   /**
    * ISO 8601
    */
@@ -98,6 +102,7 @@ export const zodKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
+  writeOnly: undefined,
   ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
   blob: () => 'z.string()',
   deprecated: undefined,
@@ -201,6 +206,17 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
   if (isKeyword(current, schemaKeywords.enum)) {
     if (current.args.asConst) {
+      if (current.args.items.length === 1) {
+        return parse(
+          current,
+          {
+            keyword: schemaKeywords.const,
+            args: current.args.items[0],
+          },
+          options,
+        )
+      }
+
       return zodKeywordMapper.union(
         current.args.items
           .map((schema) => {
@@ -219,6 +235,10 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
     return zodKeywordMapper.enum(
       current.args.items.map((schema) => {
+        if (schema.format === 'boolean') {
+          return transformers.stringify(schema.value)
+        }
+
         if (schema.format === 'number') {
           return transformers.stringify(schema.value)
         }
@@ -259,7 +279,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
       ? current.args.additionalProperties
           .map((schema) => parse(current, schema, options))
           .filter(Boolean)
-          .at(0)
+          .join('')
       : undefined
 
     const text = [
@@ -282,6 +302,10 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   if (isKeyword(current, schemaKeywords.const)) {
     if (current.args.format === 'number' && current.args.value !== undefined) {
       return zodKeywordMapper.const(Number.parseInt(current.args.value?.toString()))
+    }
+
+    if (current.args.format === 'boolean' && current.args.value !== undefined) {
+      return zodKeywordMapper.const(current.args.value)
     }
     return zodKeywordMapper.const(transformers.stringify(current.args.value))
   }
@@ -308,8 +332,12 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
     return zodKeywordMapper.string(options.coercion)
   }
 
-  if (isKeyword(current, schemaKeywords.number) || isKeyword(current, schemaKeywords.integer)) {
+  if (isKeyword(current, schemaKeywords.number)) {
     return zodKeywordMapper.number(options.coercion)
+  }
+
+  if (isKeyword(current, schemaKeywords.integer)) {
+    return zodKeywordMapper.integer(options.coercion)
   }
 
   if (isKeyword(current, schemaKeywords.min)) {

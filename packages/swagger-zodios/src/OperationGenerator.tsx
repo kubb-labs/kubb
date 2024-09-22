@@ -19,7 +19,12 @@ export class OperationGenerator extends Generator<PluginZodios['resolvedOptions'
     root.render(
       <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
         <Oas oas={oas} operations={operations} generator={this}>
-          <Definitions.File name={this.options.name} baseURL={this.options.baseURL} operationsByMethod={operationsByMethod} />
+          <Definitions.File
+            name={this.options.name}
+            baseURL={this.options.baseURL}
+            operationsByMethod={operationsByMethod}
+            includeOperationIdAsAlias={this.options.includeOperationIdAsAlias}
+          />
         </Oas>
       </App>,
     )

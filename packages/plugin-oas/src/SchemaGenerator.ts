@@ -85,7 +85,7 @@ export abstract class SchemaGenerator<
     const defaultSchemas = this.#parseSchemaObject(props)
     const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
 
-    return uniqueWith<Schema>(schemas, isDeepEqual)
+    return uniqueWith(schemas, isDeepEqual)
   }
 
   deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
@@ -360,7 +360,7 @@ export abstract class SchemaGenerator<
     return [
       {
         keyword: schemaKeywords.ref,
-        args: { name: ref.propertyName, path: ref?.path, isTypeOnly: false },
+        args: { name: ref.propertyName, path: ref?.path },
       },
     ]
   }
@@ -378,12 +378,6 @@ export abstract class SchemaGenerator<
     const options = this.#getOptions({ schema: _schema, name })
     const unknownReturn = this.#getUnknownReturn({ schema: _schema, name })
     const { schema, version } = this.#getParsedSchemaObject(_schema)
-    const resolvedName = this.context.pluginManager.resolveName({
-      name: `${parentName || ''} ${name}`,
-      pluginKey: this.context.plugin.key,
-      type: 'type',
-    })
-
     if (!schema) {
       return [{ keyword: unknownReturn }]
     }
@@ -407,11 +401,15 @@ export abstract class SchemaGenerator<
           keyword: schemaKeywords.default,
           args: transformers.stringify(schema.default),
         })
-      }
-      if (typeof schema.default === 'boolean') {
+      } else if (typeof schema.default === 'boolean') {
         baseItems.push({
           keyword: schemaKeywords.default,
           args: schema.default ?? false,
+        })
+      } else {
+        baseItems.push({
+          keyword: schemaKeywords.default,
+          args: schema.default,
         })
       }
     }
@@ -454,10 +452,16 @@ export abstract class SchemaGenerator<
       baseItems.push({ keyword: schemaKeywords.readOnly })
     }
 
+    if (schema.writeOnly) {
+      baseItems.push({ keyword: schemaKeywords.writeOnly })
+    }
+
     if (isReference(schema)) {
       return [
         ...this.#getRefAlias(schema),
         nullable && { keyword: schemaKeywords.nullable },
+        schema.readOnly && { keyword: schemaKeywords.readOnly },
+        schema.writeOnly && { keyword: schemaKeywords.writeOnly },
         {
           keyword: schemaKeywords.schema,
           args: {
@@ -616,6 +620,35 @@ export abstract class SchemaGenerator<
             },
           },
           ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max && item.keyword !== schemaKeywords.matches),
+        ]
+      }
+
+      if (schema.type === 'boolean') {
+        // we cannot use z.enum when enum type is boolean
+        const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as unknown as SchemaKeywordMapper['enum']
+        return [
+          {
+            keyword: schemaKeywords.enum,
+            args: {
+              name: enumName,
+              typeName,
+              asConst: true,
+              items: enumNames?.args?.items
+                ? [...new Set(enumNames.args.items)].map(({ name, value }) => ({
+                    name,
+                    value,
+                    format: 'boolean',
+                  }))
+                : [...new Set(filteredValues)].map((value: string) => {
+                    return {
+                      name: value,
+                      value,
+                      format: 'boolean',
+                    }
+                  }),
+            },
+          },
+          ...baseItems.filter((item) => item.keyword !== schemaKeywords.matches),
         ]
       }
 
@@ -807,6 +840,10 @@ export abstract class SchemaGenerator<
           }),
           ...baseItems,
         ].filter(Boolean)
+      }
+
+      if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(schema.type)) {
+        this.context.pluginManager.logger.emit('warning', `Schema type '${schema.type}' is not valid for schema ${parentName}.${name}`)
       }
 
       // 'string' | 'number' | 'integer' | 'boolean'

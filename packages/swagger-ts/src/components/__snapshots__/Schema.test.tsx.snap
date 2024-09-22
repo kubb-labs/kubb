@@ -31,6 +31,16 @@ export type Order = {
 "
 `;
 
+exports[`<Schema/>  > 'PageSizeInteger' 1`] = `
+"export type PageSizeInteger = number;
+"
+`;
+
+exports[`<Schema/>  > 'PageSizeNumber' 1`] = `
+"export type PageSizeNumber = number;
+"
+`;
+
 exports[`<Schema/>  > 'Record' 1`] = `
 "export type Record = {
     [key: string]: number;
@@ -40,5 +50,12 @@ exports[`<Schema/>  > 'Record' 1`] = `
 
 exports[`<Schema/>  > 'Upload' 1`] = `
 "export type Upload = Blob;
+"
+`;
+
+exports[`<Schema/>  > 'nullableAdditionalProperties' 1`] = `
+"export type nullableAdditionalProperties = {
+    [key: string]: string;
+};
 "
 `;

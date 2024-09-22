@@ -81,6 +81,7 @@ describe('OperationGenerator', async () => {
       override: [],
       dateParser: undefined,
       regexGenerator: 'faker',
+      extName: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
