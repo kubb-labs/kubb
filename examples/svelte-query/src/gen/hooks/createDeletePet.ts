@@ -11,7 +11,7 @@ import { createMutation } from '@tanstack/svelte-query'
  */
 async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
-    method: 'delete',
+    method: 'DELETE',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     headers: { ...headers, ...config.headers },

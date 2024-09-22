@@ -1,7 +1,7 @@
 export type RequestConfig<TData = unknown> = {
   baseURL?: string
   url?: string
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   params?: object
   data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'

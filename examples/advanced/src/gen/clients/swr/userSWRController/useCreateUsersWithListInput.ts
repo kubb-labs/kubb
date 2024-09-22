@@ -19,7 +19,7 @@ async function createUsersWithListInput(
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
   const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
-    method: 'post',
+    method: 'POST',
     url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,

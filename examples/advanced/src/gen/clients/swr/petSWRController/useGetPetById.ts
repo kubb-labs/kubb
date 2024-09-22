@@ -12,7 +12,7 @@ import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPet
  */
 async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
-    method: 'get',
+    method: 'GET',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,

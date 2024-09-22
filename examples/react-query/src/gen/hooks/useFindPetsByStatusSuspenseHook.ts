@@ -16,7 +16,7 @@ export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatu
  */
 async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({
-    method: 'get',
+    method: 'GET',
     url: '/pet/findByStatus',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,

@@ -10,7 +10,7 @@ declare const AXIOS_HEADERS: string
  */
 export type RequestConfig<TData = unknown> = {
   url?: string
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   baseURL?: string
   params?: unknown
   data?: TData | FormData

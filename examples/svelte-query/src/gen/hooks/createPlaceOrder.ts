@@ -11,7 +11,7 @@ import { createMutation } from '@tanstack/svelte-query'
  */
 async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
   const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({
-    method: 'post',
+    method: 'POST',
     url: '/store/order',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,

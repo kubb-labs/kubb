@@ -17,7 +17,7 @@ import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/fi
  */
 async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
-    method: 'get',
+    method: 'GET',
     url: '/pet/findByTags',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,

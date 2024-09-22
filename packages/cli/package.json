@@ -52,7 +52,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "bundle-require": "^5.0.0",
-    "chokidar": "^4.0.0",
+    "chokidar": "^4.0.1",
     "citty": "^0.1.6",
     "cli-progress": "^3.12.0",
     "consola": "^3.2.3",

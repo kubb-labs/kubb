@@ -14,7 +14,7 @@ import { useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
  * @link /pet/findByTags
  */
 async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-    const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: "get", url: `/pet/findByTags`, params, headers: { ...headers, ...config.headers }, ...config });
+    const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: "GET", url: `/pet/findByTags`, params, headers: { ...headers, ...config.headers }, ...config });
     return findPetsByTagsQueryResponse.parse(res.data);
 }
 

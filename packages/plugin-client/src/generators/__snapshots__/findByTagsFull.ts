@@ -8,6 +8,6 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
  * @link /pet/findByTags
  */
 export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-    const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: "get", url: `/pet/findByTags`, params, ...config });
+    const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: "GET", url: `/pet/findByTags`, params, ...config });
     return res;
 }

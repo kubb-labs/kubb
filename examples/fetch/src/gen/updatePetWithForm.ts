@@ -12,7 +12,7 @@ export async function updatePetWithForm(
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
-    method: 'post',
+    method: 'POST',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     params,

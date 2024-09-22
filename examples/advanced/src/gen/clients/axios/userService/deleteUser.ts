@@ -16,7 +16,7 @@ export async function deleteUser(
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
-    method: 'delete',
+    method: 'DELETE',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,

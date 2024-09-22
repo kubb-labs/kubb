@@ -9,7 +9,7 @@ import type { SWRMutationConfiguration } from "swr/mutation";
  * @link /pet/:petId
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
-    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: "post", url: `/pet/${petId}`, params, ...config });
+    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: "POST", url: `/pet/${petId}`, params, ...config });
     return res.data;
 }
 

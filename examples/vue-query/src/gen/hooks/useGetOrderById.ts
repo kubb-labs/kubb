@@ -18,7 +18,7 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  */
 async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({
-    method: 'get',
+    method: 'GET',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,

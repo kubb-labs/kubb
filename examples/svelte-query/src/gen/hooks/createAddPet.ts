@@ -11,7 +11,7 @@ import { createMutation } from '@tanstack/svelte-query'
  */
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
-    method: 'post',
+    method: 'POST',
     url: '/pet',
     baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
