@@ -54,12 +54,20 @@ export const typeKeywordMapper = {
       nodes,
     })
   },
-  const: (name?: string | number, format?: 'string' | 'number') => {
+  const: (name?: string | number | boolean, format?: 'string' | 'number' | 'boolean') => {
     if (!name) {
       return undefined
     }
 
-    if (format === 'number') {
+    if (format === 'boolean') {
+      if (name === true) {
+        return factory.createLiteralTypeNode(factory.createTrue())
+      }
+
+      return factory.createLiteralTypeNode(factory.createFalse())
+    }
+
+    if (format === 'number' && typeof name === 'number') {
       return factory.createLiteralTypeNode(factory.createNumericLiteral(name))
     }
 

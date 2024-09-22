@@ -34,8 +34,8 @@ export type SchemaKeywordMapper = {
       asConst: boolean
       items: Array<{
         name: string | number
-        format: 'string' | 'number'
-        value?: string | number
+        format: 'string' | 'number' | 'boolean'
+        value?: string | number | boolean
       }>
     }
   }
@@ -44,8 +44,8 @@ export type SchemaKeywordMapper = {
     keyword: 'const'
     args: {
       name: string | number
-      format: 'string' | 'number'
-      value?: string | number
+      format: 'string' | 'number' | 'boolean'
+      value?: string | number | boolean
     }
   }
   union: { keyword: 'union'; args: Schema[] }

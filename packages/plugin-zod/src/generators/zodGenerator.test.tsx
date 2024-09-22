@@ -154,6 +154,18 @@ describe('zodGenerator schema', async () => {
       options: {},
     },
     {
+      name: 'enumBooleanLiteral',
+      path: 'enumBooleanLiteral',
+      input: '../../mocks/enums3_1.yaml',
+      options: {},
+    },
+    {
+      name: 'enumSingleLiteral',
+      path: 'enumSingleLiteral',
+      input: '../../mocks/enums3_1.yaml',
+      options: {},
+    },
+    {
       name: 'Recursive',
       path: 'Example',
       input: '../../mocks/recursive.yaml',

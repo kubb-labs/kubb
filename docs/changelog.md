@@ -10,6 +10,22 @@ title: Changelog
 
 ## 3.0.0-alpha.21
 - [`plugin-faker`](/plugins/plugin-faker): use of `faker.image.url()` instead of `faker.image.imageUrl()`
+- [`plugin-zod`](/plugins/plugin-zod): Enums should use `z.literal` when format is set to number, string or boolean
+::: code-group
+
+``` [input]
+enum:
+  type: boolean
+  enum:
+    - true
+    - false
+```
+``` [output]
+z.enum(["true", "false"]) // [!code --]
+z.union([z.literal(true), z.literal(false)]) // [!code ++]
+```
+:::
+
 
 ## 3.0.0-alpha.20
 

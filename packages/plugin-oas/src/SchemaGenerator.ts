@@ -618,6 +618,35 @@ export class SchemaGenerator<
         ]
       }
 
+      if (schema.type === 'boolean') {
+        // we cannot use z.enum when enum type is boolean
+        const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as unknown as SchemaKeywordMapper['enum']
+        return [
+          {
+            keyword: schemaKeywords.enum,
+            args: {
+              name: enumName,
+              typeName,
+              asConst: true,
+              items: enumNames?.args?.items
+                ? [...new Set(enumNames.args.items)].map(({ name, value }) => ({
+                    name,
+                    value,
+                    format: 'boolean',
+                  }))
+                : [...new Set(filteredValues)].map((value: string) => {
+                    return {
+                      name: value,
+                      value,
+                      format: 'boolean',
+                    }
+                  }),
+            },
+          },
+          ...baseItems.filter((item) => item.keyword !== schemaKeywords.matches),
+        ]
+      }
+
       if (extensionEnums.length > 0 && extensionEnums[0]) {
         return extensionEnums[0]
       }
