@@ -1,9 +1,13 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
 import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
 import { useMutation } from '@tanstack/react-query'
+
+export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -34,7 +38,7 @@ export function useUpdateUser(
   options: {
     mutation?: UseMutationOptions<
       UpdateUserMutationResponse,
-      unknown,
+      Error,
       {
         username: UpdateUserPathParams['username']
         data?: UpdateUserMutationRequest
@@ -44,7 +48,8 @@ export function useUpdateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       username,
       data,
@@ -55,5 +60,9 @@ export function useUpdateUser(
       return updateUser(username, data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UpdateUserMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

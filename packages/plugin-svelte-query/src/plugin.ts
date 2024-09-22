@@ -51,6 +51,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         ...query,
       },
       mutation: {
+        key: (key: unknown[]) => key,
         methods: ['post', 'put', 'patch', 'delete'],
         importPath: '@tanstack/svelte-query',
         ...mutation,

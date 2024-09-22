@@ -4,9 +4,13 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
 import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 import { useMutation } from '@tanstack/react-query'
+
+export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
+
+export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
 /**
  * @description Creates list of users with given input array
@@ -36,7 +40,7 @@ export function useCreateUsersWithListInput(
   options: {
     mutation?: UseMutationOptions<
       CreateUsersWithListInputMutationResponse,
-      unknown,
+      Error,
       {
         data?: CreateUsersWithListInputMutationRequest
       }
@@ -45,7 +49,8 @@ export function useCreateUsersWithListInput(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -54,5 +59,9 @@ export function useCreateUsersWithListInput(
       return createUsersWithListInput(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<CreateUsersWithListInputMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

@@ -44,6 +44,7 @@ describe('suspenseQueryGenerator operation', async () => {
         methods: ['get'],
       },
       mutation: {
+        key: (key) => key,
         methods: ['post'],
         importPath: '@tanstack/react-query',
       },

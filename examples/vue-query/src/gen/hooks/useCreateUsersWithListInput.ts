@@ -1,9 +1,13 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+
+export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
+
+export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
 /**
  * @description Creates list of users with given input array
@@ -42,7 +46,8 @@ export function useCreateUsersWithListInput(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -51,5 +56,9 @@ export function useCreateUsersWithListInput(
       return createUsersWithListInput(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<CreateUsersWithListInputMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

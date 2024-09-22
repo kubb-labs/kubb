@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, CreateMutationResult, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
+
+export const updatePetMutationKey = () => [{ url: '/pet' }] as const
+
+export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 
 /**
  * @description Update an existing pet by Id
@@ -38,7 +42,8 @@ export function createUpdatePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return createMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
+  const mutation = createMutation({
     mutationFn: async ({
       data,
     }: {
@@ -47,5 +52,9 @@ export function createUpdatePet(
       return updatePet(data, config)
     },
     ...mutationOptions,
-  })
+  }) as CreateMutationResult<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

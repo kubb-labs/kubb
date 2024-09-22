@@ -7,9 +7,13 @@ import type {
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
 import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.ts'
 import { useMutation } from '@tanstack/react-query'
+
+export const createPetsMutationKey = () => [{ url: '/pets/{uuid}' }] as const
+
+export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
 
 /**
  * @summary Create a pet
@@ -42,7 +46,7 @@ export function useCreatePets(
   options: {
     mutation?: UseMutationOptions<
       CreatePetsMutationResponse,
-      unknown,
+      Error,
       {
         uuid: CreatePetsPathParams['uuid']
         data: CreatePetsMutationRequest
@@ -54,7 +58,8 @@ export function useCreatePets(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createPetsMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       uuid,
       data,
@@ -69,5 +74,9 @@ export function useCreatePets(
       return createPets(uuid, data, headers, params, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<CreatePetsMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

@@ -25,6 +25,10 @@ type Query = {
 
 type Mutation = {
   /**
+   * Customize the queryKey, here you can specify a suffix.
+   */
+  key: (key: unknown[]) => unknown[]
+  /**
    * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
    */

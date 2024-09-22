@@ -6,6 +6,7 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
 import type { PluginVueQuery } from '../types.ts'
+import { MutationKey } from './MutationKey.tsx'
 
 type Props = {
   /**
@@ -14,6 +15,8 @@ type Props = {
   name: string
   typeName: string
   clientName: string
+  mutationKeyName: string
+  mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
@@ -27,6 +30,7 @@ type GetParamsProps = {
 }
 
 function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const mutateParams = FunctionParams.factory({
     ...getPathParams(typeSchemas.pathParams, {
       typed: true,
@@ -56,15 +60,13 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
         }
       : undefined,
   })
-
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TRequest = mutateParams.toConstructor({ valueAsType: true })
 
   return FunctionParams.factory({
     options: {
       type: `
 {
-  mutation?: UseMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}`].join(', ')}>,
+  mutation?: UseMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}}`].join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
 }
 `,
@@ -73,7 +75,15 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyTypeName, mutationKeyName }: Props): ReactNode {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const returnType = `UseMutationResult<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { mutationKey: MutationKey }`
+
+  const mutationKeyParams = MutationKey.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
+
   const params = getParams({
     pathParamsType,
     dataReturnType,
@@ -127,13 +137,18 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
       >
         {`
         const { mutation: mutationOptions, client: config = {} } = options ?? {}
+        const mutationKey = mutationOptions?.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
-        return useMutation({
+        const mutation = useMutation({
           mutationFn: async(${mutationParams.toConstructor()}) => {
             return ${clientName}(${clientParams.toCall()})
           },
           ...mutationOptions
-        })
+        }) as ${returnType}
+
+         mutation.mutationKey = mutationKey as MutationKey
+
+         return mutation
     `}
       </Function>
     </File.Source>

@@ -66,8 +66,21 @@ import type {
   DeleteUser404,
 } from './models.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type {
+  UseMutationOptions,
+  UseMutationResult,
+  MutationKey,
+  QueryKey,
+  QueryObserverOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 import { useMutation, useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+
+export const updatePetMutationKey = () => [{ url: '/pet' }] as const
+
+export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 
 /**
  * @description Update an existing pet by Id
@@ -103,7 +116,8 @@ export function useUpdatePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -112,8 +126,16 @@ export function useUpdatePet(
       return updatePet(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const addPetMutationKey = () => [{ url: '/pet' }] as const
+
+export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 
 /**
  * @description Add a new pet to the store
@@ -149,7 +171,8 @@ export function useAddPet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -158,7 +181,11 @@ export function useAddPet(
       return addPet(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<AddPetMutationResponse, AddPet405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
@@ -462,6 +489,10 @@ export function useGetPetByIdSuspense<
   return query
 }
 
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -495,7 +526,8 @@ export function useUpdatePetWithForm(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       petId,
       params,
@@ -506,8 +538,16 @@ export function useUpdatePetWithForm(
       return updatePetWithForm(petId, params, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
 /**
  * @description delete a pet
@@ -544,7 +584,8 @@ export function useDeletePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       petId,
       headers,
@@ -555,8 +596,16 @@ export function useDeletePet(
       return deletePet(petId, headers, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<DeletePetMutationResponse, DeletePet400> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+
+export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
 /**
  * @summary uploads an image
@@ -588,7 +637,7 @@ export function useUploadFile(
   options: {
     mutation?: UseMutationOptions<
       UploadFileMutationResponse,
-      unknown,
+      Error,
       {
         petId: UploadFilePathParams['petId']
         data?: UploadFileMutationRequest
@@ -599,7 +648,8 @@ export function useUploadFile(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       petId,
       data,
@@ -612,7 +662,11 @@ export function useUploadFile(
       return uploadFile(petId, data, params, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UploadFileMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
@@ -710,6 +764,10 @@ export function useGetInventorySuspense<
   return query
 }
 
+export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
+
+export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
@@ -744,7 +802,8 @@ export function usePlaceOrder(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -753,8 +812,16 @@ export function usePlaceOrder(
       return placeOrder(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<PlaceOrderMutationResponse, PlaceOrder405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
+
+export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutationKey>
 
 /**
  * @description Place a new order in the store with patch
@@ -790,7 +857,8 @@ export function usePlaceOrderPatch(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -799,7 +867,11 @@ export function usePlaceOrderPatch(
       return placeOrderPatch(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<PlaceOrderPatchMutationResponse, PlaceOrderPatch405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
@@ -900,6 +972,10 @@ export function useGetOrderByIdSuspense<
   return query
 }
 
+export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+
+export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
@@ -933,7 +1009,8 @@ export function useDeleteOrder(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       orderId,
     }: {
@@ -942,8 +1019,16 @@ export function useDeleteOrder(
       return deleteOrder(orderId, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const createUserMutationKey = () => [{ url: '/user' }] as const
+
+export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -970,7 +1055,7 @@ export function useCreateUser(
   options: {
     mutation?: UseMutationOptions<
       CreateUserMutationResponse,
-      unknown,
+      Error,
       {
         data?: CreateUserMutationRequest
       }
@@ -979,7 +1064,8 @@ export function useCreateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -988,8 +1074,16 @@ export function useCreateUser(
       return createUser(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<CreateUserMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
+
+export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
 /**
  * @description Creates list of users with given input array
@@ -1019,7 +1113,7 @@ export function useCreateUsersWithListInput(
   options: {
     mutation?: UseMutationOptions<
       CreateUsersWithListInputMutationResponse,
-      unknown,
+      Error,
       {
         data?: CreateUsersWithListInputMutationRequest
       }
@@ -1028,7 +1122,8 @@ export function useCreateUsersWithListInput(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -1037,7 +1132,11 @@ export function useCreateUsersWithListInput(
       return createUsersWithListInput(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<CreateUsersWithListInputMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -1326,6 +1425,10 @@ export function useGetUserByNameSuspense<
   return query
 }
 
+export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
@@ -1355,7 +1458,7 @@ export function useUpdateUser(
   options: {
     mutation?: UseMutationOptions<
       UpdateUserMutationResponse,
-      unknown,
+      Error,
       {
         username: UpdateUserPathParams['username']
         data?: UpdateUserMutationRequest
@@ -1365,7 +1468,8 @@ export function useUpdateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       username,
       data,
@@ -1376,8 +1480,16 @@ export function useUpdateUser(
       return updateUser(username, data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UpdateUserMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }
+
+export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -1412,7 +1524,8 @@ export function useDeleteUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       username,
     }: {
@@ -1421,5 +1534,9 @@ export function useDeleteUser(
       return deleteUser(username, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

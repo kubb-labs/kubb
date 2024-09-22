@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.25
+- [`plugin-react-query`](/plugins/plugin-react-query): Use of MutationKeys for `useMutation`
+- [`plugin-svelte-query`](/plugins/plugin-react-query): Use of MutationKeys for `createMutation`
+- [`plugin-vue-query`](/plugins/plugin-vue-query): Use of MutationKeys for `useMutation`
+
+
 ## 3.0.0-alpha.24
 - [`plugin-oas`](/plugins/plugin-oas): Support for [discriminator](https://swagger.io/specification/?sbsearch=discriminator)
 

@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
+
+export const addPetMutationKey = () => [{ url: '/pet' }] as const
+
+export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 
 /**
  * @description Add a new pet to the store
@@ -38,7 +42,8 @@ export function useAddPetHook(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -47,5 +52,9 @@ export function useAddPetHook(
       return addPet(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<AddPetMutationResponse, AddPet405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

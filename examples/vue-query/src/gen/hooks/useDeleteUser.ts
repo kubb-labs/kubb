@@ -1,9 +1,13 @@
 import client from '@kubb/plugin-client/client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+
+export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -38,7 +42,8 @@ export function useDeleteUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       username,
     }: {
@@ -47,5 +52,9 @@ export function useDeleteUser(
       return deleteUser(username, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

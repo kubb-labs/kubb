@@ -1,9 +1,13 @@
 import client from '@kubb/plugin-client/client'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+
+export const updatePetMutationKey = () => [{ url: '/pet' }] as const
+
+export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 
 /**
  * @description Update an existing pet by Id
@@ -39,7 +43,8 @@ export function useUpdatePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -48,5 +53,9 @@ export function useUpdatePet(
       return updatePet(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

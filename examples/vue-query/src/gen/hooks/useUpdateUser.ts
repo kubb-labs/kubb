@@ -1,9 +1,13 @@
 import client from '@kubb/plugin-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+
+export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -44,7 +48,8 @@ export function useUpdateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       username,
       data,
@@ -55,5 +60,9 @@ export function useUpdateUser(
       return updateUser(username, data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<UpdateUserMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

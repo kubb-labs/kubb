@@ -187,7 +187,7 @@ importers:
         version: 5.56.2(react@18.3.1)
       '@tanstack/solid-query':
         specifier: ^5.56.2
-        version: 5.56.2(solid-js@1.8.22)
+        version: 5.56.2(solid-js@1.8.23)
       '@tanstack/svelte-query':
         specifier: ^5.56.2
         version: 5.56.2(svelte@3.59.2)
@@ -204,8 +204,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       solid-js:
-        specifier: ^1.8.22
-        version: 1.8.22
+        specifier: ^1.8.23
+        version: 1.8.23
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -281,7 +281,7 @@ importers:
         version: 5.56.2(react@18.3.1)
       '@tanstack/solid-query':
         specifier: ^5.56.2
-        version: 5.56.2(solid-js@1.8.22)
+        version: 5.56.2(solid-js@1.8.23)
       '@tanstack/svelte-query':
         specifier: ^5.56.2
         version: 5.56.2(svelte@3.59.2)
@@ -298,8 +298,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       solid-js:
-        specifier: ^1.8.22
-        version: 1.8.22
+        specifier: ^1.8.23
+        version: 1.8.23
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -614,13 +614,13 @@ importers:
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
         specifier: ^5.56.2
-        version: 5.56.2(solid-js@1.8.22)
+        version: 5.56.2(solid-js@1.8.23)
       axios:
         specifier: ^1.7.7
         version: 1.7.7
       solid-js:
-        specifier: ^1.8.22
-        version: 1.8.22
+        specifier: ^1.8.23
+        version: 1.8.23
       tsup:
         specifier: ^8.3.0
         version: 8.3.0(@microsoft/api-extractor@7.47.9(@types/node@20.16.5))(@swc/core@1.7.22)(jiti@1.21.6)(postcss@8.4.47)(typescript@5.6.2)(yaml@2.5.1)
@@ -1048,8 +1048,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       oas:
-        specifier: ^24.9.0
-        version: 24.9.0
+        specifier: ^25.0.1
+        version: 25.0.1
       oas-normalize:
         specifier: ^11.1.2
         version: 11.1.2
@@ -5776,6 +5776,10 @@ packages:
     resolution: {integrity: sha512-2FOtIq9kB5G1F61aCaDv+7aDwMk2W41MgKphaaGYM2O57MkY9eaoTypJv1WoXEOQg7tKtGX8xFa+eExcVxiWbw==}
     engines: {node: '>=18'}
 
+  oas@25.0.1:
+    resolution: {integrity: sha512-PnQFvb7/PP6bBC4yJIZBYeOJtML1f8mC2SZQBRSqZkM1V1nBlUOq0eOTo/RCKKXT2a0UMa0eC35BjW9c0l1NXg==}
+    engines: {node: '>=18'}
+
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
@@ -5966,6 +5970,10 @@ packages:
 
   path-to-regexp@7.0.0:
     resolution: {integrity: sha512-58Y94bQqF3zBIASFNiufRPH1NfgZth1qwZ35radL87sg8pgbVqr6uikAhqZtFD+w65MGH6SWnY/ly3GbrM4fbg==}
+    engines: {node: '>=16'}
+
+  path-to-regexp@8.1.0:
+    resolution: {integrity: sha512-Bqn3vc8CMHty6zuD+tG23s6v2kwxslHEhTj4eYaVKGIEB+YX/2wd0/rgXLFD9G9id9KCtbVy/3ZgmvZjpa0UdQ==}
     engines: {node: '>=16'}
 
   path-type@4.0.0:
@@ -6481,8 +6489,8 @@ packages:
     resolution: {integrity: sha512-tf+h5W1IrjNm/9rKKj0JU2MDMruiopx0jjVA5zCdBtcGjfp0+c5rHw/zADLC3IeKlGHtVbHtpfzvYA0OYT+HKg==}
     engines: {node: '>=8.0.0'}
 
-  solid-js@1.8.22:
-    resolution: {integrity: sha512-VBzN5j+9Y4rqIKEnK301aBk+S7fvFSTs9ljg+YEdFxjNjH0hkjXPiQRcws9tE5fUzMznSS6KToL5hwMfHDgpLA==}
+  solid-js@1.8.23:
+    resolution: {integrity: sha512-0jKzMgxmU/b3k4iJmIZJW2BIArrHN+Mug0n7m7MeHvGHWiS57ZdyTmnqNMSbGRvE73QBnTiGFJc90cPPieawaA==}
 
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
@@ -8985,10 +8993,10 @@ snapshots:
       '@tanstack/query-core': 5.56.2
       react: 18.3.1
 
-  '@tanstack/solid-query@5.56.2(solid-js@1.8.22)':
+  '@tanstack/solid-query@5.56.2(solid-js@1.8.23)':
     dependencies:
       '@tanstack/query-core': 5.56.2
-      solid-js: 1.8.22
+      solid-js: 1.8.23
 
   '@tanstack/svelte-query@5.56.2(svelte@3.59.2)':
     dependencies:
@@ -11878,6 +11886,21 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  oas@25.0.1:
+    dependencies:
+      '@readme/json-schema-ref-parser': 1.2.0
+      '@types/json-schema': 7.0.15
+      json-schema-merge-allof: 0.8.1
+      jsonpath-plus: 9.0.0
+      jsonpointer: 5.0.1
+      memoizee: 0.4.17
+      oas-normalize: 11.1.2
+      openapi-types: 12.1.3
+      path-to-regexp: 8.1.0
+      remove-undefined-objects: 5.0.0
+    transitivePeerDependencies:
+      - encoding
+
   object-assign@4.1.1: {}
 
   object-hash@3.0.0: {}
@@ -12059,6 +12082,8 @@ snapshots:
   path-to-regexp@6.3.0: {}
 
   path-to-regexp@7.0.0: {}
+
+  path-to-regexp@8.1.0: {}
 
   path-type@4.0.0: {}
 
@@ -12636,7 +12661,7 @@ snapshots:
 
   slugify@1.4.7: {}
 
-  solid-js@1.8.22:
+  solid-js@1.8.23:
     dependencies:
       csstype: 3.1.3
       seroval: 1.1.1

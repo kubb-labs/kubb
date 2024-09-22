@@ -1,9 +1,13 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+
+export const createUserMutationKey = () => [{ url: '/user' }] as const
+
+export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -39,7 +43,8 @@ export function useCreateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -48,5 +53,9 @@ export function useCreateUser(
       return createUser(data, config)
     },
     ...mutationOptions,
-  })
+  }) as UseMutationResult<CreateUserMutationResponse, Error> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

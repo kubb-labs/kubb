@@ -17,6 +17,7 @@ describe('mutationGenerator operation', async () => {
       method: 'get',
       options: {
         mutation: {
+          key: (key) => key,
           importPath: 'custom-swr/mutation',
           methods: ['get'],
         },
@@ -82,6 +83,7 @@ describe('mutationGenerator operation', async () => {
         methods: ['get'],
       },
       mutation: {
+        key: (key) => key,
         methods: ['post'],
         importPath: '@tanstack/react-query',
       },
