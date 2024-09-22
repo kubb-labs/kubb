@@ -186,7 +186,7 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
         {
           "args": {
             "format": undefined,
-            "type": undefined,
+            "type": "object",
           },
           "keyword": "schema",
         },

@@ -1,4 +1,5 @@
-export type pet = {
+
+ export type pet = {
     /**
      * @type integer, int64
     */
@@ -11,5 +12,8 @@ export type pet = {
      * @type string | undefined
     */
     tag: string | undefined;
+    /**
+     * @type object | undefined
+    */
     category: category | undefined;
 };

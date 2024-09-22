@@ -5,13 +5,9 @@ title: Changelog
 # Changelog
 
 ## 3.0.0-alpha.22
-- [`plugin-zod`](/plugins/plugin-zod): Use of `x-nullable` and `nullable` for additionalProperties.
-
-
-## 3.0.0-alpha.21
-- [`plugin-faker`](/plugins/plugin-faker): use of `faker.image.url()` instead of `faker.image.imageUrl()`
+- [`plugin-faker`](/plugins/plugin-faker): Use of `faker.image.url()` instead of `faker.image.imageUrl()`
 - [`plugin-zod`](/plugins/plugin-zod): Enums should use `z.literal` when format is set to number, string or boolean
-::: code-group
+  ::: code-group
 
 ``` [input]
 enum:
@@ -25,7 +21,11 @@ z.enum(["true", "false"]) // [!code --]
 z.union([z.literal(true), z.literal(false)]) // [!code ++]
 ```
 :::
+- [`plugin-ts`](/plugins/plugin-ts): Use of `readonly` for references($ref)
 
+
+## 3.0.0-alpha.21
+- [`plugin-zod`](/plugins/plugin-zod): Use of `x-nullable` and `nullable` for additionalProperties.
 
 ## 3.0.0-alpha.20
 

@@ -315,6 +315,12 @@ describe('typeGenerator schema', async () => {
         optionalType: 'questionToken',
       },
     },
+    {
+      name: 'ReadOnly',
+      input: '../../mocks/readOnly.yaml',
+      path: 'Demo',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

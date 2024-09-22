@@ -103,6 +103,7 @@ export const typeKeywordMapper = {
   password: undefined,
   phone: undefined,
   readOnly: undefined,
+  writeOnly: undefined,
   ref: (propertyName?: string) => {
     if (!propertyName) {
       return undefined
