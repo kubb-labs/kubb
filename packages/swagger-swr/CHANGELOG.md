@@ -1,5 +1,22 @@
 # @kubb/swagger-swr
 
+## 2.26.7
+
+### Patch Changes
+
+- [`3631ce0`](https://github.com/kubb-labs/kubb/commit/3631ce010d5ee6341f64f2108247ef170111d9e7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of type `Error` when no errors are set for an operation
+
+- Updated dependencies []:
+  - @kubb/core@2.26.7
+  - @kubb/fs@2.26.7
+  - @kubb/oas@2.26.7
+  - @kubb/parser-ts@2.26.7
+  - @kubb/plugin-oas@2.26.7
+  - @kubb/react@2.26.7
+  - @kubb/swagger-client@2.26.7
+  - @kubb/swagger-ts@2.26.7
+  - @kubb/swagger-zod@2.26.7
+
 ## 2.26.6
 
 ### Patch Changes
