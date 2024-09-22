@@ -7,5 +7,8 @@ export type CategoryType = {
    * @type string | undefined
    */
   name?: string
+  /**
+   * @type object | undefined
+   */
   parent?: CategoryType
 }
