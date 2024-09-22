@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.22
+
+### Patch Changes
+
+- [#1236](https://github.com/kubb-labs/kubb/pull/1236) [`8413897`](https://github.com/kubb-labs/kubb/commit/8413897bdc8511090cfdebd7783ad4823a6abf30) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of `x-nullable` and `nullable` for additionalProperties.
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.22
+  - @kubb/fs@3.0.0-alpha.22
+  - @kubb/oas@3.0.0-alpha.22
+  - @kubb/react@3.0.0-alpha.22
+
 ## 3.0.0-alpha.21
 
 ### Patch Changes
