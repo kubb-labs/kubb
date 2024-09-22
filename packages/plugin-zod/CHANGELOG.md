@@ -1,5 +1,18 @@
 # @kubb/plugin-zod
 
+## 3.0.0-alpha.23
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.23
+  - @kubb/fs@3.0.0-alpha.23
+  - @kubb/oas@3.0.0-alpha.23
+  - @kubb/parser-ts@3.0.0-alpha.23
+  - @kubb/plugin-oas@3.0.0-alpha.23
+  - @kubb/plugin-ts@3.0.0-alpha.23
+  - @kubb/react@3.0.0-alpha.23
+
 ## 3.0.0-alpha.22
 
 ### Patch Changes

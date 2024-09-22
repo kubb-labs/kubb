@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.0.0-alpha.23
+
+### Patch Changes
+
+- [`7b18a28`](https://github.com/kubb-labs/kubb/commit/7b18a2872f9f21547df70b6c586f0c8452a24cb6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of type `Error` when no errors are set for an operation
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.23
+  - @kubb/fs@3.0.0-alpha.23
+  - @kubb/oas@3.0.0-alpha.23
+  - @kubb/plugin-oas@3.0.0-alpha.23
+  - @kubb/plugin-ts@3.0.0-alpha.23
+  - @kubb/plugin-zod@3.0.0-alpha.23
+  - @kubb/react@3.0.0-alpha.23
+
 ## 3.0.0-alpha.22
 
 ### Patch Changes
