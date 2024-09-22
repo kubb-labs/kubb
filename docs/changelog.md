@@ -4,19 +4,23 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.23
+- [`plugin-client`](/plugins/plugin-client): Use of uppercase for httpMethods, `GET` instead of `get`, `POST` instead of `post`, ...
+
 ## 3.0.0-alpha.22
 - [`plugin-faker`](/plugins/plugin-faker): Use of `faker.image.url()` instead of `faker.image.imageUrl()`
 - [`plugin-zod`](/plugins/plugin-zod): Enums should use `z.literal` when format is set to number, string or boolean
-  ::: code-group
 
-``` [input]
+::: code-group
+
+```yaml [input]
 enum:
   type: boolean
   enum:
     - true
     - false
 ```
-``` [output]
+```typescript [output]
 z.enum(["true", "false"]) // [!code --]
 z.union([z.literal(true), z.literal(false)]) // [!code ++]
 ```

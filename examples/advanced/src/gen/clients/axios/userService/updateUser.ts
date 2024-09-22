@@ -16,7 +16,7 @@ export async function updateUser(
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
+  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

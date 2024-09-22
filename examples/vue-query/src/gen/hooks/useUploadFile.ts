@@ -1,49 +1,63 @@
-import client from "@kubb/plugin-client/client";
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from "../models/UploadFile.ts";
-import type { UseMutationOptions } from "@tanstack/vue-query";
-import type { MaybeRef } from "vue";
-import { useMutation } from "@tanstack/vue-query";
-import { unref } from "vue";
+import client from '@kubb/plugin-client/client'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
+import { useMutation } from '@tanstack/vue-query'
 
- type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>;
-
- type UploadFile = {
-    data: UploadFileMutationResponse;
-    error: never;
-    request: UploadFileMutationRequest;
-    pathParams: UploadFilePathParams;
-    queryParams: UploadFileQueryParams;
-    headerParams: never;
-    response: UploadFileMutationResponse;
-    client: {
-        parameters: Partial<Parameters<UploadFileClient>[0]>;
-        return: Awaited<ReturnType<UploadFileClient>>;
-    };
-};
-
- /**
+/**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-export function useUploadFile(refPetId: MaybeRef<UploadFilePathParams["petId"]>, refParams?: MaybeRef<UploadFileQueryParams>, options: {
-    mutation?: UseMutationOptions<UploadFile["response"], UploadFile["error"], UploadFile["request"], unknown>;
-    client?: UploadFile["client"]["parameters"];
-} = {}) {
-    const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
-    return useMutation({
-        mutationFn: async (data) => {
-            const petId = unref(refPetId);
-            const params = unref(refParams);
-            const res = await client<UploadFile["data"], UploadFile["error"], UploadFile["request"]>({
-                method: "post",
-                url: `/pet/${petId}/uploadImage`,
-                params,
-                data,
-                headers: { "Content-Type": "application/octet-stream", ...clientOptions.headers },
-                ...clientOptions
-            });
-            return res.data;
-        },
-        ...mutationOptions
-    });
+async function uploadFile(
+  petId: UploadFilePathParams['petId'],
+  data?: UploadFileMutationRequest,
+  params?: UploadFileQueryParams,
+  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+) {
+  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+    method: 'POST',
+    url: `/pet/${petId}/uploadImage`,
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    data,
+    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
+    ...config,
+  })
+  return res.data
+}
+
+/**
+ * @summary uploads an image
+ * @link /pet/:petId/uploadImage
+ */
+export function useUploadFile(
+  options: {
+    mutation?: UseMutationOptions<
+      UploadFileMutationResponse,
+      unknown,
+      {
+        petId: MaybeRef<UploadFilePathParams['petId']>
+        data?: MaybeRef<UploadFileMutationRequest>
+        params?: MaybeRef<UploadFileQueryParams>
+      }
+    >
+    client?: Partial<RequestConfig<UploadFileMutationRequest>>
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  return useMutation({
+    mutationFn: async ({
+      petId,
+      data,
+      params,
+    }: {
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileMutationRequest
+      params?: UploadFileQueryParams
+    }) => {
+      return uploadFile(petId, data, params, config)
+    },
+    ...mutationOptions,
+  })
 }

@@ -1,64 +1,60 @@
-import client from "@kubb/plugin-client/client";
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from "../models/LoginUser.ts";
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from "@tanstack/vue-query";
-import type { MaybeRef } from "vue";
-import { useQuery, queryOptions } from "@tanstack/vue-query";
-import { unref } from "vue";
+import client from '@kubb/plugin-client/client'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
 
- type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>;
+export const loginUserQueryKey = (params?: MaybeRef<LoginUserQueryParams>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
- type LoginUser = {
-    data: LoginUserQueryResponse;
-    error: LoginUser400;
-    request: never;
-    pathParams: never;
-    queryParams: LoginUserQueryParams;
-    headerParams: never;
-    response: LoginUserQueryResponse;
-    client: {
-        parameters: Partial<Parameters<LoginUserClient>[0]>;
-        return: Awaited<ReturnType<LoginUserClient>>;
-    };
-};
+export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
- export const loginUserQueryKey = (params?: MaybeRef<LoginUser["queryParams"]>) => [{ url: "/user/login" }, ...(params ? [params] : [])] as const;
-
- export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>;
-
- export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>, options: LoginUser["client"]["parameters"] = {}) {
-    const queryKey = loginUserQueryKey(refParams);
-    return queryOptions({
-        queryKey,
-        queryFn: async () => {
-            const params = unref(refParams);
-            const res = await client<LoginUser["data"], LoginUser["error"]>({
-                method: "get",
-                url: `/user/login`,
-                params,
-                ...options
-            });
-            return res.data;
-        },
-    });
-}
-
- /**
+/**
  * @summary Logs user into the system
  * @link /user/login
  */
-export function useLoginUser<TData = LoginUser["response"], TQueryData = LoginUser["response"], TQueryKey extends QueryKey = LoginUserQueryKey>(refParams?: MaybeRef<LoginUserQueryParams>, options: {
-    query?: Partial<QueryObserverOptions<LoginUser["response"], LoginUser["error"], TData, TQueryKey>>;
-    client?: LoginUser["client"]["parameters"];
-} = {}): UseQueryReturnType<TData, LoginUser["error"]> {
-    const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams);
-    const query = useQuery({
-        ...loginUserQueryOptions(refParams, clientOptions) as unknown as QueryObserverOptions,
-        queryKey,
-        ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-    }) as UseQueryReturnType<TData, LoginUser["error"]> & {
-        queryKey: TQueryKey;
-    };
-    query.queryKey = queryKey as TQueryKey;
-    return query;
+async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
+    method: 'GET',
+    url: '/user/login',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    params,
+    ...config,
+  })
+  return res.data
+}
+
+export function loginUserQueryOptions(params?: MaybeRef<LoginUserQueryParams>, config: Partial<RequestConfig> = {}) {
+  const queryKey = loginUserQueryKey(params)
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      return loginUser(unref(params), unref(config))
+    },
+  })
+}
+
+/**
+ * @summary Logs user into the system
+ * @link /user/login
+ */
+export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
+  params?: MaybeRef<LoginUserQueryParams>,
+  options: {
+    query?: Partial<QueryObserverOptions<LoginUserQueryResponse, LoginUser400, TData, TQueryData, TQueryKey>>
+    client?: Partial<RequestConfig>
+  } = {},
+) {
+  const { query: queryOptions, client: config = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+  const query = useQuery({
+    ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
+    queryKey,
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+  }) as UseQueryReturnType<TData, LoginUser400> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
 }

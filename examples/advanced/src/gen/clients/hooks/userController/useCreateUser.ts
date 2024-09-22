@@ -11,7 +11,7 @@ import { useMutation } from '@tanstack/react-query'
  * @link /user
  */
 async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
-  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
+  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     baseURL: 'https://petstore3.swagger.io/api/v3',

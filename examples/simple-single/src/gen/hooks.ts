@@ -568,7 +568,7 @@ async function uploadFile(
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, unknown, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -625,7 +625,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
  * @link /store/inventory
  */
 async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponse, unknown, unknown>({
+  const res = await client<GetInventoryQueryResponse, Error, unknown>({
     method: 'GET',
     url: '/store/inventory',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -951,7 +951,7 @@ export function useDeleteOrder(
  * @link /user
  */
 async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
-  const res = await client<CreateUserMutationResponse, unknown, CreateUserMutationRequest>({
+  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -1000,7 +1000,7 @@ async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, unknown, CreateUsersWithListInputMutationRequest>({
+  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -1144,7 +1144,7 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * @link /user/logout
  */
 async function logoutUser(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, unknown, unknown>({
+  const res = await client<LogoutUserQueryResponse, Error, unknown>({
     method: 'GET',
     url: '/user/logout',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -1336,7 +1336,7 @@ async function updateUser(
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
+  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

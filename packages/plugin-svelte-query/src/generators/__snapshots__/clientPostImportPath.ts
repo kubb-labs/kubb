@@ -8,7 +8,7 @@ import { createMutation } from "@tanstack/svelte-query";
  * @link /pet/:petId
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
-    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "post", url: `/pet/${petId}`, params, data, ...config });
+    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${petId}`, params, data, ...config });
     return updatePetWithFormMutationResponse.parse(res.data);
 }
 

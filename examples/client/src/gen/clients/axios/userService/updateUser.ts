@@ -1,3 +1,4 @@
+/* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
@@ -16,7 +17,7 @@ export async function updateUser(
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, unknown, UpdateUserMutationRequest>({
+  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',

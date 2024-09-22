@@ -1,44 +1,52 @@
-import client from "@kubb/plugin-client/client";
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from "../models/AddPet.ts";
-import type { UseMutationOptions } from "@tanstack/vue-query";
-import { useMutation } from "@tanstack/vue-query";
+import client from '@kubb/plugin-client/client'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
+import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
+import { useMutation } from '@tanstack/vue-query'
 
- type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>;
-
- type AddPet = {
-    data: AddPetMutationResponse;
-    error: AddPet405;
-    request: AddPetMutationRequest;
-    pathParams: never;
-    queryParams: never;
-    headerParams: never;
-    response: AddPetMutationResponse;
-    client: {
-        parameters: Partial<Parameters<AddPetClient>[0]>;
-        return: Awaited<ReturnType<AddPetClient>>;
-    };
-};
-
- /**
+/**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
-export function useAddPet(options: {
-    mutation?: UseMutationOptions<AddPet["response"], AddPet["error"], AddPet["request"], unknown>;
-    client?: AddPet["client"]["parameters"];
-} = {}) {
-    const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
-    return useMutation({
-        mutationFn: async (data) => {
-            const res = await client<AddPet["data"], AddPet["error"], AddPet["request"]>({
-                method: "post",
-                url: `/pet`,
-                data,
-                ...clientOptions
-            });
-            return res.data;
-        },
-        ...mutationOptions
-    });
+async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
+  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
+    method: 'POST',
+    url: '/pet',
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    data,
+    ...config,
+  })
+  return res.data
+}
+
+/**
+ * @description Add a new pet to the store
+ * @summary Add a new pet to the store
+ * @link /pet
+ */
+export function useAddPet(
+  options: {
+    mutation?: UseMutationOptions<
+      AddPetMutationResponse,
+      AddPet405,
+      {
+        data: MaybeRef<AddPetMutationRequest>
+      }
+    >
+    client?: Partial<RequestConfig<AddPetMutationRequest>>
+  } = {},
+) {
+  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  return useMutation({
+    mutationFn: async ({
+      data,
+    }: {
+      data: AddPetMutationRequest
+    }) => {
+      return addPet(data, config)
+    },
+    ...mutationOptions,
+  })
 }
