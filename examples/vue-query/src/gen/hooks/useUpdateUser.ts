@@ -34,7 +34,7 @@ export function useUpdateUser(
   options: {
     mutation?: UseMutationOptions<
       UpdateUserMutationResponse,
-      unknown,
+      Error,
       {
         username: MaybeRef<UpdateUserPathParams['username']>
         data?: MaybeRef<UpdateUserMutationRequest>

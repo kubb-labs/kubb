@@ -38,7 +38,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<CreateBaseQueryOptions<LogoutUserQueryResponse, unknown, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<LogoutUserQueryResponse, Error, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -49,7 +49,7 @@ export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = L
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, unknown> & {
+  })) as CreateQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

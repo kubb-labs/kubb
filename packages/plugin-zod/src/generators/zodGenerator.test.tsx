@@ -189,6 +189,12 @@ describe('zodGenerator schema', async () => {
       input: '../../mocks/lazy.yaml',
       options: {},
     },
+    {
+      name: 'discriminator',
+      path: 'Advanced',
+      input: '../../mocks/discriminator.yaml',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

@@ -35,14 +35,14 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUsersWithListInputMutationResponse, unknown>
+    mutation?: SWRMutationConfiguration<CreateUsersWithListInputMutationResponse, Error>
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = ['/user/createWithList'] as const
-  return useSWRMutation<CreateUsersWithListInputMutationResponse, unknown, Key>(
+  return useSWRMutation<CreateUsersWithListInputMutationResponse, Error, Key>(
     shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return createUsersWithListInput(data, config)

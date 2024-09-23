@@ -1103,11 +1103,32 @@ export const oas = {
       Pet: {
         required: ['name', 'photoUrls'],
         type: 'object',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/Dog',
+          },
+          {
+            $ref: '#/components/schemas/Cat',
+          },
+        ],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
+        },
         properties: {
           id: {
             type: 'integer',
             format: 'int64',
             example: 10,
+          },
+          type: {
+            minLength: 1,
+            enum: ['dog', 'cat'],
+            type: 'string',
+            readOnly: true,
           },
           name: {
             type: 'string',
@@ -1146,6 +1167,36 @@ export const oas = {
         xml: {
           name: 'pet',
         },
+      },
+      Cat: {
+        type: 'object',
+        properties: {
+          type: {
+            minLength: 1,
+            type: 'string',
+            readOnly: true,
+            enum: ['cat'],
+          },
+          name: {
+            type: 'string',
+          },
+        },
+        required: ['type'],
+      },
+      Dog: {
+        type: 'object',
+        properties: {
+          type: {
+            minLength: 1,
+            type: 'string',
+            readOnly: true,
+            enum: ['dog'],
+          },
+          bark: {
+            type: 'string',
+          },
+        },
+        required: ['type'],
       },
       AddPetRequest: {
         required: ['name', 'photoUrls'],

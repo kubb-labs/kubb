@@ -68,15 +68,6 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
-      name: 'PetsStoreDiscriminator',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Petstore',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
       name: 'CatTypeAsConst',
       input: '../../mocks/discriminator.yaml',
       path: 'Cat',
@@ -319,6 +310,21 @@ describe('typeGenerator schema', async () => {
       name: 'ReadOnly',
       input: '../../mocks/readOnly.yaml',
       path: 'Demo',
+      options: {},
+    },
+    {
+      name: 'PetsStoreDiscriminator',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Petstore',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PetsStoreAdvancedDiscriminator',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Advanced',
       options: {},
     },
   ] as const satisfies Array<{

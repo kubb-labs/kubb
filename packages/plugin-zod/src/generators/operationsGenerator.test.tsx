@@ -66,8 +66,6 @@ describe('operationsGenerator operations', async () => {
       instance,
     })
 
-    console.log(instance.operationsByMethod)
-
     await matchFiles(files)
   })
 })

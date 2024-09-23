@@ -33,7 +33,7 @@ export function useCreateUsersWithListInput(
   options: {
     mutation?: UseMutationOptions<
       CreateUsersWithListInputMutationResponse,
-      unknown,
+      Error,
       {
         data?: MaybeRef<CreateUsersWithListInputMutationRequest>
       }

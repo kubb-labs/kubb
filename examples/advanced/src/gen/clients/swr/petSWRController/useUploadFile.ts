@@ -41,14 +41,14 @@ export function useUploadFile(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, unknown>
+    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, Error>
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = [`/pet/${petId}/uploadImage`, params] as const
-  return useSWRMutation<UploadFileMutationResponse, unknown, Key>(
+  return useSWRMutation<UploadFileMutationResponse, Error, Key>(
     shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return uploadFile(petId, data, params, config)

@@ -30,7 +30,7 @@ export function useCreateUser(
   options: {
     mutation?: UseMutationOptions<
       CreateUserMutationResponse,
-      unknown,
+      Error,
       {
         data?: MaybeRef<CreateUserMutationRequest>
       }
