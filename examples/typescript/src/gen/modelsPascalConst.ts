@@ -135,38 +135,109 @@ export type Tag = {
   name?: string
 }
 
+export const PetType = {
+  dog: 'dog',
+  cat: 'cat',
+} as const
+export type PetType = (typeof PetType)[keyof typeof PetType]
 export const PetStatus = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 export type PetStatus = (typeof PetStatus)[keyof typeof PetStatus]
-export type Pet = {
-  /**
-   * @type integer | undefined, int64
-   */
-  id?: number
+export type Pet =
+  | (Dog & {
+      /**
+       * @type integer | undefined, int64
+       */
+      id?: number
+      /**
+       * @type string | undefined
+       */
+      readonly type?: PetType
+      /**
+       * @type string
+       */
+      name: string
+      /**
+       * @type object | undefined
+       */
+      category?: Category
+      /**
+       * @type array
+       */
+      photoUrls: string[]
+      /**
+       * @type array | undefined
+       */
+      tags?: Tag[]
+      /**
+       * @description pet status in the store
+       * @type string | undefined
+       */
+      status?: PetStatus
+    })
+  | (Cat & {
+      /**
+       * @type integer | undefined, int64
+       */
+      id?: number
+      /**
+       * @type string | undefined
+       */
+      readonly type?: PetType
+      /**
+       * @type string
+       */
+      name: string
+      /**
+       * @type object | undefined
+       */
+      category?: Category
+      /**
+       * @type array
+       */
+      photoUrls: string[]
+      /**
+       * @type array | undefined
+       */
+      tags?: Tag[]
+      /**
+       * @description pet status in the store
+       * @type string | undefined
+       */
+      status?: PetStatus
+    })
+
+export const CatType = {
+  cat: 'cat',
+} as const
+export type CatType = (typeof CatType)[keyof typeof CatType]
+export type Cat = {
   /**
    * @type string
    */
-  name: string
+  readonly type: CatType
   /**
-   * @type object | undefined
-   */
-  category?: Category
-  /**
-   * @type array
-   */
-  photoUrls: string[]
-  /**
-   * @type array | undefined
-   */
-  tags?: Tag[]
-  /**
-   * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatus
+  name?: string
+}
+
+export const DogType = {
+  dog: 'dog',
+} as const
+export type DogType = (typeof DogType)[keyof typeof DogType]
+export type Dog = {
+  /**
+   * @type string
+   */
+  readonly type: DogType
+  /**
+   * @type string | undefined
+   */
+  bark?: string
 }
 
 export const AddPetRequestStatus = {
@@ -250,7 +321,7 @@ export type UpdatePet405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type'>
 /**
  * @description Successful operation
  */
