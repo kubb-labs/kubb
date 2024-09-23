@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 2.26.8
+
+### Patch Changes
+
+- [`ba3bc22`](https://github.com/kubb-labs/kubb/commit/ba3bc22ab0627fd10e23d15bd3111f6df19f6d8f) Thanks [@grreeenn](https://github.com/grreeenn)! - Take care of turning `additionalProperties: {}` to a correct freeform object type (#1232)
+
+- Updated dependencies []:
+  - @kubb/core@2.26.8
+  - @kubb/fs@2.26.8
+  - @kubb/oas@2.26.8
+  - @kubb/react@2.26.8
+
 ## 2.26.7
 
 ### Patch Changes

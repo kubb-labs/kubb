@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-swr",
-  "version": "2.26.7",
+  "version": "2.26.8",
   "description": "Generator swagger-swr",
   "keywords": [
     "typescript",
