@@ -301,7 +301,7 @@ export abstract class SchemaGenerator<
 
     if (additionalProperties) {
       additionalPropertiesSchemas =
-        additionalProperties === true
+        additionalProperties === true || !Object.keys(additionalProperties).length
           ? [{ keyword: this.#getUnknownReturn({ schema, name }) }]
           : this.parse({ schema: additionalProperties as SchemaObject, parentName: name })
     }
