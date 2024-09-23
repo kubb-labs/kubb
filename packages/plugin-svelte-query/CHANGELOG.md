@@ -1,5 +1,22 @@
 # @kubb/plugin-svelte-query
 
+## 3.0.0-alpha.25
+
+### Minor Changes
+
+- [#1247](https://github.com/kubb-labs/kubb/pull/1247) [`be4ef89`](https://github.com/kubb-labs/kubb/commit/be4ef897a6b5501ba5064ff1b0b21d7191479122) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of MutationKeys for `createMutation`
+
+### Patch Changes
+
+- Updated dependencies [[`c8cb50d`](https://github.com/kubb-labs/kubb/commit/c8cb50d1e4a13669a05ca11a18352b86a558bce1)]:
+  - @kubb/plugin-oas@3.0.0-alpha.25
+  - @kubb/plugin-zod@3.0.0-alpha.25
+  - @kubb/plugin-ts@3.0.0-alpha.25
+  - @kubb/oas@3.0.0-alpha.25
+  - @kubb/core@3.0.0-alpha.25
+  - @kubb/fs@3.0.0-alpha.25
+  - @kubb/react@3.0.0-alpha.25
+
 ## 3.0.0-alpha.24
 
 ### Patch Changes
