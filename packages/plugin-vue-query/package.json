@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-vue-query",
-  "version": "3.0.0-alpha.23",
+  "version": "3.0.0-alpha.24",
   "description": "Generator vue-query hooks",
   "keywords": [
     "faker",
