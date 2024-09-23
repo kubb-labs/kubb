@@ -69,6 +69,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/hkang1"><img src="https://avatars.githubusercontent.com/u/220971?v=4?s=100" width="100px;" alt="Caleb Hoyoul Kang"/><br /><sub><b>Caleb Hoyoul Kang</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hkang1" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/grreeenn"><img src="https://avatars.githubusercontent.com/u/13204857?v=4?s=100" width="100px;" alt="Gregory Zhukovsky"/><br /><sub><b>Gregory Zhukovsky</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=grreeenn" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
