@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions, CreateMutationResult, MutationKey } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
@@ -63,7 +63,7 @@ export function createUploadFile(
       return uploadFile(petId, data, params, config)
     },
     ...mutationOptions,
-  }) as CreateMutationResult<UploadFileMutationResponse, Error> & {
+  }) as ReturnType<typeof mutation> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

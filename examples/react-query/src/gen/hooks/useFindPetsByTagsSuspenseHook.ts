@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags.ts'
 import type { RequestConfig, ResponseConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, UseSuspenseQueryOptions } from '@tanstack/react-query'
 import { useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -56,7 +56,7 @@ export function useFindPetsByTagsSuspenseHook<
     ...(findPetsByTagsSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, FindPetsByTags400> & {
+  }) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

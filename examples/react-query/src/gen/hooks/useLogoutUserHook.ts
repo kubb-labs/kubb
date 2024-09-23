@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
 
 export const logoutUserQueryKey = () => ['v5', { url: '/user/logout' }] as const
@@ -48,7 +48,7 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
     ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, Error> & {
+  }) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

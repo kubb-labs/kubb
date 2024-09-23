@@ -58,7 +58,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />
         )}
         <File.Import name={['createMutation']} path={options.mutation.importPath} />
-        <File.Import name={['CreateMutationOptions', 'CreateMutationResult', 'MutationKey']} path={options.mutation.importPath} isTypeOnly />
+        <File.Import name={['CreateMutationOptions', 'MutationKey']} path={options.mutation.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import

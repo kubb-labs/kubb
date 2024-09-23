@@ -1,7 +1,7 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -60,7 +60,7 @@ export function useUpdateUser(
       return updateUser(username, data, config)
     },
     ...mutationOptions,
-  }) as UseMutationResult<UpdateUserMutationResponse, Error> & {
+  }) as ReturnType<typeof mutation> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

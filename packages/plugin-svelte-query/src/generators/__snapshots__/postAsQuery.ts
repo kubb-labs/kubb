@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from "custom-query";
+import type { QueryKey, CreateBaseQueryOptions } from "custom-query";
 import { createQuery, queryOptions } from "custom-query";
 
  export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
@@ -40,7 +40,7 @@ export function createUpdatePetWithForm<TData = UpdatePetWithFormMutationRespons
         ...updatePetWithFormQueryOptions(petId, data, params, config) as unknown as CreateBaseQueryOptions,
         queryKey,
         ...queryOptions as unknown as Omit<CreateBaseQueryOptions, "queryKey">
-    }) as CreateQueryResult<TData, UpdatePetWithForm405> & {
+    }) as ReturnType<typeof query> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

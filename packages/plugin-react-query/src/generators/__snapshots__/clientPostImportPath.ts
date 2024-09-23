@@ -1,5 +1,5 @@
 import client from "axios";
-import type { UseMutationOptions, UseMutationResult, MutationKey } from "@tanstack/react-query";
+import type { UseMutationOptions, MutationKey } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import { useMutation } from "@tanstack/react-query";
 
@@ -39,7 +39,7 @@ export function useUpdatePetWithForm(options: {
             return updatePetWithForm(petId, data, params, config);
         },
         ...mutationOptions
-    }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
+    }) as ReturnType<typeof mutation> & {
         mutationKey: MutationKey;
     };
     mutation.mutationKey = mutationKey as MutationKey;

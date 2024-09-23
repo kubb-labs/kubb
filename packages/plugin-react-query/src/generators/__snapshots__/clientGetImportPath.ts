@@ -1,5 +1,5 @@
 import client from "axios";
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
+import type { QueryKey, QueryObserverOptions } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 
@@ -42,7 +42,7 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQueryDat
         ...findPetsByTagsQueryOptions(headers, params, config) as unknown as QueryObserverOptions,
         queryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-    }) as UseQueryResult<TData, FindPetsByTags400> & {
+    }) as ReturnType<typeof query> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

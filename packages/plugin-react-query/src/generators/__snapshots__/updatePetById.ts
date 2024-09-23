@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { UseMutationOptions, UseMutationResult, MutationKey } from "@tanstack/react-query";
+import type { UseMutationOptions, MutationKey } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 
  export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
@@ -39,7 +39,7 @@ export function useUpdatePetWithForm(options: {
             return updatePetWithForm(petId, data, params, config);
         },
         ...mutationOptions
-    }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
+    }) as ReturnType<typeof mutation> & {
         mutationKey: MutationKey;
     };
     mutation.mutationKey = mutationKey as MutationKey;

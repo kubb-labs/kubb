@@ -1,7 +1,7 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -53,7 +53,7 @@ export function useAddPet(
       return addPet(data, config)
     },
     ...mutationOptions,
-  }) as UseMutationResult<AddPetMutationResponse, AddPet405> & {
+  }) as ReturnType<typeof mutation> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

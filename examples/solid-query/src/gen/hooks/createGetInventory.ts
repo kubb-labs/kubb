@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
+import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
@@ -55,7 +55,7 @@ export function createGetInventory<
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, Error> & {
+  })) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

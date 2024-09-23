@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from "@tanstack/react-query";
+import type { QueryKey, CreateBaseQueryOptions } from "@tanstack/react-query";
 import { createQuery, queryOptions } from "@tanstack/react-query";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [test, { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
@@ -43,7 +43,7 @@ export function createFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQuery
         queryKey,
         initialData: null,
         ...queryOptions as unknown as Omit<CreateBaseQueryOptions, "queryKey">
-    })) as CreateQueryResult<TData, FindPetsByTags400> & {
+    })) as ReturnType<typeof query> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

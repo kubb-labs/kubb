@@ -6,7 +6,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -59,7 +59,7 @@ export function useUpdatePetWithForm(
       return updatePetWithForm(petId, params, config)
     },
     ...mutationOptions,
-  }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
+  }) as ReturnType<typeof mutation> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

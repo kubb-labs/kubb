@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions, CreateMutationResult, MutationKey } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
@@ -51,7 +51,7 @@ export function createDeleteOrder(
       return deleteOrder(orderId, config)
     },
     ...mutationOptions,
-  }) as CreateMutationResult<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404> & {
+  }) as ReturnType<typeof mutation> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

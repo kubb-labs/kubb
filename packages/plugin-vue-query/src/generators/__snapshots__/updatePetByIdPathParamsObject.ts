@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { UseMutationOptions, UseMutationResult, MutationKey } from "@tanstack/react-query";
+import type { MutationObserverOptions, MutationKey } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
 import { useMutation } from "@tanstack/react-query";
 
@@ -24,7 +24,7 @@ async function updatePetWithForm({ petId }: {
  * @link /pet/:petId
  */
 export function useUpdatePetWithForm(options: {
-    mutation?: UseMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
+    mutation?: MutationObserverOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
         petId: MaybeRef<UpdatePetWithFormPathParams["petId"]>;
         data?: MaybeRef<UpdatePetWithFormMutationRequest>;
         params?: MaybeRef<UpdatePetWithFormQueryParams>;
@@ -42,7 +42,7 @@ export function useUpdatePetWithForm(options: {
             return updatePetWithForm({ petId }, data, params, config);
         },
         ...mutationOptions
-    }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
+    }) as ReturnType<typeof mutation> & {
         mutationKey: MutationKey;
     };
     mutation.mutationKey = mutationKey as MutationKey;

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
+import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
@@ -49,7 +49,7 @@ export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = L
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, Error> & {
+  })) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

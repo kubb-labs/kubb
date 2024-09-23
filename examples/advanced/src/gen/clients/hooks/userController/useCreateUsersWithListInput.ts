@@ -4,7 +4,7 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -59,7 +59,7 @@ export function useCreateUsersWithListInput(
       return createUsersWithListInput(data, config)
     },
     ...mutationOptions,
-  }) as UseMutationResult<CreateUsersWithListInputMutationResponse, Error> & {
+  }) as ReturnType<typeof mutation> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey
