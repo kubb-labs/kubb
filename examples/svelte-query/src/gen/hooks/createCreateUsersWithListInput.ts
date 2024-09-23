@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
+
+export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
+
+export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
 /**
  * @description Creates list of users with given input array
@@ -41,7 +45,8 @@ export function createCreateUsersWithListInput(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return createMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
+  const mutation = createMutation({
     mutationFn: async ({
       data,
     }: {
@@ -50,5 +55,9 @@ export function createCreateUsersWithListInput(
       return createUsersWithListInput(data, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

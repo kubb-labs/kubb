@@ -1,9 +1,13 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
 import { useMutation } from '@tanstack/react-query'
+
+export const createUserMutationKey = () => [{ url: '/user' }] as const
+
+export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 
 /**
  * @description This can only be done by the logged in user.
@@ -30,7 +34,7 @@ export function useCreateUser(
   options: {
     mutation?: UseMutationOptions<
       CreateUserMutationResponse,
-      unknown,
+      Error,
       {
         data?: CreateUserMutationRequest
       }
@@ -39,7 +43,8 @@ export function useCreateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -48,5 +53,9 @@ export function useCreateUser(
       return createUser(data, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

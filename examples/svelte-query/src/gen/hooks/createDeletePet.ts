@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
+
+export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
 /**
  * @description delete a pet
@@ -39,7 +43,8 @@ export function createDeletePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return createMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
+  const mutation = createMutation({
     mutationFn: async ({
       petId,
       headers,
@@ -50,5 +55,9 @@ export function createDeletePet(
       return deletePet(petId, headers, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

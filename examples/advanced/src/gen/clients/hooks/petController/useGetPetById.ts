@@ -1,6 +1,6 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import type { QueryKey, QueryObserverOptions } from '../../../../tanstack-query-hook.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
@@ -52,7 +52,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
     ...(getPetByIdQueryOptions(petId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & {
+  }) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

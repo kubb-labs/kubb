@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
+import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
@@ -54,7 +54,7 @@ export function createGetUserByName<
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, GetUserByName400 | GetUserByName404> & {
+  })) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

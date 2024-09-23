@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
+
+export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+
+export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
@@ -37,7 +41,8 @@ export function createDeleteOrder(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return createMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
+  const mutation = createMutation({
     mutationFn: async ({
       orderId,
     }: {
@@ -46,5 +51,9 @@ export function createDeleteOrder(
       return deleteOrder(orderId, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, UseSuspenseQueryOptions } from '@tanstack/react-query'
 import { useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 
 export const loginUserSuspenseQueryKey = (params?: LoginUserQueryParams) => ['v5', { url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -54,7 +54,7 @@ export function useLoginUserSuspenseHook<
     ...(loginUserSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, LoginUser400> & {
+  }) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

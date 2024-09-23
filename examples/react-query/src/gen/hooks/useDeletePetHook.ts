@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
+
+export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
 /**
  * @description delete a pet
@@ -47,7 +51,8 @@ export function useDeletePetHook(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       petId,
       headers,
@@ -58,5 +63,9 @@ export function useDeletePetHook(
       return deletePet({ petId }, headers, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

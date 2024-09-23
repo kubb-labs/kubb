@@ -6,9 +6,13 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
 import { useMutation } from '@tanstack/react-query'
+
+export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+
+export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
 /**
  * @summary uploads an image
@@ -40,7 +44,7 @@ export function useUploadFile(
   options: {
     mutation?: UseMutationOptions<
       UploadFileMutationResponse,
-      unknown,
+      Error,
       {
         petId: UploadFilePathParams['petId']
         data?: UploadFileMutationRequest
@@ -51,7 +55,8 @@ export function useUploadFile(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       petId,
       data,
@@ -64,5 +69,9 @@ export function useUploadFile(
       return uploadFile(petId, data, params, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

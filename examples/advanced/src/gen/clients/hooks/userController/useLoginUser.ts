@@ -1,6 +1,6 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import type { QueryKey, QueryObserverOptions } from '../../../../tanstack-query-hook.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
@@ -51,7 +51,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
     ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, LoginUser400> & {
+  }) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

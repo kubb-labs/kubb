@@ -1,8 +1,12 @@
 import client from '@kubb/plugin-client/client'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
+
+export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
+
+export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
 
 /**
  * @description Place a new order in the store
@@ -38,7 +42,8 @@ export function usePlaceOrderHook(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  return useMutation({
+  const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
+  const mutation = useMutation({
     mutationFn: async ({
       data,
     }: {
@@ -47,5 +52,9 @@ export function usePlaceOrderHook(
       return placeOrder(data, config)
     },
     ...mutationOptions,
-  })
+  }) as ReturnType<typeof mutation> & {
+    mutationKey: MutationKey
+  }
+  mutation.mutationKey = mutationKey as MutationKey
+  return mutation
 }

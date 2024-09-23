@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, UseSuspenseQueryOptions } from '@tanstack/react-query'
 import { useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 
 export const getPetByIdSuspenseQueryKey = ({
@@ -77,7 +77,7 @@ export function useGetPetByIdSuspenseHook<
     ...(getPetByIdSuspenseQueryOptions({ petId }, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, GetPetById400 | GetPetById404> & {
+  }) as ReturnType<typeof query> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

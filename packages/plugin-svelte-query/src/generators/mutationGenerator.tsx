@@ -1,3 +1,4 @@
+import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -5,7 +6,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
-import { Mutation } from '../components'
+import { Mutation, MutationKey } from '../components'
 import type { PluginSvelteQuery } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
@@ -42,6 +43,11 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
       name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
     }
 
+    const mutationKey = {
+      name: transformers.camelCase(`${operation.getOperationId()} MutationKey`),
+      typeName: transformers.pascalCase(`${operation.getOperationId()} MutationKey`),
+    }
+
     if (!isMutation || typeof options.mutation === 'boolean') {
       return null
     }
@@ -52,7 +58,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />
         )}
         <File.Import name={['createMutation']} path={options.mutation.importPath} />
-        <File.Import name={['CreateMutationOptions']} path={options.mutation.importPath} isTypeOnly />
+        <File.Import name={['CreateMutationOptions', 'MutationKey']} path={options.mutation.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
@@ -68,6 +74,14 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           root={mutation.file.path}
           path={type.file.path}
           isTypeOnly
+        />
+        <MutationKey
+          name={mutationKey.name}
+          typeName={mutationKey.typeName}
+          operation={operation}
+          pathParamsType={options.pathParamsType}
+          typeSchemas={type.schemas}
+          keysFn={options.mutation.key}
         />
         <Client
           name={client.name}
@@ -89,6 +103,8 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           operation={operation}
           dataReturnType={options.client.dataReturnType}
           pathParamsType={options.pathParamsType}
+          mutationKeyName={mutationKey.name}
+          mutationKeyTypeName={mutationKey.typeName}
         />
       </File>
     )
