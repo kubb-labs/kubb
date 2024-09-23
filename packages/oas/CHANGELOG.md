@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 3.0.0-alpha.25
+
+### Minor Changes
+
+- [#1251](https://github.com/kubb-labs/kubb/pull/1251) [`c8cb50d`](https://github.com/kubb-labs/kubb/commit/c8cb50d1e4a13669a05ca11a18352b86a558bce1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for discriminator
+
 ## 3.0.0-alpha.24
 
 ## 3.0.0-alpha.23

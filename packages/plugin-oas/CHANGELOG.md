@@ -1,5 +1,19 @@
 # @kubb/swagger
 
+## 3.0.0-alpha.25
+
+### Minor Changes
+
+- [#1251](https://github.com/kubb-labs/kubb/pull/1251) [`c8cb50d`](https://github.com/kubb-labs/kubb/commit/c8cb50d1e4a13669a05ca11a18352b86a558bce1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for discriminator
+
+### Patch Changes
+
+- Updated dependencies [[`c8cb50d`](https://github.com/kubb-labs/kubb/commit/c8cb50d1e4a13669a05ca11a18352b86a558bce1)]:
+  - @kubb/oas@3.0.0-alpha.25
+  - @kubb/core@3.0.0-alpha.25
+  - @kubb/fs@3.0.0-alpha.25
+  - @kubb/react@3.0.0-alpha.25
+
 ## 3.0.0-alpha.24
 
 ### Patch Changes
