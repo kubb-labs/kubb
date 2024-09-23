@@ -32,14 +32,14 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useLogoutUser(
   options: {
-    query?: SWRConfiguration<LogoutUserQueryResponse, unknown>
+    query?: SWRConfiguration<LogoutUserQueryResponse, Error>
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = ['/user/logout'] as const
-  return useSWR<LogoutUserQueryResponse, unknown, Key>(shouldFetch ? swrKey : null, {
+  return useSWR<LogoutUserQueryResponse, Error, Key>(shouldFetch ? swrKey : null, {
     ...logoutUserQueryOptions(config),
     ...queryOptions,
   })

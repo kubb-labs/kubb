@@ -41,7 +41,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: Partial<QueryObserverOptions<GetInventoryQueryResponse, unknown, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetInventoryQueryResponse, Error, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -51,7 +51,7 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
     ...(getInventoryQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, unknown> & {
+  }) as UseQueryReturnType<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

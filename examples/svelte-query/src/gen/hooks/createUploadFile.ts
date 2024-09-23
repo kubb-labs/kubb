@@ -34,7 +34,7 @@ export function createUploadFile(
   options: {
     mutation?: CreateMutationOptions<
       UploadFileMutationResponse,
-      unknown,
+      Error,
       {
         petId: UploadFilePathParams['petId']
         data?: UploadFileMutationRequest

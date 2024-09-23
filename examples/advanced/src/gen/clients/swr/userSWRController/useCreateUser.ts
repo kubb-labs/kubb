@@ -29,14 +29,14 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function useCreateUser(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, unknown>
+    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, Error>
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = ['/user'] as const
-  return useSWRMutation<CreateUserMutationResponse, unknown, Key>(
+  return useSWRMutation<CreateUserMutationResponse, Error, Key>(
     shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return createUser(data, config)

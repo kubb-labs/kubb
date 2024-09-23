@@ -651,7 +651,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: Partial<QueryObserverOptions<GetInventoryQueryResponse, unknown, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetInventoryQueryResponse, Error, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -661,7 +661,7 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
     ...(getInventoryQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, unknown> & {
+  }) as UseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -693,7 +693,7 @@ export function useGetInventorySuspense<
   TQueryKey extends QueryKey = GetInventorySuspenseQueryKey,
 >(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, unknown, TData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, Error, TData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -703,7 +703,7 @@ export function useGetInventorySuspense<
     ...(getInventorySuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, unknown> & {
+  }) as UseSuspenseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1169,7 +1169,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<QueryObserverOptions<LogoutUserQueryResponse, unknown, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<LogoutUserQueryResponse, Error, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -1179,7 +1179,7 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
     ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, unknown> & {
+  }) as UseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1210,7 +1210,7 @@ export function useLogoutUserSuspense<
   TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey,
 >(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, unknown, TData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, Error, TData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -1220,7 +1220,7 @@ export function useLogoutUserSuspense<
     ...(logoutUserSuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, unknown> & {
+  }) as UseSuspenseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

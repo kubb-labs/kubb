@@ -29,7 +29,7 @@ export function createCreateUser(
   options: {
     mutation?: CreateMutationOptions<
       CreateUserMutationResponse,
-      unknown,
+      Error,
       {
         data?: CreateUserMutationRequest
       }

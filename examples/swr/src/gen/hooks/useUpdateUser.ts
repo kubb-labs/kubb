@@ -33,14 +33,14 @@ async function updateUser(
 export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options: {
-    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, unknown>
+    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, Error>
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = [`/user/${username}`] as const
-  return useSWRMutation<UpdateUserMutationResponse, unknown, Key>(
+  return useSWRMutation<UpdateUserMutationResponse, Error, Key>(
     shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return updateUser(username, data, config)

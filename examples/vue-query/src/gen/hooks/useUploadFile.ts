@@ -35,7 +35,7 @@ export function useUploadFile(
   options: {
     mutation?: UseMutationOptions<
       UploadFileMutationResponse,
-      unknown,
+      Error,
       {
         petId: MaybeRef<UploadFilePathParams['petId']>
         data?: MaybeRef<UploadFileMutationRequest>

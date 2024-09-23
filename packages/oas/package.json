@@ -70,6 +70,7 @@
     "@redocly/openapi-core": "^1.25.3",
     "hotscript": "^1.0.13",
     "json-schema-to-ts": "^3.1.1",
+    "jsonpointer": "^5.0.1",
     "oas": "^24.9.0",
     "oas-normalize": "^11.1.2",
     "openapi-types": "^12.1.3",

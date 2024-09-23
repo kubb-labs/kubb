@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.24
+- [`plugin-oas`](/plugins/plugin-oas): Support for [discriminator](https://swagger.io/specification/?sbsearch=discriminator)
+
+
 ## 3.0.0-alpha.23
 - [`plugin-client`](/plugins/plugin-client): Use of uppercase for httpMethods, `GET` instead of `get`, `POST` instead of `post`, ...
 

@@ -79,7 +79,7 @@ export function Type({ name, typedName, tree, keysToOmit, optionalType, enumType
 
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
 
-  const enums = enumSchemas.map((enumSchema) => {
+  const enums = [...new Set(enumSchemas)].map((enumSchema) => {
     const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
     const typeName = enumSchema.args.typeName
 

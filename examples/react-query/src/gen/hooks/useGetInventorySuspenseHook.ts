@@ -44,7 +44,7 @@ export function useGetInventorySuspenseHook<
   TQueryKey extends QueryKey = GetInventorySuspenseQueryKey,
 >(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, unknown, TData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, Error, TData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -54,7 +54,7 @@ export function useGetInventorySuspenseHook<
     ...(getInventorySuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, unknown> & {
+  }) as UseSuspenseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

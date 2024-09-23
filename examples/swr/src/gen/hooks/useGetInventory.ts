@@ -34,14 +34,14 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useGetInventory(
   options: {
-    query?: SWRConfiguration<GetInventoryQueryResponse, unknown>
+    query?: SWRConfiguration<GetInventoryQueryResponse, Error>
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = ['/store/inventory'] as const
-  return useSWR<GetInventoryQueryResponse, unknown, Key>(shouldFetch ? swrKey : null, {
+  return useSWR<GetInventoryQueryResponse, Error, Key>(shouldFetch ? swrKey : null, {
     ...getInventoryQueryOptions(config),
     ...queryOptions,
   })

@@ -42,7 +42,7 @@ export function useLogoutUserSuspenseHook<
   TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey,
 >(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, unknown, TData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, Error, TData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -52,7 +52,7 @@ export function useLogoutUserSuspenseHook<
     ...(logoutUserSuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, unknown> & {
+  }) as UseSuspenseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -44,7 +44,7 @@ export function createGetInventory<
   TQueryKey extends QueryKey = GetInventoryQueryKey,
 >(
   options: {
-    query?: Partial<CreateBaseQueryOptions<GetInventoryQueryResponse, unknown, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<GetInventoryQueryResponse, Error, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -55,7 +55,7 @@ export function createGetInventory<
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, unknown> & {
+  })) as CreateQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

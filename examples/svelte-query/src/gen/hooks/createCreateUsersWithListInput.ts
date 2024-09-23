@@ -32,7 +32,7 @@ export function createCreateUsersWithListInput(
   options: {
     mutation?: CreateMutationOptions<
       CreateUsersWithListInputMutationResponse,
-      unknown,
+      Error,
       {
         data?: CreateUsersWithListInputMutationRequest
       }

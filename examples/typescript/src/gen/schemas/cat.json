@@ -1,0 +1,6 @@
+{
+  "type": "object",
+  "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true, "enum": ["cat"] }, "name": { "type": "string" } },
+  "x-readme-ref-name": "Cat",
+  "required": ["type"]
+}

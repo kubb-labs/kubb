@@ -763,11 +763,26 @@ components:
         - name
         - photoUrls
       type: object
+      oneOf:
+        - $ref: '#/components/schemas/Dog'
+        - $ref: '#/components/schemas/Cat'
+      discriminator:
+        propertyName: type
+        mapping:
+          dog: '#/components/schemas/Dog'
+          cat: '#/components/schemas/Cat'
       properties:
         id:
           type: integer
           format: int64
           example: 10
+        type:
+          minLength: 1
+          enum:
+            - dog
+            - cat
+          type: string
+          readOnly: true
         name:
           type: string
           example: doggie
@@ -796,6 +811,26 @@ components:
             - sold
       xml:
         name: pet
+    Cat:
+      type: object
+      # all other properties specific to a `Cat`
+      properties:
+        type:
+          minLength: 1
+          type: string
+          readOnly: true
+        name:
+          type: string
+    Dog:
+      type: object
+      # all other properties specific to a `Dog`
+      properties:
+        type:
+          minLength: 1
+          type: string
+          readOnly: true
+        bark:
+          type: string
     AddPetRequest:
       required:
         - name

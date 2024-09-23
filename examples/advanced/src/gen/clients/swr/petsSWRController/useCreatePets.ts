@@ -44,14 +44,14 @@ export function useCreatePets(
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<CreatePetsMutationResponse, unknown>
+    mutation?: SWRMutationConfiguration<CreatePetsMutationResponse, Error>
     client?: Partial<RequestConfig<CreatePetsMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const swrKey = [`/pets/${uuid}`, params] as const
-  return useSWRMutation<CreatePetsMutationResponse, unknown, Key>(
+  return useSWRMutation<CreatePetsMutationResponse, Error, Key>(
     shouldFetch ? swrKey : null,
     async (_url, { arg: data }) => {
       return createPets(uuid, data, headers, params, config)

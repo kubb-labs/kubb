@@ -1044,6 +1044,9 @@ importers:
       json-schema-to-ts:
         specifier: ^3.1.1
         version: 3.1.1
+      jsonpointer:
+        specifier: ^5.0.1
+        version: 5.0.1
       oas:
         specifier: ^24.9.0
         version: 24.9.0

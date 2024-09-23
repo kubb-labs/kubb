@@ -33,7 +33,7 @@ export function createUpdateUser(
   options: {
     mutation?: CreateMutationOptions<
       UpdateUserMutationResponse,
-      unknown,
+      Error,
       {
         username: UpdateUserPathParams['username']
         data?: UpdateUserMutationRequest
