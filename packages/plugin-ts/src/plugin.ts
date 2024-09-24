@@ -27,6 +27,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformers = {},
     oasType = false,
     mapper = {},
+    generators = [typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean),
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -97,7 +98,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build(...[typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean))
+      const schemaFiles = await schemaGenerator.build(...generators)
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -111,7 +112,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build(...[typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean))
+      const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

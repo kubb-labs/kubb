@@ -25,6 +25,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     dataReturnType = 'data',
     pathParamsType = 'inline',
     operations = false,
+    generators = [clientGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
     importPath = '@kubb/plugin-client/client',
     parser = 'client',
   } = options
@@ -99,7 +100,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(...[clientGenerator, operations ? operationsGenerator : undefined].filter(Boolean))
+      const files = await operationGenerator.build(...generators)
 
       await this.addFile(...files)
 

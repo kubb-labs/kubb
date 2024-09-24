@@ -11,6 +11,10 @@ import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -40,9 +44,9 @@ export function useUpdatePetWithForm(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/pet/${petId}`, params] as const
+  const mutationKey = updatePetWithFormMutationKey()
   return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm(petId, params, config)
     },

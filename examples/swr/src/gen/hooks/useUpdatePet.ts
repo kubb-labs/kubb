@@ -5,6 +5,10 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
+export const updatePetMutationKey = () => [{ url: '/pet' }] as const
+
+export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
+
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
@@ -34,9 +38,9 @@ export function useUpdatePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/pet'] as const
+  const mutationKey = updatePetMutationKey()
   return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updatePet(data, config)
     },

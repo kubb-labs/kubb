@@ -4,6 +4,10 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { SWRConfiguration } from "custom-swr";
 import type { Key } from "swr";
 
+ export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams["petId"], params?: UpdatePetWithFormQueryParams) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : [])] as const;
+
+ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>;
+
  /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -31,8 +35,8 @@ export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams["petId"]
     shouldFetch?: boolean;
 } = {}) {
     const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {};
-    const swrKey = [`/pet/${petId}`, params] as const;
-    return useSWR<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? swrKey : null, {
+    const queryKey = updatePetWithFormQueryKey(petId, params);
+    return useSWR<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? queryKey : null, {
         ...updatePetWithFormQueryOptions(petId, params, config),
         ...queryOptions
     });

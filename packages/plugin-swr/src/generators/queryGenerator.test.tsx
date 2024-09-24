@@ -66,6 +66,7 @@ describe('queryGenerator operation', async () => {
       method: 'post',
       options: {
         query: {
+          key: (key: unknown[]) => key,
           importPath: 'custom-swr',
           methods: ['post'],
         },
@@ -88,10 +89,12 @@ describe('queryGenerator operation', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       query: {
+        key: (key: unknown[]) => key,
         importPath: 'swr',
         methods: ['get'],
       },
       mutation: {
+        key: (key: unknown[]) => key,
         importPath: 'swr/mutation',
         methods: ['post'],
       },

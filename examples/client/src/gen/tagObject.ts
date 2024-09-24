@@ -21,6 +21,14 @@ export async function getInventory(config: Partial<RequestConfig> = {}) {
   return res
 }
 
+getInventory.method = 'get' as const
+getInventory.url = '/store/inventory' as const
+getInventory.operationId = 'getInventory' as const
+getInventory.request = {} as never
+getInventory.response = {} as GetInventoryQueryResponse
+getInventory.pathParams = {} as never
+getInventory.queryParams = {} as never
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
@@ -37,6 +45,14 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
   return res
 }
 
+placeOrder.method = 'post' as const
+placeOrder.url = '/store/order' as const
+placeOrder.operationId = 'placeOrder' as const
+placeOrder.request = {} as PlaceOrderMutationRequest
+placeOrder.response = {} as PlaceOrderMutationResponse
+placeOrder.pathParams = {} as never
+placeOrder.queryParams = {} as never
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
@@ -52,6 +68,14 @@ export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, con
   })
   return res
 }
+
+placeOrderPatch.method = 'patch' as const
+placeOrderPatch.url = '/store/order' as const
+placeOrderPatch.operationId = 'placeOrderPatch' as const
+placeOrderPatch.request = {} as PlaceOrderPatchMutationRequest
+placeOrderPatch.response = {} as PlaceOrderPatchMutationResponse
+placeOrderPatch.pathParams = {} as never
+placeOrderPatch.queryParams = {} as never
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -75,6 +99,14 @@ export async function getOrderById(
   return res
 }
 
+getOrderById.method = 'get' as const
+getOrderById.url = '/store/order/:orderId' as const
+getOrderById.operationId = 'getOrderById' as const
+getOrderById.request = {} as never
+getOrderById.response = {} as GetOrderByIdQueryResponse
+getOrderById.pathParams = {} as GetOrderByIdPathParams
+getOrderById.queryParams = {} as never
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
@@ -96,3 +128,11 @@ export async function deleteOrder(
   })
   return res
 }
+
+deleteOrder.method = 'delete' as const
+deleteOrder.url = '/store/order/:orderId' as const
+deleteOrder.operationId = 'deleteOrder' as const
+deleteOrder.request = {} as never
+deleteOrder.response = {} as DeleteOrderMutationResponse
+deleteOrder.pathParams = {} as DeleteOrderPathParams
+deleteOrder.queryParams = {} as never

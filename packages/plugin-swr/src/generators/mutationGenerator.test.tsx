@@ -17,6 +17,7 @@ describe('mutationGenerator operation', async () => {
       method: 'get',
       options: {
         mutation: {
+          key: (key: unknown[]) => key,
           importPath: 'custom-swr/mutation',
           methods: ['get'],
         },
@@ -75,10 +76,12 @@ describe('mutationGenerator operation', async () => {
       },
       parser: 'client',
       query: {
+        key: (key: unknown[]) => key,
         importPath: 'swr',
         methods: ['get'],
       },
       mutation: {
+        key: (key: unknown[]) => key,
         importPath: 'swr/mutation',
         methods: ['post'],
       },

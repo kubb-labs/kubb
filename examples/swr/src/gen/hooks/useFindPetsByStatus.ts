@@ -4,6 +4,10 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key, SWRConfiguration } from 'swr'
 
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
+export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -42,8 +46,8 @@ export function useFindPetsByStatus(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/pet/findByStatus', params] as const
-  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, Key>(shouldFetch ? swrKey : null, {
+  const queryKey = findPetsByStatusQueryKey(params)
+  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, Key>(shouldFetch ? queryKey : null, {
     ...findPetsByStatusQueryOptions(params, config),
     ...queryOptions,
   })

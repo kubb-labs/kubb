@@ -1,6 +1,6 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
   /**
@@ -63,6 +63,10 @@ export type Options = {
   }
   query?: {
     /**
+     * Customize the queryKey, here you can specify a suffix.
+     */
+    key: (key: unknown[]) => unknown[]
+    /**
      * Define which HttpMethods can be used for queries
      * @default ['get']
      */
@@ -77,6 +81,10 @@ export type Options = {
     importPath?: string
   }
   mutation?: {
+    /**
+     * Customize the queryKey, here you can specify a suffix.
+     */
+    key: (key: unknown[]) => unknown[]
     /**
      * Define which HttpMethods can be used for queries
      * @default ['post', 'put', 'delete', 'patch']
@@ -112,6 +120,10 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Define some generators next to the swr generators
+   */
+  generators?: Array<Generator<PluginSwr>>
 }
 
 type ResolvedOptions = {

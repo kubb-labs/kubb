@@ -16,7 +16,6 @@ type Props = {
   typeName: string
   clientName: string
   mutationKeyName: string
-  mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginSvelteQuery['resolvedOptions']['client']['dataReturnType']
@@ -67,7 +66,7 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyTypeName, mutationKeyName }: Props): ReactNode {
+export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
   const returnType = 'ReturnType<typeof mutation> & { mutationKey: MutationKey }'
 
   const mutationKeyParams = MutationKey.getParams({

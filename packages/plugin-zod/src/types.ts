@@ -1,6 +1,6 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { SchemaObject } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
 
 export type Options = {
   /**
@@ -94,6 +94,10 @@ export type Options = {
       defaultSchemas: Schema[],
     ) => Schema[] | undefined
   }
+  /**
+   * Define some generators next to the zod generators
+   */
+  generators?: Array<Generator<PluginZod>>
 }
 
 type ResolvedOptions = {

@@ -5,6 +5,10 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 import type { Key, SWRConfiguration } from 'swr'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+
+export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
@@ -42,8 +46,8 @@ export function useGetPetById(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/pet/${petId}`] as const
-  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, Key>(shouldFetch ? swrKey : null, {
+  const queryKey = getPetByIdQueryKey(petId)
+  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, Key>(shouldFetch ? queryKey : null, {
     ...getPetByIdQueryOptions(petId, config),
     ...queryOptions,
   })

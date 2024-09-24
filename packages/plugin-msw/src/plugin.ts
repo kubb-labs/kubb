@@ -16,7 +16,16 @@ import type { PluginMsw } from './types.ts'
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
 export const pluginMsw = createPlugin<PluginMsw>((options) => {
-  const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, handlers = false } = options
+  const {
+    output = { path: 'handlers' },
+    group,
+    exclude = [],
+    include,
+    override = [],
+    transformers = {},
+    handlers = false,
+    generators = [mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
+  } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -77,7 +86,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build(...[mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean))
+      const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

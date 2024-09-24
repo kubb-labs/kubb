@@ -27,6 +27,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     unknownType = 'any',
     dateType = 'string',
     dateParser = 'faker',
+    generators = [fakerGenerator].filter(Boolean),
     regexGenerator = 'faker',
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -98,7 +99,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build(fakerGenerator)
+      const schemaFiles = await schemaGenerator.build(...generators)
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -112,7 +113,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build(fakerGenerator)
+      const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

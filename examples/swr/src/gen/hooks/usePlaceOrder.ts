@@ -5,6 +5,10 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
+export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
+
+export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
@@ -34,9 +38,9 @@ export function usePlaceOrder(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/store/order'] as const
+  const mutationKey = placeOrderMutationKey()
   return useSWRMutation<PlaceOrderMutationResponse, PlaceOrder405, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return placeOrder(data, config)
     },

@@ -1,6 +1,6 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
   /**
@@ -52,6 +52,10 @@ export type Options = {
    * @default `false`
    */
   handlers?: boolean
+  /**
+   * Define some generators next to the msw generators
+   */
+  generators?: Array<Generator<PluginMsw>>
 }
 type ResolvedOptions = {
   output: Output

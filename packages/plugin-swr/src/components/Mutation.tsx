@@ -7,6 +7,7 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
+import { MutationKey } from './MutationKey.tsx'
 
 type Props = {
   /**
@@ -15,6 +16,7 @@ type Props = {
   name: string
   typeName: string
   clientName: string
+  mutationKeyName: string
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -60,10 +62,14 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
-  const path = new URLPath(operation.path)
+export function Mutation({ name, clientName, mutationKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'Key']
+
+  const mutationKeyParams = MutationKey.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
 
   const params = getParams({
     pathParamsType,
@@ -76,9 +82,6 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
     pathParamsType,
   })
 
-  //fixed name, see Query.getParams and params
-  const swrKey = [path.template, typeSchemas.queryParams?.name ? 'params' : undefined].filter(Boolean)
-
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function
@@ -90,11 +93,12 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
         }}
       >
         {`
-       const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
+        const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
 
-        const swrKey = [${swrKey.join(', ')}] as const
+        const mutationKey = ${mutationKeyName}(${mutationKeyParams.toCall()})
+
         return useSWRMutation<${hookGenerics}>(
-        shouldFetch ? swrKey : null,
+        shouldFetch ? mutationKey : null,
         async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
           return ${clientName}(${clientParams.toCall()})
         },

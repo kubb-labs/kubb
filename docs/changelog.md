@@ -4,22 +4,26 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.26
+- [`plugin-swr`](/plugins/plugin-swr/): Expose queryKey and mutationKey for the SWR plugin
+- 'generators' option for all plugins
+
 ## 3.0.0-alpha.25
-- [`plugin-react-query`](/plugins/plugin-react-query): Use of MutationKeys for `useMutation`
-- [`plugin-svelte-query`](/plugins/plugin-react-query): Use of MutationKeys for `createMutation`
-- [`plugin-vue-query`](/plugins/plugin-vue-query): Use of MutationKeys for `useMutation`
+- [`plugin-react-query`](/plugins/plugin-react-query/): Use of MutationKeys for `useMutation`
+- [`plugin-svelte-query`](/plugins/plugin-react-query/): Use of MutationKeys for `createMutation`
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Use of MutationKeys for `useMutation`
 
 
 ## 3.0.0-alpha.24
-- [`plugin-oas`](/plugins/plugin-oas): Support for [discriminator](https://swagger.io/specification/?sbsearch=discriminator)
+- [`plugin-oas`](/plugins/plugin-oas/): Support for [discriminator](https://swagger.io/specification/?sbsearch=discriminator)
 
 
 ## 3.0.0-alpha.23
-- [`plugin-client`](/plugins/plugin-client): Use of uppercase for httpMethods, `GET` instead of `get`, `POST` instead of `post`, ...
+- [`plugin-client`](/plugins/plugin-client/): Use of uppercase for httpMethods, `GET` instead of `get`, `POST` instead of `post`, ...
 
 ## 3.0.0-alpha.22
-- [`plugin-faker`](/plugins/plugin-faker): Use of `faker.image.url()` instead of `faker.image.imageUrl()`
-- [`plugin-zod`](/plugins/plugin-zod): Enums should use `z.literal` when format is set to number, string or boolean
+- [`plugin-faker`](/plugins/plugin-faker/): Use of `faker.image.url()` instead of `faker.image.imageUrl()`
+- [`plugin-zod`](/plugins/plugin-zod/): Enums should use `z.literal` when format is set to number, string or boolean
 
 ::: code-group
 
@@ -35,12 +39,12 @@ z.enum(["true", "false"]) // [!code --]
 z.union([z.literal(true), z.literal(false)]) // [!code ++]
 ```
 :::
-- [`plugin-ts`](/plugins/plugin-ts): Use of `readonly` for references($ref)
-- [`plugin-client`](/plugins/plugin-client): Use of type `Error` when no errors are set for an operation
+- [`plugin-ts`](/plugins/plugin-ts/): Use of `readonly` for references($ref)
+- [`plugin-client`](/plugins/plugin-client/): Use of type `Error` when no errors are set for an operation
 
 
 ## 3.0.0-alpha.21
-- [`plugin-zod`](/plugins/plugin-zod): Use of `x-nullable` and `nullable` for additionalProperties.
+- [`plugin-zod`](/plugins/plugin-zod/): Use of `x-nullable` and `nullable` for additionalProperties.
 
 ## 3.0.0-alpha.20
 

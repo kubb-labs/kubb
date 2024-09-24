@@ -3,6 +3,10 @@ import useSWR from "swr";
 import type { RequestConfig, ResponseConfig } from "@kubb/plugin-client/client";
 import type { Key, SWRConfiguration } from "swr";
 
+ export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
+
+ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>;
+
  /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -32,8 +36,8 @@ export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
     shouldFetch?: boolean;
 } = {}) {
     const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {};
-    const swrKey = [`/pet/findByTags`, params] as const;
-    return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, Key>(shouldFetch ? swrKey : null, {
+    const queryKey = findPetsByTagsQueryKey(params);
+    return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, Key>(shouldFetch ? queryKey : null, {
         ...findPetsByTagsQueryOptions(params, config),
         ...queryOptions
     });

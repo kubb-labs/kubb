@@ -5,6 +5,10 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
+export const createUserMutationKey = () => [{ url: '/user' }] as const
+
+export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
@@ -34,9 +38,9 @@ export function useCreateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/user'] as const
+  const mutationKey = createUserMutationKey()
   return useSWRMutation<CreateUserMutationResponse, Error, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createUser(data, config)
     },
