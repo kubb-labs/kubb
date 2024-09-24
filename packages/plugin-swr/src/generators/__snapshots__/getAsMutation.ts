@@ -2,6 +2,10 @@ import client from "@kubb/plugin-client/client";
 import useSWRMutation from "custom-swr/mutation";
 import type { RequestConfig } from "@kubb/plugin-client/client";
 
+ export const findPetsByTagsMutationKey = () => [{ "url": "/pet/findByTags" }] as const;
+
+ export type FindPetsByTagsMutationKey = ReturnType<typeof findPetsByTagsMutationKey>;
+
  /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
@@ -23,8 +27,8 @@ export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
     shouldFetch?: boolean;
 } = {}) {
     const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {};
-    const swrKey = [`/pet/findByTags`, params] as const;
-    return useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, typeof swrKey | null>(shouldFetch ? swrKey : null, async (_url) => {
+    const mutationKey = findPetsByTagsMutationKey();
+    return useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsMutationKey | null>(shouldFetch ? mutationKey : null, async (_url) => {
         return findPetsByTags(params, config);
     }, mutationOptions);
 }

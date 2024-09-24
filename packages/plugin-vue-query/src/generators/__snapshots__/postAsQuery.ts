@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, QueryObserverOptions } from "custom-query";
+import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from "custom-query";
 import type { MaybeRef } from "vue";
 import { useQuery, queryOptions } from "custom-query";
 import { unref } from "vue";
@@ -42,7 +42,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
         ...updatePetWithFormQueryOptions(petId, data, params, config) as unknown as QueryObserverOptions,
         queryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-    }) as ReturnType<typeof query> & {
+    }) as UseQueryReturnType<TData, UpdatePetWithForm405> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

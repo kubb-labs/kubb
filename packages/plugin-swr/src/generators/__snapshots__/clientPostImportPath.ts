@@ -2,6 +2,10 @@ import client from "axios";
 import useSWRMutation from "swr/mutation";
 import type { RequestConfig } from "axios";
 
+ export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
+
+ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>;
+
  /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -21,8 +25,8 @@ export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams["petId"]
     shouldFetch?: boolean;
 } = {}) {
     const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {};
-    const swrKey = [`/pet/${petId}`, params] as const;
-    return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, typeof swrKey | null>(shouldFetch ? swrKey : null, async (_url) => {
+    const mutationKey = updatePetWithFormMutationKey();
+    return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKey | null>(shouldFetch ? mutationKey : null, async (_url) => {
         return updatePetWithForm(petId, params, config);
     }, mutationOptions);
 }

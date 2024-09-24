@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, QueryObserverOptions } from "@tanstack/react-query";
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [test, { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
@@ -42,7 +42,7 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQueryDat
         ...findPetsByTagsQueryOptions(headers, params, config) as unknown as QueryObserverOptions,
         queryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-    }) as ReturnType<typeof query> & {
+    }) as UseQueryResult<TData, FindPetsByTags400> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;
