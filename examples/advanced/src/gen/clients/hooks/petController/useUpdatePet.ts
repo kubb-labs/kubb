@@ -7,7 +7,7 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -50,18 +50,17 @@ export function useUpdatePet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    UpdatePetMutationResponse,
+    UpdatePet400 | UpdatePet404 | UpdatePet405,
+    {
       data: UpdatePetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

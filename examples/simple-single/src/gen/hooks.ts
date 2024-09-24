@@ -68,7 +68,6 @@ import type {
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type {
   UseMutationOptions,
-  UseMutationResult,
   MutationKey,
   QueryKey,
   QueryObserverOptions,
@@ -117,20 +116,19 @@ export function useUpdatePet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    UpdatePetMutationResponse,
+    UpdatePet400 | UpdatePet404 | UpdatePet405,
+    {
       data: UpdatePetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
@@ -172,20 +170,19 @@ export function useAddPet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    AddPetMutationResponse,
+    AddPet405,
+    {
       data: AddPetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return addPet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<AddPetMutationResponse, AddPet405> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
@@ -527,22 +524,20 @@ export function useUpdatePetWithForm(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      params,
-    }: {
+  return useMutation<
+    UpdatePetWithFormMutationResponse,
+    UpdatePetWithForm405,
+    {
       petId: UpdatePetWithFormPathParams['petId']
       params?: UpdatePetWithFormQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, params }) => {
       return updatePetWithForm(petId, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
@@ -585,22 +580,20 @@ export function useDeletePet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      headers,
-    }: {
+  return useMutation<
+    DeletePetMutationResponse,
+    DeletePet400,
+    {
       petId: DeletePetPathParams['petId']
       headers?: DeletePetHeaderParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, headers }) => {
       return deletePet(petId, headers, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<DeletePetMutationResponse, DeletePet400> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
@@ -649,24 +642,21 @@ export function useUploadFile(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      data,
-      params,
-    }: {
+  return useMutation<
+    UploadFileMutationResponse,
+    Error,
+    {
       petId: UploadFilePathParams['petId']
       data?: UploadFileMutationRequest
       params?: UploadFileQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UploadFileMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
@@ -803,20 +793,19 @@ export function usePlaceOrder(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    PlaceOrderMutationResponse,
+    PlaceOrder405,
+    {
       data?: PlaceOrderMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return placeOrder(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<PlaceOrderMutationResponse, PlaceOrder405> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
@@ -858,20 +847,19 @@ export function usePlaceOrderPatch(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    PlaceOrderPatchMutationResponse,
+    PlaceOrderPatch405,
+    {
       data?: PlaceOrderPatchMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return placeOrderPatch(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<PlaceOrderPatchMutationResponse, PlaceOrderPatch405> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
@@ -1010,20 +998,19 @@ export function useDeleteOrder(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      orderId,
-    }: {
+  return useMutation<
+    DeleteOrderMutationResponse,
+    DeleteOrder400 | DeleteOrder404,
+    {
       orderId: DeleteOrderPathParams['orderId']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
@@ -1065,20 +1052,19 @@ export function useCreateUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    CreateUserMutationResponse,
+    Error,
+    {
       data?: CreateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUser(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<CreateUserMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
@@ -1123,20 +1109,19 @@ export function useCreateUsersWithListInput(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    CreateUsersWithListInputMutationResponse,
+    Error,
+    {
       data?: CreateUsersWithListInputMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<CreateUsersWithListInputMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -1469,22 +1454,20 @@ export function useUpdateUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-      data,
-    }: {
+  return useMutation<
+    UpdateUserMutationResponse,
+    Error,
+    {
       username: UpdateUserPathParams['username']
       data?: UpdateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UpdateUserMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
@@ -1525,18 +1508,17 @@ export function useDeleteUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-    }: {
+  return useMutation<
+    DeleteUserMutationResponse,
+    DeleteUser400 | DeleteUser404,
+    {
       username: DeleteUserPathParams['username']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

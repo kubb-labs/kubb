@@ -1,7 +1,7 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -43,18 +43,17 @@ export function useDeleteUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-    }: {
+  return useMutation<
+    DeleteUserMutationResponse,
+    DeleteUser400 | DeleteUser404,
+    {
       username: DeleteUserPathParams['username']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

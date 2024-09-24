@@ -31,7 +31,7 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
 export function useDeleteUser(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, any>>[2]
+    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKey>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},

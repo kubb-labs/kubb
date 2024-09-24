@@ -39,7 +39,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
 export function useFindPetsByStatus(
   params?: FindPetsByStatusQueryParams,
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, any>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},

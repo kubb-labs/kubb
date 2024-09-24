@@ -37,7 +37,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
 export function useLoginUser(
   params?: LoginUserQueryParams,
   options: {
-    query?: Parameters<typeof useSWR<LoginUserQueryResponse, LoginUser400, any>>[2]
+    query?: Parameters<typeof useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},

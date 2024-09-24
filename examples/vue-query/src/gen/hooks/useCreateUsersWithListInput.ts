@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { MutationObserverOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
+import type { MutationObserverOptions, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -47,18 +47,17 @@ export function useCreateUsersWithListInput(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    CreateUsersWithListInputMutationResponse,
+    Error,
+    {
       data?: CreateUsersWithListInputMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<CreateUsersWithListInputMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

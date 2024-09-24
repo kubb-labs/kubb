@@ -36,14 +36,14 @@ async function updateUser(
 export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, Error, any>>[2]
+    mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKey, UpdateUserMutationRequest>>[2]
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updateUserMutationKey()
-  return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKey | null>(
+  return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKey | null, UpdateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updateUser(username, data, config)

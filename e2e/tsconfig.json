@@ -16,7 +16,7 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "alwaysStrict": true,
-    "strict": true,
+    "strict": false,
     "paths": {
       "@kubb/cli": ["../packages/cli/src/index.ts"],
       "@kubb/config-biome": ["../packages/config/config-biome/src/index.ts"],

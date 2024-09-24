@@ -30,14 +30,14 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  */
 export function useAddPet(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, AddPet405, any>>[2]
+    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKey, AddPetMutationRequest>>[2]
     client?: Partial<RequestConfig<AddPetMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKey()
-  return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKey | null>(
+  return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKey | null, AddPetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return addPet(data, config)

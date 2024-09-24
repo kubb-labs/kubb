@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { MutationObserverOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
+import type { MutationObserverOptions, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -43,18 +43,17 @@ export function useDeleteOrder(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      orderId,
-    }: {
+  return useMutation<
+    DeleteOrderMutationResponse,
+    DeleteOrder400 | DeleteOrder404,
+    {
       orderId: DeleteOrderPathParams['orderId']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

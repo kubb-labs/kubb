@@ -1,5 +1,5 @@
 import client from "axios";
-import type { UseMutationOptions, UseMutationResult, MutationKey } from "@tanstack/react-query";
+import type { UseMutationOptions, MutationKey } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import { useMutation } from "@tanstack/react-query";
 
@@ -30,18 +30,15 @@ export function useUpdatePetWithForm(options: {
 } = {}) {
     const { mutation: mutationOptions, client: config = {} } = options ?? {};
     const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey();
-    const mutation = useMutation({
-        mutationFn: async ({ petId, data, params }: {
-            petId: UpdatePetWithFormPathParams["petId"];
-            data?: UpdatePetWithFormMutationRequest;
-            params?: UpdatePetWithFormQueryParams;
-        }) => {
+    return useMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
+        petId: UpdatePetWithFormPathParams["petId"];
+        data?: UpdatePetWithFormMutationRequest;
+        params?: UpdatePetWithFormQueryParams;
+    }>({
+        mutationFn: async ({ petId, data, params }) => {
             return updatePetWithForm(petId, data, params, config);
         },
+        mutationKey,
         ...mutationOptions
-    }) as UseMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
-        mutationKey: MutationKey;
-    };
-    mutation.mutationKey = mutationKey as MutationKey;
-    return mutation;
+    });
 }

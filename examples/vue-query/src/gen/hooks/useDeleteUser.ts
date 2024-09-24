@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { MutationObserverOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
+import type { MutationObserverOptions, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -43,18 +43,17 @@ export function useDeleteUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-    }: {
+  return useMutation<
+    DeleteUserMutationResponse,
+    DeleteUser400 | DeleteUser404,
+    {
       username: DeleteUserPathParams['username']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
@@ -54,22 +54,19 @@ export function useUploadFileHook(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      data,
-      params,
-    }: {
+  return useMutation<
+    UploadFileMutationResponse,
+    Error,
+    {
       petId: UploadFilePathParams['petId']
       data?: UploadFileMutationRequest
       params?: UploadFileQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, data, params }) => {
       return uploadFile({ petId }, data, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UploadFileMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

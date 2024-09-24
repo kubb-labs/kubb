@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { CreateMutationOptions, CreateMutationResult, MutationKey } from "@tanstack/svelte-query";
+import type { CreateMutationOptions, MutationKey } from "@tanstack/svelte-query";
 import { createMutation } from "@tanstack/svelte-query";
 
  export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
@@ -30,18 +30,15 @@ export function createUpdatePetWithForm(options: {
 } = {}) {
     const { mutation: mutationOptions, client: config = {} } = options ?? {};
     const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey();
-    const mutation = createMutation({
-        mutationFn: async ({ petId, data, params }: {
-            petId: UpdatePetWithFormPathParams["petId"];
-            data?: UpdatePetWithFormMutationRequest;
-            params?: UpdatePetWithFormQueryParams;
-        }) => {
+    return createMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
+        petId: UpdatePetWithFormPathParams["petId"];
+        data?: UpdatePetWithFormMutationRequest;
+        params?: UpdatePetWithFormQueryParams;
+    }>({
+        mutationFn: async ({ petId, data, params }) => {
             return updatePetWithForm(petId, data, params, config);
         },
+        mutationKey,
         ...mutationOptions
-    }) as CreateMutationResult<UpdatePetWithFormMutationResponse, UpdatePetWithForm405> & {
-        mutationKey: MutationKey;
-    };
-    mutation.mutationKey = mutationKey as MutationKey;
-    return mutation;
+    });
 }

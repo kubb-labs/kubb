@@ -22,7 +22,7 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
  * @link /pet/findByTags
  */
 export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
-    mutation?: Parameters<typeof useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, any>>[2];
+    mutation?: Parameters<typeof useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsMutationKey>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
 } = {}) {

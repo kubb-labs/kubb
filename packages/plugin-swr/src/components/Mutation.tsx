@@ -28,9 +28,10 @@ type GetParamsProps = {
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
+  mutationKeyTypeName: string
 }
 
-function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
   return FunctionParams.factory({
@@ -53,7 +54,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  mutation?: Parameters<typeof useSWRMutation<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}, any>>[2],
+  mutation?: Parameters<typeof useSWRMutation<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
   shouldFetch?: boolean,
 }
@@ -65,7 +66,12 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
 
 export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${mutationKeyTypeName} | null`]
+  const generics = [
+    TData,
+    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
+    `${mutationKeyTypeName} | null`,
+    typeSchemas.request?.name,
+  ].filter(Boolean)
 
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
@@ -76,6 +82,7 @@ export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeNam
     pathParamsType,
     dataReturnType,
     typeSchemas,
+    mutationKeyTypeName,
   })
 
   const clientParams = Client.getParams({
@@ -95,16 +102,15 @@ export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeNam
       >
         {`
         const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-
         const mutationKey = ${mutationKeyName}(${mutationKeyParams.toCall()})
 
-        return useSWRMutation<${hookGenerics}>(
-        shouldFetch ? mutationKey : null,
-        async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
-          return ${clientName}(${clientParams.toCall()})
-        },
-        mutationOptions
-      )
+        return useSWRMutation<${generics}>(
+          shouldFetch ? mutationKey : null,
+          async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
+            return ${clientName}(${clientParams.toCall()})
+          },
+          mutationOptions
+        )
     `}
       </Function>
     </File.Source>

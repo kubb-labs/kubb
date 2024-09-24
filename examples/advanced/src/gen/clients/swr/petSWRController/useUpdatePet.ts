@@ -37,14 +37,16 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
  */
 export function useUpdatePet(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, any>>[2]
+    mutation?: Parameters<
+      typeof useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey, UpdatePetMutationRequest>
+    >[2]
     client?: Partial<RequestConfig<UpdatePetMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetMutationKey()
-  return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey | null>(
+  return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey | null, UpdatePetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updatePet(data, config)

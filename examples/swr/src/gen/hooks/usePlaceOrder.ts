@@ -30,14 +30,14 @@ async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<Requ
  */
 export function usePlaceOrder(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<PlaceOrderMutationResponse, PlaceOrder405, any>>[2]
+    mutation?: Parameters<typeof useSWRMutation<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationKey, PlaceOrderMutationRequest>>[2]
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = placeOrderMutationKey()
-  return useSWRMutation<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationKey | null>(
+  return useSWRMutation<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationKey | null, PlaceOrderMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return placeOrder(data, config)

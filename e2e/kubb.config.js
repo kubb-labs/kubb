@@ -1,6 +1,7 @@
 // import '@kubb/react/devtools' // enable/disable devtools
 
 import { defineConfig } from '@kubb/core'
+import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
@@ -11,25 +12,25 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
-  // ['test', './schemas/test.json'],
-  ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
-  // ['Machines API', 'https://docs.machines.dev/spec/openapi3.json'], // not valid anymore
-  ['optionalParameters', './schemas/optionalParameters.json'],
-  ['allOf', './schemas/allOf.json'],
-  ['anyOf', './schemas/anyOf.json'],
-  ['petStoreContent', './schemas/petStoreContent.json'],
-  ['twitter', './schemas/twitter.json'],
-  ['twitter2', './schemas/twitter2.json'],
-  ['bunq.com', './schemas/bunq.com.json'],
-  ['jokesOne', './schemas/jokesOne.yaml'],
-  ['readme.io', './schemas/readme.io.yaml'],
-  ['worldtime', './schemas/worldtime.yaml'],
-  ['zalando', './schemas/zalando.yaml'],
-  ['requestBody', './schemas/requestBody.yaml'],
-  ['box', './schemas/box.json'],
-  ['digitalocean', './schemas/digitalocean.yaml'],
-  ['enums', './schemas/enums.yaml'],
-  ['dataset_api', './schemas/dataset_api.yaml'],
+  // { name: 'test', path: './schemas/test.json' },
+  // { name: 'Machines API', path: 'https://docs.machines.dev/spec/openapi3.json' }, // not valid anymore
+  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
+  { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
+  { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
+  { name: 'allOf', path: './schemas/allOf.json' },
+  { name: 'anyOf', path: './schemas/anyOf.json' },
+  { name: 'petStoreContent', path: './schemas/petStoreContent.json' },
+  { name: 'twitter', path: './schemas/twitter.json' },
+  { name: 'twitter2', path: './schemas/twitter2.json' },
+  { name: 'jokesOne', path: './schemas/jokesOne.yaml' },
+  { name: 'readme.io', path: './schemas/readme.io.yaml' },
+  { name: 'worldtime', path: './schemas/worldtime.yaml' },
+  { name: 'zalando', path: './schemas/zalando.yaml' },
+  { name: 'requestBody', path: './schemas/requestBody.yaml' },
+  { name: 'box', path: './schemas/box.json' },
+  { name: 'digitalocean', path: './schemas/digitalocean.yaml' },
+  { name: 'enums', path: './schemas/enums.yaml' },
+  { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
 ]
 
 /** @type {import('@kubb/core').UserConfig} */
@@ -41,9 +42,6 @@ const baseConfig = {
   output: {
     path: './src/gen',
     clean: true,
-  },
-  hooks: {
-    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
   },
   plugins: [
     pluginOas({
@@ -105,17 +103,17 @@ const baseConfig = {
         exportType: false,
       },
       group: { type: 'tag' },
-      // transformers: {
-      //   name: (name, type) => {
-      //     if (type === 'file' || type === 'function') {
-      //       return camelCase(name, {
-      //         prefix: type ? 'createMock' : undefined,
-      //         isFile: type === 'file',
-      //       })
-      //     }
-      //     return name
-      //   },
-      // },
+      transformers: {
+        name: (name, type) => {
+          if (type === 'file' || type === 'function') {
+            return camelCase(name, {
+              prefix: type ? 'createMock' : undefined,
+              isFile: type === 'file',
+            })
+          }
+          return name
+        },
+      },
     }),
     pluginMsw({
       output: {
@@ -131,12 +129,15 @@ const baseConfig = {
  */
 
 export default defineConfig(() => {
-  return schemas.map(([name, path]) => {
+  return schemas.map(({ name, path, strict }) => {
     return {
       ...baseConfig,
       name,
       input: {
         path,
+      },
+      hooks: {
+        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
       },
     }
   })

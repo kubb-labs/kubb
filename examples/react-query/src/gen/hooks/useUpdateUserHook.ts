@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
@@ -52,20 +52,18 @@ export function useUpdateUserHook(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-      data,
-    }: {
+  return useMutation<
+    UpdateUserMutationResponse,
+    Error,
+    {
       username: UpdateUserPathParams['username']
       data?: UpdateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username, data }) => {
       return updateUser({ username }, data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as UseMutationResult<UpdateUserMutationResponse, Error> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

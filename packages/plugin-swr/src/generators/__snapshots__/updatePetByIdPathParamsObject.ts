@@ -24,7 +24,7 @@ async function updatePetWithForm({ petId }: {
 export function useUpdatePetWithForm({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
 }, params?: UpdatePetWithFormQueryParams, options: {
-    mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, any>>[2];
+    mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKey>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
 } = {}) {

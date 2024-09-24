@@ -33,7 +33,7 @@ export function useDeletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeletePetMutationResponse, DeletePet400, any>>[2]
+    mutation?: Parameters<typeof useSWRMutation<DeletePetMutationResponse, DeletePet400, DeletePetMutationKey>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
