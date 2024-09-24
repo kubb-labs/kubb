@@ -1,5 +1,5 @@
 import client from "axios";
-import type { MutationObserverOptions, MutationKey } from "@tanstack/react-query";
+import type { MutationObserverOptions } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import type { MaybeRef } from "vue";
 import { useMutation } from "@tanstack/react-query";

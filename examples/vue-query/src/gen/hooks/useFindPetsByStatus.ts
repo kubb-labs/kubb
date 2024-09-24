@@ -1,10 +1,10 @@
 import client from '@kubb/plugin-client/client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { queryOptions, useQuery } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
-import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
 export const findPetsByStatusQueryKey = (params?: MaybeRef<FindPetsByStatusQueryParams>) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
@@ -56,7 +56,7 @@ export function useFindPetsByStatus<
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery({
     ...(findPetsByStatusQueryOptions(params, config) as unknown as QueryObserverOptions),
-    queryKey,
+    queryKey: queryKey as QueryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByStatus400> & {
     queryKey: TQueryKey

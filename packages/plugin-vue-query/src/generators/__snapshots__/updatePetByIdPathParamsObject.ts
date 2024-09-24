@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { MutationObserverOptions, MutationKey } from "@tanstack/react-query";
+import type { MutationObserverOptions } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
 import { useMutation } from "@tanstack/react-query";
 

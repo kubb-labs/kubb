@@ -112,7 +112,7 @@ export function Query({ name, queryKeyTypeName, queryOptionsName, queryKeyName, 
 
        const query = useQuery({
         ...${queryOptions},
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
        }) as ${returnType}
 

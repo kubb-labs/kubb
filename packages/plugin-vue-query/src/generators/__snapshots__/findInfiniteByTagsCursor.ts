@@ -47,7 +47,7 @@ export function useFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, T
     const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params);
     const query = useInfiniteQuery({
         ...findPetsByTagsInfiniteQueryOptions(headers, params, config) as unknown as InfiniteQueryObserverOptions,
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
     }) as UseInfiniteQueryReturnType<TData, FindPetsByTags400> & {
         queryKey: TQueryKey;

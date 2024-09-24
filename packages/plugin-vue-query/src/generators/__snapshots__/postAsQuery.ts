@@ -40,7 +40,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
     const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data, params);
     const query = useQuery({
         ...updatePetWithFormQueryOptions(petId, data, params, config) as unknown as QueryObserverOptions,
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
     }) as UseQueryReturnType<TData, UpdatePetWithForm405> & {
         queryKey: TQueryKey;

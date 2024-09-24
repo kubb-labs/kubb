@@ -1,5 +1,5 @@
 import client from "axios";
-import type { CreateMutationOptions, MutationKey } from "@tanstack/svelte-query";
+import type { CreateMutationOptions } from "@tanstack/svelte-query";
 import type { RequestConfig } from "axios";
 import { createMutation } from "@tanstack/svelte-query";
 

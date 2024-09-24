@@ -121,7 +121,7 @@ export function InfiniteQuery({
 
        const query = useInfiniteQuery({
         ...${queryOptions},
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
        }) as ${returnType}
 

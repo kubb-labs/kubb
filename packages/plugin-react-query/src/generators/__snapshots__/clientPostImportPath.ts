@@ -1,5 +1,5 @@
 import client from "axios";
-import type { UseMutationOptions, MutationKey } from "@tanstack/react-query";
+import type { UseMutationOptions } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import { useMutation } from "@tanstack/react-query";
 
