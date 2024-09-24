@@ -1,5 +1,22 @@
 # @kubb/plugin-solid-query
 
+## 3.0.0-alpha.27
+
+### Minor Changes
+
+- [#1183](https://github.com/kubb-labs/kubb/pull/1183) [`428f700`](https://github.com/kubb-labs/kubb/commit/428f700f2ef5527904cb0c7e9db5238fdcf1a3ca) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for TypeScript `strict` mode and use of data object for `mutationFn: async(data: {})`
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.27
+  - @kubb/fs@3.0.0-alpha.27
+  - @kubb/oas@3.0.0-alpha.27
+  - @kubb/plugin-oas@3.0.0-alpha.27
+  - @kubb/plugin-ts@3.0.0-alpha.27
+  - @kubb/plugin-zod@3.0.0-alpha.27
+  - @kubb/react@3.0.0-alpha.27
+
 ## 3.0.0-alpha.26
 
 ### Minor Changes

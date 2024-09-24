@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-oas",
-  "version": "3.0.0-alpha.26",
+  "version": "3.0.0-alpha.27",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
