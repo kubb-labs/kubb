@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, InfiniteQueryObserverOptions } from "@tanstack/react-query";
+import type { QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
 import { useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
 
@@ -47,9 +47,9 @@ export function useFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, T
     const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params);
     const query = useInfiniteQuery({
         ...findPetsByTagsInfiniteQueryOptions(headers, params, config) as unknown as InfiniteQueryObserverOptions,
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
-    }) as ReturnType<typeof query> & {
+    }) as UseInfiniteQueryReturnType<TData, FindPetsByTags400> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

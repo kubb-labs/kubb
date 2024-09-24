@@ -66,7 +66,15 @@ import type {
   DeleteUser404,
 } from './models.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, MutationKey, QueryKey, QueryObserverOptions, UseSuspenseQueryOptions } from '@tanstack/react-query'
+import type {
+  UseMutationOptions,
+  MutationKey,
+  QueryKey,
+  QueryObserverOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 import { useMutation, useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
@@ -108,20 +116,19 @@ export function useUpdatePet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    UpdatePetMutationResponse,
+    UpdatePet400 | UpdatePet404 | UpdatePet405,
+    {
       data: UpdatePetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
@@ -163,20 +170,19 @@ export function useAddPet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    AddPetMutationResponse,
+    AddPet405,
+    {
       data: AddPetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return addPet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
@@ -231,7 +237,7 @@ export function useFindPetsByStatus<
     ...(findPetsByStatusQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, FindPetsByStatus400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -274,7 +280,7 @@ export function useFindPetsByStatusSuspense<
     ...(findPetsByStatusSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, FindPetsByStatus400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -333,7 +339,7 @@ export function useFindPetsByTags<
     ...(findPetsByTagsQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, FindPetsByTags400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -376,7 +382,7 @@ export function useFindPetsByTagsSuspense<
     ...(findPetsByTagsSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, FindPetsByTags400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -430,7 +436,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
     ...(getPetByIdQueryOptions(petId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -473,7 +479,7 @@ export function useGetPetByIdSuspense<
     ...(getPetByIdSuspenseQueryOptions(petId, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, GetPetById400 | GetPetById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -518,22 +524,20 @@ export function useUpdatePetWithForm(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      params,
-    }: {
+  return useMutation<
+    UpdatePetWithFormMutationResponse,
+    UpdatePetWithForm405,
+    {
       petId: UpdatePetWithFormPathParams['petId']
       params?: UpdatePetWithFormQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, params }) => {
       return updatePetWithForm(petId, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
@@ -576,22 +580,20 @@ export function useDeletePet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      headers,
-    }: {
+  return useMutation<
+    DeletePetMutationResponse,
+    DeletePet400,
+    {
       petId: DeletePetPathParams['petId']
       headers?: DeletePetHeaderParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, headers }) => {
       return deletePet(petId, headers, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
@@ -640,24 +642,21 @@ export function useUploadFile(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      data,
-      params,
-    }: {
+  return useMutation<
+    UploadFileMutationResponse,
+    Error,
+    {
       petId: UploadFilePathParams['petId']
       data?: UploadFileMutationRequest
       params?: UploadFileQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
@@ -706,7 +705,7 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
     ...(getInventoryQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -748,7 +747,7 @@ export function useGetInventorySuspense<
     ...(getInventorySuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -794,20 +793,19 @@ export function usePlaceOrder(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    PlaceOrderMutationResponse,
+    PlaceOrder405,
+    {
       data?: PlaceOrderMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return placeOrder(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
@@ -849,20 +847,19 @@ export function usePlaceOrderPatch(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    PlaceOrderPatchMutationResponse,
+    PlaceOrderPatch405,
+    {
       data?: PlaceOrderPatchMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return placeOrderPatch(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
@@ -912,7 +909,7 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
     ...(getOrderByIdQueryOptions(orderId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -956,7 +953,7 @@ export function useGetOrderByIdSuspense<
     ...(getOrderByIdSuspenseQueryOptions(orderId, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1001,20 +998,19 @@ export function useDeleteOrder(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      orderId,
-    }: {
+  return useMutation<
+    DeleteOrderMutationResponse,
+    DeleteOrder400 | DeleteOrder404,
+    {
       orderId: DeleteOrderPathParams['orderId']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
@@ -1056,20 +1052,19 @@ export function useCreateUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    CreateUserMutationResponse,
+    Error,
+    {
       data?: CreateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUser(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
@@ -1114,20 +1109,19 @@ export function useCreateUsersWithListInput(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    CreateUsersWithListInputMutationResponse,
+    Error,
+    {
       data?: CreateUsersWithListInputMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -1176,7 +1170,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
     ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, LoginUser400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1218,7 +1212,7 @@ export function useLoginUserSuspense<
     ...(loginUserSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, LoginUser400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1269,7 +1263,7 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
     ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1310,7 +1304,7 @@ export function useLogoutUserSuspense<
     ...(logoutUserSuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, Error> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1366,7 +1360,7 @@ export function useGetUserByName<
     ...(getUserByNameQueryOptions(username, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1409,7 +1403,7 @@ export function useGetUserByNameSuspense<
     ...(getUserByNameSuspenseQueryOptions(username, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -1460,22 +1454,20 @@ export function useUpdateUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-      data,
-    }: {
+  return useMutation<
+    UpdateUserMutationResponse,
+    Error,
+    {
       username: UpdateUserPathParams['username']
       data?: UpdateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
@@ -1516,18 +1508,17 @@ export function useDeleteUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-    }: {
+  return useMutation<
+    DeleteUserMutationResponse,
+    DeleteUser400 | DeleteUser404,
+    {
       username: DeleteUserPathParams['username']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

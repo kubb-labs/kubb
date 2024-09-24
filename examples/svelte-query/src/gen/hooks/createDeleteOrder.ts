@@ -42,18 +42,17 @@ export function createDeleteOrder(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  const mutation = createMutation({
-    mutationFn: async ({
-      orderId,
-    }: {
+  return createMutation<
+    DeleteOrderMutationResponse,
+    DeleteOrder400 | DeleteOrder404,
+    {
       orderId: DeleteOrderPathParams['orderId']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

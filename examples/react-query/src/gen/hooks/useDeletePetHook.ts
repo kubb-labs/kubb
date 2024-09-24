@@ -52,20 +52,18 @@ export function useDeletePetHook(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      headers,
-    }: {
+  return useMutation<
+    DeletePetMutationResponse,
+    DeletePet400,
+    {
       petId: DeletePetPathParams['petId']
       headers?: DeletePetHeaderParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, headers }) => {
       return deletePet({ petId }, headers, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

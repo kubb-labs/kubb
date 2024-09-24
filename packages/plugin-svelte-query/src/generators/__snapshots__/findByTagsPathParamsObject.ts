@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, CreateBaseQueryOptions } from "@tanstack/svelte-query";
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from "@tanstack/svelte-query";
 import { createQuery, queryOptions } from "@tanstack/svelte-query";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
@@ -42,7 +42,7 @@ export function createFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQuery
         ...findPetsByTagsQueryOptions(headers, params, config) as unknown as CreateBaseQueryOptions,
         queryKey,
         ...queryOptions as unknown as Omit<CreateBaseQueryOptions, "queryKey">
-    }) as ReturnType<typeof query> & {
+    }) as CreateQueryResult<TData, FindPetsByTags400> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

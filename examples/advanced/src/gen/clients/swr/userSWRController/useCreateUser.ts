@@ -2,8 +2,6 @@ import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
@@ -33,14 +31,14 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function useCreateUser(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, Error, CreateUserMutationKey, CreateUserMutationRequest>>[2]
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUserMutationKey()
-  return useSWRMutation<CreateUserMutationResponse, Error, Key>(
+  return useSWRMutation<CreateUserMutationResponse, Error, CreateUserMutationKey | null, CreateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createUser(data, config)

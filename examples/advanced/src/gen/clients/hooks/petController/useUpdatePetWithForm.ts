@@ -48,20 +48,18 @@ export function useUpdatePetWithForm(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      petId,
-      params,
-    }: {
+  return useMutation<
+    UpdatePetWithFormMutationResponse,
+    UpdatePetWithForm405,
+    {
       petId: UpdatePetWithFormPathParams['petId']
       params?: UpdatePetWithFormQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, params }) => {
       return updatePetWithForm(petId, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

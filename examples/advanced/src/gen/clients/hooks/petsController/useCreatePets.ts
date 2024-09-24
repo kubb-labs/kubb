@@ -59,24 +59,20 @@ export function useCreatePets(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createPetsMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      uuid,
-      data,
-      headers,
-      params,
-    }: {
+  return useMutation<
+    CreatePetsMutationResponse,
+    Error,
+    {
       uuid: CreatePetsPathParams['uuid']
       data: CreatePetsMutationRequest
       headers: CreatePetsHeaderParams
       params?: CreatePetsQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ uuid, data, headers, params }) => {
       return createPets(uuid, data, headers, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

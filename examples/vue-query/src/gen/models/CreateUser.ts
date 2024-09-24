@@ -1,18 +1,18 @@
-import type { User } from './User.ts'
+import type { User } from "./User.ts";
 
-/**
+ /**
  * @description successful operation
- */
-export type CreateUserError = User
+*/
+export type CreateUserError = User;
 
-/**
+ /**
  * @description Created user object
- */
-export type CreateUserMutationRequest = User
+*/
+export type CreateUserMutationRequest = User;
 
-export type CreateUserMutationResponse = any
+ export type CreateUserMutationResponse = any;
 
-export type CreateUserMutation = {
-  Response: CreateUserMutationResponse
-  Request: CreateUserMutationRequest
-}
+ export type CreateUserMutation = {
+    Response: CreateUserMutationResponse;
+    Request: CreateUserMutationRequest;
+};

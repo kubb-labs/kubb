@@ -43,18 +43,17 @@ export function createAddPet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  const mutation = createMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return createMutation<
+    AddPetMutationResponse,
+    AddPet405,
+    {
       data: AddPetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return addPet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

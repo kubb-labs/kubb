@@ -46,18 +46,17 @@ export function createCreateUsersWithListInput(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  const mutation = createMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return createMutation<
+    CreateUsersWithListInputMutationResponse,
+    Error,
+    {
       data?: CreateUsersWithListInputMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

@@ -1,8 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import useSWRMutation from "custom-swr/mutation";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { SWRMutationConfiguration } from "custom-swr/mutation";
-import type { Key } from "swr";
 
  export const findPetsByTagsMutationKey = () => [{ "url": "/pet/findByTags" }] as const;
 
@@ -24,13 +22,13 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
  * @link /pet/findByTags
  */
 export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
-    mutation?: SWRMutationConfiguration<FindPetsByTagsQueryResponse, FindPetsByTags400>;
+    mutation?: Parameters<typeof useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsMutationKey>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
 } = {}) {
     const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {};
     const mutationKey = findPetsByTagsMutationKey();
-    return useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, Key>(shouldFetch ? mutationKey : null, async (_url) => {
+    return useSWRMutation<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsMutationKey | null>(shouldFetch ? mutationKey : null, async (_url) => {
         return findPetsByTags(params, config);
     }, mutationOptions);
 }

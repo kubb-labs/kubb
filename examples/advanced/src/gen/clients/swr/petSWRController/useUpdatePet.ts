@@ -8,8 +8,6 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
@@ -39,14 +37,16 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
  */
 export function useUpdatePet(
   options: {
-    mutation?: SWRMutationConfiguration<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405>
+    mutation?: Parameters<
+      typeof useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey, UpdatePetMutationRequest>
+    >[2]
     client?: Partial<RequestConfig<UpdatePetMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetMutationKey()
-  return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, Key>(
+  return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey | null, UpdatePetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updatePet(data, config)

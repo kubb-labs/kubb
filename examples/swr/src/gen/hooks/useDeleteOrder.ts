@@ -2,8 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
 
@@ -32,14 +30,14 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
 export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: SWRMutationConfiguration<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404>
+    mutation?: Parameters<typeof useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, DeleteOrderMutationKey>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteOrderMutationKey()
-  return useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, Key>(
+  return useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, DeleteOrderMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteOrder(orderId, config)

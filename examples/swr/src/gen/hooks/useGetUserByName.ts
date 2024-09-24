@@ -2,7 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 
@@ -37,14 +36,14 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
 export function useGetUserByName(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: SWRConfiguration<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404>
+    query?: Parameters<typeof useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = getUserByNameQueryKey(username)
-  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, Key>(shouldFetch ? queryKey : null, {
+  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getUserByNameQueryOptions(username, config),
     ...queryOptions,
   })

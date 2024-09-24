@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, UseSuspenseQueryOptions } from '@tanstack/react-query'
+import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 
 export const getUserByNameSuspenseQueryKey = ({
@@ -75,7 +75,7 @@ export function useGetUserByNameSuspenseHook<
     ...(getUserByNameSuspenseQueryOptions({ username }, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

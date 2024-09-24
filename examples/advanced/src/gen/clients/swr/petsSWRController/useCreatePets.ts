@@ -8,8 +8,6 @@ import type {
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets.ts'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
 export const createPetsMutationKey = () => [{ url: '/pets/{uuid}' }] as const
@@ -48,14 +46,14 @@ export function useCreatePets(
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<CreatePetsMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<CreatePetsMutationResponse, Error, CreatePetsMutationKey, CreatePetsMutationRequest>>[2]
     client?: Partial<RequestConfig<CreatePetsMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createPetsMutationKey()
-  return useSWRMutation<CreatePetsMutationResponse, Error, Key>(
+  return useSWRMutation<CreatePetsMutationResponse, Error, CreatePetsMutationKey | null, CreatePetsMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createPets(uuid, data, headers, params, config)

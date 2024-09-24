@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/solid-query'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -51,7 +51,7 @@ export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = Log
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as ReturnType<typeof query> & {
+  })) as CreateQueryResult<TData, LoginUser400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

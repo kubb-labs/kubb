@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, UseSuspenseQueryOptions } from '@tanstack/react-query'
+import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 
 export const getOrderByIdSuspenseQueryKey = ({
@@ -77,7 +77,7 @@ export function useGetOrderByIdSuspenseHook<
     ...(getOrderByIdSuspenseQueryOptions({ orderId }, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseSuspenseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

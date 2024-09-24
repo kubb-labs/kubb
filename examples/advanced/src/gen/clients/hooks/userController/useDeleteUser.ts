@@ -43,18 +43,17 @@ export function useDeleteUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      username,
-    }: {
+  return useMutation<
+    DeleteUserMutationResponse,
+    DeleteUser400 | DeleteUser404,
+    {
       username: DeleteUserPathParams['username']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

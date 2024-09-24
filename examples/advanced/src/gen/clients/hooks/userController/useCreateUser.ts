@@ -44,18 +44,17 @@ export function useCreateUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    CreateUserMutationResponse,
+    Error,
+    {
       data?: CreateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return createUser(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

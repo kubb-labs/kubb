@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/solid-query'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import { createQuery, queryOptions } from '@tanstack/solid-query'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
@@ -56,7 +56,7 @@ export function createGetOrderById<
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as ReturnType<typeof query> & {
+  })) as CreateQueryResult<TData, GetOrderById400 | GetOrderById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

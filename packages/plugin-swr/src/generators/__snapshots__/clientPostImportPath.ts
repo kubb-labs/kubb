@@ -1,8 +1,6 @@
 import client from "axios";
 import useSWRMutation from "swr/mutation";
 import type { RequestConfig } from "axios";
-import type { Key } from "swr";
-import type { SWRMutationConfiguration } from "swr/mutation";
 
  export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
 
@@ -22,13 +20,13 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], pa
  * @link /pet/:petId
  */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], params?: UpdatePetWithFormQueryParams, options: {
-    mutation?: SWRMutationConfiguration<UpdatePetWithFormMutationResponse, UpdatePetWithForm405>;
+    mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKey>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
 } = {}) {
     const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {};
     const mutationKey = updatePetWithFormMutationKey();
-    return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? mutationKey : null, async (_url) => {
+    return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKey | null>(shouldFetch ? mutationKey : null, async (_url) => {
         return updatePetWithForm(petId, params, config);
     }, mutationOptions);
 }

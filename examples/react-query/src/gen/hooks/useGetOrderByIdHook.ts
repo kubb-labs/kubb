@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, QueryObserverOptions } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
 
 export const getOrderByIdQueryKey = ({
@@ -77,7 +77,7 @@ export function useGetOrderByIdHook<
     ...(getOrderByIdQueryOptions({ orderId }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

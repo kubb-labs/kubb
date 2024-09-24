@@ -2,7 +2,6 @@ import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
-import type { Key, SWRConfiguration } from 'swr'
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
@@ -37,14 +36,14 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  */
 export function useLogoutUser(
   options: {
-    query?: SWRConfiguration<LogoutUserQueryResponse, Error>
+    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, Error, LogoutUserQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = logoutUserQueryKey()
-  return useSWR<LogoutUserQueryResponse, Error, Key>(shouldFetch ? queryKey : null, {
+  return useSWR<LogoutUserQueryResponse, Error, LogoutUserQueryKey | null>(shouldFetch ? queryKey : null, {
     ...logoutUserQueryOptions(config),
     ...queryOptions,
   })

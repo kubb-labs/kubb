@@ -2,8 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
 
@@ -39,14 +37,14 @@ export function useUploadFile(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, Error>
+    mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKey, UploadFileMutationRequest>>[2]
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKey()
-  return useSWRMutation<UploadFileMutationResponse, Error, Key>(
+  return useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKey | null, UploadFileMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return uploadFile(petId, data, params, config)

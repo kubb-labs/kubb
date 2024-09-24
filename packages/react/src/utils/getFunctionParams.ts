@@ -39,7 +39,7 @@ type ParamItem =
 export type Params = Record<string, Param | undefined>
 
 type Options = {
-  type: 'constructor' | 'call' | 'generics'
+  type: 'constructor' | 'call'
   transformName?: (name: string) => string
   transformType?: (type: string) => string
 }
@@ -175,7 +175,7 @@ export class FunctionParams {
     return getFunctionParams(this.#params, { type: 'call', transformName, transformType })
   }
 
-  toConstructor({ valueAsType }: { valueAsType: boolean } = { valueAsType: false }): string {
+  toConstructor({ valueAsType = false }: { valueAsType?: boolean } = {}): string {
     if (valueAsType) {
       Object.entries(this.#params).reduce((acc, [key, item]) => {
         if (item) {
@@ -191,6 +191,7 @@ export class FunctionParams {
 
       return getFunctionParams(this.#params, { type: 'constructor' })
     }
+
     return getFunctionParams(this.#params, { type: 'constructor' })
   }
 }

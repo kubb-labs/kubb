@@ -44,18 +44,17 @@ export function useAddPet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    AddPetMutationResponse,
+    AddPet405,
+    {
       data: AddPetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return addPet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

@@ -49,18 +49,17 @@ export function useDeleteOrderHook(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      orderId,
-    }: {
+  return useMutation<
+    DeleteOrderMutationResponse,
+    DeleteOrder400 | DeleteOrder404,
+    {
       orderId: DeleteOrderPathParams['orderId']
-    }) => {
+    }
+  >({
+    mutationFn: async ({ orderId }) => {
       return deleteOrder({ orderId }, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

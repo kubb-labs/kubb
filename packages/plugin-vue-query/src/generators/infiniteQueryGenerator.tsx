@@ -59,7 +59,11 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
         <File.Import name={['useInfiniteQuery', 'infiniteQueryOptions']} path={options.query.importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'InfiniteQueryObserverOptions']} path={options.query.importPath} isTypeOnly />
+        <File.Import
+          name={['QueryKey', 'WithRequired', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryReturnType']}
+          path={options.query.importPath}
+          isTypeOnly
+        />
         <File.Import name={['unref']} path="vue" />
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />

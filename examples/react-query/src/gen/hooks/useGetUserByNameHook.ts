@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, QueryObserverOptions } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
 
 export const getUserByNameQueryKey = ({
@@ -75,7 +75,7 @@ export function useGetUserByNameHook<
     ...(getUserByNameQueryOptions({ username }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

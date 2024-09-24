@@ -16,6 +16,7 @@ type Props = {
   name: string
   queryOptionsName: string
   queryKeyName: string
+  queryKeyTypeName: string
   typeSchemas: OperationSchemas
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -25,11 +26,11 @@ type Props = {
 type GetParamsProps = {
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
-
+  queryKeyTypeName: string
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
   return FunctionParams.factory({
@@ -58,7 +59,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  query?: SWRConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}>,
+  query?: Parameters<typeof useSWR<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
   shouldFetch?: boolean,
 }
@@ -68,9 +69,9 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Query({ name, typeSchemas, queryKeyName, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
+export function Query({ name, typeSchemas, queryKeyName, queryKeyTypeName, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'Key']
+  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
@@ -80,6 +81,7 @@ export function Query({ name, typeSchemas, queryKeyName, queryOptionsName, opera
     pathParamsType,
     dataReturnType,
     typeSchemas,
+    queryKeyTypeName,
   })
 
   const queryOptionsParams = QueryOptions.getParams({
@@ -102,7 +104,7 @@ export function Query({ name, typeSchemas, queryKeyName, queryOptionsName, opera
 
        const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
 
-       return useSWR<${hookGenerics.join(', ')}>(
+       return useSWR<${generics.join(', ')}>(
         shouldFetch ? queryKey : null,
         {
           ...${queryOptionsName}(${queryOptionsParams.toCall()})

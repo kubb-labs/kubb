@@ -43,18 +43,17 @@ export function createPlaceOrderPatch(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
-  const mutation = createMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return createMutation<
+    PlaceOrderPatchMutationResponse,
+    PlaceOrderPatch405,
+    {
       data?: PlaceOrderPatchMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return placeOrderPatch(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

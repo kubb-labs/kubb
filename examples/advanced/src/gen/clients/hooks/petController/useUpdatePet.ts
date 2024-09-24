@@ -50,18 +50,17 @@ export function useUpdatePet(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  const mutation = useMutation({
-    mutationFn: async ({
-      data,
-    }: {
+  return useMutation<
+    UpdatePetMutationResponse,
+    UpdatePet400 | UpdatePet404 | UpdatePet405,
+    {
       data: UpdatePetMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

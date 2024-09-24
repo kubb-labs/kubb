@@ -2,8 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
 
@@ -32,14 +30,14 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
 export function useDeleteUser(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: SWRMutationConfiguration<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404>
+    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKey>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKey()
-  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, Key>(
+  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteUser(username, config)

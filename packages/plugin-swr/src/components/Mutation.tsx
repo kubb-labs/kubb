@@ -17,6 +17,7 @@ type Props = {
   typeName: string
   clientName: string
   mutationKeyName: string
+  mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -27,9 +28,10 @@ type GetParamsProps = {
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
+  mutationKeyTypeName: string
 }
 
-function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
   return FunctionParams.factory({
@@ -52,7 +54,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
     options: {
       type: `
 {
-  mutation?: SWRMutationConfiguration<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}>,
+  mutation?: Parameters<typeof useSWRMutation<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
   shouldFetch?: boolean,
 }
@@ -62,9 +64,14 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Mutation({ name, clientName, mutationKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'Key']
+  const generics = [
+    TData,
+    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
+    `${mutationKeyTypeName} | null`,
+    typeSchemas.request?.name,
+  ].filter(Boolean)
 
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
@@ -75,6 +82,7 @@ export function Mutation({ name, clientName, mutationKeyName, pathParamsType, da
     pathParamsType,
     dataReturnType,
     typeSchemas,
+    mutationKeyTypeName,
   })
 
   const clientParams = Client.getParams({
@@ -94,16 +102,15 @@ export function Mutation({ name, clientName, mutationKeyName, pathParamsType, da
       >
         {`
         const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-
         const mutationKey = ${mutationKeyName}(${mutationKeyParams.toCall()})
 
-        return useSWRMutation<${hookGenerics}>(
-        shouldFetch ? mutationKey : null,
-        async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
-          return ${clientName}(${clientParams.toCall()})
-        },
-        mutationOptions
-      )
+        return useSWRMutation<${generics}>(
+          shouldFetch ? mutationKey : null,
+          async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
+            return ${clientName}(${clientParams.toCall()})
+          },
+          mutationOptions
+        )
     `}
       </Function>
     </File.Source>

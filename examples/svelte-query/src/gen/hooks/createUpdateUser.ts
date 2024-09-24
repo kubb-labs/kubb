@@ -48,20 +48,18 @@ export function createUpdateUser(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  const mutation = createMutation({
-    mutationFn: async ({
-      username,
-      data,
-    }: {
+  return createMutation<
+    UpdateUserMutationResponse,
+    Error,
+    {
       username: UpdateUserPathParams['username']
       data?: UpdateUserMutationRequest
-    }) => {
+    }
+  >({
+    mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

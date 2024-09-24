@@ -2,7 +2,6 @@ import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
 import type { RequestConfig } from '../../../../swr-client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
-import type { Key, SWRConfiguration } from 'swr'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
@@ -40,14 +39,14 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
 export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: SWRConfiguration<GetPetByIdQueryResponse, GetPetById400 | GetPetById404>
+    query?: Parameters<typeof useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = getPetByIdQueryKey(petId)
-  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, Key>(shouldFetch ? queryKey : null, {
+  return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getPetByIdQueryOptions(petId, config),
     ...queryOptions,
   })

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, QueryObserverOptions } from '@tanstack/react-query'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useQuery, queryOptions } from '@tanstack/react-query'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => ['v5', { url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
@@ -56,7 +56,7 @@ export function useFindPetsByStatusHook<
     ...(findPetsByStatusQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryResult<TData, FindPetsByStatus400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

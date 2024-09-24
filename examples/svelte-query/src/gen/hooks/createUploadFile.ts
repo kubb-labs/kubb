@@ -50,22 +50,19 @@ export function createUploadFile(
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
-  const mutation = createMutation({
-    mutationFn: async ({
-      petId,
-      data,
-      params,
-    }: {
+  return createMutation<
+    UploadFileMutationResponse,
+    Error,
+    {
       petId: UploadFilePathParams['petId']
       data?: UploadFileMutationRequest
       params?: UploadFileQueryParams
-    }) => {
+    }
+  >({
+    mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)
     },
+    mutationKey,
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
-    mutationKey: MutationKey
-  }
-  mutation.mutationKey = mutationKey as MutationKey
-  return mutation
+  })
 }

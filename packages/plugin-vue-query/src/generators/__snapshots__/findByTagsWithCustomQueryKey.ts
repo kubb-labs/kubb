@@ -1,6 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { QueryKey, QueryObserverOptions } from "@tanstack/react-query";
+import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { unref } from "vue";
@@ -42,9 +42,9 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQueryDat
     const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params);
     const query = useQuery({
         ...findPetsByTagsQueryOptions(headers, params, config) as unknown as QueryObserverOptions,
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-    }) as ReturnType<typeof query> & {
+    }) as UseQueryReturnType<TData, FindPetsByTags400> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

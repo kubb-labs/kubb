@@ -2,7 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
@@ -39,14 +38,14 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 export function useGetOrderById(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: SWRConfiguration<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404>
+    query?: Parameters<typeof useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = getOrderByIdQueryKey(orderId)
-  return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, Key>(shouldFetch ? queryKey : null, {
+  return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getOrderByIdQueryOptions(orderId, config),
     ...queryOptions,
   })

@@ -1,7 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import useSWR from "swr";
 import type { RequestConfig, ResponseConfig } from "@kubb/plugin-client/client";
-import type { Key, SWRConfiguration } from "swr";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 
@@ -31,13 +30,13 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
  * @link /pet/findByTags
  */
 export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
-    query?: SWRConfiguration<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400>;
+    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, FindPetsByTagsQueryKey | null, any>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
 } = {}) {
     const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {};
     const queryKey = findPetsByTagsQueryKey(params);
-    return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, Key>(shouldFetch ? queryKey : null, {
+    return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
         ...findPetsByTagsQueryOptions(params, config),
         ...queryOptions
     });

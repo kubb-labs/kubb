@@ -2,7 +2,6 @@ import client from '@kubb/plugin-client/client'
 import useSWR from 'swr'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { Key, SWRConfiguration } from 'swr'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
@@ -40,14 +39,14 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
 export function useFindPetsByStatus(
   params?: FindPetsByStatusQueryParams,
   options: {
-    query?: SWRConfiguration<FindPetsByStatusQueryResponse, FindPetsByStatus400>
+    query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = findPetsByStatusQueryKey(params)
-  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, Key>(shouldFetch ? queryKey : null, {
+  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByStatusQueryOptions(params, config),
     ...queryOptions,
   })

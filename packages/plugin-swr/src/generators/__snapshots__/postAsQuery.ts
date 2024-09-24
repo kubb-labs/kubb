@@ -1,8 +1,6 @@
 import client from "@kubb/plugin-client/client";
 import useSWR from "custom-swr";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { SWRConfiguration } from "custom-swr";
-import type { Key } from "swr";
 
  export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams["petId"], params?: UpdatePetWithFormQueryParams) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : [])] as const;
 
@@ -30,13 +28,13 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], pa
  * @link /pet/:petId
  */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], params?: UpdatePetWithFormQueryParams, options: {
-    query?: SWRConfiguration<UpdatePetWithFormMutationResponse, UpdatePetWithForm405>;
+    query?: Parameters<typeof useSWR<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormQueryKey | null, any>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
 } = {}) {
     const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {};
     const queryKey = updatePetWithFormQueryKey(petId, params);
-    return useSWR<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? queryKey : null, {
+    return useSWR<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormQueryKey | null>(shouldFetch ? queryKey : null, {
         ...updatePetWithFormQueryOptions(petId, params, config),
         ...queryOptions
     });

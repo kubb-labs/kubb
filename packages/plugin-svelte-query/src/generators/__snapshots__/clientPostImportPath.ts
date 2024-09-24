@@ -1,5 +1,5 @@
 import client from "axios";
-import type { CreateMutationOptions, MutationKey } from "@tanstack/svelte-query";
+import type { CreateMutationOptions } from "@tanstack/svelte-query";
 import type { RequestConfig } from "axios";
 import { createMutation } from "@tanstack/svelte-query";
 
@@ -30,18 +30,15 @@ export function createUpdatePetWithForm(options: {
 } = {}) {
     const { mutation: mutationOptions, client: config = {} } = options ?? {};
     const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey();
-    const mutation = createMutation({
-        mutationFn: async ({ petId, data, params }: {
-            petId: UpdatePetWithFormPathParams["petId"];
-            data?: UpdatePetWithFormMutationRequest;
-            params?: UpdatePetWithFormQueryParams;
-        }) => {
+    return createMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
+        petId: UpdatePetWithFormPathParams["petId"];
+        data?: UpdatePetWithFormMutationRequest;
+        params?: UpdatePetWithFormQueryParams;
+    }>({
+        mutationFn: async ({ petId, data, params }) => {
             return updatePetWithForm(petId, data, params, config);
         },
+        mutationKey,
         ...mutationOptions
-    }) as ReturnType<typeof mutation> & {
-        mutationKey: MutationKey;
-    };
-    mutation.mutationKey = mutationKey as MutationKey;
-    return mutation;
+    });
 }

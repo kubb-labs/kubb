@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/svelte-query'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
@@ -53,7 +53,7 @@ export function createGetUserByName<
     ...(getUserByNameQueryOptions(username, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as CreateQueryResult<TData, GetUserByName400 | GetUserByName404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

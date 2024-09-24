@@ -76,7 +76,7 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
 
 export function Query({ name, queryKeyTypeName, queryOptionsName, queryKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const returnType = 'ReturnType<typeof query> & { queryKey: TQueryKey }'
+  const returnType = `UseQueryReturnType<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({
@@ -112,7 +112,7 @@ export function Query({ name, queryKeyTypeName, queryOptionsName, queryKeyName, 
 
        const query = useQuery({
         ...${queryOptions},
-        queryKey,
+        queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
        }) as ${returnType}
 

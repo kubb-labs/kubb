@@ -16,7 +16,9 @@
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "paths": {}
+    "paths": {},
+    "alwaysStrict": true,
+    "strict": true
   },
   "include": ["./src/**/*", "vite.config.ts", "shims-vue.d.ts"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]

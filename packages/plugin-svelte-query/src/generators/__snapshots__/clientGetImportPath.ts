@@ -1,5 +1,5 @@
 import client from "axios";
-import type { QueryKey, CreateBaseQueryOptions } from "@tanstack/svelte-query";
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from "@tanstack/svelte-query";
 import type { RequestConfig } from "axios";
 import { createQuery, queryOptions } from "@tanstack/svelte-query";
 
@@ -42,7 +42,7 @@ export function createFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQuery
         ...findPetsByTagsQueryOptions(headers, params, config) as unknown as CreateBaseQueryOptions,
         queryKey,
         ...queryOptions as unknown as Omit<CreateBaseQueryOptions, "queryKey">
-    }) as ReturnType<typeof query> & {
+    }) as CreateQueryResult<TData, FindPetsByTags400> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;

@@ -6,7 +6,7 @@ import type {
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions } from '@tanstack/svelte-query'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
@@ -65,7 +65,7 @@ export function createUpdatePetWithForm<
     ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as CreateQueryResult<TData, UpdatePetWithForm405> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
