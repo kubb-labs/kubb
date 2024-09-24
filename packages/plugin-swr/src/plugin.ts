@@ -28,6 +28,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     mutation,
     client,
     pathParamsType = 'inline',
+    generators = [queryGenerator, mutationGenerator].filter(Boolean),
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
@@ -45,11 +46,13 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         ...client,
       },
       query: {
+        key: (key: unknown[]) => key,
         importPath: 'swr',
         methods: ['get'],
         ...query,
       },
       mutation: {
+        key: (key: unknown[]) => key,
         importPath: 'swr/mutation',
         methods: ['post', 'put', 'delete', 'patch'],
         ...mutation,
@@ -122,7 +125,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, mutationGenerator)
+      const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

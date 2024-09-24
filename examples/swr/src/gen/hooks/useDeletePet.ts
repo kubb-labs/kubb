@@ -5,6 +5,10 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
+export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
@@ -36,9 +40,9 @@ export function useDeletePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/pet/${petId}`] as const
+  const mutationKey = deletePetMutationKey()
   return useSWRMutation<DeletePetMutationResponse, DeletePet400, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url) => {
       return deletePet(petId, headers, config)
     },

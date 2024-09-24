@@ -1,6 +1,6 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
   output?: Output
@@ -83,6 +83,10 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Define some generators next to the client generators
+   */
+  generators?: Array<Generator<PluginClient>>
 }
 
 type ResolvedOptions = {

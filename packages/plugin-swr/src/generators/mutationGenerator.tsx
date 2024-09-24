@@ -1,3 +1,4 @@
+import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -5,6 +6,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { MutationKey } from '../components'
 import { Mutation } from '../components'
 import type { PluginSwr } from '../types'
 
@@ -41,6 +43,11 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
       name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
     }
 
+    const mutationKey = {
+      name: transformers.camelCase(`${operation.getOperationId()} MutationKey`),
+      typeName: transformers.pascalCase(`${operation.getOperationId()} MutationKey`),
+    }
+
     if (!isMutate) {
       return null
     }
@@ -69,6 +76,14 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           path={type.file.path}
           isTypeOnly
         />
+        <MutationKey
+          name={mutationKey.name}
+          typeName={mutationKey.typeName}
+          operation={operation}
+          pathParamsType={options.pathParamsType}
+          typeSchemas={type.schemas}
+          keysFn={options.mutation.key}
+        />
         <Client
           name={client.name}
           isExportable={false}
@@ -89,6 +104,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           operation={operation}
           dataReturnType={options.client.dataReturnType}
           pathParamsType={options.pathParamsType}
+          mutationKeyName={mutationKey.name}
         />
       </File>
     )

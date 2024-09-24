@@ -27,6 +27,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     pathParamsType = 'inline',
     mutation = {},
     query = {},
+    generators = [queryGenerator, mutationGenerator].filter(Boolean),
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -123,7 +124,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, mutationGenerator)
+      const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

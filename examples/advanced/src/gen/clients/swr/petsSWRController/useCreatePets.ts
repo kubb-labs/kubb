@@ -12,6 +12,10 @@ import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
+export const createPetsMutationKey = () => [{ url: '/pets/{uuid}' }] as const
+
+export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
+
 /**
  * @summary Create a pet
  * @link /pets/:uuid
@@ -50,9 +54,9 @@ export function useCreatePets(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/pets/${uuid}`, params] as const
+  const mutationKey = createPetsMutationKey()
   return useSWRMutation<CreatePetsMutationResponse, Error, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createPets(uuid, data, headers, params, config)
     },

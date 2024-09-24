@@ -28,6 +28,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
     pathParamsType = 'inline',
     mutation = {},
     query = {},
+    generators = [queryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -132,7 +133,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, infiniteQueryGenerator, mutationGenerator)
+      const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

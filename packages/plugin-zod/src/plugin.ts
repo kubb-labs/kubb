@@ -31,6 +31,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     importPath = 'zod',
     coercion = false,
     inferred = false,
+    generators = [zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -110,7 +111,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         output: output.path,
       })
 
-      const schemaFiles = await schemaGenerator.build(...[zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean))
+      const schemaFiles = await schemaGenerator.build(...generators)
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -124,7 +125,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         mode,
       })
 
-      const operationFiles = await operationGenerator.build(...[zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean))
+      const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
       if (this.config.output.exportType) {

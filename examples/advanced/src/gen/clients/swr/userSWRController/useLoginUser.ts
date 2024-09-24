@@ -5,6 +5,10 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 import type { Key, SWRConfiguration } from 'swr'
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
+export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+
+export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -41,8 +45,8 @@ export function useLoginUser(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/user/login', params] as const
-  return useSWR<LoginUserQueryResponse, LoginUser400, Key>(shouldFetch ? swrKey : null, {
+  const queryKey = loginUserQueryKey(params)
+  return useSWR<LoginUserQueryResponse, LoginUser400, Key>(shouldFetch ? queryKey : null, {
     ...loginUserQueryOptions(params, config),
     ...queryOptions,
   })

@@ -7,6 +7,7 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Query, QueryOptions } from '../components'
+import { QueryKey } from '../components'
 import type { PluginSwr } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginSwr>({
@@ -33,6 +34,10 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
 
     const queryOptions = {
       name: transformers.camelCase(`${operation.getOperationId()} QueryOptions`),
+    }
+    const queryKey = {
+      name: transformers.camelCase(`${operation.getOperationId()} QueryKey`),
+      typeName: transformers.pascalCase(`${operation.getOperationId()} QueryKey`),
     }
 
     const type = {
@@ -74,6 +79,14 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           path={type.file.path}
           isTypeOnly
         />
+        <QueryKey
+          name={queryKey.name}
+          typeName={queryKey.typeName}
+          operation={operation}
+          pathParamsType={options.pathParamsType}
+          typeSchemas={type.schemas}
+          keysFn={options.query.key}
+        />
         <Client
           name={client.name}
           isExportable={false}
@@ -94,6 +107,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           pathParamsType={options.pathParamsType}
           operation={operation}
           dataReturnType={options.client.dataReturnType}
+          queryKeyName={queryKey.name}
         />
       </File>
     )

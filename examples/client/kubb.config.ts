@@ -5,6 +5,7 @@ import transformers from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
+import { clientStaticGenerator } from './src/generators/clientStaticGenerator'
 
 export default defineConfig(() => {
   return {
@@ -51,6 +52,7 @@ export default defineConfig(() => {
           path: './tagObject.ts',
           exportType: false,
         },
+        generators: [clientStaticGenerator],
         include: [
           {
             type: 'tag',

@@ -27,6 +27,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     infinite,
     transformers = {},
     pathParamsType = 'inline',
+    generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
     mutation = {},
     query = {},
   } = options
@@ -134,7 +135,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator)
+      const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

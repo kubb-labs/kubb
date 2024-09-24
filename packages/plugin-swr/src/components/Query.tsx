@@ -6,6 +6,7 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
+import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
    */
   name: string
   queryOptionsName: string
+  queryKeyName: string
   typeSchemas: OperationSchemas
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -66,10 +68,14 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Query({ name, typeSchemas, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
-  const path = new URLPath(operation.path)
+export function Query({ name, typeSchemas, queryKeyName, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'Key']
+
+  const queryKeyParams = QueryKey.getParams({
+    pathParamsType,
+    typeSchemas,
+  })
   const params = getParams({
     pathParamsType,
     dataReturnType,
@@ -80,9 +86,6 @@ export function Query({ name, typeSchemas, queryOptionsName, operation, dataRetu
     pathParamsType,
     typeSchemas,
   })
-
-  //fixed name, see Query.getParams and params
-  const swrKey = [path.template, typeSchemas.queryParams?.name ? 'params' : undefined].filter(Boolean)
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -97,9 +100,10 @@ export function Query({ name, typeSchemas, queryOptionsName, operation, dataRetu
         {`
        const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
 
-       const swrKey = [${swrKey.join(', ')}] as const
+       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
+
        return useSWR<${hookGenerics.join(', ')}>(
-        shouldFetch ? swrKey : null,
+        shouldFetch ? queryKey : null,
         {
           ...${queryOptionsName}(${queryOptionsParams.toCall()})
           ...queryOptions

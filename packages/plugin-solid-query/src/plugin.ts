@@ -25,6 +25,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     parser = 'client',
     transformers = {},
     pathParamsType = 'inline',
+    generators = [queryGenerator].filter(Boolean),
     query = {},
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
@@ -116,7 +117,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(queryGenerator)
+      const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
       if (this.config.output.exportType) {

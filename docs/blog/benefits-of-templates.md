@@ -111,4 +111,4 @@ If you compare the previous template with an example using JSX/React, you can al
 
 ## Overriding with templates
 
-We've made a guide on how you can override templates in our plugins: [templates the guide](/guide/tutorial/templates).
+We've made a guide on how you can override templates in our plugins: [templates the guide](/tutorials/templates).

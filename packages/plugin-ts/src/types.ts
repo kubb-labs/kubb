@@ -1,5 +1,5 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
 export type Options = {
@@ -88,6 +88,10 @@ export type Options = {
    * )
    */
   mapper?: Record<string, ts.PropertySignature>
+  /**
+   * Define some generators next to the ts generators
+   */
+  generators?: Array<Generator<PluginTs>>
 }
 
 type ResolvedOptions = {

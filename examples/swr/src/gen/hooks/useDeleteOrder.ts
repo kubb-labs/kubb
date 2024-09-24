@@ -5,6 +5,10 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
+export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+
+export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
@@ -34,9 +38,9 @@ export function useDeleteOrder(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/store/order/${orderId}`] as const
+  const mutationKey = deleteOrderMutationKey()
   return useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteOrder(orderId, config)
     },

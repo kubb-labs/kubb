@@ -4,6 +4,10 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { Key } from "swr";
 import type { SWRMutationConfiguration } from "swr/mutation";
 
+ export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
+
+ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>;
+
  /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -23,8 +27,8 @@ export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams["petId"]
     shouldFetch?: boolean;
 } = {}) {
     const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {};
-    const swrKey = [`/pet/${petId}`, params] as const;
-    return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? swrKey : null, async (_url) => {
+    const mutationKey = updatePetWithFormMutationKey();
+    return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, Key>(shouldFetch ? mutationKey : null, async (_url) => {
         return updatePetWithForm(petId, params, config);
     }, mutationOptions);
 }

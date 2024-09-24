@@ -5,6 +5,10 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
+export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
+
+export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
@@ -37,9 +41,9 @@ export function useCreateUsersWithListInput(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/user/createWithList'] as const
+  const mutationKey = createUsersWithListInputMutationKey()
   return useSWRMutation<CreateUsersWithListInputMutationResponse, Error, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createUsersWithListInput(data, config)
     },

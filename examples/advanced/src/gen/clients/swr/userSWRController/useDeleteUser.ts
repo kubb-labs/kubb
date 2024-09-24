@@ -6,6 +6,10 @@ import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
+export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
@@ -35,9 +39,9 @@ export function useDeleteUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/user/${username}`] as const
+  const mutationKey = deleteUserMutationKey()
   return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, Key>(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteUser(username, config)
     },

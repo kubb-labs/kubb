@@ -1,7 +1,7 @@
 import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { HttpMethod } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 type Query = {
   /**
@@ -118,6 +118,10 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Define some generators next to the solid-query generators
+   */
+  generators?: Array<Generator<PluginSolidQuery>>
 }
 
 type ResolvedOptions = {
