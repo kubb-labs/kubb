@@ -67,7 +67,8 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
 }
 
 export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
-  const returnType = 'ReturnType<typeof mutation> & { mutationKey: MutationKey }'
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const returnType = `CreateMutationResult<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { mutationKey: MutationKey }`
 
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,

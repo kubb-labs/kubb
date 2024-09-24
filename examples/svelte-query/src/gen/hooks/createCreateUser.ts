@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, CreateMutationResult, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
@@ -52,7 +52,7 @@ export function createCreateUser(
       return createUser(data, config)
     },
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
+  }) as CreateMutationResult<CreateUserMutationResponse, Error> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

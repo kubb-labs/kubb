@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, MutationKey } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
@@ -52,7 +52,7 @@ export function useCreateUserHook(
       return createUser(data, config)
     },
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
+  }) as UseMutationResult<CreateUserMutationResponse, Error> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

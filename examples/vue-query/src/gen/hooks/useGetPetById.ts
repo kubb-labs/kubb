@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, QueryObserverOptions } from '@tanstack/vue-query'
+import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
@@ -53,7 +53,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
     ...(getPetByIdQueryOptions(petId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryReturnType<TData, GetPetById400 | GetPetById404> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

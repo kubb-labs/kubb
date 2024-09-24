@@ -107,6 +107,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           operation={operation}
           dataReturnType={options.client.dataReturnType}
           queryKeyName={queryKey.name}
+          queryKeyTypeName={queryKey.typeName}
         />
       </File>
     )

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { MutationObserverOptions, MutationKey } from '@tanstack/vue-query'
+import type { MutationObserverOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -64,7 +64,7 @@ export function useUploadFile(
       return uploadFile(petId, data, params, config)
     },
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
+  }) as UseMutationResult<UploadFileMutationResponse, Error> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

@@ -350,6 +350,9 @@ importers:
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../../packages/config-ts
+      '@types/react':
+        specifier: ^18.3.9
+        version: 18.3.9
       react:
         specifier: ^18.3.1
         version: 18.3.1

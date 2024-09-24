@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { CreateMutationOptions, MutationKey } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, CreateMutationResult, MutationKey } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
@@ -52,7 +52,7 @@ export function createPlaceOrder(
       return placeOrder(data, config)
     },
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
+  }) as CreateMutationResult<PlaceOrderMutationResponse, PlaceOrder405> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { MutationObserverOptions, MutationKey } from '@tanstack/vue-query'
+import type { MutationObserverOptions, UseMutationResult, MutationKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -53,7 +53,7 @@ export function useAddPet(
       return addPet(data, config)
     },
     ...mutationOptions,
-  }) as ReturnType<typeof mutation> & {
+  }) as UseMutationResult<AddPetMutationResponse, AddPet405> & {
     mutationKey: MutationKey
   }
   mutation.mutationKey = mutationKey as MutationKey

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, QueryObserverOptions } from '@tanstack/vue-query'
+import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useQuery, queryOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
@@ -52,7 +52,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
     ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseQueryReturnType<TData, LoginUser400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

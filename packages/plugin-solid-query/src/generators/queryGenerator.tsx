@@ -59,7 +59,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
         <File.Import name={['createQuery', 'queryOptions']} path={options.query.importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'CreateBaseQueryOptions']} path={options.query.importPath} isTypeOnly />
+        <File.Import name={['QueryKey', 'WithRequired', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}

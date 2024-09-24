@@ -9,6 +9,10 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
+
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
@@ -38,9 +42,9 @@ export function useUpdatePetWithForm(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/pet/${petId}`, params] as const
-  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, typeof swrKey | null>(
-    shouldFetch ? swrKey : null,
+  const mutationKey = updatePetWithFormMutationKey()
+  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKey | null>(
+    shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm(petId, params, config)
     },

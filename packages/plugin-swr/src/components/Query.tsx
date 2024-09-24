@@ -16,6 +16,7 @@ type Props = {
   name: string
   queryOptionsName: string
   queryKeyName: string
+  queryKeyTypeName: string
   typeSchemas: OperationSchemas
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -68,9 +69,9 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Query({ name, typeSchemas, queryKeyName, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
+export function Query({ name, typeSchemas, queryKeyName, queryKeyTypeName, queryOptionsName, operation, dataReturnType, pathParamsType }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'typeof swrKey | null']
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,

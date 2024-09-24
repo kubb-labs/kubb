@@ -3,6 +3,10 @@ import useSWR from 'swr'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+
+export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
@@ -40,8 +44,8 @@ export function useGetOrderById(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/store/order/${orderId}`] as const
-  return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, typeof swrKey | null>(shouldFetch ? swrKey : null, {
+  const queryKey = getOrderByIdQueryKey(orderId)
+  return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getOrderByIdQueryOptions(orderId, config),
     ...queryOptions,
   })

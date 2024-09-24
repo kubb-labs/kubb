@@ -4,6 +4,10 @@ import type { RequestConfig } from '../../../../swr-client.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+
+export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
@@ -42,8 +46,8 @@ export function useFindPetsByStatus(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = ['/pet/findByStatus', params] as const
-  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, typeof swrKey | null>(shouldFetch ? swrKey : null, {
+  const queryKey = findPetsByStatusQueryKey(params)
+  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByStatusQueryOptions(params, config),
     ...queryOptions,
   })

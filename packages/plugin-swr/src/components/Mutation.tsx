@@ -17,6 +17,7 @@ type Props = {
   typeName: string
   clientName: string
   mutationKeyName: string
+  mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -62,9 +63,9 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Mutation({ name, clientName, mutationKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'typeof swrKey | null']
+  const hookGenerics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${mutationKeyTypeName} | null`]
 
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,

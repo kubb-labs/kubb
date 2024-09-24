@@ -4,6 +4,10 @@ import type { RequestConfig } from '../../../../swr-client.ts'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
 
+export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+
+export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
@@ -35,9 +39,9 @@ export function useDeletePet(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/pet/${petId}`] as const
-  return useSWRMutation<DeletePetMutationResponse, DeletePet400, typeof swrKey | null>(
-    shouldFetch ? swrKey : null,
+  const mutationKey = deletePetMutationKey()
+  return useSWRMutation<DeletePetMutationResponse, DeletePet400, DeletePetMutationKey | null>(
+    shouldFetch ? mutationKey : null,
     async (_url) => {
       return deletePet(petId, headers, config)
     },

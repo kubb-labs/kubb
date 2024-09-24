@@ -9,6 +9,10 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+
+export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+
 /**
  * @summary Get user by user name
  * @link /user/:username
@@ -44,8 +48,8 @@ export function useGetUserByName(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/user/${username}`] as const
-  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, typeof swrKey | null>(shouldFetch ? swrKey : null, {
+  const queryKey = getUserByNameQueryKey(username)
+  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getUserByNameQueryOptions(username, config),
     ...queryOptions,
   })

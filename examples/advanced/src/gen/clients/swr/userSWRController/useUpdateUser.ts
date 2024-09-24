@@ -4,6 +4,10 @@ import type { RequestConfig } from '../../../../swr-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
 
+export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+
+export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
@@ -38,9 +42,9 @@ export function useUpdateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const swrKey = [`/user/${username}`] as const
-  return useSWRMutation<UpdateUserMutationResponse, Error, typeof swrKey | null>(
-    shouldFetch ? swrKey : null,
+  const mutationKey = updateUserMutationKey()
+  return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKey | null>(
+    shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updateUser(username, data, config)
     },

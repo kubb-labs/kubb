@@ -1,6 +1,6 @@
 import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, InfiniteQueryObserverOptions } from '../../../../tanstack-query-hook.ts'
+import type { QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook.ts'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
@@ -74,7 +74,7 @@ export function useFindPetsByTagsInfinite<
     ...(findPetsByTagsInfiniteQueryOptions(headers, params, config) as unknown as InfiniteQueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
-  }) as ReturnType<typeof query> & {
+  }) as UseInfiniteQueryResult<TData, FindPetsByTags400> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
