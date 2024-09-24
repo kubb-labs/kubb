@@ -1,5 +1,22 @@
 # @kubb/plugin-react-query
 
+## 3.0.0-alpha.26
+
+### Minor Changes
+
+- [#1259](https://github.com/kubb-labs/kubb/pull/1259) [`2c860f2`](https://github.com/kubb-labs/kubb/commit/2c860f2b8c49cda8ad08540cd3cbfbdd7c12632a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - 'generators' option for all plugins
+
+### Patch Changes
+
+- Updated dependencies [[`2c860f2`](https://github.com/kubb-labs/kubb/commit/2c860f2b8c49cda8ad08540cd3cbfbdd7c12632a)]:
+  - @kubb/plugin-zod@3.0.0-alpha.26
+  - @kubb/plugin-ts@3.0.0-alpha.26
+  - @kubb/core@3.0.0-alpha.26
+  - @kubb/fs@3.0.0-alpha.26
+  - @kubb/oas@3.0.0-alpha.26
+  - @kubb/plugin-oas@3.0.0-alpha.26
+  - @kubb/react@3.0.0-alpha.26
+
 ## 3.0.0-alpha.25
 
 ### Minor Changes
