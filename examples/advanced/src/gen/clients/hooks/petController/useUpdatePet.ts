@@ -7,7 +7,7 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 

@@ -66,15 +66,7 @@ import type {
   DeleteUser404,
 } from './models.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type {
-  UseMutationOptions,
-  MutationKey,
-  QueryKey,
-  QueryObserverOptions,
-  UseQueryResult,
-  UseSuspenseQueryOptions,
-  UseSuspenseQueryResult,
-} from '@tanstack/react-query'
+import type { UseMutationOptions, QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useMutation, useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const

@@ -292,11 +292,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    return zodKeywordMapper.tuple(
-      sort(current.args.items)
-        .map((schema) => parse(current, schema, options))
-        .filter(Boolean),
-    )
+    return zodKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, options)).filter(Boolean))
   }
 
   if (isKeyword(current, schemaKeywords.const)) {

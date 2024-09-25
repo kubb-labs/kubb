@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const

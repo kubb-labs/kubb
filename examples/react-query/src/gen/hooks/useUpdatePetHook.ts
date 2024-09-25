@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const

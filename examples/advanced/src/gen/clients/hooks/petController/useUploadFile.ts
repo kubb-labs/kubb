@@ -6,7 +6,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
-import type { UseMutationOptions, MutationKey } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
