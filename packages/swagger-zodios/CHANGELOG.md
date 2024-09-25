@@ -1,5 +1,18 @@
 # @kubb/swagger-zodios
 
+## 2.27.1
+
+### Patch Changes
+
+- Updated dependencies [[`6732b8a`](https://github.com/kubb-labs/kubb/commit/6732b8a4e86f4fb9357987788443dea9ac79cfcc)]:
+  - @kubb/swagger-zod@2.27.1
+  - @kubb/core@2.27.1
+  - @kubb/fs@2.27.1
+  - @kubb/oas@2.27.1
+  - @kubb/parser-ts@2.27.1
+  - @kubb/plugin-oas@2.27.1
+  - @kubb/react@2.27.1
+
 ## 2.27.0
 
 ### Patch Changes

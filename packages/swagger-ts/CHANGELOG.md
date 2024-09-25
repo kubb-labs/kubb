@@ -1,5 +1,18 @@
 # @kubb/swagger-ts
 
+## 2.27.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.27.1
+  - @kubb/fs@2.27.1
+  - @kubb/oas@2.27.1
+  - @kubb/parser-ts@2.27.1
+  - @kubb/plugin-oas@2.27.1
+  - @kubb/react@2.27.1
+  - @kubb/types@2.27.1
+
 ## 2.27.0
 
 ### Minor Changes
