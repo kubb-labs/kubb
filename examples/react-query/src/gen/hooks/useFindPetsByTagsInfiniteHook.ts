@@ -28,7 +28,8 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTagsQueryP
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ signal, pageParam }) => {
+      config.signal = signal
       if (params) {
         params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       }

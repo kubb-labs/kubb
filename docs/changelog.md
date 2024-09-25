@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.30
+- [`plugin-react-query`](/plugins/plugin-react-query/): Use of `enabled` based on optional params
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Use of `enabled` based on optional params
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Use of `enabled` based on optional params
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): Use of `enabled` based on optional params
+
 ## 3.0.0-alpha.29
 - [`plugin-react-query`](/plugins/plugin-react-query/): Support for cancellation of queries with the help of `signal`
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Support for cancellation of queries with the help of `signal`

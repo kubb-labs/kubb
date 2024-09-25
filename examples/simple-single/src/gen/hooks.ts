@@ -407,6 +407,7 @@ async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -447,6 +448,7 @@ export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQue
 export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -884,6 +886,7 @@ async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: 
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
+    enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -925,6 +928,7 @@ export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspens
 export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return queryOptions({
+    enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -1338,6 +1342,7 @@ async function getUserByName(username: GetUserByNamePathParams['username'], conf
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
+    enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -1382,6 +1387,7 @@ export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspe
 export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return queryOptions({
+    enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

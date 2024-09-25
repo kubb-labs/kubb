@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -28,7 +28,7 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
     data,
     ...config,
   })
-  return updatePetMutationResponseSchema.parse(res.data)
+  return { ...res, data: updatePetMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -39,7 +39,7 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
 export function useUpdatePet(
   options: {
     mutation?: UseMutationOptions<
-      UpdatePetMutationResponse,
+      ResponseConfig<UpdatePetMutationResponse>,
       UpdatePet400 | UpdatePet404 | UpdatePet405,
       {
         data: UpdatePetMutationRequest
@@ -51,7 +51,7 @@ export function useUpdatePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
   return useMutation<
-    UpdatePetMutationResponse,
+    ResponseConfig<UpdatePetMutationResponse>,
     UpdatePet400 | UpdatePet404 | UpdatePet405,
     {
       data: UpdatePetMutationRequest

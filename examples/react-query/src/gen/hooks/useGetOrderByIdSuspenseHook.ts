@@ -44,6 +44,7 @@ export function getOrderByIdSuspenseQueryOptions(
 ) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
   return queryOptions({
+    enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

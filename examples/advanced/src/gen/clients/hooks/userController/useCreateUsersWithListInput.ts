@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -28,7 +28,7 @@ async function createUsersWithListInput(
     data,
     ...config,
   })
-  return createUsersWithListInputMutationResponseSchema.parse(res.data)
+  return { ...res, data: createUsersWithListInputMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -39,7 +39,7 @@ async function createUsersWithListInput(
 export function useCreateUsersWithListInput(
   options: {
     mutation?: UseMutationOptions<
-      CreateUsersWithListInputMutationResponse,
+      ResponseConfig<CreateUsersWithListInputMutationResponse>,
       Error,
       {
         data?: CreateUsersWithListInputMutationRequest
@@ -51,7 +51,7 @@ export function useCreateUsersWithListInput(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
   return useMutation<
-    CreateUsersWithListInputMutationResponse,
+    ResponseConfig<CreateUsersWithListInputMutationResponse>,
     Error,
     {
       data?: CreateUsersWithListInputMutationRequest

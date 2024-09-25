@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -33,7 +33,7 @@ async function uploadFile(
     headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
     ...config,
   })
-  return uploadFileMutationResponseSchema.parse(res.data)
+  return { ...res, data: uploadFileMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -43,7 +43,7 @@ async function uploadFile(
 export function useUploadFile(
   options: {
     mutation?: UseMutationOptions<
-      UploadFileMutationResponse,
+      ResponseConfig<UploadFileMutationResponse>,
       Error,
       {
         petId: UploadFilePathParams['petId']
@@ -57,7 +57,7 @@ export function useUploadFile(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
   return useMutation<
-    UploadFileMutationResponse,
+    ResponseConfig<UploadFileMutationResponse>,
     Error,
     {
       petId: UploadFilePathParams['petId']

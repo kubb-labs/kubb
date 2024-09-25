@@ -44,6 +44,7 @@ export function getPetByIdQueryOptions(
 ) {
   const queryKey = getPetByIdQueryKey({ petId })
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

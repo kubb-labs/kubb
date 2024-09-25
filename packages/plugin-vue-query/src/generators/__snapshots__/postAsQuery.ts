@@ -21,6 +21,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
  export function updatePetWithFormQueryOptions(petId: MaybeRef<UpdatePetWithFormPathParams["petId"]>, data?: MaybeRef<UpdatePetWithFormMutationRequest>, params?: MaybeRef<UpdatePetWithFormQueryParams>, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
     const queryKey = updatePetWithFormQueryKey(petId, data, params);
     return queryOptions({
+        enabled: !!(petId),
         queryKey,
         queryFn: async ({ signal }) => {
             config.signal = signal;

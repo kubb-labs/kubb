@@ -29,6 +29,7 @@ async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: 
 export function getOrderByIdQueryOptions(orderId: MaybeRef<GetOrderByIdPathParams['orderId']>, config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
+    enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
