@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.0.0-alpha.28
+
+### Patch Changes
+
+- [`0bcb15b`](https://github.com/kubb-labs/kubb/commit/0bcb15b5502c1ced18205077c0b2e23811660033) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Respect order of `z.tuple`
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.28
+  - @kubb/fs@3.0.0-alpha.28
+  - @kubb/oas@3.0.0-alpha.28
+  - @kubb/parser-ts@3.0.0-alpha.28
+  - @kubb/plugin-oas@3.0.0-alpha.28
+  - @kubb/plugin-ts@3.0.0-alpha.28
+  - @kubb/react@3.0.0-alpha.28
+
 ## 3.0.0-alpha.27
 
 ### Patch Changes
