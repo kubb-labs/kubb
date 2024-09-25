@@ -201,7 +201,8 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return findPetsByStatus(params, config)
     },
   })
@@ -244,7 +245,8 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQu
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return findPetsByStatus(params, config)
     },
   })
@@ -303,7 +305,8 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return findPetsByTags(params, config)
     },
   })
@@ -346,7 +349,8 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTagsQueryP
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return findPetsByTags(params, config)
     },
   })
@@ -404,7 +408,8 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getPetById(petId, config)
     },
   })
@@ -443,7 +448,8 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
   const queryKey = getPetByIdSuspenseQueryKey(petId)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getPetById(petId, config)
     },
   })
@@ -674,7 +680,8 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getInventory(config)
     },
   })
@@ -712,7 +719,8 @@ export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> 
   const queryKey = getInventorySuspenseQueryKey()
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getInventory(config)
     },
   })
@@ -877,7 +885,8 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getOrderById(orderId, config)
     },
   })
@@ -917,7 +926,8 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getOrderById(orderId, config)
     },
   })
@@ -1139,7 +1149,8 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return loginUser(params, config)
     },
   })
@@ -1177,7 +1188,8 @@ export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, con
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return loginUser(params, config)
     },
   })
@@ -1233,7 +1245,8 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return logoutUser(config)
     },
   })
@@ -1270,7 +1283,8 @@ export function logoutUserSuspenseQueryOptions(config: Partial<RequestConfig> = 
   const queryKey = logoutUserSuspenseQueryKey()
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return logoutUser(config)
     },
   })
@@ -1325,7 +1339,8 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getUserByName(username, config)
     },
   })
@@ -1368,7 +1383,8 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getUserByName(username, config)
     },
   })

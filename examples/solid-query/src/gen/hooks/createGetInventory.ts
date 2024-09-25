@@ -27,7 +27,8 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getInventory(config)
     },
   })

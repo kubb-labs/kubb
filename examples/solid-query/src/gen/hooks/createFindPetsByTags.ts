@@ -28,7 +28,8 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return findPetsByTags(params, config)
     },
   })

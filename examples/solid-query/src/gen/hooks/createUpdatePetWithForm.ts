@@ -37,7 +37,8 @@ export function updatePetWithFormQueryOptions(
   const queryKey = updatePetWithFormQueryKey(petId, params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return updatePetWithForm(petId, params, config)
     },
   })

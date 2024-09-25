@@ -27,7 +27,8 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return loginUser(params, config)
     },
   })

@@ -79,7 +79,8 @@ export function QueryOptions({ name, clientName, typeSchemas, pathParamsType, qu
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return queryOptions({
        queryKey,
-       queryFn: async () => {
+       queryFn: async ({ signal }) => {
+          config.signal = signal
           return ${clientName}(${clientParams.toCall({
             transformName(name) {
               return `unref(${name})`

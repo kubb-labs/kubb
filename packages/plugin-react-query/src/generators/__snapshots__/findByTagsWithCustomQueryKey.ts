@@ -21,7 +21,8 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
     const queryKey = findPetsByTagsQueryKey(params);
     return queryOptions({
         queryKey,
-        queryFn: async () => {
+        queryFn: async ({ signal }) => {
+            config.signal = signal;
             return findPetsByTags(headers, params, config);
         },
     });

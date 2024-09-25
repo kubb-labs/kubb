@@ -1,4 +1,3 @@
-import { camelCase } from '@kubb/core/transformers'
 import { orderBy } from 'natural-orderby'
 
 export type Param = {
@@ -146,7 +145,7 @@ export function getFunctionParams(params: Params, options: Options): string {
         return [...acc, ...parsedItem]
       }
 
-      const parsedItem = parseItem(camelCase(key), item, options)
+      const parsedItem = parseItem(key, item, options)
 
       return [...acc, ...parsedItem]
     }, [] as string[])

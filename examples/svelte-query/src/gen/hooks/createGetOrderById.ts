@@ -27,7 +27,8 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
   const queryKey = getOrderByIdQueryKey(orderId)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getOrderById(orderId, config)
     },
   })

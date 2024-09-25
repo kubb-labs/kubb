@@ -27,7 +27,8 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return logoutUser(config)
     },
   })

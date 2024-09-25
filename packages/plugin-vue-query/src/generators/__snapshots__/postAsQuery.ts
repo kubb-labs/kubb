@@ -22,7 +22,8 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
     const queryKey = updatePetWithFormQueryKey(petId, data, params);
     return queryOptions({
         queryKey,
-        queryFn: async () => {
+        queryFn: async ({ signal }) => {
+            config.signal = signal;
             return updatePetWithForm(unref(petId), unref(data), unref(params), unref(config));
         },
     });

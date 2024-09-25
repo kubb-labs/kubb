@@ -27,7 +27,8 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
+      config.signal = signal
       return getPetById(petId, config)
     },
   })
