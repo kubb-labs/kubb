@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.28
+- [`plugin-zod`](/plugins/plugin-zod/): Respect order of `z.tuple`
+-
 ## 3.0.0-alpha.27
 - [`plugin-swr`](/plugins/plugin-swr/): Support for TypeScript `strict` mode
 - [`plugin-react-query`](/plugins/plugin-react-query/): Support for TypeScript `strict` mode and use of data object for `mutationFn: async(data: {})`
