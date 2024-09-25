@@ -141,14 +141,14 @@
     "@kubb/core": "workspace:*",
     "@nuxt/kit": "^3.13.2",
     "@nuxt/schema": "^3.13.2",
-    "@types/node": "^20.16.5",
+    "@types/node": "^20.16.7",
     "rimraf": "^5.0.10",
     "rollup": "^4.22.4",
     "tsup": "^8.3.0",
     "typescript": "^5.6.2",
-    "vite": "^5.4.7",
+    "vite": "^5.4.8",
     "vitest": "^1.6.0",
-    "webpack": "^5.94.0"
+    "webpack": "^5.95.0"
   },
   "engines": {
     "node": ">=18"
