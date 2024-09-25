@@ -1,5 +1,22 @@
 # @kubb/plugin-solid-query
 
+## 3.0.0-alpha.29
+
+### Minor Changes
+
+- [`a0d31a7`](https://github.com/kubb-labs/kubb/commit/a0d31a7bd390f7fe96a6ec03735150049672f02f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for cancellation of queries with the help of `signal`
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-alpha.29
+  - @kubb/fs@3.0.0-alpha.29
+  - @kubb/oas@3.0.0-alpha.29
+  - @kubb/plugin-oas@3.0.0-alpha.29
+  - @kubb/plugin-ts@3.0.0-alpha.29
+  - @kubb/plugin-zod@3.0.0-alpha.29
+  - @kubb/react@3.0.0-alpha.29
+
 ## 3.0.0-alpha.28
 
 ### Patch Changes
