@@ -64,12 +64,20 @@ export function QueryOptions({ name, clientName, typeSchemas, pathParamsType, qu
     typeSchemas,
   })
 
+  const enabled = Object.entries(queryKeyParams.flatParams)
+    .map(([key, item]) => (item && !item.optional ? key : undefined))
+    .filter(Boolean)
+    .join('&& ')
+
+  const enabledText = enabled ? `enabled: !!(${enabled})` : ''
+
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return queryOptions({
+      ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
           config.signal = signal

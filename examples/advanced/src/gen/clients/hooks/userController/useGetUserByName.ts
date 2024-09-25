@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type {
   GetUserByNameQueryResponse,
@@ -25,12 +25,13 @@ async function getUserByName(username: GetUserByNamePathParams['username'], conf
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return getUserByNameQueryResponseSchema.parse(res.data)
+  return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
 }
 
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey(username)
   return queryOptions({
+    enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -44,13 +45,13 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
  * @link /user/:username
  */
 export function useGetUserByName<
-  TData = GetUserByNameQueryResponse,
-  TQueryData = GetUserByNameQueryResponse,
+  TData = ResponseConfig<GetUserByNameQueryResponse>,
+  TQueryData = ResponseConfig<GetUserByNameQueryResponse>,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: Partial<QueryObserverOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<GetUserByNameQueryResponse>, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

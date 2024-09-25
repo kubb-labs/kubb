@@ -44,6 +44,7 @@ export function getOrderByIdQueryOptions(
 ) {
   const queryKey = getOrderByIdQueryKey({ orderId })
   return queryOptions({
+    enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

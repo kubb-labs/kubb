@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
@@ -21,7 +21,7 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return deleteUserMutationResponseSchema.parse(res.data)
+  return { ...res, data: deleteUserMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -32,7 +32,7 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
 export function useDeleteUser(
   options: {
     mutation?: UseMutationOptions<
-      DeleteUserMutationResponse,
+      ResponseConfig<DeleteUserMutationResponse>,
       DeleteUser400 | DeleteUser404,
       {
         username: DeleteUserPathParams['username']
@@ -44,7 +44,7 @@ export function useDeleteUser(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
   return useMutation<
-    DeleteUserMutationResponse,
+    ResponseConfig<DeleteUserMutationResponse>,
     DeleteUser400 | DeleteUser404,
     {
       username: DeleteUserPathParams['username']

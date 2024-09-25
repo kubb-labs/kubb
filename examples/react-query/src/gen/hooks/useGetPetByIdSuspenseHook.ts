@@ -44,6 +44,7 @@ export function getPetByIdSuspenseQueryOptions(
 ) {
   const queryKey = getPetByIdSuspenseQueryKey({ petId })
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

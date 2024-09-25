@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
@@ -22,7 +22,7 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
     data,
     ...config,
   })
-  return createUserMutationResponseSchema.parse(res.data)
+  return { ...res, data: createUserMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -33,7 +33,7 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
 export function useCreateUser(
   options: {
     mutation?: UseMutationOptions<
-      CreateUserMutationResponse,
+      ResponseConfig<CreateUserMutationResponse>,
       Error,
       {
         data?: CreateUserMutationRequest
@@ -45,7 +45,7 @@ export function useCreateUser(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
   return useMutation<
-    CreateUserMutationResponse,
+    ResponseConfig<CreateUserMutationResponse>,
     Error,
     {
       data?: CreateUserMutationRequest

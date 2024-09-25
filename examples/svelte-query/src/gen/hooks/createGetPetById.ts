@@ -26,6 +26,7 @@ async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

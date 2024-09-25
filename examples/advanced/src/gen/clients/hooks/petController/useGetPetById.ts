@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
@@ -21,12 +21,13 @@ async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return getPetByIdQueryResponseSchema.parse(res.data)
+  return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
 }
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -40,10 +41,14 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
+export function useGetPetById<
+  TData = ResponseConfig<GetPetByIdQueryResponse>,
+  TQueryData = ResponseConfig<GetPetByIdQueryResponse>,
+  TQueryKey extends QueryKey = GetPetByIdQueryKey,
+>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<GetPetByIdQueryResponse>, GetPetById400 | GetPetById404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

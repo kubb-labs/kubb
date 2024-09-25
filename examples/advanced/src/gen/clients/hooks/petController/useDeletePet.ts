@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
@@ -22,7 +22,7 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
     headers: { ...headers, ...config.headers },
     ...config,
   })
-  return deletePetMutationResponseSchema.parse(res.data)
+  return { ...res, data: deletePetMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -33,7 +33,7 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
 export function useDeletePet(
   options: {
     mutation?: UseMutationOptions<
-      DeletePetMutationResponse,
+      ResponseConfig<DeletePetMutationResponse>,
       DeletePet400,
       {
         petId: DeletePetPathParams['petId']
@@ -46,7 +46,7 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
   return useMutation<
-    DeletePetMutationResponse,
+    ResponseConfig<DeletePetMutationResponse>,
     DeletePet400,
     {
       petId: DeletePetPathParams['petId']

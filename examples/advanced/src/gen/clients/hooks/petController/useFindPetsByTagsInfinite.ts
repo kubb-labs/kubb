@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook.ts'
 import type {
   FindPetsByTagsQueryResponse,
@@ -28,7 +28,7 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
     headers: { ...headers, ...config.headers },
     ...config,
   })
-  return findPetsByTagsQueryResponseSchema.parse(res.data)
+  return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
 }
 
 export function findPetsByTagsInfiniteQueryOptions(
@@ -39,14 +39,15 @@ export function findPetsByTagsInfiniteQueryOptions(
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ signal, pageParam }) => {
+      config.signal = signal
       if (params) {
         params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       }
       return findPetsByTags(headers, params, config)
     },
     initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1),
     getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
   })
 }
@@ -57,14 +58,14 @@ export function findPetsByTagsInfiniteQueryOptions(
  * @link /pet/findByTags
  */
 export function useFindPetsByTagsInfinite<
-  TData = FindPetsByTagsQueryResponse,
-  TQueryData = FindPetsByTagsQueryResponse,
+  TData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, TData, TQueryData, TQueryKey>>
+    query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

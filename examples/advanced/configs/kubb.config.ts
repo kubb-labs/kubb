@@ -74,6 +74,9 @@ export default defineConfig(() => {
                 initialPageParam: 0,
               },
               mutation: {
+                key(key) {
+                  return key
+                },
                 importPath: '@tanstack/react-query',
                 methods: ['post', 'put', 'delete'],
               },
@@ -82,6 +85,7 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         client: {
+          dataReturnType: 'full',
           importPath: '../../../../tanstack-query-client.ts',
         },
         query: {
@@ -89,7 +93,7 @@ export default defineConfig(() => {
         },
         infinite: false,
         suspense: false,
-        dataReturnType: 'full',
+
         parser: 'zod',
       }),
       pluginSwr({

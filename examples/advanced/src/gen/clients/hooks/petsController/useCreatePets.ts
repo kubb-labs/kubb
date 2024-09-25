@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -35,7 +35,7 @@ async function createPets(
     headers: { ...headers, ...config.headers },
     ...config,
   })
-  return createPetsMutationResponseSchema.parse(res.data)
+  return { ...res, data: createPetsMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -45,7 +45,7 @@ async function createPets(
 export function useCreatePets(
   options: {
     mutation?: UseMutationOptions<
-      CreatePetsMutationResponse,
+      ResponseConfig<CreatePetsMutationResponse>,
       Error,
       {
         uuid: CreatePetsPathParams['uuid']
@@ -60,7 +60,7 @@ export function useCreatePets(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createPetsMutationKey()
   return useMutation<
-    CreatePetsMutationResponse,
+    ResponseConfig<CreatePetsMutationResponse>,
     Error,
     {
       uuid: CreatePetsPathParams['uuid']

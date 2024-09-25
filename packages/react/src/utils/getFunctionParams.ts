@@ -155,7 +155,7 @@ export function getFunctionParams(params: Params, options: Options): string {
 export function createFunctionParams(params: Params): Params {
   return params
 }
-
+//TODO use of string as `$name: $type` to create templates for functions instead of call/constructor
 export class FunctionParams {
   #params: Params
 
@@ -166,8 +166,22 @@ export class FunctionParams {
     this.#params = params
   }
 
-  get params() {
+  get params(): Params {
     return this.#params
+  }
+
+  get flatParams(): Params {
+    const flatter = (acc: Params, [key, item]: [key: string, item?: Param]): Params => {
+      if (item?.children) {
+        return Object.entries(item.children).reduce(flatter, acc)
+      }
+      if (item) {
+        acc[key] = item
+      }
+
+      return acc
+    }
+    return Object.entries(this.#params).reduce(flatter, {} as Params)
   }
 
   toCall({ transformName, transformType }: Pick<Options, 'transformName' | 'transformType'> = {}): string {

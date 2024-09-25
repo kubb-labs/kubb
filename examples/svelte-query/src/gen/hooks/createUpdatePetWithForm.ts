@@ -36,6 +36,7 @@ export function updatePetWithFormQueryOptions(
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, params)
   return queryOptions({
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

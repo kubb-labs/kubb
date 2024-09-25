@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type {
   FindPetsByTagsQueryResponse,
@@ -28,7 +28,7 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
     headers: { ...headers, ...config.headers },
     ...config,
   })
-  return findPetsByTagsQueryResponseSchema.parse(res.data)
+  return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
 }
 
 export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
@@ -48,14 +48,14 @@ export function findPetsByTagsQueryOptions(headers: FindPetsByTagsHeaderParams, 
  * @link /pet/findByTags
  */
 export function useFindPetsByTags<
-  TData = FindPetsByTagsQueryResponse,
-  TQueryData = FindPetsByTagsQueryResponse,
+  TData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<QueryObserverOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

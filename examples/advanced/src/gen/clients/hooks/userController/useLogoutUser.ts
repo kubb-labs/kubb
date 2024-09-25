@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
@@ -20,7 +20,7 @@ async function logoutUser(config: Partial<RequestConfig> = {}) {
     baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
-  return logoutUserQueryResponseSchema.parse(res.data)
+  return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
 }
 
 export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
@@ -38,9 +38,13 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
+export function useLogoutUser<
+  TData = ResponseConfig<LogoutUserQueryResponse>,
+  TQueryData = ResponseConfig<LogoutUserQueryResponse>,
+  TQueryKey extends QueryKey = LogoutUserQueryKey,
+>(
   options: {
-    query?: Partial<QueryObserverOptions<LogoutUserQueryResponse, Error, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<LogoutUserQueryResponse>, Error, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

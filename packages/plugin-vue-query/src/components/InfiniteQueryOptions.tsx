@@ -107,14 +107,23 @@ export function InfiniteQueryOptions({
           }`
       : ''
 
+  const enabled = Object.entries(queryKeyParams.flatParams)
+    .map(([key, item]) => (item && !item.optional ? key : undefined))
+    .filter(Boolean)
+    .join('&& ')
+
+  const enabledText = enabled ? `enabled: !!(${enabled})` : ''
+
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return infiniteQueryOptions({
+       ${enabledText}
        queryKey,
-       queryFn: async ({ pageParam }) => {
+       queryFn: async ({ signal, pageParam }) => {
+          config.signal = signal
           ${infiniteOverrideParams}
           return ${clientName}(${clientParams.toCall()})
        },

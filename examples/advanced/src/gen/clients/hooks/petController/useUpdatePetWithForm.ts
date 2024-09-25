@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -26,7 +26,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
     params,
     ...config,
   })
-  return updatePetWithFormMutationResponseSchema.parse(res.data)
+  return { ...res, data: updatePetWithFormMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -36,7 +36,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
 export function useUpdatePetWithForm(
   options: {
     mutation?: UseMutationOptions<
-      UpdatePetWithFormMutationResponse,
+      ResponseConfig<UpdatePetWithFormMutationResponse>,
       UpdatePetWithForm405,
       {
         petId: UpdatePetWithFormPathParams['petId']
@@ -49,7 +49,7 @@ export function useUpdatePetWithForm(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
   return useMutation<
-    UpdatePetWithFormMutationResponse,
+    ResponseConfig<UpdatePetWithFormMutationResponse>,
     UpdatePetWithForm405,
     {
       petId: UpdatePetWithFormPathParams['petId']

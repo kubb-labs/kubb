@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
@@ -26,7 +26,7 @@ async function updateUser(
     data,
     ...config,
   })
-  return updateUserMutationResponseSchema.parse(res.data)
+  return { ...res, data: updateUserMutationResponseSchema.parse(res.data) }
 }
 
 /**
@@ -37,7 +37,7 @@ async function updateUser(
 export function useUpdateUser(
   options: {
     mutation?: UseMutationOptions<
-      UpdateUserMutationResponse,
+      ResponseConfig<UpdateUserMutationResponse>,
       Error,
       {
         username: UpdateUserPathParams['username']
@@ -50,7 +50,7 @@ export function useUpdateUser(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
   return useMutation<
-    UpdateUserMutationResponse,
+    ResponseConfig<UpdateUserMutationResponse>,
     Error,
     {
       username: UpdateUserPathParams['username']

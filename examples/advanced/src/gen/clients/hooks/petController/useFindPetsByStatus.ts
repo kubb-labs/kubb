@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
@@ -22,7 +22,7 @@ async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Pa
     params,
     ...config,
   })
-  return findPetsByStatusQueryResponseSchema.parse(res.data)
+  return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
 }
 
 export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
@@ -42,13 +42,13 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
  * @link /pet/findByStatus
  */
 export function useFindPetsByStatus<
-  TData = FindPetsByStatusQueryResponse,
-  TQueryData = FindPetsByStatusQueryResponse,
+  TData = ResponseConfig<FindPetsByStatusQueryResponse>,
+  TQueryData = ResponseConfig<FindPetsByStatusQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
   params?: FindPetsByStatusQueryParams,
   options: {
-    query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, FindPetsByStatus400, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<FindPetsByStatusQueryResponse>, FindPetsByStatus400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

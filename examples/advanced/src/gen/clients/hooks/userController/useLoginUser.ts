@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig } from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
@@ -21,7 +21,7 @@ async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestC
     params,
     ...config,
   })
-  return loginUserQueryResponseSchema.parse(res.data)
+  return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
 }
 
 export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
@@ -39,10 +39,14 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
  * @summary Logs user into the system
  * @link /user/login
  */
-export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
+export function useLoginUser<
+  TData = ResponseConfig<LoginUserQueryResponse>,
+  TQueryData = ResponseConfig<LoginUserQueryResponse>,
+  TQueryKey extends QueryKey = LoginUserQueryKey,
+>(
   params?: LoginUserQueryParams,
   options: {
-    query?: Partial<QueryObserverOptions<LoginUserQueryResponse, LoginUser400, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<LoginUserQueryResponse>, LoginUser400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {

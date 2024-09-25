@@ -43,6 +43,7 @@ export function getUserByNameQueryOptions(
 ) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions({
+    enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
