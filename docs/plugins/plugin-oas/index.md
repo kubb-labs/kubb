@@ -17,9 +17,7 @@ We are using [Oas](https://github.com/readmeio/oas) to convert a YAML/JSON to an
 
 The Swagger plugin also contains some classes and functions that can be used in your own plugin that needs Swagger:
 
-- For example, we have [`getReference`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
-
-- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-labs/kubb/blob/main/packages/swagger/src/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
+- For example, we have the class [`OperationGenerator`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin-oas/src/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
   <br/>Just call `this.getSchemas` and you will retrieve an object contains all the info you need to set up a TypeScript type, React-Query hook,....
 
 ## Installation
