@@ -199,7 +199,7 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 
 ### Default `client` with `process.env`
 
-Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin/client.ts)
+Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin-client/client.ts)
 
 ```typescript
 import axios from 'axios'
@@ -237,7 +237,7 @@ export default axiosClient
 
 ### Default `client` with `declare const`
 
-Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin/client.ts)
+Link: [`client.ts`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin-client/client.ts)
 
 ```typescript
 import axios from 'axios'
