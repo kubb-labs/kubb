@@ -15,7 +15,7 @@ export default defineConfig([
     output: {
       path: './src/gen',
       clean: true,
-      exportType: false,
+      barrelType: false,
     },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],

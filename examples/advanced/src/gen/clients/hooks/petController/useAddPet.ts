@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
+import client from '../../../../tanstack-query-client.js'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.js'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.ts'
+import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.js'
 import { useMutation } from '@tanstack/react-query'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const

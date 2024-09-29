@@ -6,7 +6,7 @@ import type {
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
-} from '../../../models/ts/petController/UpdatePet.ts'
+} from '../../../models/ts/petController/UpdatePet.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

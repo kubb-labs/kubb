@@ -67,7 +67,7 @@ type Events = {
 type GetFileProps<TOptions = object> = {
   name: string
   mode?: KubbFile.Mode
-  extName: KubbFile.Extname
+  extname: KubbFile.Extname
   pluginKey: Plugin['key']
   options?: TOptions
 }
@@ -117,8 +117,8 @@ export class PluginManager {
     return this
   }
 
-  getFile<TOptions = object>({ name, mode, extName, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
-    const baseName = `${name}${extName}` as const
+  getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
+    const baseName = `${name}${extname}` as const
     const path = this.resolvePath({ baseName, mode, pluginKey, options })
 
     if (!path) {

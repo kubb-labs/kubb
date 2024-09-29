@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery, queryOptions } from '@tanstack/vue-query'

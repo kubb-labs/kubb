@@ -8,7 +8,7 @@ export const jsonGenerator = createGenerator<PluginOas>({
     const { pluginManager, plugin } = instance.context
     const file = pluginManager.getFile({
       name: camelCase(schema.name),
-      extName: '.json',
+      extname: '.json',
       mode: 'split',
       pluginKey: plugin.key,
     })

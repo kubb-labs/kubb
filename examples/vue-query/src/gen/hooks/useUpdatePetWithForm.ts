@@ -4,7 +4,7 @@ import type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../models/UpdatePetWithForm.ts'
+} from '../models/UpdatePetWithForm'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'

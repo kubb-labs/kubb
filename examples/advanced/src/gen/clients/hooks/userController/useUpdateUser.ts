@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
+import client from '../../../../tanstack-query-client.js'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.js'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
+import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.js'
 import { useMutation } from '@tanstack/react-query'
 
 export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const

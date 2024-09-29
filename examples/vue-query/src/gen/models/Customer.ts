@@ -1,4 +1,4 @@
-import type { Address } from './Address.ts'
+import type { Address } from './Address'
 
 export type Customer = {
   /**

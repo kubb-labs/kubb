@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.30
+- [`plugin-core`](/plugins/core/): Removal of `output.extName` in favour of `output.extension`
+- [`plugin-core`](/plugins/core/): Removal of `exportType` in favour of `barrelType`
+
+
 ## 3.0.0-alpha.29
 - [`plugin-react-query`](/plugins/plugin-react-query/): Support for cancellation of queries with the help of `signal`
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Support for cancellation of queries with the help of `signal`

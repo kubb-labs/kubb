@@ -85,16 +85,16 @@ FileSource.displayName = 'KubbFileSource'
 
 type FileExportProps = KubbFile.Export
 
-function FileExport({ name, path, isTypeOnly, extName, asAlias }: FileExportProps): KubbNode {
-  return <kubb-export name={name} path={path} extName={extName} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
+function FileExport({ name, path, isTypeOnly, asAlias }: FileExportProps): KubbNode {
+  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly || false} asAlias={asAlias} />
 }
 
 FileExport.displayName = 'KubbFileExport'
 
 type FileImportProps = KubbFile.Import
 
-function FileImport({ name, root, path, isTypeOnly, extName, isNameSpace }: FileImportProps): KubbNode {
-  return <kubb-import name={name} root={root} path={path} extName={extName} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
+function FileImport({ name, root, path, isTypeOnly, isNameSpace }: FileImportProps): KubbNode {
+  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly || false} />
 }
 
 FileImport.displayName = 'KubbFileImport'

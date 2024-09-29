@@ -33,7 +33,6 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": true,
-              "extName": undefined,
               "isTypeOnly": false,
               "name": undefined,
               "path": "./index.ts",
@@ -42,7 +41,6 @@ describe('<File/>', () => {
           "footer": undefined,
           "imports": [
             {
-              "extName": undefined,
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -100,7 +98,6 @@ describe('<File/>', () => {
           "exports": [
             {
               "asAlias": undefined,
-              "extName": undefined,
               "isTypeOnly": false,
               "name": "test",
               "path": "",
@@ -269,7 +266,6 @@ describe('<File/>', () => {
     expect(root.files[0]?.imports).toMatchInlineSnapshot(`
       [
         {
-          "extName": undefined,
           "isNameSpace": undefined,
           "isTypeOnly": false,
           "name": "node",
@@ -348,7 +344,6 @@ describe('<File.Import/>', () => {
           "footer": undefined,
           "imports": [
             {
-              "extName": undefined,
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -377,7 +372,7 @@ describe('<File.Import/>', () => {
   test('render Import with File.Import inside of File', () => {
     const Component = () => {
       return (
-        <File baseName="test.ts" path="path">
+        <File baseName="test.ts" path="path.ts">
           <File.Import name="React" path="react" />
           <File.Source>test</File.Source>
         </File>
@@ -395,7 +390,6 @@ describe('<File.Import/>', () => {
           "footer": undefined,
           "imports": [
             {
-              "extName": undefined,
               "isNameSpace": undefined,
               "isTypeOnly": false,
               "name": "React",
@@ -405,7 +399,7 @@ describe('<File.Import/>', () => {
           ],
           "meta": {},
           "override": undefined,
-          "path": "path",
+          "path": "path.ts",
           "sources": [
             {
               "isExportable": undefined,

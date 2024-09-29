@@ -1,4 +1,4 @@
-import type { Order } from './Order.ts'
+import type { Order } from './Order'
 
 /**
  * @description successful operation

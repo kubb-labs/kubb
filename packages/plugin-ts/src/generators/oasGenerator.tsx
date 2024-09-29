@@ -16,7 +16,7 @@ export const oasGenerator = createReactGenerator<PluginTs>({
     } = useApp<PluginTs>()
     const oas = useOas()
 
-    const file = pluginManager.getFile({ name: 'oas', extName: '.ts', pluginKey })
+    const file = pluginManager.getFile({ name: 'oas', extname: '.ts', pluginKey })
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={output?.banner} footer={output?.footer}>

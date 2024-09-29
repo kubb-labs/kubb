@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/client'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+} from '../../../models/ts/userController/CreateUsersWithListInput.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

@@ -6,7 +6,7 @@ export type {
   CreatePetsErrorSchema,
   CreatePetsMutationRequestSchema,
   CreatePetsMutationResponseSchema,
-} from './createPetsSchema.ts'
+} from './createPetsSchema.js'
 export {
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
@@ -15,4 +15,4 @@ export {
   createPetsErrorSchema,
   createPetsMutationRequestSchema,
   createPetsMutationResponseSchema,
-} from './createPetsSchema.ts'
+} from './createPetsSchema.js'

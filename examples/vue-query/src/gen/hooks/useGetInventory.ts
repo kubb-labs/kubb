@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
+import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery, queryOptions } from '@tanstack/vue-query'

@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
+import client from '../../../../tanstack-query-client.js'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
+import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.js'
 import { useMutation } from '@tanstack/react-query'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const

@@ -1,4 +1,4 @@
-import { userSchema } from '../userSchema.ts'
+import { userSchema } from '../userSchema.js'
 import { z } from 'zod'
 
 export const getUserByNamePathParamsSchema = z.object({ username: z.string().describe('The name that needs to be fetched. Use user1 for testing. ') })

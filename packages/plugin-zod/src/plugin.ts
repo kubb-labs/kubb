@@ -17,7 +17,7 @@ export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
 export const pluginZod = createPlugin<PluginZod>((options) => {
   const {
-    output = { path: 'zod' },
+    output = { path: 'zod', barrelType: 'named' },
     group,
     exclude = [],
     include,
@@ -38,11 +38,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
   return {
     name: pluginZodName,
     options: {
-      output: {
-        exportType: 'barrelNamed',
-        ...output,
-      },
-      extName: output.extName,
+      output,
       transformers,
       include,
       exclude,
@@ -128,19 +124,18 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

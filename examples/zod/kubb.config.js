@@ -67,7 +67,7 @@ export default defineConfig(async () => {
       pluginClient({
         output: {
           path: './zodClients.ts',
-          exportType: false,
+          barrelType: false,
         },
         include: [
           {

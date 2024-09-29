@@ -17,7 +17,7 @@ export const pluginVueQueryName = 'plugin-vue-query' satisfies PluginVueQuery['n
 
 export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
   const {
-    output = { path: 'hooks' },
+    output = { path: 'hooks', barrelType: 'named' },
     group,
     exclude = [],
     include,
@@ -35,10 +35,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
   return {
     name: pluginVueQueryName,
     options: {
-      output: {
-        exportType: 'barrelNamed',
-        ...output,
-      },
+      output,
       baseURL: undefined,
       client: {
         importPath: '@kubb/plugin-client/client',
@@ -136,19 +133,18 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

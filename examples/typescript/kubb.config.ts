@@ -20,47 +20,36 @@ export default defineConfig({
     pluginTs({
       output: {
         path: 'models.ts',
-        exportAs: 'models',
-        exportType: false,
       },
       enumType: 'enum',
     }),
     pluginTs({
       output: {
         path: 'modelsConst.ts',
-        exportAs: 'modelsAsConst',
-        exportType: false,
       },
       enumType: 'asConst',
     }),
     pluginTs({
       output: {
         path: 'modelsPascalConst.ts',
-        exportAs: 'modelsPascalConst',
-        exportType: false,
       },
       enumType: 'asConst',
     }),
     pluginTs({
       output: {
         path: 'modelsConstEnum.ts',
-        exportAs: 'modelsConstEnum',
-        exportType: false,
       },
       enumType: 'constEnum',
     }),
     pluginTs({
       output: {
         path: 'modelsLiteral.ts',
-        exportAs: 'modelsLiteral',
-        exportType: false,
       },
       enumType: 'literal',
     }),
     pluginTs({
       output: {
         path: 'ts/models',
-        exportType: 'barrelNamed',
       },
       oasType: 'infer',
       mapper: {

@@ -1,6 +1,6 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

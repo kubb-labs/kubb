@@ -20,7 +20,7 @@ module.exports = defineConfig(() => {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
-      pluginOas({ output: false }),
+      pluginOas({ generators: [] }),
       pluginTs({
         output: {
           path: 'models',
@@ -31,7 +31,7 @@ module.exports = defineConfig(() => {
           path: './faker',
         },
         transformers: {
-          schema: ({ schema, name, parentName }, defaultSchemas) => {
+          schema({ schema, name, parentName }, defaultSchemas) {
             /* override a property with name 'name'
                Pet:
                   required:
@@ -79,7 +79,7 @@ module.exports = defineConfig(() => {
       pluginFaker({
         output: {
           path: './tag',
-          exportType: false,
+          barrelType: false,
         },
         include: [
           {

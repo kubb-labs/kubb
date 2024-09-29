@@ -20,6 +20,7 @@ export default defineConfig(() => {
     output: {
       path: './src/gen',
       clean: true,
+      barrelType: 'named',
     },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
@@ -36,7 +37,6 @@ export default defineConfig(() => {
       pluginTs({
         output: {
           path: 'models/ts',
-          extName: '.js',
         },
         group: {
           type: 'tag',
@@ -99,7 +99,6 @@ export default defineConfig(() => {
       pluginSwr({
         output: {
           path: './clients/swr',
-          exportType: false,
         },
         exclude: [
           {
@@ -113,6 +112,11 @@ export default defineConfig(() => {
           dataReturnType: 'data',
         },
         parser: 'zod',
+        transformers: {
+          name(name, type) {
+            return `${name}SWR`
+          },
+        },
       }),
       pluginClient({
         output: {
@@ -148,7 +152,6 @@ export default defineConfig(() => {
       pluginFaker({
         output: {
           path: 'mocks',
-          exportType: false,
         },
         exclude: [
           {
@@ -161,11 +164,15 @@ export default defineConfig(() => {
         mapper: {
           status: `faker.helpers.arrayElement(['working', 'idle']) as any`,
         },
+        transformers: {
+          name(name, type) {
+            return `${name}Faker`
+          },
+        },
       }),
       pluginMsw({
         output: {
           path: 'msw',
-          exportType: false,
         },
         handlers: true,
         exclude: [

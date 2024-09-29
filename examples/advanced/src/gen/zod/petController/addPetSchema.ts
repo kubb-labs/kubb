@@ -1,5 +1,5 @@
-import { addPetRequestSchema } from '../addPetRequestSchema.ts'
-import { petSchema } from '../petSchema.ts'
+import { addPetRequestSchema } from '../addPetRequestSchema.js'
+import { petSchema } from '../petSchema.js'
 import { z } from 'zod'
 
 /**

@@ -1,5 +1,5 @@
-export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.ts'
-export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.ts'
+export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.js'
+export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.js'
 export type {
   FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
@@ -7,7 +7,7 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQueryResponse,
   FindPetsByStatusQuery,
-} from './FindPetsByStatus.ts'
+} from './FindPetsByStatus.js'
 export type {
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParamsXExampleEnum,
@@ -16,8 +16,8 @@ export type {
   FindPetsByTags400,
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQuery,
-} from './FindPetsByTags.ts'
-export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './GetPetById.ts'
+} from './FindPetsByTags.js'
+export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './GetPetById.js'
 export type {
   UpdatePet200,
   UpdatePet400,
@@ -26,14 +26,14 @@ export type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
   UpdatePetMutation,
-} from './UpdatePet.ts'
+} from './UpdatePet.js'
 export type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormMutation,
-} from './UpdatePetWithForm.ts'
+} from './UpdatePetWithForm.js'
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
@@ -41,5 +41,5 @@ export type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFileMutation,
-} from './UploadFile.ts'
-export { findPetsByTagsHeaderParamsXExampleEnum } from './FindPetsByTags.ts'
+} from './UploadFile.js'
+export { findPetsByTagsHeaderParamsXExampleEnum } from './FindPetsByTags.js'

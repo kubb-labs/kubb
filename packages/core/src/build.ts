@@ -108,17 +108,17 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
                 const meta = file.meta as any
                 return item.key === meta?.pluginKey
               })
-              const options = (plugin?.options as { output?: Output }) ?? {}
+              const pluginOptions = (plugin?.options as { output?: Output }) ?? {}
 
-              if (options.output?.exportType === false) {
+              if (pluginOptions.output?.barrelType === false) {
                 return undefined
               }
 
-              if (FileManager.getMode(options.output?.path) === 'single') {
+              if (FileManager.getMode(pluginOptions.output?.path) === 'single') {
                 return undefined
               }
               return {
-                name: options.output?.exportType === 'barrel' ? undefined : [source.name],
+                name: pluginOptions.output?.barrelType === 'all' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
                 isTypeOnly: source.isTypeOnly,
               } as KubbFile.Export
@@ -130,11 +130,10 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       meta: {},
     }
 
-    if (options.config.output.exportType) {
+    if (options.config.output.barrelType) {
       await pluginManager.fileManager.add(rootFile)
     }
 
-    //TODO set extName here instead of the files, extName is private. All exports will have extName, it's up the the process to hide.override the name
     files = await processFiles({
       config: options.config,
       dryRun: !options.config.output.write,

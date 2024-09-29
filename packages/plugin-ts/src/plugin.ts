@@ -14,7 +14,7 @@ export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
 export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
-    output = { path: 'types' },
+    output = { path: 'types', barrelType: 'named' },
     group,
     exclude = [],
     include,
@@ -34,10 +34,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   return {
     name: pluginTsName,
     options: {
-      output: {
-        exportType: 'barrelNamed',
-        ...output,
-      },
+      output,
       transformers,
       dateType,
       optionalType,
@@ -115,19 +112,18 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

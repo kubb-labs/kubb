@@ -13,7 +13,7 @@ import type { ResolvedFile } from '@kubb/fs/types'
 import type { GreaterThan } from '@kubb/types'
 import PQueue from 'p-queue'
 import type { Logger } from './logger.ts'
-import type { Config, Plugin } from './types.ts'
+import type { BarrelType, Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
 import { type DirectoryTree, TreeNode, buildDirectoryTree } from './utils/TreeNode.ts'
 
@@ -24,6 +24,7 @@ export type FileMetaBase = {
 type AddResult<T extends Array<KubbFile.File>> = Promise<Awaited<GreaterThan<T['length'], 1> extends true ? Promise<ResolvedFile[]> : Promise<ResolvedFile>>>
 
 type AddIndexesProps = {
+  type: BarrelType | false | undefined
   /**
    * Root based on root and output.path specified in the config
    */
@@ -34,9 +35,6 @@ type AddIndexesProps = {
    */
   output: {
     path: string
-    extName?: KubbFile.Extname
-    exportAs?: string
-    exportType?: 'barrel' | 'barrelNamed' | false
   }
   group?: {
     output: string
@@ -136,13 +134,12 @@ export class FileManager {
     this.#filesByPath.delete(path)
   }
 
-  async getBarrelFiles({ files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
-    const { exportType = 'barrelNamed' } = output
-    const barrelManager = new BarrelManager({ logger })
-
-    if (exportType === false) {
+  async getBarrelFiles({ type, files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
+    if (!type) {
       return []
     }
+
+    const barrelManager = new BarrelManager({ logger })
 
     const pathToBuildFrom = join(root, output.path)
 
@@ -154,7 +151,7 @@ export class FileManager {
 
     const barrelFiles = barrelManager.getFiles({ files, root: pathToBuildFrom, meta })
 
-    if (exportType === 'barrel') {
+    if (type === 'all') {
       return barrelFiles.map((file) => {
         return {
           ...file,
@@ -194,12 +191,16 @@ export class FileManager {
 }
 
 type GetSourceOptions = {
+  extname?: KubbFile.Extname
   logger?: Logger
 }
 
-export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(file: ResolvedFile<TMeta>, { logger }: GetSourceOptions = {}): Promise<string> {
-  const parser = await getFileParser(file.extName)
-  const source = await parser.print(file, { logger })
+export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(
+  file: ResolvedFile<TMeta>,
+  { logger, extname }: GetSourceOptions = {},
+): Promise<string> {
+  const parser = await getFileParser(file.extname)
+  const source = await parser.print(file, { logger, extname })
 
   return parser.format(source)
 }
@@ -396,8 +397,10 @@ export async function processFiles({ dryRun, config, logger, files }: WriteFiles
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
         const message = file ? `Writing ${relative(config.root, file.path)}` : ''
+        const extnames = config.output.extension?.({})
+        const extname = extnames?.[file.extname]
 
-        const source = await getSource(file, { logger })
+        const source = await getSource(file, { logger, extname })
 
         await write(file.path, source, { sanity: false })
 

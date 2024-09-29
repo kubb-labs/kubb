@@ -1,6 +1,6 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

@@ -1,4 +1,4 @@
-import type { User } from './User.ts'
+import type { User } from './User'
 
 /**
  * @description Successful operation

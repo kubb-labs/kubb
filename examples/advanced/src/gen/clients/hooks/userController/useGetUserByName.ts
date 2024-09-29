@@ -1,14 +1,14 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client.js'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.js'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-} from '../../../models/ts/userController/GetUserByName.ts'
-import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
-import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
+} from '../../../models/ts/userController/GetUserByName.js'
+import { useQuery, queryOptions } from '../../../../tanstack-query-hook.js'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.js'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 

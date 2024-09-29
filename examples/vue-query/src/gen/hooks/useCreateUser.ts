@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/client'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'

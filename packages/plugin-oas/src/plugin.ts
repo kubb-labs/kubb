@@ -18,8 +18,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
   const {
     output = {
       path: 'schemas',
-      export: false,
-      exportType: 'barrelNamed',
     },
     validate = true,
     generators = [jsonGenerator],

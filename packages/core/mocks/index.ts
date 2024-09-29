@@ -43,8 +43,8 @@ export const createMockedPluginManager = (name?: string) =>
       on(eventName, args) {},
       logLevel: 3,
     },
-    getFile: ({ name, extName, pluginKey }) => {
-      const baseName = `${name}${extName}`
+    getFile: ({ name, extname, pluginKey }) => {
+      const baseName = `${name}${extname}`
 
       return {
         path: baseName,

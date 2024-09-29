@@ -54,16 +54,13 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
 
     return (
       <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
-        {options.parser === 'zod' && (
-          <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />
-        )}
+        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
         <File.Import name={['useMutation']} path={options.mutation.importPath} />
         <File.Import name={['MutationObserverOptions']} path={options.mutation.importPath} isTypeOnly />
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
-          extName={output?.extName}
           name={[
             type.schemas.request?.name,
             type.schemas.response.name,

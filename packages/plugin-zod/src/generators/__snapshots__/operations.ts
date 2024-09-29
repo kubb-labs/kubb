@@ -1,4 +1,4 @@
-import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, createPetsMutationResponse, showPetByIdQueryResponse, showPetByIdPathParams } from "./showPetById.ts";
+import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, createPetsMutationResponse, showPetByIdQueryResponse, showPetByIdPathParams } from "./showPetById";
 
  export const operations = { "listPets": {
         request: undefined,
