@@ -1,5 +1,7 @@
 # @kubb/oas
 
+## 3.0.0-alpha.30
+
 ## 3.0.0-alpha.29
 
 ## 3.0.0-alpha.28
