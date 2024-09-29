@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { FileManager, PluginManager, createPlugin } from '@kubb/core'
+import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
@@ -26,7 +26,6 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
     handlers = false,
     generators = [mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
   } = options
-  const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginMswName,
@@ -38,18 +37,18 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
+      if (options?.tag && group?.type === 'tag') {
+        const groupName: Group['name'] = group?.name ? group.name : (ctx) => `${ctx.group}Controller`
+
+        return path.resolve(root, output.path, groupName({ group: camelCase(options.tag) }), baseName)
+      }
+
       if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
-      }
-
-      if (options?.tag && group?.type === 'tag') {
-        const tag = camelCase(options.tag)
-
-        return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
       return path.resolve(root, output.path, baseName)

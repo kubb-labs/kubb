@@ -1,4 +1,4 @@
-import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
@@ -10,25 +10,7 @@ export type Options = {
   /**
    * Group the SWR hooks based on the provided name.
    */
-  group?: {
-    /**
-     * Tag will group based on the operation tag inside the Swagger file
-     */
-    type: 'tag'
-    /**
-     * Relative path to save the grouped SWR hooks.
-     *
-     * `{{tag}}` will be replaced by the current tagName.
-     * @example `${output}/{{tag}}Controller` => `hooks/PetController`
-     * @default `${output}/{{tag}}Controller`
-     */
-    output?: string
-    /**
-     * Name to be used for the `export * as {{exportAs}} from './`
-     * @default `"{{tag}}SWRHooks"`
-     */
-    exportAs?: string
-  }
+  group?: Group
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */

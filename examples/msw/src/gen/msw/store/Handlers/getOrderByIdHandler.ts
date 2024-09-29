@@ -1,4 +1,4 @@
-import { createGetOrderByIdQueryResponse } from '../../mocks/storeMocks/createGetOrderById.ts'
+import { createGetOrderByIdQueryResponse } from '../../../mocks/storeController/createGetOrderById.ts'
 import { http } from 'msw'
 
 export const getOrderByIdHandler = http.get('*/store/order/:orderId', function handler(info) {

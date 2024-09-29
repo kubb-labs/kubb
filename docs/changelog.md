@@ -4,6 +4,38 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-alpha.31
+- [`plugin-client`](/plugins/client/): Generate `${tag}Service` controller file related to group x when using `group`(no need to specify `group.exportAs`)
+- [`plugin-core`](/plugins/core/): Removal of `group.exportAs`
+- [`plugin-core`](/plugins/core/): Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
+```typescript [kubb.config.ts]
+import { defineConfig } from "@kubb/core"
+import { pluginOas } from "@kubb/plugin-oas"
+import { pluginTs } from "@kubb/plugin-ts"
+import { pluginClient } from '@kubb/plugin-client'
+
+export default defineConfig({
+  root: '.',
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+    clean: true,
+  },
+  plugins: [
+    pluginOas({ generators: [] }),
+    pluginClient({
+      output: {
+        path: './clients/axios',
+      },
+      group: { type: 'tag', output: './clients/axios/{{tag}}Service' }, // [!code --]
+      group: { type: 'tag', name: ({ group }) => `${group}Service` }, // [!code ++]
+    }),
+  ],
+})
+```
+
 ## 3.0.0-alpha.30
 - [`plugin-core`](/plugins/core/): Removal of `output.extName` in favour of `output.extension`
 - [`plugin-core`](/plugins/core/): Removal of `exportType` in favour of `barrelType`
@@ -77,9 +109,9 @@ z.union([z.literal(true), z.literal(false)]) // [!code ++]
 - Separate plugin/package for Solid-Query: `@kubb/plugin-solid-query`
 
 ```typescript twoslash [kubb.config.ts]
-import {defineConfig} from "@kubb/core"
-import {pluginOas} from "@kubb/plugin-oas"
-import {pluginTs} from "@kubb/plugin-ts"
+import { defineConfig } from "@kubb/core"
+import { pluginOas } from "@kubb/plugin-oas"
+import { pluginTs } from "@kubb/plugin-ts"
 import { pluginSolidQuery } from '@kubb/plugin-solid-query' // [!code ++]
 import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'  // [!code --]
 

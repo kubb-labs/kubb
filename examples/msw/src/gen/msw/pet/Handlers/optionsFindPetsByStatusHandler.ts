@@ -1,4 +1,4 @@
-import { createOptionsFindPetsByStatusMutationResponse } from '../../mocks/petMocks/createOptionsFindPetsByStatus.ts'
+import { createOptionsFindPetsByStatusMutationResponse } from '../../../mocks/petController/createOptionsFindPetsByStatus.ts'
 import { http } from 'msw'
 
 export const optionsFindPetsByStatusHandler = http.options('*/pet/findByStatus', function handler(info) {

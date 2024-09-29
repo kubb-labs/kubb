@@ -50,10 +50,6 @@ export type ReactGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   Operations?: (this: ReactGeneratorOptions<TOptions>, props: OperationsProps<TOptions>) => KubbNode
   Operation?: (this: ReactGeneratorOptions<TOptions>, props: OperationProps<TOptions>) => KubbNode
   Schema?: (this: ReactGeneratorOptions<TOptions>, props: SchemaProps<TOptions>) => KubbNode
-  /**
-   * Combine all react nodes and only render ones(to string or render)
-   */
-  render?: () => any
 }
 
 export function createReactGenerator<TOptions extends PluginFactoryOptions>(parseOptions: ReactGeneratorOptions<TOptions>): Generator<TOptions> {

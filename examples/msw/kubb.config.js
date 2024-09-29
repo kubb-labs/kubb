@@ -41,7 +41,9 @@ export default defineConfig(() => {
         handlers: true,
         group: {
           type: 'tag',
-          output: './msw/{{tag}}Handlers',
+          name({ group }) {
+            return `${group}/Handlers`
+          },
         },
       }),
     ],
