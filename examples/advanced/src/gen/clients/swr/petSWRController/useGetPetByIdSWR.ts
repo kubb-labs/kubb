@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.ts'
+import client from '../../../../swr-client.js'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
+import type { RequestConfig } from '../../../../swr-client.js'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
+import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.js'
 
 export const getPetByIdQueryKeySWR = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 

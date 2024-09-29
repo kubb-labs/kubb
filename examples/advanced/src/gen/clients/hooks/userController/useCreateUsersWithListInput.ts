@@ -1,11 +1,11 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
+import client from '../../../../tanstack-query-client.js'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+} from '../../../models/ts/userController/CreateUsersWithListInput.js'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.ts'
+import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.js'
 import { useMutation } from '@tanstack/react-query'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const

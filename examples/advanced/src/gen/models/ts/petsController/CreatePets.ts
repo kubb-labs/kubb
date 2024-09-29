@@ -1,4 +1,4 @@
-import type { PetNotFound } from '../PetNotFound.ts'
+import type { PetNotFound } from '../PetNotFound.js'
 
 export type CreatePetsPathParams = {
   /**

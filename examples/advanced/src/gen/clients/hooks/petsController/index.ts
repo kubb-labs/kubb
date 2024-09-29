@@ -1,2 +1,2 @@
-export type { CreatePetsMutationKey } from './useCreatePets.ts'
-export { createPetsMutationKey, useCreatePets } from './useCreatePets.ts'
+export type { CreatePetsMutationKey } from './useCreatePets.js'
+export { createPetsMutationKey, useCreatePets } from './useCreatePets.js'

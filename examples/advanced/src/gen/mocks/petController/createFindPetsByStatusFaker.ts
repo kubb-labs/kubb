@@ -1,5 +1,5 @@
-import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
-import { createPetFaker } from '../createPetFaker.ts'
+import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.js'
+import { createPetFaker } from '../createPetFaker.js'
 import { faker } from '@faker-js/faker'
 
 export function createFindPetsByStatusQueryParamsFaker(data: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}) {

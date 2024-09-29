@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.ts'
+import client from '../../../../swr-client.js'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
+import type { RequestConfig } from '../../../../swr-client.js'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.js'
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.js'
 
 export const loginUserQueryKeySWR = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 

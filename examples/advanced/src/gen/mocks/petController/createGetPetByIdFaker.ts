@@ -1,5 +1,5 @@
-import type { GetPetByIdPathParams } from '../../models/ts/petController/GetPetById.ts'
-import { createPetFaker } from '../createPetFaker.ts'
+import type { GetPetByIdPathParams } from '../../models/ts/petController/GetPetById.js'
+import { createPetFaker } from '../createPetFaker.js'
 import { faker } from '@faker-js/faker'
 
 export function createGetPetByIdPathParamsFaker(data: NonNullable<Partial<GetPetByIdPathParams>> = {}) {

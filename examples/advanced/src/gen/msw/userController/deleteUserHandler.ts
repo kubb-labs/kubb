@@ -1,4 +1,4 @@
-import { createDeleteUserMutationResponseFaker } from '../../mocks/userController/createDeleteUserFaker.ts'
+import { createDeleteUserMutationResponseFaker } from '../../mocks/userController/createDeleteUserFaker.js'
 import { http } from 'msw'
 
 export const deleteUserHandler = http.delete('*/user/:username', function handler(info) {

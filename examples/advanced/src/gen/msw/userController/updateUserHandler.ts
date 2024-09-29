@@ -1,4 +1,4 @@
-import { createUpdateUserMutationResponseFaker } from '../../mocks/userController/createUpdateUserFaker.ts'
+import { createUpdateUserMutationResponseFaker } from '../../mocks/userController/createUpdateUserFaker.js'
 import { http } from 'msw'
 
 export const updateUserHandler = http.put('*/user/:username', function handler(info) {

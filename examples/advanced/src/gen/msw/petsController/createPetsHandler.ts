@@ -1,4 +1,4 @@
-import { createCreatePetsMutationResponseFaker } from '../../mocks/petsController/createCreatePetsFaker.ts'
+import { createCreatePetsMutationResponseFaker } from '../../mocks/petsController/createCreatePetsFaker.js'
 import { http } from 'msw'
 
 export const createPetsHandler = http.post('*/pets/:uuid', function handler(info) {

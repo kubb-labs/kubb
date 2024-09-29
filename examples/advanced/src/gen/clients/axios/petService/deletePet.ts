@@ -1,6 +1,6 @@
-import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
+import client from '../../../../axios-client.js'
+import type { RequestConfig } from '../../../../axios-client.js'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.js'
 
 /**
  * @description delete a pet

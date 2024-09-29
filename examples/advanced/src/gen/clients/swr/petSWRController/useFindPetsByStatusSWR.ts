@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.ts'
+import client from '../../../../swr-client.js'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
+import type { RequestConfig } from '../../../../swr-client.js'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.js'
+import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.js'
 
 export const findPetsByStatusQueryKeySWR = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 

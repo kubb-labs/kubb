@@ -1,13 +1,13 @@
-import client from '../../../../swr-client.ts'
+import client from '../../../../swr-client.js'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig } from '../../../../swr-client.js'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
-} from '../../../models/ts/petController/FindPetsByTags.ts'
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
+} from '../../../models/ts/petController/FindPetsByTags.js'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.js'
 
 export const findPetsByTagsQueryKeySWR = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 

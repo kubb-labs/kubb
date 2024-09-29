@@ -1,4 +1,4 @@
-import { createLoginUserQueryResponseFaker } from '../../mocks/userController/createLoginUserFaker.ts'
+import { createLoginUserQueryResponseFaker } from '../../mocks/userController/createLoginUserFaker.js'
 import { http } from 'msw'
 
 export const loginUserHandler = http.get('*/user/login', function handler(info) {

@@ -1,4 +1,4 @@
-import { createPetFaker } from '../createPetFaker.ts'
+import { createPetFaker } from '../createPetFaker.js'
 
 /**
  * @description Successful operation

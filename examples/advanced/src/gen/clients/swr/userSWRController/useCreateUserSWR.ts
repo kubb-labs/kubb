@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.ts'
+import client from '../../../../swr-client.js'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
+import type { RequestConfig } from '../../../../swr-client.js'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
+import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.js'
 
 export const createUserMutationKeySWR = () => [{ url: '/user' }] as const
 

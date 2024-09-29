@@ -1,4 +1,4 @@
-import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/ts/petController/UpdatePetWithForm.ts'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/ts/petController/UpdatePetWithForm.js'
 import { faker } from '@faker-js/faker'
 
 export function createUpdatePetWithFormPathParamsFaker(data: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}) {

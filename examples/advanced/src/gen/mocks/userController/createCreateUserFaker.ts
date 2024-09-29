@@ -1,4 +1,4 @@
-import { createUserFaker } from '../createUserFaker.ts'
+import { createUserFaker } from '../createUserFaker.js'
 
 /**
  * @description successful operation

@@ -1,6 +1,6 @@
-import type { AddPet405 } from '../../models/ts/petController/AddPet.ts'
-import { createAddPetRequestFaker } from '../createAddPetRequestFaker.ts'
-import { createPetFaker } from '../createPetFaker.ts'
+import type { AddPet405 } from '../../models/ts/petController/AddPet.js'
+import { createAddPetRequestFaker } from '../createAddPetRequestFaker.js'
+import { createPetFaker } from '../createPetFaker.js'
 import { faker } from '@faker-js/faker'
 
 /**

@@ -1,12 +1,12 @@
-import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import client from '../../../../axios-client.js'
+import type { RequestConfig } from '../../../../axios-client.js'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets.ts'
+} from '../../../models/ts/petsController/CreatePets.js'
 
 /**
  * @summary Create a pet

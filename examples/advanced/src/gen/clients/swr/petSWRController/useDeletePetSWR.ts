@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.ts'
+import client from '../../../../swr-client.js'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
-import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
+import type { RequestConfig } from '../../../../swr-client.js'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.js'
+import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.js'
 
 export const deletePetMutationKeySWR = () => [{ url: '/pet/{petId}' }] as const
 

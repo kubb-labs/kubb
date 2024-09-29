@@ -1,4 +1,4 @@
-import type { User } from '../models/ts/User.ts'
+import type { User } from '../models/ts/User.js'
 import { faker } from '@faker-js/faker'
 
 export function createUserFaker(data: NonNullable<Partial<User>> = {}) {

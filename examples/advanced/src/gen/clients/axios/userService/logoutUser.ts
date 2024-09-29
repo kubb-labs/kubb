@@ -1,6 +1,6 @@
-import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
+import client from '../../../../axios-client.js'
+import type { RequestConfig } from '../../../../axios-client.js'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.js'
 
 /**
  * @summary Logs out current logged in user session

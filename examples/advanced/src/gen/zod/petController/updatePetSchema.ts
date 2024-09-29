@@ -1,4 +1,4 @@
-import { petSchema } from '../petSchema.ts'
+import { petSchema } from '../petSchema.js'
 import { z } from 'zod'
 
 /**

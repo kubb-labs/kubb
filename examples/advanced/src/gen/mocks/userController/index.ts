@@ -1,28 +1,28 @@
-export { createCreateUserErrorFaker, createCreateUserMutationRequestFaker, createCreateUserMutationResponseFaker } from './createCreateUserFaker.ts'
+export { createCreateUserErrorFaker, createCreateUserMutationRequestFaker, createCreateUserMutationResponseFaker } from './createCreateUserFaker.js'
 export {
   createCreateUsersWithListInput200Faker,
   createCreateUsersWithListInputErrorFaker,
   createCreateUsersWithListInputMutationRequestFaker,
   createCreateUsersWithListInputMutationResponseFaker,
-} from './createCreateUsersWithListInputFaker.ts'
+} from './createCreateUsersWithListInputFaker.js'
 export {
   createDeleteUserPathParamsFaker,
   createDeleteUser400Faker,
   createDeleteUser404Faker,
   createDeleteUserMutationResponseFaker,
-} from './createDeleteUserFaker.ts'
+} from './createDeleteUserFaker.js'
 export {
   createGetUserByNamePathParamsFaker,
   createGetUserByName200Faker,
   createGetUserByName400Faker,
   createGetUserByName404Faker,
   createGetUserByNameQueryResponseFaker,
-} from './createGetUserByNameFaker.ts'
-export { createLoginUserQueryParamsFaker, createLoginUser200Faker, createLoginUser400Faker, createLoginUserQueryResponseFaker } from './createLoginUserFaker.ts'
-export { createLogoutUserErrorFaker, createLogoutUserQueryResponseFaker } from './createLogoutUserFaker.ts'
+} from './createGetUserByNameFaker.js'
+export { createLoginUserQueryParamsFaker, createLoginUser200Faker, createLoginUser400Faker, createLoginUserQueryResponseFaker } from './createLoginUserFaker.js'
+export { createLogoutUserErrorFaker, createLogoutUserQueryResponseFaker } from './createLogoutUserFaker.js'
 export {
   createUpdateUserPathParamsFaker,
   createUpdateUserErrorFaker,
   createUpdateUserMutationRequestFaker,
   createUpdateUserMutationResponseFaker,
-} from './createUpdateUserFaker.ts'
+} from './createUpdateUserFaker.js'

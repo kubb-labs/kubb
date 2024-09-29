@@ -1,45 +1,45 @@
-export { createAddPetRequestFaker } from './createAddPetRequestFaker.ts'
-export { createAddressFaker } from './createAddressFaker.ts'
-export { createApiResponseFaker } from './createApiResponseFaker.ts'
-export { createCategoryFaker } from './createCategoryFaker.ts'
-export { createCustomerFaker } from './createCustomerFaker.ts'
-export { createOrderFaker } from './createOrderFaker.ts'
-export { createPetFaker } from './createPetFaker.ts'
-export { createPetNotFoundFaker } from './createPetNotFoundFaker.ts'
-export { createUserArrayFaker } from './createUserArrayFaker.ts'
-export { createUserFaker } from './createUserFaker.ts'
+export { createAddPetRequestFaker } from './createAddPetRequestFaker.js'
+export { createAddressFaker } from './createAddressFaker.js'
+export { createApiResponseFaker } from './createApiResponseFaker.js'
+export { createCategoryFaker } from './createCategoryFaker.js'
+export { createCustomerFaker } from './createCustomerFaker.js'
+export { createOrderFaker } from './createOrderFaker.js'
+export { createPetFaker } from './createPetFaker.js'
+export { createPetNotFoundFaker } from './createPetNotFoundFaker.js'
+export { createUserArrayFaker } from './createUserArrayFaker.js'
+export { createUserFaker } from './createUserFaker.js'
 export {
   createAddPet200Faker,
   createAddPet405Faker,
   createAddPetMutationRequestFaker,
   createAddPetMutationResponseFaker,
-} from './petController/createAddPetFaker.ts'
+} from './petController/createAddPetFaker.js'
 export {
   createDeletePetPathParamsFaker,
   createDeletePetHeaderParamsFaker,
   createDeletePet400Faker,
   createDeletePetMutationResponseFaker,
-} from './petController/createDeletePetFaker.ts'
+} from './petController/createDeletePetFaker.js'
 export {
   createFindPetsByStatusQueryParamsFaker,
   createFindPetsByStatus200Faker,
   createFindPetsByStatus400Faker,
   createFindPetsByStatusQueryResponseFaker,
-} from './petController/createFindPetsByStatusFaker.ts'
+} from './petController/createFindPetsByStatusFaker.js'
 export {
   createFindPetsByTagsQueryParamsFaker,
   createFindPetsByTagsHeaderParamsFaker,
   createFindPetsByTags200Faker,
   createFindPetsByTags400Faker,
   createFindPetsByTagsQueryResponseFaker,
-} from './petController/createFindPetsByTagsFaker.ts'
+} from './petController/createFindPetsByTagsFaker.js'
 export {
   createGetPetByIdPathParamsFaker,
   createGetPetById200Faker,
   createGetPetById400Faker,
   createGetPetById404Faker,
   createGetPetByIdQueryResponseFaker,
-} from './petController/createGetPetByIdFaker.ts'
+} from './petController/createGetPetByIdFaker.js'
 export {
   createUpdatePet200Faker,
   createUpdatePet400Faker,
@@ -47,20 +47,20 @@ export {
   createUpdatePet405Faker,
   createUpdatePetMutationRequestFaker,
   createUpdatePetMutationResponseFaker,
-} from './petController/createUpdatePetFaker.ts'
+} from './petController/createUpdatePetFaker.js'
 export {
   createUpdatePetWithFormPathParamsFaker,
   createUpdatePetWithFormQueryParamsFaker,
   createUpdatePetWithForm405Faker,
   createUpdatePetWithFormMutationResponseFaker,
-} from './petController/createUpdatePetWithFormFaker.ts'
+} from './petController/createUpdatePetWithFormFaker.js'
 export {
   createUploadFilePathParamsFaker,
   createUploadFileQueryParamsFaker,
   createUploadFile200Faker,
   createUploadFileMutationRequestFaker,
   createUploadFileMutationResponseFaker,
-} from './petController/createUploadFileFaker.ts'
+} from './petController/createUploadFileFaker.js'
 export {
   createCreatePetsPathParamsFaker,
   createCreatePetsQueryParamsFaker,
@@ -69,42 +69,42 @@ export {
   createCreatePetsErrorFaker,
   createCreatePetsMutationRequestFaker,
   createCreatePetsMutationResponseFaker,
-} from './petsController/createCreatePetsFaker.ts'
-export { createTagTagFaker } from './tag/createTagFaker.ts'
+} from './petsController/createCreatePetsFaker.js'
+export { createTagTagFaker } from './tag/createTagFaker.js'
 export {
   createCreateUserErrorFaker,
   createCreateUserMutationRequestFaker,
   createCreateUserMutationResponseFaker,
-} from './userController/createCreateUserFaker.ts'
+} from './userController/createCreateUserFaker.js'
 export {
   createCreateUsersWithListInput200Faker,
   createCreateUsersWithListInputErrorFaker,
   createCreateUsersWithListInputMutationRequestFaker,
   createCreateUsersWithListInputMutationResponseFaker,
-} from './userController/createCreateUsersWithListInputFaker.ts'
+} from './userController/createCreateUsersWithListInputFaker.js'
 export {
   createDeleteUserPathParamsFaker,
   createDeleteUser400Faker,
   createDeleteUser404Faker,
   createDeleteUserMutationResponseFaker,
-} from './userController/createDeleteUserFaker.ts'
+} from './userController/createDeleteUserFaker.js'
 export {
   createGetUserByNamePathParamsFaker,
   createGetUserByName200Faker,
   createGetUserByName400Faker,
   createGetUserByName404Faker,
   createGetUserByNameQueryResponseFaker,
-} from './userController/createGetUserByNameFaker.ts'
+} from './userController/createGetUserByNameFaker.js'
 export {
   createLoginUserQueryParamsFaker,
   createLoginUser200Faker,
   createLoginUser400Faker,
   createLoginUserQueryResponseFaker,
-} from './userController/createLoginUserFaker.ts'
-export { createLogoutUserErrorFaker, createLogoutUserQueryResponseFaker } from './userController/createLogoutUserFaker.ts'
+} from './userController/createLoginUserFaker.js'
+export { createLogoutUserErrorFaker, createLogoutUserQueryResponseFaker } from './userController/createLogoutUserFaker.js'
 export {
   createUpdateUserPathParamsFaker,
   createUpdateUserErrorFaker,
   createUpdateUserMutationRequestFaker,
   createUpdateUserMutationResponseFaker,
-} from './userController/createUpdateUserFaker.ts'
+} from './userController/createUpdateUserFaker.js'

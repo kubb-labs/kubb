@@ -1,6 +1,6 @@
-import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import client from '../../../../axios-client.js'
+import type { RequestConfig } from '../../../../axios-client.js'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.js'
 
 /**
  * @description This can only be done by the logged in user.

@@ -1,5 +1,5 @@
-import type { GetUserByNamePathParams } from '../../models/ts/userController/GetUserByName.ts'
-import { createUserFaker } from '../createUserFaker.ts'
+import type { GetUserByNamePathParams } from '../../models/ts/userController/GetUserByName.js'
+import { createUserFaker } from '../createUserFaker.js'
 import { faker } from '@faker-js/faker'
 
 export function createGetUserByNamePathParamsFaker(data: NonNullable<Partial<GetUserByNamePathParams>> = {}) {

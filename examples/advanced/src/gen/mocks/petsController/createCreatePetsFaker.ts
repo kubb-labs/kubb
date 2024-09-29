@@ -3,8 +3,8 @@ import type {
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
-} from '../../models/ts/petsController/CreatePets.ts'
-import { createPetNotFoundFaker } from '../createPetNotFoundFaker.ts'
+} from '../../models/ts/petsController/CreatePets.js'
+import { createPetNotFoundFaker } from '../createPetNotFoundFaker.js'
 import { faker } from '@faker-js/faker'
 
 export function createCreatePetsPathParamsFaker(data: NonNullable<Partial<CreatePetsPathParams>> = {}) {

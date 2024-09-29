@@ -1,9 +1,9 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
-import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
+import client from '../../../../tanstack-query-client.js'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.js'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.js'
+import { useQuery, queryOptions } from '../../../../tanstack-query-hook.js'
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.js'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 

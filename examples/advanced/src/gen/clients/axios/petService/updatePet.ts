@@ -1,12 +1,12 @@
-import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import client from '../../../../axios-client.js'
+import type { RequestConfig } from '../../../../axios-client.js'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
-} from '../../../models/ts/petController/UpdatePet.ts'
+} from '../../../models/ts/petController/UpdatePet.js'
 
 /**
  * @description Update an existing pet by Id
