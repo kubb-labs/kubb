@@ -34,7 +34,7 @@ async function getOrderById(
   return res.data
 }
 
-export function getOrderByIdSuspenseQueryOptions(
+export function getOrderByIdSuspenseQueryOptionsHook(
   {
     orderId,
   }: {
@@ -76,7 +76,7 @@ export function useGetOrderByIdSuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
   const query = useSuspenseQuery({
-    ...(getOrderByIdSuspenseQueryOptions({ orderId }, config) as unknown as UseSuspenseQueryOptions),
+    ...(getOrderByIdSuspenseQueryOptionsHook({ orderId }, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetOrderById400 | GetOrderById404> & {

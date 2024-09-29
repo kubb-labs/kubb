@@ -23,7 +23,7 @@ async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestC
   return res.data
 }
 
-export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions({
     queryKey,
@@ -52,7 +52,7 @@ export function useLoginUserSuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...(loginUserSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
+    ...(loginUserSuspenseQueryOptionsHook(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, LoginUser400> & {

@@ -34,7 +34,7 @@ async function getPetById(
   return res.data
 }
 
-export function getPetByIdSuspenseQueryOptions(
+export function getPetByIdSuspenseQueryOptionsHook(
   {
     petId,
   }: {
@@ -76,7 +76,7 @@ export function useGetPetByIdSuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey({ petId })
   const query = useSuspenseQuery({
-    ...(getPetByIdSuspenseQueryOptions({ petId }, config) as unknown as UseSuspenseQueryOptions),
+    ...(getPetByIdSuspenseQueryOptionsHook({ petId }, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetPetById400 | GetPetById404> & {

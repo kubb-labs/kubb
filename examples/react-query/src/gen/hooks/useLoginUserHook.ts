@@ -23,7 +23,7 @@ async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestC
   return res.data
 }
 
-export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+export function loginUserQueryOptionsHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
     queryKey,
@@ -48,7 +48,7 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
   const query = useQuery({
-    ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
+    ...(loginUserQueryOptionsHook(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LoginUser400> & {

@@ -1,12 +1,12 @@
-export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './CreateUser.js'
+export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './CreateUser.ts'
 export type {
   CreateUsersWithListInput200,
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputMutation,
-} from './CreateUsersWithListInput.js'
-export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser.js'
+} from './CreateUsersWithListInput.ts'
+export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser.ts'
 export type {
   GetUserByNamePathParams,
   GetUserByName200,
@@ -14,7 +14,7 @@ export type {
   GetUserByName404,
   GetUserByNameQueryResponse,
   GetUserByNameQuery,
-} from './GetUserByName.js'
-export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser.js'
-export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser.js'
-export type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserMutation } from './UpdateUser.js'
+} from './GetUserByName.ts'
+export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser.ts'
+export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser.ts'
+export type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserMutation } from './UpdateUser.ts'

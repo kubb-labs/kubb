@@ -1,25 +1,25 @@
-export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './addPetSchema.js'
-export type { DeletePetPathParamsSchema, DeletePetHeaderParamsSchema, DeletePet400Schema, DeletePetMutationResponseSchema } from './deletePetSchema.js'
+export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './addPetSchema.ts'
+export type { DeletePetPathParamsSchema, DeletePetHeaderParamsSchema, DeletePet400Schema, DeletePetMutationResponseSchema } from './deletePetSchema.ts'
 export type {
   FindPetsByStatusQueryParamsSchema,
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusQueryResponseSchema,
-} from './findPetsByStatusSchema.js'
+} from './findPetsByStatusSchema.ts'
 export type {
   FindPetsByTagsQueryParamsSchema,
   FindPetsByTagsHeaderParamsSchema,
   FindPetsByTags200Schema,
   FindPetsByTags400Schema,
   FindPetsByTagsQueryResponseSchema,
-} from './findPetsByTagsSchema.js'
+} from './findPetsByTagsSchema.ts'
 export type {
   GetPetByIdPathParamsSchema,
   GetPetById200Schema,
   GetPetById400Schema,
   GetPetById404Schema,
   GetPetByIdQueryResponseSchema,
-} from './getPetByIdSchema.js'
+} from './getPetByIdSchema.ts'
 export type {
   UpdatePet200Schema,
   UpdatePet400Schema,
@@ -27,36 +27,36 @@ export type {
   UpdatePet405Schema,
   UpdatePetMutationRequestSchema,
   UpdatePetMutationResponseSchema,
-} from './updatePetSchema.js'
+} from './updatePetSchema.ts'
 export type {
   UpdatePetWithFormPathParamsSchema,
   UpdatePetWithFormQueryParamsSchema,
   UpdatePetWithForm405Schema,
   UpdatePetWithFormMutationResponseSchema,
-} from './updatePetWithFormSchema.js'
+} from './updatePetWithFormSchema.ts'
 export type {
   UploadFilePathParamsSchema,
   UploadFileQueryParamsSchema,
   UploadFile200Schema,
   UploadFileMutationRequestSchema,
   UploadFileMutationResponseSchema,
-} from './uploadFileSchema.js'
-export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.js'
-export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './deletePetSchema.js'
+} from './uploadFileSchema.ts'
+export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
+export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './deletePetSchema.ts'
 export {
   findPetsByStatusQueryParamsSchema,
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryResponseSchema,
-} from './findPetsByStatusSchema.js'
+} from './findPetsByStatusSchema.ts'
 export {
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsHeaderParamsSchema,
   findPetsByTags200Schema,
   findPetsByTags400Schema,
   findPetsByTagsQueryResponseSchema,
-} from './findPetsByTagsSchema.js'
-export { getPetByIdPathParamsSchema, getPetById200Schema, getPetById400Schema, getPetById404Schema, getPetByIdQueryResponseSchema } from './getPetByIdSchema.js'
+} from './findPetsByTagsSchema.ts'
+export { getPetByIdPathParamsSchema, getPetById200Schema, getPetById400Schema, getPetById404Schema, getPetByIdQueryResponseSchema } from './getPetByIdSchema.ts'
 export {
   updatePet200Schema,
   updatePet400Schema,
@@ -64,17 +64,17 @@ export {
   updatePet405Schema,
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
-} from './updatePetSchema.js'
+} from './updatePetSchema.ts'
 export {
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
   updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
-} from './updatePetWithFormSchema.js'
+} from './updatePetWithFormSchema.ts'
 export {
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
   uploadFile200Schema,
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
-} from './uploadFileSchema.js'
+} from './uploadFileSchema.ts'

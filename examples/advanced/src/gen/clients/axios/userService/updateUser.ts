@@ -1,6 +1,6 @@
-import client from '../../../../axios-client.js'
-import type { RequestConfig } from '../../../../axios-client.js'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.js'
+import client from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 
 /**
  * @description This can only be done by the logged in user.

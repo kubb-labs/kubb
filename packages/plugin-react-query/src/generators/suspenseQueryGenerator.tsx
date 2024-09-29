@@ -32,12 +32,12 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const queryOptions = {
-      name: transformers.camelCase(`${operation.getOperationId()} SuspenseQueryOptions`),
+      name: getName(operation, { type: 'function', suffix: 'SuspenseQueryOptions' }),
     }
 
     const queryKey = {
-      name: transformers.camelCase(`${operation.getOperationId()} SuspenseQueryKey`),
-      typeName: transformers.pascalCase(`${operation.getOperationId()} SuspenseQueryKey`),
+      name: getName(operation, { type: 'const', suffix: 'SuspenseQueryKey' }),
+      typeName: getName(operation, { type: 'type', suffix: 'SuspenseQueryKey' }),
     }
 
     const type = {

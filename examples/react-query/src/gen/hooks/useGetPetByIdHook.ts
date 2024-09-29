@@ -34,7 +34,7 @@ async function getPetById(
   return res.data
 }
 
-export function getPetByIdQueryOptions(
+export function getPetByIdQueryOptionsHook(
   {
     petId,
   }: {
@@ -72,7 +72,7 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ petId })
   const query = useQuery({
-    ...(getPetByIdQueryOptions({ petId }, config) as unknown as QueryObserverOptions),
+    ...(getPetByIdQueryOptionsHook({ petId }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & {

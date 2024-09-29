@@ -44,8 +44,8 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const mutationKey = {
-      name: transformers.camelCase(`${operation.getOperationId()} MutationKey`),
-      typeName: transformers.pascalCase(`${operation.getOperationId()} MutationKey`),
+      name: getName(operation, { type: 'const', suffix: 'MutationKey' }),
+      typeName: getName(operation, { type: 'type', suffix: 'MutationKey' }),
     }
 
     if (!isMutation || typeof options.mutation === 'boolean') {

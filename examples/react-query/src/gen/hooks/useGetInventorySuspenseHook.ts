@@ -23,7 +23,7 @@ async function getInventory(config: Partial<RequestConfig> = {}) {
   return res.data
 }
 
-export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> = {}) {
+export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventorySuspenseQueryKey()
   return queryOptions({
     queryKey,
@@ -52,7 +52,7 @@ export function useGetInventorySuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...(getInventorySuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
+    ...(getInventorySuspenseQueryOptionsHook(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, Error> & {

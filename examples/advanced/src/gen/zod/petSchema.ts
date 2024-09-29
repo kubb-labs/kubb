@@ -1,5 +1,5 @@
-import { categorySchema } from './categorySchema.js'
-import { tagTagSchema } from './tag/tagSchema.js'
+import { categorySchema } from './categorySchema.ts'
+import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod'
 
 export const petSchema = z.object({

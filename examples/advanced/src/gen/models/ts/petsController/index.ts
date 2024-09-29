@@ -8,5 +8,5 @@ export type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsMutation,
-} from './CreatePets.js'
-export { createPetsHeaderParamsXExampleEnum } from './CreatePets.js'
+} from './CreatePets.ts'
+export { createPetsHeaderParamsXExampleEnum } from './CreatePets.ts'

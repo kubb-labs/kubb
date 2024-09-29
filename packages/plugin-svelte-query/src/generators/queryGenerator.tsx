@@ -33,12 +33,12 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
     }
 
     const queryOptions = {
-      name: transformers.camelCase(`${operation.getOperationId()} QueryOptions`),
+      name: getName(operation, { type: 'function', suffix: 'QueryOptions' }),
     }
 
     const queryKey = {
-      name: transformers.camelCase(`${operation.getOperationId()} QueryKey`),
-      typeName: transformers.pascalCase(`${operation.getOperationId()} QueryKey`),
+      name: getName(operation, { type: 'const', suffix: 'QueryKey' }),
+      typeName: getName(operation, { type: 'type', suffix: 'QueryKey' }),
     }
 
     const type = {

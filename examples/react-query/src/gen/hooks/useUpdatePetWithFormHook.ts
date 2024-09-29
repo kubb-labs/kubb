@@ -29,7 +29,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
   return res.data
 }
 
-export function updatePetWithFormQueryOptions(
+export function updatePetWithFormQueryOptionsHook(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
@@ -64,7 +64,7 @@ export function useUpdatePetWithFormHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
   const query = useQuery({
-    ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as QueryObserverOptions),
+    ...(updatePetWithFormQueryOptionsHook(petId, params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, UpdatePetWithForm405> & {

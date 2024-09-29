@@ -1,4 +1,4 @@
-import { createCreateUsersWithListInputMutationResponseFaker } from '../../mocks/userController/createCreateUsersWithListInputFaker.js'
+import { createCreateUsersWithListInputMutationResponseFaker } from '../../mocks/userController/createCreateUsersWithListInputFaker.ts'
 import { http } from 'msw'
 
 export const createUsersWithListInputHandler = http.post('*/user/createWithList', function handler(info) {

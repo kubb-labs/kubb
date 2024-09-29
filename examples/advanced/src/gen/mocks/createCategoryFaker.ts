@@ -1,4 +1,4 @@
-import type { Category } from '../models/ts/Category.js'
+import type { Category } from '../models/ts/Category.ts'
 import { faker } from '@faker-js/faker'
 
 export function createCategoryFaker(data: NonNullable<Partial<Category>> = {}) {

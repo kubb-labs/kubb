@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.js'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.js'
-import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
 export const deleteUserMutationKeySWR = () => [{ url: '/user/{username}' }] as const
 

@@ -33,7 +33,7 @@ async function getUserByName(
   return res.data
 }
 
-export function getUserByNameSuspenseQueryOptions(
+export function getUserByNameSuspenseQueryOptionsHook(
   {
     username,
   }: {
@@ -74,7 +74,7 @@ export function useGetUserByNameSuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey({ username })
   const query = useSuspenseQuery({
-    ...(getUserByNameSuspenseQueryOptions({ username }, config) as unknown as UseSuspenseQueryOptions),
+    ...(getUserByNameSuspenseQueryOptionsHook({ username }, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetUserByName400 | GetUserByName404> & {

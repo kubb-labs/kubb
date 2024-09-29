@@ -1,14 +1,14 @@
-import client from '../../../../tanstack-query-client.js'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
-import type { QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook.js'
+import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
+import type { QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook.ts'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
-} from '../../../models/ts/petController/FindPetsByTags.js'
-import { useInfiniteQuery, infiniteQueryOptions } from '../../../../tanstack-query-hook.js'
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.js'
+} from '../../../models/ts/petController/FindPetsByTags.ts'
+import { useInfiniteQuery, infiniteQueryOptions } from '../../../../tanstack-query-hook.ts'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 

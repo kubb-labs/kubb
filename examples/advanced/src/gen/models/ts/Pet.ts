@@ -1,5 +1,5 @@
-import type { Category } from './Category.js'
-import type { TagTag } from './tag/Tag.js'
+import type { Category } from './Category.ts'
+import type { TagTag } from './tag/Tag.ts'
 
 export const petStatusEnum = {
   available: 'available',

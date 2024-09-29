@@ -1,14 +1,14 @@
-import client from '../../../../tanstack-query-client.js'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets.js'
+} from '../../../models/ts/petsController/CreatePets.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.js'
+import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const createPetsMutationKey = () => [{ url: '/pets/{uuid}' }] as const

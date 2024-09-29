@@ -23,7 +23,7 @@ async function getInventory(config: Partial<RequestConfig> = {}) {
   return res.data
 }
 
-export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
+export function getInventoryQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions({
     queryKey,
@@ -52,7 +52,7 @@ export function useGetInventoryHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
   const query = useQuery({
-    ...(getInventoryQueryOptions(config) as unknown as QueryObserverOptions),
+    ...(getInventoryQueryOptionsHook(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, Error> & {

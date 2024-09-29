@@ -24,7 +24,7 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
   return res
 }
 
-export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+export function findPetsByTagsQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
     queryKey,
@@ -54,7 +54,7 @@ export function useFindPetsByTagsHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
   const query = useQuery({
-    ...(findPetsByTagsQueryOptions(params, config) as unknown as QueryObserverOptions),
+    ...(findPetsByTagsQueryOptionsHook(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByTags400> & {

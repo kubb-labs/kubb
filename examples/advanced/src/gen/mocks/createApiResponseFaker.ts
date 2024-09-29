@@ -1,4 +1,4 @@
-import type { ApiResponse } from '../models/ts/ApiResponse.js'
+import type { ApiResponse } from '../models/ts/ApiResponse.ts'
 import { faker } from '@faker-js/faker'
 
 export function createApiResponseFaker(data: NonNullable<Partial<ApiResponse>> = {}) {

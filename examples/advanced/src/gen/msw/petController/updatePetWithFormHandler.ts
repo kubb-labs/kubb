@@ -1,4 +1,4 @@
-import { createUpdatePetWithFormMutationResponseFaker } from '../../mocks/petController/createUpdatePetWithFormFaker.js'
+import { createUpdatePetWithFormMutationResponseFaker } from '../../mocks/petController/createUpdatePetWithFormFaker.ts'
 import { http } from 'msw'
 
 export const updatePetWithFormHandler = http.post('*/pet/:petId', function handler(info) {

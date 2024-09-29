@@ -1,11 +1,11 @@
-import client from '../../../../axios-client.js'
-import type { RequestConfig } from '../../../../axios-client.js'
+import client from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-} from '../../../models/ts/userController/GetUserByName.js'
+} from '../../../models/ts/userController/GetUserByName.ts'
 
 /**
  * @summary Get user by user name

@@ -32,12 +32,12 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
     }
 
     const queryOptions = {
-      name: transformers.camelCase(`${operation.getOperationId()} InfiniteQueryOptions`),
+      name: getName(operation, { type: 'function', suffix: 'InfiniteQueryOptions' }),
     }
 
     const queryKey = {
-      name: transformers.camelCase(`${operation.getOperationId()} InfiniteQueryKey`),
-      typeName: transformers.pascalCase(`${operation.getOperationId()} InfiniteQueryKey`),
+      name: getName(operation, { type: 'const', suffix: 'InfiniteQueryKey' }),
+      typeName: getName(operation, { type: 'type', suffix: 'InfiniteQueryKey' }),
     }
 
     const type = {

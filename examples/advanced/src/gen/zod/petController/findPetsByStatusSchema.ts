@@ -1,4 +1,4 @@
-import { petSchema } from '../petSchema.js'
+import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
 
 export const findPetsByStatusQueryParamsSchema = z

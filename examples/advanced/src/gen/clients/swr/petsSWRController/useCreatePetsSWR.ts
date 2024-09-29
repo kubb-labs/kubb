@@ -1,14 +1,14 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-} from '../../../models/ts/petsController/CreatePets.js'
-import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.js'
+} from '../../../models/ts/petsController/CreatePets.ts'
+import { createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
 export const createPetsMutationKeySWR = () => [{ url: '/pets/{uuid}' }] as const
 

@@ -24,7 +24,7 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
   return res
 }
 
-export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions({
     queryKey,
@@ -60,7 +60,7 @@ export function useFindPetsByTagsInfiniteHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
   const query = useInfiniteQuery({
-    ...(findPetsByTagsInfiniteQueryOptions(params, config) as unknown as InfiniteQueryObserverOptions),
+    ...(findPetsByTagsInfiniteQueryOptionsHook(params, config) as unknown as InfiniteQueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
   }) as UseInfiniteQueryResult<TData, FindPetsByTags400> & {

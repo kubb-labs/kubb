@@ -125,34 +125,34 @@ export { createUsersWithListInputMutationKey, useCreateUsersWithListInputHook } 
 export { deleteOrderMutationKey, useDeleteOrderHook } from './hooks/useDeleteOrderHook.ts'
 export { deletePetMutationKey, useDeletePetHook } from './hooks/useDeletePetHook.ts'
 export { deleteUserMutationKey, useDeleteUserHook } from './hooks/useDeleteUserHook.ts'
-export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatusHook } from './hooks/useFindPetsByStatusHook.ts'
+export { findPetsByStatusQueryKey, findPetsByStatusQueryOptionsHook, useFindPetsByStatusHook } from './hooks/useFindPetsByStatusHook.ts'
 export {
   findPetsByStatusSuspenseQueryKey,
-  findPetsByStatusSuspenseQueryOptions,
+  findPetsByStatusSuspenseQueryOptionsHook,
   useFindPetsByStatusSuspenseHook,
 } from './hooks/useFindPetsByStatusSuspenseHook.ts'
-export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTagsHook } from './hooks/useFindPetsByTagsHook.ts'
-export { findPetsByTagsInfiniteQueryKey, findPetsByTagsInfiniteQueryOptions, useFindPetsByTagsInfiniteHook } from './hooks/useFindPetsByTagsInfiniteHook.ts'
-export { findPetsByTagsSuspenseQueryKey, findPetsByTagsSuspenseQueryOptions, useFindPetsByTagsSuspenseHook } from './hooks/useFindPetsByTagsSuspenseHook.ts'
-export { getInventoryQueryKey, getInventoryQueryOptions, useGetInventoryHook } from './hooks/useGetInventoryHook.ts'
-export { getInventorySuspenseQueryKey, getInventorySuspenseQueryOptions, useGetInventorySuspenseHook } from './hooks/useGetInventorySuspenseHook.ts'
-export { getOrderByIdQueryKey, getOrderByIdQueryOptions, useGetOrderByIdHook } from './hooks/useGetOrderByIdHook.ts'
-export { getOrderByIdSuspenseQueryKey, getOrderByIdSuspenseQueryOptions, useGetOrderByIdSuspenseHook } from './hooks/useGetOrderByIdSuspenseHook.ts'
-export { getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetByIdHook } from './hooks/useGetPetByIdHook.ts'
-export { getPetByIdSuspenseQueryKey, getPetByIdSuspenseQueryOptions, useGetPetByIdSuspenseHook } from './hooks/useGetPetByIdSuspenseHook.ts'
-export { getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByNameHook } from './hooks/useGetUserByNameHook.ts'
-export { getUserByNameSuspenseQueryKey, getUserByNameSuspenseQueryOptions, useGetUserByNameSuspenseHook } from './hooks/useGetUserByNameSuspenseHook.ts'
-export { loginUserQueryKey, loginUserQueryOptions, useLoginUserHook } from './hooks/useLoginUserHook.ts'
-export { loginUserSuspenseQueryKey, loginUserSuspenseQueryOptions, useLoginUserSuspenseHook } from './hooks/useLoginUserSuspenseHook.ts'
-export { logoutUserQueryKey, logoutUserQueryOptions, useLogoutUserHook } from './hooks/useLogoutUserHook.ts'
-export { logoutUserSuspenseQueryKey, logoutUserSuspenseQueryOptions, useLogoutUserSuspenseHook } from './hooks/useLogoutUserSuspenseHook.ts'
+export { findPetsByTagsQueryKey, findPetsByTagsQueryOptionsHook, useFindPetsByTagsHook } from './hooks/useFindPetsByTagsHook.ts'
+export { findPetsByTagsInfiniteQueryKey, findPetsByTagsInfiniteQueryOptionsHook, useFindPetsByTagsInfiniteHook } from './hooks/useFindPetsByTagsInfiniteHook.ts'
+export { findPetsByTagsSuspenseQueryKey, findPetsByTagsSuspenseQueryOptionsHook, useFindPetsByTagsSuspenseHook } from './hooks/useFindPetsByTagsSuspenseHook.ts'
+export { getInventoryQueryKey, getInventoryQueryOptionsHook, useGetInventoryHook } from './hooks/useGetInventoryHook.ts'
+export { getInventorySuspenseQueryKey, getInventorySuspenseQueryOptionsHook, useGetInventorySuspenseHook } from './hooks/useGetInventorySuspenseHook.ts'
+export { getOrderByIdQueryKey, getOrderByIdQueryOptionsHook, useGetOrderByIdHook } from './hooks/useGetOrderByIdHook.ts'
+export { getOrderByIdSuspenseQueryKey, getOrderByIdSuspenseQueryOptionsHook, useGetOrderByIdSuspenseHook } from './hooks/useGetOrderByIdSuspenseHook.ts'
+export { getPetByIdQueryKey, getPetByIdQueryOptionsHook, useGetPetByIdHook } from './hooks/useGetPetByIdHook.ts'
+export { getPetByIdSuspenseQueryKey, getPetByIdSuspenseQueryOptionsHook, useGetPetByIdSuspenseHook } from './hooks/useGetPetByIdSuspenseHook.ts'
+export { getUserByNameQueryKey, getUserByNameQueryOptionsHook, useGetUserByNameHook } from './hooks/useGetUserByNameHook.ts'
+export { getUserByNameSuspenseQueryKey, getUserByNameSuspenseQueryOptionsHook, useGetUserByNameSuspenseHook } from './hooks/useGetUserByNameSuspenseHook.ts'
+export { loginUserQueryKey, loginUserQueryOptionsHook, useLoginUserHook } from './hooks/useLoginUserHook.ts'
+export { loginUserSuspenseQueryKey, loginUserSuspenseQueryOptionsHook, useLoginUserSuspenseHook } from './hooks/useLoginUserSuspenseHook.ts'
+export { logoutUserQueryKey, logoutUserQueryOptionsHook, useLogoutUserHook } from './hooks/useLogoutUserHook.ts'
+export { logoutUserSuspenseQueryKey, logoutUserSuspenseQueryOptionsHook, useLogoutUserSuspenseHook } from './hooks/useLogoutUserSuspenseHook.ts'
 export { placeOrderMutationKey, usePlaceOrderHook } from './hooks/usePlaceOrderHook.ts'
 export { placeOrderPatchMutationKey, usePlaceOrderPatchHook } from './hooks/usePlaceOrderPatchHook.ts'
 export { updatePetMutationKey, useUpdatePetHook } from './hooks/useUpdatePetHook.ts'
-export { updatePetWithFormQueryKey, updatePetWithFormQueryOptions, useUpdatePetWithFormHook } from './hooks/useUpdatePetWithFormHook.ts'
+export { updatePetWithFormQueryKey, updatePetWithFormQueryOptionsHook, useUpdatePetWithFormHook } from './hooks/useUpdatePetWithFormHook.ts'
 export {
   updatePetWithFormSuspenseQueryKey,
-  updatePetWithFormSuspenseQueryOptions,
+  updatePetWithFormSuspenseQueryOptionsHook,
   useUpdatePetWithFormSuspenseHook,
 } from './hooks/useUpdatePetWithFormSuspenseHook.ts'
 export { updateUserMutationKey, useUpdateUserHook } from './hooks/useUpdateUserHook.ts'

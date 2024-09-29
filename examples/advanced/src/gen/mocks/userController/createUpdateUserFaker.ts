@@ -1,5 +1,5 @@
-import type { UpdateUserPathParams } from '../../models/ts/userController/UpdateUser.js'
-import { createUserFaker } from '../createUserFaker.js'
+import type { UpdateUserPathParams } from '../../models/ts/userController/UpdateUser.ts'
+import { createUserFaker } from '../createUserFaker.ts'
 import { faker } from '@faker-js/faker'
 
 export function createUpdateUserPathParamsFaker(data: NonNullable<Partial<UpdateUserPathParams>> = {}) {

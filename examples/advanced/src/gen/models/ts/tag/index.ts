@@ -1,1 +1,1 @@
-export type { TagTag } from './Tag.js'
+export type { TagTag } from './Tag.ts'

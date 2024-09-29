@@ -1,13 +1,13 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile.js'
-import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.js'
+} from '../../../models/ts/petController/UploadFile.ts'
+import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
 
 export const uploadFileMutationKeySWR = () => [{ url: '/pet/{petId}/uploadImage' }] as const
 

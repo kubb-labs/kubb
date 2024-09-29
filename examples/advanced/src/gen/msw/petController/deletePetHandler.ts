@@ -1,4 +1,4 @@
-import { createDeletePetMutationResponseFaker } from '../../mocks/petController/createDeletePetFaker.js'
+import { createDeletePetMutationResponseFaker } from '../../mocks/petController/createDeletePetFaker.ts'
 import { http } from 'msw'
 
 export const deletePetHandler = http.delete('*/pet/:petId', function handler(info) {

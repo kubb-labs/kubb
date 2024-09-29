@@ -1,13 +1,13 @@
-import client from '../../../../tanstack-query-client.js'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile.js'
+} from '../../../models/ts/petController/UploadFile.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.js'
+import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const

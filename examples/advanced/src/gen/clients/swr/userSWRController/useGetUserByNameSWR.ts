@@ -1,13 +1,13 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-} from '../../../models/ts/userController/GetUserByName.js'
-import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.js'
+} from '../../../models/ts/userController/GetUserByName.ts'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
 export const getUserByNameQueryKeySWR = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 
