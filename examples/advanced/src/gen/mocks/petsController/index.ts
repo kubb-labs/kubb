@@ -6,4 +6,4 @@ export {
   createCreatePetsErrorFaker,
   createCreatePetsMutationRequestFaker,
   createCreatePetsMutationResponseFaker,
-} from './createCreatePetsFaker.js'
+} from './createCreatePetsFaker.ts'

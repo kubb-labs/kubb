@@ -1,6 +1,6 @@
-import client from '../../../../axios-client.js'
-import type { RequestConfig } from '../../../../axios-client.js'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
+import client from '../../../../axios-client.ts'
+import type { RequestConfig } from '../../../../axios-client.ts'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 
 /**
  * @description Returns a single pet

@@ -1,4 +1,4 @@
-import { createUploadFileMutationResponseFaker } from '../../mocks/petController/createUploadFileFaker.js'
+import { createUploadFileMutationResponseFaker } from '../../mocks/petController/createUploadFileFaker.ts'
 import { http } from 'msw'
 
 export const uploadFileHandler = http.post('*/pet/:petId/uploadImage', function handler(info) {

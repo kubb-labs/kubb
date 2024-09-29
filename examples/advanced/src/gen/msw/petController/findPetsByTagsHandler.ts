@@ -1,4 +1,4 @@
-import { createFindPetsByTagsQueryResponseFaker } from '../../mocks/petController/createFindPetsByTagsFaker.js'
+import { createFindPetsByTagsQueryResponseFaker } from '../../mocks/petController/createFindPetsByTagsFaker.ts'
 import { http } from 'msw'
 
 export const findPetsByTagsHandler = http.get('*/pet/findByTags', function handler(info) {

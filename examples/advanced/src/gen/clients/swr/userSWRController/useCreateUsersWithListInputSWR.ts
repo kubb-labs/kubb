@@ -1,11 +1,11 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput.js'
-import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.js'
+} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import { createUsersWithListInputMutationResponseSchema } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
 export const createUsersWithListInputMutationKeySWR = () => [{ url: '/user/createWithList' }] as const
 

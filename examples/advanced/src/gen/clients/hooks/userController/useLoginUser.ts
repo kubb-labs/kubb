@@ -1,9 +1,9 @@
-import client from '../../../../tanstack-query-client.js'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.js'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.js'
-import { useQuery, queryOptions } from '../../../../tanstack-query-hook.js'
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.js'
+import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
+import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 

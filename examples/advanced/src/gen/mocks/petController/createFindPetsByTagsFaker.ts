@@ -3,8 +3,8 @@ import type {
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTagsQueryResponse,
-} from '../../models/ts/petController/FindPetsByTags.js'
-import { createPetFaker } from '../createPetFaker.js'
+} from '../../models/ts/petController/FindPetsByTags.ts'
+import { createPetFaker } from '../createPetFaker.ts'
 import { faker } from '@faker-js/faker'
 
 export function createFindPetsByTagsQueryParamsFaker(data: NonNullable<Partial<FindPetsByTagsQueryParams>> = {}) {

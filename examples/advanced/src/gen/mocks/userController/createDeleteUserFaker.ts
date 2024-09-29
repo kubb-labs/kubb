@@ -1,4 +1,4 @@
-import type { DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.js'
+import type { DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
 import { faker } from '@faker-js/faker'
 
 export function createDeleteUserPathParamsFaker(data: NonNullable<Partial<DeleteUserPathParams>> = {}) {

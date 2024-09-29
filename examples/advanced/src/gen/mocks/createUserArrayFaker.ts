@@ -1,5 +1,5 @@
-import type { UserArray } from '../models/ts/UserArray.js'
-import { createUserFaker } from './createUserFaker.js'
+import type { UserArray } from '../models/ts/UserArray.ts'
+import { createUserFaker } from './createUserFaker.ts'
 import { faker } from '@faker-js/faker'
 
 export function createUserArrayFaker(data: NonNullable<Partial<UserArray>> = []) {

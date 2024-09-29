@@ -1,1 +1,1 @@
-export { createPetsHandler } from './createPetsHandler.js'
+export { createPetsHandler } from './createPetsHandler.ts'

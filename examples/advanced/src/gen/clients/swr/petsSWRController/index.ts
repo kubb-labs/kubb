@@ -1,2 +1,2 @@
-export type { CreatePetsMutationKeySWR } from './useCreatePetsSWR.js'
-export { createPetsMutationKeySWR, useCreatePetsSWR } from './useCreatePetsSWR.js'
+export type { CreatePetsMutationKeySWR } from './useCreatePetsSWR.ts'
+export { createPetsMutationKeySWR, useCreatePetsSWR } from './useCreatePetsSWR.ts'

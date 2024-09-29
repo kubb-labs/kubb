@@ -1,13 +1,13 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../../../models/ts/petController/UpdatePetWithForm.js'
-import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.js'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
+import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 
 export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/{petId}' }] as const
 

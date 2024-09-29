@@ -1,8 +1,8 @@
-import client from '../../../../swr-client.js'
+import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.js'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.js'
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.js'
+import type { RequestConfig } from '../../../../swr-client.ts'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
 export const logoutUserQueryKeySWR = () => [{ url: '/user/logout' }] as const
 

@@ -1,13 +1,13 @@
-import client from '../../../../tanstack-query-client.js'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.js'
+import client from '../../../../tanstack-query-client.ts'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../../../models/ts/petController/UpdatePetWithForm.js'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.js'
+import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const

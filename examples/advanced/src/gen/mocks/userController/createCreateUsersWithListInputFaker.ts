@@ -1,5 +1,5 @@
-import type { CreateUsersWithListInputMutationRequest } from '../../models/ts/userController/CreateUsersWithListInput.js'
-import { createUserFaker } from '../createUserFaker.js'
+import type { CreateUsersWithListInputMutationRequest } from '../../models/ts/userController/CreateUsersWithListInput.ts'
+import { createUserFaker } from '../createUserFaker.ts'
 import { faker } from '@faker-js/faker'
 
 /**
