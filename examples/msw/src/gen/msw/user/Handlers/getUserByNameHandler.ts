@@ -1,4 +1,4 @@
-import { createGetUserByNameQueryResponse } from '../../mocks/userMocks/createGetUserByName.ts'
+import { createGetUserByNameQueryResponse } from '../../../mocks/userController/createGetUserByName.ts'
 import { http } from 'msw'
 
 export const getUserByNameHandler = http.get('*/user/:username', function handler(info) {

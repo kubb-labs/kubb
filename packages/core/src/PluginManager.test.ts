@@ -100,7 +100,7 @@ describe('PluginManager', () => {
   test('hookFirst', async () => {
     const { result, plugin } = await pluginManager.hookFirst({
       hookName: 'resolvePath',
-      parameters: ['path'],
+      parameters: ['path.ts'],
       message: '',
     })
 
@@ -114,7 +114,7 @@ describe('PluginManager', () => {
   test('hookFirstSync', () => {
     const { result, plugin } = pluginManager.hookFirstSync({
       hookName: 'resolvePath',
-      parameters: ['path'],
+      parameters: ['path.ts'],
       message: '',
     })
 
@@ -129,7 +129,7 @@ describe('PluginManager', () => {
   test('hookParallel', async () => {
     await pluginManager.hookParallel({
       hookName: 'resolvePath',
-      parameters: ['path'],
+      parameters: ['path.ts'],
       message: '',
     })
 
@@ -139,14 +139,14 @@ describe('PluginManager', () => {
 
   test('resolvePath without `pluginKey`', () => {
     const path = pluginManager.resolvePath({
-      baseName: 'baseName',
+      baseName: 'baseName.ts',
     })
 
     expect(path).toBe('pluginA/gen')
   })
   test('resolvePath with `pluginKey`', () => {
     const path = pluginManager.resolvePath({
-      baseName: 'fileNameB',
+      baseName: 'fileNameB.ts',
       pluginKey: ['pluginB', 1],
     })
 
@@ -156,7 +156,7 @@ describe('PluginManager', () => {
   test('resolvePath with `pluginKey` that will run on first `pluginB` variant', () => {
     try {
       pluginManager.resolvePath({
-        baseName: 'fileNameB',
+        baseName: 'fileNameB.ts',
         pluginKey: ['pluginB'],
       })
     } catch (e) {
@@ -192,7 +192,7 @@ describe('PluginManager', () => {
     await pluginManager.hookForPlugin({
       pluginKey: ['pluginB'],
       hookName: 'resolvePath',
-      parameters: ['path'],
+      parameters: ['path.ts'],
       message: '',
     })
 

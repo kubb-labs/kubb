@@ -1,4 +1,4 @@
-import { createLogoutUserQueryResponse } from '../../mocks/userMocks/createLogoutUser.ts'
+import { createLogoutUserQueryResponse } from '../../../mocks/userController/createLogoutUser.ts'
 import { http } from 'msw'
 
 export const logoutUserHandler = http.get('*/user/logout', function handler(info) {

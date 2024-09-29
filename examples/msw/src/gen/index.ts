@@ -101,33 +101,33 @@ export { createPetNotFound } from './mocks/createPetNotFound.ts'
 export { createTag } from './mocks/createTag.ts'
 export { createUser } from './mocks/createUser.ts'
 export { createUserArray } from './mocks/createUserArray.ts'
-export { createAddPet200, createAddPet405, createAddPetMutationRequest, createAddPetMutationResponse } from './mocks/petMocks/createAddPet.ts'
+export { createAddPet200, createAddPet405, createAddPetMutationRequest, createAddPetMutationResponse } from './mocks/petController/createAddPet.ts'
 export {
   createDeletePetPathParams,
   createDeletePetHeaderParams,
   createDeletePet400,
   createDeletePetMutationResponse,
-} from './mocks/petMocks/createDeletePet.ts'
+} from './mocks/petController/createDeletePet.ts'
 export {
   createFindPetsByStatusQueryParams,
   createFindPetsByStatus200,
   createFindPetsByStatus400,
   createFindPetsByStatusQueryResponse,
-} from './mocks/petMocks/createFindPetsByStatus.ts'
+} from './mocks/petController/createFindPetsByStatus.ts'
 export {
   createFindPetsByTagsQueryParams,
   createFindPetsByTags200,
   createFindPetsByTags400,
   createFindPetsByTagsQueryResponse,
-} from './mocks/petMocks/createFindPetsByTags.ts'
+} from './mocks/petController/createFindPetsByTags.ts'
 export {
   createGetPetByIdPathParams,
   createGetPetById200,
   createGetPetById400,
   createGetPetById404,
   createGetPetByIdQueryResponse,
-} from './mocks/petMocks/createGetPetById.ts'
-export { createOptionsFindPetsByStatus200, createOptionsFindPetsByStatusMutationResponse } from './mocks/petMocks/createOptionsFindPetsByStatus.ts'
+} from './mocks/petController/createGetPetById.ts'
+export { createOptionsFindPetsByStatus200, createOptionsFindPetsByStatusMutationResponse } from './mocks/petController/createOptionsFindPetsByStatus.ts'
 export {
   createUpdatePet200,
   createUpdatePet400,
@@ -135,92 +135,97 @@ export {
   createUpdatePet405,
   createUpdatePetMutationRequest,
   createUpdatePetMutationResponse,
-} from './mocks/petMocks/createUpdatePet.ts'
+} from './mocks/petController/createUpdatePet.ts'
 export {
   createUpdatePetWithFormPathParams,
   createUpdatePetWithFormQueryParams,
   createUpdatePetWithForm405,
   createUpdatePetWithFormMutationResponse,
-} from './mocks/petMocks/createUpdatePetWithForm.ts'
+} from './mocks/petController/createUpdatePetWithForm.ts'
 export {
   createUploadFilePathParams,
   createUploadFileQueryParams,
   createUploadFile200,
   createUploadFileMutationRequest,
   createUploadFileMutationResponse,
-} from './mocks/petMocks/createUploadFile.ts'
+} from './mocks/petController/createUploadFile.ts'
 export {
   createDeleteOrderPathParams,
   createDeleteOrder400,
   createDeleteOrder404,
   createDeleteOrderMutationResponse,
-} from './mocks/storeMocks/createDeleteOrder.ts'
-export { createGetInventory200, createGetInventoryQueryResponse } from './mocks/storeMocks/createGetInventory.ts'
+} from './mocks/storeController/createDeleteOrder.ts'
+export { createGetInventory200, createGetInventoryQueryResponse } from './mocks/storeController/createGetInventory.ts'
 export {
   createGetOrderByIdPathParams,
   createGetOrderById200,
   createGetOrderById400,
   createGetOrderById404,
   createGetOrderByIdQueryResponse,
-} from './mocks/storeMocks/createGetOrderById.ts'
+} from './mocks/storeController/createGetOrderById.ts'
 export {
   createPlaceOrder200,
   createPlaceOrder405,
   createPlaceOrderMutationRequest,
   createPlaceOrderMutationResponse,
-} from './mocks/storeMocks/createPlaceOrder.ts'
+} from './mocks/storeController/createPlaceOrder.ts'
 export {
   createPlaceOrderPatch200,
   createPlaceOrderPatch405,
   createPlaceOrderPatchMutationRequest,
   createPlaceOrderPatchMutationResponse,
-} from './mocks/storeMocks/createPlaceOrderPatch.ts'
-export { createCreateUserError, createCreateUserMutationRequest, createCreateUserMutationResponse } from './mocks/userMocks/createCreateUser.ts'
+} from './mocks/storeController/createPlaceOrderPatch.ts'
+export { createCreateUserError, createCreateUserMutationRequest, createCreateUserMutationResponse } from './mocks/userController/createCreateUser.ts'
 export {
   createCreateUsersWithListInput200,
   createCreateUsersWithListInputError,
   createCreateUsersWithListInputMutationRequest,
   createCreateUsersWithListInputMutationResponse,
-} from './mocks/userMocks/createCreateUsersWithListInput.ts'
-export { createDeleteUserPathParams, createDeleteUser400, createDeleteUser404, createDeleteUserMutationResponse } from './mocks/userMocks/createDeleteUser.ts'
+} from './mocks/userController/createCreateUsersWithListInput.ts'
+export {
+  createDeleteUserPathParams,
+  createDeleteUser400,
+  createDeleteUser404,
+  createDeleteUserMutationResponse,
+} from './mocks/userController/createDeleteUser.ts'
 export {
   createGetUserByNamePathParams,
   createGetUserByName200,
   createGetUserByName400,
   createGetUserByName404,
   createGetUserByNameQueryResponse,
-} from './mocks/userMocks/createGetUserByName.ts'
-export { createLoginUserQueryParams, createLoginUser200, createLoginUser400, createLoginUserQueryResponse } from './mocks/userMocks/createLoginUser.ts'
-export { createLogoutUserError, createLogoutUserQueryResponse } from './mocks/userMocks/createLogoutUser.ts'
+} from './mocks/userController/createGetUserByName.ts'
+export { createLoginUserQueryParams, createLoginUser200, createLoginUser400, createLoginUserQueryResponse } from './mocks/userController/createLoginUser.ts'
+export { createLogoutUserError, createLogoutUserQueryResponse } from './mocks/userController/createLogoutUser.ts'
 export {
   createUpdateUserPathParams,
   createUpdateUserError,
   createUpdateUserMutationRequest,
   createUpdateUserMutationResponse,
-} from './mocks/userMocks/createUpdateUser.ts'
+} from './mocks/userController/createUpdateUser.ts'
 export { addPetRequestStatus } from './models/AddPetRequest.ts'
 export { findPetsByStatusQueryParamsStatus } from './models/FindPetsByStatus.ts'
 export { orderStatus, orderHttpStatus } from './models/Order.ts'
 export { petStatus } from './models/Pet.ts'
 export { handlers } from './msw/handlers.ts'
-export { addPetHandler } from './msw/petHandlers/addPetHandler.ts'
-export { deletePetHandler } from './msw/petHandlers/deletePetHandler.ts'
-export { findPetsByStatusHandler } from './msw/petHandlers/findPetsByStatusHandler.ts'
-export { findPetsByTagsHandler } from './msw/petHandlers/findPetsByTagsHandler.ts'
-export { getPetByIdHandler } from './msw/petHandlers/getPetByIdHandler.ts'
-export { optionsFindPetsByStatusHandler } from './msw/petHandlers/optionsFindPetsByStatusHandler.ts'
-export { updatePetHandler } from './msw/petHandlers/updatePetHandler.ts'
-export { updatePetWithFormHandler } from './msw/petHandlers/updatePetWithFormHandler.ts'
-export { uploadFileHandler } from './msw/petHandlers/uploadFileHandler.ts'
-export { deleteOrderHandler } from './msw/storeHandlers/deleteOrderHandler.ts'
-export { getInventoryHandler } from './msw/storeHandlers/getInventoryHandler.ts'
-export { getOrderByIdHandler } from './msw/storeHandlers/getOrderByIdHandler.ts'
-export { placeOrderHandler } from './msw/storeHandlers/placeOrderHandler.ts'
-export { placeOrderPatchHandler } from './msw/storeHandlers/placeOrderPatchHandler.ts'
-export { createUserHandler } from './msw/userHandlers/createUserHandler.ts'
-export { createUsersWithListInputHandler } from './msw/userHandlers/createUsersWithListInputHandler.ts'
-export { deleteUserHandler } from './msw/userHandlers/deleteUserHandler.ts'
-export { getUserByNameHandler } from './msw/userHandlers/getUserByNameHandler.ts'
-export { loginUserHandler } from './msw/userHandlers/loginUserHandler.ts'
-export { logoutUserHandler } from './msw/userHandlers/logoutUserHandler.ts'
-export { updateUserHandler } from './msw/userHandlers/updateUserHandler.ts'
+export { addPetHandler } from './msw/pet/Handlers/addPetHandler.ts'
+export { deletePetHandler } from './msw/pet/Handlers/deletePetHandler.ts'
+export { findPetsByStatusHandler } from './msw/pet/Handlers/findPetsByStatusHandler.ts'
+export { findPetsByTagsHandler } from './msw/pet/Handlers/findPetsByTagsHandler.ts'
+export { getPetByIdHandler } from './msw/pet/Handlers/getPetByIdHandler.ts'
+export { optionsFindPetsByStatusHandler } from './msw/pet/Handlers/optionsFindPetsByStatusHandler.ts'
+export { updatePetHandler } from './msw/pet/Handlers/updatePetHandler.ts'
+export { updatePetWithFormHandler } from './msw/pet/Handlers/updatePetWithFormHandler.ts'
+export { uploadFileHandler } from './msw/pet/Handlers/uploadFileHandler.ts'
+export { deleteOrderHandler } from './msw/store/Handlers/deleteOrderHandler.ts'
+export { getInventoryHandler } from './msw/store/Handlers/getInventoryHandler.ts'
+export { getOrderByIdHandler } from './msw/store/Handlers/getOrderByIdHandler.ts'
+export { placeOrderHandler } from './msw/store/Handlers/placeOrderHandler.ts'
+export { placeOrderPatchHandler } from './msw/store/Handlers/placeOrderPatchHandler.ts'
+export { createUserHandler } from './msw/user/Handlers/createUserHandler.ts'
+export { createUsersWithListInputHandler } from './msw/user/Handlers/createUsersWithListInputHandler.ts'
+export { deleteUserHandler } from './msw/user/Handlers/deleteUserHandler.ts'
+export { getUserByNameHandler } from './msw/user/Handlers/getUserByNameHandler.ts'
+export { loginUserHandler } from './msw/user/Handlers/loginUserHandler.ts'
+export { logoutUserHandler } from './msw/user/Handlers/logoutUserHandler.ts'
+export { updateUserHandler } from './msw/user/Handlers/updateUserHandler.ts'

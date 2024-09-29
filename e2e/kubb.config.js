@@ -85,7 +85,12 @@ const baseConfig = {
       output: {
         path: './clients/axios',
       },
-      group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+      group: {
+        type: 'tag',
+        name({ group }) {
+          return `${group}Service`
+        },
+      },
     }),
     pluginZod({
       output: {

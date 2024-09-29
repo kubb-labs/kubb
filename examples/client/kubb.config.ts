@@ -39,7 +39,7 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
-          path: './clients',
+          path: './clients/axios',
           banner: '/* eslint-disable no-alert, no-console */',
         },
         exclude: [
@@ -48,7 +48,12 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
-        group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+        group: {
+          type: 'tag',
+          name({ group }) {
+            return `${group}Service`
+          },
+        },
         operations: true,
         pathParamsType: 'object',
       }),

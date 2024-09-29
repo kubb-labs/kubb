@@ -128,7 +128,7 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
-        group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+        group: { type: 'tag', name: ({ group }) => `${group}Service` },
         importPath: '../../../../axios-client.ts',
         operations: true,
         dataReturnType: 'full',

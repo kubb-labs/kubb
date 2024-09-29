@@ -1,4 +1,4 @@
-import { createDeleteOrderMutationResponse } from '../../mocks/storeMocks/createDeleteOrder.ts'
+import { createDeleteOrderMutationResponse } from '../../../mocks/storeController/createDeleteOrder.ts'
 import { http } from 'msw'
 
 export const deleteOrderHandler = http.delete('*/store/order/:orderId', function handler(info) {

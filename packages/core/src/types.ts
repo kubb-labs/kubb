@@ -229,7 +229,12 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: string, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
+  resolvePath?: (
+    this: PluginContext<TOptions>,
+    baseName: KubbFile.BaseName,
+    mode?: KubbFile.Mode,
+    options?: TOptions['resolvePathOptions'],
+  ) => KubbFile.OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -250,7 +255,7 @@ export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Require
 
 export type ResolvePathParams<TOptions = object> = {
   pluginKey?: Plugin['key']
-  baseName: string
+  baseName: KubbFile.BaseName
   mode?: KubbFile.Mode
   /**
    * Options to be passed to 'resolvePath' 3th parameter
@@ -305,4 +310,22 @@ export type Output = {
    * Add a footer text in the beginning of every file
    */
   footer?: string
+}
+
+type GroupContext = {
+  group: string
+}
+
+export type Group = {
+  /**
+   * Tag will group based on the operation tag inside the Swagger file
+   */
+  type: 'tag'
+  /**
+   * Relative path to save the grouped clients.
+   *
+   * @example `${output}/{{tag}}Controller` => `clients/PetController`
+   * @default `({ group }) => `${group}Controller``
+   */
+  name?: (context: GroupContext) => string
 }
