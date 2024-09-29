@@ -17,7 +17,7 @@ export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = createPlugin<PluginSwr>((options) => {
   const {
-    output = { path: 'hooks' },
+    output = { path: 'hooks', barrelType: 'named' },
     group,
     exclude = [],
     include,
@@ -35,10 +35,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
   return {
     name: pluginSwrName,
     options: {
-      output: {
-        exportType: 'barrelNamed',
-        ...output,
-      },
+      output,
       pathParamsType,
       client: {
         importPath: '@kubb/plugin-client/client',
@@ -128,19 +125,18 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

@@ -19,6 +19,11 @@ export default defineConfig(() => {
     output: {
       path: './src/gen',
       clean: true,
+      extension() {
+        return {
+          '.ts': '.js',
+        }
+      },
     },
     plugins: [
       pluginOas({
@@ -50,7 +55,6 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './tagObject.ts',
-          exportType: false,
         },
         generators: [clientStaticGenerator],
         include: [
@@ -65,7 +69,6 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './tag.ts',
-          exportType: false,
         },
         parser: 'client',
         include: [

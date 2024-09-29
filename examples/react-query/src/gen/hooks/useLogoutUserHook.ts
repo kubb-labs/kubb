@@ -22,7 +22,7 @@ async function logoutUser(config: Partial<RequestConfig> = {}) {
   return res.data
 }
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
+export function logoutUserQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions({
     queryKey,
@@ -46,7 +46,7 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
+    ...(logoutUserQueryOptionsHook(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, Error> & {

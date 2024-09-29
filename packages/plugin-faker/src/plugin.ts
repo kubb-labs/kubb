@@ -16,7 +16,7 @@ export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 
 export const pluginFaker = createPlugin<PluginFaker>((options) => {
   const {
-    output = { path: 'mocks' },
+    output = { path: 'mocks', barrelType: 'named' },
     seed,
     group,
     exclude = [],
@@ -35,10 +35,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
   return {
     name: pluginFakerName,
     options: {
-      output: {
-        exportType: 'barrelNamed',
-        ...output,
-      },
+      output,
       transformers,
       seed,
       dateType,
@@ -116,19 +113,18 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

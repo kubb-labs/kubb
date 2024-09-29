@@ -15,6 +15,22 @@ export type { GetUserByNameQueryKey } from './clients/hooks/userController/useGe
 export type { LoginUserQueryKey } from './clients/hooks/userController/useLoginUser.ts'
 export type { LogoutUserQueryKey } from './clients/hooks/userController/useLogoutUser.ts'
 export type { UpdateUserMutationKey } from './clients/hooks/userController/useUpdateUser.ts'
+export type { CreatePetsMutationKeySWR } from './clients/swr/petsSWRController/useCreatePetsSWR.ts'
+export type { AddPetMutationKeySWR } from './clients/swr/petSWRController/useAddPetSWR.ts'
+export type { DeletePetMutationKeySWR } from './clients/swr/petSWRController/useDeletePetSWR.ts'
+export type { FindPetsByStatusQueryKeySWR } from './clients/swr/petSWRController/useFindPetsByStatusSWR.ts'
+export type { FindPetsByTagsQueryKeySWR } from './clients/swr/petSWRController/useFindPetsByTagsSWR.ts'
+export type { GetPetByIdQueryKeySWR } from './clients/swr/petSWRController/useGetPetByIdSWR.ts'
+export type { UpdatePetMutationKeySWR } from './clients/swr/petSWRController/useUpdatePetSWR.ts'
+export type { UpdatePetWithFormMutationKeySWR } from './clients/swr/petSWRController/useUpdatePetWithFormSWR.ts'
+export type { UploadFileMutationKeySWR } from './clients/swr/petSWRController/useUploadFileSWR.ts'
+export type { CreateUsersWithListInputMutationKeySWR } from './clients/swr/userSWRController/useCreateUsersWithListInputSWR.ts'
+export type { CreateUserMutationKeySWR } from './clients/swr/userSWRController/useCreateUserSWR.ts'
+export type { DeleteUserMutationKeySWR } from './clients/swr/userSWRController/useDeleteUserSWR.ts'
+export type { GetUserByNameQueryKeySWR } from './clients/swr/userSWRController/useGetUserByNameSWR.ts'
+export type { LoginUserQueryKeySWR } from './clients/swr/userSWRController/useLoginUserSWR.ts'
+export type { LogoutUserQueryKeySWR } from './clients/swr/userSWRController/useLogoutUserSWR.ts'
+export type { UpdateUserMutationKeySWR } from './clients/swr/userSWRController/useUpdateUserSWR.ts'
 export type { AddPetRequestStatusEnum, AddPetRequest } from './models/ts/AddPetRequest.ts'
 export type { Address } from './models/ts/Address.ts'
 export type { ApiResponse } from './models/ts/ApiResponse.ts'
@@ -290,12 +306,154 @@ export { getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByName } fr
 export { loginUserQueryKey, loginUserQueryOptions, useLoginUser } from './clients/hooks/userController/useLoginUser.ts'
 export { logoutUserQueryKey, logoutUserQueryOptions, useLogoutUser } from './clients/hooks/userController/useLogoutUser.ts'
 export { updateUserMutationKey, useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
+export { createPetsMutationKeySWR, useCreatePetsSWR } from './clients/swr/petsSWRController/useCreatePetsSWR.ts'
+export { addPetMutationKeySWR, useAddPetSWR } from './clients/swr/petSWRController/useAddPetSWR.ts'
+export { deletePetMutationKeySWR, useDeletePetSWR } from './clients/swr/petSWRController/useDeletePetSWR.ts'
+export { findPetsByStatusQueryKeySWR, findPetsByStatusQueryOptionsSWR, useFindPetsByStatusSWR } from './clients/swr/petSWRController/useFindPetsByStatusSWR.ts'
+export { findPetsByTagsQueryKeySWR, findPetsByTagsQueryOptionsSWR, useFindPetsByTagsSWR } from './clients/swr/petSWRController/useFindPetsByTagsSWR.ts'
+export { getPetByIdQueryKeySWR, getPetByIdQueryOptionsSWR, useGetPetByIdSWR } from './clients/swr/petSWRController/useGetPetByIdSWR.ts'
+export { updatePetMutationKeySWR, useUpdatePetSWR } from './clients/swr/petSWRController/useUpdatePetSWR.ts'
+export { updatePetWithFormMutationKeySWR, useUpdatePetWithFormSWR } from './clients/swr/petSWRController/useUpdatePetWithFormSWR.ts'
+export { uploadFileMutationKeySWR, useUploadFileSWR } from './clients/swr/petSWRController/useUploadFileSWR.ts'
+export { createUsersWithListInputMutationKeySWR, useCreateUsersWithListInputSWR } from './clients/swr/userSWRController/useCreateUsersWithListInputSWR.ts'
+export { createUserMutationKeySWR, useCreateUserSWR } from './clients/swr/userSWRController/useCreateUserSWR.ts'
+export { deleteUserMutationKeySWR, useDeleteUserSWR } from './clients/swr/userSWRController/useDeleteUserSWR.ts'
+export { getUserByNameQueryKeySWR, getUserByNameQueryOptionsSWR, useGetUserByNameSWR } from './clients/swr/userSWRController/useGetUserByNameSWR.ts'
+export { loginUserQueryKeySWR, loginUserQueryOptionsSWR, useLoginUserSWR } from './clients/swr/userSWRController/useLoginUserSWR.ts'
+export { logoutUserQueryKeySWR, logoutUserQueryOptionsSWR, useLogoutUserSWR } from './clients/swr/userSWRController/useLogoutUserSWR.ts'
+export { updateUserMutationKeySWR, useUpdateUserSWR } from './clients/swr/userSWRController/useUpdateUserSWR.ts'
+export { createAddPetRequestFaker } from './mocks/createAddPetRequestFaker.ts'
+export { createAddressFaker } from './mocks/createAddressFaker.ts'
+export { createApiResponseFaker } from './mocks/createApiResponseFaker.ts'
+export { createCategoryFaker } from './mocks/createCategoryFaker.ts'
+export { createCustomerFaker } from './mocks/createCustomerFaker.ts'
+export { createOrderFaker } from './mocks/createOrderFaker.ts'
+export { createPetFaker } from './mocks/createPetFaker.ts'
+export { createPetNotFoundFaker } from './mocks/createPetNotFoundFaker.ts'
+export { createUserArrayFaker } from './mocks/createUserArrayFaker.ts'
+export { createUserFaker } from './mocks/createUserFaker.ts'
+export {
+  createAddPet200Faker,
+  createAddPet405Faker,
+  createAddPetMutationRequestFaker,
+  createAddPetMutationResponseFaker,
+} from './mocks/petController/createAddPetFaker.ts'
+export {
+  createDeletePetPathParamsFaker,
+  createDeletePetHeaderParamsFaker,
+  createDeletePet400Faker,
+  createDeletePetMutationResponseFaker,
+} from './mocks/petController/createDeletePetFaker.ts'
+export {
+  createFindPetsByStatusQueryParamsFaker,
+  createFindPetsByStatus200Faker,
+  createFindPetsByStatus400Faker,
+  createFindPetsByStatusQueryResponseFaker,
+} from './mocks/petController/createFindPetsByStatusFaker.ts'
+export {
+  createFindPetsByTagsQueryParamsFaker,
+  createFindPetsByTagsHeaderParamsFaker,
+  createFindPetsByTags200Faker,
+  createFindPetsByTags400Faker,
+  createFindPetsByTagsQueryResponseFaker,
+} from './mocks/petController/createFindPetsByTagsFaker.ts'
+export {
+  createGetPetByIdPathParamsFaker,
+  createGetPetById200Faker,
+  createGetPetById400Faker,
+  createGetPetById404Faker,
+  createGetPetByIdQueryResponseFaker,
+} from './mocks/petController/createGetPetByIdFaker.ts'
+export {
+  createUpdatePet200Faker,
+  createUpdatePet400Faker,
+  createUpdatePet404Faker,
+  createUpdatePet405Faker,
+  createUpdatePetMutationRequestFaker,
+  createUpdatePetMutationResponseFaker,
+} from './mocks/petController/createUpdatePetFaker.ts'
+export {
+  createUpdatePetWithFormPathParamsFaker,
+  createUpdatePetWithFormQueryParamsFaker,
+  createUpdatePetWithForm405Faker,
+  createUpdatePetWithFormMutationResponseFaker,
+} from './mocks/petController/createUpdatePetWithFormFaker.ts'
+export {
+  createUploadFilePathParamsFaker,
+  createUploadFileQueryParamsFaker,
+  createUploadFile200Faker,
+  createUploadFileMutationRequestFaker,
+  createUploadFileMutationResponseFaker,
+} from './mocks/petController/createUploadFileFaker.ts'
+export {
+  createCreatePetsPathParamsFaker,
+  createCreatePetsQueryParamsFaker,
+  createCreatePetsHeaderParamsFaker,
+  createCreatePets201Faker,
+  createCreatePetsErrorFaker,
+  createCreatePetsMutationRequestFaker,
+  createCreatePetsMutationResponseFaker,
+} from './mocks/petsController/createCreatePetsFaker.ts'
+export { createTagTagFaker } from './mocks/tag/createTagFaker.ts'
+export {
+  createCreateUserErrorFaker,
+  createCreateUserMutationRequestFaker,
+  createCreateUserMutationResponseFaker,
+} from './mocks/userController/createCreateUserFaker.ts'
+export {
+  createCreateUsersWithListInput200Faker,
+  createCreateUsersWithListInputErrorFaker,
+  createCreateUsersWithListInputMutationRequestFaker,
+  createCreateUsersWithListInputMutationResponseFaker,
+} from './mocks/userController/createCreateUsersWithListInputFaker.ts'
+export {
+  createDeleteUserPathParamsFaker,
+  createDeleteUser400Faker,
+  createDeleteUser404Faker,
+  createDeleteUserMutationResponseFaker,
+} from './mocks/userController/createDeleteUserFaker.ts'
+export {
+  createGetUserByNamePathParamsFaker,
+  createGetUserByName200Faker,
+  createGetUserByName400Faker,
+  createGetUserByName404Faker,
+  createGetUserByNameQueryResponseFaker,
+} from './mocks/userController/createGetUserByNameFaker.ts'
+export {
+  createLoginUserQueryParamsFaker,
+  createLoginUser200Faker,
+  createLoginUser400Faker,
+  createLoginUserQueryResponseFaker,
+} from './mocks/userController/createLoginUserFaker.ts'
+export { createLogoutUserErrorFaker, createLogoutUserQueryResponseFaker } from './mocks/userController/createLogoutUserFaker.ts'
+export {
+  createUpdateUserPathParamsFaker,
+  createUpdateUserErrorFaker,
+  createUpdateUserMutationRequestFaker,
+  createUpdateUserMutationResponseFaker,
+} from './mocks/userController/createUpdateUserFaker.ts'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './models/ts/petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXExampleEnum } from './models/ts/petsController/CreatePets.ts'
 export { handlers } from './msw/handlers.ts'
+export { addPetHandler } from './msw/petController/addPetHandler.ts'
+export { deletePetHandler } from './msw/petController/deletePetHandler.ts'
+export { findPetsByStatusHandler } from './msw/petController/findPetsByStatusHandler.ts'
+export { findPetsByTagsHandler } from './msw/petController/findPetsByTagsHandler.ts'
+export { getPetByIdHandler } from './msw/petController/getPetByIdHandler.ts'
+export { updatePetHandler } from './msw/petController/updatePetHandler.ts'
+export { updatePetWithFormHandler } from './msw/petController/updatePetWithFormHandler.ts'
+export { uploadFileHandler } from './msw/petController/uploadFileHandler.ts'
+export { createPetsHandler } from './msw/petsController/createPetsHandler.ts'
+export { createUserHandler } from './msw/userController/createUserHandler.ts'
+export { createUsersWithListInputHandler } from './msw/userController/createUsersWithListInputHandler.ts'
+export { deleteUserHandler } from './msw/userController/deleteUserHandler.ts'
+export { getUserByNameHandler } from './msw/userController/getUserByNameHandler.ts'
+export { loginUserHandler } from './msw/userController/loginUserHandler.ts'
+export { logoutUserHandler } from './msw/userController/logoutUserHandler.ts'
+export { updateUserHandler } from './msw/userController/updateUserHandler.ts'
 export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export { addressSchema } from './zod/addressSchema.ts'
 export { apiResponseSchema } from './zod/apiResponseSchema.ts'

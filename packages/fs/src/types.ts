@@ -20,7 +20,6 @@ export type Import = {
    * @example '@kubb/core'
    */
   path: string
-  extName?: Extname
   /**
    * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
    */
@@ -61,7 +60,6 @@ export type Export = {
    * @example '@kubb/core'
    */
   path: string
-  extName?: Extname
   /**
    * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`.
    */
@@ -95,7 +93,7 @@ export type OptionalPath = Path | undefined | null
 export type File<TMeta extends object = object> = {
   /**
    * Name to be used to create the path
-   * Based on UNIX basename, `${name}.extName`
+   * Based on UNIX basename, `${name}.extname`
    * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
    */
   baseName: BaseName
@@ -134,7 +132,7 @@ export type ResolvedFile<TMeta extends object = object> = File<TMeta> & {
    * @link  https://nodejs.org/api/path.html#pathformatpathobject
    */
   name: string
-  extName: Extname
+  extname: Extname
   imports: Array<ResolvedImport>
   exports: Array<ResolvedExport>
 }

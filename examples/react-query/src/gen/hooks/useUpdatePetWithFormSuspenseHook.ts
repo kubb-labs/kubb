@@ -29,7 +29,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
   return res.data
 }
 
-export function updatePetWithFormSuspenseQueryOptions(
+export function updatePetWithFormSuspenseQueryOptionsHook(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
@@ -64,7 +64,7 @@ export function useUpdatePetWithFormSuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormSuspenseQueryKey(petId, params)
   const query = useSuspenseQuery({
-    ...(updatePetWithFormSuspenseQueryOptions(petId, params, config) as unknown as UseSuspenseQueryOptions),
+    ...(updatePetWithFormSuspenseQueryOptionsHook(petId, params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, UpdatePetWithForm405> & {

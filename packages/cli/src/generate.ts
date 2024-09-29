@@ -7,9 +7,9 @@ import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 
+import { createLogger } from '@kubb/core/logger'
 import { Presets, SingleBar } from 'cli-progress'
 import type { Args } from './commands/generate.ts'
-import { createLogger } from '@kubb/core/logger'
 
 type GenerateProps = {
   input?: string
@@ -73,7 +73,12 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
       : userConfig.input,
     output: {
       write: true,
-      exportType: 'barrelNamed',
+      barrelType: 'named',
+      extension() {
+        return {
+          '.ts': '.ts',
+        }
+      },
       ...userConfig.output,
     },
   }

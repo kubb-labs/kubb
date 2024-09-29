@@ -33,7 +33,7 @@ async function getUserByName(
   return res.data
 }
 
-export function getUserByNameQueryOptions(
+export function getUserByNameQueryOptionsHook(
   {
     username,
   }: {
@@ -74,7 +74,7 @@ export function useGetUserByNameHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
   const query = useQuery({
-    ...(getUserByNameQueryOptions({ username }, config) as unknown as QueryObserverOptions),
+    ...(getUserByNameQueryOptionsHook({ username }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & {

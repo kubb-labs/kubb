@@ -1,8 +1,8 @@
 import { pascalCase } from '../src/transformers/casing.ts'
 
+import { FileManager, type KubbFile } from '../src'
 import type { PluginManager } from '../src/PluginManager.ts'
 import { readSync } from '../src/fs/read.ts'
-import { FileManager, type KubbFile } from '../src'
 
 export const mockedPluginManager = {
   resolveName: ({ name, type }) => {
@@ -20,8 +20,8 @@ export const mockedPluginManager = {
     on(eventName, args) {},
     logLevel: 'info',
   },
-  getFile: ({ name, extName, pluginKey }) => {
-    const baseName = `${name}${extName}`
+  getFile: ({ name, extname, pluginKey }) => {
+    const baseName = `${name}${extname}`
     let source = ''
 
     try {

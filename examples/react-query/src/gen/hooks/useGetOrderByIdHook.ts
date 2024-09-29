@@ -34,7 +34,7 @@ async function getOrderById(
   return res.data
 }
 
-export function getOrderByIdQueryOptions(
+export function getOrderByIdQueryOptionsHook(
   {
     orderId,
   }: {
@@ -76,7 +76,7 @@ export function useGetOrderByIdHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey({ orderId })
   const query = useQuery({
-    ...(getOrderByIdQueryOptions({ orderId }, config) as unknown as QueryObserverOptions),
+    ...(getOrderByIdQueryOptionsHook({ orderId }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & {

@@ -17,7 +17,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
     const { getFile, groupSchemasByName } = useOperationManager()
 
     const name = 'operations'
-    const file = pluginManager.getFile({ name, extName: '.ts', pluginKey: [pluginZodName] })
+    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey: [pluginZodName] })
 
     const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByName(operation, { type: 'function' }) }))
 

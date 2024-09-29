@@ -31,7 +31,6 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         <File.Import name={'client'} path={options.importPath} />
         <File.Import name={['RequestConfig']} path={options.importPath} isTypeOnly />
         <File.Import
-          extName={output?.extName}
           name={[
             type.schemas.request?.name,
             type.schemas.response.name,

@@ -11,13 +11,13 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
     const { pluginManager, plugin } = useApp<PluginMsw>()
     const { getName, getFile } = useOperationManager()
 
-    const file = pluginManager.getFile({ name: 'handlers', extName: '.ts', pluginKey: [pluginMswName] })
+    const file = pluginManager.getFile({ name: 'handlers', extname: '.ts', pluginKey: [pluginMswName] })
 
     const imports = operations.map((operation) => {
       const operationFile = getFile(operation, { pluginKey: [pluginMswName] })
       const operationName = getName(operation, { pluginKey: [pluginMswName], type: 'function' })
 
-      return <File.Import extName={plugin.options.output?.extName} key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
+      return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
     })
 
     const handlers = operations.map((operation) => getName(operation, { type: 'function', pluginKey: [pluginMswName] }))

@@ -43,6 +43,11 @@ export type InputData = {
 
 type Input = InputPath | InputData
 
+type OutContext = {}
+type OutExtension = (context: OutContext) => Record<KubbFile.Extname, KubbFile.Extname>
+
+export type BarrelType = 'all' | 'named'
+
 /**
  * @private
  */
@@ -74,11 +79,17 @@ export type Config<TInput = Input> = {
      * @default true
      */
     write?: boolean
+
+    /**
+     * Override the extension to the generated imports and exports, default the plugin will add an extension
+     * @default `() => ({ '.ts': '.ts'})`
+     */
+    extension?: OutExtension
     /**
      * Define what needs to exported, here you can also disable the export of barrel files.
-     * @default `'barrelNamed'`
+     * @default `'named'`
      */
-    exportType?: 'barrel' | 'barrelNamed' | false
+    barrelType?: BarrelType | false
   }
   /**
    * An array of Kubb plugins that will be used in the generation.
@@ -237,8 +248,6 @@ export type PluginLifecycleHooks = keyof PluginLifecycle
 
 export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Required<PluginLifecycle>[H]>
 
-export type PluginCache = Record<string, [number, unknown]>
-
 export type ResolvePathParams<TOptions = object> = {
   pluginKey?: Plugin['key']
   baseName: string
@@ -257,7 +266,7 @@ export type ResolveNameParams = {
    * `function` can be used used to customize the exported functions(use of camelCase)
    * `type` is a special type for TypeScript(use of PascalCase)
    */
-  type?: 'file' | 'function' | 'type'
+  type?: 'file' | 'function' | 'type' | 'const'
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
@@ -284,18 +293,10 @@ export type Output = {
    */
   path: string
   /**
-   * Name to be used for the `export * as {{exportAs}} from './'`
+   * Define what needs to exported, here you can also disable the export of barrel files.
+   * @default `'named'`
    */
-  exportAs?: string
-  /**
-   * Add an extension to the generated imports and exports, default it will not use an extension
-   */
-  extName?: KubbFile.Extname
-  /**
-   * Define what needs to exported, here you can also disable the export of barrel files
-   * @default `'barrelNamed'`
-   */
-  exportType?: 'barrel' | 'barrelNamed' | false
+  barrelType?: BarrelType | false
   /**
    * Add a banner text in the beginning of every file
    */

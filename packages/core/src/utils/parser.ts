@@ -1,4 +1,4 @@
-import { extname } from 'node:path'
+import path from 'node:path'
 import type * as KubbFile from '@kubb/fs/types'
 
 import { getRelativePath } from '@kubb/fs'
@@ -10,10 +10,10 @@ import type { Logger } from '../logger.ts'
  * Helper to create a file with name and id set
  */
 export function createFile<TMeta extends object = object>(file: KubbFile.File<TMeta>): KubbFile.ResolvedFile<TMeta> {
-  const extName = extname(file.baseName) as KubbFile.Extname
+  const extname = path.extname(file.baseName) as KubbFile.Extname
 
-  if (!extName) {
-    throw new Error(`No extName found for ${file.baseName}`)
+  if (!extname) {
+    throw new Error(`No extname found for ${file.baseName}`)
   }
 
   const source = file.sources.map((item) => item.value).join('\n\n')
@@ -25,7 +25,7 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
     ...file,
     id: hash({ path: file.path }),
     name: trimExtName(file.baseName),
-    extName,
+    extname,
     imports: imports.map((item) => createFileImport(item)),
     exports: exports.map((item) => createFileExport(item)),
     sources: sources.map((item) => createFileSource(item)),
@@ -34,41 +34,31 @@ export function createFile<TMeta extends object = object>(file: KubbFile.File<TM
 }
 
 /**
- * Helper to create a fileImport with extName set
+ * Helper to create a fileImport with extname set
  */
 function createFileSource(source: KubbFile.Source): KubbFile.Source {
   return source
 }
 
 /**
- * Helper to create a fileImport with extName set
+ * Helper to create a fileImport with extname set
  */
 export function createFileImport(imp: KubbFile.Import): KubbFile.ResolvedImport {
-  const extName = extname(imp.path) as KubbFile.Extname
-
   return {
     ...imp,
-    extName: imp.extName ? imp.extName : extName,
   }
 }
 
 /**
- * Helper to create a fileExport with extName set
+ * Helper to create a fileExport with extname set
  */
 export function createFileExport(exp: KubbFile.Export): KubbFile.ResolvedExport {
-  const extName = extname(exp.path) as KubbFile.Extname
-
   return {
     ...exp,
-    extName: exp.extName ? exp.extName : extName,
   }
 }
 
 export type ParserModule<TMeta extends object = object> = {
-  /**
-   * By default @kubb/react is used
-   */
-  render: (item: any) => any
   format: (source: string) => Promise<string>
   /**
    * Convert a file to string
@@ -81,30 +71,29 @@ export function createFileParser<TMeta extends object = object>(parser: ParserMo
 }
 
 type PrintOptions = {
+  extname?: KubbFile.Extname
   logger?: Logger
 }
 
 const typeScriptParser = createFileParser({
-  render() {
-    return undefined
-  },
   async format(source) {
     const module = await import('@kubb/parser-ts')
 
     return module.format(source)
   },
-  async print(file) {
+  async print(file, options = { extname: '.ts' }) {
     const module = await import('@kubb/parser-ts')
 
     const source = file.sources.map((item) => item.value).join('\n\n')
 
     const importNodes = file.imports
       .map((item) => {
-        const path = item.root ? getRelativePath(item.root, item.path) : item.path
+        const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
+        const hasExtname = !!path.extname(importPath)
 
         return module.factory.createImportDeclaration({
           name: item.name,
-          path,
+          path: options.extname && hasExtname ? `${trimExtName(importPath)}${options.extname}` : trimExtName(importPath),
           isTypeOnly: item.isTypeOnly,
         })
       })
@@ -112,9 +101,13 @@ const typeScriptParser = createFileParser({
 
     const exportNodes = file.exports
       .map((item) => {
+        const exportPath = item.path
+
+        const hasExtname = !!path.extname(exportPath)
+
         return module.factory.createExportDeclaration({
           name: item.name,
-          path: item.path,
+          path: options.extname && hasExtname ? `${trimExtName(item.path)}${options.extname}` : trimExtName(item.path),
           isTypeOnly: item.isTypeOnly,
           asAlias: item.asAlias,
         })
@@ -126,13 +119,10 @@ const typeScriptParser = createFileParser({
 })
 
 const defaultParser = createFileParser({
-  render() {
-    return undefined
-  },
   async format(source) {
     return source
   },
-  async print(file, { logger }) {
+  async print(file) {
     return file.sources.map((item) => item.value).join('\n\n')
   },
 })
@@ -145,22 +135,22 @@ const parsers: Record<KubbFile.Extname, ParserModule<any>> = {
   '.json': defaultParser,
 }
 
-export async function getFileParser<TMeta extends object = object>(extName: KubbFile.Extname | undefined): Promise<ParserModule<TMeta>> {
-  if (!extName) {
+export async function getFileParser<TMeta extends object = object>(extname: KubbFile.Extname | undefined): Promise<ParserModule<TMeta>> {
+  if (!extname) {
     return defaultParser
   }
 
-  const parser = parsers[extName]
+  const parser = parsers[extname]
 
   if (!parser) {
-    console.warn(`[parser] No parser found for ${extName}, default parser will be used`)
+    console.warn(`[parser] No parser found for ${extname}, default parser will be used`)
   }
 
   return parser || defaultParser
 }
 
 function trimExtName(text: string): string {
-  const extName = text.split('.').pop()
+  const extname = text.split('.').pop()
 
-  return text.replace(`.${extName}`, '')
+  return text.replace(`.${extname}`, '')
 }

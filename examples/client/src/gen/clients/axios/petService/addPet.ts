@@ -1,6 +1,6 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

@@ -24,7 +24,7 @@ async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Pa
   return res.data
 }
 
-export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
+export function findPetsByStatusQueryOptionsHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions({
     queryKey,
@@ -54,7 +54,7 @@ export function useFindPetsByStatusHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery({
-    ...(findPetsByStatusQueryOptions(params, config) as unknown as QueryObserverOptions),
+    ...(findPetsByStatusQueryOptionsHook(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, FindPetsByStatus400> & {

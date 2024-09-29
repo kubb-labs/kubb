@@ -29,7 +29,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     return (
       <File baseName={mock.file.baseName} path={mock.file.path} meta={mock.file.meta} banner={output?.banner} footer={output?.footer}>
         <File.Import name={['http']} path={'msw'} />
-        {faker.file && faker.name && <File.Import extName={output?.extName} name={[faker.name]} root={mock.file.path} path={faker.file.path} />}
+        {faker.file && faker.name && <File.Import name={[faker.name]} root={mock.file.path} path={faker.file.path} />}
 
         <Mock name={mock.name} fakerName={faker.name} method={operation.method} url={new URLPath(operation.path).toURLPath()} />
       </File>

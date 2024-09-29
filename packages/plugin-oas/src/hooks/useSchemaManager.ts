@@ -14,7 +14,7 @@ type FileMeta = FileMetaBase & {
 
 type UseSchemaManagerResult = {
   getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getFile: (name: string, params?: { pluginKey?: Plugin['key']; mode?: Mode; extName?: KubbFile.Extname; tag?: string }) => KubbFile.File<FileMeta>
+  getFile: (name: string, params?: { pluginKey?: Plugin['key']; mode?: Mode; extname?: KubbFile.Extname; tag?: string }) => KubbFile.File<FileMeta>
   getImports: (tree: Array<Schema>) => Array<KubbFile.Import>
 }
 
@@ -32,12 +32,12 @@ export function useSchemaManager(): UseSchemaManagerResult {
     })
   }
   //TODO replace tag with group
-  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extName = '.ts', tag } = {}) => {
+  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extname = '.ts', tag } = {}) => {
     const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({
       name: resolvedName,
-      extName,
+      extname,
       pluginKey,
       options: { type: 'file', pluginKey, tag },
     })

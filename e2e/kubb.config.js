@@ -58,7 +58,7 @@ const baseConfig = {
     pluginTs({
       output: {
         path: 'models/ts',
-        exportType: false,
+        barrelType: false,
       },
       group: {
         type: 'tag',
@@ -77,7 +77,7 @@ const baseConfig = {
     pluginSwr({
       output: {
         path: './clients/swr',
-        exportType: false,
+        barrelType: false,
       },
       group: { type: 'tag' },
     }),
@@ -90,7 +90,7 @@ const baseConfig = {
     pluginZod({
       output: {
         path: './zod',
-        exportType: false,
+        barrelType: false,
       },
       group: { type: 'tag' },
       inferred: true,
@@ -100,7 +100,7 @@ const baseConfig = {
     pluginFaker({
       output: {
         path: 'mocks',
-        exportType: false,
+        barrelType: false,
       },
       group: { type: 'tag' },
       transformers: {

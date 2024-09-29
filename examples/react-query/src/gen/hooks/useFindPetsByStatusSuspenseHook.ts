@@ -25,7 +25,7 @@ async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Pa
   return res.data
 }
 
-export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
+export function findPetsByStatusSuspenseQueryOptionsHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return queryOptions({
     queryKey,
@@ -55,7 +55,7 @@ export function useFindPetsByStatusSuspenseHook<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...(findPetsByStatusSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
+    ...(findPetsByStatusSuspenseQueryOptionsHook(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, FindPetsByStatus400> & {

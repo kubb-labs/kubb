@@ -1,6 +1,6 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/client'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

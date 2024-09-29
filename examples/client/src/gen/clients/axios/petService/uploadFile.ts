@@ -5,7 +5,7 @@ import type {
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile.ts'
+} from '../../../models/ts/petController/UploadFile.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

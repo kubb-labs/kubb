@@ -5,7 +5,7 @@ import type {
   GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-} from '../../../models/ts/userController/GetUserByName.ts'
+} from '../../../models/ts/userController/GetUserByName.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

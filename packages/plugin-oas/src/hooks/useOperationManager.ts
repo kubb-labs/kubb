@@ -48,7 +48,7 @@ type UseOperationManagerResult = {
       prefix?: string
       suffix?: string
       pluginKey?: Plugin['key']
-      extName?: KubbFile.Extname
+      extname?: KubbFile.Extname
       tag?: string
     },
   ) => KubbFile.File<FileMeta>
@@ -108,12 +108,12 @@ export function useOperationManager(): UseOperationManagerResult {
   //TODO replace tag with group
   const getFile: UseOperationManagerResult['getFile'] = (
     operation,
-    { prefix, suffix, pluginKey = plugin.key, tag = operation.getTags().at(0)?.name, extName = '.ts' } = {},
+    { prefix, suffix, pluginKey = plugin.key, tag = operation.getTags().at(0)?.name, extname = '.ts' } = {},
   ) => {
     const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
     const file = pluginManager.getFile({
       name,
-      extName,
+      extname,
       pluginKey,
       options: { type: 'file', pluginKey, tag },
     })

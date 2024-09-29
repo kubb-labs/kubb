@@ -16,7 +16,7 @@ export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
 export const pluginClient = createPlugin<PluginClient>((options) => {
   const {
-    output = { path: 'clients' },
+    output = { path: 'clients', barrelType: 'named' },
     group,
     exclude = [],
     include,
@@ -36,7 +36,6 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     name: pluginClientName,
     options: {
       output: {
-        exportType: 'barrelNamed',
         ...output,
       },
       parser,
@@ -104,19 +103,18 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       await this.addFile(...files)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

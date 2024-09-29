@@ -5,7 +5,7 @@
     "sources": [],
     "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
     "name": "test",
-    "extName": ".ts",
+    "extname": ".ts",
     "imports": [],
     "exports": [],
     "meta": {}
@@ -16,7 +16,7 @@
     "sources": [],
     "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
     "name": "file2",
-    "extName": ".ts",
+    "extname": ".ts",
     "imports": [],
     "exports": [],
     "meta": {}
@@ -27,7 +27,7 @@
     "sources": [],
     "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
     "name": "file2",
-    "extName": ".ts",
+    "extname": ".ts",
     "imports": [],
     "exports": [],
     "meta": {}
@@ -38,7 +38,7 @@
     "sources": [],
     "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
     "name": "index",
-    "extName": ".ts",
+    "extname": ".ts",
     "imports": [],
     "exports": [],
     "meta": {}
@@ -49,7 +49,7 @@
     "sources": [],
     "id": "a2d277093a81a74c56c0d094071195302d6bb484",
     "name": "test",
-    "extName": ".ts",
+    "extname": ".ts",
     "imports": [],
     "exports": [],
     "meta": {}
@@ -60,7 +60,7 @@
     "sources": [],
     "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
     "name": "pet",
-    "extName": ".ts",
+    "extname": ".ts",
     "imports": [],
     "exports": [],
     "meta": {}

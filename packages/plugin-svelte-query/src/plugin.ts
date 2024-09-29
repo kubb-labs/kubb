@@ -17,7 +17,7 @@ export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelt
 
 export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
   const {
-    output = { path: 'hooks' },
+    output = { path: 'hooks', barrelType: 'named' },
     group,
     exclude = [],
     include,
@@ -34,10 +34,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
   return {
     name: pluginSvelteQueryName,
     options: {
-      output: {
-        exportType: 'barrelNamed',
-        ...output,
-      },
+      output,
       baseURL: undefined,
       client: {
         importPath: '@kubb/plugin-client/client',
@@ -127,19 +124,18 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      if (this.config.output.exportType) {
-        const barrelFiles = await this.fileManager.getBarrelFiles({
-          root,
-          output,
-          files: this.fileManager.files,
-          meta: {
-            pluginKey: this.plugin.key,
-          },
-          logger: this.logger,
-        })
+      const barrelFiles = await this.fileManager.getBarrelFiles({
+        type: output.barrelType ?? 'named',
+        root,
+        output,
+        files: this.fileManager.files,
+        meta: {
+          pluginKey: this.plugin.key,
+        },
+        logger: this.logger,
+      })
 
-        await this.addFile(...barrelFiles)
-      }
+      await this.addFile(...barrelFiles)
     },
   }
 })

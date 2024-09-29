@@ -33,11 +33,11 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     }
 
     const queryOptions = {
-      name: transformers.camelCase(`${operation.getOperationId()} QueryOptions`),
+      name: getName(operation, { type: 'function', suffix: 'QueryOptions' }),
     }
     const queryKey = {
-      name: transformers.camelCase(`${operation.getOperationId()} QueryKey`),
-      typeName: transformers.pascalCase(`${operation.getOperationId()} QueryKey`),
+      name: getName(operation, { type: 'const', suffix: 'QueryKey' }),
+      typeName: getName(operation, { type: 'type', suffix: 'QueryKey' }),
     }
 
     const type = {
@@ -57,7 +57,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
 
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
-        {options.parser === 'zod' && <File.Import extName={output?.extName} name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
+        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
         <File.Import name="useSWR" path={options.query.importPath} />
         <File.Import name={['SWRResponse']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
@@ -65,7 +65,6 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
 
         <File.Import
-          extName={output?.extName}
           name={[
             type.schemas.request?.name,
             type.schemas.response.name,

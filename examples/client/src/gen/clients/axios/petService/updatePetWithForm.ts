@@ -5,7 +5,7 @@ import type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
-} from '../../../models/ts/petController/UpdatePetWithForm.ts'
+} from '../../../models/ts/petController/UpdatePetWithForm.js'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**

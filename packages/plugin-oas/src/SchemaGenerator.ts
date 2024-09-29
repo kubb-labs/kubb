@@ -349,7 +349,7 @@ export class SchemaGenerator<
     const file = this.context.pluginManager.getFile({
       name: fileName,
       pluginKey: this.context.plugin.key,
-      extName: '.ts',
+      extname: '.ts',
     })
 
     ref = this.refs[$ref] = {

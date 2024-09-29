@@ -112,12 +112,10 @@ describe('FileManager', () => {
     expect(file.imports).toMatchInlineSnapshot(`
       [
         {
-          "extName": "",
           "name": "fs",
           "path": "node:fs",
         },
         {
-          "extName": "",
           "name": "path",
           "path": "node:path",
         },
@@ -300,6 +298,7 @@ describe('FileManager', () => {
     ]
 
     const barrelFiles = await fileManager.getBarrelFiles({
+      type: 'all',
       files,
       root: 'src',
       output: {
@@ -364,7 +363,7 @@ describe('FileManager utils', () => {
         imports: [
           {
             name: ['Pets'],
-            path: './Pets',
+            path: './Pets.ts',
             isTypeOnly: true,
           },
         ],
@@ -383,16 +382,16 @@ describe('FileManager utils', () => {
         imports: [
           {
             name: 'client',
-            path: './Pets',
+            path: './Pets.ts',
           },
           {
             name: ['Pets', 'Cat'],
-            path: './Pets',
+            path: './Pets.ts',
             isTypeOnly: true,
           },
           {
             name: 'React',
-            path: './React',
+            path: './React.ts',
           },
         ],
         sources: [
@@ -415,20 +414,20 @@ describe('FileManager utils', () => {
         imports: [
           {
             name: ['Pets', 'Cat'],
-            path: './Pets',
+            path: './Pets.ts',
             isTypeOnly: true,
           },
           {
             name: 'client',
-            path: './Pets',
+            path: './Pets.ts',
           },
           {
             name: 'React',
-            path: './React',
+            path: './React.ts',
           },
           {
             name: ['Pets', 'Cat'],
-            path: './Pets',
+            path: './Pets.ts',
             isTypeOnly: true,
           },
         ],
@@ -453,7 +452,7 @@ describe('FileManager utils', () => {
         imports: [
           {
             name: 'Pets',
-            path: './Pets',
+            path: './Pets.ts',
             isTypeOnly: true,
           },
         ],
@@ -475,17 +474,17 @@ describe('FileManager utils', () => {
       imports: [
         {
           name: ['Pets'],
-          path: './Pets',
+          path: './Pets.ts',
           isTypeOnly: true,
         },
         {
           name: ['Lily'],
-          path: './Pets',
+          path: './Pets.ts',
           isTypeOnly: true,
         },
         {
           name: 'Dog',
-          path: './Dog',
+          path: './Dog.ts',
           isTypeOnly: true,
         },
       ],
@@ -498,18 +497,18 @@ describe('FileManager utils', () => {
       exports: [
         {
           name: ['Pets'],
-          path: './Pets',
+          path: './Pets.ts',
           isTypeOnly: true,
         },
         {
           name: ['Lily'],
-          path: './Pets',
+          path: './Pets.ts',
           isTypeOnly: true,
         },
         {
           name: 'Dog',
           asAlias: true,
-          path: './Dog',
+          path: './Dog.ts',
           isTypeOnly: true,
         },
       ],
