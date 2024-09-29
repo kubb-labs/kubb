@@ -1,5 +1,19 @@
 # @kubb/plugin-redoc
 
+## 3.0.0-alpha.31
+
+### Major Changes
+
+- [#1276](https://github.com/kubb-labs/kubb/pull/1276) [`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
+
+### Patch Changes
+
+- Updated dependencies [[`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059)]:
+  - @kubb/plugin-oas@3.0.0-alpha.31
+  - @kubb/react@3.0.0-alpha.31
+  - @kubb/core@3.0.0-alpha.31
+  - @kubb/oas@3.0.0-alpha.31
+
 ## 3.0.0-alpha.30
 
 ### Major Changes
