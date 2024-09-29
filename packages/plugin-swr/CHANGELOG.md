@@ -1,5 +1,23 @@
 # @kubb/plugin-swr
 
+## 3.0.0-alpha.30
+
+### Major Changes
+
+- [#1274](https://github.com/kubb-labs/kubb/pull/1274) [`39072a9`](https://github.com/kubb-labs/kubb/commit/39072a98195adb22b83d5e9857afbc329f20ecac) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of `extName` in every plugin in favour of one `output.extension`
+
+### Patch Changes
+
+- Updated dependencies [[`39072a9`](https://github.com/kubb-labs/kubb/commit/39072a98195adb22b83d5e9857afbc329f20ecac)]:
+  - @kubb/plugin-client@3.0.0-alpha.30
+  - @kubb/plugin-oas@3.0.0-alpha.30
+  - @kubb/plugin-zod@3.0.0-alpha.30
+  - @kubb/plugin-ts@3.0.0-alpha.30
+  - @kubb/react@3.0.0-alpha.30
+  - @kubb/core@3.0.0-alpha.30
+  - @kubb/fs@3.0.0-alpha.30
+  - @kubb/oas@3.0.0-alpha.30
+
 ## 3.0.0-alpha.29
 
 ### Patch Changes
