@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 1.0.0-alpha.31
+
+### Patch Changes
+
+- Updated dependencies [[`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059)]:
+  - @kubb/core@3.0.0-alpha.31
+
 ## 1.0.0-alpha.30
 
 ### Patch Changes

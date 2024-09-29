@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-swr",
-  "version": "3.0.0-alpha.30",
+  "version": "3.0.0-alpha.31",
   "description": "Generator plugin-swr",
   "keywords": [
     "typescript",
