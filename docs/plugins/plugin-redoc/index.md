@@ -35,7 +35,8 @@ yarn add @kubb/plugin-redoc
 ### output
 #### output.path
 
-Output for the generated doc, [https://redocly.com/](https://redocly.com/) is being used for the generation.
+Output for the generated doc.
+For the generation we are using [https://redocly.com/](https://redocly.com/).
 
 |           |                |
 |----------:|:---------------|

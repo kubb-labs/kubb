@@ -43,9 +43,6 @@ export type InputData = {
 
 type Input = InputPath | InputData
 
-type OutContext = {}
-type OutExtension = (context: OutContext) => Record<KubbFile.Extname, KubbFile.Extname>
-
 export type BarrelType = 'all' | 'named'
 
 /**
@@ -81,10 +78,10 @@ export type Config<TInput = Input> = {
     write?: boolean
 
     /**
-     * Override the extension to the generated imports and exports, default the plugin will add an extension
-     * @default `() => ({ '.ts': '.ts'})`
+     * Override the extension to the generated imports and exports, by default the plugin will add an extension
+     * @default `{ '.ts': '.ts'}`
      */
-    extension?: OutExtension
+    extension?: Record<KubbFile.Extname, KubbFile.Extname>
     /**
      * Define what needs to exported, here you can also disable the export of barrel files.
      * @default `'named'`
@@ -268,8 +265,9 @@ export type ResolveNameParams = {
   pluginKey?: Plugin['key']
   /**
    * `file` will be used to customize the name of the created file(use of camelCase)
-   * `function` can be used used to customize the exported functions(use of camelCase)
+   * `function` can be used to customize the exported functions(use of camelCase)
    * `type` is a special type for TypeScript(use of PascalCase)
+   * `const` can be used for variables(use of camelCase)
    */
   type?: 'file' | 'function' | 'type' | 'const'
 }
@@ -291,14 +289,16 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   plugin: Plugin<TOptions>
 }
-
+/**
+ * Specify the export location for the files and define the behavior of the output
+ */
 export type Output = {
   /**
-   * Output to save the generated files.
+   * Path to the output folder or file that will contain the generated code
    */
   path: string
   /**
-   * Define what needs to exported, here you can also disable the export of barrel files.
+   * Define what needs to be exported, here you can also disable the export of barrel files
    * @default `'named'`
    */
   barrelType?: BarrelType | false
@@ -318,14 +318,11 @@ type GroupContext = {
 
 export type Group = {
   /**
-   * Tag will group based on the operation tag inside the Swagger file
+   * Define a type where to group the files on
    */
   type: 'tag'
   /**
-   * Relative path to save the grouped clients.
-   *
-   * @example `${output}/{{tag}}Controller` => `clients/PetController`
-   * @default `({ group }) => `${group}Controller``
+   * Return the name of a group based on the group name, this will be used for the file and name generation
    */
   name?: (context: GroupContext) => string
 }

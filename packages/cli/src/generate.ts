@@ -74,10 +74,8 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     output: {
       write: true,
       barrelType: 'named',
-      extension() {
-        return {
-          '.ts': '.ts',
-        }
+      extension: {
+        '.ts': '.ts',
       },
       ...userConfig.output,
     },

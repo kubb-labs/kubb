@@ -397,8 +397,7 @@ export async function processFiles({ dryRun, config, logger, files }: WriteFiles
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
         const message = file ? `Writing ${relative(config.root, file.path)}` : ''
-        const extnames = config.output.extension?.({})
-        const extname = extnames?.[file.extname]
+        const extname = config.output.extension?.[file.extname]
 
         const source = await getSource(file, { logger, extname })
 

@@ -29,7 +29,7 @@ export default defineConfig({
       output: {
         path: './clients/axios',
       },
-      group: { type: 'tag', output: './clients/axios/{{tag}}Service' }, // [!code --]
+      // group: { type: 'tag', output: './clients/axios/{{tag}}Service' }, // [!code --]
       group: { type: 'tag', name: ({ group }) => `${group}Service` }, // [!code ++]
     }),
   ],
