@@ -75,18 +75,6 @@ Add a footer text in the beginning of every file.
 |     Type: | `string` |
 | Required: | `false`                               |
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  output: {
-    path: './types',
-    barrelType: 'named',
-    banner: '/* eslint-disable no-alert, no-console */',
-    footer: ''
-  },
-})
-```
 
 ### group
 <!--@include: ../core/group.md-->
@@ -111,18 +99,6 @@ Return the name of a group based on the group name, this will be used for the fi
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  group: {
-    type: 'tag',
-    name: (ctx) => `${ctx.group}Controller`
-  },
-})
-```
-
 ### enumType
 
 Choose to use `enum` or `as const` for enums.
@@ -132,10 +108,6 @@ Choose to use `enum` or `as const` for enums.
 |     Type: | `'enum' \| 'asConst' \| 'asPascalConst' \| 'constEnum' \| 'literal'` |
 | Required: | `false`                                                              |
 |  Default: | `'asConst'`                                                               |
-
-
-- `asConst` will use camelCase for the naming.
-- `asPascalConst` will use PascalCase for the naming.
 
 ::: code-group
 
@@ -172,14 +144,6 @@ type PetType = 'dog' | 'cat'
 ```
 :::
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  enumType: 'enum',
-})
-```
-
 ### enumSuffix
 Set a suffix for the generated enums.
 
@@ -188,15 +152,6 @@ Set a suffix for the generated enums.
 |     Type: | `string`                            |
 | Required: | `false`                             |
 |  Default: | `''` |
-
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  enumSuffix: 'Enum',
-})
-```
 
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
@@ -222,15 +177,6 @@ type Pet = {
 ```
 :::
 
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  dateType: 'string',
-})
-```
-
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
@@ -254,14 +200,7 @@ type Pet = {
   name: unknown
 }
 ```
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  unknownType: 'any',
-})
-```
+:::
 
 ### optionalType
 Choose what to use as mode for an optional value.
@@ -292,14 +231,6 @@ type Pet = {
 ```
 :::
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  optionalType: 'questionToken',
-})
-```
-
 ### oasType
 
 Export an Oas object as Oas type with `import type { Infer } from '@kubb/plugin-ts/oas'` <br/>
@@ -311,65 +242,16 @@ See [infer](/helpers/oas) in how to use the types with `@kubb/plugin-ts/oas`.<br
 | Required: | `false`            |
 
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  oasType: 'infer',
-})
-```
-
-
 ### include
 <!--@include: ../core/include.md-->
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  include: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
 
 ### exclude
 <!--@include: ../core/exclude.md-->
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  exclude: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
 
 ### override
 <!--@include: ../core/override.md-->
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  override: [
-    {
-      type: 'tag',
-      pattern: 'pet',
-      options: {
-        dataReturnType: "full"
-      },
-    },
-  ],
-})
-```
 
 ### generators <img src="/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
@@ -394,18 +276,6 @@ Customize the names based on the type that is provided by the plugin.
 
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
-```
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  transformers: {
-    name: (name) => {
-      return `${name}Client`
-    },
-  },
-})
 ```
 
 ## Example

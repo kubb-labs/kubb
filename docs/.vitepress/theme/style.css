@@ -234,37 +234,36 @@
   filter: invert(1);
 }
 
-svg[id^='mermaid-'] {
+svg[id^="mermaid-"] {
   line-height: 1.5;
   background-color: transparent !important;
 }
 
-svg[id^='mermaid-'] .edgeLabel {
+svg[id^="mermaid-"] .edgeLabel {
   padding: 0 !important;
 }
 
-svg[id^='mermaid-'] .cluster rect {
+svg[id^="mermaid-"] .cluster rect {
   fill: rgba(185, 185, 185, 0.14) !important;
   stroke: rgba(185, 185, 185, 0.54) !important;
 }
 
-.dark svg[id^='mermaid-'] .flowchart-link {
+.dark svg[id^="mermaid-"] .flowchart-link {
   stroke: lightgrey !important;
 }
 
-.dark svg[id^='mermaid-'] .marker {
+.dark svg[id^="mermaid-"] .marker {
   stroke: lightgrey !important;
   fill: lightgrey !important;
 }
 
-.dark svg[id^='mermaid-'] .edgeLabel p {
+.dark svg[id^="mermaid-"] .edgeLabel p {
   background-color: #585858 !important;
 }
 
-.dark svg[id^='mermaid-'] span {
+.dark svg[id^="mermaid-"] span {
   color: #ccc !important;
 }
-
 
 /*#VPSidebarNav > .group > .VPSidebarItem > .item > .text {*/
 /*  display: flex;*/

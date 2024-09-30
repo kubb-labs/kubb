@@ -44,15 +44,6 @@ For the generation we are using [https://redocly.com/](https://redocly.com/).
 | Required: | `false`        |
 |  Default: | `'docs.html'`  |
 
-```typescript twoslash
-import { pluginOas } from '@kubb/plugin-oas'
-
-const plugin = pluginOas({
-  output: {
-    path: './docs/index.html',
-  },
-})
-```
 
 ## Example
 

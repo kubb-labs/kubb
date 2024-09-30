@@ -75,19 +75,6 @@ Add a footer text in the beginning of every file.
 |     Type: | `string` |
 | Required: | `false`                               |
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  output: {
-    path: './axios',
-    barrelType: 'named',
-    banner: '/* eslint-disable no-alert, no-console */',
-    footer: ''
-  },
-})
-```
-
 ### group
 <!--@include: ../core/group.md-->
 
@@ -111,18 +98,6 @@ Return the name of a group based on the group name, this will be used for the fi
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  group: {
-    type: 'tag',
-    name: (ctx) => `${ctx.group}Controller`
-  },
-})
-```
-
 ### importPath
 
 Path to the client import path that will be used to do the API calls.<br/>
@@ -138,17 +113,6 @@ It allows both relative and absolute path but be aware that we will not change t
 | Required: | `false`                         |
 |  Default: | `'@kubb/plugin-client/client'` |
 
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  client: {
-    importPath: '../../client.ts',
-  },
-})
-```
-
 ### operations
 Create `operations.ts` file with all operations grouped by methods.
 
@@ -157,15 +121,6 @@ Create `operations.ts` file with all operations grouped by methods.
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
-
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  operations: true
-})
-```
 
 ### dataReturnType
 
@@ -178,7 +133,7 @@ ReturnType that will be used when calling the client.
 |  Default: | `'data'`           |
 
 
-- `'data'` will return ResponseConfig[data]. <br/>
+- `'data'` will return ResponseConfig[data].
 - `'full'` will return ResponseConfig.
 
 ::: code-group
@@ -199,14 +154,6 @@ export async function getPetById<TData>(
 ```
 :::
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  dataReturnType: 'data'
-})
-```
-
 ### pathParamsType
 
 How to pass your pathParams.
@@ -218,7 +165,7 @@ How to pass your pathParams.
 |  Default: | `'data'`                |
 
 
-- `'object'` will return the pathParams as an object. <br/>
+- `'object'` will return the pathParams as an object.
 - `'inline'` will return the pathParams as comma separated params.
 
 ::: code-group
@@ -239,14 +186,6 @@ export async function getPetById<TData>(
 ```
 :::
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  pathParamsType: 'object',
-})
-```
-
 ### parser
 Which parser can be used before returning the data.
 
@@ -257,65 +196,17 @@ Which parser can be used before returning the data.
 |  Default: | `'client'`          |
 
 - `'zod'` will use `@kubb/plugin-zod` to parse the data.
+- `'client'` will return without parsing the data.
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  parser: 'zod'
-})
-```
 
 ### include
 <!--@include: ../core/include.md-->
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  include: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-
 ### exclude
 <!--@include: ../core/exclude.md-->
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  exclude: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-
 ### override
 <!--@include: ../core/override.md-->
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  override: [
-    {
-      type: 'tag',
-      pattern: 'pet',
-      options: {
-        dataReturnType: "full"
-      },
-    },
-  ],
-})
-```
 
 ### generators <img src="/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
@@ -337,22 +228,10 @@ Customize the names based on the type that is provided by the plugin.
 |     Type: | `(name: string, type?: ResolveType) => string` |
 | Required: | `false`                                                                       |
 
-
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  transformers: {
-    name: (name) => {
-      return `${name}Client`
-    },
-  },
-})
-```
 
 ## Example
 
@@ -375,11 +254,21 @@ export default defineConfig({
     pluginClient({
       output: {
         path: './clients/axios',
+        barrelType: 'named',
+        banner: '/* eslint-disable no-alert, no-console */',
+        footer: ''
       },
       group: {
         type: 'tag',
         name: ({ group }) => `${group}Service`,
       },
+      transformers: {
+        name: (name, type) => {
+          return `${name}Client`
+        },
+      },
+      operations: true,
+      parser: 'client',
       exclude: [
         {
           type: 'tag',
