@@ -1,29 +1,17 @@
-import type { Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
 export type Options = {
   /**
-   * @default 'types'
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'types', barrelType: 'named' }
    */
   output?: Output
   /**
-   * Group the TypeScript types based on the provided name.
+   * Group the clients based on the provided name.
    */
-  group?: {
-    /**
-     * Tag will group based on the operation tag inside the Swagger file.
-     */
-    type: 'tag'
-    /**
-     * Relative path to save the grouped TypeScript Types.
-     *
-     * `{{tag}}` will be replaced by the current tagName.
-     * @example `${output}/{{tag}}Controller` => `models/PetController`
-     * @default `${output}/{{tag}}Controller`
-     */
-    output?: string
-  }
+  group?: Group
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -48,7 +36,6 @@ export type Options = {
    * Default will be `'enum'` in version 3 of Kubb
    */
   enumSuffix?: string
-
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'

@@ -3,6 +3,10 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
+  /**
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'clients', barrelType: 'named' }
+   */
   output?: Output
   /**
    * Group the clients based on the provided name.
@@ -28,13 +32,12 @@ export type Options = {
   /**
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * It allows both relative and absolute path but be aware that we will not change the path.
    * @default '@kubb/plugin-client/client'
    */
   importPath?: string
   /**
-   * ReturnType that needs to be used when calling client().
+   * ReturnType that will be used when calling the client.
    *
    * `Data` will return ResponseConfig[data].
    *

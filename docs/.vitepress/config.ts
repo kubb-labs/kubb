@@ -5,7 +5,6 @@ import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepre
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
-import { withMermaid } from "vitepress-plugin-mermaid";
 
 import { renderMermaidGraphsPlugin } from './mermaid';
 import { transposeTables } from "./transposeTables.ts"

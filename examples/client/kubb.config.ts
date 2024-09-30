@@ -19,10 +19,8 @@ export default defineConfig(() => {
     output: {
       path: './src/gen',
       clean: true,
-      extension() {
-        return {
-          '.ts': '.js',
-        }
+      extension: {
+        '.ts': '.js',
       },
     },
     plugins: [

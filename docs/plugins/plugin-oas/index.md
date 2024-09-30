@@ -168,11 +168,7 @@ const plugin = pluginOas({
 :::
 
 ### generators <img src="/icons/experimental.svg"/>
-Define some generators to create files based on the operation and/or schema. See `createGenerator`.
-
-All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators.
-
-An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
+Define some generators to create files based on the operation and/or schema. See `createGenerator`. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
 
 ::: info
 
@@ -189,36 +185,6 @@ export const customGenerator = createGenerator<PluginOas>({
 
 const plugin = pluginOas({
   generators: [jsonGenerator,  customGenerator]
-})
-```
-:::
-
-### experimentalFilter <img src="/icons/experimental.svg"/>
-
-::: info
-
-```typescript
-import { pluginOas } from '@kubb/plugin-oas'
-
-const plugin = pluginOas({
-  experimentalFilter: {
-    methods: ['get'],
-  },
-})
-```
-:::
-
-### experimentalSort <img src="/icons/experimental.svg"/>
-
-::: info
-
-```typescript
-import { pluginOas } from '@kubb/plugin-oas'
-
-const plugin = pluginOas({
-  experimentalSort: {
-    properties: ['description', 'default', 'type']
-  },
 })
 ```
 :::

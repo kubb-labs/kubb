@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-client
 
-With the Client plugin you can generate [Axios](https://axios-http.com/docs/intro) API controllers.
+The Client plugin enables you to generate [Axios](https://axios-http.com/docs/intro) API controllers, simplifying the process of handling API requests and improving integration between frontend and backend services.
 
 ## Installation
 
@@ -32,10 +32,14 @@ yarn add @kubb/plugin-client
 ## Options
 
 ### output
+Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Output to save the generated files.
+Path to the output folder or file that will contain the generated code.
+
+> [!TIP]
+> if `output.path` is a file, `group` cannot be used.
 
 |           |             |
 |----------:|:------------|
@@ -43,76 +47,17 @@ Output to save the generated files.
 | Required: | `true`      |
 |  Default: | `'clients'` |
 
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
+#### output.barrelType
 
-const plugin = pluginClient({
-  output: {
-    path: './axios',
-  },
-})
-```
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-#### output.exportAs
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
-Name to be used for the `export * as {{exportAs}} from './'`.
-
-|           |                |
-|----------:|:---------------|
-|     Type: | `string`       |
-| Required: | `false`        |
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  output: {
-    path: './axios',
-    exportAs: 'clients',
-  },
-})
-```
-
-#### output.extName
-
-Add an extension to the generated imports and exports, default it will not use an extension.
-
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `KubbFile.Extname` |
-| Required: | `false`            |
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  output: {
-    path: './axios',
-    extName: '.js',
-  },
-})
-```
-
-#### output.exportType
-
-Define what needs to exported, here you can also disable the export of barrel files.
-
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `'barrel' \| 'barrelNamed' \| false ` |
-| Required: | `false`                               |
-|  Default: | `'barrelNamed'`                       |
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  output: {
-    path: './client',
-    exportType: 'barrel',
-  },
-})
-```
+<!--@include: ../core/barrelTypes.md-->
 
 #### output.banner
 Add a banner text in the beginning of every file.
@@ -121,17 +66,6 @@ Add a banner text in the beginning of every file.
 |----------:|:--------------------------------------|
 |     Type: | `string` |
 | Required: | `false`                               |
-
-```typescript
-import { pluginClient } from '@kubb/plugin-client'
-
-const plugin = pluginClient({
-  output: {
-    path: './client',
-    banner: '/* eslint-disable no-alert, no-console */'
-  },
-})
-```
 
 #### output.footer
 Add a footer text in the beginning of every file.
@@ -146,69 +80,46 @@ import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
   output: {
-    path: './client',
+    path: './axios',
+    barrelType: 'named',
+    banner: '/* eslint-disable no-alert, no-console */',
     footer: ''
   },
 })
 ```
 
 ### group
-
-Group the clients based on the provided name.
+<!--@include: ../core/group.md-->
 
 #### group.type
-
-Tag will group based on the operation tag inside the Swagger file.
+Define a type where to group the files on.
 
 |           |         |
 |----------:|:--------|
 |     Type: | `'tag'` |
 | Required: | `true`  |
 
-#### group.output
-> [!TIP]
-> When defining a custom output path, you should also update `output.path` to contain the same root path.
+<!--@include: ../core/groupTypes.md-->
 
+#### group.name
 
-::: v-pre
-Relative path to save the grouped clients.
-`{{tag}}` will be replaced by the current tagName.
-:::
+Return the name of a group based on the group name, this will be used for the file and name generation.
 
-::: v-pre
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
-|           |                               |
-|----------:|:------------------------------|
-|     Type: | `string`                      |
-| Required: | `false`                       |
-|  Default: | `'${output}/{{tag}}Controller'` |
-
-:::
-
-#### group.exportAs
-
-::: v-pre
-Name to be used for the `export * as {{exportAs}} from './`
-:::
-
-::: v-pre
-
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `string`           |
-| Required: | `false`            |
-|  Default: | `'{{tag}}Service'` |
-
-:::
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
 
 const plugin = pluginClient({
-  output: {
-    path: './clients/axios'
+  group: {
+    type: 'tag',
+    name: (ctx) => `${ctx.group}Controller`
   },
-  group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
 })
 ```
 
@@ -216,8 +127,10 @@ const plugin = pluginClient({
 
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${client.importPath}'`.<br/>
-It allow both relative and absolute path. the path will be applied as is,
-so relative path should be based on the file being generated.
+It allows both relative and absolute path but be aware that we will not change the path.
+
+> [!TIP]
+> Use of default exports as `export default client = ()=>{}`
 
 |           |                                |
 |----------:|:-------------------------------|
@@ -237,7 +150,6 @@ const plugin = pluginClient({
 ```
 
 ### operations
-
 Create `operations.ts` file with all operations grouped by methods.
 
 |           |           |
@@ -257,13 +169,19 @@ const plugin = pluginClient({
 
 ### dataReturnType
 
-ReturnType that needs to be used when calling client().
+ReturnType that will be used when calling the client.
 
-`'data'` will return ResponseConfig[data]. <br/>
-`'full'` will return ResponseConfig.
+|           |                    |
+|----------:|:-------------------|
+|     Type: | `'data' \| 'full'` |
+| Required: | `false`            |
+|  Default: | `'data'`           |
+
+
+- `'data'` will return ResponseConfig[data]. <br/>
+- `'full'` will return ResponseConfig.
 
 ::: code-group
-
 ```typescript ['data']
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
@@ -279,15 +197,7 @@ export async function getPetById<TData>(
   ...
 }
 ```
-
 :::
-
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `'data' \| 'full'` |
-| Required: | `false`            |
-|  Default: | `'data'`           |
-
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -301,11 +211,17 @@ const plugin = pluginClient({
 
 How to pass your pathParams.
 
-`'object'` will return the pathParams as an object. <br/>
-`'inline'` will return the pathParams as comma separated params.
+|           |                        |
+|----------:|:-----------------------|
+|     Type: | `'object' \| 'inline'` |
+| Required: | `false`                |
+|  Default: | `'data'`                |
+
+
+- `'object'` will return the pathParams as an object. <br/>
+- `'inline'` will return the pathParams as comma separated params.
 
 ::: code-group
-
 ```typescript ['object']
 export async function getPetById<TData>(
   { petId }: GetPetByIdPathParams,
@@ -321,16 +237,7 @@ export async function getPetById<TData>(
   ...
 }
 ```
-
 :::
-
-
-|           |                        |
-|----------:|:-----------------------|
-|     Type: | `'object' \| 'inline'` |
-| Required: | `false`                |
-|  Default: | `'data'`                |
-
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -342,7 +249,6 @@ const plugin = pluginClient({
 
 ### parser
 Which parser can be used before returning the data.
-`'zod'` will use `@kubb/plugin-zod` to parse the data.
 
 |           |                     |
 |----------:|:--------------------|
@@ -350,6 +256,7 @@ Which parser can be used before returning the data.
 | Required: | `false`             |
 |  Default: | `'client'`          |
 
+- `'zod'` will use `@kubb/plugin-zod` to parse the data.
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -360,22 +267,7 @@ const plugin = pluginClient({
 ```
 
 ### include
-
-Array containing include parameters to include tags/operations/methods/paths.
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-
-|           |                  |
-|----------:|:-----------------|
-|     Type: | `Array<Include>` |
-| Required: | `false`          |
-
+<!--@include: ../core/include.md-->
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -391,21 +283,7 @@ const plugin = pluginClient({
 ```
 
 ### exclude
-
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-|           |                  |
-|----------:|:-----------------|
-|     Type: | `Array<Exclude>` |
-| Required: | `false`          |
-
+<!--@include: ../core/exclude.md-->
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -421,23 +299,7 @@ const plugin = pluginClient({
 ```
 
 ### override
-
-Array containing override parameters to override `options` based on tags/operations/methods/paths.
-
-
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-|           |                   |
-|----------:|:------------------|
-|     Type: | `Array<Override>` |
-| Required: | `false`           |
-
+<!--@include: ../core/override.md-->
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -455,17 +317,30 @@ const plugin = pluginClient({
 })
 ```
 
+### generators <img src="/icons/experimental.svg"/>
+<!--@include: ../core/generators.md-->
+
+|           |                                                                              |
+|----------:|:-----------------------------------------------------------------------------|
+|     Type: | `Array<Generator<PluginClient>>`                                             |
+| Required: | `false`                                                                      |
+
+
 ### transformers
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
 Customize the names based on the type that is provided by the plugin.
 
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
+|     Type: | `(name: string, type?: ResolveType) => string` |
+| Required: | `false`                                                                       |
 
-|           |                                                                     |
-|----------:|:--------------------------------------------------------------------|
-|     Type: | `(name: string, type?: "function"  \| "type" \| "file" ) => string` |
-| Required: | `false`                                                             |
 
+```typescript
+type ResolveType = 'file' | 'function' | 'type' | 'const'
+```
 
 ```typescript
 import { pluginClient } from '@kubb/plugin-client'
@@ -503,7 +378,7 @@ export default defineConfig({
       },
       group: {
         type: 'tag',
-        output: './clients/axios/{{tag}}Service',
+        name: ({ group }) => `${group}Service`,
       },
       exclude: [
         {

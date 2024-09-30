@@ -7,10 +7,9 @@ outline: deep
 
 # @kubb/plugin-ts
 
-With the TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types based on a Swagger file.
+With the TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types.
 
 ## Installation
-
 ::: code-group
 
 ```shell [bun]
@@ -28,77 +27,53 @@ npm install @kubb/plugin-ts
 ```shell [yarn]
 yarn add @kubb/plugin-ts
 ```
-
 :::
 
 ## Options
 
 ### output
+Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Relative path to save the TypeScript types. <br/>
-When output is a file it will save all models inside that file else it will create a file per schema item.
+Path to the output folder or file that will contain the generated code.
 
-::: info
-Type: `string` <br/>
-Default: `'types'`
+> [!TIP]
+> if `output.path` is a file, `group` cannot be used.
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
+|           |           |
+|----------:|:----------|
+|     Type: | `string`  |
+| Required: | `true`    |
+|  Default: | `'types'` |
 
-const plugin = pluginTs({
-  output: {
-    path: './models',
-  },
-})
-```
-:::
+#### output.barrelType
 
-#### output.exportAs
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-Name to be used for the `export * as {{exportAs}} from './'`
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
-::: info
-Type: `string` <br/>
+<!--@include: ../core/barrelTypes.md-->
 
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
+#### output.banner
+Add a banner text in the beginning of every file.
 
-const plugin = pluginTs({
-  output: {
-    path: './models',
-    exportAs: 'models',
-  },
-})
-```
-:::
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
-#### output.extName
+#### output.footer
+Add a footer text in the beginning of every file.
 
-Add an extension to the generated imports and exports, default it will not use an extension
-
-::: info
-Type: `string` <br/>
-
-```typescript
-import { pluginTs } from '@kubb/plugin-ts'
-
-const plugin = pluginTs({
-  output: {
-    path: './models',
-    extName: '.js',
-  },
-})
-```
-:::
-
-#### output.exportType
-
-Define what needs to exported, here you can also disable the export of barrel files
-
-::: info
-Type: `'barrel' | 'barrelNamed' | false` <br/>
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -106,60 +81,61 @@ import { pluginTs } from '@kubb/plugin-ts'
 const plugin = pluginTs({
   output: {
     path: './types',
-    exportType: 'barrel',
+    barrelType: 'named',
+    banner: '/* eslint-disable no-alert, no-console */',
+    footer: ''
   },
 })
 ```
 
-:::
-
 ### group
-
-Group the TypeScript types based on the provided name.
+<!--@include: ../core/group.md-->
 
 #### group.type
+Define a type where to group the files on.
 
-Tag will group based on the operation tag inside the Swagger file.
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
 
-Type: `'tag'` <br/>
-Required: `true`
+<!--@include: ../core/groupTypes.md-->
 
-#### group.output
-> [!TIP]
-> When defining a custom output path, you should also update `output.path` to contain the same root path.
+#### group.name
 
-::: v-pre
-Relative path to save the grouped TypeScript Types.
-`{{tag}}` will be replaced by the current tagName.
-:::
+Return the name of a group based on the group name, this will be used for the file and name generation.
 
-::: v-pre
-Type: `string` <br/>
-Example: `models/{{tag}}Controller` => `models/PetController` <br/>
-Default: `'${output}/{{tag}}Controller'`
-:::
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
-::: info
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 const plugin = pluginTs({
-  output: {
-    path: './types'
+  group: {
+    type: 'tag',
+    name: (ctx) => `${ctx.group}Controller`
   },
-  group: { type: 'tag', output: './types/{{tag}}Controller' },
 })
 ```
-:::
 
 ### enumType
 
-Choose to use `enum` or `as const` for enums. <br/>
-`asConst` will use camelCase for the naming. <br/>
-`asPascalConst` will use PascalCase for the naming.
+Choose to use `enum` or `as const` for enums.
 
-::: info TYPE
+|           |                                                                      |
+|----------:|:---------------------------------------------------------------------|
+|     Type: | `'enum' \| 'asConst' \| 'asPascalConst' \| 'constEnum' \| 'literal'` |
+| Required: | `false`                                                              |
+|  Default: | `'asConst'`                                                               |
+
+
+- `asConst` will use camelCase for the naming.
+- `asPascalConst` will use PascalCase for the naming.
 
 ::: code-group
 
@@ -194,13 +170,7 @@ const enum PetType {
 ```typescript ['literal']
 type PetType = 'dog' | 'cat'
 ```
-
 :::
-
-::: info
-
-Type: `'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'` <br/>
-Default: `'asConst'`
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -209,18 +179,16 @@ const plugin = pluginTs({
   enumType: 'enum',
 })
 ```
-:::
 
 ### enumSuffix
-
 Set a suffix for the generated enums.
 
-::: info TYPE
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `string`                            |
+| Required: | `false`                             |
+|  Default: | `''` |
 
-::: info
-
-Type: `string` <br/>
-Default: `''`
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -229,13 +197,15 @@ const plugin = pluginTs({
   enumSuffix: 'Enum',
 })
 ```
-:::
 
 ### dateType
-
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
-::: info TYPE
+|           |                      |
+|----------:|:---------------------|
+|     Type: | `'string' \| 'date'` |
+| Required: | `false`              |
+|  Default: | `'string'`           |
 
 ::: code-group
 
@@ -250,13 +220,8 @@ type Pet = {
   date: Date
 }
 ```
-
 :::
 
-::: info
-
-Type: `'string' | 'date'` <br/>
-Default: `'string'`
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -265,13 +230,16 @@ const plugin = pluginTs({
   dateType: 'string',
 })
 ```
-:::
 
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-::: info TYPE
+|           |                      |
+|----------:|:---------------------|
+|     Type: | `'any' \| 'unknown'` |
+| Required: | `false`              |
+|  Default: | `'any'`              |
 
 ::: code-group
 
@@ -287,12 +255,6 @@ type Pet = {
 }
 ```
 
-:::
-
-::: info
-Type: `'any' | 'unknown'` <br/>
-Default: `'any'`
-
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -300,16 +262,17 @@ const plugin = pluginTs({
   unknownType: 'any',
 })
 ```
-:::
 
 ### optionalType
+Choose what to use as mode for an optional value.
 
-Choose what to use as mode for an optional value.<br/>
-
-::: info TYPE
+|           |                                                                 |
+|----------:|:----------------------------------------------------------------|
+|     Type: | `'questionToken' \| 'undefined' \| 'questionTokenAndUndefined'` |
+| Required: | `false`                                                         |
+|  Default: | `'questionToken'`                                                            |
 
 ::: code-group
-
 ```typescript ['questionToken']
 type Pet = {
   type?: string
@@ -329,11 +292,6 @@ type Pet = {
 ```
 :::
 
-::: info
-
-Type: `'questionToken' | 'undefined' | 'questionTokenAndUndefined'` <br/>
-Default: `'questionToken'`
-
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -341,15 +299,17 @@ const plugin = pluginTs({
   optionalType: 'questionToken',
 })
 ```
-:::
 
 ### oasType
 
 Export an Oas object as Oas type with `import type { Infer } from '@kubb/plugin-ts/oas'` <br/>
-See [infer](/plugins/plugin-ts/infer) in how to use the types with `@kubb/plugin-ts/oas`.<br/>
+See [infer](/helpers/oas) in how to use the types with `@kubb/plugin-ts/oas`.<br/>
 
-::: info
-Type: `'infer' | false` <br/>
+|           |                    |
+|----------:|:-------------------|
+|     Type: | `'infer' \| false` |
+| Required: | `false`            |
+
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -358,27 +318,10 @@ const plugin = pluginTs({
   oasType: 'infer',
 })
 ```
-:::
 
 
 ### include
-
-Array containing include parameters to include tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Include>` <br/>
+<!--@include: ../core/include.md-->
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -392,26 +335,9 @@ const plugin = pluginTs({
   ],
 })
 ```
-:::
 
 ### exclude
-
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Exclude>` <br/>
+<!--@include: ../core/exclude.md-->
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -425,27 +351,9 @@ const plugin = pluginTs({
   ],
 })
 ```
-:::
 
 ### override
-
-Array containing override parameters to override `options` based on tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Override>` <br/>
+<!--@include: ../core/override.md-->
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -456,23 +364,37 @@ const plugin = pluginTs({
       type: 'tag',
       pattern: 'pet',
       options: {
-        enumType: "asConst"
+        dataReturnType: "full"
       },
     },
   ],
 })
 ```
-:::
+
+### generators <img src="/icons/experimental.svg"/>
+<!--@include: ../core/generators.md-->
+
+|           |                              |
+|----------:|:-----------------------------|
+|     Type: | `Array<Generator<PluginTs>>` |
+| Required: | `false`                      |
+
 
 ### transformers
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
+Customize the names based on the type that is provided by the plugin.
 
-Override the name of the TypeScript type that is getting generated, this will also override the name of the file.
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
+|     Type: | `(name: string, type?: ResolveType) => string` |
+| Required: | `false`                                                                       |
 
-::: info
 
-Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
+```typescript
+type ResolveType = 'file' | 'function' | 'type' | 'const'
+```
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
@@ -485,7 +407,6 @@ const plugin = pluginTs({
   },
 })
 ```
-:::
 
 ## Example
 
@@ -515,7 +436,7 @@ export default defineConfig({
       ],
       group: {
         type: 'tag',
-        output: './types/{{tag}}Controller'
+        name: ({ group }) => `'${group}Controller`
       },
       enumType: "asConst",
       enumSuffix: 'Enum',

@@ -242,14 +242,40 @@ export default defineConfig({
 })
 ```
 
-#### output.exportType
+#### output.extension
+Override the extension to the generated imports and exports, by default the plugin will add an extension.
+
+|           |                          |
+|----------:|:-------------------------|
+|     Type: | `Record<KubbFile.Extname, KubbFile.Extname>`                |
+| Required: | `false`                  |
+|  Default: | `{ '.ts': '.ts'}` |
+
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+    extension: {
+      '.ts': '.js',
+    },
+  },
+})
+```
+
+#### output.barrelType
 Define what needs to exported, here you can also disable the export of barrel files.
 
-|           |                                      |
-|----------:|:-------------------------------------|
-|     Type: | `'barrel' \| 'barrelNamed' \| false` |
-| Required: | `false`                              |
-|  Default: | `'barrelNamed'`                      |
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
 
 ```typescript [kubb.config.ts]
@@ -262,7 +288,7 @@ export default defineConfig({
   output: {
     path: './src/gen',
     clean: true,
-    exportType: 'barrel',
+    barrelType: 'all',
   },
 })
 ```
