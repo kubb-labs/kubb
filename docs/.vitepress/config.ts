@@ -6,8 +6,8 @@ import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 
-import { renderMermaidGraphsPlugin } from './mermaid';
-import { transposeTables } from "./transposeTables.ts"
+import { renderMermaidGraphsPlugin } from './mermaid'
+import { transposeTables } from './transposeTables.ts'
 import { transposeTables } from './transposeTables.ts'
 
 import { version } from '../../packages/core/package.json'
