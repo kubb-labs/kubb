@@ -8,7 +8,7 @@ layout: page
       Sponsors
     </h1>
     <a href="https://github.com/sponsors/stijnvanhulle">
-      <img style="max-height: 300px;" src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors-circles.svg" alt="My sponsors" />
+      <img style="max-height: 300px;" src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
     </a>
   </div>
 
