@@ -140,9 +140,6 @@ importers:
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
-      puppeteer:
-        specifier: ^23.4.1
-        version: 23.4.1(bufferutil@4.0.8)(typescript@5.6.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
