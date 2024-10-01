@@ -45,6 +45,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.2.0",
+    "puppeteer": "^23.4.1",
     "@types/node": "^20.16.10",
     "@types/react": "^18.3.10",
     "cross-env": "^7.0.3",
