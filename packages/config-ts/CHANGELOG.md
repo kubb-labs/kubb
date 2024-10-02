@@ -1,5 +1,7 @@
 # @kubb/config-ts
 
+## 3.0.0-beta.32
+
 ## 3.0.0-alpha.31
 
 ## 3.0.0-alpha.30
