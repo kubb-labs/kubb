@@ -1,5 +1,5 @@
-import { bundleRequire } from 'bundle-require'
 import { cosmiconfig } from 'cosmiconfig'
+import { createJiti } from 'jiti'
 
 import type { UserConfig, defineConfig } from '@kubb/core'
 
@@ -10,22 +10,11 @@ export type CosmiconfigResult = {
 }
 
 const tsLoader = async (configFile: string) => {
-  const { mod } = await bundleRequire({
-    filepath: configFile,
-    preserveTemporaryFile: false,
-  })
+  const jiti = createJiti(import.meta.url, { jsx: true })
 
-  return mod.default
-}
+  const mod = await jiti.import(configFile)
 
-const jsLoader = async (configFile: string) => {
-  const { mod } = await bundleRequire({
-    filepath: configFile,
-    preserveTemporaryFile: false,
-    format: 'cjs',
-  })
-
-  return mod.default || mod
+  return mod
 }
 
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {

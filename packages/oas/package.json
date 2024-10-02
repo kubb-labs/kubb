@@ -83,7 +83,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
-    "expect-type": "^0.19.0",
+    "expect-type": "^0.20.0",
     "tsup": "^8.3.0",
     "typescript": "^5.6.2"
   },
