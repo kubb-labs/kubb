@@ -108,7 +108,7 @@ z.union([z.literal(true), z.literal(false)]) // [!code ++]
 
 - Separate plugin/package for Solid-Query: `@kubb/plugin-solid-query`
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 import { pluginTs } from "@kubb/plugin-ts"
@@ -143,7 +143,7 @@ export default defineConfig({
 
 - Separate plugin/package for Svelte-Query: `@kubb/plugin-svelte-query`
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import {defineConfig} from "@kubb/core"
 import {pluginOas} from "@kubb/plugin-oas"
 import {pluginTs} from "@kubb/plugin-ts"
@@ -179,7 +179,7 @@ export default defineConfig({
 
 - Separate plugin/package for Vue-Query:  `@kubb/plugin-vue-query`
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import {defineConfig} from "@kubb/core"
 import {pluginOas} from "@kubb/plugin-oas"
 import {pluginTs} from "@kubb/plugin-ts"
@@ -216,7 +216,7 @@ export default defineConfig({
 
 - Separate plugin/package for React-Query: `@kubb/plugin-react-query`
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import {defineConfig} from "@kubb/core"
 import {pluginOas} from "@kubb/plugin-oas"
 import {pluginTs} from "@kubb/plugin-ts"

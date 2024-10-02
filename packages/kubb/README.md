@@ -9,7 +9,7 @@
 
 
 <h4>
-    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/alpha/examples/typescript" target="_blank">View Demo</a>
+    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
     <span> · </span>
       <a href="https://kubb.dev/" target="_blank">Documentation</a>
     <span> · </span>
