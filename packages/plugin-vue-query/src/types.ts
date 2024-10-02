@@ -47,7 +47,6 @@ type Mutation = {
 export type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
-   * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
    * @default `'id'`
    */
   queryParam: string

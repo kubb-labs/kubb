@@ -206,10 +206,10 @@ new RandExp(/test/).gen()
 ### seed
 The use of Seed is intended to allow for consistent values in a test.
 
-|           |           |
-|----------:|:----------|
-|     Type: | `'number' | 'number[]'` |
-| Required: | `false`   |
+|           |         |
+|----------:|:--------|
+|     Type: | `number | number[]` |
+| Required: | `false` |
 
 
 ### include

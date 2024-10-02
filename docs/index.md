@@ -74,7 +74,7 @@ features:
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker
-    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data for testing and development of APIs.
+    details: Use of <a href="https://fakerjs.dev/">Faker.js</a> to create mock data for testing and development of APIs.
     link: /plugins/plugin-faker
     linkText: Learn more
   - icon:

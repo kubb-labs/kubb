@@ -130,7 +130,6 @@ To disable infinite queries pass `false`.
 type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
-   * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
    * @default `'id'`
    */
   queryParam: string
@@ -148,9 +147,7 @@ type Infinite = {
 
 #### infinite.queryParam
 
-Specify the params key used for `pageParam`.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
-
+Specify the params key used for `pageParam`.
 |           |          |
 |----------:|:---------|
 |     Type: | `string` |
@@ -160,8 +157,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
 
 #### infinite.initialPageParam
 
-Specify the initial page param value.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
+Specify the initial page param value.
 
 |           |           |
 |----------:|:----------|
@@ -172,8 +168,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 
 #### infinite.cursorParam
 
-Which field of the data will be used, set it to undefined when no cursor is known.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
+Which field of the data will be used, set it to undefined when no cursor is known.
 
 |           |                      |
 |----------:|:---------------------|

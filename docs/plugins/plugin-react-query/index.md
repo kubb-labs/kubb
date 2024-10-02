@@ -75,13 +75,7 @@ Add a footer text in the beginning of every file.
 |           |                                       |
 |----------:|:--------------------------------------|
 |     Type: | `string` |
-| Required: | `false`                               |Swagger Tanstack Query plugin you can create:
-
-- [react-query](https://tanstack.com/query/latest/docs/framework/react/overview)  in the Swagger file.
-- [solid-query](https://tanstack.com/query/latest/docs/framework/solid/overview) primitives based on an operation in the Swagger file.
-- [svelte-query](https://tanstack.com/query/latest/docs/framework/svelte/overview) primitives based on an operation in the Swagger file.
-- [vue-query](https://tanstack.com/query/latest/docs/framework/vue/overview) hooks based on an operation in the Swagger file.
-
+| Required: | `false`                               |
 ## Installation
 
 ::: code-group
@@ -202,7 +196,6 @@ To disable infinite queries pass `false`.
 type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
-   * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
    * @default `'id'`
    */
   queryParam: string
@@ -220,8 +213,7 @@ type Infinite = {
 
 #### infinite.queryParam
 
-Specify the params key used for `pageParam`.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
+Specify the params key used for `pageParam`.
 
 |           |          |
 |----------:|:---------|
@@ -232,8 +224,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
 
 #### infinite.initialPageParam
 
-Specify the initial page param value.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
+Specify the initial page param value.
 
 |           |           |
 |----------:|:----------|
@@ -244,8 +235,7 @@ Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` a
 
 #### infinite.cursorParam
 
-Which field of the data will be used, set it to undefined when no cursor is known.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
+Which field of the data will be used, set it to undefined when no cursor is known.
 
 |           |                      |
 |----------:|:---------------------|
