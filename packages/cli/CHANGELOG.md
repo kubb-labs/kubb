@@ -1,5 +1,16 @@
 # @kubb/cli
 
+## 3.0.0-beta.1
+
+### Minor Changes
+
+- [`30c567e`](https://github.com/kubb-labs/kubb/commit/30c567ed2c674e8f6e53077de43b427c9184af33) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of jiti instead of bundle-require
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.1
+
 ## 3.0.0-alpha.31
 
 ### Major Changes
