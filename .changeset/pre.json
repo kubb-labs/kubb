@@ -1,6 +1,6 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "beta",
   "initialVersions": {
     "kubb-docs": "1.0.0",
     "e2e": "0.0.1",
