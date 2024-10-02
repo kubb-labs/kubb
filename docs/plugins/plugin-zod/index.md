@@ -5,14 +5,13 @@ title: \@kubb/plugin-zod
 outline: deep
 ---
 
-# @kubb/plugin-zod <a href="https://paka.dev/npm/@kubb/plugin-zod@latest/api">🦙</a>
+# @kubb/plugin-zod
 
-With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's based on a Swagger file.
+With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's.
 
 ## Installation
 
 ::: code-group
-
 ```shell [bun]
 bun add @kubb/plugin-zod
 ```
@@ -28,189 +27,124 @@ npm install @kubb/plugin-zod
 ```shell [yarn]
 yarn add @kubb/plugin-zod
 ```
-
 :::
 
 ## Options
 
 ### output
+Specify the export location for the files and define the behavior of the output.
 
-Relative path to save the Zod schemas.
-When output is a file it will save all models inside that file else it will create a file per schema item.
+#### output.path
 
-::: info
-Type: `string` <br/>
-Default: `'zod'`
+Path to the output folder or file that will contain the generated code.
 
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
+> [!TIP]
+> if `output.path` is a file, `group` cannot be used.
 
-const plugin = pluginZod({
-  output: {
-    path: './zod',
-  },
-})
-```
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `true`   |
+|  Default: | `'zod'`  |
 
-#### output.exportAs
+#### output.barrelType
 
-Name to be used for the `export * as {{exportAs}} from './'`
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-::: info
-Type: `string` <br/>
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
+<!--@include: ../core/barrelTypes.md-->
 
-const plugin = pluginZod({
-  output: {
-    path: './zod',
-    exportAs: 'schemas',
-  },
-})
-```
-:::
+#### output.banner
+Add a banner text in the beginning of every file.
 
-#### output.extName
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
-Add an extension to the generated imports and exports, default it will not use an extension
+#### output.footer
+Add a footer text in the beginning of every file.
 
-::: info
-Type: `string` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  output: {
-    path: './zod',
-    extName: '.js',
-  },
-})
-```
-:::
-
-#### output.exportType
-
-Define what needs to exported, here you can also disable the export of barrel files
-
-::: info
-Type: `'barrel' | 'barrelNamed' | false` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  output: {
-    path: './zod',
-    exportType: 'barrel',
-  },
-})
-```
-
-:::
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
 ### group
-
-Group the Zod schemas based on the provided name.
+<!--@include: ../core/group.md-->
 
 #### group.type
+Define a type where to group the files on.
 
-Tag will group based on the operation tag inside the Swagger file.
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
 
-Type: `'tag'` <br/>
-Required: `true`
+<!--@include: ../core/groupTypes.md-->
 
-#### group.output
-> [!TIP]
-> When defining a custom output path, you should also update `output.path` to contain the same root path.
+#### group.name
 
-::: v-pre
-Relative path to save the grouped Zod schemas.
-`{{tag}}` will be replaced by the current tagName.
-:::
+Return the name of a group based on the group name, this will be used for the file and name generation.
 
-::: v-pre
-Type: `string` <br/>
-Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
-Default: `'${output}/{{tag}}Controller'`
-:::
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
-#### group.exportAs
+### importPath
 
-::: v-pre
-Name to be used for the `export * as {{exportAs}} from './`
-:::
-
-::: v-pre
-Type: `string` <br/>
-Default: `'{{tag}}Schemas'`
-:::
-
-::: info
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  output: {
-    path: './schemas'
-  },
-  group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
-})
-```
-:::
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `false`  |
+|  Default: | `'zod'`  |
 
 ### typed
 
 Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
-::: info
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
 
-Type: `boolean` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  typed: true,
-})
-```
-:::
-
-### typedSchema
+### inferred
 
 Return Zod generated schema as type with z.infer.
 
-::: info
-
-Type: `boolean` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  typedSchema: true,
-})
-```
-:::
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
 
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
 See [datetimes](https://zod.dev/?id=datetimes).
-::: info TYPE
+
+|           |                                                                  |
+|----------:|:-----------------------------------------------------------------|
+|     Type: | `false \| 'string' \| 'stringOffset' \| 'stringLocal' \| 'date'` |
+| Required: | `false`                                                          |
+|  Default: | `'string''`                                                         |
+
 
 ::: code-group
-
 ```typescript [false]
 z.string()
 ```
-
 ```typescript ['string']
 z.string().datetime()
 ```
-
 ```typescript ['stringOffset']
 z.string().datetime({ offset: true })
 ```
@@ -222,269 +156,106 @@ z.string().datetime({ local: true })
 ```typescript ['date']
 z.date()
 ```
-
-:::
-
-::: info
-
-Type: `false | 'string' | 'stringOffset' | 'stringLocal' | 'date'` <br/>
-Default: `'string'`
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  dateType: 'string',
-})
-```
 :::
 
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-::: info TYPE
+|           |                      |
+|----------:|:---------------------|
+|     Type: | `'any' \| 'unknown'` |
+| Required: | `false`              |
+|  Default: | `'any'`              |
+
 
 ::: code-group
-
 ```typescript ['any']
 z.any()
 ```
-
 ```typescript ['unknown']
 z.unknown()
 ```
-
 :::
-
 
 ### coercion
 
 Use of z.coerce.string() instead of z.string().
 [Coercion for primitives](https://zod.dev/?id=coercion-for-primitives)
 
-::: info TYPE
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false'`  |
+
 
 ::: code-group
-
 ```typescript [true]
 z.coerce.string()
 z.coerce.date()
 z.coerce.number()
 ```
-
 ```typescript [false]
 z.string()
 z.date()
 z.number()
 ```
-
 :::
 
-::: info
-Type: `boolean` <br/>
-Default: `false`
+### operations
 
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
 
-const plugin = pluginZod({
-  coercion: true
-})
-```
-:::
+### mapper
 
-### include
-
-Array containing include parameters to include tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Include>` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  include: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-:::
+|           |           |
+|----------:|:----------|
+|     Type: | `Record<string, string>` |
+| Required: | `false`   |
 
 ### exclude
-
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Exclude>` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  exclude: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-:::
+<!--@include: ../core/exclude.md-->
 
 ### override
+<!--@include: ../core/override.md-->
 
-Array containing override parameters to override `options` based on tags/operations/methods/paths.
+### generators <img src="/icons/experimental.svg"/>
+<!--@include: ../core/generators.md-->
 
-::: info TYPE
-
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Override>` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  override: [
-    {
-      type: 'tag',
-      pattern: 'pet',
-      options: {
-        dateType: 'stringOffset',
-      },
-    },
-  ],
-})
-```
-:::
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `Array<Generator<PluginZod>>` |
+| Required: | `false`                       |
 
 
 ### transformers
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
+Customize the names based on the type that is provided by the plugin.
 
-Override the name of the Zod schema that is getting generated, this will also override the name of the file.
-
-::: info
-
-Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
-
-```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
-  transformers: {
-    name: (name) => {
-      return `${name}Client`
-    },
-  },
-})
-```
-:::
-
-#### importPath
-
-Path to Zod. It will be used as `import { z } from '${importPath}'`.
-It allows both relative and absolute path.
-the path will be applied as is, so relative path should be based on the file being generated.
-
-::: info
-Type: `string` <br/>
-Default: `'zod'`
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
+|     Type: | `(name: string, type?: ResolveType) => string` |
+| Required: | `false`                                                                       |
 
 ```typescript
-import { pluginZod } from '@kubb/plugin-zod'
-
-const plugin = pluginZod({
- importPath: 'zod'
-})
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
 
-:::
 
+#### transformers.schema
+Customize the schema based on the type that is provided by the plugin.
 
-### templates
-
-Make it possible to override one of the templates. <br/>
-
-::: tip
-See [templates](/reference/templates) for more information about creating templates.<br/>
-Set `false` to disable a template.
-:::
-
-::: info TYPE
-
-```typescript [Templates]
-import type { Operations } from '@kubb/plugin-zod/components'
-
-export type Templates = {
-  operations: typeof Operations.templates | false
-}
-```
-
-:::
-
-::: info
-
-Type: `Templates` <br/>
-
-```tsx
-import { pluginZod } from '@kubb/plugin-zod'
-import { Parser, File, Function } from '@kubb/react'
-import { Operations } from '@kubb/plugin-zod/components'
-import React from 'react'
-
-export const templates = {
-  ...Operations.templates,
-} as const
-
-const plugin = pluginZod({
-  templates: {
-    operations: templates,
-  },
-})
-```
-:::
-
+|           |                                                                                                                             |
+|----------:|:----------------------------------------------------------------------------------------------------------------------------|
+|     Type: | `(props: { schema?: SchemaObject; name?: string; parentName?: string}, defaultSchemas: Schema[],) => Schema[] \| undefined` |
+| Required: | `false`                                                                                                                     |
 
 ## Example
 ```typescript

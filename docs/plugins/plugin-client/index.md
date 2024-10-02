@@ -99,19 +99,7 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
 ### importPath
-
-Path to the client import path that will be used to do the API calls.<br/>
-It will be used as `import client from '${client.importPath}'`.<br/>
-It allows both relative and absolute path but be aware that we will not change the path.
-
-> [!TIP]
-> Use of default exports as `export default client = ()=>{}`
-
-|           |                                |
-|----------:|:-------------------------------|
-|     Type: | `string`                       |
-| Required: | `false`                         |
-|  Default: | `'@kubb/plugin-client/client'` |
+<!--@include: ../plugin-client/importPath.md-->
 
 ### operations
 Create `operations.ts` file with all operations grouped by methods.
@@ -123,81 +111,13 @@ Create `operations.ts` file with all operations grouped by methods.
 |  Default: | `false`   |
 
 ### dataReturnType
-
-ReturnType that will be used when calling the client.
-
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `'data' \| 'full'` |
-| Required: | `false`            |
-|  Default: | `'data'`           |
-
-
-- `'data'` will return ResponseConfig[data].
-- `'full'` will return ResponseConfig.
-
-::: code-group
-```typescript ['data']
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>["data"]> {
-  ...
-}
-```
-
-```typescript ['full']
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
-  ...
-}
-```
-:::
+<!--@include: ../plugin-client/dataReturnType.md-->
 
 ### pathParamsType
-
-How to pass your pathParams.
-
-|           |                        |
-|----------:|:-----------------------|
-|     Type: | `'object' \| 'inline'` |
-| Required: | `false`                |
-|  Default: | `'data'`                |
-
-
-- `'object'` will return the pathParams as an object.
-- `'inline'` will return the pathParams as comma separated params.
-
-::: code-group
-```typescript ['object']
-export async function getPetById<TData>(
-  { petId }: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
-  ...
-}
-```
-
-```typescript ['inline']
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
-  ...
-}
-```
-:::
+<!--@include: ../plugin-client/pathParamsType.md-->
 
 ### parser
-Which parser can be used before returning the data.
-
-|           |                     |
-|----------:|:--------------------|
-|     Type: | `'client' \| 'zod'` |
-| Required: | `false`             |
-|  Default: | `'client'`          |
-
-- `'zod'` will use `@kubb/plugin-zod` to parse the data.
-- `'client'` will return without parsing the data.
-
+<!--@include: ../plugin-client/parser.md-->
 
 ### include
 <!--@include: ../core/include.md-->
@@ -231,7 +151,6 @@ Customize the names based on the type that is provided by the plugin.
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
-
 
 ## Example
 

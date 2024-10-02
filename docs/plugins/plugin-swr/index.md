@@ -5,10 +5,9 @@ title: \@kubb/plugin-swr
 outline: deep
 ---
 
-# @kubb/plugin-swr <a href="https://paka.dev/npm/@kubb/plugin-swr@latest/api">🦙</a>
+# @kubb/plugin-swr
 
-With the SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger
-file.
+With the SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation.
 
 ## Installation
 
@@ -35,383 +34,166 @@ yarn add @kubb/plugin-swr
 ## Options
 
 ### output
+Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Output to save the SWR hooks.
-
-::: info
-
-Type: `string` <br/>
-Default: `'hooks'`
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  output: {
-    path: './hooks',
-  },
-})
-```
-
-:::
-
-#### output.exportAs
-
-Name to be used for the `export * as {{exportAs}} from './'`
-
-::: info
-Type: `string` <br/>
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  output: {
-    path: './hooks',
-    exportAs: 'hooks',
-  },
-})
-```
-
-:::
-
-#### output.extName
-
-Add an extension to the generated imports and exports, default it will not use an extension
-
-::: info
-Type: `string` <br/>
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  output: {
-    path: './hooks',
-    extName: '.js',
-  },
-})
-```
-
-:::
-
-#### output.exportType
-
-Define what needs to exported, here you can also disable the export of barrel files
-
-::: info
-Type: `'barrel' | 'barrelNamed' | false` <br/>
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  output: {
-    path: './hooks',
-    exportType: 'barrel',
-  },
-})
-```
-
-:::
-
-### group
-
-Group the SWR hooks based on the provided name.
-
-#### group.type
-
-Tag will group based on the operation tag inside the Swagger file.
-
-Type: `'tag'` <br/>
-Required: `true`
-
-#### group.output
+Path to the output folder or file that will contain the generated code.
 
 > [!TIP]
-> When defining a custom output path, you should also update `output.path` to contain the same root path.
+> if `output.path` is a file, `group` cannot be used.
 
-::: v-pre
-Relative path to save the grouped SWR hooks.
-`{{tag}}` will be replaced by the current tagName.
-:::
+|           |           |
+|----------:|:----------|
+|     Type: | `string`  |
+| Required: | `true`    |
+|  Default: | `'hooks'` |
 
-::: v-pre
-Type: `string` <br/>
-Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
-Default: `'${output}/{{tag}}Controller'`
-:::
+#### output.barrelType
 
-#### group.exportAs
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-::: v-pre
-Name to be used for the `export * as {{exportAs}} from './`
-:::
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
-::: v-pre
-Type: `string` <br/>
-Default: `'{{tag}}SWRHooks'`
-:::
+<!--@include: ../core/barrelTypes.md-->
 
-::: info
+#### output.banner
+Add a banner text in the beginning of every file.
 
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
-const plugin = pluginSwr({
-  output: {
-    path: './hooks'
-  },
-  group: { type: 'tag', output: './hooks/{{tag}}Controller' },
-})
-```
+#### output.footer
+Add a footer text in the beginning of every file.
 
-:::
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
+
+### group
+<!--@include: ../core/group.md-->
+
+#### group.type
+Define a type where to group the files on.
+
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
+
+<!--@include: ../core/groupTypes.md-->
+
+#### group.name
+
+Return the name of a group based on the group name, this will be used for the file and name generation.
+
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
 ### client
 
 #### client.importPath
+<!--@include: ../plugin-client/importPath.md-->
 
-Path to the client import path that will be used to do the API calls.<br/>
-It will be used as `import client from '${client.importPath}'`.<br/>
-It allow both relative and absolute path. the path will be applied as is,
-so relative path shoule be based on the file being generated.
+#### client.dataReturnType
+<!--@include: ../plugin-client/dataReturnType.md-->
 
-::: info
+### pathParamsType
+<!--@include: ../plugin-client/pathParamsType.md-->
 
-Type: `string` <br/>
-Default: `'@kubb/plugin/client'`
+### parser
+<!--@include: ../plugin-client/parser.md-->
 
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
+### query
 
-const plugin = pluginSwr({
-  client: {
-    importPath: '../../client.ts',
-  },
-})
-```
+#### query.key
+|           |                                 |
+|----------:|:--------------------------------|
+|     Type: | `(key: unknown[]) => unknown[]` |
+| Required: | `true`                          |
 
-:::
 
-### dataReturnType
+#### query.methods
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `Array<HttpMethod>` |
+| Required: | `false`             |
 
-ReturnType that needs to be used when calling client().
 
-`'data'` will return ResponseConfig[data]. <br/>
-`'full'` will return ResponseConfig.
+#### query.importPath
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `false`  |
+|  Default: | `'swr'`  |
 
-::: info TYPE
 
-::: code-group
+### mutation
 
-```typescript ['data']
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>["data"]> {
-...
-}
-```
+#### mutation.key
+|           |                                 |
+|----------:|:--------------------------------|
+|     Type: | `(key: unknown[]) => unknown[]` |
+| Required: | `true`                          |
 
-```typescript ['full']
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
-...
-}
-```
 
-:::
+#### mutation.methods
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `Array<HttpMethod>` |
+| Required: | `false`             |
 
-Type: `'data' | 'full'` <br/>
-Default: `'data'`
 
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
+#### mutation.importPath
+|           |                           |
+|----------:|:--------------------------|
+|     Type: | `string`                  |
+| Required: | `false`                   |
+|  Default: | `'swr/mutation'` |
 
-const plugin = pluginSwr({
-  dataReturnType: 'data',
-})
-```
-
-:::
 
 ### include
-
-Array containing include parameters to include tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Include>` <br/>
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  include: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-
-:::
+<!--@include: ../core/include.md-->
 
 ### exclude
-
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Exclude>` <br/>
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  exclude: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-
-:::
+<!--@include: ../core/exclude.md-->
 
 ### override
+<!--@include: ../core/override.md-->
 
-Array containing override parameters to override `options` based on tags/operations/methods/paths.
+### generators <img src="/icons/experimental.svg"/>
+<!--@include: ../core/generators.md-->
 
-::: info TYPE
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `Array<Generator<PluginSwr>>` |
+| Required: | `false`                       |
 
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Override>` <br/>
-
-```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  override: [
-    {
-      type: 'tag',
-      pattern: 'pet',
-      options: {
-        dataReturnType: 'full',
-      },
-    },
-  ],
-})
-```
-
-:::
 
 ### transformers
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
+Customize the names based on the type that is provided by the plugin.
 
-Override the name of the hook that is getting generated, this will also override the name of the file.
-
-::: info
-
-Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
+|     Type: | `(name: string, type?: ResolveType) => string` |
+| Required: | `false`                                                                       |
 
 ```typescript
-import { pluginSwr } from '@kubb/plugin-swr'
-
-const plugin = pluginSwr({
-  transformers: {
-    name: (name) => {
-      return `${ name }Hook`
-    },
-  },
-})
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
-
-:::
-
-### templates
-
-Make it possible to override one of the templates. <br/>
-
-::: tip
-See [templates](/reference/templates) for more information about creating templates.<br/>
-Set `false` to disable a template.
-:::
-
-::: info TYPE
-
-```typescript [Templates]
-import type { Mutation, Query, QueryOptions } from '@kubb/plugin-swr/components'
-
-export type Templates = {
-  mutation: typeof Mutation.templates | false
-  query: typeof Query.templates | false
-  queryOptions: typeof QueryOptions.templates | false
-}
-```
-
-:::
-
-::: info
-
-Type: `Templates` <br/>
-
-```tsx
-import { pluginSwr } from '@kubb/plugin-swr'
-import { Query } from '@kubb/plugin-swr/components'
-import React from 'react'
-
-export const templates = {
-  ...Query.templates,
-} as const
-
-const plugin = pluginSwr({
-  templates: {
-    query: templates,
-  },
-})
-```
-
-:::
 
 ## Example
 
@@ -437,7 +219,7 @@ export default defineConfig({
       },
       group: {
         type: 'tag',
-        output: './hooks/{{tag}}Hooks'
+        name: ({ group }) => `${group}Hooks`,
       },
       dataReturnType: 'full',
       parser: 'zod',

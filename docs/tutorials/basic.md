@@ -23,7 +23,7 @@ The setup will contain from the beginning the following folder structure:
 
 Set up your `kubb.config.ts` file based on the [Quick start](/guide/quick-start).
 
-We will add the plugins [`@kubb/swagger`](/plugins/swagger) and [`@kubb/plugin-ts`](/plugins/plugin-ts)(which is dependent on the [`@kubb/swagger`](/plugins/swagger) plugin). Together these two plugins will generate the TypeScript types.
+We will add the plugins [`@kubb/plugin-oas`](/plugins/plugin-oas/) and [`@kubb/plugin-ts`](/plugins/plugin-ts/)(which is dependent on the [`@kubb/plugin-oas`](/plugins/plugin-oas/) plugin). Together these two plugins will generate the TypeScript types.
 
 Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plugins/swagger) plugin because we do not need the plugin to generate the JSON schemas for us.
 
@@ -81,7 +81,7 @@ This will result in the following folder structure when Kubb has been executed
 
 ## Step two
 
-Update your `package.json` and install `Kubb`, see the [installation](/guide/installation).
+Update your `package.json` and install `Kubb`, see the [installation](/getting-started/configure/).
 
 Your `package.json` will look like this:
 

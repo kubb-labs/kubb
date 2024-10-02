@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-faker
 
-With the Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
+With the Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks.
 
 ## Installation
 
@@ -34,145 +34,83 @@ yarn add @kubb/plugin-faker
 ## Options
 
 ### output
+Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Relative path to save the Faker mocks.
-When output is a file it will save all models inside that file else it will create a file per schema item.
+Path to the output folder or file that will contain the generated code.
 
-::: info
-Type: `string` <br/>
-Default: `'mocks'`
+> [!TIP]
+> if `output.path` is a file, `group` cannot be used.
 
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
+|           |           |
+|----------:|:----------|
+|     Type: | `string`  |
+| Required: | `true`    |
+|  Default: | `'mocks'` |
 
-const plugin = pluginFaker({
-  output: {
-    path: './mocks',
-  },
-})
-```
-:::
+#### output.barrelType
 
-#### output.exportAs
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-Name to be used for the `export * as {{exportAs}} from './'`
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
-::: info
-Type: `string` <br/>
+<!--@include: ../core/barrelTypes.md-->
 
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
+#### output.banner
+Add a banner text in the beginning of every file.
 
-const plugin = pluginFaker({
-  output: {
-    path: './mocks',
-    exportAs: 'mocks',
-  },
-})
-```
-:::
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
-#### output.extName
+#### output.footer
+Add a footer text in the beginning of every file.
 
-Add an extension to the generated imports and exports, default it will not use an extension
-
-::: info
-Type: `string` <br/>
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  output: {
-    path: './mocks',
-    extName: '.js',
-  },
-})
-```
-:::
-
-#### output.exportType
-
-Define what needs to be exported, you can also disable the export of barrel files
-
-::: info
-Type: `'barrel' | 'barrelNamed' | false` <br/>
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  output: {
-    path: './mocks',
-    exportType: 'barrel',
-  },
-})
-```
-:::
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
 ### group
-
-Group the Faker mocks based on the provided name.
+<!--@include: ../core/group.md-->
 
 #### group.type
+Define a type where to group the files on.
 
-Tag will group based on the operation tag inside the Swagger file.
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
 
-Type: `'tag'` <br/>
-Required: `true`
+<!--@include: ../core/groupTypes.md-->
 
-#### group.output
-> [!TIP]
-> When defining a custom output path, you should also update `output.path` to contain the same root path.
+#### group.name
 
+Return the name of a group based on the group name, this will be used for the file and name generation.
 
-::: v-pre
-Relative path to save the grouped Faker mocks.
-`{{tag}}` will be replaced by the current tagName.
-:::
-
-::: v-pre
-Type: `string` <br/>
-Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
-:::
-
-#### group.exportAs
-
-Name to be used for the `export * as {{exportAs}} from './`
-
-::: v-pre
-Type: `string` <br/>
-Default: `'{{tag}}Mocks'`
-:::
-
-::: info
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  output: {
-    path: './mocks'
-  },
-  group: {
-    type: 'tag',
-    output: './mocks/{{tag}}Mocks',
-  },
-})
-```
-:::
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
-::: info TYPE
+|           |                      |
+|----------:|:---------------------|
+|     Type: | `'string' \| 'date'` |
+| Required: | `false`              |
+|  Default: | `'string'`           |
 
 ::: code-group
-
 ```typescript ['string']
 faker.string.alpha()
 ```
@@ -180,31 +118,21 @@ faker.string.alpha()
 ```typescript ['date']
 faker.date.anytime()
 ```
-
-:::
-
-::: info
-Type: `'string' | 'date'` <br/>
-Default: `'string'`
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  dateType: 'string',
-})
-```
 :::
 
 ### dateParser
 
 Which parser should be used when dateType is set to 'string'.
 
+|           |                                            |
+|----------:|:-------------------------------------------|
+|     Type: | `'faker' \| 'dayjs' \| 'moment' \| string` |
+| Required: | `false`                                    |
+|  Default: | `'faker'`                                  |
+
 > [!TIP]
 > You can use any other library. For example, when you want to use `moment` you can pass `moment` and Kubb will add the import for moment: `import moment from 'moment'`.
 > This only works when the package is using default exports like Dayjs and Moment.
-
-::: info TYPE
 
 ::: code-group
 
@@ -233,61 +161,38 @@ moment(faker.date.anytime()).format("YYYY-MM-DD")
 // schema with format set to 'time'
 moment(faker.date.anytime()).format("HH:mm:ss")
 ```
-
 :::
 
-::: info
-Type: `'dayjs' | 'moment' | string` <br/>
-Default: `undefined`
+### mapper
 
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
+|           |           |
+|----------:|:----------|
+|     Type: | `Record<string, string>` |
+| Required: | `false`   |
 
-const plugin = pluginFaker({
-  dateParser: 'dayjs',
-})
-```
-:::
 
 ### unknownType
-
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-::: info TYPE
+|           |                      |
+|----------:|:---------------------|
+|     Type: | `'any' \| 'unknown'` |
+| Required: | `false`              |
+|  Default: | `'any'`              |
 
-::: code-group
-
-```typescript ['any']
-any
-```
-
-```typescript ['unknown']
-unknown
-```
-
-:::
-
-::: info
-Type: `'any' | 'unknown'` <br/>
-Default: `'any'`
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  unknownType: 'any',
-})
-```
-:::
 
 ### regexGenerator
 
 Choose which generator to use when using Regexp.
 
-::: info TYPE
+
+|           |                        |
+|----------:|:-----------------------|
+|     Type: | `'faker' \| 'randexp'` |
+| Required: | `false`                |
+|  Default: | `'faker'`                |
 
 ::: code-group
-
 ```typescript ['faker']
 faker.helpers.fromRegExp(new RegExp(/test/))
 ```
@@ -295,164 +200,50 @@ faker.helpers.fromRegExp(new RegExp(/test/))
 ```typescript ['randexp']
 new RandExp(/test/).gen()
 ```
-
 :::
 
-::: info
-Type: `'faker' | 'randexp'` <br/>
-Default: `'faker'`
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  regexGenerator: 'randexp',
-})
-```
-:::
 
 ### seed
-
 The use of Seed is intended to allow for consistent values in a test.
 
-::: info
-Type: `'number' | 'number[]'` <br/>
+|           |           |
+|----------:|:----------|
+|     Type: | `'number' | 'number[]'` |
+| Required: | `false`   |
 
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  seed: [222],
-})
-```
-:::
 
 ### include
-
-An array containing include parameters to include tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Include>` <br/>
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  include: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-:::
+<!--@include: ../core/include.md-->
 
 ### exclude
-
-An array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Exclude>` <br/>
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  exclude: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-
-:::
+<!--@include: ../core/exclude.md-->
 
 ### override
+<!--@include: ../core/override.md-->
 
-An array containing override parameters to override `options` based on tags/operations/methods/paths.
+### generators <img src="/icons/experimental.svg"/>
+<!--@include: ../core/generators.md-->
 
-::: info TYPE
+|           |                                 |
+|----------:|:--------------------------------|
+|     Type: | `Array<Generator<PluginFaker>>` |
+| Required: | `false`                         |
 
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Override>` <br/>
-
-```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  override: [
-    {
-      type: 'tag',
-      pattern: 'pet',
-      options: {
-        dateType: 'date',
-      },
-    },
-  ],
-})
-```
-:::
 
 ### transformers
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
+Customize the names based on the type that is provided by the plugin.
 
-Override the name of the faker data that is getting generated, this will also override the name of the file.
-
-::: info
-
-Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
+|     Type: | `(name: string, type?: ResolveType) => string` |
+| Required: | `false`                                                                       |
 
 ```typescript
-import { pluginFaker } from '@kubb/plugin-faker'
-
-const plugin = pluginFaker({
-  transformers: {
-    name: (name) => {
-      return `${name}Mock`
-    },
-  },
-})
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
-:::
 
 
 ## Example
@@ -476,10 +267,13 @@ export default defineConfig({
     pluginFaker({
       output: {
         path: './mocks',
+        barrelType: 'named',
+        banner: '/* eslint-disable no-alert, no-console */',
+        footer: ''
       },
       group: {
         type: 'tag',
-        output: './mocks/{{tag}}Mocks',
+        name: ({ group }) => `${group}Service`,
       },
       dateType: 'date',
       unknownType: 'unknown',

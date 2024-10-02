@@ -21,7 +21,6 @@ The Swagger plugin also contains some classes and functions that can be used in 
   <br/>Just call `this.getSchemas` and you will retrieve an object contains all the info you need to set up a TypeScript type, React-Query hook,....
 
 ## Installation
-
 ::: code-group
 
 ```shell [bun]
@@ -39,62 +38,76 @@ npm install @kubb/plugin-oas
 ```shell [yarn]
 yarn add @kubb/plugin-oas
 ```
-
 :::
 
 ## Options
 
-### validate
-
-Validate your [`input`](/config/input) based on `@readme/openapi-parser`
-::: info
-Type: `boolean` <br/>
-Default: `true`
-
-```typescript
-import { pluginOas } from '@kubb/plugin-oas'
-
-const plugin = pluginOas({
-  validate: true,
-})
-```
-:::
-
 ### output
+Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Relative path to save the generated files(see generators).<br/>
+Path to the output folder or file that will contain the generated code.
 
-::: info
-Type: `string` <br/>
-Default: `'schemas'`
+> [!TIP]
+> if `output.path` is a file, `group` cannot be used.
 
-::: code-group
+|           |             |
+|----------:|:------------|
+|     Type: | `string`    |
+| Required: | `true`      |
+|  Default: | `'schemas'` |
 
-```typescript
-import { pluginOas } from '@kubb/plugin-oas'
+#### output.barrelType
 
-const plugin = pluginOas({
-  output: {
-    path: './json',
-  },
-})
-```
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-:::
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
+
+<!--@include: ../core/barrelTypes.md-->
+
+#### output.banner
+Add a banner text in the beginning of every file.
+
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
+
+#### output.footer
+Add a footer text in the beginning of every file.
+
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
+
+### validate
+
+Validate your [`input`](/config/input) based on `@readme/openapi-parser`.
+
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `true`    |
+
 ### serverIndex
 
 Which server to use from the array of `servers.url[serverIndex]`
 
-For example:
+|           |          |
+|----------:|:---------|
+|     Type: | `number` |
+| Required: | `false`  |
+|  Default: | `0`      |
+
 - `0` will return `http://petstore.swagger.io/api`
 - `1` will return `http://localhost:3000`
-
-::: info
-
-Type: `number` <br/>
-Default: `0`
 
 ::: code-group
 
@@ -123,7 +136,6 @@ import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 1 })
 ```
-
 :::
 
 ### contentType
@@ -131,41 +143,20 @@ const plugin = pluginOas({ serverIndex: 1 })
 Define which contentType should be used.
 By default, this is set based on the first used contentType.
 
-::: info TYPE
-
-```typescript
-export type contentType = 'application/json' | (string & {})
-```
-:::
-
-::: info
-Type: `contentType` <br/>
-
-```typescript
-import { pluginOas } from '@kubb/plugin-oas'
-
-const plugin = pluginOas({ contentType: 'application/json' })
-```
-:::
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `'application/json' \| (string & {})` |
+| Required: | `false`                               |
 
 
 ### oasClass <img src="/icons/experimental.svg"/>
 Override some behaviour of the Oas class instance, see `@kubb/oas`.
-::: info
 
-```typescript
-import { pluginOas } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/oas'
+|           |                                |
+|----------:|:-------------------------------|
+|     Type: | `typeof Oas`                             |
+| Required: | `false`                        |
 
-class oasClass extends Oas {
-
-}
-
-const plugin = pluginOas({
-  oasClass
-})
-```
-:::
 
 ### generators <img src="/icons/experimental.svg"/>
 Define some generators to create files based on the operation and/or schema. See `createGenerator`. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.

@@ -7,8 +7,7 @@ outline: deep
 
 # @kubb/plugin-msw
 
-
-With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks based on a Swagger file.
+With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks.
 
 ## Installation
 
@@ -35,312 +34,121 @@ yarn add @kubb/plugin-msw
 ## Options
 
 ### output
+Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Relative path to save the MSW mocks.
-When output is a file it will save all models inside that file else it will create a file per schema item.
+Path to the output folder or file that will contain the generated code.
 
-::: info
+> [!TIP]
+> if `output.path` is a file, `group` cannot be used.
 
-Type: `string` <br/>
-Default: `'mocks'`
+|           |           |
+|----------:|:----------|
+|     Type: | `string`  |
+| Required: | `true`    |
+|  Default: | `'mocks'` |
 
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
+#### output.barrelType
 
-const plugin = pluginMsw({
-  output: {
-    path: './mocks',
-  },
-})
-```
-:::
+Define what needs to be exported, here you can also disable the export of barrel files.
 
-#### output.exportAs
+|           |                             |
+|----------:|:----------------------------|
+|     Type: | `'all' \| 'named' \| false` |
+| Required: | `false`                     |
+|  Default: | `'named'`                   |
 
-Name to be used for the `export * as {{exportAs}} from './'`
+<!--@include: ../core/barrelTypes.md-->
 
-::: info
-Type: `string` <br/>
+#### output.banner
+Add a banner text in the beginning of every file.
 
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
-const plugin = pluginMsw({
-  output: {
-    path: './mocks',
-    exportAs: 'mocks',
-  },
-})
-```
-:::
+#### output.footer
+Add a footer text in the beginning of every file.
 
-#### output.extName
+|           |                                       |
+|----------:|:--------------------------------------|
+|     Type: | `string` |
+| Required: | `false`                               |
 
-Add an extension to the generated imports and exports, default it will not use an extension
+### handlers
+Create `handlers.ts` file with all handlers grouped by methods.
 
-::: info
-Type: `string` <br/>
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
 
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  output: {
-    path: './mocks',
-    extName: '.js',
-  },
-})
-```
-:::
-
-#### output.exportType
-
-Define what needs to exported, here you can also disable the export of barrel files
-
-::: info
-Type: `'barrel' | 'barrelNamed' | false` <br/>
-
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  output: {
-    path: './mocks',
-    exportType: 'barrel',
-  },
-})
-```
-
-:::
 
 ### group
-
-Group the MSW mocks based on the provided name.
+<!--@include: ../core/group.md-->
 
 #### group.type
+Define a type where to group the files on.
 
-Tag will group based on the operation tag inside the Swagger file.
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
 
-Type: `'tag'` <br/>
-Required: `true`
+<!--@include: ../core/groupTypes.md-->
 
-#### group.output
-> [!TIP]
-> When defining a custom output path, you should also update `output.path` to contain the same root path.
+#### group.name
 
-::: v-pre
-Relative path to save the grouped MSW mocks.
-`{{tag}}` will be replaced by the current tagName.
-:::
+Return the name of a group based on the group name, this will be used for the file and name generation.
 
-::: v-pre
-Type: `string` <br/>
-Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
-Default: `'${output}/{{tag}}Controller'`
-:::
-
-#### group.exportAs
-
-Name to be used for the `export * as {{exportAs}} from './`
-
-::: v-pre
-Type: `string` <br/>
-Default: `'{{tag}}Handlers'`
-:::
-
-::: info
-
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  output: {
-    path: './mocks'
-  },
-  group: { type: 'tag', output: './mocks/{{tag}}Handlers' },
-})
-```
-:::
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
 ### include
-
-Array containing include parameters to include tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Include]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Include>` <br/>
-
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  include: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-
-:::
+<!--@include: ../core/include.md-->
 
 ### exclude
-
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-
-::: info TYPE
-
-```typescript [Exclude]
-export type Exclude = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Exclude>` <br/>
-
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  exclude: [
-    {
-      type: 'tag',
-      pattern: 'store',
-    },
-  ],
-})
-```
-:::
+<!--@include: ../core/exclude.md-->
 
 ### override
+<!--@include: ../core/override.md-->
 
-Array containing override parameters to override `options` based on tags/operations/methods/paths.
+### generators <img src="/icons/experimental.svg"/>
+<!--@include: ../core/generators.md-->
 
-::: info TYPE
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `Array<Generator<PluginMsw>>` |
+| Required: | `false`                       |
 
-```typescript [Override]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method'
-  pattern: string | RegExp
-  options: PluginOptions
-}
-```
-
-:::
-
-::: info
-
-Type: `Array<Override>` <br/>
-
-```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  override: [
-    {
-      type: 'tag',
-      pattern: 'pet',
-      options: {
-
-      },
-    },
-  ],
-})
-```
-:::
 
 ### transformers
+<!--@include: ../core/transformers.md-->
 
 #### transformers.name
+Customize the names based on the type that is provided by the plugin.
 
-Override the name of the MSW data that is getting generated, this will also override the name of the file.
-
-::: info
-
-Type: `(name: string) => string` <br/>
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
+|     Type: | `(name: string, type?: ResolveType) => string` |
+| Required: | `false`                                                                       |
 
 ```typescript
-import { pluginMsw } from '@kubb/plugin-msw'
-
-const plugin = pluginMsw({
-  transformers: {
-    name: (name) => {
-      return `${name}Client`
-    },
-  },
-})
+type ResolveType = 'file' | 'function' | 'type' | 'const'
 ```
-:::
-
-### templates
-
-Make it possible to override one of the templates. <br/>
-
-> [!TIP]
-> See [templates](/reference/templates) for more information about creating templates.<br/>
-> Set `false` to disable a template.
-
-
-::: info TYPE
-
-```typescript [Templates]
-import type { Handlers, Mock } from '@kubb/plugin-msw/components'
-
-export type Templates = {
-  handlers?: typeof Handlers.templates | false
-  mock?: typeof Mock.templates | false
-}
-```
-
-:::
-
-::: info
-
-Type: `Templates` <br/>
-
-```tsx
-import { pluginMsw } from '@kubb/plugin-msw'
-import { Parser, File, Function } from '@kubb/react'
-import { Mock } from '@kubb/plugin-msw/components'
-import React from 'react'
-
-export const templates = {
-  ...Mock.templates,
-} as const
-
-const plugin = pluginMsw({
-  templates: {
-    mock: templates,
-  },
-})
-```
-:::
 
 ## Example
 
 ```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginFaker} from '@kubb/plugin-faker'
+import { pluginMsw} from '@kubb/plugin-msw'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -353,17 +161,18 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs(),
-    pluginFaker({
+    pluginMsw({
       output: {
         path: './mocks',
+        barrelType: 'named',
+        banner: '/* eslint-disable no-alert, no-console */',
+        footer: ''
       },
       group: {
         type: 'tag',
         output: './mocks/{{tag}}Mocks',
       },
-      dateType: 'date',
-      unknownType: 'unknown',
-      seed: [100],
+      handlers: true
     }),
   ],
 })

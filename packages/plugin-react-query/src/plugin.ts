@@ -2,7 +2,6 @@ import path from 'node:path'
 
 import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -24,7 +23,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     override = [],
     parser = 'client',
     suspense = {},
-    infinite,
+    infinite = false,
     transformers = {},
     pathParamsType = 'inline',
     generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
@@ -40,7 +39,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/client',
         dataReturnType: 'data',
-        pathParamsType: 'inline',
         ...options.client,
       },
       infinite: infinite

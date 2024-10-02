@@ -37,7 +37,7 @@ Imagine that your backend team is writing an API in Java/Kotlin, how do you conn
 This is not a new problem and has already been resolved with the use of a Swagger/OpenAPI specification combined with a <a href="https://tools.openapis.org/categories/code-generators.html">code generator</a>.
 
 The problem is that most of them are good at one _thing_: generating TypeScript types or generating React-Query hooks.
-Kubb is trying to resolve that with a plugin system where we already provide you with some plugins but also giving you the possibility to create [your own plugin](/knowledge-base/plugins).
+Kubb is trying to resolve that with a plugin system where we already provide you with some plugins but also giving you the possibility to create [your own plugin](/knowledge-base/plugins/).
 
 
 ## Sponsoring

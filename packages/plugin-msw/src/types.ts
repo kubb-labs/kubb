@@ -30,7 +30,7 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * Create `handlers.ts` file with all handlers for all mocks.
+   * Create `handlers.ts` file with all handlers grouped by methods.
    * @default `false`
    */
   handlers?: boolean

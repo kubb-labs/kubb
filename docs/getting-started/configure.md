@@ -305,7 +305,7 @@ An array of Kubb plugins that will be used in the generation.
 Each plugin may include additional configurable options(defined in the plugin itself).
 If a plugin depends on another plugin, an error will be returned if the required dependency is missing. See pre for more details.
 
-How to use and set up plugins, see [plugins](/knowledge-base/plugins).
+How to use and set up plugins, see [plugins](/knowledge-base/plugins/).
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
