@@ -1,5 +1,7 @@
 # @kubb/config-biome
 
+## 3.0.0-beta.2
+
 ## 3.0.0-beta.1
 
 ## 3.0.0-alpha.31

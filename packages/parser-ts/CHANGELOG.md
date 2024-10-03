@@ -1,5 +1,11 @@
 # @kubb/parser-ts
 
+## 3.0.0-beta.2
+
+### Patch Changes
+
+- [`e1a586b`](https://github.com/kubb-labs/kubb/commit/e1a586bffe29b8bc54d8ae27d23b3d8a941d5e37) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - escape `*/` in jsdocs
+
 ## 3.0.0-beta.1
 
 ## 3.0.0-alpha.31
