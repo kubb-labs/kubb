@@ -53,8 +53,15 @@ export type Options = {
   inferred?: boolean
   /**
    * Use of z.coerce.string() instead of z.string()
+   * can also be an object to enable coercion for dates, strings, and numbers
    */
-  coercion?: boolean
+  coercion?:
+    | boolean
+    | {
+        dates?: boolean
+        strings?: boolean
+        numbers?: boolean
+      }
   operations?: boolean
   mapper?: Record<string, string>
   transformers?: {
@@ -93,7 +100,7 @@ type ResolvedOptions = {
   mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
-  operations: NonNullable<Options['coercion']>
+  operations: NonNullable<Options['operations']>
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>
