@@ -5,6 +5,7 @@ import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
+import React from 'react'
 
 export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',

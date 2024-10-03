@@ -50,7 +50,7 @@ paths:
           required: true
           schema:
             type: string
-        - description: Offset
+        - description: Offset */
           in: query
           name: offset
           schema:

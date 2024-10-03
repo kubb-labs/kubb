@@ -5,7 +5,7 @@ export const createPetsPathParamsSchema = z.object({ uuid: z.string().describe('
 
 export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSchema>
 
-export const createPetsQueryParamsSchema = z.object({ offset: z.number().int().describe('Offset').optional() }).optional()
+export const createPetsQueryParamsSchema = z.object({ offset: z.number().int().describe('Offset */').optional() }).optional()
 
 export type CreatePetsQueryParamsSchema = z.infer<typeof createPetsQueryParamsSchema>
 

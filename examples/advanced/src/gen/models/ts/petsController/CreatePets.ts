@@ -10,7 +10,7 @@ export type CreatePetsPathParams = {
 
 export type CreatePetsQueryParams = {
   /**
-   * @description Offset
+   * @description Offset *\/
    * @type integer | undefined
    */
   offset?: number
