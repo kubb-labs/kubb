@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 1.0.0-beta.35
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.4
+
 ## 1.0.0-beta.34
 
 ### Patch Changes
