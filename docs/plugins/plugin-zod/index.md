@@ -263,7 +263,7 @@ Customize the schema based on the type that is provided by the plugin.
 | Required: | `false`                                                                                                                     |
 
 ## Example
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginZod } from '@kubb/plugin-zod'
@@ -281,7 +281,7 @@ export default defineConfig({
       output: {
         path: './zod',
       },
-      group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
+      group: { type: 'tag', name: ({ group }) => `${group}Schemas` },
       typed: true,
       dateType: 'stringOffset',
       unknownType: 'unknown',

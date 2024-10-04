@@ -76,29 +76,20 @@ kubb petStore.yaml
 
 #### --config (-c)
 
-::: info
 Path to the Kubb config.
 
 ```shell [node]
 kubb --config kubb.config.ts
 ```
 
-:::
-
 #### --log-level (-l)
-
-::: info
-Type of the logging(overrides the one in `kubb.config.js`).
-
-`silent` will suppresses all log messages, warnings, and errors, minimizing console output.
-`info` will log all warnings, errors and info messages.
-`debug` will show all message from `info` and every plugin being executed(with meta-data being written to log files).
+- `silent` will suppresses all log messages, warnings, and errors, minimizing console output.
+- `info` will log all warnings, errors and info messages.
+- `debug` will show all message from `info` and all details about what is being executed.
 
 ```shell [node]
 kubb --log-level info
 ```
-
-:::
 
 #### --debug
 > [!TIP]
@@ -107,42 +98,29 @@ kubb --log-level info
 > - `.kubb/kubb-files.log`
 
 
-::: info
 Alias for `kubb generate --log-level debug`
 ```shell [node]
 kubb --debug
 ```
 
-:::
-
 #### --watch (-w)
 
 Watch mode based on the input file.
-::: info
-
 ```shell [node]
 kubb --watch
 ```
 
-:::
-
 #### --version (-v)
 
 Output the version number.
-::: info
 
 ```shell [node]
 kubb --version
 ```
 
-:::
-
 #### --help (-h)
-
 Display the help.
-::: info
 
 ```shell [node]
 kubb --help
 ```
-:::

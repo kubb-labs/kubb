@@ -265,10 +265,10 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginReactQuery } from '@kubb/plugin-svelte-query'
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -281,7 +281,7 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs(),
-    pluginReactQuery({
+    pluginSvelteQuery({
       output: {
         path: './hooks',
       },
@@ -289,12 +289,15 @@ export default defineConfig({
         type: 'tag',
         name: ({ group }) => `${group}Hooks`,
       },
-      dataReturnType: 'full',
+      client: {
+        dataReturnType: 'full',
+      },
       mutation: {
-        variablesType: 'hook',
+        key: (key)=> key,
         methods: [ 'post', 'put', 'delete' ],
       },
       query: {
+        key: (key)=> key,
         methods: [ 'get' ],
         importPath: "@tanstack/svelte-query"
       },

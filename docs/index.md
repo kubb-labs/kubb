@@ -34,14 +34,14 @@ features:
       src: ./feature/typescript.svg
       height: 24
     title: TypeScript
-    details: Out-of-the-box support for<a href="https://www.typescriptlang.org/">TypeScript</a> with JSDoc integration.
+    details: Out-of-the-box support for <a href="https://www.typescriptlang.org/">TypeScript</a> with JSDoc integration.
     link: /plugins/plugin-ts
     linkText: Learn more
   - icon:
       src: ./feature/tanstack.svg
       height: 24
     title: Tanstack Query
-    details: Generate query keys, query options and hooks with support for React, Solid, Svelte, Vue.
+    details: Generate query keys, query options and hooks with support for React, Solid, Svelte and Vue.
     link: /plugins/plugin-react-query
     linkText: Learn more
   - icon:
@@ -55,26 +55,26 @@ features:
   - icon:
       src: ./feature/axios.svg
     title: Axios
-    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with override possibilities for Fetch, ky,...
+    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with override possibilities for Fetch, Ky, ...
     link: /plugins/plugin-client/
     linkText: Learn more
   - icon:
       src: ./feature/msw.svg
     title: MSW
-    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on the faker generated data.
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks.
     link: /plugins/plugin-msw
     linkText: Learn more
   - icon:
       src: ./feature/zod.svg
       height: 24
     title: Zod
-    details: Create <a href="https://zod.dev/">Zod</a> schemas that could be use to validate your data.
+    details: Create <a href="https://zod.dev/">Zod</a> schemas for validation of your data.
     link: /plugins/plugin-zod
     linkText: Learn more
   - icon:
       src: https://fakerjs.dev/logo.svg
     title: Faker
-    details: Use of <a href="https://fakerjs.dev/">Faker.js</a> to create mock data for testing and development of APIs.
+    details: Use of <a href="https://fakerjs.dev/">Faker.js</a> to create mocked data.
     link: /plugins/plugin-faker
     linkText: Learn more
   - icon:

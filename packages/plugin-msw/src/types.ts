@@ -4,7 +4,8 @@ import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '
 
 export type Options = {
   /**
-   * @default 'mocks'
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'mocks', barrelType: 'named' }
    */
   output?: Output
   /**
@@ -31,7 +32,7 @@ export type Options = {
   }
   /**
    * Create `handlers.ts` file with all handlers grouped by methods.
-   * @default `false`
+   * @default false
    */
   handlers?: boolean
   /**

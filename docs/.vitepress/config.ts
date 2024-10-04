@@ -7,8 +7,7 @@ import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 
 import { renderMermaidGraphsPlugin } from './mermaid'
-import { transposeTables } from './transposeTables.ts'
-import { transposeTables } from './transposeTables.ts'
+import { transposeTables } from './transposeTables'
 
 import { version } from '../../packages/core/package.json'
 
@@ -31,10 +30,22 @@ const knowledgeBaseSidebar = [
         link: '/knowledge-base/how-tos/debugging',
       },
       {
+        text: 'Use JSX in Kubb',
+        link: '/knowledge-base/how-tos/react',
+      },
+      {
+        text: 'Filter and sort',
+        link: '/knowledge-base/how-tos/filter-and-sort',
+      },
+      {
         text: 'Use of Fetch',
         link: '/knowledge-base/how-tos/fetch',
       },
     ],
+  },
+  {
+    text: 'Generators',
+    link: '/knowledge-base/generators',
   },
   {
     text: 'Plugins',
@@ -334,6 +345,7 @@ const documentationMenu = [
       {
         text: '@kubb/parser-ts',
         link: '/parsers/parser-ts/',
+        activeMatch: 'parser-ts'
       },
     ],
   },

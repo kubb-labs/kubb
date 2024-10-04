@@ -280,7 +280,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'

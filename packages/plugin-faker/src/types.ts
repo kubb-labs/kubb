@@ -5,7 +5,8 @@ import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema 
 
 export type Options = {
   /**
-   * @default 'handlers'
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'handlers', barrelType: 'named' }
    */
   output?: Output
   /**

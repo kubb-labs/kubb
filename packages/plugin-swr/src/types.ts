@@ -5,7 +5,8 @@ import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '
 
 export type Options = {
   /**
-   * @default 'hooks'
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'hooks', barrelType: 'named' }
    */
   output?: Output
   /**
@@ -40,7 +41,7 @@ export type Options = {
      * It will be used as `import { useQuery } from '${importPath}'`.
      * It allows both relative and absolute path.
      * the path will be applied as is, so relative path should be based on the file being generated.
-     * @default '@tanstack/react-query' if 'framework' is set to 'react'
+     * @default 'swr'
      */
     importPath?: string
   }
@@ -59,18 +60,15 @@ export type Options = {
      * It will be used as `import { useQuery } from '${importPath}'`.
      * It allows both relative and absolute path.
      * the path will be applied as is, so relative path should be based on the file being generated.
-     * @default '@tanstack/react-query' if 'framework' is set to 'react'
+     * @default 'swr/mutation'
      */
     importPath?: string
   }
   /**
    * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
+   * - 'object' will return the pathParams as an object.
+   * - 'inline' will return the pathParams as comma separated params.
+   * @default 'inline'
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
   /**

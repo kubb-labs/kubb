@@ -12,10 +12,6 @@ A good tool to visualize what AST is can be found on [TypeScript AST Viewer](htt
 
 To get started with TypeScript AST, I would suggest following this tutorial: [Generating TypeScript using AST's](https://nabeelvalley.co.za/docs/javascript/typescript-ast/).
 
-<hr/>
-
-This library contains also the logic to `print` the nodes(convert AST nodes to string).
-
 ## Installation
 
 ::: code-group

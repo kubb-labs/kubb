@@ -49,7 +49,7 @@ type Mutation = {
 export type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
-   * @default `'id'`
+   * @default 'id'
    */
   queryParam: string
   /**
@@ -58,14 +58,15 @@ export type Infinite = {
   cursorParam?: string | undefined
   /**
    * The initial value, the value of the first page.
-   * @default `0`
+   * @default 0
    */
   initialPageParam: unknown
 }
 
 export type Options = {
   /**
-   * @default 'hooks'
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'hooks', barrelType: 'named' }
    */
   output?: Output
   /**
@@ -74,16 +75,6 @@ export type Options = {
   group?: Group
 
   client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath'>
-  /**
-   * ReturnType that needs to be used when calling client().
-   *
-   * `Data` will return ResponseConfig[data].
-   *
-   * `Full` will return ResponseConfig.
-   * @default `'data'`
-   * @private
-   */
-
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -98,12 +89,9 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   /**
    * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
+   * - 'object' will return the pathParams as an object.
+   * - 'inline' will return the pathParams as comma separated params.
+   * @default 'inline'
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
 

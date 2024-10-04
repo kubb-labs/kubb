@@ -402,7 +402,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -426,9 +426,11 @@ export default defineConfig({
         type: 'tag',
         name: ({ group }) => `${group}Hooks`,
       },
-      dataReturnType: 'full',
+      client: {
+        dataReturnType: 'full',
+      },
       mutation: {
-        variablesType: 'hook',
+        key: (key)=> key,
         methods: [ 'post', 'put', 'delete' ],
       },
       infinite: {
@@ -437,6 +439,7 @@ export default defineConfig({
         cursorParam: 'nextCursor',
       },
       query: {
+        key: (key)=> key,
         methods: [ 'get' ],
         importPath: "@tanstack/react-query"
       },

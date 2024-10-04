@@ -7,7 +7,9 @@ outline: deep
 
 # @kubb/plugin-client
 
-The Client plugin enables you to generate [Axios](https://axios-http.com/docs/intro) API controllers, simplifying the process of handling API requests and improving integration between frontend and backend services.
+The Client plugin enables you to generate API controllers, simplifying the process of handling API requests and improving integration between frontend and backend services.
+
+By default, we are using [Axios](https://axios-http.com/docs/intro) but you can also add your own client, see [Use of Fetch](/knowledge-base/how-tos/fetch).
 
 ## Installation
 

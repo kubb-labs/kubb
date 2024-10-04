@@ -7,18 +7,6 @@ outline: deep
 
 # @kubb/plugin-oas
 
-With the Oas plugin, you can create a JSON schema out of a Swagger file.
-Inside this package, you can also use some utils to create your own Swagger plugin.
-We already provide a [react-query plugin](/plugins/plugin-tanstack-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, validate the schema, generate a OAS object, ...).
-
-<hr/>
-
-We are using [Oas](https://github.com/readmeio/oas) to convert a YAML/JSON to an Oas class(see `oasParser`) that will contain a lot of extra logic(read the $ref, get all the operations, get all models, ...).
-
-The Swagger plugin also contains some classes and functions that can be used in your own plugin that needs Swagger:
-
-- For example, we have the class [`OperationGenerator`](https://github.com/kubb-labs/kubb/blob/main/packages/plugin-oas/src/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
-  <br/>Just call `this.getSchemas` and you will retrieve an object contains all the info you need to set up a TypeScript type, React-Query hook,....
 
 ## Installation
 ::: code-group
@@ -46,7 +34,6 @@ yarn add @kubb/plugin-oas
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
-
 Path to the output folder or file that will contain the generated code.
 
 > [!TIP]
@@ -88,7 +75,7 @@ Add a footer text in the beginning of every file.
 
 ### validate
 
-Validate your [`input`](/config/input) based on `@readme/openapi-parser`.
+Validate your [`input`](/getting-started/configure#input) based on `@readme/openapi-parser`.
 
 |           |           |
 |----------:|:----------|
@@ -141,7 +128,7 @@ const plugin = pluginOas({ serverIndex: 1 })
 ### contentType
 
 Define which contentType should be used.
-By default, this is set based on the first used contentType.
+By default, this is set based on the contentType being found.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -159,7 +146,9 @@ Override some behaviour of the Oas class instance, see `@kubb/oas`.
 
 
 ### generators <img src="/icons/experimental.svg"/>
-Define some generators to create files based on the operation and/or schema. See `createGenerator`. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
+Define some generators to create files based on the operation and/or schema. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
+
+See [Generators](/knowledge-base/generators) for more information on how to use generators.
 
 ::: info
 

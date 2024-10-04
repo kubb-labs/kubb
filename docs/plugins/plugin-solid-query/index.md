@@ -207,7 +207,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSolidQuery } from '@kubb/plugin-solid-query'
@@ -231,8 +231,11 @@ export default defineConfig({
         type: 'tag',
         name: ({ group }) => `${group}Hooks`,
       },
-      dataReturnType: 'full',
+      client: {
+        dataReturnType: 'full',
+      },
       query: {
+        key: (key)=> key,
         methods: [ 'get' ],
         importPath: "@tanstack/solid-query"
       },

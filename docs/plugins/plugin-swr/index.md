@@ -197,7 +197,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
@@ -221,7 +221,9 @@ export default defineConfig({
         type: 'tag',
         name: ({ group }) => `${group}Hooks`,
       },
-      dataReturnType: 'full',
+      client: {
+        dataReturnType: 'full',
+      },
       parser: 'zod',
     }),
   ],

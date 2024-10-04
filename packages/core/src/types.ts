@@ -4,39 +4,37 @@ import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { Logger } from './logger.ts'
 
-// config
-
 /**
- * Config used in `kubb.config.js`
+ * Config used in `kubb.config.ts`
  *
- * @example import { defineConfig } from '@kubb/core'
+ * @example
+ * import { defineConfig } from '@kubb/core'
  * export default defineConfig({
  * ...
  * })
  */
 export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
   /**
-   * Project root directory. Can be an absolute path, or a path relative from
-   * the location of the config file itself.
+   * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
    */
   root?: string
   /**
-   * Plugin type should be a Kubb plugin
+   * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
   plugins?: Array<Omit<UnknownUserPlugin, 'context'>>
 }
 
 export type InputPath = {
   /**
-   * Define your Swagger/OpenAPI file. This can be an absolute path or a path relative to the `root`.
+   * Specify your Swagger/OpenAPI file, either as an absolute path or a path relative to the root.
    */
   path: string
 }
 
 export type InputData = {
   /**
-   * `string` or `object` containing your Swagger/OpenAPI data.
+   * A `string` or `object` that contains your Swagger/OpenAPI data.
    */
   data: string | unknown
 }
@@ -50,21 +48,22 @@ export type BarrelType = 'all' | 'named'
  */
 export type Config<TInput = Input> = {
   /**
-   * Optional config name to show in CLI output
+   * The name to display in the CLI output.
    */
   name?: string
   /**
-   * Project root directory. This can be an absolute path or a path relative to the location of your `kubb.config.ts` file.
+   * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
    */
   root: string
   /**
-   * You can use `input.path` or `input.data` depending on the needs you have.
+   * You can use either `input.path` or `input.data`, depending on your specific needs.
    */
   input: TInput
   output: {
     /**
-     * The path where all generated files will be exported. This can be an absolute path or a path relative to the specified root option.
+     * The path where all generated files will be exported.
+     * This can be an absolute path or a path relative to the specified root option.
      */
     path: string
     /**
@@ -78,13 +77,13 @@ export type Config<TInput = Input> = {
     write?: boolean
 
     /**
-     * Override the extension to the generated imports and exports, by default the plugin will add an extension
-     * @default `{ '.ts': '.ts'}`
+     * Override the extension to the generated imports and exports, by default each plugin will add an extension
+     * @default { '.ts': '.ts'}
      */
     extension?: Record<KubbFile.Extname, KubbFile.Extname>
     /**
-     * Define what needs to exported, here you can also disable the export of barrel files.
-     * @default `'named'`
+     * Specify how `index.ts` files should be created. You can also disable the generation of barrel files here. While each plugin has its own `barrelType` option, this setting controls the creation of the root barrel file, such as` src/gen/index.ts`.
+     * @default 'named'
      */
     barrelType?: BarrelType | false
   }
@@ -299,7 +298,7 @@ export type Output = {
   path: string
   /**
    * Define what needs to be exported, here you can also disable the export of barrel files
-   * @default `'named'`
+   * @default 'named'
    */
   barrelType?: BarrelType | false
   /**

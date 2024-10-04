@@ -57,7 +57,7 @@ yarn add @kubb/cli @kubb/core
 > If you’re using a custom configuration, specify it with `--config kubb.config.js` or `--config FILE_NAME.js`.
 
 The simplest way to get started with Kubb is to configure your `package.json` to include Kubb. Create a `kubb.config.ts` setup file and run the **Kubb generate command**.
-Kubb will automatically determine which file or configuration to use based on the [order](/getting-started/configure#usage).
+Kubb will automatically determine which file or configuration to use based on an [order](/getting-started/configure#usage).
 
 ::: code-group
 ```json [package.json]

@@ -34,7 +34,7 @@ Additionally, Kubb features a plugin system, enabling you to build custom implem
 ## Philosophy
 
 Imagine that your backend team is writing an API in Java/Kotlin, how do you connect your frontend to their system without the need of communicating on every API change.
-This is not a new problem and has already been resolved with the use of a Swagger/OpenAPI specification combined with a <a href="https://tools.openapis.org/categories/code-generators.html">code generator</a>.
+This is not a new problem and has already been resolved with the use of a Swagger/OpenAPI specification combined with a <a href="https://tools.openapis.org/categories/code-generators.html">code generator</a>. This concept is called [contract-first development](https://medium.com/@dxloop/contract-first-approach-with-node-js-and-openapi-for-rest-services-d2283a7ffd9d) and one of our maintainer wrote this amazing article showing casing the use cases of Kubb.
 
 The problem is that most of them are good at one _thing_: generating TypeScript types or generating React-Query hooks.
 Kubb is trying to resolve that with a plugin system where we already provide you with some plugins but also giving you the possibility to create [your own plugin](/knowledge-base/plugins/).
@@ -43,7 +43,12 @@ Kubb is trying to resolve that with a plugin system where we already provide you
 ## Sponsoring
 Kubb is open source and build by the community, help us building Kubb by [sponsoring](https://github.com/sponsors/stijnvanhulle) us.
 
-## Our Community
+## Projects Build With Kubb
 
+- [https://github.com/dxloop/koper](KOPER): a modern tech stack design for creating full-stack application powered by Kubb.
+
+
+## Our Community
 Come and chat with us on [Discord](https://discord.gg/shfBFeczrm)!
+
 We're always looking for some contributions.

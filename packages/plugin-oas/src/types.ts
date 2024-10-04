@@ -26,7 +26,8 @@ export type Options = {
    */
   validate?: boolean
   /**
-   * @default 'schemas'
+   * Specify the export location for the files and define the behavior of the output
+   * @default { path: 'schemas', barrelType: 'named' }
    */
   output?: Output
   /**
@@ -39,7 +40,7 @@ export type Options = {
   serverIndex?: number
   /**
    * Define which contentType should be used.
-   * By default, this is set based on the first used contentType..
+   * By default, this is set based on the contentType being found.
    */
   contentType?: contentType
   /**
@@ -54,14 +55,13 @@ export type Options = {
 
 /**
  * `propertyName` is the ref name + resolved with the nameResolver
- *  @example `import { Pet } from './Pet'`
+ *  @example import { Pet } from './Pet'
  *
  * `originalName` is the original name used(in PascalCase), only used to remove duplicates
  *
  * `pluginKey` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
  * @example import a type(plugin-ts) for a mock file(swagger-faker)
  */
-
 export type Ref = {
   propertyName: string
   originalName: string

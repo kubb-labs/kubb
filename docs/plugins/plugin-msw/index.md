@@ -145,7 +145,7 @@ type ResolveType = 'file' | 'function' | 'type' | 'const'
 
 ## Example
 
-```typescript
+```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginMsw} from '@kubb/plugin-msw'
@@ -170,7 +170,7 @@ export default defineConfig({
       },
       group: {
         type: 'tag',
-        output: './mocks/{{tag}}Mocks',
+        name: ({ group }) => `${group}Service`,
       },
       handlers: true
     }),

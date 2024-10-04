@@ -26,7 +26,7 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   /**
    * Create `operations.ts` file with all operations grouped by methods.
-   * @default `false`
+   * @default false
    */
   operations?: boolean
   /**
@@ -38,27 +38,21 @@ export type Options = {
   importPath?: string
   /**
    * ReturnType that will be used when calling the client.
-   *
-   * `Data` will return ResponseConfig[data].
-   *
-   * `Full` will return ResponseConfig.
-   * @default `'data'`
-   * @private
+   * - 'data' will return ResponseConfig[data].
+   * - 'full' will return ResponseConfig.
+   * @default 'data'
    */
   dataReturnType?: 'data' | 'full'
   /**
    * How to pass your pathParams.
-   *
-   * `object` will return the pathParams as an object.
-   *
-   * `inline` will return the pathParams as comma separated params.
-   * @default `'inline'`
-   * @private
+   * - 'object' will return the pathParams as an object.
+   * - 'inline' will return the pathParams as comma separated params.
+   * @default 'inline'
    */
   pathParamsType?: 'object' | 'inline'
   /**
    * Which parser can be used before returning the data
-   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   * - 'zod'  will use `@kubb/plugin-zod` to parse the data.
    * @default 'client'
    */
   parser?: 'client' | 'zod'

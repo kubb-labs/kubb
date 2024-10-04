@@ -32,8 +32,7 @@ export type Options = {
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
    * Set a suffix for the generated enums.
-   * @default ''
-   * Default will be `'enum'` in version 3 of Kubb
+   * @default 'enum'
    */
   enumSuffix?: string
   /**

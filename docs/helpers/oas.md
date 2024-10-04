@@ -5,13 +5,7 @@ title: \@kubb/oas
 outline: deep
 ---
 
-# Infer <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
-
-With the type `Infer` you can infer your [Swagger/OpenAPI](/knowledge-base/oas) schema without the need of creating the types.
-This gives you TypeScript power with autocompletion of specific paths, methods and schemas.
-
-> [!TIP]
-> This can also be used as a standalone solution without the CLI generation.
+# @kubb/oas
 
 ## Installation
 
@@ -35,7 +29,16 @@ yarn add @kubb/oas
 
 :::
 
-## Prepare
+## Infer <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
+
+With the type `Infer` you can infer your [Swagger/OpenAPI](/knowledge-base/oas) schema without the need of creating the types.
+This gives you TypeScript power with autocompletion of specific paths, methods and schemas.
+
+> [!TIP]
+> This can also be used as a standalone solution without the CLI generation.
+
+
+### Prepare
 
 Start by creating a TypeScript file that exports your OpenAPI document. Due to limitations in TypeScript, importing types directly from JSON files isn't currently supported. To work around this, simply copy and paste the content of your Swagger/OpenAPI file into the TypeScript file and then export it with the `as const` modifier.
 
@@ -158,9 +161,9 @@ const oas = {
 
 :::
 
-## Inferring OAS Schema Types
+### Inferring OAS Schema Types
 
-### Model
+#### Model
 
 To infer models from an OpenAPI document, use the Model type.
 
@@ -282,7 +285,7 @@ export type Pet = Model<Oas, 'Pet'>
 //          ^?
 ```
 
-### RequestParams
+#### RequestParams
 
 To infer request body parameters from an OpenAPI document, utilize the RequestParams type
 
@@ -405,7 +408,7 @@ export type GetPet = RequestParams<Oas, '/pets', 'get'>
 //          ^?
 ```
 
-### Response
+#### Response
 
 To infer the response body of an OpenAPI document, utilize the Response type
 

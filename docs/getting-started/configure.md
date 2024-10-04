@@ -6,7 +6,7 @@ outline: deep
 ---
 
 # Configure
-Kubb is configured with a configuation file (preferably with `kubb.config.ts`) with [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) being used to load the config.
+Kubb can be configured with a configuation file (preferably with `kubb.config.ts`), for that we are using [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to load the config.
 
 ## Usage
 
@@ -15,12 +15,9 @@ When you use Kubb’s CLI, it will automatically read the configuration file fro
 - `kubb.config.js`
 - `kubb.config.mjs`
 - `kubb.config.cjs`
-- A `"kubb"` key in your package.json file.
-- A `.kubbrc` file written in JSON or YAML.
-- A `.kubbrc.json` file.
-- A `.kubbrc.yaml` or `.kubbrc.yml` file.
+- A `.kubbrc` file written in Javascript
 
-We recommend using the .ts format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`.
+We recommend using the `.ts` format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`.
 This helper provides TypeScript friendly type hints and autocompletion, which can help you avoid errors in the configuration.
 
 > [!TIP]
@@ -46,7 +43,7 @@ This page is a reference to the different options you can use for configuring yo
 By setting the following options you can override the default behavior of Kubb and even extend it with your plugins.
 
 ### name
-Optional config name to show in CLI output.
+The name to display in the CLI output.
 
 |       |          |
 | ----: |:---------|
@@ -98,7 +95,7 @@ export default defineConfig([
 :::
 
 ### root
-Project root directory. This can be an absolute path or a path relative to the location of your `kubb.config.ts` file.
+The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
 
 |          |                |
 |---------:|:---------------|
@@ -122,10 +119,10 @@ export default defineConfig({
 ```
 
 ### input
-You can use `input.path` or `input.data` depending on the needs you have.
+You can use either `input.path` or `input.data`, depending on your specific needs.
 
 #### input.path
-Define your Swagger/OpenAPI file. This can be an absolute path or a path relative to the `root`.
+Specify your Swagger/OpenAPI file, either as an absolute path or a path relative to the [root](#root).
 
 |           |                 |
 |----------:|:----------------|
@@ -146,8 +143,7 @@ export default defineConfig({
 ```
 
 #### input.data
-
-`string` or `object` containing your Swagger/OpenAPI data.
+A `string` or `object` that contains your Swagger/OpenAPI data.
 
 |           |                     |
 |----------:|:--------------------|
@@ -174,7 +170,7 @@ export default defineConfig({
 
 #### output.path
 The path where all generated files will be exported.
-This can be an absolute path or a path relative to the specified `root` option.
+This can be an absolute path or a path relative to the specified [root](#root) option.
 
 |           |                 |
 |----------:|:----------------|
@@ -243,7 +239,7 @@ export default defineConfig({
 ```
 
 #### output.extension
-Override the extension to the generated imports and exports, by default the plugin will add an extension.
+Override the extension to the generated imports and exports, by default each plugin will add an extension.
 
 |           |                          |
 |----------:|:-------------------------|
@@ -269,7 +265,7 @@ export default defineConfig({
 ```
 
 #### output.barrelType
-Define what needs to exported, here you can also disable the export of barrel files.
+Specify how `index.ts` files should be created. You can also disable the generation of barrel files here. While each plugin has its own `barrelType` option, this setting controls the creation of the root barrel file, such as` src/gen/index.ts`.
 
 |           |                             |
 |----------:|:----------------------------|
@@ -301,10 +297,7 @@ export default defineConfig({
 | Required: | `false`                 |
 
 
-An array of Kubb plugins that will be used in the generation.
-Each plugin may include additional configurable options(defined in the plugin itself).
-If a plugin depends on another plugin, an error will be returned if the required dependency is missing. See pre for more details.
-
+An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
 How to use and set up plugins, see [plugins](/knowledge-base/plugins/).
 
 ```typescript [kubb.config.ts]
