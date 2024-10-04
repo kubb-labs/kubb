@@ -185,7 +185,7 @@ Use of z.coerce.string() instead of z.string().
 
 |           |           |
 |----------:|:----------|
-|     Type: | `boolean` |
+|     Type: | `boolean \| { dates?: boolean, strings?: boolean, numbers?: boolean}` |
 | Required: | `false`   |
 |  Default: | `false'`  |
 
@@ -200,6 +200,11 @@ z.coerce.number()
 z.string()
 z.date()
 z.number()
+```
+```typescript [{numbers: true, strings: false, dates: false}]
+z.string()
+z.date()
+z.coerce.number()
 ```
 :::
 

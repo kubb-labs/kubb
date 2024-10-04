@@ -150,6 +150,17 @@ export function sort(items?: Schema[]): Schema[] {
   return transformers.orderBy(items, [(v) => order.indexOf(v.keyword)], ['asc'])
 }
 
+const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'dates' | 'strings' | 'numbers'): boolean => {
+  if (coercion === undefined) {
+    return false
+  }
+  if (typeof coercion === 'boolean') {
+    return coercion
+  }
+
+  return !!coercion[type]
+}
+
 type ParserOptions = {
   name: string
   typeName?: string
@@ -157,7 +168,7 @@ type ParserOptions = {
 
   keysToOmit?: string[]
   mapper?: Record<string, string>
-  coercion?: boolean
+  coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
 }
 
 export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): string | undefined {
@@ -325,15 +336,15 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.string)) {
-    return zodKeywordMapper.string(options.coercion)
+    return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'))
   }
 
   if (isKeyword(current, schemaKeywords.number)) {
-    return zodKeywordMapper.number(options.coercion)
+    return zodKeywordMapper.number(shouldCoerce(options.coercion, 'numbers'))
   }
 
   if (isKeyword(current, schemaKeywords.integer)) {
-    return zodKeywordMapper.integer(options.coercion)
+    return zodKeywordMapper.integer(shouldCoerce(options.coercion, 'numbers'))
   }
 
   if (isKeyword(current, schemaKeywords.min)) {
@@ -348,11 +359,11 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.date)) {
-    return zodKeywordMapper.date(current.args.type, options.coercion)
+    return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'))
   }
 
   if (isKeyword(current, schemaKeywords.time)) {
-    return zodKeywordMapper.time(current.args.type, options.coercion)
+    return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'))
   }
 
   if (current.keyword in zodKeywordMapper && 'args' in current) {
