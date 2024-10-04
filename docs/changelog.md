@@ -4,6 +4,18 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.3
+- [`plugin-zod`]: Added coercion for specific types only
+```typescript
+type coercion=  boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+```
+
+## 3.0.0-beta.2
+- Upgrade external packages
+
+## 3.0.0-beta.1
+- Upgrade external packages
+
 ## 3.0.0-alpha.31
 - [`plugin-client`](/plugins/client/): Generate `${tag}Service` controller file related to group x when using `group`(no need to specify `group.exportAs`)
 - [`plugin-core`](/plugins/core/): Removal of `group.exportAs`
