@@ -1,5 +1,22 @@
 # @kubb/plugin-client
 
+## 3.0.0-beta.4
+
+### Minor Changes
+
+- [`6f300a9`](https://github.com/kubb-labs/kubb/commit/6f300a90a63e312d2473cd18834f93dca4e9f89e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `getConfig` and `setConfig` to dynamically update the config
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.4
+  - @kubb/fs@3.0.0-beta.4
+  - @kubb/oas@3.0.0-beta.4
+  - @kubb/plugin-oas@3.0.0-beta.4
+  - @kubb/plugin-ts@3.0.0-beta.4
+  - @kubb/plugin-zod@3.0.0-beta.4
+  - @kubb/react@3.0.0-beta.4
+
 ## 3.0.0-beta.3
 
 ### Patch Changes
