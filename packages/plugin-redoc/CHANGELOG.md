@@ -1,5 +1,15 @@
 # @kubb/plugin-redoc
 
+## 2.27.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.27.2
+  - @kubb/react@2.27.2
+  - @kubb/plugin-oas@2.27.2
+  - @kubb/oas@2.27.2
+
 ## 2.27.1
 
 ### Patch Changes

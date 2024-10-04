@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 2.27.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/react@2.27.2
+  - @kubb/plugin-oas@2.27.2
+
 ## 2.27.1
 
 ### Patch Changes
