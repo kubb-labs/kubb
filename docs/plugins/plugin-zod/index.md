@@ -201,7 +201,7 @@ z.string()
 z.date()
 z.number()
 ```
-```typescript [{numbers: true}]
+```typescript [{numbers: true, strings: false, dates: false}]
 z.string()
 z.date()
 z.coerce.number()
