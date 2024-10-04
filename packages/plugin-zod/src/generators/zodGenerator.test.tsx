@@ -195,6 +195,38 @@ describe('zodGenerator schema', async () => {
       input: '../../mocks/discriminator.yaml',
       options: {},
     },
+    {
+      name: 'coercion',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
+      options: {
+        coercion: true,
+      },
+    },
+    {
+      name: 'coercion-strings',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
+      options: {
+        coercion: { strings: true },
+      },
+    },
+    {
+      name: 'coercion-numbers',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
+      options: {
+        coercion: { numbers: true },
+      },
+    },
+    {
+      name: 'coercion-dates',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
+      options: {
+        coercion: { dates: true },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
