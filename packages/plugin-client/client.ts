@@ -28,17 +28,38 @@ export type ResponseConfig<TData = unknown> = {
   headers?: AxiosResponse['headers']
 }
 
-export const axiosInstance = axios.create({
+let _config: Partial<RequestConfig> = {
   baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
   headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,
-})
+}
+
+export const getConfig = () => _config
+
+export const setConfig = (config: RequestConfig) => {
+  _config = config
+  return getConfig()
+}
+
+export const axiosInstance = axios.create(getConfig())
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const promise = axiosInstance.request<TData, ResponseConfig<TData>>(config).catch((e: AxiosError<TError>) => {
-    throw e
-  })
+  const globalConfig = getConfig()
 
-  return promise
+  return axiosInstance
+    .request<TData, ResponseConfig<TData>>({
+      ...globalConfig,
+      ...config,
+      headers: {
+        ...globalConfig.headers,
+        ...config.headers,
+      },
+    })
+    .catch((e: AxiosError<TError>) => {
+      throw e
+    })
 }
+
+axiosClient.getConfig = getConfig
+axiosClient.setConfig = setConfig
 
 export default axiosClient
