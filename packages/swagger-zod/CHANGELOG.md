@@ -1,5 +1,22 @@
 # @kubb/swagger-zod
 
+## 2.28.0
+
+### Minor Changes
+
+- [`f86ca64`](https://github.com/kubb-labs/kubb/commit/f86ca64c82e6505fa1c4fbbaf49cf2f1780e46d7) Thanks [@ChilloManiac](https://github.com/ChilloManiac)! - Added coercion for specific types only
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.0
+  - @kubb/fs@2.28.0
+  - @kubb/oas@2.28.0
+  - @kubb/parser-ts@2.28.0
+  - @kubb/plugin-oas@2.28.0
+  - @kubb/react@2.28.0
+  - @kubb/swagger-ts@2.28.0
+
 ## 2.27.2
 
 ### Patch Changes
