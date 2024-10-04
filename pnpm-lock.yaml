@@ -195,8 +195,8 @@ importers:
         specifier: ^5.59.0
         version: 5.59.0(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.59.0
-        version: 5.59.0(vue@3.5.11(typescript@5.6.2))
+        specifier: ^5.59.1
+        version: 5.59.1(vue@3.5.11(typescript@5.6.2))
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -289,8 +289,8 @@ importers:
         specifier: ^5.59.0
         version: 5.59.0(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.59.0
-        version: 5.59.0(vue@3.5.11(typescript@5.6.2))
+        specifier: ^5.59.1
+        version: 5.59.1(vue@3.5.11(typescript@5.6.2))
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -763,8 +763,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.59.0
-        version: 5.59.0(vue@3.5.11(typescript@5.6.2))
+        specifier: ^5.59.1
+        version: 5.59.1(vue@3.5.11(typescript@5.6.2))
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -1039,8 +1039,8 @@ importers:
   packages/oas:
     dependencies:
       '@redocly/openapi-core':
-        specifier: ^1.25.4
-        version: 1.25.4
+        specifier: ^1.25.5
+        version: 1.25.5
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
@@ -2742,8 +2742,8 @@ packages:
   '@redocly/config@0.12.1':
     resolution: {integrity: sha512-RW3rSirfsPdr0uvATijRDU3f55SuZV3m7/ppdTDvGw4IB0cmeZRkFmqTrchxMqWP50Gfg1tpHnjdxUCNo0E2qg==}
 
-  '@redocly/openapi-core@1.25.4':
-    resolution: {integrity: sha512-qnpr4Z1rzfXdtxQxt/lfGD0wW3UVrm3qhrTpzLG5R/Ze+z+1u8sSRiQHp9N+RT3IuMjh00wq59nop9x9PPa1jQ==}
+  '@redocly/openapi-core@1.25.5':
+    resolution: {integrity: sha512-BNgXjqesJu4L5f8F73c2hkkH5IdvjYCKYFgIl+m9oNgqGRIPBJjtiEGOx7jkQ6nElN4311z7Z4aTECtklaaHwg==}
     engines: {node: '>=14.19.0', npm: '>=7.0.0'}
 
   '@rollup/pluginutils@5.1.0':
@@ -3016,8 +3016,8 @@ packages:
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
-  '@tanstack/vue-query@5.59.0':
-    resolution: {integrity: sha512-r6T9Hnxz25n+aWnbs+nrI6uBmuKxo4FL9qvlhhw8Pb1iVA/mWCVF10XpcMos9EOXetHEkhZ4neCbxwcibKEZqQ==}
+  '@tanstack/vue-query@5.59.1':
+    resolution: {integrity: sha512-ZxEwI9oVQs+/mdIGOQb0l6QKUe/E08b0bPSC6X7oIE5s2O8VItNXY8F/uiUUtIv41q478gUjpGnf0QYs4WY3Ng==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -8483,7 +8483,7 @@ snapshots:
 
   '@redocly/config@0.12.1': {}
 
-  '@redocly/openapi-core@1.25.4':
+  '@redocly/openapi-core@1.25.5':
     dependencies:
       '@redocly/ajv': 8.11.2
       '@redocly/config': 0.12.1
@@ -8759,7 +8759,7 @@ snapshots:
       '@tanstack/query-core': 5.59.0
       svelte: 3.59.2
 
-  '@tanstack/vue-query@5.59.0(vue@3.5.11(typescript@5.6.2))':
+  '@tanstack/vue-query@5.59.1(vue@3.5.11(typescript@5.6.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.15.1
       '@tanstack/query-core': 5.59.0
@@ -12434,7 +12434,7 @@ snapshots:
   redoc@2.1.5(core-js@3.37.1)(enzyme@3.11.0)(mobx@6.13.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
       '@cfaester/enzyme-adapter-react-18': 0.8.0(enzyme@3.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@redocly/openapi-core': 1.25.4
+      '@redocly/openapi-core': 1.25.5
       classnames: 2.5.1
       core-js: 3.37.1
       decko: 1.2.0
