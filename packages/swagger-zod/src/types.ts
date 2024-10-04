@@ -109,8 +109,15 @@ export type Options = {
   typedSchema?: boolean
   /**
    * Use of z.coerce.string() instead of z.string()
+   * can also be an object to enable coercion for dates, strings, and numbers
    */
-  coercion?: boolean
+  coercion?:
+    | boolean
+    | {
+        dates?: boolean
+        strings?: boolean
+        numbers?: boolean
+      }
   /**
    * Path to Zod
    * It will be used as `import { z } from '${importPath}'`.
