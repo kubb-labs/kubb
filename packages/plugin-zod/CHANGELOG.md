@@ -1,5 +1,22 @@
 # @kubb/plugin-zod
 
+## 3.0.0-beta.3
+
+### Minor Changes
+
+- [#1282](https://github.com/kubb-labs/kubb/pull/1282) [`4b02d38`](https://github.com/kubb-labs/kubb/commit/4b02d38f1d169887f29934d616fb889373ae410d) Thanks [@ChilloManiac](https://github.com/ChilloManiac)! - Added coercion for specific types only
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.3
+  - @kubb/fs@3.0.0-beta.3
+  - @kubb/oas@3.0.0-beta.3
+  - @kubb/parser-ts@3.0.0-beta.3
+  - @kubb/plugin-oas@3.0.0-beta.3
+  - @kubb/plugin-ts@3.0.0-beta.3
+  - @kubb/react@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Patch Changes
