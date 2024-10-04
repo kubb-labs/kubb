@@ -48,7 +48,7 @@ test.json
 .next
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
-docs/.vitepress/graphs/**
+#docs/.vitepress/graphs/**
 !__snapshots__
 kubb-files.json
 kubb.log
