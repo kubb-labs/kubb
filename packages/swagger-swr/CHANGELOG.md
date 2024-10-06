@@ -1,5 +1,20 @@
 # @kubb/swagger-swr
 
+## 2.28.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.1
+  - @kubb/fs@2.28.1
+  - @kubb/oas@2.28.1
+  - @kubb/parser-ts@2.28.1
+  - @kubb/plugin-oas@2.28.1
+  - @kubb/react@2.28.1
+  - @kubb/swagger-client@2.28.1
+  - @kubb/swagger-ts@2.28.1
+  - @kubb/swagger-zod@2.28.1
+
 ## 2.28.0
 
 ### Patch Changes
