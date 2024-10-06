@@ -57,7 +57,7 @@
     "consola": "^3.2.3",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.4.0",
-    "jiti": "^2.1.2",
+    "jiti": "^2.3.1",
     "latest-version": "^9.0.0",
     "p-queue": "^8.0.1",
     "semver": "^7.6.3",
