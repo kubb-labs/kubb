@@ -8,7 +8,6 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
-  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, Error, never>
@@ -90,7 +89,7 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
  * @link /user/logout
  */
 export function logoutUserQueryInfinite<
-  TData = InfiniteData<LogoutUser['response']>,
+  TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
 >(

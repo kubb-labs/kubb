@@ -2,15 +2,7 @@ import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPet
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -96,7 +88,7 @@ export function getPetByIdInfiniteQueryOptions<TData = GetPetById['response'], T
  * @link /pet/:petId
  */
 export function useGetPetByIdInfinite<
-  TData = InfiniteData<GetPetById['response']>,
+  TData = GetPetById['response'],
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
 >(

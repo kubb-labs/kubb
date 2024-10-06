@@ -8,7 +8,6 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
-  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
@@ -95,7 +94,7 @@ export function getPetByIdInfiniteQueryOptions<TData = GetPetById['response'], T
  * @link /pet/:petId
  */
 export function getPetByIdQueryInfinite<
-  TData = InfiniteData<GetPetById['response']>,
+  TData = GetPetById['response'],
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
 >(

@@ -8,7 +8,6 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
-  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
@@ -99,7 +98,7 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
  * @link /user/login
  */
 export function loginUserQueryInfinite<
-  TData = InfiniteData<LoginUser['response']>,
+  TData = LoginUser['response'],
   TQueryData = LoginUser['response'],
   TQueryKey extends QueryKey = LoginUserInfiniteQueryKey,
 >(

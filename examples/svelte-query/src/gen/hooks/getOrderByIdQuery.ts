@@ -8,7 +8,6 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
-  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
@@ -96,7 +95,7 @@ export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'
  * @link /store/order/:orderId
  */
 export function getOrderByIdQueryInfinite<
-  TData = InfiniteData<GetOrderById['response']>,
+  TData = GetOrderById['response'],
   TQueryData = GetOrderById['response'],
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
 >(

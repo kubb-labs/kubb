@@ -1,15 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, Error, never>
 type GetInventory = {
@@ -92,7 +84,7 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
  * @link /store/inventory
  */
 export function useGetInventoryHookInfinite<
-  TData = InfiniteData<GetInventory['response']>,
+  TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(

@@ -1,11 +1,11 @@
 import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Parser, File, Function, useApp } from '@kubb/react'
-import { pluginTsName } from '@kubb/swagger-ts'
-import { pluginZodName } from '@kubb/swagger-zod'
 import { useOperation, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getASTParams, getComments } from '@kubb/plugin-oas/utils'
+import { File, Function, Parser, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/swagger-ts'
+import { pluginZodName } from '@kubb/swagger-zod'
 
 import { getImportNames, reactQueryDepRegex } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -367,7 +367,7 @@ export function Query({
   generics.add([
     {
       type: 'TData',
-      default: props.infinite ? `InfiniteData<${factory.name}["response"]>` : `${factory.name}["response"]`,
+      default: `${factory.name}["response"]`,
     },
     props.suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
     { type: 'TQueryKey extends QueryKey', default: queryKeyType },

@@ -2,15 +2,7 @@ import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {
@@ -107,7 +99,7 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
  * @link /pet/findByStatus
  */
 export function useFindPetsByStatusInfinite<
-  TData = InfiniteData<FindPetsByStatus['response']>,
+  TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusInfiniteQueryKey,
 >(

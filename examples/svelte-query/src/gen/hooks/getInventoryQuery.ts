@@ -8,7 +8,6 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
-  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, Error, never>
@@ -92,7 +91,7 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
  * @link /store/inventory
  */
 export function getInventoryQueryInfinite<
-  TData = InfiniteData<GetInventory['response']>,
+  TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(

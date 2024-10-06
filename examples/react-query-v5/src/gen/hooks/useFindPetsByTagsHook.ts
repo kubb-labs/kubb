@@ -7,7 +7,6 @@ import type {
   QueryKey,
   InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
@@ -103,7 +102,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
  * @link /pet/findByTags
  */
 export function useFindPetsByTagsHookInfinite<
-  TData = InfiniteData<FindPetsByTags['response']>,
+  TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(

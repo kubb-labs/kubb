@@ -2,15 +2,7 @@ import { loginUserQueryResponseSchema } from '../../../zod/userController/loginU
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -99,11 +91,7 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
  * @summary Logs user into the system
  * @link /user/login
  */
-export function useLoginUserInfinite<
-  TData = InfiniteData<LoginUser['response']>,
-  TQueryData = LoginUser['response'],
-  TQueryKey extends QueryKey = LoginUserInfiniteQueryKey,
->(
+export function useLoginUserInfinite<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserInfiniteQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
     query?: Partial<UseInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>

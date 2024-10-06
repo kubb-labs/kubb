@@ -8,7 +8,6 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
-  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
@@ -98,7 +97,7 @@ export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['respons
  * @link /user/:username
  */
 export function getUserByNameQueryInfinite<
-  TData = InfiniteData<GetUserByName['response']>,
+  TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(
