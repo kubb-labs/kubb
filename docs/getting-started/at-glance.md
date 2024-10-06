@@ -27,7 +27,7 @@ Additionally, Kubb features a plugin system, enabling you to build custom implem
 - Supports Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1.
 - Plugin Ecosystem of Kubb to extend beyond the default plugins we provide.
 - CLI support with progressbar and logs.
-- Debug tools with [React DevTools](/knowledge-base/how-tos/debugging).
+- Debug tools with [React DevTools](/knowledge-base/debugging).
 - Generate barrel files(index.ts).
 - And so much more ...
 

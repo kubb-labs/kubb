@@ -15,7 +15,7 @@ When you use Kubb’s CLI, it will automatically read the configuration file fro
 - `kubb.config.js`
 - `kubb.config.mjs`
 - `kubb.config.cjs`
-- A `.kubbrc` file written in Javascript
+- A `.kubbrc` file written in JavaScript
 
 We recommend using the `.ts` format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`.
 This helper provides TypeScript friendly type hints and autocompletion, which can help you avoid errors in the configuration.

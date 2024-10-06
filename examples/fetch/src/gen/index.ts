@@ -1,15 +1,15 @@
 export type {
-  OrderStatus,
-  OrderHttpStatus,
+  OrderStatusEnum,
+  OrderHttpStatusEnum,
   Order,
   Customer,
   Address,
   Category,
   User,
   Tag,
-  PetStatus,
+  PetStatusEnum,
   Pet,
-  AddPetRequestStatus,
+  AddPetRequestStatusEnum,
   AddPetRequest,
   ApiResponse,
   PetNotFound,
@@ -26,7 +26,7 @@ export type {
   AddPetMutationRequest,
   AddPetMutationResponse,
   AddPetMutation,
-  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -131,7 +131,7 @@ export { getPetById } from './getPetById.ts'
 export { getUserByName } from './getUserByName.ts'
 export { loginUser } from './loginUser.ts'
 export { logoutUser } from './logoutUser.ts'
-export { orderStatus, orderHttpStatus, petStatus, addPetRequestStatus, findPetsByStatusQueryParamsStatus } from './models.ts'
+export { orderStatusEnum, orderHttpStatusEnum, petStatusEnum, addPetRequestStatusEnum, findPetsByStatusQueryParamsStatusEnum } from './models.ts'
 export { placeOrder } from './placeOrder.ts'
 export { placeOrderPatch } from './placeOrderPatch.ts'
 export { updatePet } from './updatePet.ts'

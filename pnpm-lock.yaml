@@ -440,6 +440,46 @@ importers:
         specifier: ^5.6.2
         version: 5.6.2
 
+  examples/generators:
+    dependencies:
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/plugin-client':
+        specifier: workspace:*
+        version: link:../../packages/plugin-client
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-ts
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      axios:
+        specifier: ^1.7.7
+        version: 1.7.7
+    devDependencies:
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../../packages/config-ts
+      '@types/react':
+        specifier: ^18.3.11
+        version: 18.3.11
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      tsup:
+        specifier: ^8.3.0
+        version: 8.3.0(@microsoft/api-extractor@7.47.9(@types/node@20.16.10))(@swc/core@1.7.22)(jiti@2.3.1)(postcss@8.4.47)(typescript@5.6.2)(yaml@2.5.1)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.2
+
   examples/msw:
     dependencies:
       '@faker-js/faker':

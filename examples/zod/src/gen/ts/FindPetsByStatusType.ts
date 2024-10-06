@@ -1,12 +1,12 @@
 import type { PetType } from './PetType.ts'
 
-export const findPetsByStatusQueryParamsStatus = {
+export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatusType = (typeof findPetsByStatusQueryParamsStatus)[keyof typeof findPetsByStatusQueryParamsStatus]
+export type FindPetsByStatusQueryParamsStatusEnumType = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParamsType = {
   /**
@@ -14,7 +14,7 @@ export type FindPetsByStatusQueryParamsType = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusType
+  status?: FindPetsByStatusQueryParamsStatusEnumType
 }
 
 /**

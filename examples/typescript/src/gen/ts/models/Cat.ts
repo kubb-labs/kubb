@@ -1,14 +1,14 @@
-export const catType = {
+export const catTypeEnum = {
   cat: 'cat',
 } as const
 
-export type CatType = (typeof catType)[keyof typeof catType]
+export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum]
 
 export type Cat = {
   /**
    * @type string
    */
-  readonly type: CatType
+  readonly type: CatTypeEnum
   /**
    * @type string | undefined
    */

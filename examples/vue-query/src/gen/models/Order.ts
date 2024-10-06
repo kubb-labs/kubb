@@ -1,10 +1,10 @@
-export const orderStatus = {
+export const orderStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
+export type OrderStatusEnum = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
 export type Order = {
   /**
@@ -27,7 +27,7 @@ export type Order = {
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatus
+  status?: OrderStatusEnum
   /**
    * @type boolean | undefined
    */

@@ -1,12 +1,12 @@
 import type { Pet } from './Pet'
 
-export const findPetsByStatusQueryParamsStatus = {
+export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatus = (typeof findPetsByStatusQueryParamsStatus)[keyof typeof findPetsByStatusQueryParamsStatus]
+export type FindPetsByStatusQueryParamsStatusEnum = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParams = {
   /**
@@ -14,7 +14,7 @@ export type FindPetsByStatusQueryParams = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatus
+  status?: FindPetsByStatusQueryParamsStatusEnum
 }
 
 /**

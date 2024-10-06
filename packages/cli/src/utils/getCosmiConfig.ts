@@ -12,9 +12,9 @@ export type CosmiconfigResult = {
 const tsLoader = async (configFile: string) => {
   const jiti = createJiti(import.meta.url, { jsx: true })
 
-  const mod = await jiti.import(configFile)
+  const mod: any = await jiti.import(configFile)
 
-  return mod
+  return mod?.default ?? mod
 }
 
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {

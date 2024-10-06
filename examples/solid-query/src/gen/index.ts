@@ -8,7 +8,7 @@ export type { LoginUserQueryKey } from './hooks/createLoginUser.ts'
 export type { LogoutUserQueryKey } from './hooks/createLogoutUser.ts'
 export type { UpdatePetWithFormQueryKey } from './hooks/createUpdatePetWithForm.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/AddPet.ts'
-export type { AddPetRequestStatus, AddPetRequest } from './models/AddPetRequest.ts'
+export type { AddPetRequestStatusEnum, AddPetRequest } from './models/AddPetRequest.ts'
 export type { Address } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
@@ -25,7 +25,7 @@ export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrder
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './models/DeletePet.ts'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './models/DeleteUser.ts'
 export type {
-  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -59,8 +59,8 @@ export type {
 } from './models/GetUserByName.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/LogoutUser.ts'
-export type { OrderStatus, OrderHttpStatus, Order } from './models/Order.ts'
-export type { PetStatus, Pet } from './models/Pet.ts'
+export type { OrderStatusEnum, OrderHttpStatusEnum, Order } from './models/Order.ts'
+export type { PetStatusEnum, Pet } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './models/PlaceOrder.ts'
 export type {
@@ -107,7 +107,7 @@ export { getUserByNameQueryKey, getUserByNameQueryOptions, createGetUserByName }
 export { loginUserQueryKey, loginUserQueryOptions, createLoginUser } from './hooks/createLoginUser.ts'
 export { logoutUserQueryKey, logoutUserQueryOptions, createLogoutUser } from './hooks/createLogoutUser.ts'
 export { updatePetWithFormQueryKey, updatePetWithFormQueryOptions, createUpdatePetWithForm } from './hooks/createUpdatePetWithForm.ts'
-export { addPetRequestStatus } from './models/AddPetRequest.ts'
-export { findPetsByStatusQueryParamsStatus } from './models/FindPetsByStatus.ts'
-export { orderStatus, orderHttpStatus } from './models/Order.ts'
-export { petStatus } from './models/Pet.ts'
+export { addPetRequestStatusEnum } from './models/AddPetRequest.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './models/FindPetsByStatus.ts'
+export { orderStatusEnum, orderHttpStatusEnum } from './models/Order.ts'
+export { petStatusEnum } from './models/Pet.ts'

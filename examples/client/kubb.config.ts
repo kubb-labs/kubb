@@ -5,6 +5,8 @@ import transformers from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
+import { clientOperationGenerator } from './src/generators/clientOperationGenerator'
+import { clientOperationReactGenerator } from './src/generators/clientOperationReactGenerator'
 import { clientStaticGenerator } from './src/generators/clientStaticGenerator'
 
 export default defineConfig(() => {
@@ -60,6 +62,34 @@ export default defineConfig(() => {
           path: './tagObject.ts',
         },
         generators: [clientStaticGenerator],
+        include: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        dataReturnType: 'full',
+        pathParamsType: 'object',
+      }),
+      pluginClient({
+        output: {
+          path: './tagClientOperation.ts',
+        },
+        generators: [clientOperationGenerator],
+        include: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        dataReturnType: 'full',
+        pathParamsType: 'object',
+      }),
+      pluginClient({
+        output: {
+          path: './tagClientOperationReact.ts',
+        },
+        generators: [clientOperationReactGenerator],
         include: [
           {
             type: 'tag',

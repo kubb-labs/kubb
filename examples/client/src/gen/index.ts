@@ -1,10 +1,10 @@
-export type { AddPetRequestStatus, AddPetRequest } from './models/ts/AddPetRequest.js'
+export type { AddPetRequestStatusEnum, AddPetRequest } from './models/ts/AddPetRequest.js'
 export type { Address } from './models/ts/Address.js'
 export type { ApiResponse } from './models/ts/ApiResponse.js'
 export type { Category } from './models/ts/Category.js'
 export type { Customer } from './models/ts/Customer.js'
-export type { OrderStatus, OrderHttpStatus, Order } from './models/ts/Order.js'
-export type { PetStatus, Pet } from './models/ts/Pet.js'
+export type { OrderStatusEnum, OrderHttpStatusEnum, Order } from './models/ts/Order.js'
+export type { PetStatusEnum, Pet } from './models/ts/Pet.js'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/ts/petController/AddPet.js'
 export type {
   DeletePetPathParams,
@@ -14,7 +14,7 @@ export type {
   DeletePetMutation,
 } from './models/ts/petController/DeletePet.js'
 export type {
-  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -144,7 +144,7 @@ export { loginUser } from './clients/axios/userService/loginUser.js'
 export { logoutUser } from './clients/axios/userService/logoutUser.js'
 export { updateUser } from './clients/axios/userService/updateUser.js'
 export { userService } from './clients/axios/userService/userService.js'
-export { addPetRequestStatus } from './models/ts/AddPetRequest.js'
-export { orderStatus, orderHttpStatus } from './models/ts/Order.js'
-export { petStatus } from './models/ts/Pet.js'
-export { findPetsByStatusQueryParamsStatus } from './models/ts/petController/FindPetsByStatus.js'
+export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
+export { orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.js'
+export { petStatusEnum } from './models/ts/Pet.js'
+export { findPetsByStatusQueryParamsStatusEnum } from './models/ts/petController/FindPetsByStatus.js'

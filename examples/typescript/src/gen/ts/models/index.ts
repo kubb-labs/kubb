@@ -1,8 +1,8 @@
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.ts'
-export type { AddPetRequestStatus, AddPetRequest } from './AddPetRequest.ts'
+export type { AddPetRequestStatusEnum, AddPetRequest } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { ApiResponse } from './ApiResponse.ts'
-export type { CatType, Cat } from './Cat.ts'
+export type { CatTypeEnum, Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
 export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './CreateUser.ts'
 export type {
@@ -16,9 +16,9 @@ export type { Customer } from './Customer.ts'
 export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderMutation } from './DeleteOrder.ts'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.ts'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser.ts'
-export type { DogType, Dog } from './Dog.ts'
+export type { DogTypeEnum, Dog } from './Dog.ts'
 export type {
-  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -40,8 +40,8 @@ export type {
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser.ts'
 export type { Oas } from './oas.ts'
-export type { OrderStatus, OrderHttpStatus, Order } from './Order.ts'
-export type { PetType, PetStatus, Pet } from './Pet.ts'
+export type { OrderStatusEnum, OrderHttpStatusEnum, Order } from './Order.ts'
+export type { PetTypeEnum, PetStatusEnum, Pet } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './PlaceOrder.ts'
 export type {
@@ -79,10 +79,10 @@ export type {
 } from './UploadFile.ts'
 export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'
-export { addPetRequestStatus } from './AddPetRequest.ts'
-export { catType } from './Cat.ts'
-export { dogType } from './Dog.ts'
-export { findPetsByStatusQueryParamsStatus } from './FindPetsByStatus.ts'
+export { addPetRequestStatusEnum } from './AddPetRequest.ts'
+export { catTypeEnum } from './Cat.ts'
+export { dogTypeEnum } from './Dog.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
 export { oas } from './oas.ts'
-export { orderStatus, orderHttpStatus } from './Order.ts'
-export { petType, petStatus } from './Pet.ts'
+export { orderStatusEnum, orderHttpStatusEnum } from './Order.ts'
+export { petTypeEnum, petStatusEnum } from './Pet.ts'

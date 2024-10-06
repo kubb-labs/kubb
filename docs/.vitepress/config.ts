@@ -23,25 +23,20 @@ const knowledgeBaseSidebar = [
     link: '/knowledge-base/index',
   },
   {
-    text: 'How tos',
-    items: [
-      {
-        text: 'Debugging Kubb',
-        link: '/knowledge-base/how-tos/debugging',
-      },
-      {
-        text: 'Use JSX in Kubb',
-        link: '/knowledge-base/how-tos/react',
-      },
-      {
-        text: 'Filter and sort',
-        link: '/knowledge-base/how-tos/filter-and-sort',
-      },
-      {
-        text: 'Use of Fetch',
-        link: '/knowledge-base/how-tos/fetch',
-      },
-    ],
+    text: 'Debugging Kubb',
+    link: '/knowledge-base/debugging',
+  },
+  {
+    text: 'Use of Fetch',
+    link: '/knowledge-base/fetch',
+  },
+  {
+    text: 'Filter and sort',
+    link: '/knowledge-base/filter-and-sort',
+  },
+  {
+    text: 'Use JSX in Kubb',
+    link: '/knowledge-base/react',
   },
   {
     text: 'Generators',
@@ -76,6 +71,10 @@ const knowledgeBaseSidebar = [
         link: '/knowledge-base/pluginManager/lifecycle',
       },
     ],
+  },
+  {
+    text: 'Migration guide',
+    link: '/knowledge-base/migration-guide',
   },
 ]
 
@@ -303,8 +302,8 @@ const examplesSidebar = [
     link: '/examples/advanced',
   },
   {
-    text: 'Templates <span class="new">new</span>',
-    link: '/examples/client',
+    text: 'Generators <span class="new">new</span>',
+    link: '/examples/generators',
   },
 ]
 
@@ -328,10 +327,6 @@ const tutorialsSidebar = [
     text: 'Basic',
     link: '/tutorials/basic',
   },
-  {
-    text: 'Templates',
-    link: '/tutorials/templates',
-  },
 ]
 
 const documentationMenu = [
@@ -345,7 +340,7 @@ const documentationMenu = [
       {
         text: '@kubb/parser-ts',
         link: '/parsers/parser-ts/',
-        activeMatch: 'parser-ts'
+        activeMatch: 'parser-ts',
       },
     ],
   },
@@ -574,10 +569,6 @@ export default defineConfig({
               {
                 text: 'Basic',
                 link: '/tutorials/basic',
-              },
-              {
-                text: 'Templates',
-                link: '/tutorials/templates',
               },
             ],
           },

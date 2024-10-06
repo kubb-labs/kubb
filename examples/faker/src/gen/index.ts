@@ -1,5 +1,5 @@
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/AddPet.ts'
-export type { AddressIdentifier, Address } from './models/Address.ts'
+export type { AddressIdentifierEnum, Address } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
 export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './models/CreateUser.ts'
@@ -15,7 +15,7 @@ export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrder
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './models/DeletePet.ts'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './models/DeleteUser.ts'
 export type {
-  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -49,8 +49,8 @@ export type {
 } from './models/GetUserByName.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/LogoutUser.ts'
-export type { OrderStatus, Order } from './models/Order.ts'
-export type { PetStatus, Pet } from './models/Pet.ts'
+export type { OrderStatusEnum, Order } from './models/Order.ts'
+export type { PetStatusEnum, Pet } from './models/Pet.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './models/PlaceOrder.ts'
 export type { Tag } from './models/Tag.ts'
 export type {
@@ -103,7 +103,7 @@ export {
 } from './faker/createUpdatePetWithForm.ts'
 export { createUser } from './faker/createUser.ts'
 export { createUserArray } from './faker/createUserArray.ts'
-export { addressIdentifier } from './models/Address.ts'
-export { findPetsByStatusQueryParamsStatus } from './models/FindPetsByStatus.ts'
-export { orderStatus } from './models/Order.ts'
-export { petStatus } from './models/Pet.ts'
+export { addressIdentifierEnum } from './models/Address.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './models/FindPetsByStatus.ts'
+export { orderStatusEnum } from './models/Order.ts'
+export { petStatusEnum } from './models/Pet.ts'

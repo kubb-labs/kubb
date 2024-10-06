@@ -1,6 +1,6 @@
-export type OrderStatus = 'placed' | 'approved' | 'delivered'
+export type OrderStatusEnum = 'placed' | 'approved' | 'delivered'
 
-export type OrderHttpStatus = 200 | 400 | 500
+export type OrderHttpStatusEnum = 200 | 400 | 500
 
 export type Order = {
   /**
@@ -23,12 +23,12 @@ export type Order = {
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatus
+  status?: OrderStatusEnum
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatus
+  http_status?: OrderHttpStatusEnum
   /**
    * @type boolean | undefined
    */
@@ -127,9 +127,9 @@ export type Tag = {
   name?: string
 }
 
-export type PetType = 'dog' | 'cat'
+export type PetTypeEnum = 'dog' | 'cat'
 
-export type PetStatus = 'available' | 'pending' | 'sold'
+export type PetStatusEnum = 'available' | 'pending' | 'sold'
 
 export type Pet =
   | (Dog & {
@@ -140,7 +140,7 @@ export type Pet =
       /**
        * @type string | undefined
        */
-      readonly type?: PetType
+      readonly type?: PetTypeEnum
       /**
        * @type string
        */
@@ -161,7 +161,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatus
+      status?: PetStatusEnum
     })
   | (Cat & {
       /**
@@ -171,7 +171,7 @@ export type Pet =
       /**
        * @type string | undefined
        */
-      readonly type?: PetType
+      readonly type?: PetTypeEnum
       /**
        * @type string
        */
@@ -192,36 +192,36 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatus
+      status?: PetStatusEnum
     })
 
-export type CatType = 'cat'
+export type CatTypeEnum = 'cat'
 
 export type Cat = {
   /**
    * @type string
    */
-  readonly type: CatType
+  readonly type: CatTypeEnum
   /**
    * @type string | undefined
    */
   name?: string
 }
 
-export type DogType = 'dog'
+export type DogTypeEnum = 'dog'
 
 export type Dog = {
   /**
    * @type string
    */
-  readonly type: DogType
+  readonly type: DogTypeEnum
   /**
    * @type string | undefined
    */
   bark?: string
 }
 
-export type AddPetRequestStatus = 'available' | 'pending' | 'sold'
+export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold'
 
 export type AddPetRequest = {
   /**
@@ -248,7 +248,7 @@ export type AddPetRequest = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatus
+  status?: AddPetRequestStatusEnum
 }
 
 export type ApiResponse = {
@@ -350,7 +350,7 @@ export type AddPetMutation = {
   Errors: AddPet405
 }
 
-export type FindPetsByStatusQueryParamsStatus = 'available' | 'pending' | 'sold'
+export type FindPetsByStatusQueryParamsStatusEnum = 'available' | 'pending' | 'sold'
 
 export type FindPetsByStatusQueryParams = {
   /**
@@ -358,7 +358,7 @@ export type FindPetsByStatusQueryParams = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatus
+  status?: FindPetsByStatusQueryParamsStatusEnum
 }
 
 /**

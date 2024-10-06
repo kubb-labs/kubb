@@ -13,7 +13,7 @@ The purpose of `@kubb/react` is to provide a set of tools and components specifi
 2. Component Library: It includes pre-built components that can be used in file generation.
 3. Type Safety: Since it is built on TypeScript, `@kubb/react` ensures type safety.
 4. Uncoupled of Kubb: `@kubb/react` can be used without needing to use `@kubb/core` or a `kubb.config.ts` file.
-5. Devtools: Because we use React, you easily attach the React Devtools, see [Debugging Kubb](/knowledge-base/how-tos/debugging).
+5. DevTools: Because we use React, you easily attach the React DevTools, see [Debugging Kubb](/knowledge-base/debugging).
 
 In summary, `@kubb/react` serves as a bridge between the Kubb framework and React, offering tools, components, and type safety to streamline the creation of Files.
 

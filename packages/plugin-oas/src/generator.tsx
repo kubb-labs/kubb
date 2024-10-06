@@ -24,12 +24,12 @@ type OperationProps<TOptions extends PluginFactoryOptions> = {
 
 type SchemaProps<TOptions extends PluginFactoryOptions> = {
   instance: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
+  options: TOptions['resolvedOptions']
   schema: {
     name: string
     tree: Array<Schema>
     value: SchemaObject
   }
-  options: TOptions['resolvedOptions']
 }
 
 export type GeneratorOptions<TOptions extends PluginFactoryOptions> = {

@@ -1,18 +1,18 @@
-export const orderStatus = {
+export const orderStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
+export type OrderStatusEnum = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export const orderHttpStatus = {
+export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
   '500': 500,
 } as const
 
-export type OrderHttpStatus = (typeof orderHttpStatus)[keyof typeof orderHttpStatus]
+export type OrderHttpStatusEnum = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
   /**
@@ -35,12 +35,12 @@ export type Order = {
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatus
+  status?: OrderStatusEnum
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatus
+  http_status?: OrderHttpStatusEnum
   /**
    * @type boolean | undefined
    */

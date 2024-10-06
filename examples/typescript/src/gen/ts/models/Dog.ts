@@ -1,14 +1,14 @@
-export const dogType = {
+export const dogTypeEnum = {
   dog: 'dog',
 } as const
 
-export type DogType = (typeof dogType)[keyof typeof dogType]
+export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum]
 
 export type Dog = {
   /**
    * @type string
    */
-  readonly type: DogType
+  readonly type: DogTypeEnum
   /**
    * @type string | undefined
    */

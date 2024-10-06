@@ -16,20 +16,20 @@ export type CreatePetsQueryParamsType = {
   offset?: number
 }
 
-export const createPetsHeaderParamsXExample = {
+export const createPetsHeaderParamsXExampleEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXExampleType = (typeof createPetsHeaderParamsXExample)[keyof typeof createPetsHeaderParamsXExample]
+export type CreatePetsHeaderParamsXExampleEnumType = (typeof createPetsHeaderParamsXExampleEnum)[keyof typeof createPetsHeaderParamsXExampleEnum]
 
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXExampleType
+  'X-EXAMPLE': CreatePetsHeaderParamsXExampleEnumType
 }
 
 /**

@@ -4,16 +4,16 @@ import { useState } from 'react'
 import { findPetsByStatusQueryOptionsHook, useFindPetsByStatusHook } from './gen/hooks/useFindPetsByStatusHook.ts'
 import { useFindPetsByTagsInfiniteHook } from './gen/hooks/useFindPetsByTagsInfiniteHook.ts'
 import { useUpdatePetWithFormHook } from './gen/hooks/useUpdatePetWithFormHook.ts'
-import type { FindPetsByStatusQueryParamsStatus } from './gen/models/FindPetsByStatus.ts'
+import type { FindPetsByStatusQueryParamsStatusEnum } from './gen/models/FindPetsByStatus.ts'
 
 const queryClient = new QueryClient()
 
 function Pets(): JSX.Element {
-  const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatus>('available')
+  const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatusEnum>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
   const { data } = useUpdatePetWithFormHook(2)
   const { queryKey: _queryKey, initialData } = findPetsByStatusQueryOptionsHook()
-  const statuses: FindPetsByStatusQueryParamsStatus[] = ['available', 'pending']
+  const statuses: FindPetsByStatusQueryParamsStatusEnum[] = ['available', 'pending']
 
   const queries = useQueries({
     queries: statuses.map((status) => findPetsByStatusQueryOptionsHook({ status })),

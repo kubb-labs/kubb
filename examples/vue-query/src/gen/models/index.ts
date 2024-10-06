@@ -1,5 +1,5 @@
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet'
-export type { AddressIdentifier, Address } from './Address'
+export type { AddressIdentifierEnum, Address } from './Address'
 export type { ApiResponse } from './ApiResponse'
 export type { Category } from './Category'
 export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './CreateUser'
@@ -15,7 +15,7 @@ export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrder
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser'
 export type {
-  FindPetsByStatusQueryParamsStatus,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -36,8 +36,8 @@ export type {
 } from './GetUserByName'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser'
-export type { OrderStatus, Order } from './Order'
-export type { PetStatus, Pet } from './Pet'
+export type { OrderStatusEnum, Order } from './Order'
+export type { PetStatusEnum, Pet } from './Pet'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './PlaceOrder'
 export type { Tag } from './Tag'
 export type {
@@ -67,7 +67,7 @@ export type {
 } from './UploadFile'
 export type { User } from './User'
 export type { UserArray } from './UserArray'
-export { addressIdentifier } from './Address'
-export { findPetsByStatusQueryParamsStatus } from './FindPetsByStatus'
-export { orderStatus } from './Order'
-export { petStatus } from './Pet'
+export { addressIdentifierEnum } from './Address'
+export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus'
+export { orderStatusEnum } from './Order'
+export { petStatusEnum } from './Pet'

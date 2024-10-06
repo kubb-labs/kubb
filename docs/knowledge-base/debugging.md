@@ -5,7 +5,7 @@ title: Debugging Kubb
 outline: deep
 ---
 
-# Debugging Kubb
+# Debugging Kubb <Badge type="info" text="@kubb/react" />
 
 ## React DevTools
 
