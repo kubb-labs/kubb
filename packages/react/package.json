@@ -92,7 +92,7 @@
     "react-devtools-core": "^5.3.1",
     "react-reconciler": "^0.29.2",
     "signal-exit": "^4.1.0",
-    "ws": "8.15.0"
+    "ws": "8.17.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
