@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: Migration to Kubb v3
+title: Migrating to Kubb v3
 outline: deep
 ---
 
-# Migration to Kubb v3
+# Migrating to Kubb v3
 
 ## New Features
 
