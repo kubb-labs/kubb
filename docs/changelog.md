@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.5
+- [`plugin-zod`](/plugins/plugin-zod): Discard `optional()` if there is a `default()` to ensure the output type is not `T | undefined`
+
+## 3.0.0-beta.4
+- Upgrade external packages
+
 ## 3.0.0-beta.3
 - [`plugin-zod`](/plugins/plugin-zod/): Added coercion for specific types only
 ```typescript
