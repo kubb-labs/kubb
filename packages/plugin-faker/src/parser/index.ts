@@ -56,17 +56,22 @@ const fakerKeywordMapper = {
   undefined: () => 'undefined',
   null: () => 'null',
   array: (items: string[] = [], min?: number, max?: number) => {
+    if (items.length > 1) {
+      return `faker.helpers.arrayElements([${items.join(', ')}]) as any`
+    }
+    const item = items.at(0)
+
     if (min !== undefined && max !== undefined) {
-      return `faker.helpers.arrayElements([${items.join(', ')}], { min: ${min}, max: ${max} }) as any`
+      return `faker.helpers.multiple(() => (${item}), { count: { min: ${min}, max: ${max} }}) as any`
     }
     if (min !== undefined) {
-      return `faker.helpers.arrayElements([${items.join(', ')}], { min: ${min}}) as any`
+      return `faker.helpers.multiple(() => (${item}), { count: ${min} }) as any`
     }
     if (max !== undefined) {
-      return `faker.helpers.arrayElements([${items.join(', ')}], { max: ${max}}) as any`
+      return `faker.helpers.multiple(() => (${item}), { count: { min: 0, max: ${max} }}) as any`
     }
 
-    return `faker.helpers.arrayElements([${items.join(', ')}]) as any`
+    return `faker.helpers.multiple(() => (${item})) as any`
   },
   tuple: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
   enum: (items: Array<string | number> = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,

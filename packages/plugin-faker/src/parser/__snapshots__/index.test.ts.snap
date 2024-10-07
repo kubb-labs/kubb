@@ -4,13 +4,13 @@ exports[`faker parse > 'and' 1`] = `"Object.assign({}, faker.string.alpha(), fak
 
 exports[`faker parse > 'any' 1`] = `"undefined"`;
 
-exports[`faker parse > 'array' 1`] = `"faker.helpers.arrayElements([faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])]) as any"`;
+exports[`faker parse > 'array' 1`] = `"faker.helpers.multiple(() => (faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()]))) as any"`;
 
-exports[`faker parse > 'arrayAdvanced' 1`] = `"faker.helpers.arrayElements([faker.number.float({ min: 1, max: 10 })]) as any"`;
+exports[`faker parse > 'arrayAdvanced' 1`] = `"faker.helpers.multiple(() => (faker.number.float({ min: 1, max: 10 })), { count: { min: 3, max: 10 }}) as any"`;
 
-exports[`faker parse > 'arrayEmpty' 1`] = `"faker.helpers.arrayElements([]) as any"`;
+exports[`faker parse > 'arrayEmpty' 1`] = `"faker.helpers.multiple(() => (undefined)) as any"`;
 
-exports[`faker parse > 'arrayRef' 1`] = `"faker.helpers.arrayElements([Pet()]) as any"`;
+exports[`faker parse > 'arrayRef' 1`] = `"faker.helpers.multiple(() => (Pet())) as any"`;
 
 exports[`faker parse > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
 

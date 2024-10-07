@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 
 export function createCustomer(data: NonNullable<Partial<Customer>> = {}) {
   return {
-    ...{ id: faker.number.int(), username: faker.string.alpha(), address: faker.helpers.arrayElements([createAddress()]) as any },
+    ...{ id: faker.number.int(), username: faker.string.alpha(), address: faker.helpers.multiple(() => createAddress()) as any },
     ...data,
   }
 }
