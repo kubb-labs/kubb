@@ -13,7 +13,7 @@ export function createFindPetsByStatusQueryParamsFaker(data: NonNullable<Partial
  * @description successful operation
  */
 export function createFindPetsByStatus200Faker(data: NonNullable<Partial<FindPetsByStatus200>> = []) {
-  return [...(faker.helpers.arrayElements([createPetFaker()]) as any), ...data]
+  return [...(faker.helpers.arrayElements([createPetFaker()], { min: 1, max: 3 }) as any), ...data]
 }
 
 /**
@@ -27,5 +27,5 @@ export function createFindPetsByStatus400Faker() {
  * @description successful operation
  */
 export function createFindPetsByStatusQueryResponseFaker(data: NonNullable<Partial<FindPetsByStatusQueryResponse>> = []) {
-  return [...(faker.helpers.arrayElements([createPetFaker()]) as any), ...data]
+  return [...(faker.helpers.arrayElements([createPetFaker()], { min: 1, max: 3 }) as any), ...data]
 }
