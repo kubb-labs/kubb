@@ -55,7 +55,24 @@ const fakerKeywordMapper = {
   boolean: () => 'faker.datatype.boolean()',
   undefined: () => 'undefined',
   null: () => 'null',
-  array: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
+  array: (items: string[] = [], min?: number, max?: number) => {
+    if (items.length > 1) {
+      return `faker.helpers.arrayElements([${items.join(', ')}]) as any`
+    }
+    const item = items.at(0)
+
+    if (min !== undefined && max !== undefined) {
+      return `faker.helpers.multiple(() => (${item}), { count: { min: ${min}, max: ${max} }}) as any`
+    }
+    if (min !== undefined) {
+      return `faker.helpers.multiple(() => (${item}), { count: ${min} }) as any`
+    }
+    if (max !== undefined) {
+      return `faker.helpers.multiple(() => (${item}), { count: { min: 0, max: ${max} }}) as any`
+    }
+
+    return `faker.helpers.multiple(() => (${item})) as any`
+  },
   tuple: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
   enum: (items: Array<string | number> = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
   union: (items: string[] = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
@@ -187,7 +204,11 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return fakerKeywordMapper.array(current.args.items.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
+    return fakerKeywordMapper.array(
+      current.args.items.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean),
+      current.args.min,
+      current.args.max,
+    )
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {

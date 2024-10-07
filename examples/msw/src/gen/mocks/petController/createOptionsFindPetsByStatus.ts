@@ -5,15 +5,15 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatus200(data: NonNullable<Partial<OptionsFindPetsByStatus200>> = []) {
+export function createOptionsFindPetsByStatus200() {
   faker.seed([220])
-  return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
+  return faker.helpers.multiple(() => createPet()) as any
 }
 
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatusMutationResponse(data: NonNullable<Partial<OptionsFindPetsByStatusMutationResponse>> = []) {
+export function createOptionsFindPetsByStatusMutationResponse() {
   faker.seed([220])
-  return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
+  return faker.helpers.multiple(() => createPet()) as any
 }

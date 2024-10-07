@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker'
 export function createFindPetsByTagsQueryParams(data: NonNullable<Partial<FindPetsByTagsQueryParams>> = {}) {
   faker.seed([220])
   return {
-    ...{ tags: faker.helpers.arrayElements([faker.string.alpha()]) as any, page: faker.string.alpha(), pageSize: faker.string.alpha() },
+    ...{ tags: faker.helpers.multiple(() => faker.string.alpha()) as any, page: faker.string.alpha(), pageSize: faker.string.alpha() },
     ...data,
   }
 }
@@ -13,9 +13,9 @@ export function createFindPetsByTagsQueryParams(data: NonNullable<Partial<FindPe
 /**
  * @description successful operation
  */
-export function createFindPetsByTags200(data: NonNullable<Partial<FindPetsByTags200>> = []) {
+export function createFindPetsByTags200() {
   faker.seed([220])
-  return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
+  return faker.helpers.multiple(() => createPet()) as any
 }
 
 /**
@@ -29,7 +29,7 @@ export function createFindPetsByTags400() {
 /**
  * @description successful operation
  */
-export function createFindPetsByTagsQueryResponse(data: NonNullable<Partial<FindPetsByTagsQueryResponse>> = []) {
+export function createFindPetsByTagsQueryResponse() {
   faker.seed([220])
-  return [...(faker.helpers.arrayElements([createPet()]) as any), ...data]
+  return faker.helpers.multiple(() => createPet()) as any
 }

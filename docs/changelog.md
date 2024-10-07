@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.6
+- [`plugin-faker`](/plugins/plugin-faker): Min/Max for type array to generate better `faker.helpers.arrayElements` functionality
+
 ## 3.0.0-beta.5
 - [`plugin-zod`](/plugins/plugin-zod): Discard `optional()` if there is a `default()` to ensure the output type is not `T | undefined`
 
