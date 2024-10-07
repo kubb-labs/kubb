@@ -1,11 +1,14 @@
 import BaseOas from 'oas'
 import OASNormalize from 'oas-normalize'
-import { findSchemaDefinition, matchesMimeType } from 'oas/utils'
+import { matchesMimeType } from 'oas/utils'
+
+import jsonpointer from 'jsonpointer'
 
 import { isReference } from './utils.ts'
 
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
+import type { OasTypes, OpenAPIV3 } from './index.ts'
 import type { contentType } from './types.ts'
 
 type Options = {
@@ -27,10 +30,72 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     this.#options = options
   }
 
+  get($ref: string) {
+    const origRef = $ref
+    $ref = $ref.trim()
+    if ($ref === '') {
+      return false
+    }
+    if ($ref.startsWith('#')) {
+      $ref = globalThis.decodeURIComponent($ref.substring(1))
+    } else {
+      throw new Error(`Could not find a definition for ${origRef}.`)
+    }
+    const current = jsonpointer.get(this.api, $ref)
+
+    if (!current) {
+      throw new Error(`Could not find a definition for ${origRef}.`)
+    }
+    return current
+  }
+
+  set($ref: string, value: unknown) {
+    const origRef = $ref
+    $ref = $ref.trim()
+    if ($ref === '') {
+      return false
+    }
+    if ($ref.startsWith('#')) {
+      $ref = globalThis.decodeURIComponent($ref.substring(1))
+    } else {
+      throw new Error(`Could not find a definition for ${origRef}.`)
+    }
+
+    jsonpointer.set(this.api, $ref, value)
+  }
+
+  resolveDiscriminators(): void {
+    const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
+
+    Object.entries(schemas).forEach(([key, schemaObject]) => {
+      if ('discriminator' in schemaObject) {
+        const { mapping = {}, propertyName } = (schemaObject.discriminator || {}) as OpenAPIV3.DiscriminatorObject
+
+        Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
+          if (mappingValue) {
+            const childSchema = this.get(mappingValue)
+            const property = childSchema.properties?.[propertyName] as SchemaObject
+
+            if (property) {
+              childSchema.properties[propertyName] = {
+                ...childSchema.properties[propertyName],
+                enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+              }
+
+              childSchema.required = [...(childSchema.required ?? []), propertyName]
+
+              this.set(mappingValue, childSchema)
+            }
+          }
+        })
+      }
+    })
+  }
+
   dereferenceWithRef(schema?: unknown) {
     if (isReference(schema)) {
       return {
-        ...findSchemaDefinition(schema.$ref, this.api),
+        ...this.get(schema.$ref),
         $ref: schema.$ref,
       }
     }
@@ -102,7 +167,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         const $ref = isReference(schema) ? schema.$ref : undefined
 
         if (schema && $ref) {
-          operation.schema.responses![key] = findSchemaDefinition($ref, this.api)
+          operation.schema.responses![key] = this.get($ref)
         }
       })
     }

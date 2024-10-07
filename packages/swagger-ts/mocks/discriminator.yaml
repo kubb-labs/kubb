@@ -3,14 +3,131 @@ info:
 openapi: 3.1.0
 components:
   schemas:
+    Advanced:
+      title: ValueSpecification
+      required:
+        - type
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/EnumerationValueSpecificationDto"
+        - $ref: "#/components/schemas/RangeValueSpecificationDto"
+        - $ref: "#/components/schemas/RegexValueSpecificationDto"
+        - $ref: "#/components/schemas/SliderValueSpecificationDto"
+      properties:
+        type:
+          minLength: 1
+          enum:
+            - enum
+            - range
+            - regex
+            - slider
+          type: string
+          readOnly: true
+      additionalProperties: false
+      discriminator:
+        propertyName: type
+        mapping:
+          enum: "#/components/schemas/EnumerationValueSpecificationDto"
+          range: "#/components/schemas/RangeValueSpecificationDto"
+          regex: "#/components/schemas/RegexValueSpecificationDto"
+          slider: "#/components/schemas/SliderValueSpecificationDto"
+    EnumerationValueSpecificationDto:
+      title: EnumerationValueSpecification
+      required:
+        - enumeration
+        - type
+      type: object
+      properties:
+        type:
+          minLength: 1
+          type: string
+          readOnly: true
+        enumeration:
+          type: array
+          items: { }
+      additionalProperties: false
+
+    RangeValueSpecificationDto:
+      title: RangeValueSpecification
+      required:
+        - max
+        - min
+        - type
+      type: object
+      properties:
+        type:
+          minLength: 1
+          type: string
+          readOnly: true
+        min:
+          type: number
+          format: float
+        max:
+          type: number
+          format: float
+      additionalProperties: false
+
+    RegexValueSpecificationDto:
+      title: RegexValueSpecification
+      required:
+        - regex
+        - type
+      type: object
+      properties:
+        type:
+          minLength: 1
+          type: string
+          readOnly: true
+        regex:
+          minLength: 1
+          type: string
+      additionalProperties: false
+
+
+    SliderValueSpecificationDto:
+      title: SliderValueSpecification
+      required:
+        - left_text
+        - max_value
+        - right_text
+        - type
+      type: object
+      properties:
+        type:
+          minLength: 1
+          type: string
+          readOnly: true
+        left_text:
+          $ref: "#/components/schemas/LocalizedTextDto"
+        right_text:
+          $ref: "#/components/schemas/LocalizedTextDto"
+        max_value:
+          type: integer
+          format: int32
+      additionalProperties: false
+
+    LocalizedTextDto:
+      title: LocalizedText
+      required:
+        - default_text
+        - text_id
+      type: object
+      properties:
+        text_id:
+          minLength: 1
+          type: string
+        default_text:
+          minLength: 1
+          type: string
+      additionalProperties: false
     NullConst:
       description: |
-        The value of this keyword MAY be null. 
+        The value of this keyword MAY be null.
         Use of this keyword is functionally equivalent to an "enum" (Section 6.1.2) with a single value.
         An instance validates successfully against this keyword if its value is equal to the value of the keyword.
       properties:
         withoutValue:
-          const: 
+          const:
     StringValueConst:
       description: its value is equal to the value of the keyword
       properties:

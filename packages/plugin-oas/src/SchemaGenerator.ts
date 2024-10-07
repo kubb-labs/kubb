@@ -301,7 +301,7 @@ export abstract class SchemaGenerator<
 
     if (additionalProperties) {
       additionalPropertiesSchemas =
-        additionalProperties === true
+        additionalProperties === true || !Object.keys(additionalProperties).length
           ? [{ keyword: this.#getUnknownReturn({ schema, name }) }]
           : this.parse({ schema: additionalProperties as SchemaObject, parentName: name })
     }
@@ -488,7 +488,20 @@ export abstract class SchemaGenerator<
           }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [...this.parse({ schema: schemaWithoutOneOf, name, parentName }), union, ...baseItems]
+        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
+
+        return [
+          {
+            ...union,
+            args: union.args.map((arg) => {
+              return {
+                keyword: schemaKeywords.and,
+                args: [arg, ...propertySchemas],
+              }
+            }),
+          },
+          ...baseItems,
+        ]
       }
 
       return [union, ...baseItems]
@@ -855,6 +868,8 @@ export abstract class SchemaGenerator<
 
   async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
+
+    oas.resolveDiscriminators()
 
     const schemas = getSchemas({ oas, contentType, includes: include })
 

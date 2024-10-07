@@ -1,12 +1,15 @@
 export { addPetRequestStatus } from './AddPetRequest'
+export { catType } from './Cat'
+export { dogType } from './Dog'
 export { findPetsByStatusQueryParamsStatus } from './FindPetsByStatus'
 export { orderStatus, orderHttpStatus } from './Order'
-export { petStatus } from './Pet'
+export { petType, petStatus } from './Pet'
 export { oas } from './oas'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet'
 export type { AddPetRequestStatus, AddPetRequest } from './AddPetRequest'
 export type { Address } from './Address'
 export type { ApiResponse } from './ApiResponse'
+export type { CatType, Cat } from './Cat'
 export type { Category } from './Category'
 export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './CreateUser'
 export type {
@@ -20,6 +23,7 @@ export type { Customer } from './Customer'
 export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderMutation } from './DeleteOrder'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser'
+export type { DogType, Dog } from './Dog'
 export type {
   FindPetsByStatusQueryParamsStatus,
   FindPetsByStatusQueryParams,
@@ -43,7 +47,7 @@ export type {
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser'
 export type { OrderStatus, OrderHttpStatus, Order } from './Order'
-export type { PetStatus, Pet } from './Pet'
+export type { PetType, PetStatus, Pet } from './Pet'
 export type { PetNotFound } from './PetNotFound'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './PlaceOrder'
 export type {

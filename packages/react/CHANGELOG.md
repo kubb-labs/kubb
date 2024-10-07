@@ -1,5 +1,59 @@
 # @kubb/react
 
+## 2.28.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.1
+  - @kubb/fs@2.28.1
+  - @kubb/parser-ts@2.28.1
+
+## 2.28.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.0
+  - @kubb/fs@2.28.0
+  - @kubb/parser-ts@2.28.0
+
+## 2.27.2
+
+### Patch Changes
+
+- Updated dependencies [[`d6346a2`](https://github.com/kubb-labs/kubb/commit/d6346a232041b6863a2df0bb030785db96ae7a6b)]:
+  - @kubb/parser-ts@2.27.2
+  - @kubb/core@2.27.2
+  - @kubb/fs@2.27.2
+
+## 2.27.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.27.1
+  - @kubb/fs@2.27.1
+  - @kubb/parser-ts@2.27.1
+
+## 2.27.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.27.0
+  - @kubb/fs@2.27.0
+  - @kubb/parser-ts@2.27.0
+
+## 2.26.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.26.8
+  - @kubb/fs@2.26.8
+  - @kubb/parser-ts@2.26.8
+
 ## 2.26.7
 
 ### Patch Changes

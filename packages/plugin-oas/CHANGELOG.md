@@ -1,5 +1,71 @@
 # @kubb/swagger
 
+## 2.28.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.1
+  - @kubb/fs@2.28.1
+  - @kubb/oas@2.28.1
+  - @kubb/react@2.28.1
+
+## 2.28.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.0
+  - @kubb/fs@2.28.0
+  - @kubb/oas@2.28.0
+  - @kubb/react@2.28.0
+
+## 2.27.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.27.2
+  - @kubb/react@2.27.2
+  - @kubb/fs@2.27.2
+  - @kubb/oas@2.27.2
+
+## 2.27.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.27.1
+  - @kubb/fs@2.27.1
+  - @kubb/oas@2.27.1
+  - @kubb/react@2.27.1
+
+## 2.27.0
+
+### Minor Changes
+
+- [`6bd3a30`](https://github.com/kubb-labs/kubb/commit/6bd3a30f4e3cb7f16cab7ee9944972bb0347afd8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for discriminator
+
+### Patch Changes
+
+- Updated dependencies [[`6bd3a30`](https://github.com/kubb-labs/kubb/commit/6bd3a30f4e3cb7f16cab7ee9944972bb0347afd8)]:
+  - @kubb/oas@2.27.0
+  - @kubb/core@2.27.0
+  - @kubb/fs@2.27.0
+  - @kubb/react@2.27.0
+
+## 2.26.8
+
+### Patch Changes
+
+- [`ba3bc22`](https://github.com/kubb-labs/kubb/commit/ba3bc22ab0627fd10e23d15bd3111f6df19f6d8f) Thanks [@grreeenn](https://github.com/grreeenn)! - Take care of turning `additionalProperties: {}` to a correct freeform object type (#1232)
+
+- Updated dependencies []:
+  - @kubb/core@2.26.8
+  - @kubb/fs@2.26.8
+  - @kubb/oas@2.26.8
+  - @kubb/react@2.26.8
+
 ## 2.26.7
 
 ### Patch Changes

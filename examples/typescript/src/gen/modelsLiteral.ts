@@ -125,33 +125,94 @@ export type Tag = {
   name?: string
 }
 
+export type PetType = 'dog' | 'cat'
 export type PetStatus = 'available' | 'pending' | 'sold'
-export type Pet = {
-  /**
-   * @type integer | undefined, int64
-   */
-  id?: number
+export type Pet =
+  | (Dog & {
+      /**
+       * @type integer | undefined, int64
+       */
+      id?: number
+      /**
+       * @type string | undefined
+       */
+      readonly type?: PetType
+      /**
+       * @type string
+       */
+      name: string
+      /**
+       * @type object | undefined
+       */
+      category?: Category
+      /**
+       * @type array
+       */
+      photoUrls: string[]
+      /**
+       * @type array | undefined
+       */
+      tags?: Tag[]
+      /**
+       * @description pet status in the store
+       * @type string | undefined
+       */
+      status?: PetStatus
+    })
+  | (Cat & {
+      /**
+       * @type integer | undefined, int64
+       */
+      id?: number
+      /**
+       * @type string | undefined
+       */
+      readonly type?: PetType
+      /**
+       * @type string
+       */
+      name: string
+      /**
+       * @type object | undefined
+       */
+      category?: Category
+      /**
+       * @type array
+       */
+      photoUrls: string[]
+      /**
+       * @type array | undefined
+       */
+      tags?: Tag[]
+      /**
+       * @description pet status in the store
+       * @type string | undefined
+       */
+      status?: PetStatus
+    })
+
+export type CatType = 'cat'
+export type Cat = {
   /**
    * @type string
    */
-  name: string
+  readonly type: CatType
   /**
-   * @type object | undefined
-   */
-  category?: Category
-  /**
-   * @type array
-   */
-  photoUrls: string[]
-  /**
-   * @type array | undefined
-   */
-  tags?: Tag[]
-  /**
-   * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatus
+  name?: string
+}
+
+export type DogType = 'dog'
+export type Dog = {
+  /**
+   * @type string
+   */
+  readonly type: DogType
+  /**
+   * @type string | undefined
+   */
+  bark?: string
 }
 
 export type AddPetRequestStatus = 'available' | 'pending' | 'sold'
@@ -230,7 +291,7 @@ export type UpdatePet405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type'>
 /**
  * @description Successful operation
  */

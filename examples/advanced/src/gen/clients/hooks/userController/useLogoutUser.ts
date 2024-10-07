@@ -2,15 +2,7 @@ import { logoutUserQueryResponseSchema } from '../../../zod/userController/logou
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, Error, never>
 type LogoutUser = {
@@ -91,7 +83,7 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
  * @link /user/logout
  */
 export function useLogoutUserInfinite<
-  TData = InfiniteData<LogoutUser['response']>,
+  TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
 >(

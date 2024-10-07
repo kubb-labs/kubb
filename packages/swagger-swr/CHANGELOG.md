@@ -1,5 +1,95 @@
 # @kubb/swagger-swr
 
+## 2.28.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.1
+  - @kubb/fs@2.28.1
+  - @kubb/oas@2.28.1
+  - @kubb/parser-ts@2.28.1
+  - @kubb/plugin-oas@2.28.1
+  - @kubb/react@2.28.1
+  - @kubb/swagger-client@2.28.1
+  - @kubb/swagger-ts@2.28.1
+  - @kubb/swagger-zod@2.28.1
+
+## 2.28.0
+
+### Patch Changes
+
+- Updated dependencies [[`f86ca64`](https://github.com/kubb-labs/kubb/commit/f86ca64c82e6505fa1c4fbbaf49cf2f1780e46d7)]:
+  - @kubb/swagger-zod@2.28.0
+  - @kubb/core@2.28.0
+  - @kubb/fs@2.28.0
+  - @kubb/oas@2.28.0
+  - @kubb/parser-ts@2.28.0
+  - @kubb/plugin-oas@2.28.0
+  - @kubb/react@2.28.0
+  - @kubb/swagger-client@2.28.0
+  - @kubb/swagger-ts@2.28.0
+
+## 2.27.2
+
+### Patch Changes
+
+- Updated dependencies [[`d6346a2`](https://github.com/kubb-labs/kubb/commit/d6346a232041b6863a2df0bb030785db96ae7a6b)]:
+  - @kubb/parser-ts@2.27.2
+  - @kubb/core@2.27.2
+  - @kubb/react@2.27.2
+  - @kubb/swagger-client@2.27.2
+  - @kubb/swagger-ts@2.27.2
+  - @kubb/swagger-zod@2.27.2
+  - @kubb/plugin-oas@2.27.2
+  - @kubb/fs@2.27.2
+  - @kubb/oas@2.27.2
+
+## 2.27.1
+
+### Patch Changes
+
+- Updated dependencies [[`6732b8a`](https://github.com/kubb-labs/kubb/commit/6732b8a4e86f4fb9357987788443dea9ac79cfcc)]:
+  - @kubb/swagger-zod@2.27.1
+  - @kubb/core@2.27.1
+  - @kubb/fs@2.27.1
+  - @kubb/oas@2.27.1
+  - @kubb/parser-ts@2.27.1
+  - @kubb/plugin-oas@2.27.1
+  - @kubb/react@2.27.1
+  - @kubb/swagger-client@2.27.1
+  - @kubb/swagger-ts@2.27.1
+
+## 2.27.0
+
+### Patch Changes
+
+- Updated dependencies [[`6bd3a30`](https://github.com/kubb-labs/kubb/commit/6bd3a30f4e3cb7f16cab7ee9944972bb0347afd8)]:
+  - @kubb/plugin-oas@2.27.0
+  - @kubb/swagger-zod@2.27.0
+  - @kubb/swagger-ts@2.27.0
+  - @kubb/oas@2.27.0
+  - @kubb/swagger-client@2.27.0
+  - @kubb/core@2.27.0
+  - @kubb/fs@2.27.0
+  - @kubb/parser-ts@2.27.0
+  - @kubb/react@2.27.0
+
+## 2.26.8
+
+### Patch Changes
+
+- Updated dependencies [[`ba3bc22`](https://github.com/kubb-labs/kubb/commit/ba3bc22ab0627fd10e23d15bd3111f6df19f6d8f)]:
+  - @kubb/plugin-oas@2.26.8
+  - @kubb/swagger-client@2.26.8
+  - @kubb/swagger-ts@2.26.8
+  - @kubb/swagger-zod@2.26.8
+  - @kubb/core@2.26.8
+  - @kubb/fs@2.26.8
+  - @kubb/oas@2.26.8
+  - @kubb/parser-ts@2.26.8
+  - @kubb/react@2.26.8
+
 ## 2.26.7
 
 ### Patch Changes

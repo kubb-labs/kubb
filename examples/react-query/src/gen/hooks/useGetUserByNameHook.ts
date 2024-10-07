@@ -1,15 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
-import type {
-  UseBaseQueryOptions,
-  UseQueryResult,
-  QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  InfiniteData,
-} from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -98,7 +90,7 @@ export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['respons
  * @link /user/:username
  */
 export function useGetUserByNameHookInfinite<
-  TData = InfiniteData<GetUserByName['response']>,
+  TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(

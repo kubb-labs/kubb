@@ -88,7 +88,7 @@ export function Schema(props: Props): ReactNode {
 
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
   if (enumSchemas) {
-    enumSchemas.forEach((enumSchema) => {
+    ;[...new Set(enumSchemas)].forEach((enumSchema) => {
       extraNodes.push(
         ...factory.createEnumDeclaration({
           name: transformers.camelCase(enumSchema.args.name),

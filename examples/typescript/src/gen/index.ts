@@ -1,4 +1,14 @@
-export { addPetRequestStatus, findPetsByStatusQueryParamsStatus, orderStatus, orderHttpStatus, petStatus, oas } from './ts/models/index'
+export {
+  addPetRequestStatus,
+  catType,
+  dogType,
+  findPetsByStatusQueryParamsStatus,
+  orderStatus,
+  orderHttpStatus,
+  petType,
+  petStatus,
+  oas,
+} from './ts/models/index'
 export * as models from './models'
 export * as modelsAsConst from './modelsConst'
 export * as modelsPascalConst from './modelsPascalConst'
@@ -14,6 +24,8 @@ export type {
   AddPetRequest,
   Address,
   ApiResponse,
+  CatType,
+  Cat,
   Category,
   CreateUserError,
   CreateUserMutationRequest,
@@ -40,6 +52,8 @@ export type {
   DeleteUser404,
   DeleteUserMutationResponse,
   DeleteUserMutation,
+  DogType,
+  Dog,
   FindPetsByStatusQueryParamsStatus,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
@@ -83,6 +97,7 @@ export type {
   OrderStatus,
   OrderHttpStatus,
   Order,
+  PetType,
   PetStatus,
   Pet,
   PetNotFound,

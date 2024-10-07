@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zod",
-  "version": "2.26.7",
+  "version": "2.28.1",
   "description": "Generator swagger-zod",
   "keywords": [
     "zod",
@@ -73,7 +73,7 @@
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.8",
+    "@types/react": "^18.3.9",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "tsup": "^8.3.0",
