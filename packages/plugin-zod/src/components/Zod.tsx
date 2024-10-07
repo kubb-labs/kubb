@@ -19,11 +19,15 @@ type Props = {
 
 export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, keysToOmit, description }: Props): KubbNode {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
+  const hasDefault = tree.some((item) => isKeyword(item, schemaKeywords.default))
 
   const output = parserZod
     .sort(tree)
     .filter((item) => {
       if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
+        return false
+      }
+      if (hasDefault && isKeyword(item, schemaKeywords.optional)) {
         return false
       }
 
