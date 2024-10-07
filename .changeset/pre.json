@@ -47,7 +47,8 @@
     "fetch-pet-store": "0.0.1",
     "@kubb/plugin-solid-query": "3.0.0-alpha.19",
     "@kubb/plugin-svelte-query": "3.0.0-alpha.19",
-    "@kubb/plugin-vue-query": "3.0.0-alpha.20"
+    "@kubb/plugin-vue-query": "3.0.0-alpha.20",
+    "generators-pet-store": "0.0.1"
   },
   "changesets": [
     "angry-cameras-try",
@@ -92,6 +93,7 @@
     "proud-falcons-leave",
     "quiet-lemons-judge",
     "red-fishes-jump",
+    "selfish-teachers-rhyme",
     "serious-laws-sing",
     "slimy-lamps-develop",
     "small-onions-exist",
