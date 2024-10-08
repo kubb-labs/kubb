@@ -161,6 +161,10 @@ const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'da
   return !!coercion[type]
 }
 
+const discardOptionalIfDefault = (items: Schema[]) => (item: Schema) => {
+  return !(isKeyword(item, schemaKeywords.optional) && items.some((i) => isKeyword(i, schemaKeywords.default)))
+}
+
 type ParserOptions = {
   name: string
   typeName?: string
@@ -189,6 +193,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
     return zodKeywordMapper.union(
       sort(current.args)
+        .filter(discardOptionalIfDefault(current.args))
         .map((schema) => parse(current, schema, options))
         .filter(Boolean),
     )
@@ -199,6 +204,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
       .filter((schema: Schema) => {
         return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
       })
+      .filter(discardOptionalIfDefault(current.args))
       .map((schema: Schema) => parse(current, schema, options))
       .filter(Boolean)
 
@@ -208,6 +214,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   if (isKeyword(current, schemaKeywords.array)) {
     return zodKeywordMapper.array(
       sort(current.args.items)
+        .filter(discardOptionalIfDefault(current.args.items))
         .map((schemas) => parse(current, schemas, options))
         .filter(Boolean),
       current.args.min,
@@ -278,6 +285,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
         }
 
         return `"${name}": ${sort(schemas)
+          .filter(discardOptionalIfDefault(schemas))
           .map((schema, array) => {
             return parse(current, schema, options)
           })
