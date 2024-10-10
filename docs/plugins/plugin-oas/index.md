@@ -87,6 +87,9 @@ Validate your [`input`](/getting-started/configure#input) based on `@readme/open
 
 Which server to use from the array of `servers.url[serverIndex]`
 
+> [!TIP]
+> Defining the server here will make it possible to use that endpoint as `baseURL` in other plugins.
+
 |           |          |
 |----------:|:---------|
 |     Type: | `number` |

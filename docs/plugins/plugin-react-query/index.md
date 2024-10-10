@@ -345,7 +345,7 @@ When using a string you need to use `JSON.stringify`.
 
 #### mutation.methods
 
-Define which HttpMethods can be used for queries
+Define which HttpMethods can be used for mutations
 
 |           |                     |
 |----------:|:--------------------|
