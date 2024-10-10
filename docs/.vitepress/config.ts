@@ -72,10 +72,6 @@ const knowledgeBaseSidebar = [
       },
     ],
   },
-  {
-    text: 'Migration guide',
-    link: '/knowledge-base/migration-guide',
-  },
 ]
 
 const mainSidebar = [
@@ -236,6 +232,10 @@ const mainSidebar = [
         link: '/builders/unplugin/',
       },
     ],
+  },
+  {
+    text: 'Migration guide',
+    link: '/migration-guide',
   },
   {
     text: 'Changelog',
@@ -571,12 +571,17 @@ export default defineConfig({
         text: `v${version}`,
         items: [
           {
-            text: 'Sponsors',
-            link: 'sponsors',
+            text: 'Changelog',
+            link: '/changelog',
           },
           {
-            text: 'Contributers',
-            link: '/contributers',
+            text: 'Migration guide',
+            link: '/migration-guide',
+          },
+          {
+            text: 'Releases',
+            link: 'https://github.com/kubb-labs/kubb/releases',
+            target: '_blank',
           },
           {
             text: 'Versions',
@@ -591,25 +596,30 @@ export default defineConfig({
                 link: 'https://v2.kubb.dev',
                 target: '_blank',
               },
-              {
-                text: 'Changelog',
-                link: '/changelog',
-              },
-              {
-                text: 'Releases',
-                link: 'https://github.com/kubb-labs/kubb/releases',
-                target: '_blank',
-              },
             ],
           },
           {
-            text: 'Blog',
-            link: '/blog/v3',
+            text: 'More',
+            items: [
+              {
+                text: 'Sponsors',
+                link: 'sponsors',
+              },
+              {
+                text: 'Contributers',
+                link: '/contributers',
+              },
+              {
+                text: 'Blog',
+                link: '/blog/v3',
+              },
+              {
+                text: 'About Kubb',
+                link: '/about',
+              },
+            ]
           },
-          {
-            text: 'About Kubb',
-            link: '/about',
-          },
+
         ],
       },
       {
