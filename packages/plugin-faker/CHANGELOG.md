@@ -1,5 +1,19 @@
 # @kubb/plugin-faker
 
+## 3.0.0-beta.6
+
+### Patch Changes
+
+- [#1339](https://github.com/kubb-labs/kubb/pull/1339) [`5ca19f7`](https://github.com/kubb-labs/kubb/commit/5ca19f7223f7ce0d10800de53a785f13662360d5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Min/Max for type array to generate better `faker.helpers.arrayElements` functionality
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.6
+  - @kubb/fs@3.0.0-beta.6
+  - @kubb/oas@3.0.0-beta.6
+  - @kubb/plugin-oas@3.0.0-beta.6
+  - @kubb/plugin-ts@3.0.0-beta.6
+  - @kubb/react@3.0.0-beta.6
+
 ## 3.0.0-beta.5
 
 ### Patch Changes
