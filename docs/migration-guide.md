@@ -189,7 +189,7 @@ export default defineConfig({
   ],
 })
 ```
-- `output.exportAs`: This property was only usable for `@kubb/plugin-client` where we wanted to combine the functionality under one controller function.
+- `output.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
@@ -261,7 +261,7 @@ export default defineConfig({
   ],
 })
 ```
-- `group.exportAs`: This property was only usable for `@kubb/plugin-client` where we wanted to combine the functionality under one controller function.
+- `group.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
