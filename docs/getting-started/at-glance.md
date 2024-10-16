@@ -45,7 +45,7 @@ Kubb is open source and build by the community, help us building Kubb by [sponso
 
 ## Projects Build With Kubb
 
-- [https://github.com/dxloop/koper](KOPER): a modern tech stack design for creating full-stack application powered by Kubb.
+- [KOPER](https://github.com/dxloop/koper): a modern tech stack design for creating full-stack application powered by Kubb.
 
 
 ## Our Community

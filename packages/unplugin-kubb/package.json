@@ -112,11 +112,11 @@
     "@kubb/core": "workspace:*",
     "@nuxt/kit": "^3.13.2",
     "@nuxt/schema": "^3.13.2",
-    "@types/node": "^20.16.10",
+    "@types/node": "^20.16.11",
     "rimraf": "^5.0.10",
     "rollup": "^4.24.0",
     "tsup": "^8.3.0",
-    "typescript": "^5.6.2",
+    "typescript": "^5.6.3",
     "vite": "^5.4.8",
     "webpack": "^5.95.0"
   },

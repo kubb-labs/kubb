@@ -47,7 +47,6 @@ The CLI and core have been revamped for improved speed and in v3 it will also di
 - All issues can be seen here: [Kubb v3 ideas](https://github.com/kubb-labs/kubb/issues/1115)
 
 
-
 ## Breaking Changes
 
 ### Plugin renames
@@ -77,7 +76,6 @@ We previously used the name swagger to indicate that we only supported Swagger f
 We will discontinue support for (Tanstack-Query](https://tanstack.com/query/latest/docs/framework/react/overview) v4 in favor of v5. If you still require generation for v4, you can use [Kubb v2](https://v2.kubb.dev).
 Additionally, each framework will now be packaged separately instead of being included in a single package that contains code for all frameworks.
 
-
 |  Framework | Packages                      |
 |-----------:|:------------------------------|
 |  `'react'` | `'@kubb/plugin-react-query'`  |
@@ -89,7 +87,7 @@ Additionally, each framework will now be packaged separately instead of being in
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query' // [!code --]
 import { pluginReactQuery } from '@kubb/plugin-react-query' // [!code ++]
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -119,8 +117,7 @@ export default defineConfig({
 ```
 
 ### MSW
-We will discontinue support for (MSW](https://mswjs.io/) v1 in favour of using v2. If you still need to have generation for v1, you could use [Kubb v2](https://v2.kubb.dev).
-
+We will discontinue support for (MSW](https://mswjs.io/) v1 in favour of using v2. If you still need to generate mocks for v1, you could use [Kubb v2](https://v2.kubb.dev).
 
 ### Output
 - `output.banner`: Add some code in the beginning of every file
@@ -177,10 +174,8 @@ export default defineConfig({
   },
   output: {
     path: './src/gen',
-    extension() { // [!code ++]
-      return { // [!code ++]
-        '.ts': '.js', // [!code ++]
-      } // [!code ++]
+    extension: { // [!code ++]
+      '.ts': '.js', // [!code ++]
     }, // [!code ++]
   },
   plugins: [
@@ -194,7 +189,7 @@ export default defineConfig({
   ],
 })
 ```
-- `output.exportAs`: This property was only usable for `@kubb/plugin-client` where we wanted to combine the functionality under one controller function.
+- `output.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
@@ -266,7 +261,7 @@ export default defineConfig({
   ],
 })
 ```
-- `group.exportAs`: This property was only usable for `@kubb/plugin-client` where we wanted to combine the functionality under one controller function.
+- `group.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
