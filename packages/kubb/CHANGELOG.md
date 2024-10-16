@@ -1,5 +1,13 @@
 # kubb
 
+## 2.18.49
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@2.28.2
+  - @kubb/core@2.28.2
+
 ## 2.18.48
 
 ### Patch Changes
