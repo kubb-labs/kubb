@@ -24,9 +24,9 @@
     "@shikijs/vitepress-twoslash": "^1.22.0",
     "mermaid": "^11.3.0",
     "sitemap": "^8.0.0",
-    "vitepress": "^1.4.0",
-    "vitepress-plugin-group-icons": "^1.2.4",
-    "vue": "^3.5.11"
+    "vitepress": "^1.4.1",
+    "vitepress-plugin-group-icons": "^1.3.0",
+    "vue": "^3.5.12"
   },
   "devDependencies": {
     "@kubb/cli": "workspace:*",
@@ -44,12 +44,12 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.2.1",
-    "@types/node": "^20.16.11",
+    "@types/node": "^20.16.13",
     "@types/react": "^18.3.11",
     "cross-env": "^7.0.3",
     "react": "^18.3.1",
     "unplugin-kubb": "workspace:^",
-    "vite": "^5.4.8"
+    "vite": "^5.4.9"
   },
   "packageManager": "pnpm@9.12.0",
   "engines": {

@@ -56,17 +56,17 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "handlebars": "^4.7.8",
-    "mobx": "^6.13.3",
+    "mobx": "^6.13.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "redoc": "^2.1.5",
+    "redoc": "^2.2.0",
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0",
+    "@types/react-dom": "^18.3.1",
     "tsup": "^8.3.0",
     "typescript": "^5.6.3"
   },
