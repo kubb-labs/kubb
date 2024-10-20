@@ -1,5 +1,22 @@
 # @kubb/swagger-tanstack-query
 
+## 2.28.3
+
+### Patch Changes
+
+- [`01738cf`](https://github.com/kubb-labs/kubb/commit/01738cf009303e03c8c44039720f551e383b7941) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Skiptoken support for suspense queries
+
+- Updated dependencies []:
+  - @kubb/core@2.28.3
+  - @kubb/fs@2.28.3
+  - @kubb/oas@2.28.3
+  - @kubb/parser-ts@2.28.3
+  - @kubb/plugin-oas@2.28.3
+  - @kubb/react@2.28.3
+  - @kubb/swagger-client@2.28.3
+  - @kubb/swagger-ts@2.28.3
+  - @kubb/swagger-zod@2.28.3
+
 ## 2.28.2
 
 ### Patch Changes
