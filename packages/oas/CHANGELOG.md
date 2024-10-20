@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 2.28.2
+
+### Patch Changes
+
+- [#1347](https://github.com/kubb-labs/kubb/pull/1347) [`d46aedc`](https://github.com/kubb-labs/kubb/commit/d46aedca3841f69c7cddbb6374a3f0333354d2b8) Thanks [@aburgel](https://github.com/aburgel)! - fix: Update oas to address path-to-regexp advisory
+
 ## 2.28.1
 
 ## 2.28.0
