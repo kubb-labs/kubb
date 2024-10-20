@@ -48,13 +48,62 @@ type TemplateProps = {
     queryOptions: string
   }
   infinite: Infinite | false
+  suspense: Suspense | false
 }
 
-function Template({ name, generics, returnType, params, JSDoc, hook, infinite }: TemplateProps): ReactNode {
+function Template({ name, generics, returnType, params, JSDoc, hook, infinite, suspense }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(reactQueryDepRegex, '>=5')
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
 
   if (isV5) {
+    if (infinite) {
+      return (
+        <>
+          <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+            {`
+         const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+         const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
+
+         const query = ${hook.name}({
+          ...${hook.queryOptions} as unknown as InfiniteQueryObserverOptions,
+          queryKey,
+          ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
+        }) as ${resolvedReturnType}
+
+        query.queryKey = queryKey as TQueryKey
+
+        return query
+
+         `}
+          </Function>
+        </>
+      )
+    }
+
+    if (suspense) {
+      return (
+        <>
+          <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+            {`
+         const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+         const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
+
+         const query = ${hook.name}({
+          ...${hook.queryOptions} as unknown as UseSuspenseQueryOptions,
+          queryKey,
+          ...queryOptions as unknown as Omit<UseSuspenseQueryOptions, "queryKey">
+        }) as ${resolvedReturnType}
+
+        query.queryKey = queryKey as TQueryKey
+
+        return query
+
+         `}
+          </Function>
+        </>
+      )
+    }
+
     return (
       <>
         <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
@@ -63,9 +112,9 @@ function Template({ name, generics, returnType, params, JSDoc, hook, infinite }:
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
          const query = ${hook.name}({
-          ...${hook.queryOptions} as unknown as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
+          ...${hook.queryOptions} as unknown as QueryObserverOptions,
           queryKey,
-          ...queryOptions as unknown as ${infinite ? 'Omit<InfiniteQueryObserverOptions, "queryKey">' : 'Omit<QueryObserverOptions, "queryKey">'}
+          ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
         }) as ${resolvedReturnType}
 
         query.queryKey = queryKey as TQueryKey
@@ -479,6 +528,7 @@ export function Query({
 
       {props.query && (
         <Template
+          suspense={props.suspense}
           name={[name, props.infinite ? 'Infinite' : undefined, props.suspense ? 'Suspense' : undefined].filter(Boolean).join('')}
           generics={generics.toString()}
           JSDoc={{ comments: getComments(operation) }}

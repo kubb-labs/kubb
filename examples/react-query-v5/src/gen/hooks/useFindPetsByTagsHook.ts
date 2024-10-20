@@ -1,15 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import { infiniteQueryOptions, queryOptions, skipToken, useInfiniteQuery, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import type {
-  QueryObserverOptions,
-  UseQueryResult,
-  QueryKey,
   InfiniteQueryObserverOptions,
+  QueryKey,
+  QueryObserverOptions,
   UseInfiniteQueryResult,
+  UseQueryResult,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -160,9 +160,9 @@ export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response']
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...(findPetsByTagsSuspenseQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
+    ...(findPetsByTagsSuspenseQueryOptions(params, clientOptions) as unknown as UseSuspenseQueryOptions),
     queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }

@@ -113,9 +113,9 @@ export function useUpdatePetWithFormHookSuspense<TData = UpdatePetWithForm['resp
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormSuspenseQueryKey(petId, params)
   const query = useSuspenseQuery({
-    ...(updatePetWithFormSuspenseQueryOptions(petId, params, clientOptions) as unknown as QueryObserverOptions),
+    ...(updatePetWithFormSuspenseQueryOptions(petId, params, clientOptions) as unknown as UseSuspenseQueryOptions),
     queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, UpdatePetWithForm['error']> & {
     queryKey: TQueryKey
   }

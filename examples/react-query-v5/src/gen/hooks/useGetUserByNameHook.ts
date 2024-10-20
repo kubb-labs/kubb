@@ -96,9 +96,9 @@ export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], 
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
   const query = useSuspenseQuery({
-    ...(getUserByNameSuspenseQueryOptions(username, clientOptions) as unknown as QueryObserverOptions),
+    ...(getUserByNameSuspenseQueryOptions(username, clientOptions) as unknown as UseSuspenseQueryOptions),
     queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }

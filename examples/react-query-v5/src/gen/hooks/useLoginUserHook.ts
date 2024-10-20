@@ -92,9 +92,9 @@ export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKe
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...(loginUserSuspenseQueryOptions(params, clientOptions) as unknown as QueryObserverOptions),
+    ...(loginUserSuspenseQueryOptions(params, clientOptions) as unknown as UseSuspenseQueryOptions),
     queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
   }) as UseSuspenseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
