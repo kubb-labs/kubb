@@ -31,6 +31,6 @@ export const createPetsMutationRequestSchema = z.object({ name: z.string(), tag:
 
 export type CreatePetsMutationRequestSchema = z.infer<typeof createPetsMutationRequestSchema>
 
-export const createPetsMutationResponseSchema = z.any()
+export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
 
 export type CreatePetsMutationResponseSchema = z.infer<typeof createPetsMutationResponseSchema>

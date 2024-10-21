@@ -26,9 +26,6 @@ export const getOrderById404Schema = z.any()
 
 export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
 
-/**
- * @description successful operation
- */
-export const getOrderByIdQueryResponseSchema = z.lazy(() => orderSchema)
+export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
 
 export type GetOrderByIdQueryResponseSchema = z.infer<typeof getOrderByIdQueryResponseSchema>

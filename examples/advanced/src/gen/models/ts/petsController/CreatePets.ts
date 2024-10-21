@@ -53,12 +53,13 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
-export type CreatePetsMutationResponse = any
+export type CreatePetsMutationResponse = CreatePets201
 
 export type CreatePetsMutation = {
-  Response: CreatePetsMutationResponse
+  Response: CreatePets201
   Request: CreatePetsMutationRequest
   PathParams: CreatePetsPathParams
   QueryParams: CreatePetsQueryParams
   HeaderParams: CreatePetsHeaderParams
+  Errors: any
 }

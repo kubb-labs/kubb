@@ -8,7 +8,7 @@ export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSche
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema)
+export const getPetById200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
 
 export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
@@ -26,9 +26,6 @@ export const getPetById404Schema = z.any()
 
 export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-/**
- * @description successful operation
- */
-export const getPetByIdQueryResponseSchema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
 
 export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>

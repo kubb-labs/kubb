@@ -2,10 +2,10 @@ import type { UpdateUserPathParams } from '../../models/ts/userController/Update
 import { createUserFaker } from '../createUserFaker.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUpdateUserPathParamsFaker(data: NonNullable<Partial<UpdateUserPathParams>> = {}) {
+export function createUpdateUserPathParamsFaker(data?: Partial<UpdateUserPathParams>) {
   return {
     ...{ username: faker.string.alpha() },
-    ...data,
+    ...(data || {}),
   }
 }
 

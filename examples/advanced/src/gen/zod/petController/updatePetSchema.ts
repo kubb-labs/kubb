@@ -4,9 +4,16 @@ import { z } from 'zod'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema)
+export const updatePet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
 
 export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
+
+/**
+ * @description accepted operation
+ */
+export const updatePet202Schema = z.object({ id: z.number().int().optional() })
+
+export type UpdatePet202Schema = z.infer<typeof updatePet202Schema>
 
 /**
  * @description Invalid ID supplied
@@ -36,9 +43,6 @@ export const updatePetMutationRequestSchema = z.lazy(() => petSchema).and(z.obje
 
 export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
 
-/**
- * @description Successful operation
- */
-export const updatePetMutationResponseSchema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
+export const updatePetMutationResponseSchema = z.union([z.lazy(() => updatePet200Schema), z.lazy(() => updatePet202Schema)])
 
 export type UpdatePetMutationResponseSchema = z.infer<typeof updatePetMutationResponseSchema>

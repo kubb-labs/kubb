@@ -4,7 +4,7 @@ import type { Pet } from '../Pet.ts'
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Pet not found
@@ -25,13 +25,10 @@ export type AddPet405 = {
  */
 export type AddPetMutationRequest = AddPetRequest
 
-/**
- * @description Successful operation
- */
-export type AddPetMutationResponse = Omit<NonNullable<Pet>, 'name'>
+export type AddPetMutationResponse = AddPet200
 
 export type AddPetMutation = {
-  Response: AddPetMutationResponse
+  Response: AddPet200
   Request: AddPetMutationRequest
   Errors: AddPet405
 }

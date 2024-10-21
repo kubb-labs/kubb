@@ -1,19 +1,19 @@
 import type { DeletePetPathParams, DeletePetHeaderParams } from '../../models/DeletePet.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeletePetPathParams(data: NonNullable<Partial<DeletePetPathParams>> = {}) {
+export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>) {
   faker.seed([220])
   return {
     ...{ petId: faker.number.int() },
-    ...data,
+    ...(data || {}),
   }
 }
 
-export function createDeletePetHeaderParams(data: NonNullable<Partial<DeletePetHeaderParams>> = {}) {
+export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams>) {
   faker.seed([220])
   return {
     ...{ api_key: faker.string.alpha() },
-    ...data,
+    ...(data || {}),
   }
 }
 

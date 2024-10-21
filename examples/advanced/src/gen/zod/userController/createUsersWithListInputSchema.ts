@@ -19,9 +19,6 @@ export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() =
 
 export type CreateUsersWithListInputMutationRequestSchema = z.infer<typeof createUsersWithListInputMutationRequestSchema>
 
-/**
- * @description Successful operation
- */
-export const createUsersWithListInputMutationResponseSchema = z.lazy(() => userSchema)
+export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)
 
 export type CreateUsersWithListInputMutationResponseSchema = z.infer<typeof createUsersWithListInputMutationResponseSchema>

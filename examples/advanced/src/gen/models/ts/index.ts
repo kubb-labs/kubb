@@ -27,6 +27,7 @@ export type {
 export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './petController/GetPetById.ts'
 export type {
   UpdatePet200,
+  UpdatePet202,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,

@@ -348,7 +348,7 @@ export const flyMachineInitSchema = z.object({
   tty: z.boolean().optional(),
 })
 
-export const flyMachineMetricsSchema = z.object({ path: z.string().optional(), port: z.number().int().optional() })
+export const flyMachineMetricsSchema = z.object({ https: z.boolean().optional(), path: z.string().optional(), port: z.number().int().optional() })
 
 export const flyMachineMountSchema = z.object({
   add_size_gb: z.number().int().optional(),
@@ -497,10 +497,7 @@ export const appsListQueryParamsSchema = z.object({ org_slug: z.string().describ
  */
 export const appsList200Schema = z.lazy(() => listAppsResponseSchema)
 
-/**
- * @description OK
- */
-export const appsListQueryResponseSchema = z.lazy(() => listAppsResponseSchema)
+export const appsListQueryResponseSchema = z.lazy(() => appsList200Schema)
 
 /**
  * @description Created
@@ -517,7 +514,7 @@ export const appsCreate400Schema = z.lazy(() => errorResponseSchema)
  */
 export const appsCreateMutationRequestSchema = z.lazy(() => createAppRequestSchema)
 
-export const appsCreateMutationResponseSchema = z.any()
+export const appsCreateMutationResponseSchema = z.lazy(() => appsCreate201Schema)
 
 export const appsShowPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
@@ -526,10 +523,7 @@ export const appsShowPathParamsSchema = z.object({ app_name: z.string().describe
  */
 export const appsShow200Schema = z.lazy(() => appSchema)
 
-/**
- * @description OK
- */
-export const appsShowQueryResponseSchema = z.lazy(() => appSchema)
+export const appsShowQueryResponseSchema = z.lazy(() => appsShow200Schema)
 
 export const appsDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
@@ -538,7 +532,7 @@ export const appsDeletePathParamsSchema = z.object({ app_name: z.string().descri
  */
 export const appsDelete202Schema = z.any()
 
-export const appsDeleteMutationResponseSchema = z.any()
+export const appsDeleteMutationResponseSchema = z.lazy(() => appsDelete202Schema)
 
 export const machinesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
@@ -555,10 +549,7 @@ export const machinesListQueryParamsSchema = z
  */
 export const machinesList200Schema = z.array(z.lazy(() => machineSchema))
 
-/**
- * @description OK
- */
-export const machinesListQueryResponseSchema = z.array(z.lazy(() => machineSchema))
+export const machinesListQueryResponseSchema = z.lazy(() => machinesList200Schema)
 
 export const machinesCreatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
@@ -572,10 +563,7 @@ export const machinesCreate200Schema = z.lazy(() => machineSchema)
  */
 export const machinesCreateMutationRequestSchema = z.lazy(() => createMachineRequestSchema)
 
-/**
- * @description OK
- */
-export const machinesCreateMutationResponseSchema = z.lazy(() => machineSchema)
+export const machinesCreateMutationResponseSchema = z.lazy(() => machinesCreate200Schema)
 
 export const machinesShowPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -584,10 +572,7 @@ export const machinesShowPathParamsSchema = z.object({ app_name: z.string().desc
  */
 export const machinesShow200Schema = z.lazy(() => machineSchema)
 
-/**
- * @description OK
- */
-export const machinesShowQueryResponseSchema = z.lazy(() => machineSchema)
+export const machinesShowQueryResponseSchema = z.lazy(() => machinesShow200Schema)
 
 export const machinesUpdatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -606,10 +591,7 @@ export const machinesUpdate400Schema = z.lazy(() => errorResponseSchema)
  */
 export const machinesUpdateMutationRequestSchema = z.lazy(() => updateMachineRequestSchema)
 
-/**
- * @description OK
- */
-export const machinesUpdateMutationResponseSchema = z.lazy(() => machineSchema)
+export const machinesUpdateMutationResponseSchema = z.lazy(() => machinesUpdate200Schema)
 
 export const machinesDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -620,7 +602,7 @@ export const machinesDeleteQueryParamsSchema = z.object({ force: z.boolean().des
  */
 export const machinesDelete200Schema = z.any()
 
-export const machinesDeleteMutationResponseSchema = z.any()
+export const machinesDeleteMutationResponseSchema = z.lazy(() => machinesDelete200Schema)
 
 export const machinesCordonPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -629,7 +611,7 @@ export const machinesCordonPathParamsSchema = z.object({ app_name: z.string().de
  */
 export const machinesCordon200Schema = z.any()
 
-export const machinesCordonMutationResponseSchema = z.any()
+export const machinesCordonMutationResponseSchema = z.lazy(() => machinesCordon200Schema)
 
 export const machinesListEventsPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -638,10 +620,7 @@ export const machinesListEventsPathParamsSchema = z.object({ app_name: z.string(
  */
 export const machinesListEvents200Schema = z.array(z.lazy(() => machineEventSchema))
 
-/**
- * @description OK
- */
-export const machinesListEventsQueryResponseSchema = z.array(z.lazy(() => machineEventSchema))
+export const machinesListEventsQueryResponseSchema = z.lazy(() => machinesListEvents200Schema)
 
 export const machinesExecPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -660,10 +639,7 @@ export const machinesExec400Schema = z.lazy(() => errorResponseSchema)
  */
 export const machinesExecMutationRequestSchema = z.lazy(() => machineExecRequestSchema)
 
-/**
- * @description stdout, stderr, exit code, and exit signal are returned
- */
-export const machinesExecMutationResponseSchema = z.lazy(() => flydv1ExecResponseSchema)
+export const machinesExecMutationResponseSchema = z.lazy(() => machinesExec200Schema)
 
 export const machinesShowLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -672,10 +648,7 @@ export const machinesShowLeasePathParamsSchema = z.object({ app_name: z.string()
  */
 export const machinesShowLease200Schema = z.lazy(() => leaseSchema)
 
-/**
- * @description OK
- */
-export const machinesShowLeaseQueryResponseSchema = z.lazy(() => leaseSchema)
+export const machinesShowLeaseQueryResponseSchema = z.lazy(() => machinesShowLease200Schema)
 
 export const machinesCreateLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -693,10 +666,7 @@ export const machinesCreateLease200Schema = z.lazy(() => leaseSchema)
  */
 export const machinesCreateLeaseMutationRequestSchema = z.lazy(() => createLeaseRequestSchema)
 
-/**
- * @description OK
- */
-export const machinesCreateLeaseMutationResponseSchema = z.lazy(() => leaseSchema)
+export const machinesCreateLeaseMutationResponseSchema = z.lazy(() => machinesCreateLease200Schema)
 
 export const machinesReleaseLeasePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -707,7 +677,7 @@ export const machinesReleaseLeaseHeaderParamsSchema = z.object({ 'fly-machine-le
  */
 export const machinesReleaseLease200Schema = z.any()
 
-export const machinesReleaseLeaseMutationResponseSchema = z.any()
+export const machinesReleaseLeaseMutationResponseSchema = z.lazy(() => machinesReleaseLease200Schema)
 
 export const machinesShowMetadataPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -716,10 +686,7 @@ export const machinesShowMetadataPathParamsSchema = z.object({ app_name: z.strin
  */
 export const machinesShowMetadata200Schema = z.object({}).catchall(z.string())
 
-/**
- * @description OK
- */
-export const machinesShowMetadataQueryResponseSchema = z.object({}).catchall(z.string())
+export const machinesShowMetadataQueryResponseSchema = z.lazy(() => machinesShowMetadata200Schema)
 
 export const machinesUpdateMetadataPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
@@ -737,7 +704,7 @@ export const machinesUpdateMetadata204Schema = z.any()
  */
 export const machinesUpdateMetadata400Schema = z.lazy(() => errorResponseSchema)
 
-export const machinesUpdateMetadataMutationResponseSchema = z.any()
+export const machinesUpdateMetadataMutationResponseSchema = z.lazy(() => machinesUpdateMetadata204Schema)
 
 export const machinesDeleteMetadataPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
@@ -750,7 +717,7 @@ export const machinesDeleteMetadataPathParamsSchema = z.object({
  */
 export const machinesDeleteMetadata204Schema = z.any()
 
-export const machinesDeleteMetadataMutationResponseSchema = z.any()
+export const machinesDeleteMetadataMutationResponseSchema = z.lazy(() => machinesDeleteMetadata204Schema)
 
 export const machinesListProcessesPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -768,10 +735,7 @@ export const machinesListProcesses200Schema = z.array(z.lazy(() => processStatSc
  */
 export const machinesListProcesses400Schema = z.lazy(() => errorResponseSchema)
 
-/**
- * @description OK
- */
-export const machinesListProcessesQueryResponseSchema = z.array(z.lazy(() => processStatSchema))
+export const machinesListProcessesQueryResponseSchema = z.lazy(() => machinesListProcesses200Schema)
 
 export const machinesRestartPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -792,7 +756,7 @@ export const machinesRestart200Schema = z.any()
  */
 export const machinesRestart400Schema = z.lazy(() => errorResponseSchema)
 
-export const machinesRestartMutationResponseSchema = z.any()
+export const machinesRestartMutationResponseSchema = z.lazy(() => machinesRestart200Schema)
 
 export const machinesSignalPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -811,7 +775,7 @@ export const machinesSignal400Schema = z.lazy(() => errorResponseSchema)
  */
 export const machinesSignalMutationRequestSchema = z.lazy(() => signalRequestSchema)
 
-export const machinesSignalMutationResponseSchema = z.any()
+export const machinesSignalMutationResponseSchema = z.lazy(() => machinesSignal200Schema)
 
 export const machinesStartPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -820,7 +784,7 @@ export const machinesStartPathParamsSchema = z.object({ app_name: z.string().des
  */
 export const machinesStart200Schema = z.any()
 
-export const machinesStartMutationResponseSchema = z.any()
+export const machinesStartMutationResponseSchema = z.lazy(() => machinesStart200Schema)
 
 export const machinesStopPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -839,7 +803,7 @@ export const machinesStop400Schema = z.lazy(() => errorResponseSchema)
  */
 export const machinesStopMutationRequestSchema = z.lazy(() => stopRequestSchema)
 
-export const machinesStopMutationResponseSchema = z.any()
+export const machinesStopMutationResponseSchema = z.lazy(() => machinesStop200Schema)
 
 export const machinesSuspendPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -848,7 +812,7 @@ export const machinesSuspendPathParamsSchema = z.object({ app_name: z.string().d
  */
 export const machinesSuspend200Schema = z.any()
 
-export const machinesSuspendMutationResponseSchema = z.any()
+export const machinesSuspendMutationResponseSchema = z.lazy(() => machinesSuspend200Schema)
 
 export const machinesUncordonPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -857,7 +821,7 @@ export const machinesUncordonPathParamsSchema = z.object({ app_name: z.string().
  */
 export const machinesUncordon200Schema = z.any()
 
-export const machinesUncordonMutationResponseSchema = z.any()
+export const machinesUncordonMutationResponseSchema = z.lazy(() => machinesUncordon200Schema)
 
 export const machinesListVersionsPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -866,10 +830,7 @@ export const machinesListVersionsPathParamsSchema = z.object({ app_name: z.strin
  */
 export const machinesListVersions200Schema = z.array(z.lazy(() => machineVersionSchema))
 
-/**
- * @description OK
- */
-export const machinesListVersionsQueryResponseSchema = z.array(z.lazy(() => machineVersionSchema))
+export const machinesListVersionsQueryResponseSchema = z.lazy(() => machinesListVersions200Schema)
 
 export const machinesWaitPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), machine_id: z.string().describe('Machine ID') })
 
@@ -891,17 +852,14 @@ export const machinesWait200Schema = z.any()
  */
 export const machinesWait400Schema = z.lazy(() => errorResponseSchema)
 
-export const machinesWaitQueryResponseSchema = z.any()
+export const machinesWaitQueryResponseSchema = z.lazy(() => machinesWait200Schema)
 
 /**
  * @description OK
  */
 export const secretsList200Schema = z.array(z.lazy(() => listSecretSchema))
 
-/**
- * @description OK
- */
-export const secretsListQueryResponseSchema = z.array(z.lazy(() => listSecretSchema))
+export const secretsListQueryResponseSchema = z.lazy(() => secretsList200Schema)
 
 export const secretDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), secret_label: z.string().describe('App Secret Label') })
 
@@ -910,7 +868,7 @@ export const secretDeletePathParamsSchema = z.object({ app_name: z.string().desc
  */
 export const secretDelete200Schema = z.any()
 
-export const secretDeleteMutationResponseSchema = z.any()
+export const secretDeleteMutationResponseSchema = z.lazy(() => secretDelete200Schema)
 
 /**
  * @description Created
@@ -927,7 +885,7 @@ export const secretCreate400Schema = z.lazy(() => errorResponseSchema)
  */
 export const secretCreateMutationRequestSchema = z.lazy(() => createSecretRequestSchema)
 
-export const secretCreateMutationResponseSchema = z.any()
+export const secretCreateMutationResponseSchema = z.lazy(() => secretCreate201Schema)
 
 /**
  * @description Created
@@ -939,7 +897,7 @@ export const secretGenerate201Schema = z.any()
  */
 export const secretGenerate400Schema = z.lazy(() => errorResponseSchema)
 
-export const secretGenerateMutationResponseSchema = z.any()
+export const secretGenerateMutationResponseSchema = z.lazy(() => secretGenerate201Schema)
 
 export const volumesListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
@@ -952,10 +910,7 @@ export const volumesListQueryParamsSchema = z
  */
 export const volumesList200Schema = z.array(z.lazy(() => volumeSchema))
 
-/**
- * @description OK
- */
-export const volumesListQueryResponseSchema = z.array(z.lazy(() => volumeSchema))
+export const volumesListQueryResponseSchema = z.lazy(() => volumesList200Schema)
 
 export const volumesCreatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
 
@@ -969,10 +924,7 @@ export const volumesCreate200Schema = z.lazy(() => volumeSchema)
  */
 export const volumesCreateMutationRequestSchema = z.lazy(() => createVolumeRequestSchema)
 
-/**
- * @description OK
- */
-export const volumesCreateMutationResponseSchema = z.lazy(() => volumeSchema)
+export const volumesCreateMutationResponseSchema = z.lazy(() => volumesCreate200Schema)
 
 export const volumesGetByIdPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
 
@@ -981,10 +933,7 @@ export const volumesGetByIdPathParamsSchema = z.object({ app_name: z.string().de
  */
 export const volumesGetById200Schema = z.lazy(() => volumeSchema)
 
-/**
- * @description OK
- */
-export const volumesGetByIdQueryResponseSchema = z.lazy(() => volumeSchema)
+export const volumesGetByIdQueryResponseSchema = z.lazy(() => volumesGetById200Schema)
 
 export const volumesUpdatePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
 
@@ -1003,10 +952,7 @@ export const volumesUpdate400Schema = z.lazy(() => errorResponseSchema)
  */
 export const volumesUpdateMutationRequestSchema = z.lazy(() => updateVolumeRequestSchema)
 
-/**
- * @description OK
- */
-export const volumesUpdateMutationResponseSchema = z.lazy(() => volumeSchema)
+export const volumesUpdateMutationResponseSchema = z.lazy(() => volumesUpdate200Schema)
 
 export const volumeDeletePathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
 
@@ -1015,10 +961,7 @@ export const volumeDeletePathParamsSchema = z.object({ app_name: z.string().desc
  */
 export const volumeDelete200Schema = z.lazy(() => volumeSchema)
 
-/**
- * @description OK
- */
-export const volumeDeleteMutationResponseSchema = z.lazy(() => volumeSchema)
+export const volumeDeleteMutationResponseSchema = z.lazy(() => volumeDelete200Schema)
 
 export const volumesExtendPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
 
@@ -1032,10 +975,7 @@ export const volumesExtend200Schema = z.lazy(() => extendVolumeResponseSchema)
  */
 export const volumesExtendMutationRequestSchema = z.lazy(() => extendVolumeRequestSchema)
 
-/**
- * @description OK
- */
-export const volumesExtendMutationResponseSchema = z.lazy(() => extendVolumeResponseSchema)
+export const volumesExtendMutationResponseSchema = z.lazy(() => volumesExtend200Schema)
 
 export const volumesListSnapshotsPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
 
@@ -1044,10 +984,7 @@ export const volumesListSnapshotsPathParamsSchema = z.object({ app_name: z.strin
  */
 export const volumesListSnapshots200Schema = z.array(z.lazy(() => volumeSnapshotSchema))
 
-/**
- * @description OK
- */
-export const volumesListSnapshotsQueryResponseSchema = z.array(z.lazy(() => volumeSnapshotSchema))
+export const volumesListSnapshotsQueryResponseSchema = z.lazy(() => volumesListSnapshots200Schema)
 
 export const createVolumeSnapshotPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name'), volume_id: z.string().describe('Volume ID') })
 
@@ -1056,17 +993,14 @@ export const createVolumeSnapshotPathParamsSchema = z.object({ app_name: z.strin
  */
 export const createVolumeSnapshot200Schema = z.any()
 
-export const createVolumeSnapshotMutationResponseSchema = z.any()
+export const createVolumeSnapshotMutationResponseSchema = z.lazy(() => createVolumeSnapshot200Schema)
 
 /**
  * @description KMS token
  */
 export const tokensRequestKms200Schema = z.string()
 
-/**
- * @description KMS token
- */
-export const tokensRequestKmsMutationResponseSchema = z.string()
+export const tokensRequestKmsMutationResponseSchema = z.lazy(() => tokensRequestKms200Schema)
 
 /**
  * @description OIDC token
@@ -1083,7 +1017,4 @@ export const tokensRequestOidc400Schema = z.lazy(() => errorResponseSchema)
  */
 export const tokensRequestOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema)
 
-/**
- * @description OIDC token
- */
-export const tokensRequestOidcMutationResponseSchema = z.string()
+export const tokensRequestOidcMutationResponseSchema = z.lazy(() => tokensRequestOidc200Schema)

@@ -1,18 +1,18 @@
-import type { UploadFilePathParams, UploadFileQueryParams } from '../../models/ts/petController/UploadFile.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileMutationResponse } from '../../models/ts/petController/UploadFile.ts'
 import { createApiResponseFaker } from '../createApiResponseFaker.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUploadFilePathParamsFaker(data: NonNullable<Partial<UploadFilePathParams>> = {}) {
+export function createUploadFilePathParamsFaker(data?: Partial<UploadFilePathParams>) {
   return {
     ...{ petId: faker.number.int() },
-    ...data,
+    ...(data || {}),
   }
 }
 
-export function createUploadFileQueryParamsFaker(data: NonNullable<Partial<UploadFileQueryParams>> = {}) {
+export function createUploadFileQueryParamsFaker(data?: Partial<UploadFileQueryParams>) {
   return {
     ...{ additionalMetadata: faker.string.alpha() },
-    ...data,
+    ...(data || {}),
   }
 }
 
@@ -27,9 +27,6 @@ export function createUploadFileMutationRequestFaker() {
   return faker.image.url() as unknown as Blob
 }
 
-/**
- * @description successful operation
- */
-export function createUploadFileMutationResponseFaker() {
-  return createApiResponseFaker()
+export function createUploadFileMutationResponseFaker(data?: Partial<UploadFileMutationResponse>) {
+  return faker.helpers.arrayElement<any>([createUploadFile200Faker()]) || data
 }

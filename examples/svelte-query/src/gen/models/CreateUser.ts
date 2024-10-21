@@ -13,6 +13,7 @@ export type CreateUserMutationRequest = User
 export type CreateUserMutationResponse = any
 
 export type CreateUserMutation = {
-  Response: CreateUserMutationResponse
+  Response: any
   Request: CreateUserMutationRequest
+  Errors: any
 }

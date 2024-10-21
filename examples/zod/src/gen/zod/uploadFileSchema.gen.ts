@@ -20,9 +20,6 @@ export const uploadFileMutationRequestSchema = z.string()
 
 export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
 
-/**
- * @description successful operation
- */
-export const uploadFileMutationResponseSchema = z.lazy(() => apiResponseSchema)
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
 
 export type UploadFileMutationResponseSchema = z.infer<typeof uploadFileMutationResponseSchema>

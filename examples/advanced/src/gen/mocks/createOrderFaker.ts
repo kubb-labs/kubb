@@ -1,7 +1,7 @@
 import type { Order } from '../models/ts/Order.ts'
 import { faker } from '@faker-js/faker'
 
-export function createOrderFaker(data: NonNullable<Partial<Order>> = {}) {
+export function createOrderFaker(data?: Partial<Order>) {
   return {
     ...{
       id: faker.number.int(),
@@ -14,6 +14,6 @@ export function createOrderFaker(data: NonNullable<Partial<Order>> = {}) {
       http_status: faker.helpers.arrayElement<any>(['ok', 'not_found']),
       complete: faker.datatype.boolean(),
     },
-    ...data,
+    ...(data || {}),
   }
 }

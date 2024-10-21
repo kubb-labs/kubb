@@ -5,11 +5,9 @@ import type { Pet } from './Pet.ts'
  */
 export type OptionsFindPetsByStatus200 = Pet[]
 
-/**
- * @description successful operation
- */
-export type OptionsFindPetsByStatusMutationResponse = Pet[]
+export type OptionsFindPetsByStatusMutationResponse = OptionsFindPetsByStatus200
 
 export type OptionsFindPetsByStatusMutation = {
-  Response: OptionsFindPetsByStatusMutationResponse
+  Response: OptionsFindPetsByStatus200
+  Errors: any
 }

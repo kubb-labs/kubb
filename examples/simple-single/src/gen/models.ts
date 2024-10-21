@@ -264,13 +264,10 @@ export type UpdatePet405 = any
  */
 export type UpdatePetMutationRequest = Pet
 
-/**
- * @description Successful operation
- */
-export type UpdatePetMutationResponse = Pet
+export type UpdatePetMutationResponse = UpdatePet200
 
 export type UpdatePetMutation = {
-  Response: UpdatePetMutationResponse
+  Response: UpdatePet200
   Request: UpdatePetMutationRequest
   Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }
@@ -299,13 +296,10 @@ export type AddPet405 = {
  */
 export type AddPetMutationRequest = AddPetRequest
 
-/**
- * @description Successful operation
- */
-export type AddPetMutationResponse = Pet
+export type AddPetMutationResponse = AddPet200
 
 export type AddPetMutation = {
-  Response: AddPetMutationResponse
+  Response: AddPet200
   Request: AddPetMutationRequest
   Errors: AddPet405
 }
@@ -337,13 +331,10 @@ export type FindPetsByStatus200 = Pet[]
  */
 export type FindPetsByStatus400 = any
 
-/**
- * @description successful operation
- */
-export type FindPetsByStatusQueryResponse = Pet[]
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200
 
 export type FindPetsByStatusQuery = {
-  Response: FindPetsByStatusQueryResponse
+  Response: FindPetsByStatus200
   QueryParams: FindPetsByStatusQueryParams
   Errors: FindPetsByStatus400
 }
@@ -376,13 +367,10 @@ export type FindPetsByTags200 = Pet[]
  */
 export type FindPetsByTags400 = any
 
-/**
- * @description successful operation
- */
-export type FindPetsByTagsQueryResponse = Pet[]
+export type FindPetsByTagsQueryResponse = FindPetsByTags200
 
 export type FindPetsByTagsQuery = {
-  Response: FindPetsByTagsQueryResponse
+  Response: FindPetsByTags200
   QueryParams: FindPetsByTagsQueryParams
   Errors: FindPetsByTags400
 }
@@ -410,13 +398,10 @@ export type GetPetById400 = any
  */
 export type GetPetById404 = any
 
-/**
- * @description successful operation
- */
-export type GetPetByIdQueryResponse = Pet
+export type GetPetByIdQueryResponse = GetPetById200
 
 export type GetPetByIdQuery = {
-  Response: GetPetByIdQueryResponse
+  Response: GetPetById200
   PathParams: GetPetByIdPathParams
   Errors: GetPetById400 | GetPetById404
 }
@@ -450,7 +435,7 @@ export type UpdatePetWithForm405 = any
 export type UpdatePetWithFormMutationResponse = any
 
 export type UpdatePetWithFormMutation = {
-  Response: UpdatePetWithFormMutationResponse
+  Response: any
   PathParams: UpdatePetWithFormPathParams
   QueryParams: UpdatePetWithFormQueryParams
   Errors: UpdatePetWithForm405
@@ -479,7 +464,7 @@ export type DeletePet400 = any
 export type DeletePetMutationResponse = any
 
 export type DeletePetMutation = {
-  Response: DeletePetMutationResponse
+  Response: any
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400
@@ -508,16 +493,14 @@ export type UploadFile200 = ApiResponse
 
 export type UploadFileMutationRequest = Blob
 
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponse = ApiResponse
+export type UploadFileMutationResponse = UploadFile200
 
 export type UploadFileMutation = {
-  Response: UploadFileMutationResponse
+  Response: UploadFile200
   Request: UploadFileMutationRequest
   PathParams: UploadFilePathParams
   QueryParams: UploadFileQueryParams
+  Errors: any
 }
 
 /**
@@ -527,15 +510,11 @@ export type GetInventory200 = {
   [key: string]: number
 }
 
-/**
- * @description successful operation
- */
-export type GetInventoryQueryResponse = {
-  [key: string]: number
-}
+export type GetInventoryQueryResponse = GetInventory200
 
 export type GetInventoryQuery = {
-  Response: GetInventoryQueryResponse
+  Response: GetInventory200
+  Errors: any
 }
 
 /**
@@ -550,13 +529,10 @@ export type PlaceOrder405 = any
 
 export type PlaceOrderMutationRequest = Order
 
-/**
- * @description successful operation
- */
-export type PlaceOrderMutationResponse = Order
+export type PlaceOrderMutationResponse = PlaceOrder200
 
 export type PlaceOrderMutation = {
-  Response: PlaceOrderMutationResponse
+  Response: PlaceOrder200
   Request: PlaceOrderMutationRequest
   Errors: PlaceOrder405
 }
@@ -573,13 +549,10 @@ export type PlaceOrderPatch405 = any
 
 export type PlaceOrderPatchMutationRequest = Order
 
-/**
- * @description successful operation
- */
-export type PlaceOrderPatchMutationResponse = Order
+export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
 export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatchMutationResponse
+  Response: PlaceOrderPatch200
   Request: PlaceOrderPatchMutationRequest
   Errors: PlaceOrderPatch405
 }
@@ -607,13 +580,10 @@ export type GetOrderById400 = any
  */
 export type GetOrderById404 = any
 
-/**
- * @description successful operation
- */
-export type GetOrderByIdQueryResponse = Order
+export type GetOrderByIdQueryResponse = GetOrderById200
 
 export type GetOrderByIdQuery = {
-  Response: GetOrderByIdQueryResponse
+  Response: GetOrderById200
   PathParams: GetOrderByIdPathParams
   Errors: GetOrderById400 | GetOrderById404
 }
@@ -639,7 +609,7 @@ export type DeleteOrder404 = any
 export type DeleteOrderMutationResponse = any
 
 export type DeleteOrderMutation = {
-  Response: DeleteOrderMutationResponse
+  Response: any
   PathParams: DeleteOrderPathParams
   Errors: DeleteOrder400 | DeleteOrder404
 }
@@ -657,8 +627,9 @@ export type CreateUserMutationRequest = User
 export type CreateUserMutationResponse = any
 
 export type CreateUserMutation = {
-  Response: CreateUserMutationResponse
+  Response: any
   Request: CreateUserMutationRequest
+  Errors: any
 }
 
 /**
@@ -673,14 +644,12 @@ export type CreateUsersWithListInputError = any
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
-/**
- * @description Successful operation
- */
-export type CreateUsersWithListInputMutationResponse = User
+export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 
 export type CreateUsersWithListInputMutation = {
-  Response: CreateUsersWithListInputMutationResponse
+  Response: CreateUsersWithListInput200
   Request: CreateUsersWithListInputMutationRequest
+  Errors: any
 }
 
 export type LoginUserQueryParams = {
@@ -706,13 +675,10 @@ export type LoginUser200 = string
  */
 export type LoginUser400 = any
 
-/**
- * @description successful operation
- */
-export type LoginUserQueryResponse = string
+export type LoginUserQueryResponse = LoginUser200
 
 export type LoginUserQuery = {
-  Response: LoginUserQueryResponse
+  Response: LoginUser200
   QueryParams: LoginUserQueryParams
   Errors: LoginUser400
 }
@@ -725,7 +691,8 @@ export type LogoutUserError = any
 export type LogoutUserQueryResponse = any
 
 export type LogoutUserQuery = {
-  Response: LogoutUserQueryResponse
+  Response: any
+  Errors: any
 }
 
 export type GetUserByNamePathParams = {
@@ -751,13 +718,10 @@ export type GetUserByName400 = any
  */
 export type GetUserByName404 = any
 
-/**
- * @description successful operation
- */
-export type GetUserByNameQueryResponse = User
+export type GetUserByNameQueryResponse = GetUserByName200
 
 export type GetUserByNameQuery = {
-  Response: GetUserByNameQueryResponse
+  Response: GetUserByName200
   PathParams: GetUserByNamePathParams
   Errors: GetUserByName400 | GetUserByName404
 }
@@ -783,9 +747,10 @@ export type UpdateUserMutationRequest = User
 export type UpdateUserMutationResponse = any
 
 export type UpdateUserMutation = {
-  Response: UpdateUserMutationResponse
+  Response: any
   Request: UpdateUserMutationRequest
   PathParams: UpdateUserPathParams
+  Errors: any
 }
 
 export type DeleteUserPathParams = {
@@ -809,7 +774,7 @@ export type DeleteUser404 = any
 export type DeleteUserMutationResponse = any
 
 export type DeleteUserMutation = {
-  Response: DeleteUserMutationResponse
+  Response: any
   PathParams: DeleteUserPathParams
   Errors: DeleteUser400 | DeleteUser404
 }

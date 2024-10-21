@@ -1,20 +1,20 @@
-import type { UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileMutationResponse } from '../../models/UploadFile.ts'
 import { createApiResponse } from '../createApiResponse.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUploadFilePathParams(data: NonNullable<Partial<UploadFilePathParams>> = {}) {
+export function createUploadFilePathParams(data?: Partial<UploadFilePathParams>) {
   faker.seed([220])
   return {
     ...{ petId: faker.number.int() },
-    ...data,
+    ...(data || {}),
   }
 }
 
-export function createUploadFileQueryParams(data: NonNullable<Partial<UploadFileQueryParams>> = {}) {
+export function createUploadFileQueryParams(data?: Partial<UploadFileQueryParams>) {
   faker.seed([220])
   return {
     ...{ additionalMetadata: faker.string.alpha() },
-    ...data,
+    ...(data || {}),
   }
 }
 
@@ -31,10 +31,7 @@ export function createUploadFileMutationRequest() {
   return faker.image.url() as unknown as Blob
 }
 
-/**
- * @description successful operation
- */
-export function createUploadFileMutationResponse() {
+export function createUploadFileMutationResponse(data?: Partial<UploadFileMutationResponse>) {
   faker.seed([220])
-  return createApiResponse()
+  return faker.helpers.arrayElement<any>([createUploadFile200()]) || data
 }

@@ -155,29 +155,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       )
     }
 
-    const responseNode = factory.createTypeAliasDeclaration({
-      name: schemas.response.name,
-      type: factory.createUnionDeclaration({
-        nodes: schemas.responses.map((res) => {
-          const identifier = pluginManager.resolveName({
-            name: res.name,
-            pluginKey: [pluginTsName],
-            type: 'function',
-          })
-
-          return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
-        }),
-      }),
-      modifiers: [factory.modifiers.export],
-    })
-
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
         {operationSchemas.map(mapOperationSchema)}
-
-        {/*<File.Source name={schemas.response.name} isIndexable isExportable isTypeOnly>*/}
-        {/*  {print([responseNode])}*/}
-        {/*</File.Source>*/}
 
         <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
           {printCombinedSchema({ name: combinedSchemaName, schemas, pluginManager })}

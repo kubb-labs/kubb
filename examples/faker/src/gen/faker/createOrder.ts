@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import type { Order } from '../models/Order.ts'
 import { faker } from '@faker-js/faker'
 
-export function createOrder(data: NonNullable<Partial<Order>> = {}) {
+export function createOrder(data?: Partial<Order>) {
   return {
     ...{
       id: faker.number.int(),
@@ -14,6 +14,6 @@ export function createOrder(data: NonNullable<Partial<Order>> = {}) {
       status: faker.helpers.arrayElement<any>(['placed', 'approved', 'delivered']),
       complete: faker.datatype.boolean(),
     },
-    ...data,
+    ...(data || {}),
   }
 }

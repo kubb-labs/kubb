@@ -5,7 +5,7 @@ import { z } from 'zod'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema)
+export const addPet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
 
 export type AddPet200Schema = z.infer<typeof addPet200Schema>
 
@@ -23,9 +23,6 @@ export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 
 export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSchema>
 
-/**
- * @description Successful operation
- */
-export const addPetMutationResponseSchema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
+export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
 
 export type AddPetMutationResponseSchema = z.infer<typeof addPetMutationResponseSchema>

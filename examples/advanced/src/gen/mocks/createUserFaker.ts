@@ -1,7 +1,7 @@
 import type { User } from '../models/ts/User.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUserFaker(data: NonNullable<Partial<User>> = {}) {
+export function createUserFaker(data?: Partial<User>) {
   return {
     ...{
       id: faker.number.int(),
@@ -13,6 +13,6 @@ export function createUserFaker(data: NonNullable<Partial<User>> = {}) {
       phone: faker.string.alpha(),
       userStatus: faker.number.int(),
     },
-    ...data,
+    ...(data || {}),
   }
 }

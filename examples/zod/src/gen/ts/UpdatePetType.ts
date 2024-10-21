@@ -25,13 +25,10 @@ export type UpdatePet405Type = any
  */
 export type UpdatePetMutationRequestType = PetType
 
-/**
- * @description Successful operation
- */
-export type UpdatePetMutationResponseType = PetType
+export type UpdatePetMutationResponseType = UpdatePet200Type
 
 export type UpdatePetTypeMutation = {
-  Response: UpdatePetMutationResponseType
+  Response: UpdatePet200Type
   Request: UpdatePetMutationRequestType
   Errors: UpdatePet400Type | UpdatePet404Type | UpdatePet405Type
 }

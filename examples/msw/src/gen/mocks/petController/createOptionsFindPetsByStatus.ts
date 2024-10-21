@@ -5,15 +5,12 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatus200() {
+export function createOptionsFindPetsByStatus200(data?: Partial<OptionsFindPetsByStatus200>) {
   faker.seed([220])
-  return faker.helpers.multiple(() => createPet()) as any
+  return [...(faker.helpers.multiple(() => createPet()) as any), ...(data || [])]
 }
 
-/**
- * @description successful operation
- */
-export function createOptionsFindPetsByStatusMutationResponse() {
+export function createOptionsFindPetsByStatusMutationResponse(data?: Partial<OptionsFindPetsByStatusMutationResponse>) {
   faker.seed([220])
-  return faker.helpers.multiple(() => createPet()) as any
+  return faker.helpers.arrayElement<any>([createOptionsFindPetsByStatus200()]) || data
 }

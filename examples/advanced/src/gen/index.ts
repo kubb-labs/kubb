@@ -73,6 +73,7 @@ export type {
 } from './models/ts/petController/GetPetById.ts'
 export type {
   UpdatePet200,
+  UpdatePet202,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
@@ -207,6 +208,7 @@ export type {
 } from './zod/petController/getPetByIdSchema.ts'
 export type {
   UpdatePet200Schema,
+  UpdatePet202Schema,
   UpdatePet400Schema,
   UpdatePet404Schema,
   UpdatePet405Schema,
@@ -369,6 +371,7 @@ export {
 } from './mocks/petController/createGetPetByIdFaker.ts'
 export {
   createUpdatePet200Faker,
+  createUpdatePet202Faker,
   createUpdatePet400Faker,
   createUpdatePet404Faker,
   createUpdatePet405Faker,
@@ -492,6 +495,7 @@ export {
 } from './zod/petController/getPetByIdSchema.ts'
 export {
   updatePet200Schema,
+  updatePet202Schema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,

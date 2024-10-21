@@ -118,6 +118,17 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/Pet"
+        '202':
+          description: accepted operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 10
         "400":
           description: Invalid ID supplied
         "404":
