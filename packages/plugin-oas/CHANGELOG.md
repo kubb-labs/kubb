@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.0-beta.7
+
+### Patch Changes
+
+- [#1351](https://github.com/kubb-labs/kubb/pull/1351) [`e8e5e03`](https://github.com/kubb-labs/kubb/commit/e8e5e039b413680f4420eb74b2f00c4ef7ed306f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support multiple responses + cleanup response/request type generation
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.7
+  - @kubb/fs@3.0.0-beta.7
+  - @kubb/oas@3.0.0-beta.7
+  - @kubb/react@3.0.0-beta.7
+
 ## 3.0.0-beta.6
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @kubb/plugin-msw
 
+## 3.0.0-beta.7
+
+### Patch Changes
+
+- Updated dependencies [[`e8e5e03`](https://github.com/kubb-labs/kubb/commit/e8e5e039b413680f4420eb74b2f00c4ef7ed306f)]:
+  - @kubb/plugin-oas@3.0.0-beta.7
+  - @kubb/plugin-faker@3.0.0-beta.7
+  - @kubb/plugin-ts@3.0.0-beta.7
+  - @kubb/core@3.0.0-beta.7
+  - @kubb/fs@3.0.0-beta.7
+  - @kubb/oas@3.0.0-beta.7
+  - @kubb/react@3.0.0-beta.7
+
 ## 3.0.0-beta.6
 
 ### Patch Changes
