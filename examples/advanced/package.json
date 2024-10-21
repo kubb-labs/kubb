@@ -44,7 +44,7 @@
     "@tanstack/svelte-query": "^5.59.13",
     "@tanstack/vue-query": "^5.59.13",
     "axios": "^1.7.7",
-    "msw": "^2.4.11",
+    "msw": "^2.4.12",
     "react": "^18.3.1",
     "solid-js": "^1.9.2",
     "svelte": "^3.59.2",
