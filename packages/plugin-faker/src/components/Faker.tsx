@@ -35,32 +35,31 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
       .filter(Boolean),
   )
 
-  let fakerDefaultOverride: '' | '[]' | '{}' | undefined = undefined
   let fakerTextWithOverride = fakerText
 
   if (canOverride && fakerText.startsWith('{')) {
-    fakerDefaultOverride = '{}'
     fakerTextWithOverride = `{
   ...${fakerText},
-  ...data
+  ...data || {}
 }`
   }
 
-  if (canOverride && fakerText.startsWith('faker.helpers.arrayElements')) {
-    fakerDefaultOverride = '[]'
+  if (canOverride && fakerText.startsWith('faker.helpers.arrayElement')) {
+    fakerTextWithOverride = `${fakerText} || data`
+  }
+
+  if ((canOverride && fakerText.startsWith('faker.helpers.arrayElements')) || fakerText.startsWith('faker.helpers.multiple')) {
     fakerTextWithOverride = `[
       ...${fakerText},
-      ...data
+      ...data || []
     ]`
   }
 
   const params = FunctionParams.factory({
-    data: fakerDefaultOverride
-      ? {
-          type: `NonNullable<Partial<${typeName}>>`,
-          default: fakerDefaultOverride,
-        }
-      : undefined,
+    data: {
+      type: `Partial<${typeName}>`,
+      optional: true,
+    },
   })
 
   return (
@@ -69,7 +68,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
         export
         name={name}
         JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
-        params={params.toConstructor()}
+        params={canOverride ? params.toConstructor() : undefined}
       >
         {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
         <br />

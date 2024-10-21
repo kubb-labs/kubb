@@ -55,7 +55,7 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
             typeName ? ` as z.ZodType<${typeName}>` : '',
           ]
             .filter(Boolean)
-            .join('') || ''}
+            .join('') || 'z.undefined()'}
         </Const>
       </File.Source>
       {inferTypeName && (

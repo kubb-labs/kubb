@@ -178,6 +178,7 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
       "items": [
         {
           "args": {
+            "isImportable": true,
             "name": "pet",
             "path": "pet.ts",
           },

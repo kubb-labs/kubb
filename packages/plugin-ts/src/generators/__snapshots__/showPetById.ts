@@ -1,4 +1,5 @@
-export type ShowPetByIdPathParams = {
+
+ export type ShowPetByIdPathParams = {
     /**
      * @description The id of the pet to retrieve
      * @type string
@@ -21,12 +22,10 @@ export type ShowPetById200 = pet;
 */
 export type ShowPetByIdError = error;
 
- /**
- * @description Expected response to a valid request
-*/
-export type ShowPetByIdQueryResponse = pet;
+ export type ShowPetByIdQueryResponse = showPetById200;
 
  export type showPetByIdQuery = {
-    Response: showPetByIdQueryResponse;
+    Response: showPetById200;
     PathParams: showPetByIdPathParams;
+    Errors: any;
 };

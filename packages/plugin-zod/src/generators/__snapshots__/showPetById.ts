@@ -12,7 +12,4 @@ export const showPetById200 = z.lazy(() => pet);
  */
 export const showPetByIdError = z.lazy(() => error);
 
- /**
- * @description Expected response to a valid request
- */
-export const showPetByIdQueryResponse = z.lazy(() => pet);
+ export const showPetByIdQueryResponse = z.lazy(() => showPetById200);

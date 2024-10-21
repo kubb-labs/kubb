@@ -5,14 +5,9 @@ import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { Plugin } from '@kubb/core'
-import type { HttpMethod, Oas, OasTypes, Operation, contentType } from '@kubb/oas'
+import type { HttpMethod, Oas, OasTypes, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { Generator } from './generator.tsx'
 import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
-
-/**
- * @deprecated
- */
-export type GetOperationGeneratorOptions<T = any> = any
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -131,8 +126,6 @@ export class OperationGenerator<
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
     const requestSchema = this.context.oas.getRequestSchema(operation)
-    const responseStatusCode = (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
-    const responseSchema = this.context.oas.getResponseSchema(operation, responseStatusCode)
     const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
       let name = statusCode
       if (name === 'default') {
@@ -149,8 +142,15 @@ export class OperationGenerator<
         operationName: transformers.pascalCase(`${operation.getOperationId()}`),
         statusCode: name === 'error' ? undefined : Number(statusCode),
         keys: schema?.properties ? Object.keys(schema.properties) : undefined,
+        keysToOmit: schema?.properties
+          ? Object.keys(schema.properties).filter((key) => {
+              const item = schema.properties?.[key] as OasTypes.SchemaObject
+              return item?.writeOnly
+            })
+          : undefined,
       }
     })
+    const hasResponses = statusCodes.some((item) => item.statusCode?.toString().startsWith('2'))
 
     return {
       pathParams: pathParamsSchema
@@ -199,19 +199,22 @@ export class OperationGenerator<
         : undefined,
       response: {
         name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
-        description: operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.description,
         operation,
         operationName: transformers.pascalCase(`${operation.getOperationId()}`),
-        schema: responseSchema,
-        statusCode: Number(responseStatusCode),
-        keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
-        keysToOmit: responseSchema?.properties
-          ? Object.keys(responseSchema.properties).filter((key) => {
-              const item = responseSchema.properties?.[key] as OasTypes.SchemaObject
-              return item?.writeOnly
-            })
-          : undefined,
+        schema: {
+          oneOf: hasResponses
+            ? statusCodes
+                .filter((item) => item.statusCode?.toString().startsWith('2'))
+                .map((item) => {
+                  return {
+                    ...item.schema,
+                    $ref: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${item.statusCode}`)),
+                  }
+                })
+            : undefined,
+        } as SchemaObject,
       },
+      responses: statusCodes.filter((item) => item.statusCode?.toString().startsWith('2')),
       errors: statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5')),
       statusCodes,
     }

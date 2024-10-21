@@ -1,7 +1,4 @@
-export type {
-  GetOperationGeneratorOptions,
-  OperationMethodResult,
-} from './OperationGenerator.ts'
+export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'
 export type {

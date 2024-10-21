@@ -39,7 +39,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     if ($ref.startsWith('#')) {
       $ref = globalThis.decodeURIComponent($ref.substring(1))
     } else {
-      throw new Error(`Could not find a definition for ${origRef}.`)
+      return null
     }
     const current = jsonpointer.get(this.api, $ref)
 
@@ -50,18 +50,15 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   set($ref: string, value: unknown) {
-    const origRef = $ref
     $ref = $ref.trim()
     if ($ref === '') {
       return false
     }
     if ($ref.startsWith('#')) {
       $ref = globalThis.decodeURIComponent($ref.substring(1))
-    } else {
-      throw new Error(`Could not find a definition for ${origRef}.`)
-    }
 
-    jsonpointer.set(this.api, $ref, value)
+      jsonpointer.set(this.api, $ref, value)
+    }
   }
 
   resolveDiscriminators(): void {

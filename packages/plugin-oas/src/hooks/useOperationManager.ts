@@ -34,14 +34,6 @@ type UseOperationManagerResult = {
       type: ResolveNameParams['type']
     },
   ) => string
-  getSchemaName: (
-    operation: Operation,
-    key: keyof Omit<OperationSchemas, 'errors' | 'statusCodes'>,
-    params?: {
-      pluginKey?: Plugin['key']
-      type?: ResolveNameParams['type']
-    },
-  ) => string
   getFile: (
     operation: OperationType,
     params?: {
@@ -92,19 +84,6 @@ export function useOperationManager(): UseOperationManagerResult {
     })
   }
 
-  const getSchemaName: UseOperationManagerResult['getSchemaName'] = (operation, key, { pluginKey = plugin.key, type } = {}) => {
-    const schemas = getSchemas(operation)
-
-    if (!schemas[key]?.name) {
-      throw new Error(`SchemaName not found for ${operation.getOperationId()}`)
-    }
-
-    return pluginManager.resolveName({
-      name: schemas[key]?.name,
-      pluginKey,
-      type,
-    })
-  }
   //TODO replace tag with group
   const getFile: UseOperationManagerResult['getFile'] = (
     operation,
@@ -205,7 +184,6 @@ export function useOperationManager(): UseOperationManagerResult {
     getName,
     getFile,
     getSchemas,
-    getSchemaName,
     groupSchemasByName,
   }
 }

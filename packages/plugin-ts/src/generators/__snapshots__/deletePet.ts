@@ -1,5 +1,7 @@
-export type DeletePetsPetidMutationResponse = any;
+
+ export type DeletePetsPetidMutationResponse = any;
 
  export type deletePetsPetidMutation = {
-    Response: deletePetsPetidMutationResponse;
+    Response: any;
+    Errors: any;
 };

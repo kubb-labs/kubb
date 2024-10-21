@@ -57,7 +57,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
 
     return refs
       ?.map((item, i) => {
-        if (!item.args.path) {
+        if (!item.args.path || !item.args.isImportable) {
           return undefined
         }
 

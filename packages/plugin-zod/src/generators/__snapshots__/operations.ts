@@ -8,7 +8,6 @@ import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, 
             header: undefined
         },
         responses: {
-            200: listPetsQueryResponse,
             default: listPetsQueryResponse
         },
         errors: {}
@@ -20,7 +19,6 @@ import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, 
             header: undefined
         },
         responses: {
-            201: createPetsMutationResponse,
             default: createPetsMutationResponse
         },
         errors: {}
@@ -32,7 +30,6 @@ import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, 
             header: undefined
         },
         responses: {
-            200: showPetByIdQueryResponse,
             default: showPetByIdQueryResponse
         },
         errors: {}
