@@ -39,7 +39,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     post:
-      summary: Create a pet
+      summary: Create a pet 2
       operationId: createPets
       tags:
         - pets
@@ -58,6 +58,19 @@ paths:
                 tag:
                   type: string
       responses:
+        '202':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    required:
+                      - code
+                    properties:
+                      name:
+                        $ref: "#/components/schemas/ErrorCode"
         '201':
           description: Null response
           content:

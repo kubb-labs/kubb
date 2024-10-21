@@ -33,6 +33,7 @@ export type {
 } from './petController/getPetByIdSchema.ts'
 export type {
   UpdatePet200Schema,
+  UpdatePet202Schema,
   UpdatePet400Schema,
   UpdatePet404Schema,
   UpdatePet405Schema,
@@ -124,6 +125,7 @@ export {
 } from './petController/getPetByIdSchema.ts'
 export {
   updatePet200Schema,
+  updatePet202Schema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,

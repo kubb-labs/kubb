@@ -2,6 +2,7 @@ import type { PluginManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
+import { createPropertySignature, modifiers } from '@kubb/parser-ts/factory'
 import { type OperationSchema as OperationSchemaType, type OperationSchemas, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -15,12 +16,17 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   const properties: Record<string, ts.TypeNode> = {}
 
   if (schemas.response) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.response.name,
-      pluginKey: [pluginTsName],
-      type: 'function',
-    })
-    properties['response'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+    properties['response'] = factory.createUnionDeclaration({
+      nodes: schemas.responses.map((res) => {
+        const identifier = pluginManager.resolveName({
+          name: res.name,
+          pluginKey: [pluginTsName],
+          type: 'function',
+        })
+
+        return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+      }),
+    })!
   }
 
   if (schemas.request) {
@@ -123,7 +129,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .filter(Boolean)
 
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
-      // hack so Params can be optional when needed
       const tree = schemaGenerator.parse({ schema, name })
       const imports = schemaManager.getImports(tree)
 

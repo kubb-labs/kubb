@@ -1,3 +1,4 @@
+import type { PlaceOrderMutationResponse } from '../../models/PlaceOrder.ts'
 import { createOrder } from '../createOrder.ts'
 import { faker } from '@faker-js/faker'
 
@@ -22,10 +23,7 @@ export function createPlaceOrderMutationRequest() {
   return createOrder()
 }
 
-/**
- * @description successful operation
- */
-export function createPlaceOrderMutationResponse() {
+export function createPlaceOrderMutationResponse(data?: Partial<PlaceOrderMutationResponse>) {
   faker.seed([220])
-  return createOrder()
+  return faker.helpers.arrayElement<any>([createPlaceOrder200()]) || data
 }

@@ -14,13 +14,13 @@ export function createPetsError() {
     return error();
 }
 
- export function createPetsMutationRequest(data: NonNullable<Partial<CreatePetsMutationRequest>> = {}) {
+ export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>) {
     return {
         ...{ "name": faker.string.alpha(), "tag": faker.string.alpha() },
-        ...data
+        ...data || {}
     };
 }
 
- export function createPetsMutationResponse() {
-    return unknown;
+ export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>) {
+    return faker.helpers.arrayElement<any>([createPets201()]) || data;
 }

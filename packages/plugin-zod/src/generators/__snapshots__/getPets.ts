@@ -12,7 +12,4 @@ export const listPets200 = z.lazy(() => pets);
  */
 export const listPetsError = z.lazy(() => error);
 
- /**
- * @description A paged array of pets
- */
-export const listPetsQueryResponse = z.lazy(() => pets);
+ export const listPetsQueryResponse = z.lazy(() => listPets200);

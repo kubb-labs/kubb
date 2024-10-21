@@ -21,13 +21,10 @@ export type LoginUser200Type = string
  */
 export type LoginUser400Type = any
 
-/**
- * @description successful operation
- */
-export type LoginUserQueryResponseType = string
+export type LoginUserQueryResponseType = LoginUser200Type
 
 export type LoginUserTypeQuery = {
-  Response: LoginUserQueryResponseType
+  Response: LoginUser200Type
   QueryParams: LoginUserQueryParamsType
   Errors: LoginUser400Type
 }

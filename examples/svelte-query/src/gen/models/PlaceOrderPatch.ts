@@ -12,13 +12,10 @@ export type PlaceOrderPatch405 = any
 
 export type PlaceOrderPatchMutationRequest = Order
 
-/**
- * @description successful operation
- */
-export type PlaceOrderPatchMutationResponse = Order
+export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
 export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatchMutationResponse
+  Response: PlaceOrderPatch200
   Request: PlaceOrderPatchMutationRequest
   Errors: PlaceOrderPatch405
 }

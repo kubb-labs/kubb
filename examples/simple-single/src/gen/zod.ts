@@ -85,10 +85,7 @@ export const updatePet405Schema = z.any()
  */
 export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
 
-/**
- * @description Successful operation
- */
-export const updatePetMutationResponseSchema = z.lazy(() => petSchema)
+export const updatePetMutationResponseSchema = z.lazy(() => updatePet200Schema)
 
 /**
  * @description Successful operation
@@ -105,10 +102,7 @@ export const addPet405Schema = z.object({ code: z.number().int().optional(), mes
  */
 export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 
-/**
- * @description Successful operation
- */
-export const addPetMutationResponseSchema = z.lazy(() => petSchema)
+export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
 
 export const findPetsByStatusQueryParamsSchema = z
   .object({ status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter').optional() })
@@ -124,10 +118,7 @@ export const findPetsByStatus200Schema = z.array(z.lazy(() => petSchema))
  */
 export const findPetsByStatus400Schema = z.any()
 
-/**
- * @description successful operation
- */
-export const findPetsByStatusQueryResponseSchema = z.array(z.lazy(() => petSchema))
+export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
@@ -147,10 +138,7 @@ export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
  */
 export const findPetsByTags400Schema = z.any()
 
-/**
- * @description successful operation
- */
-export const findPetsByTagsQueryResponseSchema = z.array(z.lazy(() => petSchema))
+export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
 
 export const getPetByIdPathParamsSchema = z.object({ petId: z.number().int().describe('ID of pet to return') })
 
@@ -169,10 +157,7 @@ export const getPetById400Schema = z.any()
  */
 export const getPetById404Schema = z.any()
 
-/**
- * @description successful operation
- */
-export const getPetByIdQueryResponseSchema = z.lazy(() => petSchema)
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
 
 export const updatePetWithFormPathParamsSchema = z.object({ petId: z.number().int().describe('ID of pet that needs to be updated') })
 
@@ -212,20 +197,14 @@ export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
 export const uploadFileMutationRequestSchema = z.string()
 
-/**
- * @description successful operation
- */
-export const uploadFileMutationResponseSchema = z.lazy(() => apiResponseSchema)
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
 
 /**
  * @description successful operation
  */
 export const getInventory200Schema = z.object({}).catchall(z.number().int())
 
-/**
- * @description successful operation
- */
-export const getInventoryQueryResponseSchema = z.object({}).catchall(z.number().int())
+export const getInventoryQueryResponseSchema = z.lazy(() => getInventory200Schema)
 
 /**
  * @description successful operation
@@ -239,10 +218,7 @@ export const placeOrder405Schema = z.any()
 
 export const placeOrderMutationRequestSchema = z.lazy(() => orderSchema)
 
-/**
- * @description successful operation
- */
-export const placeOrderMutationResponseSchema = z.lazy(() => orderSchema)
+export const placeOrderMutationResponseSchema = z.lazy(() => placeOrder200Schema)
 
 /**
  * @description successful operation
@@ -256,10 +232,7 @@ export const placeOrderPatch405Schema = z.any()
 
 export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
 
-/**
- * @description successful operation
- */
-export const placeOrderPatchMutationResponseSchema = z.lazy(() => orderSchema)
+export const placeOrderPatchMutationResponseSchema = z.lazy(() => placeOrderPatch200Schema)
 
 export const getOrderByIdPathParamsSchema = z.object({ orderId: z.number().int().describe('ID of order that needs to be fetched') })
 
@@ -278,10 +251,7 @@ export const getOrderById400Schema = z.any()
  */
 export const getOrderById404Schema = z.any()
 
-/**
- * @description successful operation
- */
-export const getOrderByIdQueryResponseSchema = z.lazy(() => orderSchema)
+export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
 
 export const deleteOrderPathParamsSchema = z.object({ orderId: z.number().int().describe('ID of the order that needs to be deleted') })
 
@@ -321,10 +291,7 @@ export const createUsersWithListInputErrorSchema = z.any()
 
 export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
 
-/**
- * @description Successful operation
- */
-export const createUsersWithListInputMutationResponseSchema = z.lazy(() => userSchema)
+export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)
 
 export const loginUserQueryParamsSchema = z
   .object({
@@ -343,10 +310,7 @@ export const loginUser200Schema = z.string()
  */
 export const loginUser400Schema = z.any()
 
-/**
- * @description successful operation
- */
-export const loginUserQueryResponseSchema = z.string()
+export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
 
 /**
  * @description successful operation
@@ -372,10 +336,7 @@ export const getUserByName400Schema = z.any()
  */
 export const getUserByName404Schema = z.any()
 
-/**
- * @description successful operation
- */
-export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema)
+export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
 
 export const updateUserPathParamsSchema = z.object({ username: z.string().describe('name that need to be deleted') })
 

@@ -12,12 +12,10 @@ export type CreateUsersWithListInputErrorType = any
 
 export type CreateUsersWithListInputMutationRequestType = UserType[]
 
-/**
- * @description Successful operation
- */
-export type CreateUsersWithListInputMutationResponseType = UserType
+export type CreateUsersWithListInputMutationResponseType = CreateUsersWithListInput200Type
 
 export type CreateUsersWithListInputTypeMutation = {
-  Response: CreateUsersWithListInputMutationResponseType
+  Response: CreateUsersWithListInput200Type
   Request: CreateUsersWithListInputMutationRequestType
+  Errors: any
 }

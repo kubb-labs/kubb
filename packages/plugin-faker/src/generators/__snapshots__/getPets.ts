@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 
- export function listPetsQueryParams(data: NonNullable<Partial<ListPetsQueryParams>> = {}) {
+ export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>) {
     return {
         ...{ "limit": faker.string.alpha() },
-        ...data
+        ...data || {}
     };
 }
 
@@ -21,9 +21,6 @@ export function listPetsError() {
     return error();
 }
 
- /**
- * @description A paged array of pets
- */
-export function listPetsQueryResponse() {
-    return pets();
+ export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>) {
+    return faker.helpers.arrayElement<any>([listPets200()]) || data;
 }

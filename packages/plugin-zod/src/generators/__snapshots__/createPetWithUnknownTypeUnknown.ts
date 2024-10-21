@@ -12,4 +12,4 @@ export const createPetsError = z.lazy(() => error);
 
  export const createPetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
 
- export const createPetsMutationResponse = z.unknown();
+ export const createPetsMutationResponse = z.lazy(() => createPets201);

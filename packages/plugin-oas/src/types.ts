@@ -89,7 +89,7 @@ export type OperationSchema = {
   /**
    * OperationName in PascalCase, only being used in OperationGenerator
    */
-  operationName?: string
+  operationName: string
   description?: string
   statusCode?: number
   keys?: string[]
@@ -103,6 +103,7 @@ export type OperationSchemas = {
   headerParams?: OperationSchema & { keysToOmit?: never }
   request?: OperationSchema
   response: OperationSchema
+  responses: Array<OperationSchema>
   statusCodes?: Array<OperationSchema>
   errors?: Array<OperationSchema>
 }

@@ -617,9 +617,8 @@ export default defineConfig({
                 text: 'About Kubb',
                 link: '/about',
               },
-            ]
+            ],
           },
-
         ],
       },
       {

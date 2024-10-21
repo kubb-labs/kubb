@@ -3,7 +3,17 @@ import type { Pet } from '../Pet.ts'
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePet200 = Omit<NonNullable<Pet>, 'name'>
+
+/**
+ * @description accepted operation
+ */
+export type UpdatePet202 = {
+  /**
+   * @type integer | undefined, int64
+   */
+  id?: number
+}
 
 /**
  * @description Invalid ID supplied
@@ -25,13 +35,10 @@ export type UpdatePet405 = any
  */
 export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'id'>
 
-/**
- * @description Successful operation
- */
-export type UpdatePetMutationResponse = Omit<NonNullable<Pet>, 'name'>
+export type UpdatePetMutationResponse = UpdatePet200 | UpdatePet202
 
 export type UpdatePetMutation = {
-  Response: UpdatePetMutationResponse
+  Response: UpdatePet200 | UpdatePet202
   Request: UpdatePetMutationRequest
   Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }

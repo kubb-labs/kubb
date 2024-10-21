@@ -23,13 +23,10 @@ export type GetOrderById400Type = any
  */
 export type GetOrderById404Type = any
 
-/**
- * @description successful operation
- */
-export type GetOrderByIdQueryResponseType = OrderType
+export type GetOrderByIdQueryResponseType = GetOrderById200Type
 
 export type GetOrderByIdTypeQuery = {
-  Response: GetOrderByIdQueryResponseType
+  Response: GetOrderById200Type
   PathParams: GetOrderByIdPathParamsType
   Errors: GetOrderById400Type | GetOrderById404Type
 }

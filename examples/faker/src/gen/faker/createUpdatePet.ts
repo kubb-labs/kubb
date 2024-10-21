@@ -1,4 +1,6 @@
+import type { UpdatePetMutationResponse } from '../models/UpdatePet.ts'
 import { createPet } from './createPet.ts'
+import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation
@@ -35,9 +37,6 @@ export function createUpdatePetMutationRequest() {
   return createPet()
 }
 
-/**
- * @description Successful operation
- */
-export function createUpdatePetMutationResponse() {
-  return createPet()
+export function createUpdatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>) {
+  return faker.helpers.arrayElement<any>([createUpdatePet200()]) || data
 }

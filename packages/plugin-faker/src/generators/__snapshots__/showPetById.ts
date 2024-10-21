@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 
- export function showPetByIdPathParams(data: NonNullable<Partial<ShowPetByIdPathParams>> = {}) {
+ export function showPetByIdPathParams(data?: Partial<ShowPetByIdPathParams>) {
     return {
         ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
-        ...data
+        ...data || {}
     };
 }
 
@@ -21,9 +21,6 @@ export function showPetByIdError() {
     return error();
 }
 
- /**
- * @description Expected response to a valid request
- */
-export function showPetByIdQueryResponse() {
-    return pet();
+ export function showPetByIdQueryResponse(data?: Partial<ShowPetByIdQueryResponse>) {
+    return faker.helpers.arrayElement<any>([showPetById200()]) || data;
 }

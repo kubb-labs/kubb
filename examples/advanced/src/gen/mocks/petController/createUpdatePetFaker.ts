@@ -1,10 +1,22 @@
+import type { UpdatePet202, UpdatePetMutationResponse } from '../../models/ts/petController/UpdatePet.ts'
 import { createPetFaker } from '../createPetFaker.ts'
+import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation
  */
 export function createUpdatePet200Faker() {
   return createPetFaker()
+}
+
+/**
+ * @description accepted operation
+ */
+export function createUpdatePet202Faker(data?: Partial<UpdatePet202>) {
+  return {
+    ...{ id: faker.number.int() },
+    ...(data || {}),
+  }
 }
 
 /**
@@ -35,9 +47,6 @@ export function createUpdatePetMutationRequestFaker() {
   return createPetFaker()
 }
 
-/**
- * @description Successful operation
- */
-export function createUpdatePetMutationResponseFaker() {
-  return createPetFaker()
+export function createUpdatePetMutationResponseFaker(data?: Partial<UpdatePetMutationResponse>) {
+  return faker.helpers.arrayElement<any>([createUpdatePet200Faker(), createUpdatePet202Faker()]) || data
 }

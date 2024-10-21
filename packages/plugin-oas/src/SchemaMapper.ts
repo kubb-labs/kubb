@@ -52,7 +52,18 @@ export type SchemaKeywordMapper = {
   union: { keyword: 'union'; args: Schema[] }
   ref: {
     keyword: 'ref'
-    args: { name: string; path: KubbFile.OptionalPath }
+    args: {
+      name: string
+      /**
+       * Full qualified path.
+       */
+      path: KubbFile.OptionalPath
+      /**
+       * When true `File.Import` will be used.
+       * When false a reference will be used inside the current file.
+       */
+      isImportable: boolean
+    }
   }
   matches: { keyword: 'matches'; args?: string }
   boolean: { keyword: 'boolean' }

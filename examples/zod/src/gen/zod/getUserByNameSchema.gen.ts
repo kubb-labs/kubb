@@ -26,9 +26,6 @@ export const getUserByName404Schema = z.any()
 
 export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
 
-/**
- * @description successful operation
- */
-export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema)
+export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
 
 export type GetUserByNameQueryResponseSchema = z.infer<typeof getUserByNameQueryResponseSchema>

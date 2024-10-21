@@ -336,7 +336,7 @@ export class SchemaGenerator<
       return [
         {
           keyword: schemaKeywords.ref,
-          args: { name: ref.propertyName, path: ref.path },
+          args: { name: ref.propertyName, path: ref.path, isImportable: !!this.context.oas.get($ref) },
         },
       ]
     }
@@ -361,7 +361,7 @@ export class SchemaGenerator<
     return [
       {
         keyword: schemaKeywords.ref,
-        args: { name: ref.propertyName, path: ref?.path },
+        args: { name: ref.propertyName, path: ref?.path, isImportable: !!this.context.oas.get($ref) },
       },
     ]
   }

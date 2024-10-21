@@ -25,17 +25,10 @@ export type CreatePetsError = error;
     tag: string;
 };
 
- /**
- * @description Null response
-*/
-export type CreatePetsMutationResponse = (error & {
-    /**
-     * @type object | undefined
-    */
-    name?: errorCode;
-});
+ export type CreatePetsMutationResponse = createPets201;
 
  export type createPetsMutation = {
-    Response: createPetsMutationResponse;
+    Response: createPets201;
     Request: createPetsMutationRequest;
+    Errors: any;
 };

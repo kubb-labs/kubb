@@ -36,9 +36,6 @@ export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
 
 export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
 
-/**
- * @description Successful operation
- */
-export const updatePetMutationResponseSchema = z.lazy(() => petSchema)
+export const updatePetMutationResponseSchema = z.lazy(() => updatePet200Schema)
 
 export type UpdatePetMutationResponseSchema = z.infer<typeof updatePetMutationResponseSchema>

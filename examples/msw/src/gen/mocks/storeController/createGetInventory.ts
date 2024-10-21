@@ -4,21 +4,15 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createGetInventory200(data: NonNullable<Partial<GetInventory200>> = {}) {
+export function createGetInventory200(data?: Partial<GetInventory200>) {
   faker.seed([220])
   return {
     ...{},
-    ...data,
+    ...(data || {}),
   }
 }
 
-/**
- * @description successful operation
- */
-export function createGetInventoryQueryResponse(data: NonNullable<Partial<GetInventoryQueryResponse>> = {}) {
+export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>) {
   faker.seed([220])
-  return {
-    ...{},
-    ...data,
-  }
+  return faker.helpers.arrayElement<any>([createGetInventory200()]) || data
 }

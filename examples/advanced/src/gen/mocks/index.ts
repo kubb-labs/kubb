@@ -42,6 +42,7 @@ export {
 } from './petController/createGetPetByIdFaker.ts'
 export {
   createUpdatePet200Faker,
+  createUpdatePet202Faker,
   createUpdatePet400Faker,
   createUpdatePet404Faker,
   createUpdatePet405Faker,

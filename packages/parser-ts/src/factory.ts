@@ -118,13 +118,13 @@ export function createUnionDeclaration({
 }: {
   nodes: Array<ts.TypeNode>
   withParentheses?: boolean
-}): ts.TypeNode | null {
+}): ts.TypeNode {
   if (!nodes.length) {
-    return null
+    return keywordTypeNodes.any
   }
 
   if (nodes.length === 1) {
-    return nodes[0] || null
+    return nodes[0] as ts.TypeNode
   }
 
   const node = factory.createUnionTypeNode(nodes)

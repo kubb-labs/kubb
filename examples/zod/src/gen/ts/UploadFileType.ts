@@ -23,14 +23,12 @@ export type UploadFile200Type = ApiResponseType
 
 export type UploadFileMutationRequestType = Blob
 
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponseType = ApiResponseType
+export type UploadFileMutationResponseType = UploadFile200Type
 
 export type UploadFileTypeMutation = {
-  Response: UploadFileMutationResponseType
+  Response: UploadFile200Type
   Request: UploadFileMutationRequestType
   PathParams: UploadFilePathParamsType
   QueryParams: UploadFileQueryParamsType
+  Errors: any
 }

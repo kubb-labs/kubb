@@ -19,9 +19,6 @@ export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
 
 export type PlaceOrderPatchMutationRequestSchema = z.infer<typeof placeOrderPatchMutationRequestSchema>
 
-/**
- * @description successful operation
- */
-export const placeOrderPatchMutationResponseSchema = z.lazy(() => orderSchema)
+export const placeOrderPatchMutationResponseSchema = z.lazy(() => placeOrderPatch200Schema)
 
 export type PlaceOrderPatchMutationResponseSchema = z.infer<typeof placeOrderPatchMutationResponseSchema>

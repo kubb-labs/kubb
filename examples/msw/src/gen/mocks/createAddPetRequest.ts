@@ -3,7 +3,7 @@ import { createCategory } from './createCategory.ts'
 import { createTag } from './createTag.ts'
 import { faker } from '@faker-js/faker'
 
-export function createAddPetRequest(data: NonNullable<Partial<AddPetRequest>> = {}) {
+export function createAddPetRequest(data?: Partial<AddPetRequest>) {
   faker.seed([220])
   return {
     ...{
@@ -14,6 +14,6 @@ export function createAddPetRequest(data: NonNullable<Partial<AddPetRequest>> = 
       tags: faker.helpers.multiple(() => createTag()) as any,
       status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']),
     },
-    ...data,
+    ...(data || {}),
   }
 }

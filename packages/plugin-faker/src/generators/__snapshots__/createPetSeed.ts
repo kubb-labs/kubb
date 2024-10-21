@@ -16,15 +16,15 @@ export function createPetsError() {
     return error();
 }
 
- export function createPetsMutationRequest(data: NonNullable<Partial<CreatePetsMutationRequest>> = {}) {
+ export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>) {
     faker.seed([222]);
     return {
         ...{ "name": faker.string.alpha(), "tag": faker.string.alpha() },
-        ...data
+        ...data || {}
     };
 }
 
- export function createPetsMutationResponse() {
+ export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>) {
     faker.seed([222]);
-    return unknown;
+    return faker.helpers.arrayElement<any>([createPets201()]) || data;
 }

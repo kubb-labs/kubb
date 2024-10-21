@@ -1,11 +1,11 @@
 import type { DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteOrderPathParams(data: NonNullable<Partial<DeleteOrderPathParams>> = {}) {
+export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>) {
   faker.seed([220])
   return {
     ...{ orderId: faker.number.int() },
-    ...data,
+    ...(data || {}),
   }
 }
 

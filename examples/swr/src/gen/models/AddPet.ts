@@ -25,13 +25,10 @@ export type AddPet405 = {
  */
 export type AddPetMutationRequest = AddPetRequest
 
-/**
- * @description Successful operation
- */
-export type AddPetMutationResponse = Pet
+export type AddPetMutationResponse = AddPet200
 
 export type AddPetMutation = {
-  Response: AddPetMutationResponse
+  Response: AddPet200
   Request: AddPetMutationRequest
   Errors: AddPet405
 }

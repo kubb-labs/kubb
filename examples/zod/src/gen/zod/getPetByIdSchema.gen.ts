@@ -26,9 +26,6 @@ export const getPetById404Schema = z.any()
 
 export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-/**
- * @description successful operation
- */
-export const getPetByIdQueryResponseSchema = z.lazy(() => petSchema)
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
 
 export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>
