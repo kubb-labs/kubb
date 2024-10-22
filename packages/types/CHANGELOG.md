@@ -1,5 +1,7 @@
 # @kubb/types
 
+## 3.0.0-beta.7
+
 ## 3.0.0-beta.6
 
 ## 3.0.0-beta.5
