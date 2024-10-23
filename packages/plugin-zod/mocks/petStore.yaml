@@ -20,6 +20,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
       responses:
         '200':
           description: A paged array of pets
