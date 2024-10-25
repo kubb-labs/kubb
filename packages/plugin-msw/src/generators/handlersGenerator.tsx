@@ -20,7 +20,7 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
       return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
     })
 
-    const handlers = operations.map((operation) => getName(operation, { type: 'function', pluginKey: [pluginMswName] }))
+    const handlers = operations.map((operation) => `${getName(operation, { type: 'function', pluginKey: [pluginMswName] })}()`)
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>

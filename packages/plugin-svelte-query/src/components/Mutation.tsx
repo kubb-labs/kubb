@@ -58,7 +58,7 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
     options: {
       type: `
 {
-  mutation?: CreateMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}}`].join(', ')}>,
+  mutation?: CreateMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined].filter(Boolean).join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
 }
 `,
@@ -124,7 +124,9 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
 
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}}`].join(', ')
+  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
+    .filter(Boolean)
+    .join(', ')
 
   return (
     <File.Source name={name} isExportable isIndexable>

@@ -1,10 +1,12 @@
-import { createAddPetMutationResponse } from '../../../mocks/petController/createAddPet.ts'
+import type { AddPetMutationResponse } from '../../../models/AddPet.ts'
 import { http } from 'msw'
 
-export const addPetHandler = http.post('*/pet', function handler(info) {
-  return new Response(JSON.stringify(createAddPetMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function addPetHandler(data?: AddPetMutationResponse) {
+  return http.post('*/pet', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

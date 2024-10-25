@@ -1,10 +1,12 @@
-import { createDeleteUserMutationResponse } from '../../../mocks/userController/createDeleteUser.ts'
+import type { DeleteUserMutationResponse } from '../../../models/DeleteUser.ts'
 import { http } from 'msw'
 
-export const deleteUserHandler = http.delete('*/user/:username', function handler(info) {
-  return new Response(JSON.stringify(createDeleteUserMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function deleteUserHandler(data?: DeleteUserMutationResponse) {
+  return http.delete('*/user/:username', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

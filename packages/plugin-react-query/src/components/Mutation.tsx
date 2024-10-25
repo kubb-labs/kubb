@@ -53,7 +53,9 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
       : undefined,
   })
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}}`].join(', ')
+  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
+    .filter(Boolean)
+    .join(', ')
 
   return FunctionParams.factory({
     options: {
@@ -127,7 +129,9 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
 
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `{${TRequest}}`].join(', ')
+  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
+    .filter(Boolean)
+    .join(', ')
 
   return (
     <File.Source name={name} isExportable isIndexable>

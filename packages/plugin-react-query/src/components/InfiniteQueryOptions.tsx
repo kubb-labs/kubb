@@ -109,7 +109,8 @@ export function InfiniteQueryOptions({
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function name={name} export params={params.toConstructor()}>
-        {`
+        {infiniteOverrideParams &&
+          `
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return infiniteQueryOptions({
        ${enabledText}
@@ -117,6 +118,19 @@ export function InfiniteQueryOptions({
        queryFn: async ({ signal, pageParam }) => {
           config.signal = signal
           ${infiniteOverrideParams}
+          return ${clientName}(${clientParams.toCall()})
+       },
+       ${queryOptions.join('\n')}
+      })
+`}
+        {!infiniteOverrideParams &&
+          `
+      const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
+      return infiniteQueryOptions({
+       ${enabledText}
+       queryKey,
+       queryFn: async ({ signal }) => {
+          config.signal = signal
           return ${clientName}(${clientParams.toCall()})
        },
        ${queryOptions.join('\n')}

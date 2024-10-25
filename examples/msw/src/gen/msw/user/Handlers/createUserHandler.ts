@@ -1,10 +1,12 @@
-import { createCreateUserMutationResponse } from '../../../mocks/userController/createCreateUser.ts'
+import type { CreateUserMutationResponse } from '../../../models/CreateUser.ts'
 import { http } from 'msw'
 
-export const createUserHandler = http.post('*/user', function handler(info) {
-  return new Response(JSON.stringify(createCreateUserMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function createUserHandler(data?: CreateUserMutationResponse) {
+  return http.post('*/user', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

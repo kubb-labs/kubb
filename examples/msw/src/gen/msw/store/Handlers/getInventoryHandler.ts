@@ -1,10 +1,12 @@
-import { createGetInventoryQueryResponse } from '../../../mocks/storeController/createGetInventory.ts'
+import type { GetInventoryQueryResponse } from '../../../models/GetInventory.ts'
 import { http } from 'msw'
 
-export const getInventoryHandler = http.get('*/store/inventory', function handler(info) {
-  return new Response(JSON.stringify(createGetInventoryQueryResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function getInventoryHandler(data?: GetInventoryQueryResponse) {
+  return http.get('*/store/inventory', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

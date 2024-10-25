@@ -1,10 +1,12 @@
-import { createOptionsFindPetsByStatusMutationResponse } from '../../../mocks/petController/createOptionsFindPetsByStatus.ts'
+import type { OptionsFindPetsByStatusMutationResponse } from '../../../models/OptionsFindPetsByStatus.ts'
 import { http } from 'msw'
 
-export const optionsFindPetsByStatusHandler = http.options('*/pet/findByStatus', function handler(info) {
-  return new Response(JSON.stringify(createOptionsFindPetsByStatusMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function optionsFindPetsByStatusHandler(data?: OptionsFindPetsByStatusMutationResponse) {
+  return http.options('*/pet/findByStatus', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

@@ -1,10 +1,12 @@
-import { createLogoutUserQueryResponseFaker } from '../../mocks/userController/createLogoutUserFaker.ts'
+import type { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser.ts'
 import { http } from 'msw'
 
-export const logoutUserHandler = http.get('*/user/logout', function handler(info) {
-  return new Response(JSON.stringify(createLogoutUserQueryResponseFaker()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function logoutUserHandler(data?: LogoutUserQueryResponse) {
+  return http.get('*/user/logout', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

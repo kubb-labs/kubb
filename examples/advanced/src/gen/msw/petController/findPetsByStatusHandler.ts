@@ -1,10 +1,12 @@
-import { createFindPetsByStatusQueryResponseFaker } from '../../mocks/petController/createFindPetsByStatusFaker.ts'
+import type { FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
 import { http } from 'msw'
 
-export const findPetsByStatusHandler = http.get('*/pet/findByStatus', function handler(info) {
-  return new Response(JSON.stringify(createFindPetsByStatusQueryResponseFaker()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function findPetsByStatusHandler(data?: FindPetsByStatusQueryResponse) {
+  return http.get('*/pet/findByStatus', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

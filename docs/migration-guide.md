@@ -364,3 +364,25 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - Support for `signal`, this makes it possible to cancel a request
 - Removal of `mutate.variablesType` and use `'mutate'` as default
 
+### @kubb/plugin-msw
+- `parser` to switch between using Faker(`'faker'`) for your data or define your own data with `'data'`.
+- By default, use of a function with `data` as parameter to override the response of MSW.
+```typescript
+export const addPetHandler = http.post('*/pet', function handler(info) { // [!code --]
+  return new Response(JSON.stringify(createAddPetMutationResponse()), { // [!code --]
+    headers: { // [!code --]
+      'Content-Type': 'application/json', // [!code --]
+    }, // [!code --]
+  }) // [!code --]
+}) // [!code --]
+
+export function addPetHandler(data?: AddPetMutationResponse) { // [!code ++]
+  return http.post('*/pet', function handler(info) { // [!code ++]
+    return new Response(JSON.stringify(createAddPetMutationResponse(data)), { // [!code ++]
+      headers: { // [!code ++]
+        'Content-Type': 'application/json', // [!code ++]
+      }, // [!code ++]
+    }) // [!code ++]
+  }) // [!code ++]
+} // [!code ++]
+```

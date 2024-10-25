@@ -1,10 +1,12 @@
-import { createLoginUserQueryResponse } from '../../../mocks/userController/createLoginUser.ts'
+import type { LoginUserQueryResponse } from '../../../models/LoginUser.ts'
 import { http } from 'msw'
 
-export const loginUserHandler = http.get('*/user/login', function handler(info) {
-  return new Response(JSON.stringify(createLoginUserQueryResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function loginUserHandler(data?: LoginUserQueryResponse) {
+  return http.get('*/user/login', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

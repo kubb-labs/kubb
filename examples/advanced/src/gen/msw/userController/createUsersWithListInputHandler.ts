@@ -1,10 +1,12 @@
-import { createCreateUsersWithListInputMutationResponseFaker } from '../../mocks/userController/createCreateUsersWithListInputFaker.ts'
+import type { CreateUsersWithListInputMutationResponse } from '../../models/ts/userController/CreateUsersWithListInput.ts'
 import { http } from 'msw'
 
-export const createUsersWithListInputHandler = http.post('*/user/createWithList', function handler(info) {
-  return new Response(JSON.stringify(createCreateUsersWithListInputMutationResponseFaker()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function createUsersWithListInputHandler(data?: CreateUsersWithListInputMutationResponse) {
+  return http.post('*/user/createWithList', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

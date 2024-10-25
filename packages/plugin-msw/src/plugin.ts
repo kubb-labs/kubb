@@ -2,7 +2,6 @@ import path from 'node:path'
 
 import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginFakerName } from '@kubb/plugin-faker'
@@ -24,6 +23,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
     override = [],
     transformers = {},
     handlers = false,
+    parser = 'data',
     generators = [mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
   } = options
 
@@ -31,8 +31,9 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
     name: pluginMswName,
     options: {
       output,
+      parser,
     },
-    pre: [pluginOasName, pluginTsName, pluginFakerName],
+    pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

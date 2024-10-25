@@ -1,10 +1,12 @@
-import { createDeleteOrderMutationResponse } from '../../../mocks/storeController/createDeleteOrder.ts'
+import type { DeleteOrderMutationResponse } from '../../../models/DeleteOrder.ts'
 import { http } from 'msw'
 
-export const deleteOrderHandler = http.delete('*/store/order/:orderId', function handler(info) {
-  return new Response(JSON.stringify(createDeleteOrderMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function deleteOrderHandler(data?: DeleteOrderMutationResponse) {
+  return http.delete('*/store/order/:orderId', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

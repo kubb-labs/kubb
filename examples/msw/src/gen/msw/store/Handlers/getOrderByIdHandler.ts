@@ -1,10 +1,12 @@
-import { createGetOrderByIdQueryResponse } from '../../../mocks/storeController/createGetOrderById.ts'
+import type { GetOrderByIdQueryResponse } from '../../../models/GetOrderById.ts'
 import { http } from 'msw'
 
-export const getOrderByIdHandler = http.get('*/store/order/:orderId', function handler(info) {
-  return new Response(JSON.stringify(createGetOrderByIdQueryResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function getOrderByIdHandler(data?: GetOrderByIdQueryResponse) {
+  return http.get('*/store/order/:orderId', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

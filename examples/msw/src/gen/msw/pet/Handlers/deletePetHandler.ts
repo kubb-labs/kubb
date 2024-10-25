@@ -1,10 +1,12 @@
-import { createDeletePetMutationResponse } from '../../../mocks/petController/createDeletePet.ts'
+import type { DeletePetMutationResponse } from '../../../models/DeletePet.ts'
 import { http } from 'msw'
 
-export const deletePetHandler = http.delete('*/pet/:petId', function handler(info) {
-  return new Response(JSON.stringify(createDeletePetMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function deletePetHandler(data?: DeletePetMutationResponse) {
+  return http.delete('*/pet/:petId', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

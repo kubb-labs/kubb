@@ -36,12 +36,20 @@ export type Options = {
    */
   handlers?: boolean
   /**
+   * Which parser can be used before returning the data
+   *  - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response
+   *  - `'data'` will use your custom data to generate the data for the response
+   * @default 'data'
+   */
+  parser?: 'data' | 'faker'
+  /**
    * Define some generators next to the msw generators
    */
   generators?: Array<Generator<PluginMsw>>
 }
 type ResolvedOptions = {
   output: Output
+  parser: NonNullable<Options['parser']>
 }
 
 export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOptions, never, ResolvePathOptions>

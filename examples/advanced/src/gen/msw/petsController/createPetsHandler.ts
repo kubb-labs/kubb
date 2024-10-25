@@ -1,10 +1,12 @@
-import { createCreatePetsMutationResponseFaker } from '../../mocks/petsController/createCreatePetsFaker.ts'
+import type { CreatePetsMutationResponse } from '../../models/ts/petsController/CreatePets.ts'
 import { http } from 'msw'
 
-export const createPetsHandler = http.post('*/pets/:uuid', function handler(info) {
-  return new Response(JSON.stringify(createCreatePetsMutationResponseFaker()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function createPetsHandler(data?: CreatePetsMutationResponse) {
+  return http.post('*/pets/:uuid', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

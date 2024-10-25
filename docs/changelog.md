@@ -4,6 +4,18 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.9
+- [`plugin-msw`](/plugins/plugin-msw): `parser` option to disable faker generation
+  - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response
+  - `'data'` will use your custom data to generate the data for the response
+- [`plugin-msw`](/plugins/plugin-msw): Siblings for better AST manipulation
+
+## 3.0.0-beta.8
+- [`plugin-zod`](/plugins/plugin-zod): Siblings for better AST manipulation
+
+## 3.0.0-beta.7
+- Upgrade external packages
+
 ## 3.0.0-beta.6
 - [`plugin-faker`](/plugins/plugin-faker): Min/Max for type array to generate better `faker.helpers.arrayElements` functionality
 

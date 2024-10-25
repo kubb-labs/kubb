@@ -1,10 +1,12 @@
-import { createUpdateUserMutationResponse } from '../../../mocks/userController/createUpdateUser.ts'
+import type { UpdateUserMutationResponse } from '../../../models/UpdateUser.ts'
 import { http } from 'msw'
 
-export const updateUserHandler = http.put('*/user/:username', function handler(info) {
-  return new Response(JSON.stringify(createUpdateUserMutationResponse()), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+export function updateUserHandler(data?: UpdateUserMutationResponse) {
+  return http.put('*/user/:username', function handler(info) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   })
-})
+}

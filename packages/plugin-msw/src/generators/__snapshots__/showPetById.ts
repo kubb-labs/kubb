@@ -1,9 +1,11 @@
 import { http } from "msw";
 
- export const showPetById = http.get("*/pets/:petId", function handler(info) {
-    return new Response(JSON.stringify(showPetByIdQueryResponse()), {
-        headers: {
-            "Content-Type": "application/json",
-        },
+ export function showPetById(data?: ShowPetByIdQueryResponse) {
+    return http.get("*/pets/:petId", function handler(info) {
+        return new Response(JSON.stringify(data), {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
     });
-});
+}
