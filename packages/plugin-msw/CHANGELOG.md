@@ -1,5 +1,22 @@
 # @kubb/plugin-msw
 
+## 3.0.0-beta.9
+
+### Major Changes
+
+- [`09da2a3`](https://github.com/kubb-labs/kubb/commit/09da2a3dde7f8e6b86b59f23c4501c741265b59f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of function with parameter data to create msw handlers
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.9
+  - @kubb/fs@3.0.0-beta.9
+  - @kubb/oas@3.0.0-beta.9
+  - @kubb/plugin-faker@3.0.0-beta.9
+  - @kubb/plugin-oas@3.0.0-beta.9
+  - @kubb/plugin-ts@3.0.0-beta.9
+  - @kubb/react@3.0.0-beta.9
+
 ## 3.0.0-beta.8
 
 ### Patch Changes
