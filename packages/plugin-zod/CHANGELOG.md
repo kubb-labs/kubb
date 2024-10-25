@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.0.0-beta.8
+
+### Patch Changes
+
+- [#1342](https://github.com/kubb-labs/kubb/pull/1342) [`e8c2a7f`](https://github.com/kubb-labs/kubb/commit/e8c2a7f3ef6c41e74acaa6ba6bf7b78a9de00769) Thanks [@ChilloManiac](https://github.com/ChilloManiac)! - Add siblings to parser-zod for better manipulation of the AST
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.8
+  - @kubb/fs@3.0.0-beta.8
+  - @kubb/oas@3.0.0-beta.8
+  - @kubb/parser-ts@3.0.0-beta.8
+  - @kubb/plugin-oas@3.0.0-beta.8
+  - @kubb/plugin-ts@3.0.0-beta.8
+  - @kubb/react@3.0.0-beta.8
+
 ## 3.0.0-beta.7
 
 ### Patch Changes
