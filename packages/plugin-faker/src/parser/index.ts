@@ -1,5 +1,5 @@
 import transformers from '@kubb/core/transformers'
-import { SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { SchemaGenerator, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import type { Options } from '../types.ts'
@@ -188,7 +188,7 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): string | null | undefined {
+export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
   const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
 
   if (!value) {
@@ -196,16 +196,20 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return fakerKeywordMapper.union(current.args.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
+    return fakerKeywordMapper.union(
+      current.args.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+    )
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return fakerKeywordMapper.and(current.args.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
+    return fakerKeywordMapper.and(
+      current.args.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+    )
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
     return fakerKeywordMapper.array(
-      current.args.items.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean),
+      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
       current.args.min,
       current.args.max,
     )
@@ -252,7 +256,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordsorter)
-            .map((schema) => parse(current, schema, { ...options, canOverride: false }))
+            .map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false }))
             .filter(Boolean),
         )}`
       })
@@ -263,10 +267,12 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     if (Array.isArray(current.args.items)) {
-      return fakerKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, { ...options, canOverride: false })).filter(Boolean))
+      return fakerKeywordMapper.tuple(
+        current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      )
     }
 
-    return parse(current, current.args.items, { ...options, canOverride: false })
+    return parse({ parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
   }
 
   if (isKeyword(current, schemaKeywords.const)) {

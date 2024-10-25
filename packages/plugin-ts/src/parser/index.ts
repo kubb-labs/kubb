@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
-import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import type ts from 'typescript'
@@ -136,7 +136,7 @@ type ParserOptions = {
   mapper?: Record<string, ts.PropertySignature>
 }
 
-export function parse(parent: Schema | undefined, current: Schema, options: ParserOptions): ts.Node | null | undefined {
+export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {
@@ -144,15 +144,19 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
-    return typeKeywordMapper.union(current.args.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.union(
+      current.args.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+    )
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return typeKeywordMapper.and(current.args.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.and(current.args.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[])
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
-    return typeKeywordMapper.array(current.args.items.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.array(
+      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+    )
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
@@ -168,7 +172,9 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
   }
 
   if (isKeyword(current, schemaKeywords.tuple)) {
-    return typeKeywordMapper.tuple(current.args.items.map((schema) => parse(current, schema, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.tuple(
+      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+    )
   }
 
   if (isKeyword(current, schemaKeywords.const)) {
@@ -200,7 +206,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
         const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
         const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
 
-        let type = schemas.map((schema) => parse(current, schema, options)).filter(Boolean)[0] as ts.TypeNode
+        let type = schemas.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean)[0] as ts.TypeNode
 
         if (isNullable) {
           type = factory.createUnionDeclaration({
@@ -244,7 +250,7 @@ export function parse(parent: Schema | undefined, current: Schema, options: Pars
     const additionalProperties = current.args?.additionalProperties?.length
       ? factory.createIndexSignature(
           current.args.additionalProperties
-            .map((schema) => parse(current, schema, options))
+            .map((schema) => parse({ parent: current, current: schema, siblings }, options))
             .filter(Boolean)
             .at(0) as ts.TypeNode,
         )

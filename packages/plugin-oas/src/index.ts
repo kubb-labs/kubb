@@ -10,6 +10,7 @@ export type { SchemaMethodResult } from './SchemaGenerator.ts'
 export { SchemaGenerator } from './SchemaGenerator.ts'
 export type {
   Schema,
+  SchemaTree,
   SchemaKeyword,
   SchemaKeywordBase,
   SchemaKeywordMapper,

@@ -29,8 +29,8 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
 
       return true
     })
-    .map((item, _index, siblings) =>
-      parserZod.parse({ parent: undefined, current: item, siblings }, { name, keysToOmit, typeName: typeName, description, mapper, coercion }),
+    .map((schema, _index, siblings) =>
+      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName: typeName, description, mapper, coercion }),
     )
     .filter(Boolean)
     .join('')

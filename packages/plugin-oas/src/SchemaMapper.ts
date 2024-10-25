@@ -153,6 +153,12 @@ export type SchemaKeywordBase<T> = {
 
 export type Schema = { keyword: string } | SchemaKeywordMapper[keyof SchemaKeywordMapper]
 
+export type SchemaTree = {
+  parent: Schema | undefined
+  current: Schema
+  siblings: Schema[]
+}
+
 export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {
   return meta.keyword === keyword
 }

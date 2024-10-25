@@ -4,11 +4,7 @@ import * as parserType from './index.ts'
 
 describe('type parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {
-    const text = parserType.parse(undefined, schema, {
-      name,
-      optionalType: 'questionToken',
-      enumType: 'asConst',
-    })
+    const text = parserType.parse({ parent: undefined, current: schema, siblings: [schema] }, { name, optionalType: 'questionToken', enumType: 'asConst' })
     expect(text).toMatchSnapshot()
   })
 })

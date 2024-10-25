@@ -33,16 +33,19 @@ export function Type({ name, typedName, tree, keysToOmit, optionalType, enumType
 
   let type =
     (tree
-      .map((schema) =>
-        parse(undefined, schema, {
-          name,
-          typeName: typedName,
-          description,
-          keysToOmit,
-          optionalType,
-          enumType,
-          mapper,
-        }),
+      .map((schema, _index, siblings) =>
+        parse(
+          { parent: undefined, current: schema, siblings },
+          {
+            name,
+            typeName: typedName,
+            description,
+            keysToOmit,
+            optionalType,
+            enumType,
+            mapper,
+          },
+        ),
       )
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()

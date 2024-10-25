@@ -1,5 +1,5 @@
 import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
-import { type SchemaKeywordMapper, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 
@@ -159,12 +159,6 @@ const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'da
   }
 
   return !!coercion[type]
-}
-
-type SchemaTree = {
-  parent: Schema | undefined
-  current: Schema
-  siblings: Schema[]
 }
 
 type ParserOptions = {

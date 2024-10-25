@@ -21,16 +21,19 @@ type Props = {
 export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): KubbNode {
   const fakerText = parserFaker.joinItems(
     tree
-      .map((schema) =>
-        parserFaker.parse(undefined, schema, {
-          name,
-          typeName,
-          seed,
-          regexGenerator,
-          mapper,
-          canOverride,
-          dateParser,
-        }),
+      .map((schema, _index, siblings) =>
+        parserFaker.parse(
+          { parent: undefined, current: schema, siblings },
+          {
+            name,
+            typeName,
+            seed,
+            regexGenerator,
+            mapper,
+            canOverride,
+            dateParser,
+          },
+        ),
       )
       .filter(Boolean),
   )
