@@ -110,6 +110,18 @@ Return the name of a group based on the group name, this will be used for the fi
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
+### parser
+Which parser should be used before returning the data to the `Response` of MSW.
+
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `'data' \| 'faker'` |
+| Required: | `false`             |
+|  Default: | `'data'`            |
+
+- `'faker'` will use `@kubb/plugin-faker` to generate the data for the response.
+- `'data'` will use your custom data to generate the data for the response.
+
 ### include
 <!--@include: ../core/include.md-->
 

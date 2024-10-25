@@ -105,7 +105,7 @@ export type Options = {
    */
   mutation?: Mutation | false
   /**
-   * Which parser can be used before returning the data to `@tanstack/query`.
+   * Which parser should be used before returning the data to `@tanstack/query`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
   parser?: PluginClient['options']['parser']

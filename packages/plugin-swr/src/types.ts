@@ -72,7 +72,7 @@ export type Options = {
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
   /**
-   * Which parser can be used before returning the data to `swr`.
+   * Which parser should be used before returning the data to `swr`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
   parser?: PluginClient['options']['parser']

@@ -36,7 +36,7 @@ export type Options = {
    */
   handlers?: boolean
   /**
-   * Which parser can be used before returning the data
+   * Which parser should be used before returning the data to the `Response` of MSW.
    *  - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response
    *  - `'data'` will use your custom data to generate the data for the response
    * @default 'data'
