@@ -1,5 +1,15 @@
 # @kubb/plugin-redoc
 
+## 3.0.0-beta.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.9
+  - @kubb/oas@3.0.0-beta.9
+  - @kubb/plugin-oas@3.0.0-beta.9
+  - @kubb/react@3.0.0-beta.9
+
 ## 3.0.0-beta.8
 
 ### Patch Changes
