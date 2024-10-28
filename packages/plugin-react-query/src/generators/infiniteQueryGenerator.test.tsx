@@ -54,6 +54,7 @@ describe('infiniteQueryGenerator operation', async () => {
       },
       parser: 'zod',
       baseURL: undefined,
+      paramsType: 'inline',
       pathParamsType: 'inline',
       query: {
         importPath: '@tanstack/react-query',

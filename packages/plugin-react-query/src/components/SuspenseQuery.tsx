@@ -18,6 +18,7 @@ type Props = {
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
 }
@@ -71,6 +72,7 @@ export function SuspenseQuery({
   queryKeyTypeName,
   queryOptionsName,
   queryKeyName,
+  paramsType,
   pathParamsType,
   dataReturnType,
   typeSchemas,
@@ -85,6 +87,7 @@ export function SuspenseQuery({
     typeSchemas,
   })
   const queryOptionsParams = QueryOptions.getParams({
+    paramsType,
     pathParamsType,
     typeSchemas,
   })

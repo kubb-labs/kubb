@@ -94,6 +94,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsType={'inline'}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />

@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -100,6 +99,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsType={'inline'}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />

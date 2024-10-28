@@ -97,6 +97,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsType={'inline'}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
