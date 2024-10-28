@@ -13,9 +13,9 @@ import type {
  */
 export async function getUserByName(
   {
-    username,
+    pathParams: { username },
   }: {
-    username: GetUserByNamePathParams['username']
+    pathParams: GetUserByNamePathParams
   },
   config: Partial<RequestConfig> = {},
 ) {

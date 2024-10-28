@@ -20,7 +20,7 @@ export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
  * @link /pets/:uuid
  */
 async function createPets(
-  uuid: CreatePetsPathParams['uuid'],
+  { uuid }: CreatePetsPathParams,
   data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
@@ -70,7 +70,7 @@ export function useCreatePets(
     }
   >({
     mutationFn: async ({ uuid, data, headers, params }) => {
-      return createPets(uuid, data, headers, params, config)
+      return createPets({ uuid }, data, headers, params, config)
     },
     mutationKey,
     ...mutationOptions,

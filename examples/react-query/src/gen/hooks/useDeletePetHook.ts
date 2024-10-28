@@ -13,15 +13,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-async function deletePet(
-  {
-    petId,
-  }: {
-    petId: DeletePetPathParams['petId']
-  },
-  headers?: DeletePetHeaderParams,
-  config: Partial<RequestConfig> = {},
-) {
+async function deletePet({ petId }: DeletePetPathParams, headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,

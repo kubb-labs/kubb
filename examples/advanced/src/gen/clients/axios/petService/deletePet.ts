@@ -9,11 +9,12 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
  */
 export async function deletePet(
   {
-    petId,
+    pathParams: { petId },
+    headers,
   }: {
-    petId: DeletePetPathParams['petId']
+    pathParams: DeletePetPathParams
+    headers?: DeletePetHeaderParams
   },
-  headers?: DeletePetHeaderParams,
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({

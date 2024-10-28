@@ -9,9 +9,9 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
  */
 export async function getPetById(
   {
-    petId,
+    pathParams: { petId },
   }: {
-    petId: GetPetByIdPathParams['petId']
+    pathParams: GetPetByIdPathParams
   },
   config: Partial<RequestConfig> = {},
 ) {

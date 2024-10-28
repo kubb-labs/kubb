@@ -12,7 +12,16 @@ import type {
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+export async function findPetsByTags(
+  {
+    headers,
+    params,
+  }: {
+    headers: FindPetsByTagsHeaderParams
+    params?: FindPetsByTagsQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
     method: 'GET',
     url: '/pet/findByTags',

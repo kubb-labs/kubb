@@ -12,15 +12,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export async function updatePetWithForm(
-  {
-    petId,
-  }: {
-    petId: UpdatePetWithFormPathParams['petId']
-  },
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> = {},
-) {
+export async function updatePetWithForm({ petId }: UpdatePetWithFormPathParams, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,

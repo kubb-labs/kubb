@@ -13,12 +13,14 @@ import type {
  */
 export async function uploadFile(
   {
-    petId,
+    pathParams: { petId },
+    data,
+    params,
   }: {
-    petId: UploadFilePathParams['petId']
+    pathParams: UploadFilePathParams
+    data?: UploadFileMutationRequest
+    params?: UploadFileQueryParams
   },
-  data?: UploadFileMutationRequest,
-  params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
   const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({

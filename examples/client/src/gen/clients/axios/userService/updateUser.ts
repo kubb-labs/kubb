@@ -9,11 +9,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @link /user/:username
  */
 export async function updateUser(
-  {
-    username,
-  }: {
-    username: UpdateUserPathParams['username']
-  },
+  { username }: UpdateUserPathParams,
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {

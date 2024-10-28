@@ -93,7 +93,7 @@ export default defineConfig(() => {
         },
         infinite: false,
         suspense: false,
-
+        paramsType: 'object',
         parser: 'zod',
       }),
       pluginSwr({
@@ -132,6 +132,7 @@ export default defineConfig(() => {
         importPath: '../../../../axios-client.ts',
         operations: true,
         dataReturnType: 'full',
+        paramsType: 'object',
         pathParamsType: 'object',
       }),
       pluginZod({

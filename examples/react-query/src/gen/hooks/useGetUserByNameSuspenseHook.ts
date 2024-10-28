@@ -16,14 +16,7 @@ export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspe
  * @summary Get user by user name
  * @link /user/:username
  */
-async function getUserByName(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+async function getUserByName({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
   const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
     method: 'GET',
     url: `/user/${username}`,
@@ -33,14 +26,7 @@ async function getUserByName(
   return res.data
 }
 
-export function getUserByNameSuspenseQueryOptionsHook(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+export function getUserByNameSuspenseQueryOptionsHook({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameSuspenseQueryKey({ username })
   return queryOptions({
     enabled: !!username,
