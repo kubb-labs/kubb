@@ -13,11 +13,11 @@ import type {
  */
 export async function uploadFile(
   {
-    pathParams: { petId },
+    petId,
     data,
     params,
   }: {
-    pathParams: UploadFilePathParams
+    petId: UploadFilePathParams['petId']
     data?: UploadFileMutationRequest
     params?: UploadFileQueryParams
   },

@@ -65,6 +65,13 @@ export type Options = {
     importPath?: string
   }
   /**
+   * How to pass your params
+   * - 'object' will return the params and pathParams as an object.
+   * - 'inline' will return the params as comma separated params.
+   * @default 'inline'
+   */
+  paramsType?: 'object' | 'inline'
+  /**
    * How to pass your pathParams.
    * - 'object' will return the pathParams as an object.
    * - 'inline' will return the pathParams as comma separated params.
@@ -95,6 +102,7 @@ type ResolvedOptions = {
   parser: Required<NonNullable<Options['parser']>>
   mutation: Required<NonNullable<Options['mutation']>>
   query: Required<NonNullable<Options['query']>>
+  paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
 }
 

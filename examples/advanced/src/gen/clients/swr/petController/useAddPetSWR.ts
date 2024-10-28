@@ -13,7 +13,14 @@ export type AddPetMutationKeySWR = ReturnType<typeof addPetMutationKeySWR>
  * @summary Add a new pet to the store
  * @link /pet
  */
-async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
+async function addPet(
+  {
+    data,
+  }: {
+    data: AddPetMutationRequest
+  },
+  config: Partial<RequestConfig<AddPetMutationRequest>> = {},
+) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',
@@ -41,7 +48,7 @@ export function useAddPetSWR(
   return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKeySWR | null, AddPetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return addPet(data, config)
+      return addPet({ data }, config)
     },
     mutationOptions,
   )

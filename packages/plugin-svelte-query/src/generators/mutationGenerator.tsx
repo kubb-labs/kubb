@@ -88,7 +88,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
-          paramsType={'inline'}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
@@ -99,6 +99,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           typeSchemas={type.schemas}
           operation={operation}
           dataReturnType={options.client.dataReturnType}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           mutationKeyName={mutationKey.name}
         />

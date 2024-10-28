@@ -9,10 +9,10 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  */
 export async function updateUser(
   {
-    pathParams: { username },
+    username,
     data,
   }: {
-    pathParams: UpdateUserPathParams
+    username: UpdateUserPathParams['username']
     data?: UpdateUserMutationRequest
   },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},

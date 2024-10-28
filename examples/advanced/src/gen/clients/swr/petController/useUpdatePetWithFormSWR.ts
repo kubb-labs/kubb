@@ -17,7 +17,16 @@ export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFor
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+async function updatePetWithForm(
+  {
+    petId,
+    params,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+    params?: UpdatePetWithFormQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
@@ -33,7 +42,11 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
  * @link /pet/:petId
  */
 export function useUpdatePetWithFormSWR(
-  petId: UpdatePetWithFormPathParams['petId'],
+  {
+    petId,
+  }: {
+    petId: UpdatePetWithFormPathParams['petId']
+  },
   params?: UpdatePetWithFormQueryParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKeySWR>>[2]
@@ -46,7 +59,7 @@ export function useUpdatePetWithFormSWR(
   return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
-      return updatePetWithForm(petId, params, config)
+      return updatePetWithForm({ petId, params }, config)
     },
     mutationOptions,
   )

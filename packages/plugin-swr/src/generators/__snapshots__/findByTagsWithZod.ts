@@ -11,15 +11,19 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+async function findPetsByTags({ params }: {
+    params?: FindPetsByTagsQueryParams;
+}, config: Partial<RequestConfig> = {}) {
     const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: "GET", url: `/pet/findByTags`, params, ...config });
     return findPetsByTagsQueryResponse.parse(res.data);
 }
 
- export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+ export function findPetsByTagsQueryOptions({ params }: {
+    params?: FindPetsByTagsQueryParams;
+}, config: Partial<RequestConfig> = {}) {
     return {
         fetcher: async () => {
-            return findPetsByTags(params, config);
+            return findPetsByTags({ params }, config);
         },
     };
 }
@@ -29,7 +33,9 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
+export function useFindPetsByTags({ params }: {
+    params?: FindPetsByTagsQueryParams;
+}, options: {
     query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKey | null, any>>[2];
     client?: Partial<RequestConfig>;
     shouldFetch?: boolean;
@@ -37,7 +43,7 @@ export function useFindPetsByTags(params?: FindPetsByTagsQueryParams, options: {
     const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {};
     const queryKey = findPetsByTagsQueryKey(params);
     return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
-        ...findPetsByTagsQueryOptions(params, config),
+        ...findPetsByTagsQueryOptions({ params }, config),
         ...queryOptions
     });
 }

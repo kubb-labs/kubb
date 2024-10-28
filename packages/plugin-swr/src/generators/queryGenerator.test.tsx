@@ -72,6 +72,16 @@ describe('queryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findByTagsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        pathParamsType: 'object',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -98,6 +108,7 @@ describe('queryGenerator operation', async () => {
         importPath: 'swr/mutation',
         methods: ['post'],
       },
+      paramsType: 'object',
       pathParamsType: 'inline',
       baseURL: undefined,
       parser: 'client',

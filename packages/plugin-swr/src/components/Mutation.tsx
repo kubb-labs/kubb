@@ -20,6 +20,7 @@ type Props = {
   mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsType: PluginSwr['resolvedOptions']['paramsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
 }
@@ -30,7 +31,7 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
   mutationKeyTypeName: string
 }
-
+// TODO add same logic as being done for react-query mutations
 function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
@@ -64,13 +65,23 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTyp
   })
 }
 
-export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+export function Mutation({
+  name,
+  clientName,
+  mutationKeyName,
+  mutationKeyTypeName,
+  paramsType,
+  pathParamsType,
+  dataReturnType,
+  typeSchemas,
+  operation,
+}: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const generics = [
     TData,
     typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
     `${mutationKeyTypeName} | null`,
-    typeSchemas.request?.name,
+    typeSchemas.request?.name, //arg: data
   ].filter(Boolean)
 
   const mutationKeyParams = MutationKey.getParams({
@@ -86,6 +97,7 @@ export function Mutation({ name, clientName, mutationKeyName, mutationKeyTypeNam
   })
 
   const clientParams = Client.getParams({
+    paramsType,
     typeSchemas,
     pathParamsType,
   })

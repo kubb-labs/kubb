@@ -9,9 +9,9 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
  */
 export async function deleteUser(
   {
-    pathParams: { username },
+    username,
   }: {
-    pathParams: DeleteUserPathParams
+    username: DeleteUserPathParams['username']
   },
   config: Partial<RequestConfig> = {},
 ) {

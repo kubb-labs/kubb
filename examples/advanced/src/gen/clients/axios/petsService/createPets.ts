@@ -14,12 +14,12 @@ import type {
  */
 export async function createPets(
   {
-    pathParams: { uuid },
+    uuid,
     data,
     headers,
     params,
   }: {
-    pathParams: CreatePetsPathParams
+    uuid: CreatePetsPathParams['uuid']
     data: CreatePetsMutationRequest
     headers: CreatePetsHeaderParams
     params?: CreatePetsQueryParams

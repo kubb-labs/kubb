@@ -44,7 +44,7 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
-   * How to pass your paramsType
+   * How to pass your params
    * - 'object' will return the params and pathParams as an object.
    * - 'inline' will return the params as comma separated params.
    * @default 'inline'

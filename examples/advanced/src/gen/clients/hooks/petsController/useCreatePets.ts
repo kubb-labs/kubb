@@ -20,10 +20,17 @@ export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
  * @link /pets/:uuid
  */
 async function createPets(
-  { uuid }: CreatePetsPathParams,
-  data: CreatePetsMutationRequest,
-  headers: CreatePetsHeaderParams,
-  params?: CreatePetsQueryParams,
+  {
+    uuid,
+    data,
+    headers,
+    params,
+  }: {
+    uuid: CreatePetsPathParams['uuid']
+    data: CreatePetsMutationRequest
+    headers: CreatePetsHeaderParams
+    params?: CreatePetsQueryParams
+  },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
   const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
@@ -70,7 +77,7 @@ export function useCreatePets(
     }
   >({
     mutationFn: async ({ uuid, data, headers, params }) => {
-      return createPets({ uuid }, data, headers, params, config)
+      return createPets({ uuid, data, headers, params }, config)
     },
     mutationKey,
     ...mutationOptions,

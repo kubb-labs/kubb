@@ -86,6 +86,13 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
+   * How to pass your params
+   * - 'object' will return the params and pathParams as an object.
+   * - 'inline' will return the params as comma separated params.
+   * @default 'inline'
+   */
+  paramsType?: 'object' | 'inline'
+  /**
    * How to pass your pathParams.
    * - 'object' will return the pathParams as an object.
    * - 'inline' will return the pathParams as comma separated params.
@@ -126,6 +133,7 @@ type ResolvedOptions = {
   baseURL: string | undefined
   client: Required<NonNullable<PluginVueQuery['options']['client']>>
   parser: Required<NonNullable<Options['parser']>>
+  paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   /**
    * Only used of infinite

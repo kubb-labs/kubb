@@ -38,6 +38,7 @@ export const config = {
       query: {
         key: (keys) => ['"v5"', ...keys],
       },
+      paramsType: 'inline',
       pathParamsType: 'object',
       suspense: {},
       override: [

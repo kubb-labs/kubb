@@ -111,6 +111,7 @@ export default defineConfig(() => {
           importPath: '../../../../swr-client.ts',
           dataReturnType: 'data',
         },
+        paramsType: 'object',
         parser: 'zod',
         transformers: {
           name(name, type) {

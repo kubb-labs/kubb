@@ -20,9 +20,9 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  */
 async function getPetById(
   {
-    pathParams: { petId },
+    petId,
   }: {
-    pathParams: GetPetByIdPathParams
+    petId: GetPetByIdPathParams['petId']
   },
   config: Partial<RequestConfig> = {},
 ) {
@@ -37,9 +37,9 @@ async function getPetById(
 
 export function getPetByIdQueryOptions(
   {
-    pathParams: { petId },
+    petId,
   }: {
-    pathParams: GetPetByIdPathParams
+    petId: GetPetByIdPathParams['petId']
   },
   config: Partial<RequestConfig> = {},
 ) {
@@ -49,7 +49,7 @@ export function getPetByIdQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getPetById({ pathParams: { petId } }, config)
+      return getPetById({ petId }, config)
     },
   })
 }
@@ -65,9 +65,9 @@ export function useGetPetById<
   TQueryKey extends QueryKey = GetPetByIdQueryKey,
 >(
   {
-    pathParams: { petId },
+    petId,
   }: {
-    pathParams: GetPetByIdPathParams
+    petId: GetPetByIdPathParams['petId']
   },
   options: {
     query?: Partial<QueryObserverOptions<ResponseConfig<GetPetByIdQueryResponse>, GetPetById400 | GetPetById404, TData, TQueryData, TQueryKey>>
@@ -77,7 +77,7 @@ export function useGetPetById<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ petId })
   const query = useQuery({
-    ...(getPetByIdQueryOptions({ pathParams: { petId } }, config) as unknown as QueryObserverOptions),
+    ...(getPetByIdQueryOptions({ petId }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & {

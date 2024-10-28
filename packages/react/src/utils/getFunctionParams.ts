@@ -89,11 +89,14 @@ function parseChild(key: string, item: ParamItem, options: Options): string {
           names.push(name)
         }
       } else {
-        names.push(name)
+        if (options.type === 'call' && options.transformName) {
+          names.push(`${key}: ${name}`)
+        } else {
+          names.push(name)
+        }
       }
 
       if (entries.some(([_key, item]) => item?.type)) {
-        // @ts-ignore
         types.push(parseItem(key, { ...entryItem, default: undefined }, options))
       }
     }

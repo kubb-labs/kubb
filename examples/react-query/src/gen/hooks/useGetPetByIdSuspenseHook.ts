@@ -49,11 +49,7 @@ export function useGetPetByIdSuspenseHook<
   TQueryData = GetPetByIdQueryResponse,
   TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey,
 >(
-  {
-    petId,
-  }: {
-    petId: GetPetByIdPathParams['petId']
-  },
+  { petId }: GetPetByIdPathParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, TData, TQueryKey>>
     client?: Partial<RequestConfig>

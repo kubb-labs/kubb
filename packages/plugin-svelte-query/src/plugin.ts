@@ -2,7 +2,6 @@ import path from 'node:path'
 
 import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { renderTemplate } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -24,6 +23,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     override = [],
     parser = 'client',
     transformers = {},
+    paramsType = 'inline',
     pathParamsType = 'inline',
     mutation = {},
     query = {},
@@ -53,7 +53,8 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         importPath: '@tanstack/svelte-query',
         ...mutation,
       },
-      pathParamsType,
+      paramsType,
+      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
       parser,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),

@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -95,7 +94,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
-          paramsType={'inline'}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
@@ -104,6 +103,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           clientName={client.name}
           queryKeyName={queryKey.name}
           typeSchemas={type.schemas}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
         />
         <Query
@@ -112,6 +112,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           typeSchemas={type.schemas}
           pathParamsType={options.pathParamsType}
           operation={operation}
+          paramsType={options.paramsType}
           dataReturnType={options.client.dataReturnType}
           queryKeyName={queryKey.name}
           queryKeyTypeName={queryKey.typeName}

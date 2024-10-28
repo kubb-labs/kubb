@@ -13,10 +13,10 @@ import type {
  */
 export async function updatePetWithForm(
   {
-    pathParams: { petId },
+    petId,
     params,
   }: {
-    pathParams: UpdatePetWithFormPathParams
+    petId: UpdatePetWithFormPathParams['petId']
     params?: UpdatePetWithFormQueryParams
   },
   config: Partial<RequestConfig> = {},

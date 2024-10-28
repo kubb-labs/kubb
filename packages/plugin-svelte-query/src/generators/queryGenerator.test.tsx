@@ -85,6 +85,16 @@ describe('queryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findByTagsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        pathParamsType: 'object',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -103,6 +113,7 @@ describe('queryGenerator operation', async () => {
       },
       parser: 'zod',
       baseURL: undefined,
+      paramsType: 'inline',
       pathParamsType: 'inline',
       query: {
         importPath: '@tanstack/svelte-query',

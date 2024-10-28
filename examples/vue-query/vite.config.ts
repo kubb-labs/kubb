@@ -32,6 +32,7 @@ export default defineConfig({
             output: {
               path: './hooks',
             },
+            paramsType: 'object',
           }),
         ],
       },

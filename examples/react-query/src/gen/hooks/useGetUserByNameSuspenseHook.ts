@@ -47,11 +47,7 @@ export function useGetUserByNameSuspenseHook<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey,
 >(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
+  { username }: GetUserByNamePathParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, TData, TQueryKey>>
     client?: Partial<RequestConfig>

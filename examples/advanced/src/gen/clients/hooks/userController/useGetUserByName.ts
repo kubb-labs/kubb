@@ -24,9 +24,9 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  */
 async function getUserByName(
   {
-    pathParams: { username },
+    username,
   }: {
-    pathParams: GetUserByNamePathParams
+    username: GetUserByNamePathParams['username']
   },
   config: Partial<RequestConfig> = {},
 ) {
@@ -41,9 +41,9 @@ async function getUserByName(
 
 export function getUserByNameQueryOptions(
   {
-    pathParams: { username },
+    username,
   }: {
-    pathParams: GetUserByNamePathParams
+    username: GetUserByNamePathParams['username']
   },
   config: Partial<RequestConfig> = {},
 ) {
@@ -53,7 +53,7 @@ export function getUserByNameQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getUserByName({ pathParams: { username } }, config)
+      return getUserByName({ username }, config)
     },
   })
 }
@@ -68,9 +68,9 @@ export function useGetUserByName<
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
   {
-    pathParams: { username },
+    username,
   }: {
-    pathParams: GetUserByNamePathParams
+    username: GetUserByNamePathParams['username']
   },
   options: {
     query?: Partial<QueryObserverOptions<ResponseConfig<GetUserByNameQueryResponse>, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
@@ -80,7 +80,7 @@ export function useGetUserByName<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
   const query = useQuery({
-    ...(getUserByNameQueryOptions({ pathParams: { username } }, config) as unknown as QueryObserverOptions),
+    ...(getUserByNameQueryOptions({ username }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & {

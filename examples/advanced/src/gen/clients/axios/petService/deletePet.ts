@@ -9,10 +9,10 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
  */
 export async function deletePet(
   {
-    pathParams: { petId },
+    petId,
     headers,
   }: {
-    pathParams: DeletePetPathParams
+    petId: DeletePetPathParams['petId']
     headers?: DeletePetHeaderParams
   },
   config: Partial<RequestConfig> = {},

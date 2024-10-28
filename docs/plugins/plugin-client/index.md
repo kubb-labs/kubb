@@ -115,6 +115,9 @@ Create `operations.ts` file with all operations grouped by methods.
 ### dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
+### paramsType
+<!--@include: ../plugin-client/pathParamsType.md-->
+
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->
 

@@ -30,7 +30,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getInventory(unref(config))
+      return getInventory(unref(), unref(config))
     },
   })
 }

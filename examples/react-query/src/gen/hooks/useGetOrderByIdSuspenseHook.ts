@@ -49,11 +49,7 @@ export function useGetOrderByIdSuspenseHook<
   TQueryData = GetOrderByIdQueryResponse,
   TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey,
 >(
-  {
-    orderId,
-  }: {
-    orderId: GetOrderByIdPathParams['orderId']
-  },
+  { orderId }: GetOrderByIdPathParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryKey>>
     client?: Partial<RequestConfig>

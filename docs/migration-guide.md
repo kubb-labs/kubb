@@ -324,6 +324,7 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - `client.importPath` becomes `importPath`
 - `operations` will control the creation of a file with all operations grouped by methods.
 - `parser` will make it possible to chose between using no parser(`client`) or using Zod(`zod`).
+- `paramsType` will make it possible to have one object to pass your pathParams, params, headers and data.
 
 ### @kubb/plugin-ts
 - `enumType` `'asPascalConst'` has been removed as an option.
@@ -349,6 +350,7 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - `mutation.key` same as in `@kubb/plugin-react-query`
 - `mutation.methods` same as in `@kubb/plugin-react-query`
 - `mutation.importPath` same as in `@kubb/plugin-react-query`
+- `paramsType` will make it possible to have one object to pass your pathParams, params, headers and data.
 
 ### @kubb/plugin-react-query
 - `dataReturnType` becomes `client.dataReturnType`
@@ -363,6 +365,7 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - `enabled` will be generated based on which params are required
 - Support for `signal`, this makes it possible to cancel a request
 - Removal of `mutate.variablesType` and use `'mutate'` as default
+- `paramsType` will make it possible to have one object to pass your pathParams, params, headers and data.
 
 ### @kubb/plugin-msw
 - `parser` to switch between using Faker(`'faker'`) for your data or define your own data with `'data'`.

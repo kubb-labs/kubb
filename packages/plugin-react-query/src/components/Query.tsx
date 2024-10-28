@@ -38,14 +38,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
       data: {
         mode: 'object',
         children: {
-          pathParams: typeSchemas.pathParams?.name
-            ? {
-                mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-                children: getPathParams(typeSchemas.pathParams, { typed: true }),
-                type: typeSchemas.pathParams?.name,
-                optional: isOptional(typeSchemas.pathParams?.schema),
-              }
-            : undefined,
+          ...getPathParams(typeSchemas.pathParams, { typed: true }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
