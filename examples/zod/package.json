@@ -27,7 +27,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.3.4",
+    "tsup": "^8.3.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
