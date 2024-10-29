@@ -71,6 +71,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/hkang1"><img src="https://avatars.githubusercontent.com/u/220971?v=4?s=100" width="100px;" alt="Caleb Hoyoul Kang"/><br /><sub><b>Caleb Hoyoul Kang</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hkang1" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/grreeenn"><img src="https://avatars.githubusercontent.com/u/13204857?v=4?s=100" width="100px;" alt="Gregory Zhukovsky"/><br /><sub><b>Gregory Zhukovsky</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=grreeenn" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ChilloManiac"><img src="https://avatars.githubusercontent.com/u/3761964?v=4?s=100" width="100px;" alt="Christoffer Nørbjerg"/><br /><sub><b>Christoffer Nørbjerg</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=ChilloManiac" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://codefy.de/de/karriere"><img src="https://avatars.githubusercontent.com/u/122524301?v=4?s=100" width="100px;" alt="CHE1RON"/><br /><sub><b>CHE1RON</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=CHE1RON" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
