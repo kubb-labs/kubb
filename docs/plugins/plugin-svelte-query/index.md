@@ -109,7 +109,7 @@ Return the name of a group based on the group name, this will be used for the fi
 <!--@include: ../plugin-client/dataReturnType.md-->
 
 ### paramsType
-<!--@include: ../plugin-client/pathParamsType.md-->
+<!--@include: ../plugin-client/paramsType.md-->
 
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->
