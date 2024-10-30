@@ -29,7 +29,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return logoutUser(unref(), unref(config))
+      return logoutUser(unref(config))
     },
   })
 }

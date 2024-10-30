@@ -64,7 +64,7 @@ function order(items: Array<[key: string, item?: ParamItem]>) {
   )
 }
 
-function parseChild(key: string, item: ParamItem, options: Options): string {
+function parseChild(key: string, item: ParamItem, options: Options): string | null {
   // @ts-ignore
   const entries = order(Object.entries(item.children))
 
@@ -102,8 +102,12 @@ function parseChild(key: string, item: ParamItem, options: Options): string {
     }
   })
 
-  const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : ''
+  const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : undefined
   const type = item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined
+
+  if (!name) {
+    return null
+  }
 
   return parseItem(
     name,
@@ -154,11 +158,14 @@ export function getFunctionParams(params: Params, options: Options): string {
           return acc
         }
 
-        if (item.mode === 'inlineSpread' && item.children) {
+        if (item.mode === 'inlineSpread') {
           return [...acc, getFunctionParams(item.children, options)]
         }
 
         const parsedItem = parseChild(key, item, options)
+        if (!parsedItem) {
+          return acc
+        }
 
         return [...acc, parsedItem]
       }
