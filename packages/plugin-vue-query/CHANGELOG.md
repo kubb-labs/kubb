@@ -1,5 +1,22 @@
 # @kubb/plugin-vue-query
 
+## 3.0.0-beta.10
+
+### Minor Changes
+
+- [#1358](https://github.com/kubb-labs/kubb/pull/1358) [`4db1509`](https://github.com/kubb-labs/kubb/commit/4db150923c5fee6dc952779880a13c8d4c0245b5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `paramsType` to change the amount of parameters when calling a query
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.0-beta.10
+  - @kubb/fs@3.0.0-beta.10
+  - @kubb/oas@3.0.0-beta.10
+  - @kubb/plugin-oas@3.0.0-beta.10
+  - @kubb/plugin-ts@3.0.0-beta.10
+  - @kubb/plugin-zod@3.0.0-beta.10
+  - @kubb/react@3.0.0-beta.10
+
 ## 3.0.0-beta.9
 
 ### Patch Changes
