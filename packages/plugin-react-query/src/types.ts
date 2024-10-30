@@ -88,6 +88,13 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
+   * How to pass your params
+   * - 'object' will return the params and pathParams as an object.
+   * - 'inline' will return the params as comma separated params.
+   * @default 'inline'
+   */
+  paramsType?: 'object' | 'inline'
+  /**
    * How to pass your pathParams.
    * - 'object' will return the pathParams as an object.
    * - 'inline' will return the pathParams as comma separated params.
@@ -134,6 +141,7 @@ type ResolvedOptions = {
   client: Required<NonNullable<PluginReactQuery['options']['client']>>
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  paramsType: NonNullable<Options['paramsType']>
   /**
    * Only used of infinite
    */

@@ -55,6 +55,16 @@ describe('clientGenerator operation', async () => {
       },
     },
     {
+      name: 'findByTagsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        pathParamsType: 'object',
+      },
+    },
+    {
       name: 'updatePetById',
       input: '../../mocks/petStore.yaml',
       path: '/pet/{petId}',
@@ -90,6 +100,7 @@ describe('clientGenerator operation', async () => {
 
     const options: PluginClient['resolvedOptions'] = {
       dataReturnType: 'data',
+      paramsType: 'inline',
       pathParamsType: 'inline',
       importPath: '@kubb/plugin-client/client',
       baseURL: '',

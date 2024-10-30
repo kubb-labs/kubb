@@ -7,7 +7,14 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
+export async function findPetsByStatus(
+  {
+    params,
+  }: {
+    params?: FindPetsByStatusQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({
     method: 'GET',
     url: '/pet/findByStatus',

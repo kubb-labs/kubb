@@ -4,6 +4,13 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.10
+- [`plugin-react-query`](/plugins/plugin-react-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
+- [`plugin-client`](/plugins/plugin-client/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
+
 ## 3.0.0-beta.9
 - [`plugin-msw`](/plugins/plugin-msw): `parser` option to disable faker generation
   - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response

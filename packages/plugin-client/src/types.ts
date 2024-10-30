@@ -44,6 +44,13 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
+   * How to pass your params
+   * - 'object' will return the params and pathParams as an object.
+   * - 'inline' will return the params as comma separated params.
+   * @default 'inline'
+   */
+  paramsType?: 'object' | 'inline'
+  /**
    * How to pass your pathParams.
    * - 'object' will return the pathParams as an object.
    * - 'inline' will return the pathParams as comma separated params.
@@ -76,6 +83,7 @@ type ResolvedOptions = {
   importPath: NonNullable<Options['importPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  paramsType: NonNullable<Options['paramsType']>
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>

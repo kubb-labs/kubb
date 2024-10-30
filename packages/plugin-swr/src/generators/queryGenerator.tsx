@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -94,14 +93,22 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
-        <QueryOptions name={queryOptions.name} clientName={client.name} typeSchemas={type.schemas} pathParamsType={options.pathParamsType} />
+        <QueryOptions
+          name={queryOptions.name}
+          clientName={client.name}
+          typeSchemas={type.schemas}
+          paramsType={options.paramsType}
+          pathParamsType={options.pathParamsType}
+        />
         <Query
           name={query.name}
           queryOptionsName={queryOptions.name}
           typeSchemas={type.schemas}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           operation={operation}
           dataReturnType={options.client.dataReturnType}

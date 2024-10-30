@@ -17,6 +17,7 @@ type Props = {
 
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
+  paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
   typeSchemas: OperationSchemas
@@ -25,16 +26,54 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+  if (paramsType === 'object') {
+    return FunctionParams.factory({
+      data: {
+        mode: 'object',
+        children: {
+          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          data: typeSchemas.request?.name
+            ? {
+                type: typeSchemas.request?.name,
+                optional: isOptional(typeSchemas.request?.schema),
+              }
+            : undefined,
+          params: typeSchemas.queryParams?.name
+            ? {
+                type: typeSchemas.queryParams?.name,
+                optional: isOptional(typeSchemas.queryParams?.schema),
+              }
+            : undefined,
+          headers: typeSchemas.headerParams?.name
+            ? {
+                type: typeSchemas.headerParams?.name,
+                optional: isOptional(typeSchemas.headerParams?.schema),
+              }
+            : undefined,
+        },
+      },
+      config: {
+        type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+        default: '{}',
+      },
+    })
+  }
+
   return FunctionParams.factory({
-    pathParams: {
-      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
-    },
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          type: typeSchemas.pathParams?.name,
+          optional: isOptional(typeSchemas.pathParams?.schema),
+        }
+      : undefined,
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
@@ -69,6 +108,7 @@ export function Client({
   dataReturnType,
   parser,
   zodSchemas,
+  paramsType,
   pathParamsType,
   operation,
 }: Props): KubbNode {
@@ -85,7 +125,7 @@ export function Client({
     typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
     typeSchemas.request?.name || 'unknown',
   ].filter(Boolean)
-  const params = getParams({ pathParamsType, typeSchemas })
+  const params = getParams({ paramsType, pathParamsType, typeSchemas })
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',

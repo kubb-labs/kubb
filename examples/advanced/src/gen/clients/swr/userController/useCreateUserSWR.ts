@@ -13,7 +13,14 @@ export type CreateUserMutationKeySWR = ReturnType<typeof createUserMutationKeySW
  * @summary Create user
  * @link /user
  */
-async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+async function createUser(
+  {
+    data,
+  }: {
+    data?: CreateUserMutationRequest
+  },
+  config: Partial<RequestConfig<CreateUserMutationRequest>> = {},
+) {
   const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
@@ -41,7 +48,7 @@ export function useCreateUserSWR(
   return useSWRMutation<CreateUserMutationResponse, Error, CreateUserMutationKeySWR | null, CreateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return createUser(data, config)
+      return createUser({ data }, config)
     },
     mutationOptions,
   )

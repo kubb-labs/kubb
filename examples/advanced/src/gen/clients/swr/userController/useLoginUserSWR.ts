@@ -12,7 +12,14 @@ export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
  * @summary Logs user into the system
  * @link /user/login
  */
-async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+async function loginUser(
+  {
+    params,
+  }: {
+    params?: LoginUserQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
     method: 'GET',
     url: '/user/login',
@@ -23,10 +30,17 @@ async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestC
   return loginUserQueryResponseSchema.parse(res.data)
 }
 
-export function loginUserQueryOptionsSWR(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+export function loginUserQueryOptionsSWR(
+  {
+    params,
+  }: {
+    params?: LoginUserQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   return {
     fetcher: async () => {
-      return loginUser(params, config)
+      return loginUser({ params }, config)
     },
   }
 }
@@ -36,7 +50,11 @@ export function loginUserQueryOptionsSWR(params?: LoginUserQueryParams, config: 
  * @link /user/login
  */
 export function useLoginUserSWR(
-  params?: LoginUserQueryParams,
+  {
+    params,
+  }: {
+    params?: LoginUserQueryParams
+  },
   options: {
     query?: Parameters<typeof useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKeySWR | null, any>>[2]
     client?: Partial<RequestConfig>
@@ -46,7 +64,7 @@ export function useLoginUserSWR(
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = loginUserQueryKeySWR(params)
   return useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
-    ...loginUserQueryOptionsSWR(params, config),
+    ...loginUserQueryOptionsSWR({ params }, config),
     ...queryOptions,
   })
 }

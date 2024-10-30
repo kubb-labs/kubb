@@ -15,7 +15,14 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+async function findPetsByTags(
+  {
+    params,
+  }: {
+    params?: FindPetsByTagsQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
@@ -26,13 +33,20 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
   return res.data
 }
 
-export function findPetsByTagsQueryOptions(params?: MaybeRef<FindPetsByTagsQueryParams>, config: Partial<RequestConfig> = {}) {
+export function findPetsByTagsQueryOptions(
+  {
+    params,
+  }: {
+    params?: MaybeRef<FindPetsByTagsQueryParams>
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return findPetsByTags(unref(params), unref(config))
+      return findPetsByTags(unref({ params: unref(params) }), unref(config))
     },
   })
 }
@@ -47,7 +61,11 @@ export function useFindPetsByTags<
   TQueryData = FindPetsByTagsQueryResponse,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
-  params?: MaybeRef<FindPetsByTagsQueryParams>,
+  {
+    params,
+  }: {
+    params?: MaybeRef<FindPetsByTagsQueryParams>
+  },
   options: {
     query?: Partial<QueryObserverOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
@@ -56,7 +74,7 @@ export function useFindPetsByTags<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
   const query = useQuery({
-    ...(findPetsByTagsQueryOptions(params, config) as unknown as QueryObserverOptions),
+    ...(findPetsByTagsQueryOptions({ params }, config) as unknown as QueryObserverOptions),
     queryKey: queryKey as QueryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByTags400> & {

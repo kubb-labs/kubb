@@ -13,7 +13,16 @@ export type DeletePetMutationKeySWR = ReturnType<typeof deletePetMutationKeySWR>
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
+async function deletePet(
+  {
+    petId,
+    headers,
+  }: {
+    petId: DeletePetPathParams['petId']
+    headers?: DeletePetHeaderParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
@@ -30,7 +39,11 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
  * @link /pet/:petId
  */
 export function useDeletePetSWR(
-  petId: DeletePetPathParams['petId'],
+  {
+    petId,
+  }: {
+    petId: DeletePetPathParams['petId']
+  },
   headers?: DeletePetHeaderParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<DeletePetMutationResponse, DeletePet400, DeletePetMutationKeySWR>>[2]
@@ -43,7 +56,7 @@ export function useDeletePetSWR(
   return useSWRMutation<DeletePetMutationResponse, DeletePet400, DeletePetMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
-      return deletePet(petId, headers, config)
+      return deletePet({ petId, headers }, config)
     },
     mutationOptions,
   )

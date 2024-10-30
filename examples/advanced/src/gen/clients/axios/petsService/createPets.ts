@@ -15,12 +15,15 @@ import type {
 export async function createPets(
   {
     uuid,
+    data,
+    headers,
+    params,
   }: {
     uuid: CreatePetsPathParams['uuid']
+    data: CreatePetsMutationRequest
+    headers: CreatePetsHeaderParams
+    params?: CreatePetsQueryParams
   },
-  data: CreatePetsMutationRequest,
-  headers: CreatePetsHeaderParams,
-  params?: CreatePetsQueryParams,
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
   const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({

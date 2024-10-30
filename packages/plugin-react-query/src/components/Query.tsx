@@ -18,24 +18,68 @@ type Props = {
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
+  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
+  if (paramsType === 'object') {
+    return FunctionParams.factory({
+      data: {
+        mode: 'object',
+        children: {
+          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          data: typeSchemas.request?.name
+            ? {
+                type: typeSchemas.request?.name,
+                optional: isOptional(typeSchemas.request?.schema),
+              }
+            : undefined,
+          params: typeSchemas.queryParams?.name
+            ? {
+                type: typeSchemas.queryParams?.name,
+                optional: isOptional(typeSchemas.queryParams?.schema),
+              }
+            : undefined,
+          headers: typeSchemas.headerParams?.name
+            ? {
+                type: typeSchemas.headerParams?.name,
+                optional: isOptional(typeSchemas.headerParams?.schema),
+              }
+            : undefined,
+        },
+      },
+      options: {
+        type: `
+{
+  query?: Partial<QueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
+}
+`,
+        default: '{}',
+      },
+    })
+  }
+
   return FunctionParams.factory({
-    pathParams: {
-      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
-    },
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          type: typeSchemas.pathParams?.name,
+          optional: isOptional(typeSchemas.pathParams?.schema),
+        }
+      : undefined,
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
@@ -66,7 +110,17 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsPro
   })
 }
 
-export function Query({ name, queryKeyTypeName, queryOptionsName, queryKeyName, pathParamsType, dataReturnType, typeSchemas, operation }: Props): ReactNode {
+export function Query({
+  name,
+  queryKeyTypeName,
+  queryOptionsName,
+  queryKeyName,
+  paramsType,
+  pathParamsType,
+  dataReturnType,
+  typeSchemas,
+  operation,
+}: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const returnType = `UseQueryResult<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
@@ -76,10 +130,12 @@ export function Query({ name, queryKeyTypeName, queryOptionsName, queryKeyName, 
     typeSchemas,
   })
   const queryOptionsParams = QueryOptions.getParams({
+    paramsType,
     pathParamsType,
     typeSchemas,
   })
   const params = getParams({
+    paramsType,
     pathParamsType,
     dataReturnType,
     typeSchemas,

@@ -18,22 +18,72 @@ type Props = {
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
+  paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+
+  if (paramsType === 'object') {
+    return FunctionParams.factory({
+      data: {
+        mode: 'object',
+        children: {
+          ...getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            override(item) {
+              return {
+                ...item,
+                type: `MaybeRef<${item.type}>`,
+              }
+            },
+          }),
+          data: typeSchemas.request?.name
+            ? {
+                type: `MaybeRef<${typeSchemas.request?.name}>`,
+                optional: isOptional(typeSchemas.request?.schema),
+              }
+            : undefined,
+          params: typeSchemas.queryParams?.name
+            ? {
+                type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+                optional: isOptional(typeSchemas.queryParams?.schema),
+              }
+            : undefined,
+          headers: typeSchemas.headerParams?.name
+            ? {
+                type: `MaybeRef<${typeSchemas.headerParams?.name}>`,
+                optional: isOptional(typeSchemas.headerParams?.schema),
+              }
+            : undefined,
+        },
+      },
+      options: {
+        type: `
+{
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
+}
+`,
+        default: '{}',
+      },
+    })
+  }
 
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      type: typeSchemas.pathParams?.name,
+      optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
         override(item) {
@@ -79,6 +129,7 @@ export function InfiniteQuery({
   queryKeyTypeName,
   queryOptionsName,
   queryKeyName,
+  paramsType,
   pathParamsType,
   dataReturnType,
   typeSchemas,
@@ -93,10 +144,12 @@ export function InfiniteQuery({
     typeSchemas,
   })
   const queryOptionsParams = QueryOptions.getParams({
+    paramsType,
     pathParamsType,
     typeSchemas,
   })
   const params = getParams({
+    paramsType,
     pathParamsType,
     dataReturnType,
     typeSchemas,

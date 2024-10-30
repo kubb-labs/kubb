@@ -14,8 +14,13 @@ export type UpdateUserMutationKeySWR = ReturnType<typeof updateUserMutationKeySW
  * @link /user/:username
  */
 async function updateUser(
-  username: UpdateUserPathParams['username'],
-  data?: UpdateUserMutationRequest,
+  {
+    username,
+    data,
+  }: {
+    username: UpdateUserPathParams['username']
+    data?: UpdateUserMutationRequest
+  },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
   const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
@@ -34,7 +39,11 @@ async function updateUser(
  * @link /user/:username
  */
 export function useUpdateUserSWR(
-  username: UpdateUserPathParams['username'],
+  {
+    username,
+  }: {
+    username: UpdateUserPathParams['username']
+  },
   options: {
     mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKeySWR, UpdateUserMutationRequest>>[2]
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
@@ -46,7 +55,7 @@ export function useUpdateUserSWR(
   return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKeySWR | null, UpdateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return updateUser(username, data, config)
+      return updateUser({ username, data }, config)
     },
     mutationOptions,
   )

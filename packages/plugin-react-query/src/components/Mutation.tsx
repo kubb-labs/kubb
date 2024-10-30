@@ -20,6 +20,7 @@ type Props = {
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
 }
 
@@ -70,7 +71,7 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function Mutation({ name, clientName, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
+export function Mutation({ name, clientName, paramsType, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,
@@ -83,6 +84,7 @@ export function Mutation({ name, clientName, pathParamsType, dataReturnType, typ
   })
 
   const clientParams = Client.getParams({
+    paramsType,
     typeSchemas,
     pathParamsType,
   })

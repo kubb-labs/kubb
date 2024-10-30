@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -89,6 +88,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
@@ -99,6 +99,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           typeSchemas={type.schemas}
           operation={operation}
           dataReturnType={options.client.dataReturnType}
+          paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           mutationKeyName={mutationKey.name}
           mutationKeyTypeName={mutationKey.typeName}

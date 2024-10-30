@@ -64,7 +64,7 @@ function order(items: Array<[key: string, item?: ParamItem]>) {
   )
 }
 
-function parseChild(key: string, item: ParamItem, options: Options): string[] {
+function parseChild(key: string, item: ParamItem, options: Options): string | null {
   // @ts-ignore
   const entries = order(Object.entries(item.children))
 
@@ -75,17 +75,39 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
 
   entries.forEach(([key, entryItem]) => {
     if (entryItem) {
-      names.push(...parseItem(key, { ...entryItem, type: undefined }, options))
+      const name = parseItem(key, { ...entryItem, type: undefined }, options)
+      if (entryItem.children) {
+        const subTypes = Object.entries(entryItem.children)
+          .map(([key]) => {
+            return key
+          })
+          .join(', ')
+
+        if (subTypes) {
+          names.push(`${name}: { ${subTypes} }`)
+        } else {
+          names.push(name)
+        }
+      } else {
+        if (options.type === 'call' && options.transformName) {
+          names.push(`${key}: ${name}`)
+        } else {
+          names.push(name)
+        }
+      }
 
       if (entries.some(([_key, item]) => item?.type)) {
-        // @ts-ignore
-        types.push(...parseItem(key, { ...entryItem, default: undefined }, options))
+        types.push(parseItem(key, { ...entryItem, default: undefined }, options))
       }
     }
   })
 
-  const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : ''
+  const name = item.mode === 'inline' ? key : names.length ? `{ ${names.join(', ')} }` : undefined
   const type = item.type ? item.type : types.length ? `{ ${types.join('; ')} }` : undefined
+
+  if (!name) {
+    return null
+  }
 
   return parseItem(
     name,
@@ -98,8 +120,8 @@ function parseChild(key: string, item: ParamItem, options: Options): string[] {
   )
 }
 
-function parseItem(name: string, item: ParamItem, options: Options): string[] {
-  const acc = []
+function parseItem(name: string, item: ParamItem, options: Options): string {
+  const acc: string[] = []
   const transformedName = options.transformName ? options.transformName(name) : name
   const transformedType = options.transformType && item.type ? options.transformType(item.type) : item.type
 
@@ -119,7 +141,7 @@ function parseItem(name: string, item: ParamItem, options: Options): string[] {
     acc.push(transformedName)
   }
 
-  return acc
+  return acc[0] as string
 }
 
 export function getFunctionParams(params: Params, options: Options): string {
@@ -136,18 +158,21 @@ export function getFunctionParams(params: Params, options: Options): string {
           return acc
         }
 
-        if (item.mode === 'inlineSpread' && item.children) {
+        if (item.mode === 'inlineSpread') {
           return [...acc, getFunctionParams(item.children, options)]
         }
 
         const parsedItem = parseChild(key, item, options)
+        if (!parsedItem) {
+          return acc
+        }
 
-        return [...acc, ...parsedItem]
+        return [...acc, parsedItem]
       }
 
       const parsedItem = parseItem(key, item, options)
 
-      return [...acc, ...parsedItem]
+      return [...acc, parsedItem]
     }, [] as string[])
     .join(', ')
 }

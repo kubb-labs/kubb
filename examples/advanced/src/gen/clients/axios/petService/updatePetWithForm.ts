@@ -14,10 +14,11 @@ import type {
 export async function updatePetWithForm(
   {
     petId,
+    params,
   }: {
     petId: UpdatePetWithFormPathParams['petId']
+    params?: UpdatePetWithFormQueryParams
   },
-  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({

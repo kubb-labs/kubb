@@ -58,6 +58,16 @@ describe('mutationGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'deletePetObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        pathParamsType: 'object',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -76,6 +86,7 @@ describe('mutationGenerator operation', async () => {
       },
       parser: 'zod',
       baseURL: undefined,
+      paramsType: 'inline',
       pathParamsType: 'inline',
       query: {
         importPath: '@tanstack/react-query',

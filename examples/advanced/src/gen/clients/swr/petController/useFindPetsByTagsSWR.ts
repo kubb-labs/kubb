@@ -18,7 +18,16 @@ export type FindPetsByTagsQueryKeySWR = ReturnType<typeof findPetsByTagsQueryKey
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+async function findPetsByTags(
+  {
+    headers,
+    params,
+  }: {
+    headers: FindPetsByTagsHeaderParams
+    params?: FindPetsByTagsQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
@@ -30,10 +39,19 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
   return findPetsByTagsQueryResponseSchema.parse(res.data)
 }
 
-export function findPetsByTagsQueryOptionsSWR(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+export function findPetsByTagsQueryOptionsSWR(
+  {
+    headers,
+    params,
+  }: {
+    headers: FindPetsByTagsHeaderParams
+    params?: FindPetsByTagsQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   return {
     fetcher: async () => {
-      return findPetsByTags(headers, params, config)
+      return findPetsByTags({ headers, params }, config)
     },
   }
 }
@@ -44,8 +62,13 @@ export function findPetsByTagsQueryOptionsSWR(headers: FindPetsByTagsHeaderParam
  * @link /pet/findByTags
  */
 export function useFindPetsByTagsSWR(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
+  {
+    headers,
+    params,
+  }: {
+    headers: FindPetsByTagsHeaderParams
+    params?: FindPetsByTagsQueryParams
+  },
   options: {
     query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKeySWR | null, any>>[2]
     client?: Partial<RequestConfig>
@@ -55,7 +78,7 @@ export function useFindPetsByTagsSWR(
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const queryKey = findPetsByTagsQueryKeySWR(params)
   return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKeySWR | null>(shouldFetch ? queryKey : null, {
-    ...findPetsByTagsQueryOptionsSWR(headers, params, config),
+    ...findPetsByTagsQueryOptionsSWR({ headers, params }, config),
     ...queryOptions,
   })
 }

@@ -19,9 +19,15 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  * @link /pet/:petId/uploadImage
  */
 async function uploadFile(
-  petId: UploadFilePathParams['petId'],
-  data?: UploadFileMutationRequest,
-  params?: UploadFileQueryParams,
+  {
+    petId,
+    data,
+    params,
+  }: {
+    petId: UploadFilePathParams['petId']
+    data?: UploadFileMutationRequest
+    params?: UploadFileQueryParams
+  },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
   const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
@@ -66,7 +72,7 @@ export function useUploadFile(
     }
   >({
     mutationFn: async ({ petId, data, params }) => {
-      return uploadFile(petId, data, params, config)
+      return uploadFile({ petId, data, params }, config)
     },
     mutationKey,
     ...mutationOptions,

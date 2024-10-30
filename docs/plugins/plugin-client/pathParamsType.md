@@ -4,7 +4,7 @@ How to pass your pathParams.
 |----------:|:-----------------------|
 |     Type: | `'object' \| 'inline'` |
 | Required: | `false`                |
-|  Default: | `'data'`                |
+|  Default: | `'inline'`                |
 
 
 - `'object'` will return the pathParams as an object.
@@ -12,17 +12,17 @@ How to pass your pathParams.
 
 ::: code-group
 ```typescript ['object']
-export async function getPetById<TData>(
+export async function getPetById (
   { petId }: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
+) {
   ...
 }
 ```
 
 ```typescript ['inline']
-export async function getPetById<TData>(
+export async function getPetById(
   petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
+) {
   ...
 }
 ```

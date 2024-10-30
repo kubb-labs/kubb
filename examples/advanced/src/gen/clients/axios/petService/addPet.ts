@@ -7,7 +7,14 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  * @summary Add a new pet to the store
  * @link /pet
  */
-export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
+export async function addPet(
+  {
+    data,
+  }: {
+    data: AddPetMutationRequest
+  },
+  config: Partial<RequestConfig<AddPetMutationRequest>> = {},
+) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',

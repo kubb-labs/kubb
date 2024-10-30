@@ -13,7 +13,14 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @summary Logs user into the system
  * @link /user/login
  */
-async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+async function loginUser(
+  {
+    params,
+  }: {
+    params?: LoginUserQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
     method: 'GET',
     url: '/user/login',
@@ -24,13 +31,20 @@ async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestC
   return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
 }
 
-export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+export function loginUserQueryOptions(
+  {
+    params,
+  }: {
+    params?: LoginUserQueryParams
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return loginUser(params, config)
+      return loginUser({ params }, config)
     },
   })
 }
@@ -44,7 +58,11 @@ export function useLoginUser<
   TQueryData = ResponseConfig<LoginUserQueryResponse>,
   TQueryKey extends QueryKey = LoginUserQueryKey,
 >(
-  params?: LoginUserQueryParams,
+  {
+    params,
+  }: {
+    params?: LoginUserQueryParams
+  },
   options: {
     query?: Partial<QueryObserverOptions<ResponseConfig<LoginUserQueryResponse>, LoginUser400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
@@ -53,7 +71,7 @@ export function useLoginUser<
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
   const query = useQuery({
-    ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
+    ...(loginUserQueryOptions({ params }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryResult<TData, LoginUser400> & {

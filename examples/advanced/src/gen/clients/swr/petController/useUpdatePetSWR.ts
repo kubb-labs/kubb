@@ -19,7 +19,14 @@ export type UpdatePetMutationKeySWR = ReturnType<typeof updatePetMutationKeySWR>
  * @summary Update an existing pet
  * @link /pet
  */
-async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
+async function updatePet(
+  {
+    data,
+  }: {
+    data: UpdatePetMutationRequest
+  },
+  config: Partial<RequestConfig<UpdatePetMutationRequest>> = {},
+) {
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
@@ -49,7 +56,7 @@ export function useUpdatePetSWR(
   return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKeySWR | null, UpdatePetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return updatePet(data, config)
+      return updatePet({ data }, config)
     },
     mutationOptions,
   )

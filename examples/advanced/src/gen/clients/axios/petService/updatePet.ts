@@ -13,7 +13,14 @@ import type {
  * @summary Update an existing pet
  * @link /pet
  */
-export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
+export async function updatePet(
+  {
+    data,
+  }: {
+    data: UpdatePetMutationRequest
+  },
+  config: Partial<RequestConfig<UpdatePetMutationRequest>> = {},
+) {
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',

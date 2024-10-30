@@ -15,8 +15,13 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * @link /user/:username
  */
 async function updateUser(
-  username: UpdateUserPathParams['username'],
-  data?: UpdateUserMutationRequest,
+  {
+    username,
+    data,
+  }: {
+    username: UpdateUserPathParams['username']
+    data?: UpdateUserMutationRequest
+  },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
   const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
@@ -58,7 +63,7 @@ export function useUpdateUser(
     }
   >({
     mutationFn: async ({ username, data }) => {
-      return updateUser(username, data, config)
+      return updateUser({ username, data }, config)
     },
     mutationKey,
     ...mutationOptions,

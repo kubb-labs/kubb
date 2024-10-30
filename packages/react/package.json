@@ -86,7 +86,7 @@
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "auto-bind": "^5.0.1",
-    "execa": "^9.5.0",
+    "execa": "^9.5.1",
     "natural-orderby": "^4.0.0",
     "react": "^18.3.1",
     "react-devtools-core": "^5.3.2",
