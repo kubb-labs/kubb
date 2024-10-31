@@ -162,16 +162,28 @@ export function Client({
   const formData = isFormData
     ? `
    const formData = new FormData()
+   
    if(data) {
+
     Object.keys(data).forEach((key) => {
       const value = data[key as keyof typeof data];
+
       if (typeof key === "string" && (typeof value === "string" || value instanceof Blob)) {
         formData.append(key, value);
+      }
+
+      if(Array.isArray(value)) {
+        for(let i = 0; i < value.length; i++) { //for performance reasons, cause the code is generated anyways
+          const arrValue = value[i];
+          if (typeof arrValue === "string" || arrValue instanceof Blob) {
+            formData.append(key, value);
+          }
+        }
       }
     })
    }
   `
-    : ''
+    : "";
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
