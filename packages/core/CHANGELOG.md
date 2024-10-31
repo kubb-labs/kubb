@@ -1,5 +1,18 @@
 # @kubb/core
 
+## 3.0.0-beta.12
+
+### Minor Changes
+
+- [#1365](https://github.com/kubb-labs/kubb/pull/1365) [`a8d645c`](https://github.com/kubb-labs/kubb/commit/a8d645c6a2e1b823f28679d5d27c8166c44cc7e2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow to disable the generation of useQuery or createQuery hooks
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.0-beta.12
+  - @kubb/parser-ts@3.0.0-beta.12
+  - @kubb/types@3.0.0-beta.12
+
 ## 3.0.0-beta.11
 
 ### Patch Changes

@@ -1,5 +1,7 @@
 # @kubb/parser-ts
 
+## 3.0.0-beta.12
+
 ## 3.0.0-beta.11
 
 ## 3.0.0-beta.10
