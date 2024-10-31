@@ -126,6 +126,7 @@ Set the baseURL that should be used in your config.
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
 
 export default defineConfig({
   input: {
