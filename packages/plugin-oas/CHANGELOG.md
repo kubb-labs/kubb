@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 3.0.0-beta.12
+
+### Patch Changes
+
+- Updated dependencies [[`a8d645c`](https://github.com/kubb-labs/kubb/commit/a8d645c6a2e1b823f28679d5d27c8166c44cc7e2)]:
+  - @kubb/core@3.0.0-beta.12
+  - @kubb/react@3.0.0-beta.12
+  - @kubb/fs@3.0.0-beta.12
+  - @kubb/oas@3.0.0-beta.12
+
 ## 3.0.0-beta.11
 
 ### Minor Changes
