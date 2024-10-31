@@ -353,7 +353,6 @@ export default defineConfig({
         dataReturnType: 'full',
       },
       mutation: {
-        key: (key)=> key,
         methods: [ 'post', 'put', 'delete' ],
       },
       infinite: {
@@ -362,7 +361,6 @@ export default defineConfig({
         cursorParam: 'nextCursor',
       },
       query: {
-        key: (key)=> key,
         methods: [ 'get' ],
         importPath: "@tanstack/vue-query"
       },
