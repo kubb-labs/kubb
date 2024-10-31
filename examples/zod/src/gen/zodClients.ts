@@ -17,12 +17,7 @@ import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
  * @link /store/inventory
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponseType, Error, unknown>({
-    method: 'GET',
-    url: '/store/inventory',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<GetInventoryQueryResponseType, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
   return getInventoryQueryResponseSchema.parse(res.data)
 }
 
@@ -35,7 +30,6 @@ export async function placeOrder(data?: PlaceOrderMutationRequestType, config: P
   const res = await client<PlaceOrderMutationResponseType, PlaceOrder405Type, PlaceOrderMutationRequestType>({
     method: 'POST',
     url: '/store/order',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
   })
@@ -51,7 +45,6 @@ export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType,
   const res = await client<PlaceOrderPatchMutationResponseType, PlaceOrderPatch405Type, PlaceOrderPatchMutationRequestType>({
     method: 'PATCH',
     url: '/store/order',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
   })
@@ -67,7 +60,6 @@ export async function getOrderById({ orderId }: GetOrderByIdPathParamsType, conf
   const res = await client<GetOrderByIdQueryResponseType, GetOrderById400Type | GetOrderById404Type, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
   return getOrderByIdQueryResponseSchema.parse(res.data)
@@ -82,7 +74,6 @@ export async function deleteOrder({ orderId }: DeleteOrderPathParamsType, config
   const res = await client<DeleteOrderMutationResponseType, DeleteOrder400Type | DeleteOrder404Type, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
   return deleteOrderMutationResponseSchema.parse(res.data)

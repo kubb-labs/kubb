@@ -32,7 +32,6 @@ async function findPetsByTags(
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     headers: { ...headers, ...config.headers },
     ...config,

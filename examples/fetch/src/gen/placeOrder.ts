@@ -8,12 +8,6 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
  * @link /store/order
  */
 export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
-  const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({
-    method: 'POST',
-    url: '/store/order',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
+  const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })
   return res.data
 }

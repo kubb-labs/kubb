@@ -22,13 +22,7 @@ async function addPet(
   },
   config: Partial<RequestConfig<AddPetMutationRequest>> = {},
 ) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
-    method: 'POST',
-    url: '/pet',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
+  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
   return res.data
 }
 

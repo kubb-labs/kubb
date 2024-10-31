@@ -9,11 +9,6 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @link /pet/:petId
  */
 export async function getPetById({ petId }: GetPetByIdPathParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
-    method: 'GET',
-    url: `/pet/${petId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${petId}`, ...config })
   return res.data
 }

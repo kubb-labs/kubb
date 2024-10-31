@@ -110,6 +110,7 @@ export default defineConfig(() => {
         client: {
           importPath: '../../../../swr-client.ts',
           dataReturnType: 'data',
+          baseURL: 'https://petstore3.swagger.io/api/v3',
         },
         paramsType: 'object',
         parser: 'zod',
@@ -132,6 +133,7 @@ export default defineConfig(() => {
         group: { type: 'tag', name: ({ group }) => `${group}Service` },
         importPath: '../../../../axios-client.ts',
         operations: true,
+        baseURL: 'https://petstore3.swagger.io/api/v3',
         dataReturnType: 'full',
         paramsType: 'object',
         pathParamsType: 'object',

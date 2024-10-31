@@ -28,7 +28,6 @@ async function uploadFile(
   const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     data,
     headers: { 'Content-Type': 'application/octet-stream', ...config.headers },

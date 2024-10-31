@@ -13,12 +13,6 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @link /pet/:petId
  */
 export async function updatePetWithForm({ petId }: UpdatePetWithFormPathParams, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
-    method: 'POST',
-    url: `/pet/${petId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    params,
-    ...config,
-  })
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
   return res.data
 }

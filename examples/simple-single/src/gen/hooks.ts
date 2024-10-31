@@ -82,7 +82,6 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
   })
@@ -133,13 +132,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * @link /pet
  */
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
-    method: 'POST',
-    url: '/pet',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
+  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
   return res.data
 }
 
@@ -187,13 +180,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
  * @link /pet/findByStatus
  */
 async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({
-    method: 'GET',
-    url: '/pet/findByStatus',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    params,
-    ...config,
-  })
+  const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })
   return res.data
 }
 
@@ -291,13 +278,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @link /pet/findByTags
  */
 async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
-    method: 'GET',
-    url: '/pet/findByTags',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    params,
-    ...config,
-  })
+  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: 'GET', url: '/pet/findByTags', params, ...config })
   return res.data
 }
 
@@ -395,12 +376,7 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * @link /pet/:petId
  */
 async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
-    method: 'GET',
-    url: `/pet/${petId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${petId}`, ...config })
   return res.data
 }
 
@@ -495,13 +471,7 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
  * @link /pet/:petId
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
-    method: 'POST',
-    url: `/pet/${petId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    params,
-    ...config,
-  })
+  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
   return res.data
 }
 
@@ -553,7 +523,6 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     headers: { ...headers, ...config.headers },
     ...config,
   })
@@ -613,7 +582,6 @@ async function uploadFile(
   const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     params,
     data,
     headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
@@ -669,12 +637,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
  * @link /store/inventory
  */
 async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponse, Error, unknown>({
-    method: 'GET',
-    url: '/store/inventory',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<GetInventoryQueryResponse, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
   return res.data
 }
 
@@ -766,13 +729,7 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * @link /store/order
  */
 async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
-  const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({
-    method: 'POST',
-    url: '/store/order',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
+  const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })
   return res.data
 }
 
@@ -823,7 +780,6 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
   const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
   })
@@ -874,12 +830,7 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * @link /store/order/:orderId
  */
 async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({
-    method: 'GET',
-    url: `/store/order/${orderId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
   return res.data
 }
 
@@ -979,7 +930,6 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
   const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     ...config,
   })
   return res.data
@@ -1029,13 +979,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * @link /user
  */
 async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
-  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({
-    method: 'POST',
-    url: '/user',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
+  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
   return res.data
 }
 
@@ -1089,7 +1033,6 @@ async function createUsersWithListInput(
   const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
   })
@@ -1139,13 +1082,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @link /user/login
  */
 async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
-    method: 'GET',
-    url: '/user/login',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    params,
-    ...config,
-  })
+  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
   return res.data
 }
 
@@ -1236,12 +1173,7 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * @link /user/logout
  */
 async function logoutUser(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, Error, unknown>({
-    method: 'GET',
-    url: '/user/logout',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: '/user/logout', ...config })
   return res.data
 }
 
@@ -1330,12 +1262,7 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  * @link /user/:username
  */
 async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
-    method: 'GET',
-    url: `/user/${username}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({ method: 'GET', url: `/user/${username}`, ...config })
   return res.data
 }
 
@@ -1438,13 +1365,7 @@ async function updateUser(
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
-    method: 'PUT',
-    url: `/user/${username}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
+  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({ method: 'PUT', url: `/user/${username}`, data, ...config })
   return res.data
 }
 
@@ -1494,12 +1415,7 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * @link /user/:username
  */
 async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
-    method: 'DELETE',
-    url: `/user/${username}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
+  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
   return res.data
 }
 

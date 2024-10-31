@@ -31,7 +31,6 @@ async function updatePet(
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
     data,
     ...config,
   })

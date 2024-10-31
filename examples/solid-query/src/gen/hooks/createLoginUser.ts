@@ -13,13 +13,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @link /user/login
  */
 async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
-    method: 'GET',
-    url: '/user/login',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    params,
-    ...config,
-  })
+  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
   return res.data
 }
 
