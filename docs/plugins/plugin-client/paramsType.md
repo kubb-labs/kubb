@@ -1,4 +1,4 @@
-How to pass your params.
+How to pass your params. Here you can switch between object-style parameters and inline parameters.
 
 |           |                        |
 |----------:|:-----------------------|

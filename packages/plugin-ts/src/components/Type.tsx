@@ -120,7 +120,12 @@ export function Type({ name, typedName, tree, keysToOmit, optionalType, enumType
             </File.Source>
           )}
           {
-            <File.Source name={typeName} isIndexable isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)} isTypeOnly>
+            <File.Source
+              name={typeName}
+              isIndexable
+              isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+              isTypeOnly={['asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+            >
               {print([typeNode])}
             </File.Source>
           }
