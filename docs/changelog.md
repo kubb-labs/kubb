@@ -4,10 +4,16 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.12
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow to disable the generation of useQuery or createQuery hooks.
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow to disable the generation of useQuery or createQuery hooks.
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): allow to disable the generation of useQuery or createQuery hooks.
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): allow to disable the generation of useQuery or createQuery hooks.
+- [`plugin-swr`](/plugins/plugin-swr/): allow to disable the generation of useQuery or createQuery hooks.
+
 ## 3.0.0-beta.11
 - [`plugin-ts`](/plugins/plugin-ts): enumType `'enum'` without export type in barrel files
 - [`plugin-client`](/plugins/plugin-client): Allows you to set a custom base url for all generated calls
-
 
 ## 3.0.0-beta.10
 - [`plugin-react-query`](/plugins/plugin-react-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
