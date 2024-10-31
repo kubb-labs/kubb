@@ -56,8 +56,6 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
     return (
       <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
-        <File.Import name={['useMutation']} path={importPath} />
-        <File.Import name={['MutationObserverOptions']} path={importPath} isTypeOnly />
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
@@ -96,17 +94,21 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
           parser={options.parser}
         />
         {options.mutation && (
-          <Mutation
-            name={mutation.name}
-            clientName={client.name}
-            typeName={mutation.typeName}
-            typeSchemas={type.schemas}
-            operation={operation}
-            dataReturnType={options.client.dataReturnType}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            mutationKeyName={mutationKey.name}
-          />
+          <>
+            <File.Import name={['useMutation']} path={importPath} />
+            <File.Import name={['MutationObserverOptions']} path={importPath} isTypeOnly />
+            <Mutation
+              name={mutation.name}
+              clientName={client.name}
+              typeName={mutation.typeName}
+              typeSchemas={type.schemas}
+              operation={operation}
+              dataReturnType={options.client.dataReturnType}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              mutationKeyName={mutationKey.name}
+            />
+          </>
         )}
       </File>
     )

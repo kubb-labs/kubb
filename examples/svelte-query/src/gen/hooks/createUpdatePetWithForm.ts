@@ -7,7 +7,7 @@ import type {
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const

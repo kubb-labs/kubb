@@ -2,7 +2,7 @@ import client from '../../../../tanstack-query-client.ts'
 import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
-import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 export const getPetByIdQueryKey = ({

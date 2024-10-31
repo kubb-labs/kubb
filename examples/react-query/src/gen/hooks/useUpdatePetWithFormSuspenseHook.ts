@@ -7,10 +7,10 @@ import type {
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import { useSuspenseQuery, queryOptions } from '@tanstack/react-query'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const updatePetWithFormSuspenseQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
-  [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
+  ['v5', { url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithFormSuspenseQueryKey>
 

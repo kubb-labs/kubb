@@ -59,8 +59,6 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={['useInfiniteQuery', 'infiniteQueryOptions']} path={importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
@@ -99,31 +97,38 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
           parser={options.parser}
         />
         {options.infinite && (
-          <InfiniteQueryOptions
-            name={queryOptions.name}
-            clientName={client.name}
-            queryKeyName={queryKey.name}
-            typeSchemas={type.schemas}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            dataReturnType={options.client.dataReturnType}
-            cursorParam={options.infinite.cursorParam}
-            initialPageParam={options.infinite.initialPageParam}
-            queryParam={options.infinite.queryParam}
-          />
+          <>
+            <File.Import name={['infiniteQueryOptions']} path={importPath} />
+            <InfiniteQueryOptions
+              name={queryOptions.name}
+              clientName={client.name}
+              queryKeyName={queryKey.name}
+              typeSchemas={type.schemas}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              dataReturnType={options.client.dataReturnType}
+              cursorParam={options.infinite.cursorParam}
+              initialPageParam={options.infinite.initialPageParam}
+              queryParam={options.infinite.queryParam}
+            />
+          </>
         )}
         {options.infinite && (
-          <InfiniteQuery
-            name={query.name}
-            queryOptionsName={queryOptions.name}
-            typeSchemas={type.schemas}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            operation={operation}
-            dataReturnType={options.client.dataReturnType}
-            queryKeyName={queryKey.name}
-            queryKeyTypeName={queryKey.typeName}
-          />
+          <>
+            <File.Import name={['useInfiniteQuery']} path={importPath} />
+            <File.Import name={['QueryKey', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
+            <InfiniteQuery
+              name={query.name}
+              queryOptionsName={queryOptions.name}
+              typeSchemas={type.schemas}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              operation={operation}
+              dataReturnType={options.client.dataReturnType}
+              queryKeyName={queryKey.name}
+              queryKeyTypeName={queryKey.typeName}
+            />
+          </>
         )}
       </File>
     )

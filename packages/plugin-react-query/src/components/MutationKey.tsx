@@ -32,7 +32,7 @@ const getTransformer: Transformer = ({ operation }) => {
 
 export function MutationKey({ name, typeSchemas, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
   const params = getParams({ pathParamsType, typeSchemas })
-  const keys = getTransformer({ operation, schemas: typeSchemas })
+  const keys = transformer({ operation, schemas: typeSchemas })
 
   return (
     <>

@@ -60,8 +60,6 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={['useSuspenseQuery', 'queryOptions']} path={importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'UseSuspenseQueryOptions', 'UseSuspenseQueryResult']} path={importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
@@ -100,6 +98,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
+        <File.Import name={['queryOptions']} path={importPath} />
         <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
@@ -109,17 +108,21 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
           pathParamsType={options.pathParamsType}
         />
         {options.suspense && (
-          <SuspenseQuery
-            name={query.name}
-            queryOptionsName={queryOptions.name}
-            typeSchemas={type.schemas}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            operation={operation}
-            dataReturnType={options.client.dataReturnType}
-            queryKeyName={queryKey.name}
-            queryKeyTypeName={queryKey.typeName}
-          />
+          <>
+            <File.Import name={['useSuspenseQuery']} path={importPath} />
+            <File.Import name={['QueryKey', 'UseSuspenseQueryOptions', 'UseSuspenseQueryResult']} path={importPath} isTypeOnly />
+            <SuspenseQuery
+              name={query.name}
+              queryOptionsName={queryOptions.name}
+              typeSchemas={type.schemas}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              operation={operation}
+              dataReturnType={options.client.dataReturnType}
+              queryKeyName={queryKey.name}
+              queryKeyTypeName={queryKey.typeName}
+            />
+          </>
         )}
       </File>
     )

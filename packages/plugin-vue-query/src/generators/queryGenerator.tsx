@@ -58,8 +58,6 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={['useQuery', 'queryOptions']} path={importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'QueryObserverOptions', 'UseQueryReturnType']} path={importPath} isTypeOnly />
         <File.Import name={['unref']} path="vue" />
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
@@ -99,6 +97,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
+        <File.Import name={['queryOptions']} path={importPath} />
         <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
@@ -108,17 +107,21 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
           pathParamsType={options.pathParamsType}
         />
         {options.query && (
-          <Query
-            name={query.name}
-            queryOptionsName={queryOptions.name}
-            typeSchemas={type.schemas}
-            paramsType={options.paramsType}
-            pathParamsType={options.pathParamsType}
-            operation={operation}
-            dataReturnType={options.client.dataReturnType}
-            queryKeyName={queryKey.name}
-            queryKeyTypeName={queryKey.typeName}
-          />
+          <>
+            <File.Import name={['useQuery']} path={importPath} />
+            <File.Import name={['QueryKey', 'QueryObserverOptions', 'UseQueryReturnType']} path={importPath} isTypeOnly />
+            <Query
+              name={query.name}
+              queryOptionsName={queryOptions.name}
+              typeSchemas={type.schemas}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              operation={operation}
+              dataReturnType={options.client.dataReturnType}
+              queryKeyName={queryKey.name}
+              queryKeyTypeName={queryKey.typeName}
+            />
+          </>
         )}
       </File>
     )

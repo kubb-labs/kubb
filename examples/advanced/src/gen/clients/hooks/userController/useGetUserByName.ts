@@ -7,7 +7,7 @@ import type {
   GetUserByName400,
   GetUserByName404,
 } from '../../../models/ts/userController/GetUserByName.ts'
-import { useQuery, queryOptions } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
 export const getUserByNameQueryKey = ({

@@ -58,8 +58,6 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={['createQuery', 'queryOptions']} path={importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
@@ -99,6 +97,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
+        <File.Import name={['queryOptions']} path={importPath} />
         <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
@@ -108,17 +107,21 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           pathParamsType={options.pathParamsType}
         />
         {options.query && (
-          <Query
-            name={query.name}
-            queryOptionsName={queryOptions.name}
-            typeSchemas={type.schemas}
-            pathParamsType={options.pathParamsType}
-            operation={operation}
-            paramsType={options.paramsType}
-            dataReturnType={options.client.dataReturnType}
-            queryKeyName={queryKey.name}
-            queryKeyTypeName={queryKey.typeName}
-          />
+          <>
+            <File.Import name={['createQuery']} path={importPath} />
+            <File.Import name={['QueryKey', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={importPath} isTypeOnly />
+            <Query
+              name={query.name}
+              queryOptionsName={queryOptions.name}
+              typeSchemas={type.schemas}
+              pathParamsType={options.pathParamsType}
+              operation={operation}
+              paramsType={options.paramsType}
+              dataReturnType={options.client.dataReturnType}
+              queryKeyName={queryKey.name}
+              queryKeyTypeName={queryKey.typeName}
+            />
+          </>
         )}
       </File>
     )

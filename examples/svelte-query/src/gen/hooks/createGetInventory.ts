@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 

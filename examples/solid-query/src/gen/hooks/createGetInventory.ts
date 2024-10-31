@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
-import { createQuery, queryOptions } from '@tanstack/solid-query'
+import { queryOptions, createQuery } from '@tanstack/solid-query'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 
