@@ -21,7 +21,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     },
     validate = true,
     generators = [jsonGenerator],
-    serverIndex = 0,
+    serverIndex,
     contentType,
     oasClass,
   } = options
@@ -63,7 +63,11 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         },
         async getBaseURL() {
           const oasInstance = await this.getOas()
-          return oasInstance.api.servers?.at(serverIndex)?.url
+          if (serverIndex) {
+            return oasInstance.api.servers?.at(serverIndex)?.url
+          }
+
+          return undefined
         },
         contentType,
       }

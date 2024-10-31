@@ -26,6 +26,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     pathParamsType = 'inline',
     paramsType = 'inline',
     operations = false,
+    baseURL,
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
     importPath = '@kubb/plugin-client/client',
     parser = 'client',
@@ -41,7 +42,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       importPath,
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
-      baseURL: undefined,
+      baseURL,
     },
     pre: [pluginOasName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -82,10 +83,12 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       const baseURL = await swaggerPlugin.context.getBaseURL()
 
       const operationGenerator = new OperationGenerator(
-        {
-          ...this.plugin.options,
-          baseURL,
-        },
+        baseURL
+          ? {
+              ...this.plugin.options,
+              baseURL,
+            }
+          : this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,

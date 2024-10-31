@@ -35,7 +35,6 @@ export type Options = {
    * @example
    * - `0` will return `http://petstore.swagger.io/api`
    * - `1` will return `http://localhost:3000`
-   * @default 0
    */
   serverIndex?: number
   /**

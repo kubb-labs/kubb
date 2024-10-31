@@ -27,8 +27,12 @@ const knowledgeBaseSidebar = [
     link: '/knowledge-base/debugging',
   },
   {
-    text: 'Use of Fetch',
+    text: 'Custom HTTP client',
     link: '/knowledge-base/fetch',
+  },
+  {
+    text: 'Use of your own baseUrl',
+    link: '/knowledge-base/base-url',
   },
   {
     text: 'Filter and sort',

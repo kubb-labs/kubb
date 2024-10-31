@@ -2,6 +2,7 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { HttpMethod } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { PluginReactQuery } from '@kubb/plugin-react-query'
 
 export type Options = {
   /**
@@ -25,7 +26,7 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath'>
+  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
   query?: {
     /**
      * Customize the queryKey, here you can specify a suffix.
@@ -97,8 +98,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
-  baseURL: string | undefined
-  client: Required<NonNullable<Options['client']>>
+  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
   mutation: Required<NonNullable<Options['mutation']>>
   query: Required<NonNullable<Options['query']>>

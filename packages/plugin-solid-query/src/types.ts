@@ -3,6 +3,7 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { HttpMethod } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { PluginReactQuery } from '@kubb/plugin-react-query'
 
 type Query = {
   /**
@@ -35,7 +36,7 @@ export type Options = {
    */
   group?: Group
 
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath'>
+  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -85,8 +86,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
-  baseURL: string | undefined
-  client: Required<NonNullable<PluginSolidQuery['options']['client']>>
+  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>

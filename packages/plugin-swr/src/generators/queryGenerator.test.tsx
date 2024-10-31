@@ -110,7 +110,6 @@ describe('queryGenerator operation', async () => {
       },
       paramsType: 'object',
       pathParamsType: 'inline',
-      baseURL: undefined,
       parser: 'client',
       output: {
         path: '.',

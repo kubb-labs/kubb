@@ -34,7 +34,6 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     name: pluginSvelteQueryName,
     options: {
       output,
-      baseURL: undefined,
       client: {
         importPath: '@kubb/plugin-client/client',
         dataReturnType: 'data',
@@ -104,22 +103,20 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       const mode = FileManager.getMode(path.resolve(root, output.path))
       const baseURL = await swaggerPlugin.context.getBaseURL()
 
-      const operationGenerator = new OperationGenerator(
-        {
-          ...this.plugin.options,
-          baseURL,
-        },
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.context.contentType,
-          exclude,
-          include,
-          override,
-          mode,
-        },
-      )
+      if (baseURL) {
+        this.plugin.options.client.baseURL = baseURL
+      }
+
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.context.contentType,
+        exclude,
+        include,
+        override,
+        mode,
+      })
 
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)

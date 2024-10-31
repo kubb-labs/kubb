@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.0.0-beta.11
+- [`plugin-ts`](/plugins/plugin-ts): enumType `'enum'` without export type in barrel files
+- [`plugin-client`](/plugins/plugin-client): Allows you to set a custom base url for all generated calls
+
+
 ## 3.0.0-beta.10
 - [`plugin-react-query`](/plugins/plugin-react-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.

@@ -124,6 +124,9 @@ Create `operations.ts` file with all operations grouped by methods.
 ### parser
 <!--@include: ../plugin-client/parser.md-->
 
+### baseURL
+<!--@include: ../plugin-client/baseURL.md-->
+
 ### include
 <!--@include: ../core/include.md-->
 

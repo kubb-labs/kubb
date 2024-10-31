@@ -37,6 +37,10 @@ export type Options = {
    */
   importPath?: string
   /**
+   * Allows you to set a custom base url for all generated calls.
+   */
+  baseURL?: string
+  /**
    * ReturnType that will be used when calling the client.
    * - 'data' will return ResponseConfig[data].
    * - 'full' will return ResponseConfig.

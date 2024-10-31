@@ -19,7 +19,6 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
     options: {
       output,
       name: trimExtName(output.path),
-      baseURL: undefined,
     },
     pre: [pluginOasName],
     async buildStart() {

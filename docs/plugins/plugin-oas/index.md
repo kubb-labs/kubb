@@ -94,7 +94,6 @@ Which server to use from the array of `servers.url[serverIndex]`
 |----------:|:---------|
 |     Type: | `number` |
 | Required: | `false`  |
-|  Default: | `0`      |
 
 - `0` will return `http://petstore.swagger.io/api`
 - `1` will return `http://localhost:3000`

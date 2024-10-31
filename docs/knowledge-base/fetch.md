@@ -1,7 +1,7 @@
 ---
 layout: doc
 
-title: Use of Fetch
+title: Custom HTTP client
 outline: deep
 ---
 

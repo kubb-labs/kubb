@@ -97,7 +97,6 @@ describe('mutationGenerator operation', async () => {
       },
       paramsType: 'inline',
       pathParamsType: 'inline',
-      baseURL: undefined,
       output: {
         path: '.',
       },

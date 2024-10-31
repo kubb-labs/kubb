@@ -55,7 +55,6 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       parser,
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
-      baseURL: undefined,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -105,22 +104,19 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       const mode = FileManager.getMode(path.resolve(root, output.path))
       const baseURL = await swaggerPlugin.context.getBaseURL()
 
-      const operationGenerator = new OperationGenerator(
-        {
-          ...this.plugin.options,
-          baseURL,
-        },
-        {
-          oas,
-          pluginManager: this.pluginManager,
-          plugin: this.plugin,
-          contentType: swaggerPlugin.context.contentType,
-          exclude,
-          include,
-          override,
-          mode,
-        },
-      )
+      if (baseURL) {
+        this.plugin.options.client.baseURL = baseURL
+      }
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        oas,
+        pluginManager: this.pluginManager,
+        plugin: this.plugin,
+        contentType: swaggerPlugin.context.contentType,
+        exclude,
+        include,
+        override,
+        mode,
+      })
 
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
