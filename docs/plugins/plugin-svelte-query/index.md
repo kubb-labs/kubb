@@ -291,11 +291,9 @@ export default defineConfig({
         dataReturnType: 'full',
       },
       mutation: {
-        key: (key)=> key,
         methods: [ 'post', 'put', 'delete' ],
       },
       query: {
-        key: (key)=> key,
         methods: [ 'get' ],
         importPath: "@tanstack/svelte-query"
       },

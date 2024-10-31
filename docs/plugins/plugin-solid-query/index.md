@@ -237,7 +237,6 @@ export default defineConfig({
         dataReturnType: 'full',
       },
       query: {
-        key: (key)=> key,
         methods: [ 'get' ],
         importPath: "@tanstack/solid-query"
       },
