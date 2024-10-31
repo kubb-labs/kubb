@@ -1,5 +1,19 @@
 # @kubb/plugin-redoc
 
+## 3.0.0-beta.11
+
+### Minor Changes
+
+- [`622073d`](https://github.com/kubb-labs/kubb/commit/622073d5223180f0945ef0919dc3df841359019f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `baseURL` to override the default baseURL in every call
+
+### Patch Changes
+
+- Updated dependencies [[`622073d`](https://github.com/kubb-labs/kubb/commit/622073d5223180f0945ef0919dc3df841359019f)]:
+  - @kubb/plugin-oas@3.0.0-beta.11
+  - @kubb/core@3.0.0-beta.11
+  - @kubb/oas@3.0.0-beta.11
+  - @kubb/react@3.0.0-beta.11
+
 ## 3.0.0-beta.10
 
 ### Patch Changes
