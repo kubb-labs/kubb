@@ -1,8 +1,57 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
+import type { HttpMethod, Operation } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { PluginReactQuery } from '@kubb/plugin-react-query'
+
+type TransformerProps = {
+  operation: Operation
+  schemas: OperationSchemas
+}
+
+export type Transformer = (props: TransformerProps) => unknown[]
+
+/**
+ * Customize the queryKey
+ */
+type QueryKey = Transformer
+
+/**
+ * Customize the mutationKey
+ */
+type MutationKey = Transformer
+
+type Query = {
+  /**
+   * Define which HttpMethods can be used for queries
+   * @default ['get']
+   */
+  methods?: Array<HttpMethod>
+  /**
+   * Path to the useQuery that will be used to do the useQuery functionality.
+   * It will be used as `import { useQuery } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default 'swr'
+   */
+  importPath?: string
+}
+
+type Mutation = {
+  /**
+   * Define which HttpMethods can be used for queries
+   * @default ['post', 'put', 'delete', 'patch']
+   */
+  methods?: Array<HttpMethod>
+  /**
+   * Path to the useQuery that will be used to do the useQuery functionality.
+   * It will be used as `import { useQuery } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default 'swr/mutation'
+   */
+  importPath?: string
+}
 
 export type Options = {
   /**
@@ -27,44 +76,10 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
-  query?: {
-    /**
-     * Customize the queryKey, here you can specify a suffix.
-     */
-    key: (key: unknown[]) => unknown[]
-    /**
-     * Define which HttpMethods can be used for queries
-     * @default ['get']
-     */
-    methods?: Array<HttpMethod>
-    /**
-     * Path to the useQuery that will be used to do the useQuery functionality.
-     * It will be used as `import { useQuery } from '${importPath}'`.
-     * It allows both relative and absolute path.
-     * the path will be applied as is, so relative path should be based on the file being generated.
-     * @default 'swr'
-     */
-    importPath?: string
-  }
-  mutation?: {
-    /**
-     * Customize the queryKey, here you can specify a suffix.
-     */
-    key: (key: unknown[]) => unknown[]
-    /**
-     * Define which HttpMethods can be used for queries
-     * @default ['post', 'put', 'delete', 'patch']
-     */
-    methods?: Array<HttpMethod>
-    /**
-     * Path to the useQuery that will be used to do the useQuery functionality.
-     * It will be used as `import { useQuery } from '${importPath}'`.
-     * It allows both relative and absolute path.
-     * the path will be applied as is, so relative path should be based on the file being generated.
-     * @default 'swr/mutation'
-     */
-    importPath?: string
-  }
+  queryKey?: QueryKey
+  query?: Query | false
+  mutationKey?: MutationKey
+  mutation?: Mutation | false
   /**
    * How to pass your params
    * - 'object' will return the params and pathParams as an object.
@@ -100,8 +115,10 @@ type ResolvedOptions = {
   output: Output
   client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
-  mutation: Required<NonNullable<Options['mutation']>>
-  query: Required<NonNullable<Options['query']>>
+  queryKey: QueryKey | undefined
+  query: NonNullable<Required<Query>> | false
+  mutationKey: MutationKey | undefined
+  mutation: NonNullable<Required<Mutation>> | false
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
 }

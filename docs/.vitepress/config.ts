@@ -19,20 +19,16 @@ const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 const knowledgeBaseSidebar = [
   {
-    text: 'Overview',
-    link: '/knowledge-base/index',
-  },
-  {
-    text: 'Debugging Kubb',
-    link: '/knowledge-base/debugging',
-  },
-  {
     text: 'Custom HTTP client',
     link: '/knowledge-base/fetch',
   },
   {
     text: 'Use of your own baseUrl',
     link: '/knowledge-base/base-url',
+  },
+  {
+    text: 'Debugging Kubb',
+    link: '/knowledge-base/debugging',
   },
   {
     text: 'Filter and sort',
@@ -548,7 +544,7 @@ export default defineConfig({
       },
       {
         text: 'Knowledge base',
-        link: '/knowledge-base/index',
+        link: '/knowledge-base/fetch',
         activeMatch: 'knowledge-base',
       },
       {

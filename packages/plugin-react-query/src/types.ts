@@ -1,16 +1,29 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { HttpMethod } from '@kubb/oas'
+import type { HttpMethod, Operation } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+
+type TransformerProps = {
+  operation: Operation
+  schemas: OperationSchemas
+}
+
+export type Transformer = (props: TransformerProps) => unknown[]
 
 type Suspense = object
 
+/**
+ * Customize the queryKey
+ */
+type QueryKey = Transformer
+
+/**
+ * Customize the mutationKey
+ */
+type MutationKey = Transformer
+
 type Query = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key: (key: unknown[]) => unknown[]
   /**
    * Define which HttpMethods can be used for queries
    * @default ['get']
@@ -27,10 +40,6 @@ type Query = {
 }
 
 type Mutation = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key: (key: unknown[]) => unknown[]
   /**
    * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
@@ -110,10 +119,12 @@ export type Options = {
    * When set, a suspenseQuery hooks will be added.
    */
   suspense?: Partial<Suspense> | false
+  queryKey?: QueryKey
   /**
    * Override some useQuery behaviours.
    */
   query?: Partial<Query> | false
+  mutationKey?: MutationKey
   /**
    * Override some useMutation behaviours.
    */
@@ -146,7 +157,9 @@ type ResolvedOptions = {
    */
   infinite: NonNullable<Infinite> | false
   suspense: Suspense | false
+  queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false
+  mutationKey: MutationKey | undefined
   mutation: NonNullable<Required<Mutation>> | false
 }
 

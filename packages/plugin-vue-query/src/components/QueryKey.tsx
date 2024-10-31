@@ -5,7 +5,7 @@ import { File, Function, FunctionParams, Type } from '@kubb/react'
 import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
-import type { PluginVueQuery } from '../types'
+import type { PluginVueQuery, Transformer } from '../types'
 
 type Props = {
   name: string
@@ -13,7 +13,7 @@ type Props = {
   typeSchemas: OperationSchemas
   operation: Operation
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
-  keysFn: ((keys: unknown[]) => unknown[]) | undefined
+  transformer: Transformer | undefined
 }
 
 type GetParamsProps = {
@@ -50,23 +50,32 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeName, keysFn = (name) => name }: Props): ReactNode {
+const getTransformer: Transformer = ({ operation, schemas }) => {
   const path = new URLPath(operation.path)
-  const params = getParams({ pathParamsType, typeSchemas })
   const keys = [
     path.toObject({
       type: 'path',
       stringify: true,
     }),
-    typeSchemas.queryParams?.name ? '...(params ? [params] : [])' : undefined,
-    typeSchemas.request?.name ? '...(data ? [data] : [])' : undefined,
+    schemas.queryParams?.name ? '...(params ? [params] : [])' : undefined,
+    schemas.request?.name ? '...(data ? [data] : [])' : undefined,
   ].filter(Boolean)
+
+  return keys
+}
+
+export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
+  const params = getParams({ pathParamsType, typeSchemas })
+  const keys = transformer({
+    operation,
+    schemas: typeSchemas,
+  })
 
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
         <Function.Arrow name={name} export params={params.toConstructor()} singleLine>
-          {`[${keysFn(keys).join(', ')}] as const`}
+          {`[${keys.join(', ')}] as const`}
         </Function.Arrow>
       </File.Source>
       <File.Source name={typeName} isExportable isIndexable isTypeOnly>
@@ -79,3 +88,4 @@ export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeNam
 }
 
 QueryKey.getParams = getParams
+QueryKey.getTransformer = getTransformer

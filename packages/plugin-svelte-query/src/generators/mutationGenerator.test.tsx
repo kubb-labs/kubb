@@ -5,6 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from '../components'
 import type { PluginSvelteQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
 
@@ -17,7 +18,6 @@ describe('mutationGenerator operation', async () => {
       method: 'get',
       options: {
         mutation: {
-          key: (key: unknown[]) => key,
           importPath: 'custom-swr/mutation',
           methods: ['get'],
         },
@@ -87,13 +87,13 @@ describe('mutationGenerator operation', async () => {
       parser: 'zod',
       paramsType: 'inline',
       pathParamsType: 'inline',
+      queryKey: QueryKey.getTransformer,
+      mutationKey: MutationKey.getTransformer,
       query: {
         importPath: '@tanstack/svelte-query',
-        key: (key) => key,
         methods: ['get'],
       },
       mutation: {
-        key: (key: unknown[]) => key,
         methods: ['post'],
         importPath: '@tanstack/svelte-query',
       },

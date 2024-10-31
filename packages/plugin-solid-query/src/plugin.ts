@@ -9,6 +9,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
+import { QueryKey } from './components'
 import { queryGenerator } from './generators'
 import type { PluginSolidQuery } from './types.ts'
 
@@ -25,6 +26,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     transformers = {},
     paramsType = 'inline',
     pathParamsType = 'inline',
+    queryKey = QueryKey.getTransformer,
     generators = [queryGenerator].filter(Boolean),
     query = {},
   } = options
@@ -39,8 +41,8 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         pathParamsType: 'inline',
         ...options.client,
       },
+      queryKey,
       query: {
-        key: (key: unknown[]) => key,
         methods: ['get'],
         importPath: '@tanstack/solid-query',
         ...query,

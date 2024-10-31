@@ -120,15 +120,20 @@ Return the name of a group based on the group name, this will be used for the fi
 ### parser
 <!--@include: ../plugin-client/parser.md-->
 
+#### queryKey
+
+Customize the queryKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
+
 ### query
-
-#### query.key
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `(key: unknown[]) => unknown[]` |
-| Required: | `true`                          |
-
-
 #### query.methods
 |           |                     |
 |----------:|:--------------------|
@@ -146,13 +151,6 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### mutation
 
-#### mutation.key
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `(key: unknown[]) => unknown[]` |
-| Required: | `true`                          |
-
-
 #### mutation.methods
 |           |                     |
 |----------:|:--------------------|
@@ -166,6 +164,20 @@ Return the name of a group based on the group name, this will be used for the fi
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'swr/mutation'` |
+
+
+#### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 
 ### include

@@ -21,6 +21,8 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
     const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
 
+    const importPath = options.mutation ? options.mutation.importPath : '@tanstack/vue-query'
+
     const mutation = {
       name: getName(operation, { type: 'function', prefix: 'use' }),
       typeName: getName(operation, { type: 'type' }),
@@ -47,15 +49,13 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
       typeName: getName(operation, { type: 'type', suffix: 'MutationKey' }),
     }
 
-    if (!isMutation || typeof options.mutation === 'boolean') {
+    if (!isMutation) {
       return null
     }
 
     return (
       <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
-        <File.Import name={['useMutation']} path={options.mutation.importPath} />
-        <File.Import name={['MutationObserverOptions']} path={options.mutation.importPath} isTypeOnly />
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
@@ -78,7 +78,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
-          keysFn={options.mutation.key}
+          transformer={options.mutationKey}
         />
         <Client
           name={client.name}
@@ -93,17 +93,23 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
-        <Mutation
-          name={mutation.name}
-          clientName={client.name}
-          typeName={mutation.typeName}
-          typeSchemas={type.schemas}
-          operation={operation}
-          dataReturnType={options.client.dataReturnType}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          mutationKeyName={mutationKey.name}
-        />
+        {options.mutation && (
+          <>
+            <File.Import name={['useMutation']} path={importPath} />
+            <File.Import name={['MutationObserverOptions']} path={importPath} isTypeOnly />
+            <Mutation
+              name={mutation.name}
+              clientName={client.name}
+              typeName={mutation.typeName}
+              typeSchemas={type.schemas}
+              operation={operation}
+              dataReturnType={options.client.dataReturnType}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              mutationKeyName={mutationKey.name}
+            />
+          </>
+        )}
       </File>
     )
   },

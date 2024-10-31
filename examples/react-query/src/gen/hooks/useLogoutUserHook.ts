@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { useQuery, queryOptions } from '@tanstack/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const logoutUserQueryKey = () => ['v5', { url: '/user/logout' }] as const
 

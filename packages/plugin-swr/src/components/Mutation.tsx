@@ -1,4 +1,3 @@
-import { URLPath } from '@kubb/core/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 
 import { type Operation, isOptional } from '@kubb/oas'

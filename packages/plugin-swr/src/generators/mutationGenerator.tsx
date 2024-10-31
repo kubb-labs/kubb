@@ -19,7 +19,10 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
     } = useApp<PluginSwr>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const isMutate = typeof options.query === 'boolean' ? options.mutation : !!options.mutation.methods?.some((method) => operation.method === method)
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
+
+    const importPath = options.mutation ? options.mutation.importPath : 'swr'
 
     const mutation = {
       name: getName(operation, { type: 'function', prefix: 'use' }),
@@ -47,15 +50,15 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
       typeName: getName(operation, { type: 'type', suffix: 'MutationKey' }),
     }
 
-    if (!isMutate) {
+    if (!isMutation) {
       return null
     }
 
     return (
       <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
-        <File.Import name="useSWRMutation" path={options.mutation.importPath} />
-        <File.Import name={['SWRMutationResponse']} path={options.mutation.importPath} isTypeOnly />
+        <File.Import name="useSWRMutation" path={importPath} />
+        <File.Import name={['SWRMutationResponse']} path={importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
@@ -71,14 +74,16 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           path={type.file.path}
           isTypeOnly
         />
+
         <MutationKey
           name={mutationKey.name}
           typeName={mutationKey.typeName}
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
-          keysFn={options.mutation.key}
+          transformer={options.mutationKey}
         />
+
         <Client
           name={client.name}
           isExportable={false}
@@ -92,18 +97,20 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
-        <Mutation
-          name={mutation.name}
-          clientName={client.name}
-          typeName={mutation.typeName}
-          typeSchemas={type.schemas}
-          operation={operation}
-          dataReturnType={options.client.dataReturnType}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          mutationKeyName={mutationKey.name}
-          mutationKeyTypeName={mutationKey.typeName}
-        />
+        {options.mutation && (
+          <Mutation
+            name={mutation.name}
+            clientName={client.name}
+            typeName={mutation.typeName}
+            typeSchemas={type.schemas}
+            operation={operation}
+            dataReturnType={options.client.dataReturnType}
+            paramsType={options.paramsType}
+            pathParamsType={options.pathParamsType}
+            mutationKeyName={mutationKey.name}
+            mutationKeyTypeName={mutationKey.typeName}
+          />
+        )}
       </File>
     )
   },

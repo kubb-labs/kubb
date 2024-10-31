@@ -2,10 +2,10 @@ import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
-import { useQuery, queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { unref } from "vue";
 
- export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) => [test, { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
+ export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) => ["test", { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 
  export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>;
 

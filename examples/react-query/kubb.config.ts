@@ -1,6 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { QueryKey } from '@kubb/plugin-react-query/components'
 import { pluginTs } from '@kubb/plugin-ts'
 
 /** @type {import('@kubb/core').UserConfig} */
@@ -35,8 +36,9 @@ export const config = {
       output: {
         path: './hooks',
       },
-      query: {
-        key: (keys) => ['"v5"', ...keys],
+      queryKey(props) {
+        const keys = QueryKey.getTransformer(props)
+        return ['"v5"', ...keys]
       },
       paramsType: 'inline',
       pathParamsType: 'object',
@@ -59,11 +61,17 @@ export const config = {
         },
         {
           type: 'operationId',
+          pattern: 'getInventory',
+          options: {
+            query: false,
+          },
+        },
+        {
+          type: 'operationId',
           pattern: 'updatePetWithForm',
           options: {
             query: {
               importPath: '@tanstack/react-query',
-              key: (key: unknown[]) => key,
               methods: ['post'],
             },
             pathParamsType: 'inline',

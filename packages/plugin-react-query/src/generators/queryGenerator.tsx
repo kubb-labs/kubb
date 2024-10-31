@@ -19,7 +19,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
-    const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
+    const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
     const query = {
       name: getName(operation, { type: 'function', prefix: 'use' }),
@@ -51,15 +51,13 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery || typeof options.query === 'boolean') {
+    if (!isQuery) {
       return null
     }
 
     return (
       <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={['useQuery', 'queryOptions']} path={options.query.importPath} />
-        <File.Import name={['QueryKey', 'WithRequired', 'QueryObserverOptions', 'UseQueryResult']} path={options.query.importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
@@ -76,14 +74,13 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           path={type.file.path}
           isTypeOnly
         />
-
         <QueryKey
           name={queryKey.name}
           typeName={queryKey.typeName}
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
-          keysFn={options.query.key}
+          transformer={options.queryKey}
         />
         <Client
           name={client.name}
@@ -98,6 +95,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
+        <File.Import name={['queryOptions']} path={importPath} />
         <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
@@ -106,17 +104,23 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
         />
-        <Query
-          name={query.name}
-          queryOptionsName={queryOptions.name}
-          typeSchemas={type.schemas}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          operation={operation}
-          dataReturnType={options.client.dataReturnType}
-          queryKeyName={queryKey.name}
-          queryKeyTypeName={queryKey.typeName}
-        />
+        {options.query && (
+          <>
+            <File.Import name={['useQuery']} path={importPath} />
+            <File.Import name={['QueryKey', 'QueryObserverOptions', 'UseQueryResult']} path={importPath} isTypeOnly />
+            <Query
+              name={query.name}
+              queryOptionsName={queryOptions.name}
+              typeSchemas={type.schemas}
+              paramsType={options.paramsType}
+              pathParamsType={options.pathParamsType}
+              operation={operation}
+              dataReturnType={options.client.dataReturnType}
+              queryKeyName={queryKey.name}
+              queryKeyTypeName={queryKey.typeName}
+            />
+          </>
+        )}
       </File>
     )
   },

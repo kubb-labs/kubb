@@ -344,10 +344,10 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - `dataReturnType` becomes `client.dataReturnType`
 - `pathParamsType` same as in `@kubb/plugin-client`
 - `parser` same as in `@kubb/plugin-client`
-- `query.key` same as in `@kubb/plugin-react-query`
+- `queryKey` same as in `@kubb/plugin-react-query`
 - `query.methods` same as in `@kubb/plugin-react-query`
 - `query.importPath` same as in `@kubb/plugin-react-query`
-- `mutation.key` same as in `@kubb/plugin-react-query`
+- `mutationKey` same as in `@kubb/plugin-react-query`
 - `mutation.methods` same as in `@kubb/plugin-react-query`
 - `mutation.importPath` same as in `@kubb/plugin-react-query`
 - `paramsType` will make it possible to have one object to pass your pathParams, params, headers and data.
@@ -356,9 +356,7 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - `dataReturnType` becomes `client.dataReturnType`
 - `pathParamsType` same as in `@kubb/plugin-client`
 - `parser` same as in `@kubb/plugin-client`
-- `query.queryKey` becomes `query.key`
 - `queryOptions` has been removed as an option
-- `mutate.key` becomes `mutation.key`
 - `mutate.methods` becomes `mutation.methods`
 - `mutate.importPath` becomes `mutation.importPath`
 - Mutations will include a generated `mutationkey`

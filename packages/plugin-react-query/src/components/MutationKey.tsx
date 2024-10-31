@@ -4,7 +4,7 @@ import { File, Function, FunctionParams, Type } from '@kubb/react'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import type { ReactNode } from 'react'
-import type { PluginReactQuery } from '../types'
+import type { PluginReactQuery, Transformer } from '../types'
 
 type Props = {
   name: string
@@ -12,7 +12,7 @@ type Props = {
   typeSchemas: OperationSchemas
   operation: Operation
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
-  keysFn: ((keys: unknown[]) => unknown[]) | undefined
+  transformer: Transformer | undefined
 }
 
 type GetParamsProps = {
@@ -24,16 +24,21 @@ function getParams({}: GetParamsProps) {
   return FunctionParams.factory({})
 }
 
-export function MutationKey({ name, typeSchemas, pathParamsType, operation, typeName, keysFn = (name) => name }: Props): ReactNode {
+const getTransformer: Transformer = ({ operation }) => {
   const path = new URLPath(operation.path)
+
+  return [JSON.stringify({ url: path.path })].filter(Boolean)
+}
+
+export function MutationKey({ name, typeSchemas, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
   const params = getParams({ pathParamsType, typeSchemas })
-  const keys = [JSON.stringify({ url: path.path })].filter(Boolean)
+  const keys = transformer({ operation, schemas: typeSchemas })
 
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
         <Function.Arrow name={name} export params={params.toConstructor()} singleLine>
-          {`[${keysFn(keys).join(', ')}] as const`}
+          {`[${keys.join(', ')}] as const`}
         </Function.Arrow>
       </File.Source>
       <File.Source name={typeName} isExportable isIndexable isTypeOnly>
@@ -46,3 +51,4 @@ export function MutationKey({ name, typeSchemas, pathParamsType, operation, type
 }
 
 MutationKey.getParams = getParams
+MutationKey.getTransformer = getTransformer

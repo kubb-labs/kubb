@@ -1,7 +1,7 @@
 import client from "axios";
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from "@tanstack/svelte-query";
 import type { RequestConfig } from "axios";
-import { createQuery, queryOptions } from "@tanstack/svelte-query";
+import { queryOptions, createQuery } from "@tanstack/svelte-query";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 

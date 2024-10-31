@@ -9,6 +9,8 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
+import { MutationKey } from './components'
+import { QueryKey } from './components/QueryKey.tsx'
 import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseQueryGenerator } from './generators'
 import type { PluginReactQuery } from './types.ts'
 
@@ -30,6 +32,8 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
     mutation = {},
     query = {},
+    mutationKey = MutationKey.getTransformer,
+    queryKey = QueryKey.getTransformer,
   } = options
 
   return {
@@ -50,14 +54,14 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
           }
         : false,
       suspense,
+      queryKey,
       query: {
-        key: (key: unknown[]) => key,
         methods: ['get'],
         importPath: '@tanstack/react-query',
         ...query,
       },
+      mutationKey,
       mutation: {
-        key: (key: unknown[]) => key,
         methods: ['post', 'put', 'patch', 'delete'],
         importPath: '@tanstack/react-query',
         ...mutation,

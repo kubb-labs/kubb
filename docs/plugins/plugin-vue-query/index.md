@@ -181,6 +181,19 @@ Which field of the data will be used, set it to undefined when no cursor is know
 |     Type: | `string \| undefined` |
 | Required: | `false`              |
 
+#### queryKey
+
+Customize the queryKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
+
 ### query
 
 Override some useQuery behaviours. <br/>
@@ -194,27 +207,10 @@ To disable queries pass `false`.
 
 ```typescript [Query]
 type Query = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key?: (key: unknown[]) => unknown[]
   methods: Array<HttpMethod>
   importPath?: string
 } | false
 ```
-
-#### query.key
-
-Customize the queryKey, here you can specify a suffix.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `(key: unknown[]) => unknown[]` |
-| Required: | `false`              |
 
 #### query.methods
 
@@ -239,6 +235,21 @@ the path will be applied as is, so relative path should be based on the file bei
 | Required: | `false`                 |
 |  Default: | `'@tanstack/vue-query'` |
 
+
+#### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
+
+
 ### mutation
 
 Override some useMutation behaviours. <br/>
@@ -251,27 +262,10 @@ To disable queries pass `false`.
 
 ```typescript [Query]
 type Mutation = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key?: (key: unknown[]) => unknown[]
   methods: Array<HttpMethod>
   importPath?: string
 } | false
 ```
-
-#### mutation.key
-
-Customize the mutationQuery, here you can specify a suffix.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `(key: unknown[]) => unknown[]` |
-| Required: | `false`              |
 
 #### mutation.methods
 
@@ -295,7 +289,6 @@ the path will be applied as is, so relative path should be based on the file bei
 |     Type: | `string`                |
 | Required: | `false`                 |
 |  Default: | `'@tanstack/vue-query'` |
-
 
 ### include
 <!--@include: ../core/include.md-->

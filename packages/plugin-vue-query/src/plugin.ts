@@ -9,6 +9,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from './components'
 import { infiniteQueryGenerator, mutationGenerator, queryGenerator } from './generators'
 import type { PluginVueQuery } from './types.ts'
 
@@ -28,6 +29,8 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
     pathParamsType = 'inline',
     mutation = {},
     query = {},
+    mutationKey = MutationKey.getTransformer,
+    queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
   } = options
 
@@ -49,14 +52,14 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
             ...infinite,
           }
         : false,
+      queryKey,
       query: {
-        key: (key: unknown[]) => key,
         methods: ['get'],
         importPath: '@tanstack/vue-query',
         ...query,
       },
+      mutationKey,
       mutation: {
-        key: (key: unknown[]) => key,
         methods: ['post', 'put', 'patch', 'delete'],
         importPath: '@tanstack/vue-query',
         ...mutation,

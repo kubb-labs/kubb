@@ -2,7 +2,7 @@ import client from "axios";
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import type { MaybeRef } from "vue";
-import { useQuery, queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { unref } from "vue";
 
  export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;

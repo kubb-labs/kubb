@@ -9,6 +9,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSvelteQuery } from './types.ts'
 
@@ -27,6 +28,8 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     pathParamsType = 'inline',
     mutation = {},
     query = {},
+    mutationKey = MutationKey.getTransformer,
+    queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
   } = options
 
@@ -40,14 +43,14 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         pathParamsType: 'inline',
         ...options.client,
       },
+      queryKey,
       query: {
-        key: (key: unknown[]) => key,
         methods: ['get'],
         importPath: '@tanstack/svelte-query',
         ...query,
       },
+      mutationKey,
       mutation: {
-        key: (key: unknown[]) => key,
         methods: ['post', 'put', 'patch', 'delete'],
         importPath: '@tanstack/svelte-query',
         ...mutation,

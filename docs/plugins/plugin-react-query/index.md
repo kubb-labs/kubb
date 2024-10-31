@@ -261,27 +261,23 @@ To disable queries pass `false`.
 
 ```typescript [Query]
 type Query = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key?: (key: unknown[]) => unknown[]
   methods: Array<HttpMethod>
   importPath?: string
 } | false
 ```
 
-#### query.key
+#### queryKey
 
-Customize the queryKey, here you can specify a suffix.
+Customize the queryKey.
 
 ::: warning
 When using a string you need to use `JSON.stringify`.
 :::
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `(key: unknown[]) => unknown[]` |
-| Required: | `false`              |
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 #### query.methods
 
@@ -327,27 +323,23 @@ To disable queries pass `false`.
 
 ```typescript [Query]
 type Mutation = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key?: (key: unknown[]) => unknown[]
   methods: Array<HttpMethod>
   importPath?: string
 } | false
 ```
 
-#### mutation.key
+#### mutationKey
 
-Customize the mutationQuery, here you can specify a suffix.
+Customize the mutationKey.
 
 ::: warning
 When using a string you need to use `JSON.stringify`.
 :::
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `(key: unknown[]) => unknown[]` |
-| Required: | `false`              |
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 #### mutation.methods
 

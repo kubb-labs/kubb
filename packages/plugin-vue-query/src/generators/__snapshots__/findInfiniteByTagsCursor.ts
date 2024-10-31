@@ -2,7 +2,7 @@ import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
-import { useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 
  export const findPetsByTagsInfiniteQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 

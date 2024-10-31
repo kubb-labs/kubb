@@ -1,8 +1,8 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
-import type { MutationObserverOptions } from "@tanstack/react-query";
+import type { MutationObserverOptions } from "@tanstack/vue-query";
 import type { MaybeRef } from "vue";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/vue-query";
 
  export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
 
