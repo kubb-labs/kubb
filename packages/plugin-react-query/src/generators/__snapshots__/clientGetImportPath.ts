@@ -1,7 +1,7 @@
 import client from "axios";
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
-import { useQuery, queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 

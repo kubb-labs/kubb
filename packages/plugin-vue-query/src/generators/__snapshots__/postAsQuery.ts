@@ -2,7 +2,7 @@ import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from "custom-query";
 import type { MaybeRef } from "vue";
-import { useQuery, queryOptions } from "custom-query";
+import { queryOptions, useQuery } from "custom-query";
 import { unref } from "vue";
 
  export const updatePetWithFormQueryKey = (petId: MaybeRef<UpdatePetWithFormPathParams["petId"]>, data?: MaybeRef<UpdatePetWithFormMutationRequest>, params?: MaybeRef<UpdatePetWithFormQueryParams>) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;

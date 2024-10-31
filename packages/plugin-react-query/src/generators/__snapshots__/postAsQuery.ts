@@ -1,7 +1,7 @@
 import client from "@kubb/plugin-client/client";
 import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from "custom-query";
-import { useQuery, queryOptions } from "custom-query";
+import { queryOptions, useQuery } from "custom-query";
 
  export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
 
