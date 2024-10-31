@@ -48,10 +48,3 @@ exports[`FileManager utils > if getFileSource is returning code with imports and
 export type Pet = Pets
 "
 `;
-
-exports[`FileManager utils > if getFileSource is returning code with imports and default import 2`] = `
-"import type { Pets } from './Pets'
-
-export type Pet = Pets
-"
-`;

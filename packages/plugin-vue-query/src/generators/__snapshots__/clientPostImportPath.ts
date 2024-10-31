@@ -1,8 +1,8 @@
 import client from "axios";
-import type { MutationObserverOptions } from "@tanstack/react-query";
+import type { MutationObserverOptions } from "@tanstack/vue-query";
 import type { RequestConfig } from "axios";
 import type { MaybeRef } from "vue";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/vue-query";
 
  export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
 

@@ -5,6 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from '../components'
 import type { PluginSwr } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
 
@@ -66,7 +67,6 @@ describe('queryGenerator operation', async () => {
       method: 'post',
       options: {
         query: {
-          key: (key: unknown[]) => key,
           importPath: 'custom-swr',
           methods: ['post'],
         },
@@ -98,13 +98,13 @@ describe('queryGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/client',
       },
+      queryKey: QueryKey.getTransformer,
+      mutationKey: MutationKey.getTransformer,
       query: {
-        key: (key: unknown[]) => key,
         importPath: 'swr',
         methods: ['get'],
       },
       mutation: {
-        key: (key: unknown[]) => key,
         importPath: 'swr/mutation',
         methods: ['post'],
       },

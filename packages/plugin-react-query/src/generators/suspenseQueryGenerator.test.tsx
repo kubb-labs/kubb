@@ -5,6 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { infiniteQueryGenerator } from './infiniteQueryGenerator.tsx'
 
@@ -38,13 +39,13 @@ describe('suspenseQueryGenerator operation', async () => {
       parser: 'zod',
       paramsType: 'inline',
       pathParamsType: 'inline',
+      queryKey: QueryKey.getTransformer,
+      mutationKey: MutationKey.getTransformer,
       query: {
         importPath: '@tanstack/react-query',
-        key: (key) => key,
         methods: ['get'],
       },
       mutation: {
-        key: (key) => key,
         methods: ['post'],
         importPath: '@tanstack/react-query',
       },

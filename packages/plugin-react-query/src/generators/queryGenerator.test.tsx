@@ -5,6 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
 
@@ -44,7 +45,10 @@ describe('queryGenerator operation', async () => {
         query: {
           methods: ['get'],
           importPath: '@tanstack/react-query',
-          key: (key) => ['test', ...key],
+        },
+        queryKey(props) {
+          const keys = QueryKey.getTransformer(props)
+          return ['"test"', ...keys]
         },
       },
     },
@@ -81,7 +85,6 @@ describe('queryGenerator operation', async () => {
         query: {
           importPath: 'custom-query',
           methods: ['post'],
-          key: (key) => key,
         },
       },
     },
@@ -114,13 +117,13 @@ describe('queryGenerator operation', async () => {
       parser: 'zod',
       paramsType: 'inline',
       pathParamsType: 'inline',
+      queryKey: QueryKey.getTransformer,
+      mutationKey: MutationKey.getTransformer,
       query: {
         importPath: '@tanstack/react-query',
-        key: (key) => key,
         methods: ['get'],
       },
       mutation: {
-        key: (key) => key,
         methods: ['post'],
         importPath: '@tanstack/react-query',
       },

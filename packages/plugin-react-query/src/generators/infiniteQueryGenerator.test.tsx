@@ -5,6 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas/parser'
 import { OperationGenerator } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { infiniteQueryGenerator } from './infiniteQueryGenerator.tsx'
 
@@ -57,11 +58,11 @@ describe('infiniteQueryGenerator operation', async () => {
       pathParamsType: 'inline',
       query: {
         importPath: '@tanstack/react-query',
-        key: (key) => key,
         methods: ['get'],
       },
+      queryKey: QueryKey.getTransformer,
+      mutationKey: MutationKey.getTransformer,
       mutation: {
-        key: (key) => key,
         methods: ['post'],
         importPath: '@tanstack/react-query',
       },

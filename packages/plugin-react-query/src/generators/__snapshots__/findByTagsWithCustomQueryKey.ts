@@ -3,7 +3,7 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 
- export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [test, { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
+ export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => ["test", { url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 
  export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>;
 

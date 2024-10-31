@@ -1,15 +1,28 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { HttpMethod } from '@kubb/oas'
+import type { HttpMethod, Operation } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { PluginReactQuery } from '@kubb/plugin-react-query'
 
+type TransformerProps = {
+  operation: Operation
+  schemas: OperationSchemas
+}
+
+export type Transformer = (props: TransformerProps) => unknown[]
+
+/**
+ * Customize the queryKey
+ */
+type QueryKey = Transformer
+
+/**
+ * Customize the mutationKey
+ */
+type MutationKey = Transformer
+
 type Query = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key: (key: unknown[]) => unknown[]
   /**
    * Define which HttpMethods can be used for queries
    * @default ['get']
@@ -26,10 +39,6 @@ type Query = {
 }
 
 type Mutation = {
-  /**
-   * Customize the queryKey, here you can specify a suffix.
-   */
-  key: (key: unknown[]) => unknown[]
   /**
    * Define which HttpMethods can be used for mutations
    * @default ['post', 'put', 'delete']
@@ -84,10 +93,12 @@ export type Options = {
    * @default 'inline'
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
+  queryKey?: QueryKey
   /**
    * Override some useQuery behaviours.
    */
   query?: Partial<Query> | false
+  mutationKey?: MutationKey
   /**
    * Override some useMutation behaviours.
    */
@@ -115,7 +126,9 @@ type ResolvedOptions = {
   parser: Required<NonNullable<Options['parser']>>
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false
+  mutationKey: MutationKey | undefined
   mutation: NonNullable<Required<Mutation>> | false
 }
 

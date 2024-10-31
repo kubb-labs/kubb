@@ -9,6 +9,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSwr } from './types.ts'
 
@@ -28,6 +29,8 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     client,
     paramsType = 'inline',
     pathParamsType = 'inline',
+    mutationKey = MutationKey.getTransformer,
+    queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
   } = options
 
@@ -40,14 +43,14 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         dataReturnType: 'data',
         ...client,
       },
+      queryKey,
       query: {
-        key: (key: unknown[]) => key,
         importPath: 'swr',
         methods: ['get'],
         ...query,
       },
+      mutationKey,
       mutation: {
-        key: (key: unknown[]) => key,
         importPath: 'swr/mutation',
         methods: ['post', 'put', 'delete', 'patch'],
         ...mutation,
