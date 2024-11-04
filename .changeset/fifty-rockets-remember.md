@@ -17,7 +17,6 @@
 "@kubb/plugin-swr": major
 "@kubb/plugin-ts": major
 "@kubb/plugin-zod": major
-"@kubb/plugin-zodios": major
 "@kubb/react": major
 "@kubb/types": major
 "unplugin-kubb": major
