@@ -2,4 +2,4 @@
 "@kubb/cli": minor
 ---
 
-Use of jiti instead of bundle-require
+Use of `jit`i instead of `bundle-require`

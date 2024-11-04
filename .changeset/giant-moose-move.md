@@ -3,4 +3,4 @@
 "@kubb/cli": minor
 ---
 
-removal of ora in favour of consola
+removal of `ora` in favour of `consola`
