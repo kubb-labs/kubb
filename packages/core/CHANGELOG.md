@@ -1,5 +1,54 @@
 # @kubb/core
 
+## 3.0.0
+
+### Major Changes
+
+- [#1118](https://github.com/kubb-labs/kubb/pull/1118) [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Minimal support of node 20
+
+- [#1274](https://github.com/kubb-labs/kubb/pull/1274) [`39072a9`](https://github.com/kubb-labs/kubb/commit/39072a98195adb22b83d5e9857afbc329f20ecac) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of `extName` in every plugin in favour of one `output.extension`
+
+- [#1276](https://github.com/kubb-labs/kubb/pull/1276) [`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
+
+- [#1118](https://github.com/kubb-labs/kubb/pull/1118) [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of swagger prefix packages in favour of @kubb/plugin-x
+
+### Minor Changes
+
+- [#1365](https://github.com/kubb-labs/kubb/pull/1365) [`a8d645c`](https://github.com/kubb-labs/kubb/commit/a8d645c6a2e1b823f28679d5d27c8166c44cc7e2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow to disable the generation of useQuery or createQuery hooks
+
+- [#1136](https://github.com/kubb-labs/kubb/pull/1136) [`0fc2205`](https://github.com/kubb-labs/kubb/commit/0fc22058bf79cf8ad543428fbd938cccd604d15c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of `ora` in favour of `consola`
+
+- [`8e7a819`](https://github.com/kubb-labs/kubb/commit/8e7a819e72abc1a2abb570947a73c8f72c89a069) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - banner and footer for every file
+
+- [#1140](https://github.com/kubb-labs/kubb/pull/1140) [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Progressbar to visualize the writing of files
+
+- [#1140](https://github.com/kubb-labs/kubb/pull/1140) [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Progressbar to visualize the execution of plugins(buildStart, buildEnd, ...)
+
+- [#1138](https://github.com/kubb-labs/kubb/pull/1138) [`3a9859a`](https://github.com/kubb-labs/kubb/commit/3a9859a5f383f6832a9f056136665f1f7ca6fb72) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - cli progressbar for writing files
+
+- [#1171](https://github.com/kubb-labs/kubb/pull/1171) [`3afc193`](https://github.com/kubb-labs/kubb/commit/3afc1935af6c5ad5233c22ad7c9a135693f0a850) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Create kubb logs + barrelManager memory improvements
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - output option for all plugins(KubbPlugin) to track the barrel exportType or the output root of every plugin
+
+- [`962e2d6`](https://github.com/kubb-labs/kubb/commit/962e2d6d49dff55563be13b1ded832d10743ec29) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - indexable to track files that could be used in the barrel generation(should be 90% the same as exportable)
+
+### Patch Changes
+
+- [#1127](https://github.com/kubb-labs/kubb/pull/1127) [`9ef278a`](https://github.com/kubb-labs/kubb/commit/9ef278acc3550b96d9477ef3770e5e68fead2cba) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove declare module(not being used)
+
+- [#1179](https://github.com/kubb-labs/kubb/pull/1179) [`833da08`](https://github.com/kubb-labs/kubb/commit/833da0820d3b91051d829e53ea2b981a74d37e84) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of Set/Map to improve performance in files and barrel generation
+
+- [#1129](https://github.com/kubb-labs/kubb/pull/1129) [`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove load, transform and writeFile in the plugin context
+
+- [`5b7852b`](https://github.com/kubb-labs/kubb/commit/5b7852b461886f3ae6e7ee75c195013be8d7859c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Reduce package size
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Rewrite of generation for exportType 'barrelNamed'
+
+- Updated dependencies [[`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf), [`39072a9`](https://github.com/kubb-labs/kubb/commit/39072a98195adb22b83d5e9857afbc329f20ecac), [`8e7a819`](https://github.com/kubb-labs/kubb/commit/8e7a819e72abc1a2abb570947a73c8f72c89a069), [`5b7852b`](https://github.com/kubb-labs/kubb/commit/5b7852b461886f3ae6e7ee75c195013be8d7859c), [`e1a586b`](https://github.com/kubb-labs/kubb/commit/e1a586bffe29b8bc54d8ae27d23b3d8a941d5e37), [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b), [`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059), [`962e2d6`](https://github.com/kubb-labs/kubb/commit/962e2d6d49dff55563be13b1ded832d10743ec29), [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf)]:
+  - @kubb/fs@3.0.0
+  - @kubb/parser-ts@3.0.0
+  - @kubb/types@3.0.0
+
 ## 3.0.0-beta.12
 
 ### Minor Changes

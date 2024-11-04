@@ -1,5 +1,56 @@
 # @kubb/plugin-client
 
+## 3.0.0
+
+### Major Changes
+
+- [#1118](https://github.com/kubb-labs/kubb/pull/1118) [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Minimal support of node 20
+
+- [#1274](https://github.com/kubb-labs/kubb/pull/1274) [`39072a9`](https://github.com/kubb-labs/kubb/commit/39072a98195adb22b83d5e9857afbc329f20ecac) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of `extName` in every plugin in favour of one `output.extension`
+
+- [#1214](https://github.com/kubb-labs/kubb/pull/1214) [`4a96ae0`](https://github.com/kubb-labs/kubb/commit/4a96ae0ac879d221e186f1ce93afbba7a5184d03) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - HttpMethod uppercase for `@kubb/plugin-client`
+
+- [#1276](https://github.com/kubb-labs/kubb/pull/1276) [`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
+
+- [#1118](https://github.com/kubb-labs/kubb/pull/1118) [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of swagger prefix packages in favour of @kubb/plugin-x
+
+### Minor Changes
+
+- [`8e7a819`](https://github.com/kubb-labs/kubb/commit/8e7a819e72abc1a2abb570947a73c8f72c89a069) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - banner and footer for every file
+
+- [`6f300a9`](https://github.com/kubb-labs/kubb/commit/6f300a90a63e312d2473cd18834f93dca4e9f89e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `getConfig` and `setConfig` to dynamically update the config
+
+- [#1259](https://github.com/kubb-labs/kubb/pull/1259) [`2c860f2`](https://github.com/kubb-labs/kubb/commit/2c860f2b8c49cda8ad08540cd3cbfbdd7c12632a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - 'generators' option for all plugins
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - output option for all plugins(KubbPlugin) to track the barrel exportType or the output root of every plugin
+
+- [#1130](https://github.com/kubb-labs/kubb/pull/1130) [`8ad561d`](https://github.com/kubb-labs/kubb/commit/8ad561d3ff79b0e3dac21bc970106049a2338fba) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - methods for plugin-client
+
+- [`622073d`](https://github.com/kubb-labs/kubb/commit/622073d5223180f0945ef0919dc3df841359019f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `baseURL` to override the default baseURL in every call
+
+- [#1358](https://github.com/kubb-labs/kubb/pull/1358) [`4db1509`](https://github.com/kubb-labs/kubb/commit/4db150923c5fee6dc952779880a13c8d4c0245b5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `paramsType` to change the amount of parameters when calling a query
+
+### Patch Changes
+
+- [#1127](https://github.com/kubb-labs/kubb/pull/1127) [`9ef278a`](https://github.com/kubb-labs/kubb/commit/9ef278acc3550b96d9477ef3770e5e68fead2cba) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove declare module(not being used)
+
+- [#1129](https://github.com/kubb-labs/kubb/pull/1129) [`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove load, transform and writeFile in the plugin context
+
+- [`7b18a28`](https://github.com/kubb-labs/kubb/commit/7b18a2872f9f21547df70b6c586f0c8452a24cb6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of type `Error` when no errors are set for an operation
+
+- [`5b7852b`](https://github.com/kubb-labs/kubb/commit/5b7852b461886f3ae6e7ee75c195013be8d7859c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Reduce package size
+
+- [#1162](https://github.com/kubb-labs/kubb/pull/1162) [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Rewrite of generation for exportType 'barrelNamed'
+
+- Updated dependencies [[`7bb4a34`](https://github.com/kubb-labs/kubb/commit/7bb4a340927077d5f587f938d09b1381787a4310), [`c8cb50d`](https://github.com/kubb-labs/kubb/commit/c8cb50d1e4a13669a05ca11a18352b86a558bce1), [`0bcb15b`](https://github.com/kubb-labs/kubb/commit/0bcb15b5502c1ced18205077c0b2e23811660033), [`8ad561d`](https://github.com/kubb-labs/kubb/commit/8ad561d3ff79b0e3dac21bc970106049a2338fba), [`9ef278a`](https://github.com/kubb-labs/kubb/commit/9ef278acc3550b96d9477ef3770e5e68fead2cba), [`833da08`](https://github.com/kubb-labs/kubb/commit/833da0820d3b91051d829e53ea2b981a74d37e84), [`7bb4a34`](https://github.com/kubb-labs/kubb/commit/7bb4a340927077d5f587f938d09b1381787a4310), [`8413897`](https://github.com/kubb-labs/kubb/commit/8413897bdc8511090cfdebd7783ad4823a6abf30), [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf), [`39072a9`](https://github.com/kubb-labs/kubb/commit/39072a98195adb22b83d5e9857afbc329f20ecac), [`b5bccfa`](https://github.com/kubb-labs/kubb/commit/b5bccfaa79064f74925692966b12ae7906f2eed7), [`a8d645c`](https://github.com/kubb-labs/kubb/commit/a8d645c6a2e1b823f28679d5d27c8166c44cc7e2), [`0fc2205`](https://github.com/kubb-labs/kubb/commit/0fc22058bf79cf8ad543428fbd938cccd604d15c), [`8e7a819`](https://github.com/kubb-labs/kubb/commit/8e7a819e72abc1a2abb570947a73c8f72c89a069), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`0860556`](https://github.com/kubb-labs/kubb/commit/08605565794fb1181677a33ea8610b2237f4ee94), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`20930e9`](https://github.com/kubb-labs/kubb/commit/20930e9b944cb30e134fdf22ddefefab9a1190c0), [`3a9859a`](https://github.com/kubb-labs/kubb/commit/3a9859a5f383f6832a9f056136665f1f7ca6fb72), [`3afc193`](https://github.com/kubb-labs/kubb/commit/3afc1935af6c5ad5233c22ad7c9a135693f0a850), [`2c860f2`](https://github.com/kubb-labs/kubb/commit/2c860f2b8c49cda8ad08540cd3cbfbdd7c12632a), [`5b7852b`](https://github.com/kubb-labs/kubb/commit/5b7852b461886f3ae6e7ee75c195013be8d7859c), [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b), [`79c2153`](https://github.com/kubb-labs/kubb/commit/79c2153b93187c2dad7d54bc00d6ad869213bb7b), [`a5b8d9e`](https://github.com/kubb-labs/kubb/commit/a5b8d9e396e2b4a61126696309c0d6dbf6d3b990), [`e8e5e03`](https://github.com/kubb-labs/kubb/commit/e8e5e039b413680f4420eb74b2f00c4ef7ed306f), [`622073d`](https://github.com/kubb-labs/kubb/commit/622073d5223180f0945ef0919dc3df841359019f), [`ede86d6`](https://github.com/kubb-labs/kubb/commit/ede86d69e5083252d80f1b1e2f1c18c55e245937), [`81b3a78`](https://github.com/kubb-labs/kubb/commit/81b3a78474b3e53446d98db88571a31a452384e0), [`ebbfac2`](https://github.com/kubb-labs/kubb/commit/ebbfac2dfa9f5245a928070c5fee3fdca7f76059), [`962e2d6`](https://github.com/kubb-labs/kubb/commit/962e2d6d49dff55563be13b1ded832d10743ec29), [`d70bdfc`](https://github.com/kubb-labs/kubb/commit/d70bdfc40aeeee4389123c2fb175a6c34ec94489), [`4d5f8d3`](https://github.com/kubb-labs/kubb/commit/4d5f8d3dae94e2cbe82fbbb6578532bdf41bee0d), [`4b02d38`](https://github.com/kubb-labs/kubb/commit/4b02d38f1d169887f29934d616fb889373ae410d), [`4ae54c7`](https://github.com/kubb-labs/kubb/commit/4ae54c7b0a2ab52701b1215f341595a9d1e7903d), [`ebfcb48`](https://github.com/kubb-labs/kubb/commit/ebfcb48dd59e0dc5ec28582b94035d8e25c9ea8d), [`e8c2a7f`](https://github.com/kubb-labs/kubb/commit/e8c2a7f3ef6c41e74acaa6ba6bf7b78a9de00769), [`2fbc18a`](https://github.com/kubb-labs/kubb/commit/2fbc18a74d4e78effb9ce9844ad3ffe7ce7afbdf)]:
+  - @kubb/plugin-zod@3.0.0
+  - @kubb/plugin-oas@3.0.0
+  - @kubb/plugin-ts@3.0.0
+  - @kubb/oas@3.0.0
+  - @kubb/core@3.0.0
+  - @kubb/react@3.0.0
+  - @kubb/fs@3.0.0
+
 ## 3.0.0-beta.12
 
 ### Patch Changes
