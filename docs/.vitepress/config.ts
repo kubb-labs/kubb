@@ -43,35 +43,39 @@ const knowledgeBaseSidebar = [
     link: '/knowledge-base/generators',
   },
   {
-    text: 'Plugins',
-    collapsed: false,
+    text: 'Kubb Plugins',
     link: '/knowledge-base/plugins/',
-    items: [
-      {
-        text: 'Plugin system',
-        link: '/knowledge-base/plugins/system',
-      },
-      {
-        text: 'Plugin core',
-        link: '/knowledge-base/plugins/core',
-      },
-    ],
-  },
-  {
-    text: 'FileManager',
-    link: '/knowledge-base/fileManager',
-  },
-  {
-    text: 'PluginManager',
-    link: '/knowledge-base/pluginManager/',
-    collapsed: false,
-    items: [
-      {
-        text: 'Lifecycle',
-        link: '/knowledge-base/pluginManager/lifecycle',
-      },
-    ],
-  },
+  }
+  // {
+  //   text: 'Plugins',
+  //   collapsed: false,
+  //   link: '/knowledge-base/plugins/',
+  //   items: [
+  //     {
+  //       text: 'Plugin system',
+  //       link: '/knowledge-base/plugins/system',
+  //     },
+  //     {
+  //       text: 'Plugin core',
+  //       link: '/knowledge-base/plugins/core',
+  //     },
+  //   ],
+  // },
+  // {
+  //   text: 'FileManager',
+  //   link: '/knowledge-base/fileManager',
+  // },
+  // {
+  //   text: 'PluginManager',
+  //   link: '/knowledge-base/pluginManager/',
+  //   collapsed: false,
+  //   items: [
+  //     {
+  //       text: 'Lifecycle',
+  //       link: '/knowledge-base/pluginManager/lifecycle',
+  //     },
+  //   ],
+  // },
 ]
 
 const mainSidebar = [
@@ -133,12 +137,12 @@ const mainSidebar = [
                 link: '/helpers/react/components/function',
               },
               {
-                text: 'Parser',
-                link: '/helpers/react/components/parser',
-              },
-              {
                 text: 'Type',
                 link: '/helpers/react/components/type',
+              },
+              {
+                text: 'Const',
+                link: '/helpers/react/components/const',
               },
               {
                 text: 'File',

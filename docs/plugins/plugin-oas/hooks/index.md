@@ -14,8 +14,6 @@ See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` in
 
 `useOas` will return the Oas instance.<br/>
 
-::: code-group
-
 ```tsx
 import { useOas } from '@kubb/plugin-oas/hooks'
 
@@ -26,13 +24,9 @@ function Component() {
 }
 ```
 
-:::
-
 ## useOperation
 
 `useOperation` will return the current `Operation`.<br/>
-
-::: code-group
 
 ```tsx
 import { useOperation } from '@kubb/plugin-oas/hooks'
@@ -46,13 +40,9 @@ function Component() {
 }
 ```
 
-:::
-
 ## useOperations
 
 `useOperations` will return all the Operations.<br/>
-
-::: code-group
 
 ```tsx
 import { useOperations } from '@kubb/plugin-oas/hooks'
@@ -64,23 +54,47 @@ function Component() {
 }
 ```
 
-:::
-
 
 ## useOperationManager
 
 `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.<br/>
 
-::: code-group
 
 ```tsx
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 
 function Component() {
-  const { getFile, getName, getSchemas, groupSchemasByByName } = useOperationManager()
+  const { getName, getFile, getSchemas, groupSchemasByByName } = useOperationManager()
 
   return null
 }
 ```
 
-:::
+## useSchema
+
+`useSchema` will return the current `Schema`.<br/>
+
+```tsx
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
+
+function Component() {
+  const { name, schema, tree } = useSchema()
+
+  return null
+}
+```
+
+## useSchemaManager
+
+`useSchemaManager` will return some helper functions that can be used to get more information about a schema.<br/>
+
+
+```tsx
+import { useSchemaManager } from '@kubb/plugin-oas/hooks'
+
+function Component() {
+  const { getName, getFile, getImports } = useOperationManager()
+
+  return null
+}
+```

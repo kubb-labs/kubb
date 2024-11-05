@@ -71,7 +71,7 @@ Add a banner text in the beginning of every file.
 | Required: | `false`                               |
 
 #### output.footer
-Add a footer text in the beginning of every file.
+Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|

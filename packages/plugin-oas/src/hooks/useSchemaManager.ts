@@ -22,7 +22,7 @@ type UseSchemaManagerResult = {
  * `useSchemaManager` will return some helper functions that can be used to get the schema file, get the schema name.
  */
 export function useSchemaManager(): UseSchemaManagerResult {
-  const { mode, plugin, pluginManager, fileManager } = useApp()
+  const { plugin, pluginManager } = useApp()
 
   const getName: UseSchemaManagerResult['getName'] = (name, { pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({
