@@ -1330,6 +1330,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
+      remeda:
+        specifier: ^2.16.0
+        version: 2.16.0
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1425,6 +1428,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
+      remeda:
+        specifier: ^2.16.0
+        version: 2.16.0
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1468,6 +1474,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
+      remeda:
+        specifier: ^2.16.0
+        version: 2.16.0
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1514,6 +1523,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
+      remeda:
+        specifier: ^2.16.0
+        version: 2.16.0
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1597,6 +1609,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
+      remeda:
+        specifier: ^2.16.0
+        version: 2.16.0
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*

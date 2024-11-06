@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -6,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { QueryKey, QueryOptions, SuspenseQuery } from '../components'
 import type { PluginReactQuery } from '../types'
 
@@ -18,8 +18,13 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
       },
     } = useApp<PluginReactQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
-    const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
-    const isSuspense = isQuery && !!options.suspense
+
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
+      (method) => operation.method === method,
+    )
+
+    const isSuspense = !!options.suspense
 
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
@@ -53,7 +58,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery || !isSuspense) {
+    if (!isQuery || isMutation || !isSuspense) {
       return null
     }
 
