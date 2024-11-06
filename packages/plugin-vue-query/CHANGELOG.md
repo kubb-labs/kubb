@@ -1,5 +1,20 @@
 # @kubb/plugin-vue-query
 
+## 3.0.1
+
+### Patch Changes
+
+- [#1374](https://github.com/kubb-labs/kubb/pull/1374) [`487d135`](https://github.com/kubb-labs/kubb/commit/487d135609b6279946931460dfd68432a5922f44) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - InfiniteData for react-query v5(disabled for v4)
+
+- Updated dependencies []:
+  - @kubb/core@3.0.1
+  - @kubb/fs@3.0.1
+  - @kubb/oas@3.0.1
+  - @kubb/plugin-oas@3.0.1
+  - @kubb/plugin-ts@3.0.1
+  - @kubb/plugin-zod@3.0.1
+  - @kubb/react@3.0.1
+
 ## 3.0.0
 
 ### Major Changes
