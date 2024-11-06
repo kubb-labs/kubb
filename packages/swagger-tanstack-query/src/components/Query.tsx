@@ -416,7 +416,7 @@ export function Query({
   generics.add([
     {
       type: 'TData',
-      default: `${factory.name}["response"]`,
+      default: isV5 && props.infinite ? `InfiniteData<${factory.name}["response"]>` : `${factory.name}["response"]`,
     },
     props.suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
     { type: 'TQueryKey extends QueryKey', default: queryKeyType },

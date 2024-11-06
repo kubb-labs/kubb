@@ -348,7 +348,7 @@ export const flyMachineInitSchema = z.object({
   tty: z.boolean().optional(),
 })
 
-export const flyMachineMetricsSchema = z.object({ path: z.string().optional(), port: z.number().int().optional() })
+export const flyMachineMetricsSchema = z.object({ https: z.boolean().optional(), path: z.string().optional(), port: z.number().int().optional() })
 
 export const flyMachineMountSchema = z.object({
   add_size_gb: z.number().int().optional(),
@@ -539,6 +539,7 @@ export const machinesListQueryParamsSchema = z
   .object({
     include_deleted: z.boolean().describe('Include deleted machines').optional(),
     region: z.string().describe('Region filter').optional(),
+    state: z.string().describe('comma separated list of states to filter (created, started, stopped, suspended)').optional(),
     summary: z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)').optional(),
   })
   .optional()

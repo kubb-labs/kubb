@@ -1,15 +1,16 @@
 import client from '@kubb/swagger-client/client'
-import { infiniteQueryOptions, queryOptions, skipToken, useInfiniteQuery, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type {
-  InfiniteQueryObserverOptions,
-  QueryKey,
   QueryObserverOptions,
-  UseInfiniteQueryResult,
   UseQueryResult,
+  QueryKey,
+  InfiniteQueryObserverOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -102,7 +103,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
  * @link /pet/findByTags
  */
 export function useFindPetsByTagsHookInfinite<
-  TData = FindPetsByTags['response'],
+  TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
