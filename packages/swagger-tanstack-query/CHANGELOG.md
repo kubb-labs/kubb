@@ -1,5 +1,22 @@
 # @kubb/swagger-tanstack-query
 
+## 2.28.4
+
+### Patch Changes
+
+- [`3f08812`](https://github.com/kubb-labs/kubb/commit/3f0881277af5fec5362f37f0aba9064a00860e5e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `InfiniteData` for react-query v5(disabled for v4)
+
+- Updated dependencies []:
+  - @kubb/core@2.28.4
+  - @kubb/fs@2.28.4
+  - @kubb/oas@2.28.4
+  - @kubb/parser-ts@2.28.4
+  - @kubb/plugin-oas@2.28.4
+  - @kubb/react@2.28.4
+  - @kubb/swagger-client@2.28.4
+  - @kubb/swagger-ts@2.28.4
+  - @kubb/swagger-zod@2.28.4
+
 ## 2.28.3
 
 ### Patch Changes
