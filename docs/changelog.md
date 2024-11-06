@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.0.1
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow disabling `useQuery`
+- [`plugin-react-query`](/plugins/plugin-react-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
+
 ## 3.0.0-beta.12
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow to disable the generation of useQuery or createQuery hooks.
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow to disable the generation of useQuery or createQuery hooks.

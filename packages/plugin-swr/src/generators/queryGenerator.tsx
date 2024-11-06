@@ -5,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { Query, QueryOptions } from '../components'
 import { QueryKey } from '../components'
 import type { PluginSwr } from '../types'
@@ -19,7 +20,10 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     } = useApp<PluginSwr>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
+      (method) => operation.method === method,
+    )
     const importPath = options.query ? options.query.importPath : 'swr/mutation'
 
     const query = {
@@ -51,7 +55,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery) {
+    if (!isQuery || isMutation) {
       return null
     }
 

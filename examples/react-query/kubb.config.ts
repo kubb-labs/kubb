@@ -74,6 +74,10 @@ export const config = {
               importPath: '@tanstack/react-query',
               methods: ['post'],
             },
+            mutation: {
+              importPath: '@tanstack/react-query',
+              methods: ['put', 'delete'],
+            },
             pathParamsType: 'inline',
           },
         },

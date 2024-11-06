@@ -55,11 +55,14 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         : false,
       suspense,
       queryKey,
-      query: {
-        methods: ['get'],
-        importPath: '@tanstack/react-query',
-        ...query,
-      },
+      query:
+        query === false
+          ? false
+          : {
+              methods: ['get'],
+              importPath: '@tanstack/react-query',
+              ...query,
+            },
       mutationKey,
       mutation: {
         methods: ['post', 'put', 'patch', 'delete'],

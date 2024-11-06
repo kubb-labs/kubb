@@ -42,11 +42,14 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         ...options.client,
       },
       queryKey,
-      query: {
-        methods: ['get'],
-        importPath: '@tanstack/solid-query',
-        ...query,
-      },
+      query:
+        query === false
+          ? false
+          : {
+              methods: ['get'],
+              importPath: '@tanstack/solid-query',
+              ...query,
+            },
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
       parser,

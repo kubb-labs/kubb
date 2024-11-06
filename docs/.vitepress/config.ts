@@ -45,7 +45,7 @@ const knowledgeBaseSidebar = [
   {
     text: 'Kubb Plugins',
     link: '/knowledge-base/plugins/',
-  }
+  },
   // {
   //   text: 'Plugins',
   //   collapsed: false,

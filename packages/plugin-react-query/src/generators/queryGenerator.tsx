@@ -5,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginReactQuery } from '../types'
 
@@ -19,6 +20,10 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
+      (method) => operation.method === method,
+    )
+
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
     const query = {
@@ -51,7 +56,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery) {
+    if (!isQuery || isMutation) {
       return null
     }
 
