@@ -1,8 +1,7 @@
 import client from '@kubb/plugin-client/client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
 import type { RequestConfig } from '@kubb/plugin-client/client'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
-import { queryOptions, createQuery } from '@tanstack/solid-query'
+import { queryOptions } from '@tanstack/solid-query'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
@@ -27,34 +26,4 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
       return findPetsByStatus(params, config)
     },
   })
-}
-
-/**
- * @description Multiple status values can be provided with comma separated strings
- * @summary Finds Pets by status
- * @link /pet/findByStatus
- */
-export function createFindPetsByStatus<
-  TData = FindPetsByStatusQueryResponse,
-  TQueryData = FindPetsByStatusQueryResponse,
-  TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
->(
-  params?: FindPetsByStatusQueryParams,
-  options: {
-    query?: Partial<CreateBaseQueryOptions<FindPetsByStatusQueryResponse, FindPetsByStatus400, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
-  } = {},
-) {
-  const { query: queryOptions, client: config = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-  const query = createQuery(() => ({
-    ...(findPetsByStatusQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
-    queryKey,
-    initialData: null,
-    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, FindPetsByStatus400> & {
-    queryKey: TQueryKey
-  }
-  query.queryKey = queryKey as TQueryKey
-  return query
 }

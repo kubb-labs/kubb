@@ -540,6 +540,7 @@ export const machinesListQueryParamsSchema = z
   .object({
     include_deleted: z.boolean().describe('Include deleted machines').optional(),
     region: z.string().describe('Region filter').optional(),
+    state: z.string().describe('comma separated list of states to filter (created, started, stopped, suspended)').optional(),
     summary: z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)').optional(),
   })
   .optional()
