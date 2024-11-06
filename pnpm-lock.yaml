@@ -66,7 +66,7 @@ importers:
     dependencies:
       '@shikijs/vitepress-twoslash':
         specifier: ^1.22.2
-        version: 1.22.2(@nuxt/kit@3.14.0(magicast@0.3.5)(webpack-sources@3.2.3))(typescript@5.6.3)
+        version: 1.22.2(@nuxt/kit@3.14.159(magicast@0.3.5)(webpack-sources@3.2.3))(typescript@5.6.3)
       mermaid:
         specifier: ^11.4.0
         version: 11.4.0
@@ -186,17 +186,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/react
       '@tanstack/react-query':
-        specifier: ^5.59.19
-        version: 5.59.19(react@18.3.1)
+        specifier: ^5.59.20
+        version: 5.59.20(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.59.17
-        version: 5.59.17(solid-js@1.9.3)
+        specifier: ^5.59.20
+        version: 5.59.20(solid-js@1.9.3)
       '@tanstack/svelte-query':
-        specifier: ^5.59.17
-        version: 5.59.17(svelte@3.59.2)
+        specifier: ^5.59.20
+        version: 5.59.20(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.59.17
-        version: 5.59.17(vue@3.5.12(typescript@5.6.3))
+        specifier: ^5.59.20
+        version: 5.59.20(vue@3.5.12(typescript@5.6.3))
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -277,20 +277,20 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/query-core':
-        specifier: ^5.59.17
-        version: 5.59.17
+        specifier: ^5.59.20
+        version: 5.59.20
       '@tanstack/react-query':
-        specifier: ^5.59.19
-        version: 5.59.19(react@18.3.1)
+        specifier: ^5.59.20
+        version: 5.59.20(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.59.17
-        version: 5.59.17(solid-js@1.9.3)
+        specifier: ^5.59.20
+        version: 5.59.20(solid-js@1.9.3)
       '@tanstack/svelte-query':
-        specifier: ^5.59.17
-        version: 5.59.17(svelte@3.59.2)
+        specifier: ^5.59.20
+        version: 5.59.20(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.59.17
-        version: 5.59.17(vue@3.5.12(typescript@5.6.3))
+        specifier: ^5.59.20
+        version: 5.59.20(vue@3.5.12(typescript@5.6.3))
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -553,11 +553,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/react-query':
-        specifier: ^5.59.19
-        version: 5.59.19(react@18.3.1)
+        specifier: ^5.59.20
+        version: 5.59.20(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.59.19
-        version: 5.59.19(@tanstack/react-query@5.59.19(react@18.3.1))(react@18.3.1)
+        specifier: ^5.59.20
+        version: 5.59.20(@tanstack/react-query@5.59.20(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -620,8 +620,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.59.19
-        version: 5.59.19(react@18.3.1)
+        specifier: ^5.59.20
+        version: 5.59.20(react@18.3.1)
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -659,8 +659,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
-        specifier: ^5.59.17
-        version: 5.59.17(solid-js@1.9.3)
+        specifier: ^5.59.20
+        version: 5.59.20(solid-js@1.9.3)
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -699,8 +699,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/svelte-query':
-        specifier: ^5.59.17
-        version: 5.59.17(svelte@3.59.2)
+        specifier: ^5.59.20
+        version: 5.59.20(svelte@3.59.2)
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -803,8 +803,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.59.17
-        version: 5.59.17(vue@3.5.12(typescript@5.6.3))
+        specifier: ^5.59.20
+        version: 5.59.20(vue@3.5.12(typescript@5.6.3))
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -1764,11 +1764,11 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@nuxt/kit':
-        specifier: ^3.14.0
-        version: 3.14.0(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
+        specifier: ^3.14.159
+        version: 3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
       '@nuxt/schema':
-        specifier: ^3.14.0
-        version: 3.14.0(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
+        specifier: ^3.14.159
+        version: 3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
       '@types/node':
         specifier: ^20.17.6
         version: 20.17.6
@@ -2933,12 +2933,12 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@nuxt/kit@3.14.0':
-    resolution: {integrity: sha512-Gl30WrzX7YSJqkTyOJlG4LkErShkGoHigWF/htFt9Q27Lx9JNCkOpXlEf+rA/vsDlXJeo8mVNRoMhS4Q+0d1Kg==}
+  '@nuxt/kit@3.14.159':
+    resolution: {integrity: sha512-ZqxsCI1NKV/gjfEUUZjMcr82sg0MKYZOuyB6bu9QY5Zr7NGpfIZY/z5Z822AKTmFxKGChnuz9M0UaS4ze6p42g==}
     engines: {node: ^14.18.0 || >=16.10.0}
 
-  '@nuxt/schema@3.14.0':
-    resolution: {integrity: sha512-uLAAS7Za7+JXJg6phAjUecqBUfON/WZN/NbYic7uCM+4LUT8B4M/5WM9zFCZJi1g9Krns5Wr5GmJJPIfaYt0eQ==}
+  '@nuxt/schema@3.14.159':
+    resolution: {integrity: sha512-ggXA3F2f9udQoEy5WwrY6bTMvpDaErUYRLSEzdMqqCqjOQ5manfFgfuScGj3ooZiXLIX2TGLVTzcll4nnpDlnQ==}
     engines: {node: ^14.18.0 || >=16.10.0}
 
   '@open-draft/deferred-promise@2.2.0':
@@ -3433,35 +3433,35 @@ packages:
     resolution: {integrity: sha512-PnVV3d2poenUM31ZbZi/yXkBu3J7kd5k2u51CGwwNojag451AjTH9N6n41yjXz2fpLeewleyLBmNS6+HcGDlXw==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.59.17':
-    resolution: {integrity: sha512-jWdDiif8kaqnRGHNXAa9CnudtxY5v9DUxXhodgqX2Rwzj+1UwStDHEbBd9IA5C7VYAaJ2s+BxFR6PUBs8ERorA==}
+  '@tanstack/query-core@5.59.20':
+    resolution: {integrity: sha512-e8vw0lf7KwfGe1if4uPFhvZRWULqHjFcz3K8AebtieXvnMOz5FSzlZe3mTLlPuUBcydCnBRqYs2YJ5ys68wwLg==}
 
-  '@tanstack/query-devtools@5.59.19':
-    resolution: {integrity: sha512-Gw+3zsADpqiYgx/6MMr9bP1+x2LR8vOuGjo5Un/89qwwP3z7WAHPWFagLFDYkLq68NX7ekUpW/EOYlUMugMXGA==}
+  '@tanstack/query-devtools@5.59.20':
+    resolution: {integrity: sha512-vxhuQ+8VV4YWQSFxQLsuM+dnEKRY7VeRzpNabFXdhEwsBYLrjXlF1pM38A8WyKNLqZy8JjyRO8oP4Wd/oKHwuQ==}
 
-  '@tanstack/react-query-devtools@5.59.19':
-    resolution: {integrity: sha512-mYFWTHLtJr2HdyYPZPzzvQ2ksCsSL6L04fCtusPFD3waskXrtmvWvyuDIGeEGdVAYS0Urwxw/0sYvcTVQZH+zQ==}
+  '@tanstack/react-query-devtools@5.59.20':
+    resolution: {integrity: sha512-AL/eQS1NFZhwwzq2Bq9Gd8wTTH+XhPNOJlDFpzPMu9NC5CQVgA0J8lWrte/sXpdWNo5KA4hgHnEdImZsF4h6Lw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.59.19
+      '@tanstack/react-query': ^5.59.20
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.59.19':
-    resolution: {integrity: sha512-xLRfyFyQOFcLltKCds0LijfC6/HQJrrTTnZB8ciyn74LIkVAm++vZJ6eUVG20RmJtdP8REdy7vSOYW4M3//XLA==}
+  '@tanstack/react-query@5.59.20':
+    resolution: {integrity: sha512-Zly0egsK0tFdfSbh5/mapSa+Zfc3Et0Zkar7Wo5sQkFzWyB3p3uZWOHR2wrlAEEV2L953eLuDBtbgFvMYiLvUw==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@tanstack/solid-query@5.59.17':
-    resolution: {integrity: sha512-fUypay1MrMJk3fcIXQG6RK2VfpEO6oxQGUeHBD8vUczTQnc0P7gZAQnHeD2KdcnEUC5Bnfe25cq0auymL2A8Ow==}
+  '@tanstack/solid-query@5.59.20':
+    resolution: {integrity: sha512-pawItVLVj/4DPVcjRC4slMMEJvuXBHjkHPVViDeezNc4QHZFCPJ5sa30WIZlCahSoqKtplcjdB6oK8BvoZQgSA==}
     peerDependencies:
       solid-js: ^1.6.0
 
-  '@tanstack/svelte-query@5.59.17':
-    resolution: {integrity: sha512-1nJw29NyVgTIrlIC3X1PtQsxE4ecBkYNkq/1OOaYKofc7Q3aXbvC8KOdoyzPSk/pUKj0LJl7tKfRRTvB3l+YGA==}
+  '@tanstack/svelte-query@5.59.20':
+    resolution: {integrity: sha512-DFRTz9i6OXIF+o4GFDRF4g3Q6BSBKWxoahZPcPbCAdXAS4NRhTnVFR4HgEtzlhfoQx8yMJsLXMhDiGUw365HsA==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
-  '@tanstack/vue-query@5.59.17':
-    resolution: {integrity: sha512-113b6ITbiNMrzZIybVRIbvNIiVRCIdWzSfZbXBNa+WIjDto/xdR2NnMZrNe2wtUActzC1cArAlGM2CFH1SR11Q==}
+  '@tanstack/vue-query@5.59.20':
+    resolution: {integrity: sha512-kIs1GfXh7jVLycbnQDghfdrcvrZz5fxnMF7eAAp8O3ZfhHQWfP57DBXbOvww4Y+TI0EvVoh+hihX+LNFBGFKLg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -9095,9 +9095,9 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@nuxt/kit@3.14.0(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)':
+  '@nuxt/kit@3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)':
     dependencies:
-      '@nuxt/schema': 3.14.0(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
+      '@nuxt/schema': 3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
       c12: 2.0.1(magicast@0.3.5)
       consola: 3.2.3
       defu: 6.1.4
@@ -9123,7 +9123,7 @@ snapshots:
       - supports-color
       - webpack-sources
 
-  '@nuxt/schema@3.14.0(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)':
+  '@nuxt/schema@3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)':
     dependencies:
       c12: 2.0.1(magicast@0.3.5)
       compatx: 0.1.8
@@ -9492,10 +9492,10 @@ snapshots:
       '@shikijs/vscode-textmate': 9.3.0
       '@types/hast': 3.0.4
 
-  '@shikijs/vitepress-twoslash@1.22.2(@nuxt/kit@3.14.0(magicast@0.3.5)(webpack-sources@3.2.3))(typescript@5.6.3)':
+  '@shikijs/vitepress-twoslash@1.22.2(@nuxt/kit@3.14.159(magicast@0.3.5)(webpack-sources@3.2.3))(typescript@5.6.3)':
     dependencies:
       '@shikijs/twoslash': 1.22.2(typescript@5.6.3)
-      floating-vue: 5.2.2(@nuxt/kit@3.14.0(magicast@0.3.5)(webpack-sources@3.2.3))(vue@3.5.12(typescript@5.6.3))
+      floating-vue: 5.2.2(@nuxt/kit@3.14.159(magicast@0.3.5)(webpack-sources@3.2.3))(vue@3.5.12(typescript@5.6.3))
       mdast-util-from-markdown: 2.0.2
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.2.0
@@ -9589,35 +9589,35 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.59.17': {}
+  '@tanstack/query-core@5.59.20': {}
 
-  '@tanstack/query-devtools@5.59.19': {}
+  '@tanstack/query-devtools@5.59.20': {}
 
-  '@tanstack/react-query-devtools@5.59.19(@tanstack/react-query@5.59.19(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.59.20(@tanstack/react-query@5.59.20(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.59.19
-      '@tanstack/react-query': 5.59.19(react@18.3.1)
+      '@tanstack/query-devtools': 5.59.20
+      '@tanstack/react-query': 5.59.20(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.59.19(react@18.3.1)':
+  '@tanstack/react-query@5.59.20(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.59.17
+      '@tanstack/query-core': 5.59.20
       react: 18.3.1
 
-  '@tanstack/solid-query@5.59.17(solid-js@1.9.3)':
+  '@tanstack/solid-query@5.59.20(solid-js@1.9.3)':
     dependencies:
-      '@tanstack/query-core': 5.59.17
+      '@tanstack/query-core': 5.59.20
       solid-js: 1.9.3
 
-  '@tanstack/svelte-query@5.59.17(svelte@3.59.2)':
+  '@tanstack/svelte-query@5.59.20(svelte@3.59.2)':
     dependencies:
-      '@tanstack/query-core': 5.59.17
+      '@tanstack/query-core': 5.59.20
       svelte: 3.59.2
 
-  '@tanstack/vue-query@5.59.17(vue@3.5.12(typescript@5.6.3))':
+  '@tanstack/vue-query@5.59.20(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.15.1
-      '@tanstack/query-core': 5.59.17
+      '@tanstack/query-core': 5.59.20
       '@vue/devtools-api': 6.6.3
       vue: 3.5.12(typescript@5.6.3)
       vue-demi: 0.14.10(vue@3.5.12(typescript@5.6.3))
@@ -10557,7 +10557,7 @@ snapshots:
   c12@2.0.1(magicast@0.3.5):
     dependencies:
       chokidar: 4.0.1
-      confbox: 0.1.7
+      confbox: 0.1.8
       defu: 6.1.4
       dotenv: 16.4.5
       giget: 1.2.3
@@ -11662,13 +11662,13 @@ snapshots:
 
   flatted@3.3.1: {}
 
-  floating-vue@5.2.2(@nuxt/kit@3.14.0(magicast@0.3.5)(webpack-sources@3.2.3))(vue@3.5.12(typescript@5.6.3)):
+  floating-vue@5.2.2(@nuxt/kit@3.14.159(magicast@0.3.5)(webpack-sources@3.2.3))(vue@3.5.12(typescript@5.6.3)):
     dependencies:
       '@floating-ui/dom': 1.1.1
       vue: 3.5.12(typescript@5.6.3)
       vue-resize: 2.0.0-alpha.1(vue@3.5.12(typescript@5.6.3))
     optionalDependencies:
-      '@nuxt/kit': 3.14.0(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
+      '@nuxt/kit': 3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
 
   focus-trap@7.6.0:
     dependencies:
