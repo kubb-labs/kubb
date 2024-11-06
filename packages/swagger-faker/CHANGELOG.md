@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.28.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.28.4
+  - @kubb/fs@2.28.4
+  - @kubb/oas@2.28.4
+  - @kubb/parser-ts@2.28.4
+  - @kubb/plugin-oas@2.28.4
+  - @kubb/react@2.28.4
+  - @kubb/swagger-ts@2.28.4
+
 ## 2.28.3
 
 ### Patch Changes
