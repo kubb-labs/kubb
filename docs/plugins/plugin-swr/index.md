@@ -220,6 +220,7 @@ import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {
@@ -231,6 +232,7 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs(),
+    pluginZod(),
     pluginSwr({
       output: {
         path: './hooks',
