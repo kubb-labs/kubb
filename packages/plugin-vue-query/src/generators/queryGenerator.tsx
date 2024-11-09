@@ -32,7 +32,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const queryOptions = {

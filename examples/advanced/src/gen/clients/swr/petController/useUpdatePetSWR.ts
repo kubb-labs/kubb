@@ -19,7 +19,7 @@ export type UpdatePetMutationKeySWR = ReturnType<typeof updatePetMutationKeySWR>
  * @summary Update an existing pet
  * @link /pet
  */
-async function updatePet(
+async function updatePetSWR(
   {
     data,
   }: {
@@ -56,7 +56,7 @@ export function useUpdatePetSWR(
   return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKeySWR | null, UpdatePetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return updatePet({ data }, config)
+      return updatePetSWR({ data }, config)
     },
     mutationOptions,
   )

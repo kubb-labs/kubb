@@ -34,7 +34,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const queryOptions = {

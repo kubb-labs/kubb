@@ -12,7 +12,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @summary Logs user into the system
  * @link /user/login
  */
-async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+async function loginUserHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
   return res.data
 }
@@ -23,7 +23,7 @@ export function loginUserQueryOptionsHook(params?: LoginUserQueryParams, config:
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return loginUser(params, config)
+      return loginUserHook(params, config)
     },
   })
 }

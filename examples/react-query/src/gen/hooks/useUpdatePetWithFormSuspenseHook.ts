@@ -18,7 +18,7 @@ export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithF
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+async function updatePetWithFormHook(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
   return res.data
 }
@@ -34,7 +34,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return updatePetWithForm(petId, params, config)
+      return updatePetWithFormHook(petId, params, config)
     },
   })
 }

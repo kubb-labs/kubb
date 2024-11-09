@@ -18,7 +18,7 @@ export type FindPetsByTagsQueryKeySWR = ReturnType<typeof findPetsByTagsQueryKey
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-async function findPetsByTags(
+async function findPetsByTagsSWR(
   {
     headers,
     params,
@@ -51,7 +51,7 @@ export function findPetsByTagsQueryOptionsSWR(
 ) {
   return {
     fetcher: async () => {
-      return findPetsByTags({ headers, params }, config)
+      return findPetsByTagsSWR({ headers, params }, config)
     },
   }
 }

@@ -17,7 +17,7 @@ export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFor
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-async function updatePetWithForm(
+async function updatePetWithFormSWR(
   {
     petId,
     params,
@@ -59,7 +59,7 @@ export function useUpdatePetWithFormSWR(
   return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
-      return updatePetWithForm({ petId, params }, config)
+      return updatePetWithFormSWR({ petId, params }, config)
     },
     mutationOptions,
   )

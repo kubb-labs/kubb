@@ -45,7 +45,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const mutationKey = {

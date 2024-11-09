@@ -13,7 +13,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * @summary Create user
  * @link /user
  */
-async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
+async function createUserHook(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
   const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
   return res.data
 }
@@ -45,7 +45,7 @@ export function useCreateUserHook(
     }
   >({
     mutationFn: async ({ data }) => {
-      return createUser(data, config)
+      return createUserHook(data, config)
     },
     mutationKey,
     ...mutationOptions,

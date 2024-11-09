@@ -44,7 +44,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const mutationKey = {

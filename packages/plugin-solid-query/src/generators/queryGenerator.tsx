@@ -30,7 +30,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const queryOptions = {

@@ -13,7 +13,7 @@ export type AddPetMutationKeySWR = ReturnType<typeof addPetMutationKeySWR>
  * @summary Add a new pet to the store
  * @link /pet
  */
-async function addPet(
+async function addPetSWR(
   {
     data,
   }: {
@@ -48,7 +48,7 @@ export function useAddPetSWR(
   return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKeySWR | null, AddPetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return addPet({ data }, config)
+      return addPetSWR({ data }, config)
     },
     mutationOptions,
   )
