@@ -10,30 +10,16 @@ outline: deep
 Some hooks that can be used with `@kubb/react`.
 
 
-## useParser
-
-`useParser` will return the current language set by the parent `Parser` component.
-
-```tsx
-import { useParser } from '@kubb/react'
-
-function Component() {
-  const parser = useParser()
-
-  return null
-}
-```
-
 ## useApp
 
-`useApp` will return the current App with plugin, pluginManager, fileManager and mode.
+`useApp` will return the current App with plugin, pluginManager, fileManager, mode, ...
 
 
 ```tsx
 import { useApp } from '@kubb/react'
 
 function Component() {
-  const { pluginManager, plugin, mode, fileManager} = useApp()
+  const { pluginManager, plugin, mode, exit, getFile, fileManager} = useApp()
 
   return null
 }

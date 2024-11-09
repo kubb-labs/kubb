@@ -44,11 +44,14 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         ...options.client,
       },
       queryKey,
-      query: {
-        methods: ['get'],
-        importPath: '@tanstack/svelte-query',
-        ...query,
-      },
+      query:
+        query === false
+          ? false
+          : {
+              methods: ['get'],
+              importPath: '@tanstack/svelte-query',
+              ...query,
+            },
       mutationKey,
       mutation: {
         methods: ['post', 'put', 'patch', 'delete'],

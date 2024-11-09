@@ -44,11 +44,14 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         ...client,
       },
       queryKey,
-      query: {
-        importPath: 'swr',
-        methods: ['get'],
-        ...query,
-      },
+      query:
+        query === false
+          ? false
+          : {
+              importPath: 'swr',
+              methods: ['get'],
+              ...query,
+            },
       mutationKey,
       mutation: {
         importPath: 'swr/mutation',

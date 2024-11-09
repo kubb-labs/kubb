@@ -12,7 +12,7 @@ export type LogoutUserQueryKeySWR = ReturnType<typeof logoutUserQueryKeySWR>
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-async function logoutUser(config: Partial<RequestConfig> = {}) {
+async function logoutUserSWR(config: Partial<RequestConfig> = {}) {
   const res = await client<LogoutUserQueryResponse, Error, unknown>({
     method: 'GET',
     url: '/user/logout',
@@ -25,7 +25,7 @@ async function logoutUser(config: Partial<RequestConfig> = {}) {
 export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> = {}) {
   return {
     fetcher: async () => {
-      return logoutUser(config)
+      return logoutUserSWR(config)
     },
   }
 }

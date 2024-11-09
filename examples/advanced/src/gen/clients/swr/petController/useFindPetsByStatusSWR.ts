@@ -13,7 +13,7 @@ export type FindPetsByStatusQueryKeySWR = ReturnType<typeof findPetsByStatusQuer
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-async function findPetsByStatus(
+async function findPetsByStatusSWR(
   {
     params,
   }: {
@@ -41,7 +41,7 @@ export function findPetsByStatusQueryOptionsSWR(
 ) {
   return {
     fetcher: async () => {
-      return findPetsByStatus({ params }, config)
+      return findPetsByStatusSWR({ params }, config)
     },
   }
 }

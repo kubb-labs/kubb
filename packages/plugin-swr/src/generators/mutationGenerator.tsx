@@ -5,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { MutationKey } from '../components'
 import { Mutation } from '../components'
 import type { PluginSwr } from '../types'
@@ -19,8 +20,10 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
     } = useApp<PluginSwr>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
-    const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
+    const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
+    const isMutation =
+      !isQuery &&
+      difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some((method) => operation.method === method)
 
     const importPath = options.mutation ? options.mutation.importPath : 'swr'
 
@@ -42,7 +45,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const mutationKey = {

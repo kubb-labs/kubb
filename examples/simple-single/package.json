@@ -31,7 +31,7 @@
     "@kubb/plugin-redoc": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/react-query": "^5.59.16",
+    "@tanstack/react-query": "^5.59.20",
     "axios": "^1.7.7",
     "react": "^18.3.1",
     "tsup": "^8.3.5",

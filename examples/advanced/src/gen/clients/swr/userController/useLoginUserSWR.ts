@@ -12,7 +12,7 @@ export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
  * @summary Logs user into the system
  * @link /user/login
  */
-async function loginUser(
+async function loginUserSWR(
   {
     params,
   }: {
@@ -40,7 +40,7 @@ export function loginUserQueryOptionsSWR(
 ) {
   return {
     fetcher: async () => {
-      return loginUser({ params }, config)
+      return loginUserSWR({ params }, config)
     },
   }
 }

@@ -51,11 +51,11 @@ type Props = React.ComponentProps<typeof File>
 ```
 
 | Property | Description                                                                                                         | Type                              | Default               |
-| -------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------- |
+|----------|---------------------------------------------------------------------------------------------------------------------| --------------------------------- | --------------------- |
 | baseName | Name to be used to dynamicly create the baseName(based on input.path).                                              | `string`                          | -                     |
+| banner   | Add some text in the beginning of the file.                                                                         | `string`                          | -                     |
+| footer   | Add some text at the end of the file.                                                                               | `string`                          | -                     |
 | path     | Path will be full qualified path to a specified file.                                                               | `string`                          | -                     |
-| id       | Unique identifier to reuse later.                                                                                   | `string \|  undefined`            | `crypto.randomUUID()` |
-| env      | This will override `process.env[key]` inside the `source`, see `getFileSource`.                                     | `NodeJS.ProcessEnv \|  undefined` | -                     |
 | override | This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists. | `boolean \|  undefined`           | `false`               |
 | meta     | Add extra meta to a file.                                                                                           | `object \|  undefined`            | -                     |
 | children |                                                                                                                     | `KubbNode \|  undefined`          | -                     |

@@ -70,7 +70,7 @@ Add a banner text in the beginning of every file.
 | Required: | `false`                               |
 
 #### output.footer
-Add a footer text in the beginning of every file.
+Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -220,6 +220,7 @@ import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
   input: {
@@ -231,6 +232,7 @@ export default defineConfig({
   plugins: [
     pluginOas(),
     pluginTs(),
+    pluginZod(),
     pluginSwr({
       output: {
         path: './hooks',

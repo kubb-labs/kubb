@@ -13,7 +13,7 @@ export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySW
  * @summary Delete user
  * @link /user/:username
  */
-async function deleteUser(
+async function deleteUserSWR(
   {
     username,
   }: {
@@ -52,7 +52,7 @@ export function useDeleteUserSWR(
   return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
-      return deleteUser({ username }, config)
+      return deleteUserSWR({ username }, config)
     },
     mutationOptions,
   )

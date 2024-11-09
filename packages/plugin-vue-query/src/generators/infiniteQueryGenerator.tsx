@@ -5,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { InfiniteQuery, InfiniteQueryOptions, QueryKey } from '../components'
 import type { PluginVueQuery } from '../types'
 
@@ -17,7 +18,11 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
       },
     } = useApp<PluginVueQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
-    const isQuery = typeof options.query === 'boolean' ? options.query : !!options.query.methods?.some((method) => operation.method === method)
+
+    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
+      (method) => operation.method === method,
+    )
     const isInfinite = isQuery && !!options.infinite
     const importPath = options.query ? options.query.importPath : '@tanstack/vue-query'
 
@@ -28,7 +33,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const queryOptions = {
@@ -51,7 +56,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery || !isInfinite) {
+    if (!isQuery || isMutation || !isInfinite) {
       return null
     }
 
@@ -99,6 +104,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
         />
         {options.infinite && (
           <>
+            <File.Import name={['InfiniteData']} isTypeOnly path={importPath} />
             <File.Import name={['infiniteQueryOptions']} path={importPath} />
             <InfiniteQueryOptions
               name={queryOptions.name}

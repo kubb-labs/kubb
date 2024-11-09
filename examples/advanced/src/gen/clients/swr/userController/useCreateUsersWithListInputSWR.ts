@@ -16,7 +16,7 @@ export type CreateUsersWithListInputMutationKeySWR = ReturnType<typeof createUse
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-async function createUsersWithListInput(
+async function createUsersWithListInputSWR(
   {
     data,
   }: {
@@ -58,7 +58,7 @@ export function useCreateUsersWithListInputSWR(
   >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return createUsersWithListInput({ data }, config)
+      return createUsersWithListInputSWR({ data }, config)
     },
     mutationOptions,
   )

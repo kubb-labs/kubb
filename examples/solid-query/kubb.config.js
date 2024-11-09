@@ -26,6 +26,7 @@ export default defineConfig({
       output: {
         path: './hooks',
       },
+      query: false,
       override: [
         {
           type: 'operationId',

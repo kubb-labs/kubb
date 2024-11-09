@@ -5,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSolidQuery } from '../types'
 
@@ -19,6 +20,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
+    const isMutation = difference(['post', 'put', 'delete', 'patch'], options.query ? options.query.methods : []).some((method) => operation.method === method)
     const importPath = options.query ? options.query.importPath : '@tanstack/solid-query'
 
     const query = {
@@ -28,7 +30,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const queryOptions = {
@@ -51,7 +53,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery) {
+    if (!isQuery || isMutation) {
       return null
     }
 

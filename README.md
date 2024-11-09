@@ -1,6 +1,3 @@
-> **`Kubb` is searching for maintainers.**
-
-
 <div style="text-align: center;">
 
 <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/banner.png" alt="logo"  height="auto" />

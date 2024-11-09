@@ -5,6 +5,7 @@ import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
+import { difference } from 'remeda'
 import { Mutation, MutationKey } from '../components'
 import type { PluginReactQuery } from '../types'
 
@@ -18,8 +19,10 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     } = useApp<PluginReactQuery>()
     const { getSchemas, getName, getFile } = useOperationManager()
 
-    const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
-    const isMutation = !isQuery && options.mutation && options.mutation.methods.some((method) => operation.method === method)
+    const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
+    const isMutation =
+      !isQuery &&
+      difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some((method) => operation.method === method)
 
     const importPath = options.mutation ? options.mutation.importPath : '@tanstack/react-query'
 
@@ -41,7 +44,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: getName(operation, { type: 'function' }),
     }
 
     const mutationKey = {
