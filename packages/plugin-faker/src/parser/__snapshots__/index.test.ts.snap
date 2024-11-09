@@ -12,7 +12,7 @@ exports[`faker parse > 'arrayEmpty' 1`] = `"faker.helpers.multiple(() => (undefi
 
 exports[`faker parse > 'arrayRef' 1`] = `"faker.helpers.multiple(() => (Pet())) as any"`;
 
-exports[`faker parse > 'arrayRegex' 1`] = `"faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any"`;
+exports[`faker parse > 'arrayRegex' 1`] = `"faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }}) as any"`;
 
 exports[`faker parse > 'blob' 1`] = `"faker.image.url() as unknown as Blob"`;
 
@@ -52,7 +52,7 @@ exports[`faker parse > 'object' 1`] = `"{"firstName": faker.string.alpha(),"addr
 
 exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
 
-exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.arrayElements([faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$')), faker.string.alpha()]) as any}"`;
+exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }}) as any}"`;
 
 exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toString(),"time": faker.date.anytime().toString(),"nativeDate": faker.date.anytime()}"`;
 

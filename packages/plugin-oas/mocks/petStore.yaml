@@ -100,6 +100,15 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Owner:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
     Pet:
       type: object
       required:

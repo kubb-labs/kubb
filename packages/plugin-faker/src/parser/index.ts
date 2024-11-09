@@ -157,7 +157,7 @@ const fakerKeywordMapper = {
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 
-function schemaKeywordsorter(a: Schema, b: Schema) {
+function schemaKeywordSorter(a: Schema, b: Schema) {
   if (b.keyword === 'null') {
     return -1
   }
@@ -255,7 +255,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
         return `"${name}": ${joinItems(
           schemas
-            .sort(schemaKeywordsorter)
+            .sort(schemaKeywordSorter)
             .map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false }))
             .filter(Boolean),
         )}`

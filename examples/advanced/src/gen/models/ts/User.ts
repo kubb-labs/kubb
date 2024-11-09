@@ -8,6 +8,10 @@ export type User = {
    */
   username?: string
   /**
+   * @type string | undefined, uuid
+   */
+  uuid?: string
+  /**
    * @type string | undefined
    */
   firstName?: string
@@ -16,7 +20,7 @@ export type User = {
    */
   lastName?: string
   /**
-   * @type string | undefined
+   * @type string | undefined, email
    */
   email?: string
   /**

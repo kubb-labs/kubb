@@ -34,9 +34,9 @@ exports[`zod parse > 'enumLiteralBoolean' 1`] = `"z.union([z.literal(true), z.li
 
 exports[`zod parse > 'integer' 1`] = `"z.number().int()"`;
 
-exports[`zod parse > 'matches' 1`] = `".regex(new RegExp('^[A-Z]{2}$'))"`;
+exports[`zod parse > 'matches' 1`] = `"z.string().regex(new RegExp('^[A-Z]{2}$'))"`;
 
-exports[`zod parse > 'matchesReg' 1`] = `".regex(new RegExp('node_modules'))"`;
+exports[`zod parse > 'matchesReg' 1`] = `"z.string().regex(new RegExp('node_modules'))"`;
 
 exports[`zod parse > 'max' 1`] = `".max(2)"`;
 
