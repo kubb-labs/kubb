@@ -21,7 +21,7 @@ export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySW
  * @summary Get user by user name
  * @link /user/:username
  */
-async function getUserByName(
+async function getUserByNameSWR(
   {
     username,
   }: {
@@ -48,7 +48,7 @@ export function getUserByNameQueryOptionsSWR(
 ) {
   return {
     fetcher: async () => {
-      return getUserByName({ username }, config)
+      return getUserByNameSWR({ username }, config)
     },
   }
 }

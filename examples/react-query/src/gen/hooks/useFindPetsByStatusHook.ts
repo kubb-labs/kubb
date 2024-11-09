@@ -13,7 +13,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
+async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })
   return res.data
 }
@@ -24,7 +24,7 @@ export function findPetsByStatusQueryOptionsHook(params?: FindPetsByStatusQueryP
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return findPetsByStatus(params, config)
+      return findPetsByStatusHook(params, config)
     },
   })
 }

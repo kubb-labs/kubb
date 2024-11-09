@@ -16,7 +16,7 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  * @summary Get user by user name
  * @link /user/:username
  */
-async function getUserByName({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
+async function getUserByNameHook({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
   const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({ method: 'GET', url: `/user/${username}`, ...config })
   return res.data
 }
@@ -28,7 +28,7 @@ export function getUserByNameQueryOptionsHook({ username }: GetUserByNamePathPar
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getUserByName({ username }, config)
+      return getUserByNameHook({ username }, config)
     },
   })
 }

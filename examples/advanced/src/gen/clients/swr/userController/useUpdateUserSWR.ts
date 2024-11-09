@@ -13,7 +13,7 @@ export type UpdateUserMutationKeySWR = ReturnType<typeof updateUserMutationKeySW
  * @summary Update user
  * @link /user/:username
  */
-async function updateUser(
+async function updateUserSWR(
   {
     username,
     data,
@@ -55,7 +55,7 @@ export function useUpdateUserSWR(
   return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKeySWR | null, UpdateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return updateUser({ username, data }, config)
+      return updateUserSWR({ username, data }, config)
     },
     mutationOptions,
   )

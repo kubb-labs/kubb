@@ -13,7 +13,7 @@ export type DeletePetMutationKeySWR = ReturnType<typeof deletePetMutationKeySWR>
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-async function deletePet(
+async function deletePetSWR(
   {
     petId,
     headers,
@@ -56,7 +56,7 @@ export function useDeletePetSWR(
   return useSWRMutation<DeletePetMutationResponse, DeletePet400, DeletePetMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
-      return deletePet({ petId, headers }, config)
+      return deletePetSWR({ petId, headers }, config)
     },
     mutationOptions,
   )
