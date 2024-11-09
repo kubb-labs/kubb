@@ -78,8 +78,8 @@ export const typeKeywordMapper = {
     type === 'string' ? factory.keywordTypeNodes.string : factory.createTypeReferenceNode(factory.createIdentifier('Date')),
   time: (type: 'date' | 'string' = 'string') =>
     type === 'string' ? factory.keywordTypeNodes.string : factory.createTypeReferenceNode(factory.createIdentifier('Date')),
-  uuid: undefined,
-  url: undefined,
+  uuid: () => factory.keywordTypeNodes.string,
+  url: () => factory.keywordTypeNodes.string,
   strict: undefined,
   default: undefined,
   and: (nodes?: ts.TypeNode[]) => {
@@ -96,8 +96,8 @@ export const typeKeywordMapper = {
   min: undefined,
   max: undefined,
   optional: undefined,
-  matches: undefined,
-  email: undefined,
+  matches: () => factory.keywordTypeNodes.string,
+  email: () => factory.keywordTypeNodes.string,
   firstName: undefined,
   lastName: undefined,
   password: undefined,

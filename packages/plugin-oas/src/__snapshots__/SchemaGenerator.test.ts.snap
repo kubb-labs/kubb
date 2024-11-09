@@ -1,5 +1,63 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`SchemaGenerator core > 'Owner' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "email": [
+          {
+            "keyword": "email",
+          },
+          {
+            "args": {
+              "format": "email",
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "email",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "id": [
+          {
+            "keyword": "uuid",
+          },
+          {
+            "args": {
+              "format": "uuid",
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "id",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'PageSize' 1`] = `
 [
   {

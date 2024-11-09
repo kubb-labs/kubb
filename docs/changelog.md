@@ -11,6 +11,7 @@ title: Changelog
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 
 ## 3.0.1
+- [`plugin-faker`](/plugins/plugin-faker): Correct faker functions for uuid, pattern and email
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow disabling `useQuery`
 - [`plugin-react-query`](/plugins/plugin-react-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
