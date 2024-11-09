@@ -1,5 +1,20 @@
 # @kubb/plugin-svelte-query
 
+## 3.0.2
+
+### Patch Changes
+
+- [#1382](https://github.com/kubb-labs/kubb/pull/1382) [`154e5d2`](https://github.com/kubb-labs/kubb/commit/154e5d2e00c0aaccb66d64b67a96cde53717cad9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove the requirement of `@kubb/plugin-client`
+
+- Updated dependencies []:
+  - @kubb/core@3.0.2
+  - @kubb/fs@3.0.2
+  - @kubb/oas@3.0.2
+  - @kubb/plugin-oas@3.0.2
+  - @kubb/plugin-ts@3.0.2
+  - @kubb/plugin-zod@3.0.2
+  - @kubb/react@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes
