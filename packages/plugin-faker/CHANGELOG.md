@@ -1,5 +1,19 @@
 # @kubb/plugin-faker
 
+## 3.0.2
+
+### Patch Changes
+
+- [#1384](https://github.com/kubb-labs/kubb/pull/1384) [`c540082`](https://github.com/kubb-labs/kubb/commit/c540082c56329de322d6b5326f8c14a18c588c8d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct faker functions for uuid, pattern and email
+
+- Updated dependencies []:
+  - @kubb/core@3.0.2
+  - @kubb/fs@3.0.2
+  - @kubb/oas@3.0.2
+  - @kubb/plugin-oas@3.0.2
+  - @kubb/plugin-ts@3.0.2
+  - @kubb/react@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes
