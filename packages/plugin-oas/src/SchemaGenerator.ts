@@ -415,6 +415,12 @@ export class SchemaGenerator<
       }
     }
 
+    if (schema.deprecated) {
+      baseItems.push({
+        keyword: schemaKeywords.deprecated,
+      })
+    }
+
     if (schema.description) {
       baseItems.push({
         keyword: schemaKeywords.describe,

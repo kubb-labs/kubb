@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.3
+- [`plugin-ts`](/plugins/plugin-ts/): `@deprecated` jsdoc tag for schemas
+
 ## 3.0.2
 - [`plugin-react-query`](/plugins/plugin-react-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)

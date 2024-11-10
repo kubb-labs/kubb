@@ -814,6 +814,7 @@ components:
         uuid:
           type: string
           format: uuid
+          deprecated: true
         firstName:
           type: string
           example: John

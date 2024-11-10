@@ -3,7 +3,7 @@
   "properties": {
     "id": { "type": "integer", "format": "int64", "example": 10 },
     "username": { "type": "string", "example": "theUser" },
-    "uuid": { "type": "string", "format": "uuid" },
+    "uuid": { "type": "string", "format": "uuid", "deprecated": true },
     "firstName": { "type": "string", "example": "John" },
     "lastName": { "type": "string", "example": "James" },
     "email": { "type": "string", "format": "email", "example": "john@email.com" },

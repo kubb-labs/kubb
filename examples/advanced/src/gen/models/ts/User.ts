@@ -8,6 +8,7 @@ export type User = {
    */
   username?: string
   /**
+   * @deprecated
    * @type string | undefined, uuid
    */
   uuid?: string
