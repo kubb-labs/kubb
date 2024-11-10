@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.3
+
+### Patch Changes
+
+- [`b3540fe`](https://github.com/kubb-labs/kubb/commit/b3540fe67e682bc367c2f39ca7595decab94a6aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `@deprecated` jsdoc tag for schemas
+
+- Updated dependencies []:
+  - @kubb/core@3.0.3
+  - @kubb/fs@3.0.3
+  - @kubb/oas@3.0.3
+  - @kubb/react@3.0.3
+
 ## 3.0.2
 
 ### Patch Changes
