@@ -44,7 +44,6 @@ export function Type({ name, export: canExport, JSDoc, children }: Props): KubbN
         <Text.Space />
       </Text>
       <Text>{children}</Text>
-      <br />
     </>
   )
 }

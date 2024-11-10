@@ -118,6 +118,17 @@ const typeScriptParser = createFileParser({
   },
 })
 
+const tsxParser = createFileParser({
+  async format(source) {
+    const module = await import('@kubb/parser-ts')
+    //4 = tsx
+    return module.format(source, { scriptKind: 4 })
+  },
+  async print(file, options = { extname: '.tsx' }) {
+    return typeScriptParser.print(file, options)
+  },
+})
+
 const defaultParser = createFileParser({
   async format(source) {
     return source
@@ -130,8 +141,8 @@ const defaultParser = createFileParser({
 const parsers: Record<KubbFile.Extname, ParserModule<any>> = {
   '.ts': typeScriptParser,
   '.js': typeScriptParser,
-  '.jsx': typeScriptParser,
-  '.tsx': typeScriptParser,
+  '.jsx': tsxParser,
+  '.tsx': tsxParser,
   '.json': defaultParser,
 }
 

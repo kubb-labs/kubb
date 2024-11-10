@@ -135,7 +135,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     }
 
     files = await processFiles({
-      config: options.config,
+      root: options.config.root,
+      extension: options.config.output.extension,
       dryRun: !options.config.output.write,
       files: pluginManager.fileManager.files,
       logger: pluginManager.logger,

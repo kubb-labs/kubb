@@ -22,7 +22,7 @@ export function useApp<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   const app = useContext(App.Context)
 
   if (!app) {
-    throw new Error('<App/> should be set')
+    throw new Error('<App /> should be set')
   }
 
   return {

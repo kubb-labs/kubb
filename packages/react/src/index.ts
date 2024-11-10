@@ -7,6 +7,7 @@ export { Const } from './components/Const.tsx'
 export { App } from './components/App.tsx'
 export { useFile } from './hooks/useFile.ts'
 export { useApp } from './hooks/useApp.ts'
+export { useLifecycle } from './hooks/useLifecycle.tsx'
 export { createFunctionParams, FunctionParams } from './utils/getFunctionParams.ts'
 
 export { createContext, useContext } from 'react'
