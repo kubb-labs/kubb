@@ -150,6 +150,15 @@ components:
         date:
           type: string
           format: date
+        uuid:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        pattern:
+          type: string
+          pattern: "^[a-zA-Z0-9]{3}$"
         tag:
           type: string
           maxLength: 100
