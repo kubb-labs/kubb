@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.0.4
+
+### Patch Changes
+
+- [#1390](https://github.com/kubb-labs/kubb/pull/1390) [`87f83c1`](https://github.com/kubb-labs/kubb/commit/87f83c191aed01ae4f46da797ba94090778f37a9) Thanks [@aburgel](https://github.com/aburgel)! - fix: Use zod z.coerce instead of z.coercion
+
+- Updated dependencies []:
+  - @kubb/core@3.0.4
+  - @kubb/fs@3.0.4
+  - @kubb/oas@3.0.4
+  - @kubb/parser-ts@3.0.4
+  - @kubb/plugin-oas@3.0.4
+  - @kubb/plugin-ts@3.0.4
+  - @kubb/react@3.0.4
+
 ## 3.0.3
 
 ### Patch Changes
