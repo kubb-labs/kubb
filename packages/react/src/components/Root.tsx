@@ -64,16 +64,20 @@ type RootProps<Meta extends Record<string, unknown> = Record<string, unknown>> =
 }
 
 export function Root<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, onExit, logger, meta, children }: RootProps<Meta>): KubbNode {
-  return (
-    <ErrorBoundary
-      logger={logger}
-      onError={(error) => {
-        onError(error)
-      }}
-    >
-      <RootContext.Provider value={{ meta, exit: onExit }}>{children}</RootContext.Provider>
-    </ErrorBoundary>
-  )
+  try {
+    return (
+      <ErrorBoundary
+        logger={logger}
+        onError={(error) => {
+          onError(error)
+        }}
+      >
+        <RootContext.Provider value={{ meta, exit: onExit }}>{children}</RootContext.Provider>
+      </ErrorBoundary>
+    )
+  } catch (e) {
+    return null
+  }
 }
 
 Root.Context = RootContext
