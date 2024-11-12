@@ -3,9 +3,11 @@ title: Changelog
 ---
 
 # Changelog
+## 3.0.5
+- [`react`](/helpers/react//): Better error logging + wider range for `@kubb/react` peerDependency
 
 ## 3.0.4
-- [`react`](/helpers/react//): Better error logging + wider range for `@kubb/react` peerDependency
+- Upgrade external dependencies
 
 ## 3.0.3
 - [`plugin-ts`](/plugins/plugin-ts/): `@deprecated` jsdoc tag for schemas
