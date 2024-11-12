@@ -1,5 +1,16 @@
 # @kubb/react
 
+## 3.0.5
+
+### Patch Changes
+
+- [#1388](https://github.com/kubb-labs/kubb/pull/1388) [`23b8137`](https://github.com/kubb-labs/kubb/commit/23b8137bd69cbc896046a497dc4cbf7bf23d70ec) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Better error logging + wider range for `@kubb/react` peerDependency
+
+- Updated dependencies []:
+  - @kubb/core@3.0.5
+  - @kubb/fs@3.0.5
+  - @kubb/parser-ts@3.0.5
+
 ## 3.0.4
 
 ### Patch Changes
