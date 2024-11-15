@@ -8,7 +8,7 @@ export type { PetStatusEnum, Pet } from './Pet.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './petController/AddPet.ts'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './petController/DeletePet.ts'
 export type {
-  FindPetsByStatusQueryParams,
+  FindPetsByStatusPathParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQueryResponse,
@@ -111,6 +111,5 @@ export type {
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './Order.ts'
 export { petStatusEnum } from './Pet.ts'
-export { FindPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXExampleEnum } from './petsController/CreatePets.ts'

@@ -56,7 +56,14 @@ export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType,
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export async function getOrderById({ orderId }: GetOrderByIdPathParamsType, config: Partial<RequestConfig> = {}) {
+export async function getOrderById(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParamsType['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<GetOrderByIdQueryResponseType, GetOrderById400Type | GetOrderById404Type, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
@@ -70,7 +77,14 @@ export async function getOrderById({ orderId }: GetOrderByIdPathParamsType, conf
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export async function deleteOrder({ orderId }: DeleteOrderPathParamsType, config: Partial<RequestConfig> = {}) {
+export async function deleteOrder(
+  {
+    orderId,
+  }: {
+    orderId: DeleteOrderPathParamsType['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeleteOrderMutationResponseType, DeleteOrder400Type | DeleteOrder404Type, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,

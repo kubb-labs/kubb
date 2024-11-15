@@ -70,7 +70,6 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      type: typeSchemas.pathParams?.name,
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
@@ -124,7 +123,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsType, pathPa
     .filter(Boolean)
     .join('&& ')
 
-  const enabledText = enabled ? `enabled: !!(${enabled})` : ''
+  const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
   return (
     <File.Source name={name} isExportable isIndexable>

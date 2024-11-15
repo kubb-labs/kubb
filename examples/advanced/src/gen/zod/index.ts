@@ -12,7 +12,7 @@ export type {
   DeletePetMutationResponseSchema,
 } from './petController/deletePetSchema.ts'
 export type {
-  FindPetsByStatusQueryParamsSchema,
+  FindPetsByStatusPathParamsSchema,
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusQueryResponseSchema,
@@ -104,7 +104,7 @@ export { orderSchema } from './orderSchema.ts'
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './petController/addPetSchema.ts'
 export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './petController/deletePetSchema.ts'
 export {
-  findPetsByStatusQueryParamsSchema,
+  findPetsByStatusPathParamsSchema,
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryResponseSchema,

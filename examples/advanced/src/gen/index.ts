@@ -47,7 +47,7 @@ export type {
   DeletePetMutation,
 } from './models/ts/petController/DeletePet.ts'
 export type {
-  FindPetsByStatusQueryParams,
+  FindPetsByStatusPathParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQueryResponse,
@@ -186,7 +186,7 @@ export type {
   DeletePetMutationResponseSchema,
 } from './zod/petController/deletePetSchema.ts'
 export type {
-  FindPetsByStatusQueryParamsSchema,
+  FindPetsByStatusPathParamsSchema,
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusQueryResponseSchema,
@@ -349,7 +349,7 @@ export {
   createDeletePetMutationResponseFaker,
 } from './mocks/petController/createDeletePetFaker.ts'
 export {
-  createFindPetsByStatusQueryParamsFaker,
+  createFindPetsByStatusPathParamsFaker,
   createFindPetsByStatus200Faker,
   createFindPetsByStatus400Faker,
   createFindPetsByStatusQueryResponseFaker,
@@ -440,7 +440,6 @@ export {
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
-export { FindPetsByStatusQueryParamsStatusEnum } from './models/ts/petController/FindPetsByStatus.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './models/ts/petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXExampleEnum } from './models/ts/petsController/CreatePets.ts'
 export { handlers } from './msw/handlers.ts'
@@ -474,7 +473,7 @@ export {
   deletePetMutationResponseSchema,
 } from './zod/petController/deletePetSchema.ts'
 export {
-  findPetsByStatusQueryParamsSchema,
+  findPetsByStatusPathParamsSchema,
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryResponseSchema,

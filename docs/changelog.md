@@ -3,6 +3,10 @@ title: Changelog
 ---
 
 # Changelog
+
+## 3.0.6
+-[`plugin-oas`](/plugins/plugin-oas/): Correct use of variables when a path/params contains _ or -
+
 ## 3.0.5
 - [`react`](/helpers/react//): Better error logging + wider range for `@kubb/react` peerDependency
 

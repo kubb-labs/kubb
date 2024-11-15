@@ -1,7 +1,7 @@
 export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './addPetSchema.ts'
 export type { DeletePetPathParamsSchema, DeletePetHeaderParamsSchema, DeletePet400Schema, DeletePetMutationResponseSchema } from './deletePetSchema.ts'
 export type {
-  FindPetsByStatusQueryParamsSchema,
+  FindPetsByStatusPathParamsSchema,
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusQueryResponseSchema,
@@ -45,7 +45,7 @@ export type {
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
 export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './deletePetSchema.ts'
 export {
-  findPetsByStatusQueryParamsSchema,
+  findPetsByStatusPathParamsSchema,
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryResponseSchema,
