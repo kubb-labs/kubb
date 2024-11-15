@@ -41,7 +41,7 @@ export type InputData = {
 
 type Input = InputPath | InputData
 
-export type BarrelType = 'all' | 'named'
+export type BarrelType = 'all' | 'named' | 'propagate'
 
 /**
  * @private
@@ -85,7 +85,7 @@ export type Config<TInput = Input> = {
      * Specify how `index.ts` files should be created. You can also disable the generation of barrel files here. While each plugin has its own `barrelType` option, this setting controls the creation of the root barrel file, such as` src/gen/index.ts`.
      * @default 'named'
      */
-    barrelType?: BarrelType | false
+    barrelType?: Exclude<BarrelType, 'propagate'> | false
   }
   /**
    * An array of Kubb plugins that will be used in the generation.

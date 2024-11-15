@@ -74,9 +74,6 @@ export default defineConfig(() => {
                 initialPageParam: 0,
               },
               mutation: {
-                key(key) {
-                  return key
-                },
                 importPath: '@tanstack/react-query',
                 methods: ['post', 'put', 'delete'],
               },

@@ -49,11 +49,14 @@ Path to the output folder or file that will contain the generated code.
 
 Define what needs to be exported, here you can also disable the export of barrel files.
 
-|           |                             |
-|----------:|:----------------------------|
-|     Type: | `'all' \| 'named' \| false` |
-| Required: | `false`                     |
-|  Default: | `'named'`                   |
+> [!TIP]
+> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
+
+|           |                                 |
+|----------:|:--------------------------------|
+|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
+| Required: | `false`                         |
+|  Default: | `'named'`                       |
 
 <!--@include: ../core/barrelTypes.md-->
 
