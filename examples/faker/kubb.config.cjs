@@ -30,7 +30,7 @@ module.exports = defineConfig(() => {
         pluginFaker({
           output: {
             path: './tag',
-            barrelType: false,
+            barrelType: 'propagate',
           },
           include: [
             {
