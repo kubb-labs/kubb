@@ -114,7 +114,7 @@
     "@nuxt/schema": "^3.14.159",
     "@types/node": "^20.17.6",
     "rimraf": "^5.0.10",
-    "rollup": "^4.27.0",
+    "rollup": "^4.27.2",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
