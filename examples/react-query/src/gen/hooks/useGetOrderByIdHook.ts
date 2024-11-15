@@ -22,7 +22,14 @@ async function getOrderByIdHook({ orderId }: GetOrderByIdPathParams, config: Par
   return res.data
 }
 
-export function getOrderByIdQueryOptionsHook({ orderId }: GetOrderByIdPathParams, config: Partial<RequestConfig> = {}) {
+export function getOrderByIdQueryOptionsHook(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = getOrderByIdQueryKey({ orderId })
   return queryOptions({
     enabled: !!orderId,
@@ -44,7 +51,11 @@ export function useGetOrderByIdHook<
   TQueryData = GetOrderByIdQueryResponse,
   TQueryKey extends QueryKey = GetOrderByIdQueryKey,
 >(
-  { orderId }: GetOrderByIdPathParams,
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>

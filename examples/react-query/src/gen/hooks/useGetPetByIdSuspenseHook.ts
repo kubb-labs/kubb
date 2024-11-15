@@ -22,7 +22,14 @@ async function getPetByIdHook({ petId }: GetPetByIdPathParams, config: Partial<R
   return res.data
 }
 
-export function getPetByIdSuspenseQueryOptionsHook({ petId }: GetPetByIdPathParams, config: Partial<RequestConfig> = {}) {
+export function getPetByIdSuspenseQueryOptionsHook(
+  {
+    petId,
+  }: {
+    petId: GetPetByIdPathParams['petId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = getPetByIdSuspenseQueryKey({ petId })
   return queryOptions({
     enabled: !!petId,
@@ -44,7 +51,11 @@ export function useGetPetByIdSuspenseHook<
   TQueryData = GetPetByIdQueryResponse,
   TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey,
 >(
-  { petId }: GetPetByIdPathParams,
+  {
+    petId,
+  }: {
+    petId: GetPetByIdPathParams['petId']
+  },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, TData, TQueryKey>>
     client?: Partial<RequestConfig>

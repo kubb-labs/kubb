@@ -21,7 +21,14 @@ async function getUserByNameHook({ username }: GetUserByNamePathParams, config: 
   return res.data
 }
 
-export function getUserByNameQueryOptionsHook({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
+export function getUserByNameQueryOptionsHook(
+  {
+    username,
+  }: {
+    username: GetUserByNamePathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions({
     enabled: !!username,
@@ -42,7 +49,11 @@ export function useGetUserByNameHook<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  { username }: GetUserByNamePathParams,
+  {
+    username,
+  }: {
+    username: GetUserByNamePathParams['username']
+  },
   options: {
     query?: Partial<QueryObserverOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>

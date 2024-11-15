@@ -12,7 +12,7 @@ export const operations = {
     method: 'post',
   },
   findPetsByStatus: {
-    path: '/pet/findByStatus',
+    path: '/pet/findByStatus/:step_id',
     method: 'get',
   },
   findPetsByTags: {
