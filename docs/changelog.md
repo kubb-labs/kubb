@@ -6,6 +6,7 @@ title: Changelog
 
 ## 3.0.6
 -[`plugin-oas`](/plugins/plugin-oas/): Correct use of variables when a path/params contains _ or -
+-[`core`](/plugins/core): Main index.ts not being created using `barrelType: 'all'`
 
 ## 3.0.5
 - [`react`](/helpers/react//): Better error logging + wider range for `@kubb/react` peerDependency

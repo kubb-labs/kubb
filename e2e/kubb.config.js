@@ -74,13 +74,13 @@ const baseConfig = {
         methods: ['post', 'put', 'delete'],
       },
     }),
-    pluginSwr({
-      output: {
-        path: './clients/swr',
-        barrelType: false,
-      },
-      group: { type: 'tag' },
-    }),
+    // pluginSwr({
+    //   output: {
+    //     path: './clients/swr',
+    //     barrelType: false,
+    //   },
+    //   group: { type: 'tag' },
+    // }),
     pluginClient({
       output: {
         path: './clients/axios',

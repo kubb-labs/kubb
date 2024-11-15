@@ -110,10 +110,6 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
               })
               const pluginOptions = (plugin?.options as { output?: Output }) ?? {}
 
-              if (pluginOptions.output?.barrelType === false) {
-                return undefined
-              }
-
               if (FileManager.getMode(pluginOptions.output?.path) === 'single') {
                 return undefined
               }
