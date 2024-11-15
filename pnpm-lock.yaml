@@ -1718,8 +1718,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       ws:
-        specifier: 8.15.0
-        version: 8.15.0(bufferutil@4.0.8)
+        specifier: ^8.15.0
+        version: 8.18.0(bufferutil@4.0.8)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
