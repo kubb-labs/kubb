@@ -8,7 +8,14 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @summary Delete user
  * @link /user/:username
  */
-export async function deleteUser({ username }: DeleteUserPathParams, config: Partial<RequestConfig> = {}) {
+export async function deleteUser(
+  {
+    username,
+  }: {
+    username: DeleteUserPathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
   return res.data
 }

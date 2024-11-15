@@ -16,12 +16,26 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  * @summary Get user by user name
  * @link /user/:username
  */
-async function getUserByNameHook({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
+async function getUserByNameHook(
+  {
+    username,
+  }: {
+    username: GetUserByNamePathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({ method: 'GET', url: `/user/${username}`, ...config })
   return res.data
 }
 
-export function getUserByNameQueryOptionsHook({ username }: GetUserByNamePathParams, config: Partial<RequestConfig> = {}) {
+export function getUserByNameQueryOptionsHook(
+  {
+    username,
+  }: {
+    username: GetUserByNamePathParams['username']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions({
     enabled: !!username,
@@ -42,7 +56,11 @@ export function useGetUserByNameHook<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  { username }: GetUserByNamePathParams,
+  {
+    username,
+  }: {
+    username: GetUserByNamePathParams['username']
+  },
   options: {
     query?: Partial<QueryObserverOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>

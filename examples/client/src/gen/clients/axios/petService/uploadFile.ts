@@ -13,7 +13,11 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * @link /pet/:petId/uploadImage
  */
 export async function uploadFile(
-  { petId }: UploadFilePathParams,
+  {
+    petId,
+  }: {
+    petId: UploadFilePathParams['petId']
+  },
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},

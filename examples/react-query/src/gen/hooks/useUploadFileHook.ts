@@ -13,7 +13,11 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  * @link /pet/:petId/uploadImage
  */
 async function uploadFileHook(
-  { petId }: UploadFilePathParams,
+  {
+    petId,
+  }: {
+    petId: UploadFilePathParams['petId']
+  },
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},

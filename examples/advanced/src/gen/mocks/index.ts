@@ -21,7 +21,7 @@ export {
   createDeletePetMutationResponseFaker,
 } from './petController/createDeletePetFaker.ts'
 export {
-  createFindPetsByStatusQueryParamsFaker,
+  createFindPetsByStatusPathParamsFaker,
   createFindPetsByStatus200Faker,
   createFindPetsByStatus400Faker,
   createFindPetsByStatusQueryResponseFaker,

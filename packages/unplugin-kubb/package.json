@@ -103,7 +103,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "unplugin": "^1.15.0"
+    "unplugin": "^1.16.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -114,7 +114,7 @@
     "@nuxt/schema": "^3.14.159",
     "@types/node": "^20.17.6",
     "rimraf": "^5.0.10",
-    "rollup": "^4.25.0",
+    "rollup": "^4.27.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",

@@ -79,7 +79,6 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, qu
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true }),
-          type: typeSchemas.pathParams?.name,
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -164,7 +163,7 @@ export function Query({
        return useSWR<${generics.join(', ')}>(
         shouldFetch ? queryKey : null,
         {
-          ...${queryOptionsName}(${queryOptionsParams.toCall()})
+          ...${queryOptionsName}(${queryOptionsParams.toCall()}),
           ...queryOptions
         }
        )

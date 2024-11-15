@@ -17,12 +17,26 @@ export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspens
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-async function getOrderByIdHook({ orderId }: GetOrderByIdPathParams, config: Partial<RequestConfig> = {}) {
+async function getOrderByIdHook(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
   return res.data
 }
 
-export function getOrderByIdSuspenseQueryOptionsHook({ orderId }: GetOrderByIdPathParams, config: Partial<RequestConfig> = {}) {
+export function getOrderByIdSuspenseQueryOptionsHook(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
   return queryOptions({
     enabled: !!orderId,
@@ -44,7 +58,11 @@ export function useGetOrderByIdSuspenseHook<
   TQueryData = GetOrderByIdQueryResponse,
   TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey,
 >(
-  { orderId }: GetOrderByIdPathParams,
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryKey>>
     client?: Partial<RequestConfig>

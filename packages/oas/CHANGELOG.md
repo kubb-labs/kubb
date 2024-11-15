@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 3.0.6
+
+### Patch Changes
+
+- [#1401](https://github.com/kubb-labs/kubb/pull/1401) [`b634bc9`](https://github.com/kubb-labs/kubb/commit/b634bc905fc660e270908d6ee09b01b7f3811bf5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of variables when a path/params contains \_ or -
+
 ## 3.0.5
 
 ## 3.0.4

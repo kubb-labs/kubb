@@ -135,7 +135,7 @@ export class FileManager {
   }
 
   async getBarrelFiles({ type, files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
-    if (!type) {
+    if (!type || type === 'propagate') {
       return []
     }
 

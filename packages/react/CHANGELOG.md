@@ -1,5 +1,16 @@
 # @kubb/react
 
+## 3.0.6
+
+### Patch Changes
+
+- [#1405](https://github.com/kubb-labs/kubb/pull/1405) [`fa04933`](https://github.com/kubb-labs/kubb/commit/fa049330f3c41fd148169b6483ca1bdaa223c715) Thanks [@aburgel](https://github.com/aburgel)! - fix: Loosen up ws dependency version constraint
+
+- Updated dependencies [[`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e), [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e)]:
+  - @kubb/core@3.0.6
+  - @kubb/fs@3.0.6
+  - @kubb/parser-ts@3.0.6
+
 ## 3.0.5
 
 ### Patch Changes

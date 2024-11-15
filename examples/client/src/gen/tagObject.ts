@@ -70,7 +70,14 @@ placeOrderPatch.queryParams = {} as never
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export async function getOrderById({ orderId }: GetOrderByIdPathParams, config: Partial<RequestConfig> = {}) {
+export async function getOrderById(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
   return res
 }
@@ -88,7 +95,14 @@ getOrderById.queryParams = {} as never
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export async function deleteOrder({ orderId }: DeleteOrderPathParams, config: Partial<RequestConfig> = {}) {
+export async function deleteOrder(
+  {
+    orderId,
+  }: {
+    orderId: DeleteOrderPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,

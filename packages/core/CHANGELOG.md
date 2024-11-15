@@ -1,5 +1,18 @@
 # @kubb/core
 
+## 3.0.6
+
+### Patch Changes
+
+- [#1404](https://github.com/kubb-labs/kubb/pull/1404) [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Main index.ts not being created using barrelType: 'all'
+
+- [#1404](https://github.com/kubb-labs/kubb/pull/1404) [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `barrelType: 'propagate'` to make sure the core can still generate barrel files, even if the plugin will not have barrel files
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.6
+  - @kubb/parser-ts@3.0.6
+  - @kubb/types@3.0.6
+
 ## 3.0.5
 
 ### Patch Changes
