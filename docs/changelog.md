@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.8
+- [`plugin-zod`](/plugins/plugin-zod): Blob as `z.instanceof(File)` instead of `string`
+
 ## 3.0.7
 - [`core`](/plugins/core): Include single file exports in the main index.ts file.
 

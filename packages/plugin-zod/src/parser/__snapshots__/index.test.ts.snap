@@ -14,7 +14,7 @@ exports[`zod parse > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet))"`;
 
 exports[`zod parse > 'arrayRegex' 1`] = `"z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)"`;
 
-exports[`zod parse > 'blob' 1`] = `"z.string()"`;
+exports[`zod parse > 'blob' 1`] = `"z.instanceof(File)"`;
 
 exports[`zod parse > 'boolean' 1`] = `"z.boolean()"`;
 

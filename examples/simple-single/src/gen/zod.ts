@@ -195,7 +195,7 @@ export const uploadFileQueryParamsSchema = z.object({ additionalMetadata: z.stri
  */
 export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
-export const uploadFileMutationRequestSchema = z.string()
+export const uploadFileMutationRequestSchema = z.instanceof(File)
 
 export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
 
