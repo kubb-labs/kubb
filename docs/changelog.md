@@ -4,9 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.0.7
+- [`core`](/plugins/core): Include single file exports in the main index.ts file.
+
 ## 3.0.6
 - [`plugin-oas`](/plugins/plugin-oas/): Correct use of variables when a path/params contains _ or -
-- [`core`](/plugins/core): Main index.ts not being created using `barrelType: 'all'`
 - [`core`](/plugins/core): `barrelType: 'propagate'` to make sure the core can still generate barrel files, even if the plugin will not have barrel files
 
 ## 3.0.5
