@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`569cff0`](https://github.com/kubb-labs/kubb/commit/569cff0a6402830870c3aab7210acdb123b17c48)]:
+  - @kubb/plugin-zod@3.0.8
+  - @kubb/core@3.0.8
+  - @kubb/fs@3.0.8
+  - @kubb/oas@3.0.8
+  - @kubb/plugin-oas@3.0.8
+  - @kubb/plugin-ts@3.0.8
+  - @kubb/react@3.0.8
+
 ## 3.0.7
 
 ### Patch Changes
