@@ -53,13 +53,15 @@ export default defineConfig([
     },
     output: {
       path: './src/gen2',
+      barrelType: false,
       clean: true,
     },
     plugins: [
-      pluginOas({ validate: false, output: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginZod({
         output: {
           path: 'index.ts',
+          barrelType: false,
         },
         operations: false,
       }),
