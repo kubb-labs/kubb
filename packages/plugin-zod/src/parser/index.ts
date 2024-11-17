@@ -104,7 +104,7 @@ const zodKeywordMapper = {
   readOnly: undefined,
   writeOnly: undefined,
   ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
-  blob: () => 'z.string()',
+  blob: () => 'z.instanceof(File)',
   deprecated: undefined,
   example: undefined,
   schema: undefined,
