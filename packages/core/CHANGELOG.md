@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.0.7
+
+### Patch Changes
+
+- [`ca3b862`](https://github.com/kubb-labs/kubb/commit/ca3b8624acd5a58b2a206362c943f549d7d778b3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Include single file exports in the main index.ts file.
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.7
+  - @kubb/parser-ts@3.0.7
+  - @kubb/types@3.0.7
+
 ## 3.0.6
 
 ### Patch Changes
