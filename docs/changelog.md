@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.10
+- [`plugin-faker`](/plugins/plugin-faker): `data` should have a higher priority than faker defaults generation
+
 ## 3.0.9
 - [`plugin-oas`](/plugins/plugin-oas): Allow nullable with default null option
 - [`core`](/plugins/core): Correct use of `barrelType` for single files

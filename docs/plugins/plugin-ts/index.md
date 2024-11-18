@@ -150,11 +150,11 @@ type PetType = 'dog' | 'cat'
 ### enumSuffix
 Set a suffix for the generated enums.
 
-|           |                                     |
-|----------:|:------------------------------------|
-|     Type: | `string`                            |
-| Required: | `false`                             |
-|  Default: | `''` |
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `false`  |
+|  Default: | `'enum'` |
 
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
