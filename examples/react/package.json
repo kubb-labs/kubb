@@ -1,0 +1,42 @@
+{
+  "name": "react-pet-store",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "React PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-labs/kubb.git",
+    "directory": "packages/examples/react"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "scripts": {
+    "build": "",
+    "clean": "npx rimraf ./dist",
+    "example1": "bun ./example1/index.tsx",
+    "example2": "bun ./example2/index.tsx",
+    "example3": "bun ./example3/index.tsx",
+    "example4": "bun ./example4/index.tsx",
+    "example5": "bun ./example5/index.tsx",
+    "start": "tsup --watch",
+    "test": "vitest",
+    "typecheck": ""
+  },
+  "dependencies": {
+    "@kubb/react": "workspace:*"
+  },
+  "devDependencies": {
+    "@kubb/config-ts": "workspace:*",
+    "@types/react": "^18.3.12",
+    "react": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "pnpm@9.4.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=8.15.0"
+  }
+}

@@ -23,5 +23,5 @@ export function createLoginUser400Faker() {
 }
 
 export function createLoginUserQueryResponseFaker(data?: Partial<LoginUserQueryResponse>) {
-  return faker.helpers.arrayElement<any>([createLoginUser200Faker()]) || data
+  return data || faker.helpers.arrayElement<any>([createLoginUser200Faker()])
 }

@@ -4,6 +4,32 @@ title: Changelog
 
 # Changelog
 
+## 3.0.10
+- [`plugin-faker`](/plugins/plugin-faker): `data` should have a higher priority than faker defaults generation
+
+## 3.0.9
+- [`plugin-oas`](/plugins/plugin-oas): Allow nullable with default null option
+- [`core`](/plugins/core): Correct use of `barrelType` for single files
+
+## 3.0.8
+- [`plugin-zod`](/plugins/plugin-zod): Blob as `z.instanceof(File)` instead of `string`
+
+## 3.0.7
+- [`core`](/plugins/core): Include single file exports in the main index.ts file.
+
+## 3.0.6
+- [`plugin-oas`](/plugins/plugin-oas/): Correct use of variables when a path/params contains _ or -
+- [`core`](/plugins/core): `barrelType: 'propagate'` to make sure the core can still generate barrel files, even if the plugin will not have barrel files
+
+## 3.0.5
+- [`react`](/helpers/react//): Better error logging + wider range for `@kubb/react` peerDependency
+
+## 3.0.4
+- Upgrade external dependencies
+
+## 3.0.3
+- [`plugin-ts`](/plugins/plugin-ts/): `@deprecated` jsdoc tag for schemas
+
 ## 3.0.2
 - [`plugin-react-query`](/plugins/plugin-react-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
@@ -11,6 +37,7 @@ title: Changelog
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 
 ## 3.0.1
+- [`plugin-faker`](/plugins/plugin-faker): Correct faker functions for uuid, pattern and email
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow disabling `useQuery`
 - [`plugin-react-query`](/plugins/plugin-react-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `InfiniteData` TypeScript helper for infiniteQueries

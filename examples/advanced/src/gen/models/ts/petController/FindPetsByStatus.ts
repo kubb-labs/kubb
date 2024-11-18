@@ -1,18 +1,10 @@
 import type { Pet } from '../Pet.ts'
 
-export enum FindPetsByStatusQueryParamsStatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
-}
-
-export type FindPetsByStatusQueryParams = {
+export type FindPetsByStatusPathParams = {
   /**
-   * @description Status values that need to be considered for filter
-   * @default "available"
-   * @type string | undefined
+   * @type string
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum
+  step_id: string
 }
 
 /**
@@ -29,6 +21,6 @@ export type FindPetsByStatusQueryResponse = FindPetsByStatus200
 
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
-  QueryParams: FindPetsByStatusQueryParams
+  PathParams: FindPetsByStatusPathParams
   Errors: FindPetsByStatus400
 }

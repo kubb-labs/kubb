@@ -6,9 +6,9 @@ import { KubbRenderer } from './kubbRenderer.ts'
 import { type RendererResult, renderer } from './renderer.ts'
 import { throttle } from './utils/throttle.ts'
 
+import { FileManager, processFiles } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type * as KubbFile from '@kubb/fs/types'
-import autoBind from 'auto-bind'
 import type { ReactNode } from 'react'
 import * as React from 'react'
 import type { RootContextProps } from './components/Root.tsx'
@@ -24,10 +24,15 @@ export type ReactTemplateOptions = {
   stdin?: NodeJS.ReadStream
   stderr?: NodeJS.WriteStream
   logger?: Logger
+  /**
+   * Set this to true to always see the result of the render in the console(line per render)
+   */
   debug?: boolean
 }
 
-export class ReactTemplate<Context extends RootContextProps = RootContextProps> {
+type Context = Omit<RootContextProps, 'exit'>
+
+export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string, unknown>> {
   readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
@@ -38,7 +43,6 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
   readonly #rootNode: DOMElement
 
   constructor(options: ReactTemplateOptions) {
-    autoBind(this)
     this.#options = options
 
     this.#rootNode = createNode('kubb-root')
@@ -47,6 +51,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
 
     // Ignore last render after unmounting a tree to prevent empty output before exit
     this.#isUnmounted = false
+    this.unmount.bind(this)
 
     // Store last output to only rerender when needed
     this.#lastRendererResult = {
@@ -54,6 +59,20 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
       files: [],
       imports: [],
       output: '',
+    }
+    const originalError = console.error
+    //@ts-ignore
+    console.error = (data: string | Error) => {
+      if (typeof data === 'string') {
+        if (data.match(/React will try to recreat/gi)) {
+          return
+        }
+        if (data.match(/The above error occurred in the <KubbErrorBoundary/gi)) {
+          return
+        }
+      }
+
+      originalError(data)
     }
 
     this.#container = KubbRenderer.createContainer(
@@ -74,7 +93,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
         this.unmount(code)
       },
       { alwaysLast: false },
-    )
+    ).bind(this)
 
     KubbRenderer.injectIntoDevTools({
       bundleType: 0, // 0 for PROD, 1 for DEV
@@ -103,10 +122,14 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     const result = renderer(this.#rootNode)
 
     if (this.#options.debug) {
-      console.log('Render', result.output)
+      console.log(result.output)
     }
 
-    this.#options.stdout?.write(result.output)
+    if (this.#options.stdout) {
+      this.#options.stdout.clearLine(0)
+      this.#options.stdout.cursorTo(0)
+      this.#options.stdout.write(result.output)
+    }
 
     this.#lastRendererResult = result
   }
@@ -114,6 +137,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
     if (process.env.NODE_ENV === 'test') {
       console.warn(error)
     }
+
     throw error
   }
   onExit(error?: Error): void {
@@ -122,7 +146,7 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
 
   render(node: ReactNode, context?: Context): void {
     const element = (
-      <Root logger={this.#options.logger} meta={context?.meta || {}} onExit={this.onExit} onError={this.onError}>
+      <Root logger={this.#options.logger} meta={context?.meta || {}} onExit={this.onExit.bind(this)} onError={this.onError.bind(this)}>
         {node}
       </Root>
     )
@@ -140,6 +164,10 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
       return
     }
 
+    if (this.#options.debug) {
+      console.log('Unmount', error)
+    }
+
     this.onRender()
     this.unsubscribeExit()
 
@@ -147,18 +175,30 @@ export class ReactTemplate<Context extends RootContextProps = RootContextProps> 
 
     KubbRenderer.updateContainer(null, this.#container, null, noop)
 
-    if (error instanceof Error) {
-      if (this.#options.debug) {
-        console.log('Unmount', error)
-      }
-
-      this.rejectExitPromise(error)
-    } else {
-      if (this.#options.debug) {
-        console.log('Unmount', error)
-      }
-      this.resolveExitPromise(this.#lastRendererResult)
+    if (this.#options.stdout) {
+      this.#options.stdout.clearLine(0)
+      this.#options.stdout.cursorTo(0)
+      this.#options.stdout.write(`${this.#lastRendererResult.output}\n`)
     }
+
+    if (error instanceof Error) {
+      this.rejectExitPromise(error)
+
+      return
+    }
+
+    this.resolveExitPromise(this.#lastRendererResult)
+  }
+
+  async write() {
+    const fileManager = new FileManager()
+
+    await fileManager.add(...this.#lastRendererResult.files)
+
+    return processFiles({
+      root: process.cwd(),
+      files: fileManager.files,
+    })
   }
 
   async waitUntilExit(): Promise<RendererResult> {

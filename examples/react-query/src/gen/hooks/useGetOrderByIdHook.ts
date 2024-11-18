@@ -17,12 +17,26 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-async function getOrderByIdHook({ orderId }: GetOrderByIdPathParams, config: Partial<RequestConfig> = {}) {
+async function getOrderByIdHook(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
   return res.data
 }
 
-export function getOrderByIdQueryOptionsHook({ orderId }: GetOrderByIdPathParams, config: Partial<RequestConfig> = {}) {
+export function getOrderByIdQueryOptionsHook(
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
+  config: Partial<RequestConfig> = {},
+) {
   const queryKey = getOrderByIdQueryKey({ orderId })
   return queryOptions({
     enabled: !!orderId,
@@ -44,7 +58,11 @@ export function useGetOrderByIdHook<
   TQueryData = GetOrderByIdQueryResponse,
   TQueryKey extends QueryKey = GetOrderByIdQueryKey,
 >(
-  { orderId }: GetOrderByIdPathParams,
+  {
+    orderId,
+  }: {
+    orderId: GetOrderByIdPathParams['orderId']
+  },
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>

@@ -1,5 +1,29 @@
 # @kubb/oas
 
+## 3.0.9
+
+### Patch Changes
+
+- [`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Allow nullable with default null option
+
+## 3.0.8
+
+## 3.0.7
+
+## 3.0.6
+
+### Patch Changes
+
+- [#1401](https://github.com/kubb-labs/kubb/pull/1401) [`b634bc9`](https://github.com/kubb-labs/kubb/commit/b634bc905fc660e270908d6ee09b01b7f3811bf5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of variables when a path/params contains \_ or -
+
+## 3.0.5
+
+## 3.0.4
+
+## 3.0.3
+
+## 3.0.2
+
 ## 3.0.1
 
 ## 3.0.0

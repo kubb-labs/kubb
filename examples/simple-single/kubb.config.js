@@ -15,7 +15,7 @@ export default defineConfig([
     output: {
       path: './src/gen',
       clean: true,
-      barrelType: false,
+      barrelType: 'all',
     },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
@@ -46,6 +46,33 @@ export default defineConfig([
     ],
   },
   {
+    name: 'test',
+    root: '.',
+    input: {
+      path: 'https://raw.githubusercontent.com/burt202/kubb-test/refs/heads/master/docs/main.yml',
+    },
+    output: {
+      path: 'src/gen3/',
+      barrelType: 'all',
+      clean: true,
+    },
+    plugins: [
+      pluginOas({
+        generators: [],
+      }),
+      pluginTs({
+        output: {
+          path: './types.ts',
+          barrelType: 'propagate',
+        },
+        enumSuffix: '',
+      }),
+    ],
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+    },
+  },
+  {
     name: 'openapi3',
     root: '.',
     input: {
@@ -53,13 +80,15 @@ export default defineConfig([
     },
     output: {
       path: './src/gen2',
+      barrelType: false,
       clean: true,
     },
     plugins: [
-      pluginOas({ validate: false, output: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginZod({
         output: {
           path: 'index.ts',
+          barrelType: false,
         },
         operations: false,
       }),

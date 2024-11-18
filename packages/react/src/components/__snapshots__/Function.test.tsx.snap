@@ -22,15 +22,13 @@ exports[`<Function/> > render ArrowFunction SingleLine 1`] = `
 exports[`<Function/> > render Function 1`] = `
 "export async function getData() {
   return 2;
-}
-"
+}"
 `;
 
 exports[`<Function/> > render Function Generics 1`] = `
 "export async function getData<TData>(): Promise<number> {
   return 2;
-}
-"
+}"
 `;
 
 exports[`<Function/> > render Function with comments 1`] = `
@@ -39,16 +37,13 @@ exports[`<Function/> > render Function with comments 1`] = `
  */
 export async function getData() {
   return 2;
-}
-"
+}"
 `;
 
 exports[`<Function/> > render multiple functions 1`] = `
 "export async function getData<TData>(): Promise<number> {
   2;
-}
-export async function getData<TData>(): Promise<number> {
+}export async function getData<TData>(): Promise<number> {
   3;
-}
-"
+}"
 `;

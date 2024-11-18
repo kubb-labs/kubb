@@ -309,6 +309,10 @@ const examplesSidebar = [
     text: 'Generators <span class="new">new</span>',
     link: '/examples/generators',
   },
+  {
+    text: 'React <span class="new">new</span>',
+    link: '/examples/react',
+  },
 ]
 
 const blogSidebar = [

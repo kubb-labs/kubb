@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-solid-query",
-  "version": "3.0.1",
+  "version": "3.0.9",
   "description": "Generator solid-query hooks",
   "keywords": [
     "faker",
@@ -80,7 +80,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "remeda": "^2.17.0"
+    "remeda": "^2.17.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
@@ -91,7 +91,7 @@
     "typescript": "^5.6.3"
   },
   "peerDependencies": {
-    "@kubb/react": "workspace:*"
+    "@kubb/react": "^3.0.0"
   },
   "engines": {
     "node": ">=20"

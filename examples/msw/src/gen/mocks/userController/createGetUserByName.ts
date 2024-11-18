@@ -36,5 +36,5 @@ export function createGetUserByName404() {
 
 export function createGetUserByNameQueryResponse(data?: Partial<GetUserByNameQueryResponse>) {
   faker.seed([220])
-  return faker.helpers.arrayElement<any>([createGetUserByName200()]) || data
+  return data || faker.helpers.arrayElement<any>([createGetUserByName200()])
 }

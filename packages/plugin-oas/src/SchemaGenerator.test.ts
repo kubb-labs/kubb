@@ -17,9 +17,29 @@ describe('SchemaGenerator core', async () => {
       },
     },
     {
+      name: 'Owner',
+      input: '../mocks/petStore.yaml',
+      path: 'Owner',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
+    {
       name: 'Pets',
       input: '../mocks/petStore.yaml',
       path: 'Pets',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
+    {
+      name: 'Toy',
+      input: '../mocks/petStore.yaml',
+      path: 'Toy',
       options: {
         dateType: 'date',
         transformers: {},

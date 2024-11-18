@@ -48,7 +48,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   }
 
   if (canOverride && fakerText.startsWith('faker.helpers.arrayElement')) {
-    fakerTextWithOverride = `${fakerText} || data`
+    fakerTextWithOverride = `data || ${fakerText}`
   }
 
   if ((canOverride && fakerText.startsWith('faker.helpers.arrayElements')) || fakerText.startsWith('faker.helpers.multiple')) {

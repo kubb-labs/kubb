@@ -253,7 +253,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.array,
       args: {
-        items: [{ keyword: schemaKeywords.matches, args: '^[a-zA-Z0-9]{1,13}$' }, { keyword: schemaKeywords.string }],
+        items: [{ keyword: schemaKeywords.matches, args: '^[a-zA-Z0-9]{1,13}$' }],
         min: 3,
         max: 10,
       },
@@ -331,7 +331,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
             {
               keyword: schemaKeywords.array,
               args: {
-                items: [{ keyword: schemaKeywords.matches, args: '^[a-zA-Z0-9]{1,13}$' }, { keyword: schemaKeywords.string }],
+                items: [{ keyword: schemaKeywords.matches, args: '^[a-zA-Z0-9]{1,13}$' }],
                 min: 3,
                 max: 10,
               },

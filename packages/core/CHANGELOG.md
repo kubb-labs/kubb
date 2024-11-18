@@ -1,5 +1,85 @@
 # @kubb/core
 
+## 3.0.9
+
+### Patch Changes
+
+- [`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of `barrelType` for single files
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.9
+  - @kubb/parser-ts@3.0.9
+  - @kubb/types@3.0.9
+
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.8
+  - @kubb/parser-ts@3.0.8
+  - @kubb/types@3.0.8
+
+## 3.0.7
+
+### Patch Changes
+
+- [`ca3b862`](https://github.com/kubb-labs/kubb/commit/ca3b8624acd5a58b2a206362c943f549d7d778b3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Include single file exports in the main index.ts file.
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.7
+  - @kubb/parser-ts@3.0.7
+  - @kubb/types@3.0.7
+
+## 3.0.6
+
+### Patch Changes
+
+- [#1404](https://github.com/kubb-labs/kubb/pull/1404) [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Main index.ts not being created using barrelType: 'all'
+
+- [#1404](https://github.com/kubb-labs/kubb/pull/1404) [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `barrelType: 'propagate'` to make sure the core can still generate barrel files, even if the plugin will not have barrel files
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.6
+  - @kubb/parser-ts@3.0.6
+  - @kubb/types@3.0.6
+
+## 3.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.5
+  - @kubb/parser-ts@3.0.5
+  - @kubb/types@3.0.5
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.4
+  - @kubb/parser-ts@3.0.4
+  - @kubb/types@3.0.4
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.3
+  - @kubb/parser-ts@3.0.3
+  - @kubb/types@3.0.3
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.2
+  - @kubb/parser-ts@3.0.2
+  - @kubb/types@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes

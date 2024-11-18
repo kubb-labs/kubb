@@ -22,5 +22,5 @@ export function listPetsError() {
 }
 
  export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>) {
-    return faker.helpers.arrayElement<any>([listPets200()]) || data;
+    return data || faker.helpers.arrayElement<any>([listPets200()]);
 }

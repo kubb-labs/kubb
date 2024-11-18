@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "3.0.1",
+  "version": "3.0.9",
   "description": "Generator plugin-ts",
   "keywords": [
     "zod",
@@ -85,7 +85,7 @@
     "typescript": "^5.6.3"
   },
   "peerDependencies": {
-    "@kubb/react": "workspace:*"
+    "@kubb/react": "^3.0.0"
   },
   "engines": {
     "node": ">=20"

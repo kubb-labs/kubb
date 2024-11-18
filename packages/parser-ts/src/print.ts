@@ -1,12 +1,13 @@
-import ts from 'typescript'
+import ts, { LanguageVariant } from 'typescript'
 
 import type { PrinterOptions } from 'typescript'
 
 const { factory } = ts
 
-type Options = {
+export type PrintOptions = {
   source?: string
   baseName?: string
+  scriptKind?: ts.ScriptKind
 } & PrinterOptions
 
 /**
@@ -28,9 +29,9 @@ const restoreNewLines = (code: string) => code.replace(/\/\* :newline: \*\//g, '
  */
 export function print(
   elements: Array<ts.Node>,
-  { source = '', baseName = 'print.ts', removeComments, noEmitHelpers, newLine = ts.NewLineKind.LineFeed }: Options = {},
+  { source = '', baseName = 'print.ts', removeComments, noEmitHelpers, newLine = ts.NewLineKind.LineFeed, scriptKind = ts.ScriptKind.TS }: PrintOptions = {},
 ): string {
-  const sourceFile = ts.createSourceFile(baseName, escapeNewLines(source), ts.ScriptTarget.ES2022, false, ts.ScriptKind.TS)
+  const sourceFile = ts.createSourceFile(baseName, escapeNewLines(source), ts.ScriptTarget.ES2022, false, scriptKind)
   const printer = ts.createPrinter({
     omitTrailingSemicolon: true,
     newLine,

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "3.0.1",
+  "version": "3.0.9",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -94,7 +94,7 @@
     "natural-orderby": "^4.0.0",
     "object-hash": "^3.0.0",
     "p-queue": "^8.0.1",
-    "remeda": "^2.17.0",
+    "remeda": "^2.17.3",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.3"
   },

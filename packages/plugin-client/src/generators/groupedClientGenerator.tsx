@@ -11,7 +11,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
   Operations({ operations }) {
     const {
       pluginManager,
-      plugin: { options },
+      plugin: { options, key: pluginKey },
     } = useApp<PluginClient>()
     const { getName, getFile } = useOperationManager()
 
@@ -28,7 +28,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           const file = pluginManager.getFile({
             name,
             extname: '.ts',
-            pluginKey: [pluginClientName],
+            pluginKey,
             options: { tag },
           })
 

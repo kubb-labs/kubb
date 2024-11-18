@@ -52,7 +52,7 @@ const { error, files, pluginManager } = await build({
 for (const file of files) {
   const source = await getSource(file)
 
-  await write(file, file.path)
+  await write(file.path, file)
 }
 ```
 

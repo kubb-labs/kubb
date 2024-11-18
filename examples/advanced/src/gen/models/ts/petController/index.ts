@@ -1,7 +1,7 @@
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.ts'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.ts'
 export type {
-  FindPetsByStatusQueryParams,
+  FindPetsByStatusPathParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQueryResponse,
@@ -42,5 +42,4 @@ export type {
   UploadFileMutationResponse,
   UploadFileMutation,
 } from './UploadFile.ts'
-export { FindPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
 export { findPetsByTagsHeaderParamsXExampleEnum } from './FindPetsByTags.ts'

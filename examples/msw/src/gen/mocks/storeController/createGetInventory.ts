@@ -14,5 +14,5 @@ export function createGetInventory200(data?: Partial<GetInventory200>) {
 
 export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>) {
   faker.seed([220])
-  return faker.helpers.arrayElement<any>([createGetInventory200()]) || data
+  return data || faker.helpers.arrayElement<any>([createGetInventory200()])
 }

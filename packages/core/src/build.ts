@@ -1,6 +1,6 @@
 import { clean, read } from '@kubb/fs'
 import type * as KubbFile from '@kubb/fs/types'
-import { FileManager, processFiles } from './FileManager.ts'
+import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
@@ -97,6 +97,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       baseName: 'index.ts',
       exports: barrelFiles
         .flatMap((file) => {
+          const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
           return file.sources
             ?.map((source) => {
               if (!file.path || !source.isIndexable) {
@@ -108,19 +109,16 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
                 const meta = file.meta as any
                 return item.key === meta?.pluginKey
               })
-              const pluginOptions = (plugin?.options as { output?: Output }) ?? {}
+              const pluginOptions = plugin?.options as { output?: Output }
 
-              if (pluginOptions.output?.barrelType === false) {
+              if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
                 return undefined
               }
 
-              if (FileManager.getMode(pluginOptions.output?.path) === 'single') {
-                return undefined
-              }
               return {
-                name: pluginOptions.output?.barrelType === 'all' ? undefined : [source.name],
+                name: options.config.output.barrelType === 'all' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
-                isTypeOnly: source.isTypeOnly,
+                isTypeOnly: options.config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
               } as KubbFile.Export
             })
             .filter(Boolean)
@@ -135,7 +133,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     }
 
     files = await processFiles({
-      config: options.config,
+      root: options.config.root,
+      extension: options.config.output.extension,
       dryRun: !options.config.output.write,
       files: pluginManager.fileManager.files,
       logger: pluginManager.logger,

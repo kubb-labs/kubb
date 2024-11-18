@@ -81,7 +81,6 @@ export function Function({ name, export: canExport, async, generics, params, ret
       <Text indentSize={2}>{children}</Text>
       <br />
       <Text>{'}'}</Text>
-      <br />
     </>
   )
 }

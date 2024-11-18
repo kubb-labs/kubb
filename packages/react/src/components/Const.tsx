@@ -50,7 +50,6 @@ export function Const({ name, export: canExport, JSDoc, asConst, children }: Pro
           as const
         </Text>
       )}
-      <br />
     </>
   )
 }

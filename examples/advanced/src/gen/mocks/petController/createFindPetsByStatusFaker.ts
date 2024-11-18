@@ -1,10 +1,10 @@
-import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatus200, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 import { faker } from '@faker-js/faker'
 
-export function createFindPetsByStatusQueryParamsFaker(data?: Partial<FindPetsByStatusQueryParams>) {
+export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>) {
   return {
-    ...{ status: faker.helpers.arrayElement(['working', 'idle']) as any },
+    ...{ step_id: faker.string.alpha() },
     ...(data || {}),
   }
 }
@@ -24,5 +24,5 @@ export function createFindPetsByStatus400Faker() {
 }
 
 export function createFindPetsByStatusQueryResponseFaker(data?: Partial<FindPetsByStatusQueryResponse>) {
-  return faker.helpers.arrayElement<any>([createFindPetsByStatus200Faker()]) || data
+  return data || faker.helpers.arrayElement<any>([createFindPetsByStatus200Faker()])
 }

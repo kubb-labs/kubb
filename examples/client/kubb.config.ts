@@ -40,6 +40,7 @@ export default defineConfig(() => {
       pluginClient({
         output: {
           path: './clients/axios',
+          barrelType: 'propagate',
           banner: '/* eslint-disable no-alert, no-console */',
         },
         exclude: [

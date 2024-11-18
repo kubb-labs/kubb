@@ -135,7 +135,7 @@ export class FileManager {
   }
 
   async getBarrelFiles({ type, files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
-    if (!type) {
+    if (!type || type === 'propagate') {
       return []
     }
 
@@ -367,9 +367,10 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 }
 
 type WriteFilesProps = {
-  config: Config
+  root: Config['root']
   files: Array<KubbFile.ResolvedFile>
-  logger: Logger
+  extension?: Config['output']['extension']
+  logger?: Logger
   dryRun?: boolean
 }
 /**
@@ -377,14 +378,14 @@ type WriteFilesProps = {
  */
 const queue = new PQueue({ concurrency: 100 })
 
-export async function processFiles({ dryRun, config, logger, files }: WriteFilesProps) {
+export async function processFiles({ dryRun, root, extension, logger, files }: WriteFilesProps) {
   const orderedFiles = orderBy(files, [
     (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
     (v) => v.path.length,
     (v) => trimExtName(v.path).endsWith('index'),
   ])
 
-  logger.emit('debug', {
+  logger?.emit('debug', {
     date: new Date(),
     logs: [JSON.stringify({ files: orderedFiles }, null, 2)],
     fileName: 'kubb-files.log',
@@ -393,23 +394,23 @@ export async function processFiles({ dryRun, config, logger, files }: WriteFiles
   if (!dryRun) {
     const size = orderedFiles.length
 
-    logger.emit('progress_start', { id: 'files', size, message: 'Writing files ...' })
+    logger?.emit('progress_start', { id: 'files', size, message: 'Writing files ...' })
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
-        const message = file ? `Writing ${relative(config.root, file.path)}` : ''
-        const extname = config.output.extension?.[file.extname]
+        const message = file ? `Writing ${relative(root, file.path)}` : ''
+        const extname = extension?.[file.extname]
 
         const source = await getSource(file, { logger, extname })
 
         await write(file.path, source, { sanity: false })
 
-        logger.emit('progressed', { id: 'files', message })
+        logger?.emit('progressed', { id: 'files', message })
       })
     })
 
     await Promise.all(promises)
 
-    logger.emit('progress_stop', { id: 'files' })
+    logger?.emit('progress_stop', { id: 'files' })
   }
 
   return files

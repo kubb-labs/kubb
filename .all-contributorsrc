@@ -129,6 +129,20 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/122524301?v=4",
       "profile": "https://codefy.de/de/karriere",
       "contributions": ["code"]
+    },
+    {
+      "login": "ekaradon",
+      "name": "ekaradon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9439390?v=4",
+      "profile": "https://github.com/ekaradon",
+      "contributions": ["code"]
+    },
+    {
+      "login": "Thijmen",
+      "name": "Thijmen Stavenuiter",
+      "avatar_url": "https://avatars.githubusercontent.com/u/383903?v=4",
+      "profile": "https://thijmen.dev",
+      "contributions": ["code"]
     }
   ],
   "contributorsPerLine": 7,

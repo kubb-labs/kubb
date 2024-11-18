@@ -22,5 +22,5 @@ export function showPetByIdError() {
 }
 
  export function showPetByIdQueryResponse(data?: Partial<ShowPetByIdQueryResponse>) {
-    return faker.helpers.arrayElement<any>([showPetById200()]) || data;
+    return data || faker.helpers.arrayElement<any>([showPetById200()]);
 }

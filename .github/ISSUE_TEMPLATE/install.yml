@@ -8,9 +8,13 @@ body:
     attributes:
       value: |
         Thank you for submitting a bug report. It helps make `Kubb` better.
-  - type: input
+  - type: dropdown
     attributes:
-      label: What platform is your computer?
+      label: What kind of platform do you use?
+      options:
+        - MacOS
+        - Windows
+        - Linux
       description: MacOS, Windows, Linux.
   - type: textarea
     attributes:

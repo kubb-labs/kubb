@@ -33,5 +33,5 @@ export function createUploadFileMutationRequest() {
 
 export function createUploadFileMutationResponse(data?: Partial<UploadFileMutationResponse>) {
   faker.seed([220])
-  return faker.helpers.arrayElement<any>([createUploadFile200()]) || data
+  return data || faker.helpers.arrayElement<any>([createUploadFile200()])
 }

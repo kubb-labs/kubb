@@ -73,7 +73,6 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      type: typeSchemas.pathParams?.name,
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
@@ -159,7 +158,7 @@ export function InfiniteQueryOptions({
     .filter(Boolean)
     .join('&& ')
 
-  const enabledText = enabled ? `enabled: !!(${enabled})` : ''
+  const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -174,7 +173,7 @@ export function InfiniteQueryOptions({
           ${infiniteOverrideParams}
           return ${clientName}(${clientParams.toCall()})
        },
-       ${queryOptions.join('\n')}
+       ${queryOptions.join(',\n')}
       })
 `}
       </Function>

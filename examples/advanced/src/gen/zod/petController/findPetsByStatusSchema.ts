@@ -1,11 +1,9 @@
 import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
 
-export const findPetsByStatusQueryParamsSchema = z
-  .object({ status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter') })
-  .optional()
+export const findPetsByStatusPathParamsSchema = z.object({ step_id: z.string() })
 
-export type FindPetsByStatusQueryParamsSchema = z.infer<typeof findPetsByStatusQueryParamsSchema>
+export type FindPetsByStatusPathParamsSchema = z.infer<typeof findPetsByStatusPathParamsSchema>
 
 /**
  * @description successful operation

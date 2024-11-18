@@ -10,6 +10,22 @@ outline: deep
 Some hooks that can be used with `@kubb/react`.
 
 
+## useLifecycle
+
+`useLifecycle` will return some helpers to exit/restart the generation.
+
+
+```tsx
+import { useCli } from '@kubb/react'
+
+function Component() {
+  const { exit } = useLifecycle()
+
+  return null
+}
+```
+
+
 ## useApp
 
 `useApp` will return the current App with plugin, pluginManager, fileManager, mode, ...

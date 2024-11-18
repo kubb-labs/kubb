@@ -1,5 +1,81 @@
 # @kubb/react
 
+## 3.0.9
+
+### Patch Changes
+
+- Updated dependencies [[`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96)]:
+  - @kubb/core@3.0.9
+  - @kubb/fs@3.0.9
+  - @kubb/parser-ts@3.0.9
+
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.8
+  - @kubb/fs@3.0.8
+  - @kubb/parser-ts@3.0.8
+
+## 3.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`ca3b862`](https://github.com/kubb-labs/kubb/commit/ca3b8624acd5a58b2a206362c943f549d7d778b3)]:
+  - @kubb/core@3.0.7
+  - @kubb/fs@3.0.7
+  - @kubb/parser-ts@3.0.7
+
+## 3.0.6
+
+### Patch Changes
+
+- [#1405](https://github.com/kubb-labs/kubb/pull/1405) [`fa04933`](https://github.com/kubb-labs/kubb/commit/fa049330f3c41fd148169b6483ca1bdaa223c715) Thanks [@aburgel](https://github.com/aburgel)! - fix: Loosen up ws dependency version constraint
+
+- Updated dependencies [[`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e), [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e)]:
+  - @kubb/core@3.0.6
+  - @kubb/fs@3.0.6
+  - @kubb/parser-ts@3.0.6
+
+## 3.0.5
+
+### Patch Changes
+
+- [#1388](https://github.com/kubb-labs/kubb/pull/1388) [`23b8137`](https://github.com/kubb-labs/kubb/commit/23b8137bd69cbc896046a497dc4cbf7bf23d70ec) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Better error logging + wider range for `@kubb/react` peerDependency
+
+- Updated dependencies []:
+  - @kubb/core@3.0.5
+  - @kubb/fs@3.0.5
+  - @kubb/parser-ts@3.0.5
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.4
+  - @kubb/fs@3.0.4
+  - @kubb/parser-ts@3.0.4
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.3
+  - @kubb/fs@3.0.3
+  - @kubb/parser-ts@3.0.3
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.2
+  - @kubb/fs@3.0.2
+  - @kubb/parser-ts@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes

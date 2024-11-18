@@ -1,5 +1,87 @@
 # @kubb/swagger
 
+## 3.0.9
+
+### Patch Changes
+
+- Updated dependencies [[`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96), [`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96)]:
+  - @kubb/core@3.0.9
+  - @kubb/oas@3.0.9
+  - @kubb/react@3.0.9
+  - @kubb/fs@3.0.9
+
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.8
+  - @kubb/fs@3.0.8
+  - @kubb/oas@3.0.8
+  - @kubb/react@3.0.8
+
+## 3.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`ca3b862`](https://github.com/kubb-labs/kubb/commit/ca3b8624acd5a58b2a206362c943f549d7d778b3)]:
+  - @kubb/core@3.0.7
+  - @kubb/react@3.0.7
+  - @kubb/fs@3.0.7
+  - @kubb/oas@3.0.7
+
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`fa04933`](https://github.com/kubb-labs/kubb/commit/fa049330f3c41fd148169b6483ca1bdaa223c715), [`b634bc9`](https://github.com/kubb-labs/kubb/commit/b634bc905fc660e270908d6ee09b01b7f3811bf5), [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e), [`a12aa73`](https://github.com/kubb-labs/kubb/commit/a12aa737cf9e5fe63f1b5347cde151de2a6e405e)]:
+  - @kubb/react@3.0.6
+  - @kubb/oas@3.0.6
+  - @kubb/core@3.0.6
+  - @kubb/fs@3.0.6
+
+## 3.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`23b8137`](https://github.com/kubb-labs/kubb/commit/23b8137bd69cbc896046a497dc4cbf7bf23d70ec)]:
+  - @kubb/react@3.0.5
+  - @kubb/core@3.0.5
+  - @kubb/fs@3.0.5
+  - @kubb/oas@3.0.5
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.4
+  - @kubb/fs@3.0.4
+  - @kubb/oas@3.0.4
+  - @kubb/react@3.0.4
+
+## 3.0.3
+
+### Patch Changes
+
+- [`b3540fe`](https://github.com/kubb-labs/kubb/commit/b3540fe67e682bc367c2f39ca7595decab94a6aa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `@deprecated` jsdoc tag for schemas
+
+- Updated dependencies []:
+  - @kubb/core@3.0.3
+  - @kubb/fs@3.0.3
+  - @kubb/oas@3.0.3
+  - @kubb/react@3.0.3
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.2
+  - @kubb/fs@3.0.2
+  - @kubb/oas@3.0.2
+  - @kubb/react@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes

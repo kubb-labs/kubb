@@ -22,5 +22,5 @@ export function createPetsError() {
 }
 
  export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>) {
-    return faker.helpers.arrayElement<any>([createPets201()]) || data;
+    return data || faker.helpers.arrayElement<any>([createPets201()]);
 }

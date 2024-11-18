@@ -1,4 +1,4 @@
-import transformers, { createJSDocBlockText } from '@kubb/core/transformers'
+import transformers from '@kubb/core/transformers'
 import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
@@ -86,8 +86,8 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: () => '.uuid()',
-  url: () => '.url()',
+  uuid: (coercion?: boolean) => (coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
+  url: (coercion?: boolean) => (coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
   strict: () => '.strict()',
   default: (value?: string | number | true) => `.default(${value ?? ''})`,
   and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
@@ -95,8 +95,8 @@ const zodKeywordMapper = {
   min: (value?: number) => `.min(${value ?? ''})`,
   max: (value?: number) => `.max(${value ?? ''})`,
   optional: () => '.optional()',
-  matches: (value = '') => `.regex(${value})`,
-  email: () => '.email()',
+  matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
+  email: (coercion?: boolean) => (coercion ? 'z.coerce.string().email()' : 'z.string().email()'),
   firstName: undefined,
   lastName: undefined,
   password: undefined,
@@ -104,7 +104,7 @@ const zodKeywordMapper = {
   readOnly: undefined,
   writeOnly: undefined,
   ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
-  blob: () => 'z.string()',
+  blob: () => 'z.instanceof(File)',
   deprecated: undefined,
   example: undefined,
   schema: undefined,
@@ -271,9 +271,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         }
 
         return `"${name}": ${sort(schemas)
-          .map((schema, array, siblings) => {
-            return parse({ parent: current, current: schema, siblings }, options)
-          })
+          .map((schema, array, siblings) => parse({ parent: current, current: schema, siblings }, options))
           .filter(Boolean)
           .join('')}`
       })
@@ -314,7 +312,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
   if (isKeyword(current, schemaKeywords.matches)) {
     if (current.args) {
-      return zodKeywordMapper.matches(transformers.toRegExpString(current.args))
+      return zodKeywordMapper.matches(transformers.toRegExpString(current.args), shouldCoerce(options.coercion, 'strings'))
     }
   }
 
@@ -332,6 +330,18 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
   if (isKeyword(current, schemaKeywords.string)) {
     return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'))
+  }
+
+  if (isKeyword(current, schemaKeywords.uuid)) {
+    return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'))
+  }
+
+  if (isKeyword(current, schemaKeywords.email)) {
+    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'))
+  }
+
+  if (isKeyword(current, schemaKeywords.url)) {
+    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'))
   }
 
   if (isKeyword(current, schemaKeywords.number)) {

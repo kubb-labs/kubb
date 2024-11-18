@@ -16,7 +16,7 @@ export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
 export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 
-export const uploadFileMutationRequestSchema = z.string()
+export const uploadFileMutationRequestSchema = z.instanceof(File)
 
 export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
 

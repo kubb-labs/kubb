@@ -395,8 +395,9 @@ export class SchemaGenerator<
     const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
     const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
     const nullable = schema.nullable ?? schema['x-nullable'] ?? false
+    const defaultNullAndNullable = schema.default === null && nullable
 
-    if (schema.default !== undefined && !Array.isArray(schema.default)) {
+    if (schema.default !== undefined && !defaultNullAndNullable && !Array.isArray(schema.default)) {
       if (typeof schema.default === 'string') {
         baseItems.push({
           keyword: schemaKeywords.default,
@@ -415,17 +416,16 @@ export class SchemaGenerator<
       }
     }
 
+    if (schema.deprecated) {
+      baseItems.push({
+        keyword: schemaKeywords.deprecated,
+      })
+    }
+
     if (schema.description) {
       baseItems.push({
         keyword: schemaKeywords.describe,
         args: schema.description,
-      })
-    }
-
-    if (schema.pattern) {
-      baseItems.unshift({
-        keyword: schemaKeywords.matches,
-        args: schema.pattern,
       })
     }
 
@@ -793,11 +793,11 @@ export class SchemaGenerator<
           break
         case 'uuid':
           baseItems.unshift({ keyword: schemaKeywords.uuid })
-          break
+          return baseItems
         case 'email':
         case 'idn-email':
           baseItems.unshift({ keyword: schemaKeywords.email })
-          break
+          return baseItems
         case 'uri':
         case 'ipv4':
         case 'ipv6':
@@ -805,7 +805,7 @@ export class SchemaGenerator<
         case 'hostname':
         case 'idn-hostname':
           baseItems.unshift({ keyword: schemaKeywords.url })
-          break
+          return baseItems
         // case 'duration':
         // case 'json-pointer':
         // case 'relative-json-pointer':
@@ -813,6 +813,15 @@ export class SchemaGenerator<
           // formats not yet implemented: ignore.
           break
       }
+    }
+
+    if (schema.pattern) {
+      baseItems.unshift({
+        keyword: schemaKeywords.matches,
+        args: schema.pattern,
+      })
+
+      return baseItems
     }
 
     // type based logic
