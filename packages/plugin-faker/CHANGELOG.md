@@ -1,5 +1,19 @@
 # @kubb/plugin-faker
 
+## 3.0.10
+
+### Patch Changes
+
+- [`ad977aa`](https://github.com/kubb-labs/kubb/commit/ad977aaec348c877405e780b6ea89bbbfbd282b7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `data` should have a higher priority than faker defaults generation
+
+- Updated dependencies []:
+  - @kubb/core@3.0.10
+  - @kubb/fs@3.0.10
+  - @kubb/oas@3.0.10
+  - @kubb/plugin-oas@3.0.10
+  - @kubb/plugin-ts@3.0.10
+  - @kubb/react@3.0.10
+
 ## 3.0.9
 
 ### Patch Changes
