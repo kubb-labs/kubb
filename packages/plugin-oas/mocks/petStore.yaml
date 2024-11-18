@@ -136,7 +136,22 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Pet'
-
+    Toy:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          default: null
+          nullable: true
+      default: null
+      nullble: true
     PageSize:
       type: integer
       minimum: 1

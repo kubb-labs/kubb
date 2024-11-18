@@ -37,6 +37,16 @@ describe('SchemaGenerator core', async () => {
       },
     },
     {
+      name: 'Toy',
+      input: '../mocks/petStore.yaml',
+      path: 'Toy',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
+    {
       name: 'PageSize',
       input: '../mocks/petStore.yaml',
       path: 'PageSize',
