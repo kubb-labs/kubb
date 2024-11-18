@@ -27,6 +27,11 @@ body:
       render: typescript
   - type: textarea
     attributes:
+      label: Swagger/OpenAPI file?
+      description: If possible, please provide your Swagger/OpenAPI file.
+      render: bash
+  - type: textarea
+    attributes:
       label: What version of external packages are you using(`@tanstack-query`, `MSW`, `React`, `Vue`, ...)
       description: Copy the output of your `package.json`
       render: JSON
@@ -57,11 +62,6 @@ body:
     attributes:
       label: What is the expected behavior?
       description: If possible, please provide text instead of a screenshot.
-  - type: textarea
-    attributes:
-      label: Swagger/OpenAPI file?
-      description: If possible, please provide your Swagger/OpenAPI file.
-      render: bash
   - type: textarea
     attributes:
       label: Additional information
