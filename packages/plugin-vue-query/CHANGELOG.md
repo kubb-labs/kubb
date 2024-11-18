@@ -1,5 +1,18 @@
 # @kubb/plugin-vue-query
 
+## 3.0.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.10
+  - @kubb/fs@3.0.10
+  - @kubb/oas@3.0.10
+  - @kubb/plugin-oas@3.0.10
+  - @kubb/plugin-ts@3.0.10
+  - @kubb/plugin-zod@3.0.10
+  - @kubb/react@3.0.10
+
 ## 3.0.9
 
 ### Patch Changes
