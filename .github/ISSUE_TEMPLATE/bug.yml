@@ -25,15 +25,11 @@ body:
       label: How does your `kubb.config.ts` config look like
       description: Copy-paste your Kubb config
       render: typescript
-      validations:
-        required: true
   - type: textarea
     attributes:
       label: What version of external packages are you using(`@tanstack-query`, `MSW`, `React`, `Vue`, ...)
       description: Copy the output of your `package.json`
       render: JSON
-      validations:
-        required: true
   - type: textarea
     attributes:
       label: What steps can reproduce the bug?
