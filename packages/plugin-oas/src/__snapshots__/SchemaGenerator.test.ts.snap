@@ -264,3 +264,84 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
   },
 ]
 `;
+
+exports[`SchemaGenerator core > 'Toy' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "description": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "keyword": "nullable",
+          },
+          {
+            "args": "description",
+            "keyword": "name",
+          },
+          {
+            "keyword": "nullish",
+          },
+        ],
+        "id": [
+          {
+            "keyword": "uuid",
+          },
+          {
+            "args": {
+              "format": "uuid",
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "id",
+            "keyword": "name",
+          },
+        ],
+        "name": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "name",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+  {
+    "args": null,
+    "keyword": "default",
+  },
+]
+`;

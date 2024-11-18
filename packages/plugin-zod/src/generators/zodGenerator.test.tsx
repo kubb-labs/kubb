@@ -86,6 +86,12 @@ describe('zodGenerator schema', async () => {
       },
     },
     {
+      name: 'Toy',
+      path: 'Toy',
+      input: '../../mocks/petStore.yaml',
+      options: {},
+    },
+    {
       name: 'OrderDateTypeFalse',
       path: 'Order',
       input: '../../mocks/petStore.yaml',

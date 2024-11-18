@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.0.8
+
+### Patch Changes
+
+- [#1400](https://github.com/kubb-labs/kubb/pull/1400) [`569cff0`](https://github.com/kubb-labs/kubb/commit/569cff0a6402830870c3aab7210acdb123b17c48) Thanks [@ekaradon](https://github.com/ekaradon)! - Fix generated zod schema for type file
+
+- Updated dependencies []:
+  - @kubb/core@3.0.8
+  - @kubb/fs@3.0.8
+  - @kubb/oas@3.0.8
+  - @kubb/parser-ts@3.0.8
+  - @kubb/plugin-oas@3.0.8
+  - @kubb/plugin-ts@3.0.8
+  - @kubb/react@3.0.8
+
 ## 3.0.7
 
 ### Patch Changes

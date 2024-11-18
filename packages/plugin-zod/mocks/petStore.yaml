@@ -215,6 +215,22 @@ components:
         required: ['id', 'name'],
         properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' }, tag: { type: 'string' } },
       }
+    Toy:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          default: null
+          nullable: true
+      default: null
+      nullable: true
     Error:
       type: object
       required:
