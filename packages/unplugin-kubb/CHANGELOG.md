@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 1.0.5
+
+### Patch Changes
+
+- [`feabcd1`](https://github.com/kubb-labs/kubb/commit/feabcd1168529408ba9d098ed8f75210303607a0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Sync with Kubb core
+
 ## 1.0.4
 
 ### Patch Changes
