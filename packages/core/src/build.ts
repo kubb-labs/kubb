@@ -97,6 +97,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       baseName: 'index.ts',
       exports: barrelFiles
         .flatMap((file) => {
+          const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
           return file.sources
             ?.map((source) => {
               if (!file.path || !source.isIndexable) {
@@ -117,7 +118,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
               return {
                 name: options.config.output.barrelType === 'all' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
-                isTypeOnly: source.isTypeOnly,
+                isTypeOnly: options.config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
               } as KubbFile.Export
             })
             .filter(Boolean)
