@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 3.0.9
+
+### Patch Changes
+
+- [`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Allow nullable with default null option
+
 ## 3.0.8
 
 ## 3.0.7

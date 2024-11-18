@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.0.9
+
+### Patch Changes
+
+- [`260801e`](https://github.com/kubb-labs/kubb/commit/260801eb69155e25c28e7166e8f820d16e93ca96) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of `barrelType` for single files
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.9
+  - @kubb/parser-ts@3.0.9
+  - @kubb/types@3.0.9
+
 ## 3.0.8
 
 ### Patch Changes
