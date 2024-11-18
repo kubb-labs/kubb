@@ -28,5 +28,5 @@ export function createUploadFileMutationRequestFaker() {
 }
 
 export function createUploadFileMutationResponseFaker(data?: Partial<UploadFileMutationResponse>) {
-  return faker.helpers.arrayElement<any>([createUploadFile200Faker()]) || data
+  return data || faker.helpers.arrayElement<any>([createUploadFile200Faker()])
 }

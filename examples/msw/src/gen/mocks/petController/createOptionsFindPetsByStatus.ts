@@ -12,5 +12,5 @@ export function createOptionsFindPetsByStatus200(data?: Partial<OptionsFindPetsB
 
 export function createOptionsFindPetsByStatusMutationResponse(data?: Partial<OptionsFindPetsByStatusMutationResponse>) {
   faker.seed([220])
-  return faker.helpers.arrayElement<any>([createOptionsFindPetsByStatus200()]) || data
+  return data || faker.helpers.arrayElement<any>([createOptionsFindPetsByStatus200()])
 }

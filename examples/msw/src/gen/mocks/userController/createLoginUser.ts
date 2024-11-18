@@ -27,5 +27,5 @@ export function createLoginUser400() {
 
 export function createLoginUserQueryResponse(data?: Partial<LoginUserQueryResponse>) {
   faker.seed([220])
-  return faker.helpers.arrayElement<any>([createLoginUser200()]) || data
+  return data || faker.helpers.arrayElement<any>([createLoginUser200()])
 }

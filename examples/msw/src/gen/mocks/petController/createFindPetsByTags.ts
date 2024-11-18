@@ -28,5 +28,5 @@ export function createFindPetsByTags400() {
 
 export function createFindPetsByTagsQueryResponse(data?: Partial<FindPetsByTagsQueryResponse>) {
   faker.seed([220])
-  return faker.helpers.arrayElement<any>([createFindPetsByTags200()]) || data
+  return data || faker.helpers.arrayElement<any>([createFindPetsByTags200()])
 }

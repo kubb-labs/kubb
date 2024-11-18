@@ -31,5 +31,5 @@ export function createGetPetById404Faker() {
 }
 
 export function createGetPetByIdQueryResponseFaker(data?: Partial<GetPetByIdQueryResponse>) {
-  return faker.helpers.arrayElement<any>([createGetPetById200Faker()]) || data
+  return data || faker.helpers.arrayElement<any>([createGetPetById200Faker()])
 }

@@ -51,5 +51,5 @@ export function createCreatePetsMutationRequestFaker(data?: Partial<CreatePetsMu
 }
 
 export function createCreatePetsMutationResponseFaker(data?: Partial<CreatePetsMutationResponse>) {
-  return faker.helpers.arrayElement<any>([createCreatePets201Faker()]) || data
+  return data || faker.helpers.arrayElement<any>([createCreatePets201Faker()])
 }
