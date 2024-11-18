@@ -14,12 +14,28 @@ body:
       description: Copy the output of `kubb -v`
   - type: input
     attributes:
-      label: What platform is your computer?
+      label: What kind of platform do you use?
+      options:
+        - MacOS
+        - Windows
+        - Linux
+      validations:
+        required: true
       description: MacOS, Windows, Linux.
+  - type: input
+    attributes:
+      label: How does your `kubb.config.ts` config look like
+      description: Copy-paste your Kubb config
+      render: typescript
+      validations:
+        required: true
   - type: input
     attributes:
       label: What version of external packages are you using(`@tanstack-query`, `MSW`, `React`, `Vue`, ...)
       description: Copy the output of your `package.json`
+      render: JSON
+      validations:
+        required: true
   - type: textarea
     attributes:
       label: What steps can reproduce the bug?
@@ -51,6 +67,7 @@ body:
     attributes:
       label: Swagger/OpenAPI file?
       description: If possible, please provide your Swagger/OpenAPI file.
+      render: bash
   - type: textarea
     attributes:
       label: Additional information
