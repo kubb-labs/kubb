@@ -395,8 +395,9 @@ export class SchemaGenerator<
     const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
     const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
     const nullable = schema.nullable ?? schema['x-nullable'] ?? false
+    const defaultNullAndNullable = schema.default === null && nullable
 
-    if (schema.default !== undefined && !Array.isArray(schema.default)) {
+    if (schema.default !== undefined && !defaultNullAndNullable && !Array.isArray(schema.default)) {
       if (typeof schema.default === 'string') {
         baseItems.push({
           keyword: schemaKeywords.default,
