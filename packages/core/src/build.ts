@@ -115,7 +115,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
               }
 
               return {
-                name: pluginOptions.output?.barrelType === 'all' ? undefined : [source.name],
+                name: options.config.output.barrelType === 'all' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
                 isTypeOnly: source.isTypeOnly,
               } as KubbFile.Export

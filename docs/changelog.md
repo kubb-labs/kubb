@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.0.9
+- [`plugin-oas`](/plugins/plugin-oas): Allow nullable with default null option
+- [`core`](/plugins/core): Correct use of `barrelType` for single files
+
 ## 3.0.8
 - [`plugin-zod`](/plugins/plugin-zod): Blob as `z.instanceof(File)` instead of `string`
 
