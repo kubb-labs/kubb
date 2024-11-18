@@ -12,24 +12,22 @@ body:
     attributes:
       label: What version of `kubb` is running?
       description: Copy the output of `kubb -v`
-  - type: input
+  - type: dropdown
     attributes:
       label: What kind of platform do you use?
       options:
         - MacOS
         - Windows
         - Linux
-      validations:
-        required: true
       description: MacOS, Windows, Linux.
-  - type: input
+  - type: textarea
     attributes:
       label: How does your `kubb.config.ts` config look like
       description: Copy-paste your Kubb config
       render: typescript
       validations:
         required: true
-  - type: input
+  - type: textarea
     attributes:
       label: What version of external packages are you using(`@tanstack-query`, `MSW`, `React`, `Vue`, ...)
       description: Copy the output of your `package.json`
