@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.11
+
+### Patch Changes
+
+- [#1424](https://github.com/kubb-labs/kubb/pull/1424) [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of Jsdocs syntax for links
+
+- Updated dependencies [[`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2)]:
+  - @kubb/core@3.0.11
+  - @kubb/react@3.0.11
+  - @kubb/fs@3.0.11
+  - @kubb/oas@3.0.11
+
 ## 3.0.10
 
 ### Patch Changes
