@@ -9,7 +9,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
+ * {@link /store/inventory}
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
@@ -27,7 +27,7 @@ getInventory.queryParams = {} as never
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
+ * {@link /store/order}
  */
 export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
   const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })
@@ -45,7 +45,7 @@ placeOrder.queryParams = {} as never
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order
+ * {@link /store/order}
  */
 export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
@@ -68,7 +68,7 @@ placeOrderPatch.queryParams = {} as never
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export async function getOrderById(
   {
@@ -93,7 +93,7 @@ getOrderById.queryParams = {} as never
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export async function deleteOrder(
   {

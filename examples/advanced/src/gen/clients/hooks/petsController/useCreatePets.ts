@@ -17,7 +17,7 @@ export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
 
 /**
  * @summary Create a pet
- * @link /pets/:uuid
+ * {@link /pets/:uuid}
  */
 async function createPets(
   {
@@ -46,7 +46,7 @@ async function createPets(
 
 /**
  * @summary Create a pet
- * @link /pets/:uuid
+ * {@link /pets/:uuid}
  */
 export function useCreatePets(
   options: {

@@ -16,7 +16,7 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function getUserByName(
   {
@@ -51,7 +51,7 @@ export function getUserByNameQueryOptions(
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useGetUserByName<
   TData = GetUserByNameQueryResponse,

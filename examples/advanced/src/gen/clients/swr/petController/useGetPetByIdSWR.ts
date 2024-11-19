@@ -15,7 +15,7 @@ export type GetPetByIdQueryKeySWR = ReturnType<typeof getPetByIdQueryKeySWR>
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function getPetByIdSWR(
   {
@@ -52,7 +52,7 @@ export function getPetByIdQueryOptionsSWR(
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useGetPetByIdSWR(
   {

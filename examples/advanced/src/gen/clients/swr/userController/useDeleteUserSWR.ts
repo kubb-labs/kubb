@@ -11,7 +11,7 @@ export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySW
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function deleteUserSWR(
   {
@@ -33,7 +33,7 @@ async function deleteUserSWR(
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useDeleteUserSWR(
   {

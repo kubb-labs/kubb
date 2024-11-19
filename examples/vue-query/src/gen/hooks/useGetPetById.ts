@@ -17,7 +17,7 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function getPetById(
   {
@@ -53,7 +53,7 @@ export function getPetByIdQueryOptions(
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   {

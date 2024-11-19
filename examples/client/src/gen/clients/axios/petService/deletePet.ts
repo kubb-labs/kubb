@@ -6,7 +6,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export async function deletePet(
   {

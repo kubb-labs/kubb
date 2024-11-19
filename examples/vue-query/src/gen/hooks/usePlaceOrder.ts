@@ -12,7 +12,7 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
+ * {@link /store/order}
  */
 async function placeOrder(
   {
@@ -29,7 +29,7 @@ async function placeOrder(
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
+ * {@link /store/order}
  */
 export function usePlaceOrder(
   options: {

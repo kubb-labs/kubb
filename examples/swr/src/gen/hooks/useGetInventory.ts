@@ -10,7 +10,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
+ * {@link /store/inventory}
  */
 async function getInventory(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
@@ -28,7 +28,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
+ * {@link /store/inventory}
  */
 export function useGetInventory(
   options: {

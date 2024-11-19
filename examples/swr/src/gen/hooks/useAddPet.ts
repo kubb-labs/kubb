@@ -10,7 +10,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
@@ -20,7 +20,7 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 export function useAddPet(
   options: {

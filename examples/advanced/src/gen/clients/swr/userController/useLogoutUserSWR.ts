@@ -10,7 +10,7 @@ export type LogoutUserQueryKeySWR = ReturnType<typeof logoutUserQueryKeySWR>
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 async function logoutUserSWR(config: Partial<RequestConfig> = {}) {
   const res = await client<LogoutUserQueryResponse, Error, unknown>({
@@ -32,7 +32,7 @@ export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> = {}) {
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 export function useLogoutUserSWR(
   options: {

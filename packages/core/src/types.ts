@@ -80,7 +80,7 @@ export type Config<TInput = Input> = {
      * Override the extension to the generated imports and exports, by default each plugin will add an extension
      * @default { '.ts': '.ts'}
      */
-    extension?: Record<KubbFile.Extname, KubbFile.Extname>
+    extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
     /**
      * Specify how `index.ts` files should be created. You can also disable the generation of barrel files here. While each plugin has its own `barrelType` option, this setting controls the creation of the root barrel file, such as` src/gen/index.ts`.
      * @default 'named'

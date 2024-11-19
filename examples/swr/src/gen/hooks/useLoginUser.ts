@@ -9,7 +9,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
@@ -26,7 +26,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function useLoginUser(
   params?: LoginUserQueryParams,

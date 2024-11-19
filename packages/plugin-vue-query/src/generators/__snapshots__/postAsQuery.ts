@@ -11,7 +11,7 @@ import { unref } from "vue";
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
     const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${petId}`, params, data, ...config });
@@ -32,7 +32,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TQueryData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>(petId: MaybeRef<UpdatePetWithFormPathParams["petId"]>, data?: MaybeRef<UpdatePetWithFormMutationRequest>, params?: MaybeRef<UpdatePetWithFormQueryParams>, options: {
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>;

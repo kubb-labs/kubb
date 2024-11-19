@@ -17,7 +17,7 @@ export type UpdatePetMutationKeySWR = ReturnType<typeof updatePetMutationKeySWR>
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 async function updatePetSWR(
   {
@@ -40,7 +40,7 @@ async function updatePetSWR(
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 export function useUpdatePetSWR(
   options: {

@@ -14,7 +14,7 @@ export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspe
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function getUserByNameHook(
   {
@@ -49,7 +49,7 @@ export function getUserByNameSuspenseQueryOptionsHook(
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useGetUserByNameSuspenseHook<
   TData = GetUserByNameQueryResponse,

@@ -9,7 +9,7 @@ import type {
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 export async function getUserByName(
   {

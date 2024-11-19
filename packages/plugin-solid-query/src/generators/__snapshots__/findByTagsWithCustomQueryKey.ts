@@ -10,7 +10,7 @@ import { queryOptions, createQuery } from "@tanstack/react-query";
  /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
     const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: "GET", url: `/pet/findByTags`, params, headers: { ...headers, ...config.headers }, ...config });
@@ -31,7 +31,7 @@ async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: Find
  /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 export function createFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQueryData = FindPetsByTagsQueryResponse, TQueryKey extends QueryKey = FindPetsByTagsQueryKey>(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, options: {
     query?: Partial<CreateBaseQueryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, TData, TQueryData, TQueryKey>>;

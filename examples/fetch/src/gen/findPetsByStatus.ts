@@ -5,7 +5,7 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })

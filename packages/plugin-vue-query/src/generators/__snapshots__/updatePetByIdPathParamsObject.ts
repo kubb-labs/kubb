@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/vue-query";
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function updatePetWithForm({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
@@ -21,7 +21,7 @@ async function updatePetWithForm({ petId }: {
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm(options: {
     mutation?: MutationObserverOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {

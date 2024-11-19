@@ -11,7 +11,7 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 async function findPetsByTagsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: 'GET', url: '/pet/findByTags', params, ...config })
@@ -38,7 +38,7 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsInfiniteHook<
   TData = InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,

@@ -5,7 +5,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export async function getPetById(
   {

@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.0.11
+- [`core`](/plugins/core): Disabling output file extension
+- [`plugin-oas`](/plugins/plugin-oas): Correct use of Jsdocs syntax for links
+- [`core`](/plugins/core): Respect casing of parameters
+
 ## 3.0.10
 - [`plugin-faker`](/plugins/plugin-faker): `data` should have a higher priority than faker defaults generation
 

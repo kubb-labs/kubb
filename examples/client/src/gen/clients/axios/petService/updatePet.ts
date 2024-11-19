@@ -12,7 +12,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({

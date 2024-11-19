@@ -6,7 +6,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export async function updateUser(
   {

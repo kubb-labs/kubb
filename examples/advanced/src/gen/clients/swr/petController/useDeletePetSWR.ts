@@ -11,7 +11,7 @@ export type DeletePetMutationKeySWR = ReturnType<typeof deletePetMutationKeySWR>
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function deletePetSWR(
   {
@@ -36,7 +36,7 @@ async function deletePetSWR(
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useDeletePetSWR(
   {

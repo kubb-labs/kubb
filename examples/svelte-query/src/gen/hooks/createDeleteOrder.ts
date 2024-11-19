@@ -11,7 +11,7 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
@@ -25,7 +25,7 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export function createDeleteOrder(
   options: {

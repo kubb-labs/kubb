@@ -17,7 +17,7 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 async function getOrderById(
   {
@@ -53,7 +53,7 @@ export function getOrderByIdQueryOptions(
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   {

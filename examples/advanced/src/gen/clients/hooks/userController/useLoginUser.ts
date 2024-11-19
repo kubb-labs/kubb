@@ -11,7 +11,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 async function loginUser(
   {
@@ -45,7 +45,7 @@ export function loginUserQueryOptions(
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function useLoginUser<
   TData = ResponseConfig<LoginUserQueryResponse>,

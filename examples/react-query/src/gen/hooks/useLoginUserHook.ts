@@ -10,7 +10,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 async function loginUserHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
@@ -30,7 +30,7 @@ export function loginUserQueryOptionsHook(params?: LoginUserQueryParams, config:
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUserQueryParams,

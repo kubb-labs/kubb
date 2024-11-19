@@ -12,7 +12,7 @@ export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatu
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })
@@ -33,7 +33,7 @@ export function findPetsByStatusSuspenseQueryOptionsHook(params?: FindPetsByStat
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatusSuspenseHook<
   TData = FindPetsByStatusQueryResponse,

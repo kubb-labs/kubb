@@ -12,7 +12,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 async function addPet(
   {
@@ -29,7 +29,7 @@ async function addPet(
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 export function useAddPet(
   options: {
