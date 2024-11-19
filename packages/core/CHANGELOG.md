@@ -1,5 +1,18 @@
 # @kubb/core
 
+## 3.0.11
+
+### Patch Changes
+
+- [#1424](https://github.com/kubb-labs/kubb/pull/1424) [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Disabling output file extension
+
+- [#1424](https://github.com/kubb-labs/kubb/pull/1424) [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Respect casing of parameters
+
+- Updated dependencies []:
+  - @kubb/fs@3.0.11
+  - @kubb/parser-ts@3.0.11
+  - @kubb/types@3.0.11
+
 ## 3.0.10
 
 ### Patch Changes
