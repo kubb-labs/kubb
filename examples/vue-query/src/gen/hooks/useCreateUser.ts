@@ -12,7 +12,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
+ * {@link /user}
  */
 async function createUser(
   {
@@ -29,7 +29,7 @@ async function createUser(
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
+ * {@link /user}
  */
 export function useCreateUser(
   options: {

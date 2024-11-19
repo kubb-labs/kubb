@@ -11,7 +11,7 @@ export type AddPetMutationKeySWR = ReturnType<typeof addPetMutationKeySWR>
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 async function addPetSWR(
   {
@@ -34,7 +34,7 @@ async function addPetSWR(
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 export function useAddPetSWR(
   options: {

@@ -8,7 +8,7 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function updatePetWithForm({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
@@ -19,7 +19,7 @@ async function updatePetWithForm({ petId }: {
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];

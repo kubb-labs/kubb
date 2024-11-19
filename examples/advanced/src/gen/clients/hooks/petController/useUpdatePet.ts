@@ -18,7 +18,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 async function updatePet(
   {
@@ -40,7 +40,7 @@ async function updatePet(
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 export function useUpdatePet(
   options: {

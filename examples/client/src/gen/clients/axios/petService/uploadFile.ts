@@ -10,7 +10,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 export async function uploadFile(
   {

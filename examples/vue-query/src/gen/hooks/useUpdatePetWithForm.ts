@@ -16,7 +16,7 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function updatePetWithForm(
   {
@@ -34,7 +34,7 @@ async function updatePetWithForm(
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm(
   options: {

@@ -369,7 +369,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 type WriteFilesProps = {
   root: Config['root']
   files: Array<KubbFile.ResolvedFile>
-  extension?: Config['output']['extension']
+  extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
   logger?: Logger
   dryRun?: boolean
 }
@@ -398,7 +398,7 @@ export async function processFiles({ dryRun, root, extension, logger, files }: W
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
         const message = file ? `Writing ${relative(root, file.path)}` : ''
-        const extname = extension?.[file.extname]
+        const extname = extension?.[file.extname] || undefined
 
         const source = await getSource(file, { logger, extname })
 

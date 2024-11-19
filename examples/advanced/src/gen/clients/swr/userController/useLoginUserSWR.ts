@@ -10,7 +10,7 @@ export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 async function loginUserSWR(
   {
@@ -47,7 +47,7 @@ export function loginUserQueryOptionsSWR(
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function useLoginUserSWR(
   {

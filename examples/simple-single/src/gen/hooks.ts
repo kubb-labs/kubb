@@ -64,7 +64,7 @@ import type {
   DeleteUserPathParams,
   DeleteUser400,
   DeleteUser404,
-} from './models.ts'
+} from './models'
 import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { UseMutationOptions, QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useMutation, queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
@@ -76,7 +76,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
@@ -91,7 +91,7 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
+ * {@link /pet}
  */
 export function useUpdatePet(
   options: {
@@ -129,7 +129,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
   const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
@@ -139,7 +139,7 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 export function useAddPet(
   options: {
@@ -177,7 +177,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })
@@ -198,7 +198,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatus<
   TData = FindPetsByStatusQueryResponse,
@@ -242,7 +242,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQu
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatusSuspense<
   TData = FindPetsByStatusQueryResponse,
@@ -275,7 +275,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: 'GET', url: '/pet/findByTags', params, ...config })
@@ -296,7 +296,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 export function useFindPetsByTags<
   TData = FindPetsByTagsQueryResponse,
@@ -340,7 +340,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTagsQueryP
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsSuspense<
   TData = FindPetsByTagsQueryResponse,
@@ -373,7 +373,7 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${petId}`, ...config })
@@ -395,7 +395,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
@@ -436,7 +436,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useGetPetByIdSuspense<
   TData = GetPetByIdQueryResponse,
@@ -468,7 +468,7 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
@@ -477,7 +477,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], pa
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm(
   options: {
@@ -517,7 +517,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
@@ -532,7 +532,7 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useDeletePet(
   options: {
@@ -571,7 +571,7 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 async function uploadFile(
   petId: UploadFilePathParams['petId'],
@@ -592,7 +592,7 @@ async function uploadFile(
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 export function useUploadFile(
   options: {
@@ -634,7 +634,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
+ * {@link /store/inventory}
  */
 async function getInventory(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
@@ -655,7 +655,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
+ * {@link /store/inventory}
  */
 export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
@@ -694,7 +694,7 @@ export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> 
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
+ * {@link /store/inventory}
  */
 export function useGetInventorySuspense<
   TData = GetInventoryQueryResponse,
@@ -726,7 +726,7 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
+ * {@link /store/order}
  */
 async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
   const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })
@@ -736,7 +736,7 @@ async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<Requ
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
+ * {@link /store/order}
  */
 export function usePlaceOrder(
   options: {
@@ -774,7 +774,7 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order
+ * {@link /store/order}
  */
 async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
@@ -789,7 +789,7 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order
+ * {@link /store/order}
  */
 export function usePlaceOrderPatch(
   options: {
@@ -827,7 +827,7 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
@@ -849,7 +849,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
@@ -891,7 +891,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export function useGetOrderByIdSuspense<
   TData = GetOrderByIdQueryResponse,
@@ -924,7 +924,7 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
@@ -938,7 +938,7 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export function useDeleteOrder(
   options: {
@@ -976,7 +976,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
+ * {@link /user}
  */
 async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
   const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
@@ -986,7 +986,7 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
+ * {@link /user}
  */
 export function useCreateUser(
   options: {
@@ -1024,7 +1024,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
- * @link /user/createWithList
+ * {@link /user/createWithList}
  */
 async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
@@ -1042,7 +1042,7 @@ async function createUsersWithListInput(
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
- * @link /user/createWithList
+ * {@link /user/createWithList}
  */
 export function useCreateUsersWithListInput(
   options: {
@@ -1079,7 +1079,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
@@ -1099,7 +1099,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUserQueryParams,
@@ -1138,7 +1138,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, con
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function useLoginUserSuspense<
   TData = LoginUserQueryResponse,
@@ -1170,7 +1170,7 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 async function logoutUser(config: Partial<RequestConfig> = {}) {
   const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: '/user/logout', ...config })
@@ -1190,7 +1190,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
@@ -1228,7 +1228,7 @@ export function logoutUserSuspenseQueryOptions(config: Partial<RequestConfig> = 
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 export function useLogoutUserSuspense<
   TData = LogoutUserQueryResponse,
@@ -1259,7 +1259,7 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({ method: 'GET', url: `/user/${username}`, ...config })
@@ -1280,7 +1280,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useGetUserByName<
   TData = GetUserByNameQueryResponse,
@@ -1325,7 +1325,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useGetUserByNameSuspense<
   TData = GetUserByNameQueryResponse,
@@ -1358,7 +1358,7 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function updateUser(
   username: UpdateUserPathParams['username'],
@@ -1372,7 +1372,7 @@ async function updateUser(
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useUpdateUser(
   options: {
@@ -1412,7 +1412,7 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
@@ -1422,7 +1422,7 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useDeleteUser(
   options: {

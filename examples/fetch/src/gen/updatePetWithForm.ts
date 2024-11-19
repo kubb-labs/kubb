@@ -4,7 +4,7 @@ import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, Up
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],

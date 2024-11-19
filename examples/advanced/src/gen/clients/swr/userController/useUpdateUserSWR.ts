@@ -11,7 +11,7 @@ export type UpdateUserMutationKeySWR = ReturnType<typeof updateUserMutationKeySW
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function updateUserSWR(
   {
@@ -36,7 +36,7 @@ async function updateUserSWR(
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useUpdateUserSWR(
   {

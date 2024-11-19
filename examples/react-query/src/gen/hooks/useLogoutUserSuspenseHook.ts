@@ -10,7 +10,7 @@ export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQue
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 async function logoutUserHook(config: Partial<RequestConfig> = {}) {
   const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: '/user/logout', ...config })
@@ -30,7 +30,7 @@ export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig
 
 /**
  * @summary Logs out current logged in user session
- * @link /user/logout
+ * {@link /user/logout}
  */
 export function useLogoutUserSuspenseHook<
   TData = LogoutUserQueryResponse,

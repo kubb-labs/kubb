@@ -16,7 +16,7 @@ export type CreatePetsMutationKeySWR = ReturnType<typeof createPetsMutationKeySW
 
 /**
  * @summary Create a pet
- * @link /pets/:uuid
+ * {@link /pets/:uuid}
  */
 async function createPetsSWR(
   {
@@ -46,7 +46,7 @@ async function createPetsSWR(
 
 /**
  * @summary Create a pet
- * @link /pets/:uuid
+ * {@link /pets/:uuid}
  */
 export function useCreatePetsSWR(
   {

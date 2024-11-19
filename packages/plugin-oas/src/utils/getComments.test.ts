@@ -17,6 +17,6 @@ describe('getComments', () => {
           return true
         },
       } as Operation),
-    ).toStrictEqual(['@description description', '@summary summary', '@link /pets/:id', '@deprecated'])
+    ).toStrictEqual(['@description description', '@summary summary', '{@link /pets/:id}', '@deprecated'])
   })
 })

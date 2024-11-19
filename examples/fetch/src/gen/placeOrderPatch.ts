@@ -5,7 +5,7 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, P
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order
+ * {@link /store/order}
  */
 export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({

@@ -5,7 +5,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
+ * {@link /store/order}
  */
 export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
   const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })

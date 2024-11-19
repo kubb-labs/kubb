@@ -4,7 +4,7 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })

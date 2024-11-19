@@ -11,7 +11,7 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function updateUserHook(
   {
@@ -29,7 +29,7 @@ async function updateUserHook(
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useUpdateUserHook(
   options: {

@@ -5,7 +5,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
 export async function addPet(
   {

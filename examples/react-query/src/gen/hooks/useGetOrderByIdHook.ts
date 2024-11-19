@@ -15,7 +15,7 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 async function getOrderByIdHook(
   {
@@ -51,7 +51,7 @@ export function getOrderByIdQueryOptionsHook(
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
 export function useGetOrderByIdHook<
   TData = GetOrderByIdQueryResponse,

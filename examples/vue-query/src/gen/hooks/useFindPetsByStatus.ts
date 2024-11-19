@@ -13,7 +13,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 async function findPetsByStatus(
   {
@@ -48,7 +48,7 @@ export function findPetsByStatusQueryOptions(
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatus<
   TData = FindPetsByStatusQueryResponse,

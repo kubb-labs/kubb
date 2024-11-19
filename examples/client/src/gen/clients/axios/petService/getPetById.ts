@@ -6,7 +6,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export async function getPetById(
   {

@@ -11,7 +11,7 @@ export type CreateUserMutationKeySWR = ReturnType<typeof createUserMutationKeySW
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
+ * {@link /user}
  */
 async function createUserSWR(
   {
@@ -34,7 +34,7 @@ async function createUserSWR(
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
+ * {@link /user}
  */
 export function useCreateUserSWR(
   options: {

@@ -10,7 +10,7 @@ import { nameSorter } from './nameSorter.ts'
 import { searchAndReplace } from './searchAndReplace.ts'
 import { stringify, stringifyObject } from './stringify.ts'
 import { toRegExp, toRegExpString } from './toRegExp.ts'
-import { transformReservedWord } from './transformReservedWord.ts'
+import { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimQuotes } from './trim.ts'
 
 export { camelCase, pascalCase, pathCase } from './casing.ts'
@@ -22,7 +22,7 @@ export { nameSorter } from './nameSorter.ts'
 export { searchAndReplace } from './searchAndReplace.ts'
 export { stringify, stringifyObject } from './stringify.ts'
 export { toRegExp, toRegExpString } from './toRegExp.ts'
-export { transformReservedWord } from './transformReservedWord.ts'
+export { transformReservedWord, isValidVarName } from './transformReservedWord.ts'
 export { trim, trimQuotes } from './trim.ts'
 export { merge } from 'remeda'
 export { orderBy } from 'natural-orderby'
@@ -33,6 +33,7 @@ export default {
   jsStringEscape,
   createIndent,
   transformReservedWord,
+  isValidVarName,
   nameSorter,
   searchAndReplace,
   stringify,

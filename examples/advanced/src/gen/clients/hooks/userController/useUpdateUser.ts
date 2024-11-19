@@ -12,7 +12,7 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 async function updateUser(
   {
@@ -31,7 +31,7 @@ async function updateUser(
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
+ * {@link /user/:username}
  */
 export function useUpdateUser(
   options: {

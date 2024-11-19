@@ -15,7 +15,7 @@ export type UploadFileMutationKeySWR = ReturnType<typeof uploadFileMutationKeySW
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 async function uploadFileSWR(
   {
@@ -43,7 +43,7 @@ async function uploadFileSWR(
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 export function useUploadFileSWR(
   {

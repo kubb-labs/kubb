@@ -12,7 +12,7 @@ import { unref } from "vue";
  /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 async function findPetsByTags({ headers, params }: {
     headers: FindPetsByTagsHeaderParams;
@@ -39,7 +39,7 @@ async function findPetsByTags({ headers, params }: {
  /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
+ * {@link /pet/findByTags}
  */
 export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TQueryData = FindPetsByTagsQueryResponse, TQueryKey extends QueryKey = FindPetsByTagsQueryKey>({ headers, params }: {
     headers: MaybeRef<FindPetsByTagsHeaderParams>;

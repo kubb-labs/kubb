@@ -95,3 +95,12 @@ export function transformReservedWord(word: string): string {
 
   return word
 }
+
+export function isValidVarName(name: string) {
+  try {
+    Function(`var ${name}`)
+  } catch (e) {
+    return false
+  }
+  return true
+}

@@ -10,7 +10,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 
 /**
  * @summary Get user by user name
- * @link /user/:username
+ * {@link /user/:username}
  */
 export async function getUserByName(
   {

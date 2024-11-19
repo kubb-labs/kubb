@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 async function updatePetWithForm({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
@@ -20,7 +20,7 @@ async function updatePetWithForm({ petId }: {
 
  /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm(options: {
     mutation?: UseMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {
