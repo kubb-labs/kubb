@@ -32,12 +32,12 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@tanstack/react-query": "^5.60.6",
+    "@tanstack/react-query": "^5.61.3",
     "@tanstack/solid-query": "^5.60.6",
-    "@tanstack/svelte-query": "^5.60.6",
-    "@tanstack/vue-query": "^5.60.6",
+    "@tanstack/svelte-query": "^5.61.3",
+    "@tanstack/vue-query": "^5.61.3",
     "axios": "^1.7.7",
-    "msw": "^2.6.5",
+    "msw": "^2.6.6",
     "react": "^18.3.1",
     "solid-js": "^1.9.3",
     "svelte": "^3.59.2",
@@ -50,7 +50,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

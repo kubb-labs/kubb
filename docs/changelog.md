@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.0.12
+- [`plugin-zod`](/plugins/plugin-zod): 2xx as part of `operations.ts`
+
 ## 3.0.11
 - [`core`](/plugins/core): Disabling output file extension
 - [`plugin-oas`](/plugins/plugin-oas): Correct use of Jsdocs syntax for links

@@ -855,6 +855,8 @@ export const machinesWait400Schema = z.lazy(() => errorResponseSchema)
 
 export const machinesWaitQueryResponseSchema = z.lazy(() => machinesWait200Schema)
 
+export const secretsListPathParamsSchema = z.object({ app_name: z.string().describe('Fly App Name') })
+
 /**
  * @description OK
  */
@@ -870,6 +872,12 @@ export const secretDeletePathParamsSchema = z.object({ app_name: z.string().desc
 export const secretDelete200Schema = z.any()
 
 export const secretDeleteMutationResponseSchema = z.lazy(() => secretDelete200Schema)
+
+export const secretCreatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_label: z.string().describe('App Secret Label'),
+  secret_type: z.string().describe('App Secret Type'),
+})
 
 /**
  * @description Created
@@ -887,6 +895,12 @@ export const secretCreate400Schema = z.lazy(() => errorResponseSchema)
 export const secretCreateMutationRequestSchema = z.lazy(() => createSecretRequestSchema)
 
 export const secretCreateMutationResponseSchema = z.lazy(() => secretCreate201Schema)
+
+export const secretGeneratePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_label: z.string().describe('App Secret Label'),
+  secret_type: z.string().describe('App Secret Type'),
+})
 
 /**
  * @description Created

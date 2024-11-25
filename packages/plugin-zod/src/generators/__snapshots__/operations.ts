@@ -1,4 +1,4 @@
-import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, createPetsMutationResponse, showPetByIdQueryResponse, showPetByIdPathParams } from "./showPetById";
+import { listPets200, listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, createPets201, createPetsMutationResponse, showPetById200, showPetByIdQueryResponse, showPetByIdPathParams } from "./showPetById";
 
  export const operations = { "listPets": {
         request: undefined,
@@ -8,6 +8,7 @@ import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, 
             header: undefined
         },
         responses: {
+            200: listPets200,
             default: listPetsQueryResponse
         },
         errors: {}
@@ -19,6 +20,7 @@ import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, 
             header: undefined
         },
         responses: {
+            201: createPets201,
             default: createPetsMutationResponse
         },
         errors: {}
@@ -30,6 +32,7 @@ import { listPetsQueryResponse, listPetsQueryParams, createPetsMutationRequest, 
             header: undefined
         },
         responses: {
+            200: showPetById200,
             default: showPetByIdQueryResponse
         },
         errors: {}

@@ -132,6 +132,25 @@ export function useOperationManager(): UseOperationManagerResult {
       {} as Record<number, string>,
     )
 
+    const responses = (schemas.responses || []).reduce(
+      (prev, acc) => {
+        if (!acc.statusCode) {
+          return prev
+        }
+
+        prev[acc.statusCode] = pluginManager.resolveName({
+          name: acc.name,
+          pluginKey,
+          type,
+        })
+
+        return prev
+      },
+      {} as Record<number, string>,
+    )
+
+    console.log(schemas.response)
+
     return {
       request: schemas.request?.name
         ? pluginManager.resolveName({
@@ -164,11 +183,7 @@ export function useOperationManager(): UseOperationManagerResult {
           : undefined,
       },
       responses: {
-        [schemas.response.statusCode || 'default']: pluginManager.resolveName({
-          name: schemas.response.name,
-          pluginKey,
-          type,
-        }),
+        ...responses,
         ['default']: pluginManager.resolveName({
           name: schemas.response.name,
           pluginKey,

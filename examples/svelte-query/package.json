@@ -27,13 +27,13 @@
     "@kubb/plugin-svelte-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/svelte-query": "^5.60.6",
+    "@tanstack/svelte-query": "^5.61.3",
     "axios": "^1.7.7",
     "svelte": "^3.59.2",
     "tsup": "^8.3.5"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
