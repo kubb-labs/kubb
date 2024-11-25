@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.0.12
+
+### Patch Changes
+
+- [`9f6de42`](https://github.com/kubb-labs/kubb/commit/9f6de4201b503f060a8c856be26918f8e07a84a6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - 2xx as part of `operations.ts`
+
+- Updated dependencies []:
+  - @kubb/core@3.0.12
+  - @kubb/fs@3.0.12
+  - @kubb/oas@3.0.12
+  - @kubb/parser-ts@3.0.12
+  - @kubb/plugin-oas@3.0.12
+  - @kubb/plugin-ts@3.0.12
+  - @kubb/react@3.0.12
+
 ## 3.0.11
 
 ### Patch Changes
