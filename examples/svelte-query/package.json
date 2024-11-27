@@ -27,8 +27,8 @@
     "@kubb/plugin-svelte-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/svelte-query": "^5.61.3",
-    "axios": "^1.7.7",
+    "@tanstack/svelte-query": "^5.61.5",
+    "axios": "^1.7.8",
     "svelte": "^3.59.2",
     "tsup": "^8.3.5"
   },

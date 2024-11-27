@@ -149,8 +149,6 @@ export function useOperationManager(): UseOperationManagerResult {
       {} as Record<number, string>,
     )
 
-    console.log(schemas.response)
-
     return {
       request: schemas.request?.name
         ? pluginManager.resolveName({
