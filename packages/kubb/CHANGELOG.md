@@ -1,5 +1,15 @@
 # kubb
 
+## 3.0.13
+
+### Patch Changes
+
+- [`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade packges
+
+- Updated dependencies [[`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83)]:
+  - @kubb/core@3.0.13
+  - @kubb/cli@3.0.13
+
 ## 3.0.12
 
 ### Patch Changes

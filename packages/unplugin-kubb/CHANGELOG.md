@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 1.0.6
+
+### Patch Changes
+
+- [`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade packges
+
 ## 1.0.5
 
 ### Patch Changes
