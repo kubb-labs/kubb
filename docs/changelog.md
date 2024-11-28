@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.0.14
+
+## 3.0.13
+- [`core`](/plugins/core): Upgrade packages
+- [`plugin-oas`](/plugins/plugin-oas): Applying required on fields inherited using allOf
+
 ## 3.0.12
 - [`plugin-zod`](/plugins/plugin-zod): 2xx as part of `operations.ts`
 

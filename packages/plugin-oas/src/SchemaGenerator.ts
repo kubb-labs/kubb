@@ -491,17 +491,13 @@ export class SchemaGenerator<
       if (schemaWithoutOneOf.properties) {
         const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
 
-        return [
-          {
-            ...union,
-            args: union.args.map((arg) => {
-              return {
-                keyword: schemaKeywords.and,
-                args: [arg, ...propertySchemas],
-              }
-            }),
-          },
-          ...baseItems,
+        union.args = [
+          ...union.args.map((arg) => {
+            return {
+              keyword: schemaKeywords.and,
+              args: [arg, ...propertySchemas],
+            }
+          }),
         ]
       }
 
@@ -557,14 +553,36 @@ export class SchemaGenerator<
           }),
       }
 
+      if (schemaWithoutAllOf.required) {
+        const schemas = schema.allOf
+          .map((item) => {
+            if (isReference(item)) {
+              return this.context.oas.get(item.$ref) as SchemaObject
+            }
+          })
+          .filter(Boolean)
+
+        const items = schemaWithoutAllOf.required
+          .map((key) => {
+            const schema = schemas.find((item) => item.properties && Object.keys(item.properties).find((propertyKey) => propertyKey === key))
+
+            if (schema?.properties?.[key]) {
+              return {
+                ...schema,
+                properties: {
+                  [key]: schema.properties[key],
+                },
+                required: [key],
+              }
+            }
+          })
+          .filter(Boolean)
+
+        and.args = [...(and.args || []), ...items.flatMap((item) => this.parse({ schema: item as SchemaObject, name, parentName }))]
+      }
+
       if (schemaWithoutAllOf.properties) {
-        return [
-          {
-            ...and,
-            args: [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })],
-          },
-          ...baseItems,
-        ]
+        and.args = [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })]
       }
 
       return [and, ...baseItems]

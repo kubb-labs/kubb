@@ -132,6 +132,29 @@ components:
           enum:
             - true
             - false
+    Address:
+      type: object
+      properties:
+        countryCode:
+          type: string
+        postalCode:
+          type: string
+        city:
+          type: string
+        streetName:
+          type: string
+        streetNumber:
+          type: string
+      required:
+        - countryCode
+        - postalCode
+        - city
+    FullAddress:
+      allOf:
+        - $ref: "#/components/schemas/Address"
+      required:
+        - streetName
+        - streetNumber
     Pets:
       type: array
       items:
