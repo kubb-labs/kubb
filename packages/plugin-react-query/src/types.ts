@@ -148,6 +148,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  group: Options['group']
   client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>

@@ -49,6 +49,7 @@ export type Options = {
 }
 type ResolvedOptions = {
   output: Output
+  group: Options['group']
   parser: NonNullable<Options['parser']>
 }
 

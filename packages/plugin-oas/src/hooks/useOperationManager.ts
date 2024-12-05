@@ -2,7 +2,8 @@ import { useApp, useContext } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
-import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, Group, Plugin, ResolveNameParams } from '@kubb/core'
+
 import type * as KubbFile from '@kubb/fs/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationSchemas } from '../types.ts'
@@ -10,7 +11,7 @@ import type { OperationSchemas } from '../types.ts'
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
   name: string
-  tag?: string
+  group?: string
 }
 
 export type SchemaNames = {
@@ -41,7 +42,7 @@ type UseOperationManagerResult = {
       suffix?: string
       pluginKey?: Plugin['key']
       extname?: KubbFile.Extname
-      tag?: string
+      group?: string
     },
   ) => KubbFile.File<FileMeta>
   groupSchemasByName: (
@@ -52,6 +53,7 @@ type UseOperationManagerResult = {
     },
   ) => SchemaNames
   getSchemas: (operation: Operation, params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] }) => OperationSchemas
+  getGroup: (operation: Operation, group: Group | undefined) => string | undefined
 }
 
 /**
@@ -69,6 +71,16 @@ export function useOperationManager(): UseOperationManagerResult {
     })
   }
 
+  const getGroup: UseOperationManagerResult['getGroup'] = (operation, group) => {
+    if (group?.type === 'tag') {
+      return operation.getTags().at(0)?.name
+    }
+
+    if (group?.type === 'path') {
+      return operation.path
+    }
+  }
+
   const getSchemas: UseOperationManagerResult['getSchemas'] = (operation, params) => {
     if (!generator) {
       throw new Error(`'generator' is not defined`)
@@ -84,17 +96,17 @@ export function useOperationManager(): UseOperationManagerResult {
     })
   }
 
-  //TODO replace tag with group
   const getFile: UseOperationManagerResult['getFile'] = (
     operation,
-    { prefix, suffix, pluginKey = plugin.key, tag = operation.getTags().at(0)?.name, extname = '.ts' } = {},
+    { prefix, suffix, pluginKey = plugin.key, group = getGroup(operation, (plugin.options as { group?: Group })?.group), extname = '.ts' } = {},
   ) => {
     const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
+
     const file = pluginManager.getFile({
       name,
       extname,
       pluginKey,
-      options: { type: 'file', pluginKey, tag },
+      options: { type: 'file', pluginKey, group },
     })
 
     return {
@@ -103,7 +115,7 @@ export function useOperationManager(): UseOperationManagerResult {
         ...file.meta,
         name,
         pluginKey,
-        tag,
+        group,
       },
     }
   }
@@ -198,5 +210,6 @@ export function useOperationManager(): UseOperationManagerResult {
     getFile,
     getSchemas,
     groupSchemasByName,
+    getGroup,
   }
 }

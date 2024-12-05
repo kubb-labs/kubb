@@ -121,6 +121,7 @@ type ResolvedOptions = {
   mutation: NonNullable<Required<Mutation>> | false
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  group: Options['group']
 }
 
 export type PluginSwr = PluginFactoryOptions<'plugin-swr', Options, ResolvedOptions, never, ResolvePathOptions>

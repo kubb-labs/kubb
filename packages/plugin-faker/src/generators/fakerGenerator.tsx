@@ -13,7 +13,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const { plugin, pluginManager, mode } = useApp<PluginFaker>()
     const oas = useOas()
-    const { getSchemas, getFile } = useOperationManager()
+    const { getSchemas, getFile, getGroup } = useOperationManager()
     const schemaManager = useSchemaManager()
 
     const file = getFile(operation)
@@ -33,6 +33,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
       const tree = schemaGenerator.parse({ schema, name })
       const imports = schemaManager.getImports(tree)
+      const group = options.operation ? getGroup(options.operation, plugin.options.group) : undefined
 
       const faker = {
         name: schemaManager.getName(name, { type: 'function' }),
@@ -41,7 +42,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
       const type = {
         name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
-        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], tag: options.operation?.getTags()[0]?.name }),
+        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], group }),
       }
 
       const canOverride = tree.some(

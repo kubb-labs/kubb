@@ -5,7 +5,20 @@ title: Changelog
 # Changelog
 
 ## 3.1.0
-- [`plugin-msw`](/plugins/plugin-msw): Support dynamic and customizable data in handlers
+- [`plugin-react-query`](/plugins/plugin-react-query/): Group API clients by path structure
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Group API clients by path structure
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Group API clients by path structure
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): Group API clients by path structure
+- [`plugin-msw`](/plugins/plugin-msw): Group API clients by path structure
+```typescript
+group: {
+  type: 'path',
+  name: ({ group }) => {
+    const firstSegment = group.split('/')[1];
+    return firstSegment;
+  }
+}
+```
 ```typescript
 findPetsByStatusHandler((info) => {
   const { params } = info

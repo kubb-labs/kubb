@@ -1,38 +1,38 @@
-import type { Category } from './Category.ts'
-import type { Tag } from './Tag.ts'
+import type { Category } from "./Category";
+import type { Tag } from "./Tag";
 
-export const petStatusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
+ export const petStatusEnum = {
+    "available": "available",
+    "pending": "pending",
+    "sold": "sold"
+} as const;
 
-export type PetStatusEnum = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+ export type PetStatusEnum = (typeof petStatusEnum)[keyof typeof petStatusEnum];
 
-export type Pet = {
-  /**
-   * @type integer | undefined, int64
-   */
-  id?: number
-  /**
-   * @type string
-   */
-  name: string
-  /**
-   * @type object | undefined
-   */
-  category?: Category
-  /**
-   * @type array
-   */
-  photoUrls: string[]
-  /**
-   * @type array | undefined
-   */
-  tags?: Tag[]
-  /**
-   * @description pet status in the store
-   * @type string | undefined
-   */
-  status?: PetStatusEnum
-}
+ export type Pet = {
+    /**
+     * @type integer | undefined, int64
+    */
+    id?: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type object | undefined
+    */
+    category?: Category;
+    /**
+     * @type array
+    */
+    photoUrls: string[];
+    /**
+     * @type array | undefined
+    */
+    tags?: Tag[];
+    /**
+     * @description pet status in the store
+     * @type string | undefined
+    */
+    status?: PetStatusEnum;
+};

@@ -91,6 +91,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  group: Options['group']
   override: NonNullable<Options['override']>
   transformers: NonNullable<Options['transformers']>
   dateType: NonNullable<Options['dateType']>

@@ -33,6 +33,7 @@ describe('handlersGenerator operations', async () => {
         path: '.',
       },
       parser: 'data',
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMsw>

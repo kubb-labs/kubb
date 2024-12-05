@@ -36,6 +36,9 @@ export const config = {
       output: {
         path: './hooks',
       },
+      group: {
+        type: 'path',
+      },
       queryKey(props) {
         const keys = QueryKey.getTransformer(props)
         return ['"v5"', ...keys]
