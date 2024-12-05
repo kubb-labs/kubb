@@ -114,11 +114,11 @@
     "@nuxt/schema": "^3.14.1592",
     "@types/node": "^20.17.9",
     "rimraf": "^5.0.10",
-    "rollup": "^4.27.4",
+    "rollup": "^4.28.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
-    "webpack": "^5.96.1"
+    "webpack": "^5.97.1"
   },
   "peerDependencies": {
     "@kubb/core": "^3.0.0",
