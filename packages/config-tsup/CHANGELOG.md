@@ -1,5 +1,7 @@
 # @kubb/config-tsup
 
+## 3.0.14
+
 ## 3.0.13
 
 ### Patch Changes

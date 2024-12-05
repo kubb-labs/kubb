@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.0.14
+
+### Patch Changes
+
+- [`c94ebdc`](https://github.com/kubb-labs/kubb/commit/c94ebdc08587eea345ae17e545168e4497999f4e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Applying required on fields inherited using allOf
+
+- Updated dependencies []:
+  - @kubb/core@3.0.14
+  - @kubb/fs@3.0.14
+  - @kubb/oas@3.0.14
+  - @kubb/react@3.0.14
+
 ## 3.0.13
 
 ### Patch Changes
