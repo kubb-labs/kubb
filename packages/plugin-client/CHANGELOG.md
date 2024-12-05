@@ -1,5 +1,22 @@
 # @kubb/plugin-client
 
+## 3.1.0
+
+### Minor Changes
+
+- [#1441](https://github.com/kubb-labs/kubb/pull/1441) [`55cbb62`](https://github.com/kubb-labs/kubb/commit/55cbb62d9d7a4e08886dfb91b52e275254c2c4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Group API clients by path structure
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.1.0
+  - @kubb/fs@3.1.0
+  - @kubb/oas@3.1.0
+  - @kubb/plugin-oas@3.1.0
+  - @kubb/plugin-ts@3.1.0
+  - @kubb/plugin-zod@3.1.0
+  - @kubb/react@3.1.0
+
 ## 3.0.14
 
 ### Patch Changes
