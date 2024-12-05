@@ -69,6 +69,12 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
+        group: {
+          type: 'tag',
+          name({ group }) {
+            return `${group}Controller`
+          },
+        },
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),
@@ -111,6 +117,12 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
+        group: {
+          type: 'tag',
+          name({ group }) {
+            return `${group}Controller`
+          },
+        },
         transformers: {
           name(name, type) {
             if (type === 'function') {

@@ -29,7 +29,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
             name,
             extname: '.ts',
             pluginKey,
-            options: { tag },
+            options: { group: tag },
           })
 
           const client = {
