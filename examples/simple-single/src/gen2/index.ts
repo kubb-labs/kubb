@@ -207,6 +207,53 @@ export const volumeSnapshotSchema = z.object({
   status: z.string().optional(),
 })
 
+export const flyContainerConfigSchema = z.object({
+  cmd: z.array(z.string()).describe('CmdOverride is used to override the default command of the image.').optional(),
+  depends_on: z
+    .array(z.lazy(() => flyContainerDependencySchema))
+    .describe(
+      'DependsOn can be used to define dependencies between containers. The container will only be\nstarted after all of its dependent conditions have been satisfied.',
+    )
+    .optional(),
+  entrypoint: z.array(z.string()).describe('EntrypointOverride is used to override the default entrypoint of the image.').optional(),
+  env: z.object({}).catchall(z.string()).describe('ExtraEnv is used to add additional environment variables to the container.').optional(),
+  env_from: z
+    .array(z.lazy(() => flyEnvFromSchema))
+    .describe('EnvFrom can be provided to set environment variables from machine fields.')
+    .optional(),
+  exec: z
+    .array(z.string())
+    .describe(
+      'Image Config overrides - these fields are used to override the image configuration.\nIf not provided, the image configuration will be used.\nExecOverride is used to override the default command of the image.',
+    )
+    .optional(),
+  files: z
+    .array(z.lazy(() => flyFileSchema))
+    .describe('Files are files that will be written to the container file system.')
+    .optional(),
+  image: z.string().describe('Image is the docker image to run.').optional(),
+  name: z.string().describe('Name is used to identify the container in the machine.').optional(),
+  restart: z
+    .lazy(() => flyMachineRestartSchema)
+    .describe('Restart is used to define the restart policy for the container. NOTE: spot-price is not\nsupported for containers.')
+    .optional(),
+  secrets: z
+    .array(z.lazy(() => flyMachineSecretSchema))
+    .describe(
+      'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
+    )
+    .optional(),
+  stop: z
+    .lazy(() => flyStopConfigSchema)
+    .describe('Stop is used to define the signal and timeout for stopping the container.')
+    .optional(),
+  user: z.string().describe('UserOverride is used to override the default user of the image.').optional(),
+})
+
+export const flyContainerDependencySchema = z.object({ condition: z.lazy(() => flyContainerDependencyConditionSchema).optional(), name: z.string().optional() })
+
+export const flyContainerDependencyConditionSchema = z.enum(['exited_successfully', 'healthy', 'started'])
+
 export const flyDnsConfigSchema = z.object({
   dns_forward_rules: z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(),
   hostname: z.string().optional(),
@@ -296,6 +343,10 @@ export const flyMachineConfigSchema = z.object({
   checks: z
     .object({})
     .catchall(z.lazy(() => flyMachineCheckSchema))
+    .optional(),
+  containers: z
+    .array(z.lazy(() => flyContainerConfigSchema))
+    .describe('Containers are a list of containers that will run in the machine. Currently restricted to\nonly specific organizations.')
     .optional(),
   disable_machine_autostart: z.boolean().describe('Deprecated: use Service.Autostart instead').optional(),
   dns: z.lazy(() => flyDnsConfigSchema).optional(),

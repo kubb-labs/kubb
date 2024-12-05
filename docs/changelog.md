@@ -4,7 +4,27 @@ title: Changelog
 
 # Changelog
 
+## 3.1.0
+- [`plugin-msw`](/plugins/plugin-msw): Support dynamic and customizable data in handlers
+```typescript
+findPetsByStatusHandler((info) => {
+  const { params } = info
+  if (params.someKey) {
+    return new Response(
+      JSON.stringify({ error: 'some error response' }),
+      { status: 400 }
+    );
+  }
+  return new Response(
+    JSON.stringify({ newData: 'new data' }),
+    { status: 200 }
+  );
+})
+
+```
+
 ## 3.0.14
+- [`core`](/plugins/core): Upgrade packages
 
 ## 3.0.13
 - [`core`](/plugins/core): Upgrade packages
