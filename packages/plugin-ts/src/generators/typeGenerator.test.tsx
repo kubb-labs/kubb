@@ -351,6 +351,7 @@ describe('typeGenerator schema', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
@@ -449,6 +450,7 @@ describe('typeGenerator operation', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
