@@ -34,7 +34,8 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
 
     return (
       <File baseName={mock.file.baseName} path={mock.file.path} meta={mock.file.meta} banner={output?.banner} footer={output?.footer}>
-        <File.Import name={['http']} path={'msw'} />
+        <File.Import name={['http']} path="msw" />
+        <File.Import name={['ResponseResolver']} isTypeOnly path="msw" />
         <File.Import name={[type.schemas.response.name]} path={type.file.path} root={mock.file.path} isTypeOnly />
         {parser === 'faker' && faker.file && faker.schemas.response && (
           <File.Import name={[faker.schemas.response.name]} root={mock.file.path} path={faker.file.path} />
