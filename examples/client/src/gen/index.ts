@@ -148,5 +148,12 @@ export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
 export { orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export { findPetsByStatusQueryParamsStatusEnum } from './models/ts/petController/FindPetsByStatus.js'
-export { getInventoryController, placeOrderController, placeOrderPatchController, getOrderByIdController, deleteOrderController } from './tag.js'
+export {
+  getInventoryController,
+  placeOrderController,
+  placeOrderPatchController,
+  getOrderByIdController,
+  deleteOrderController,
+  storeController,
+} from './tag.js'
 export { getInventory, placeOrder, placeOrderPatch, getOrderById, deleteOrder } from './tagObject.js'

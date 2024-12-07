@@ -64,3 +64,7 @@ export async function deleteOrderController(orderId: DeleteOrderPathParams['orde
   })
   return res.data
 }
+
+export function storeController() {
+  return { getInventoryController, placeOrderController, placeOrderPatchController, getOrderByIdController, deleteOrderController }
+}

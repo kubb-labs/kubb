@@ -101,6 +101,7 @@ describe('mutationGenerator operation', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSvelteQuery>

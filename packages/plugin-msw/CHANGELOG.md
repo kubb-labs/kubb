@@ -1,5 +1,24 @@
 # @kubb/plugin-msw
 
+## 3.1.0
+
+### Minor Changes
+
+- [#1439](https://github.com/kubb-labs/kubb/pull/1439) [`5012135`](https://github.com/kubb-labs/kubb/commit/5012135c9825ca991774d5f559951b6e52eb86bf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support dynamic and customizable data in handlers
+
+- [#1441](https://github.com/kubb-labs/kubb/pull/1441) [`55cbb62`](https://github.com/kubb-labs/kubb/commit/55cbb62d9d7a4e08886dfb91b52e275254c2c4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Group API clients by path structure
+
+### Patch Changes
+
+- Updated dependencies [[`55cbb62`](https://github.com/kubb-labs/kubb/commit/55cbb62d9d7a4e08886dfb91b52e275254c2c4b1)]:
+  - @kubb/plugin-faker@3.1.0
+  - @kubb/core@3.1.0
+  - @kubb/fs@3.1.0
+  - @kubb/oas@3.1.0
+  - @kubb/plugin-oas@3.1.0
+  - @kubb/plugin-ts@3.1.0
+  - @kubb/react@3.1.0
+
 ## 3.0.14
 
 ### Patch Changes

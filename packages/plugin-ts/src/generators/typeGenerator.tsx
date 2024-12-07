@@ -108,7 +108,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const { plugin, pluginManager, mode } = useApp<PluginTs>()
     const oas = useOas()
-    const { getSchemas, getFile, getName } = useOperationManager()
+    const { getSchemas, getFile, getName, getGroup } = useOperationManager()
     const schemaManager = useSchemaManager()
 
     const file = getFile(operation)
@@ -130,11 +130,12 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
       const tree = schemaGenerator.parse({ schema, name })
       const imports = schemaManager.getImports(tree)
+      const group = options.operation ? getGroup(options.operation, plugin.options.group) : undefined
 
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),
         typedName: schemaManager.getName(name, { type: 'type' }),
-        file: schemaManager.getFile(options.operationName || name, { tag: options.operation?.getTags()[0]?.name }),
+        file: schemaManager.getFile(options.operationName || name, { group }),
       }
 
       return (

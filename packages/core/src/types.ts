@@ -319,7 +319,7 @@ export type Group = {
   /**
    * Define a type where to group the files on
    */
-  type: 'tag'
+  type: 'tag' | 'path'
   /**
    * Return the name of a group based on the group name, this will be used for the file and name generation
    */

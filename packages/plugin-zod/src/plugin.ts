@@ -49,17 +49,12 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       coercion,
       operations,
       inferred,
+      group,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
-
-      if (options?.tag && group?.type === 'tag') {
-        const groupName: Group['name'] = group?.name ? group.name : (ctx) => `${ctx.group}Controller`
-
-        return path.resolve(root, output.path, groupName({ group: camelCase(options.tag) }), baseName)
-      }
 
       if (mode === 'single') {
         /**
@@ -67,6 +62,19 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
+      }
+
+      if (options?.group && group) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
       }
 
       return path.resolve(root, output.path, baseName)

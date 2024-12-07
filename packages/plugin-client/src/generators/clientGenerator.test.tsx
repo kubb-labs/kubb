@@ -110,6 +110,7 @@ describe('clientGenerator operation', async () => {
         path: '.',
         banner: '/* eslint-disable no-alert, no-console */',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
