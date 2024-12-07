@@ -37,6 +37,7 @@ describe('suspenseQueryGenerator operation', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       parser: 'zod',
+      paramsCasing: undefined,
       paramsType: 'inline',
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,

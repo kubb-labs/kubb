@@ -85,6 +85,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           transformer={options.queryKey}
         />
         <Client
@@ -97,6 +98,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
           paramsType={options.paramsType}
+          paramsCasing={options.paramsCasing}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
         />
@@ -106,6 +108,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           clientName={client.name}
           queryKeyName={queryKey.name}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
         />
@@ -117,6 +120,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
               name={query.name}
               queryOptionsName={queryOptions.name}
               typeSchemas={type.schemas}
+              paramsCasing={options.paramsCasing}
               paramsType={options.paramsType}
               pathParamsType={options.pathParamsType}
               operation={operation}

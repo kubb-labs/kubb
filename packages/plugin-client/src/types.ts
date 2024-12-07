@@ -48,6 +48,11 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' will use camelcase for the params names
+   */
+  paramsCasing?: 'camelcase'
+  /**
    * How to pass your params
    * - 'object' will return the params and pathParams as an object.
    * - 'inline' will return the params as comma separated params.
@@ -88,6 +93,7 @@ type ResolvedOptions = {
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>

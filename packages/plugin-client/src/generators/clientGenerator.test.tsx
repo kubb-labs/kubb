@@ -100,6 +100,7 @@ describe('clientGenerator operation', async () => {
 
     const options: PluginClient['resolvedOptions'] = {
       dataReturnType: 'data',
+      paramsCasing: undefined,
       paramsType: 'inline',
       pathParamsType: 'inline',
       importPath: '@kubb/plugin-client/client',

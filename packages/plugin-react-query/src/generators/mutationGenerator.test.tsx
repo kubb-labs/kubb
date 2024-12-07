@@ -26,7 +26,7 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'clientPostImportPath',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {
         client: {
@@ -38,14 +38,14 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'updatePetById',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {},
     },
     {
       name: 'updatePetByIdPathParamsObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {
         pathParamsType: 'object',
@@ -54,14 +54,14 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'delete',
       options: {},
     },
     {
       name: 'deletePetObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'get',
       options: {
         paramsType: 'object',
@@ -86,6 +86,7 @@ describe('mutationGenerator operation', async () => {
       },
       parser: 'zod',
       paramsType: 'inline',
+      paramsCasing: undefined,
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,

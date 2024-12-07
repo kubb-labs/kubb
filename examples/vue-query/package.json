@@ -29,7 +29,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.62.2",
+    "@tanstack/vue-query": "^5.62.3",
     "axios": "^1.7.9",
     "unplugin-kubb": "workspace:*",
     "vue": "^3.5.13"

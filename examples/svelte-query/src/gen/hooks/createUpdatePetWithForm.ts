@@ -9,22 +9,22 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
-export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
-  [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
+export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
+  [{ url: '/pet/:pet_id', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
-async function updatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+async function updatePetWithForm(petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
   return res.data
 }
 
 export function updatePetWithFormQueryOptions(
-  petId: UpdatePetWithFormPathParams['petId'],
+  petId: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
 ) {
@@ -41,14 +41,14 @@ export function updatePetWithFormQueryOptions(
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 export function createUpdatePetWithForm<
   TData = UpdatePetWithFormMutationResponse,
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId: UpdatePetWithFormPathParams['petId'],
+  petId: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>

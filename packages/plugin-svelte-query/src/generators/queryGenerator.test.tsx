@@ -117,6 +117,7 @@ describe('queryGenerator operation', async () => {
       parser: 'zod',
       paramsType: 'inline',
       pathParamsType: 'inline',
+      paramsCasing: undefined,
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       query: {

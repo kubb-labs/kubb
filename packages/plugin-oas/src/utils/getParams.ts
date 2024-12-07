@@ -41,12 +41,18 @@ export function getPathParams(
   operationSchema: OperationSchema | undefined,
   options: {
     typed?: boolean
+    casing?: 'camelcase'
     override?: (data: FunctionParamsAST) => FunctionParamsAST
   } = {},
 ) {
   return getASTParams(operationSchema, options).reduce((acc, curr) => {
     if (curr.name && curr.enabled) {
-      const name = isValidVarName(curr.name) ? curr.name : camelCase(curr.name)
+      let name = isValidVarName(curr.name) ? curr.name : camelCase(curr.name)
+
+      if (options.casing === 'camelcase') {
+        name = camelCase(name)
+      }
+
       acc[name] = {
         default: curr.default,
         type: curr.type,

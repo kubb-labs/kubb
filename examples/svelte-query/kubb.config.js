@@ -46,6 +46,7 @@ export default defineConfig({
           type: 'operationId',
           pattern: 'updatePetWithForm',
           options: {
+            paramsCasing: 'camelcase',
             query: {
               importPath: '@tanstack/svelte-query',
               key: (key) => key,

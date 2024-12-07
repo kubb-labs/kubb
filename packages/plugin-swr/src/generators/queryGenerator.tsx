@@ -86,6 +86,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           transformer={options.queryKey}
         />
         <Client
@@ -97,6 +98,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
@@ -106,6 +108,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           clientName={client.name}
           typeSchemas={type.schemas}
           paramsType={options.paramsType}
+          paramsCasing={options.paramsCasing}
           pathParamsType={options.pathParamsType}
         />
         {options.query && (
@@ -121,6 +124,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
               operation={operation}
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}
+              paramsCasing={options.paramsCasing}
               queryKeyTypeName={queryKey.typeName}
             />
           </>

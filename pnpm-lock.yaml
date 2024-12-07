@@ -60,7 +60,7 @@ importers:
         version: 5.1.0(typescript@5.7.2)(vite@5.4.11(@types/node@20.17.9)(terser@5.31.1))
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1)
+        version: 2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1)
 
   docs:
     dependencies:
@@ -75,7 +75,7 @@ importers:
         version: 8.0.0
       vitepress:
         specifier: ^1.5.0
-        version: 1.5.0(@algolia/client-search@4.24.0)(@types/node@20.17.9)(@types/react@18.3.13)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)(terser@5.31.1)(typescript@5.7.2)
+        version: 1.5.0(@algolia/client-search@4.24.0)(@types/node@20.17.9)(@types/react@18.3.14)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)(terser@5.31.1)(typescript@5.7.2)
       vitepress-plugin-group-icons:
         specifier: ^1.3.1
         version: 1.3.1
@@ -132,8 +132,8 @@ importers:
         specifier: ^20.17.9
         version: 20.17.9
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -186,23 +186,23 @@ importers:
         specifier: workspace:*
         version: link:../packages/react
       '@tanstack/react-query':
-        specifier: ^5.62.2
-        version: 5.62.2(react@18.3.1)
+        specifier: ^5.62.3
+        version: 5.62.3(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.62.2
-        version: 5.62.2(solid-js@1.9.3)
+        specifier: ^5.62.3
+        version: 5.62.3(solid-js@1.9.3)
       '@tanstack/svelte-query':
-        specifier: ^5.62.2
-        version: 5.62.2(svelte@3.59.2)
+        specifier: ^5.62.3
+        version: 5.62.3(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.62.2
-        version: 5.62.2(vue@3.5.13(typescript@5.7.2))
+        specifier: ^5.62.3
+        version: 5.62.3(vue@3.5.13(typescript@5.7.2))
       axios:
         specifier: ^1.7.9
         version: 1.7.9
       msw:
-        specifier: ^2.6.6
-        version: 2.6.6(@types/node@20.17.9)(typescript@5.7.2)
+        specifier: ^2.6.8
+        version: 2.6.8(@types/node@20.17.9)(typescript@5.7.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -277,26 +277,26 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/query-core':
-        specifier: ^5.62.2
-        version: 5.62.2
+        specifier: ^5.62.3
+        version: 5.62.3
       '@tanstack/react-query':
-        specifier: ^5.62.2
-        version: 5.62.2(react@18.3.1)
+        specifier: ^5.62.3
+        version: 5.62.3(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.62.2
-        version: 5.62.2(solid-js@1.9.3)
+        specifier: ^5.62.3
+        version: 5.62.3(solid-js@1.9.3)
       '@tanstack/svelte-query':
-        specifier: ^5.62.2
-        version: 5.62.2(svelte@3.59.2)
+        specifier: ^5.62.3
+        version: 5.62.3(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.62.2
-        version: 5.62.2(vue@3.5.13(typescript@5.7.2))
+        specifier: ^5.62.3
+        version: 5.62.3(vue@3.5.13(typescript@5.7.2))
       axios:
         specifier: ^1.7.9
         version: 1.7.9
       msw:
-        specifier: ^2.6.6
-        version: 2.6.6(@types/node@20.17.9)(typescript@5.7.2)
+        specifier: ^2.6.8
+        version: 2.6.8(@types/node@20.17.9)(typescript@5.7.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -354,8 +354,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -468,8 +468,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -508,10 +508,10 @@ importers:
         version: link:../../packages/plugin-ts
       '@mswjs/http-middleware':
         specifier: ^0.9.2
-        version: 0.9.2(msw@2.6.6(@types/node@20.17.9)(typescript@5.2.2))
+        version: 0.9.2(msw@2.6.8(@types/node@20.17.9)(typescript@5.2.2))
       msw:
-        specifier: ^2.6.6
-        version: 2.6.6(@types/node@20.17.9)(typescript@5.2.2)
+        specifier: ^2.6.8
+        version: 2.6.8(@types/node@20.17.9)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -539,8 +539,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -575,11 +575,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/react-query':
-        specifier: ^5.62.2
-        version: 5.62.2(react@18.3.1)
+        specifier: ^5.62.3
+        version: 5.62.3(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.62.2
-        version: 5.62.2(@tanstack/react-query@5.62.2(react@18.3.1))(react@18.3.1)
+        specifier: ^5.62.3
+        version: 5.62.3(@tanstack/react-query@5.62.3(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -594,11 +594,11 @@ importers:
         version: link:../../packages/unplugin-kubb
     devDependencies:
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       '@types/react-dom':
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^18.3.2
+        version: 18.3.2
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.3.4(vite@4.5.5(@types/node@20.17.9)(terser@5.31.1))
@@ -642,8 +642,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.62.2
-        version: 5.62.2(react@18.3.1)
+        specifier: ^5.62.3
+        version: 5.62.3(react@18.3.1)
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -681,8 +681,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
-        specifier: ^5.62.2
-        version: 5.62.2(solid-js@1.9.3)
+        specifier: ^5.62.3
+        version: 5.62.3(solid-js@1.9.3)
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -721,8 +721,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/svelte-query':
-        specifier: ^5.62.2
-        version: 5.62.2(svelte@3.59.2)
+        specifier: ^5.62.3
+        version: 5.62.3(svelte@3.59.2)
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -825,8 +825,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.62.2
-        version: 5.62.2(vue@3.5.13(typescript@5.7.2))
+        specifier: ^5.62.3
+        version: 5.62.3(vue@3.5.13(typescript@5.7.2))
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -1277,8 +1277,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1317,8 +1317,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1363,8 +1363,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1415,11 +1415,11 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       '@types/react-dom':
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^18.3.2
+        version: 18.3.2
       tsup:
         specifier: ^8.3.5
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.9))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
@@ -1461,8 +1461,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1507,8 +1507,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1556,8 +1556,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1596,8 +1596,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1642,8 +1642,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1728,8 +1728,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^18.3.13
-        version: 18.3.13
+        specifier: ^18.3.14
+        version: 18.3.14
       '@types/react-reconciler':
         specifier: ^0.28.8
         version: 0.28.8
@@ -1784,10 +1784,10 @@ importers:
         version: link:../core
       '@nuxt/kit':
         specifier: ^3.14.1592
-        version: 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
+        version: 3.14.1592(magicast@0.3.5)(rollup@4.28.1)
       '@nuxt/schema':
         specifier: ^3.14.1592
-        version: 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
+        version: 3.14.1592(magicast@0.3.5)(rollup@4.28.1)
       '@types/node':
         specifier: ^20.17.9
         version: 20.17.9
@@ -1795,8 +1795,8 @@ importers:
         specifier: ^5.0.10
         version: 5.0.10
       rollup:
-        specifier: ^4.28.0
-        version: 4.28.0
+        specifier: ^4.28.1
+        version: 4.28.1
       tsup:
         specifier: ^8.3.5
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.9))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
@@ -3055,8 +3055,8 @@ packages:
     cpu: [arm]
     os: [android]
 
-  '@rollup/rollup-android-arm-eabi@4.28.0':
-    resolution: {integrity: sha512-wLJuPLT6grGZsy34g4N1yRfYeouklTgPhH1gWXCYspenKYD0s3cR99ZevOGw5BexMNywkbV3UkjADisozBmpPQ==}
+  '@rollup/rollup-android-arm-eabi@4.28.1':
+    resolution: {integrity: sha512-2aZp8AES04KI2dy3Ss6/MDjXbwBzj+i0GqKtWXgw2/Ma6E4jJvujryO6gJAghIRVz7Vwr9Gtl/8na3nDUKpraQ==}
     cpu: [arm]
     os: [android]
 
@@ -3070,8 +3070,8 @@ packages:
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-android-arm64@4.28.0':
-    resolution: {integrity: sha512-eiNkznlo0dLmVG/6wf+Ifi/v78G4d4QxRhuUl+s8EWZpDewgk7PX3ZyECUXU0Zq/Ca+8nU8cQpNC4Xgn2gFNDA==}
+  '@rollup/rollup-android-arm64@4.28.1':
+    resolution: {integrity: sha512-EbkK285O+1YMrg57xVA+Dp0tDBRB93/BZKph9XhMjezf6F4TpYjaUSuPt5J0fZXlSag0LmZAsTmdGGqPp4pQFA==}
     cpu: [arm64]
     os: [android]
 
@@ -3085,8 +3085,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-arm64@4.28.0':
-    resolution: {integrity: sha512-lmKx9yHsppblnLQZOGxdO66gT77bvdBtr/0P+TPOseowE7D9AJoBw8ZDULRasXRWf1Z86/gcOdpBrV6VDUY36Q==}
+  '@rollup/rollup-darwin-arm64@4.28.1':
+    resolution: {integrity: sha512-prduvrMKU6NzMq6nxzQw445zXgaDBbMQvmKSJaxpaZ5R1QDM8w+eGxo6Y/jhT/cLoCvnZI42oEqf9KQNYz1fqQ==}
     cpu: [arm64]
     os: [darwin]
 
@@ -3100,8 +3100,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-x64@4.28.0':
-    resolution: {integrity: sha512-8hxgfReVs7k9Js1uAIhS6zq3I+wKQETInnWQtgzt8JfGx51R1N6DRVy3F4o0lQwumbErRz52YqwjfvuwRxGv1w==}
+  '@rollup/rollup-darwin-x64@4.28.1':
+    resolution: {integrity: sha512-WsvbOunsUk0wccO/TV4o7IKgloJ942hVFK1CLatwv6TJspcCZb9umQkPdvB7FihmdxgaKR5JyxDjWpCOp4uZlQ==}
     cpu: [x64]
     os: [darwin]
 
@@ -3115,8 +3115,8 @@ packages:
     cpu: [arm64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-arm64@4.28.0':
-    resolution: {integrity: sha512-lA1zZB3bFx5oxu9fYud4+g1mt+lYXCoch0M0V/xhqLoGatbzVse0wlSQ1UYOWKpuSu3gyN4qEc0Dxf/DII1bhQ==}
+  '@rollup/rollup-freebsd-arm64@4.28.1':
+    resolution: {integrity: sha512-HTDPdY1caUcU4qK23FeeGxCdJF64cKkqajU0iBnTVxS8F7H/7BewvYoG+va1KPSL63kQ1PGNyiwKOfReavzvNA==}
     cpu: [arm64]
     os: [freebsd]
 
@@ -3130,8 +3130,8 @@ packages:
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-x64@4.28.0':
-    resolution: {integrity: sha512-aI2plavbUDjCQB/sRbeUZWX9qp12GfYkYSJOrdYTL/C5D53bsE2/nBPuoiJKoWp5SN78v2Vr8ZPnB+/VbQ2pFA==}
+  '@rollup/rollup-freebsd-x64@4.28.1':
+    resolution: {integrity: sha512-m/uYasxkUevcFTeRSM9TeLyPe2QDuqtjkeoTpP9SW0XxUWfcYrGDMkO/m2tTw+4NMAF9P2fU3Mw4ahNvo7QmsQ==}
     cpu: [x64]
     os: [freebsd]
 
@@ -3145,8 +3145,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.28.0':
-    resolution: {integrity: sha512-WXveUPKtfqtaNvpf0iOb0M6xC64GzUX/OowbqfiCSXTdi/jLlOmH0Ba94/OkiY2yTGTwteo4/dsHRfh5bDCZ+w==}
+  '@rollup/rollup-linux-arm-gnueabihf@4.28.1':
+    resolution: {integrity: sha512-QAg11ZIt6mcmzpNE6JZBpKfJaKkqTm1A9+y9O+frdZJEuhQxiugM05gnCWiANHj4RmbgeVJpTdmKRmH/a+0QbA==}
     cpu: [arm]
     os: [linux]
 
@@ -3160,8 +3160,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@rollup/rollup-linux-arm-musleabihf@4.28.0':
-    resolution: {integrity: sha512-yLc3O2NtOQR67lI79zsSc7lk31xjwcaocvdD1twL64PK1yNaIqCeWI9L5B4MFPAVGEVjH5k1oWSGuYX1Wutxpg==}
+  '@rollup/rollup-linux-arm-musleabihf@4.28.1':
+    resolution: {integrity: sha512-dRP9PEBfolq1dmMcFqbEPSd9VlRuVWEGSmbxVEfiq2cs2jlZAl0YNxFzAQS2OrQmsLBLAATDMb3Z6MFv5vOcXg==}
     cpu: [arm]
     os: [linux]
 
@@ -3175,8 +3175,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@rollup/rollup-linux-arm64-gnu@4.28.0':
-    resolution: {integrity: sha512-+P9G9hjEpHucHRXqesY+3X9hD2wh0iNnJXX/QhS/J5vTdG6VhNYMxJ2rJkQOxRUd17u5mbMLHM7yWGZdAASfcg==}
+  '@rollup/rollup-linux-arm64-gnu@4.28.1':
+    resolution: {integrity: sha512-uGr8khxO+CKT4XU8ZUH1TTEUtlktK6Kgtv0+6bIFSeiSlnGJHG1tSFSjm41uQ9sAO/5ULx9mWOz70jYLyv1QkA==}
     cpu: [arm64]
     os: [linux]
 
@@ -3190,9 +3190,14 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@rollup/rollup-linux-arm64-musl@4.28.0':
-    resolution: {integrity: sha512-1xsm2rCKSTpKzi5/ypT5wfc+4bOGa/9yI/eaOLW0oMs7qpC542APWhl4A37AENGZ6St6GBMWhCCMM6tXgTIplw==}
+  '@rollup/rollup-linux-arm64-musl@4.28.1':
+    resolution: {integrity: sha512-QF54q8MYGAqMLrX2t7tNpi01nvq5RI59UBNx+3+37zoKX5KViPo/gk2QLhsuqok05sSCRluj0D00LzCwBikb0A==}
     cpu: [arm64]
+    os: [linux]
+
+  '@rollup/rollup-linux-loongarch64-gnu@4.28.1':
+    resolution: {integrity: sha512-vPul4uodvWvLhRco2w0GcyZcdyBfpfDRgNKU+p35AWEbJ/HPs1tOUrkSueVbBS0RQHAf/A+nNtDpvw95PeVKOA==}
+    cpu: [loong64]
     os: [linux]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.24.2':
@@ -3205,8 +3210,8 @@ packages:
     cpu: [ppc64]
     os: [linux]
 
-  '@rollup/rollup-linux-powerpc64le-gnu@4.28.0':
-    resolution: {integrity: sha512-zgWxMq8neVQeXL+ouSf6S7DoNeo6EPgi1eeqHXVKQxqPy1B2NvTbaOUWPn/7CfMKL7xvhV0/+fq/Z/J69g1WAQ==}
+  '@rollup/rollup-linux-powerpc64le-gnu@4.28.1':
+    resolution: {integrity: sha512-pTnTdBuC2+pt1Rmm2SV7JWRqzhYpEILML4PKODqLz+C7Ou2apEV52h19CR7es+u04KlqplggmN9sqZlekg3R1A==}
     cpu: [ppc64]
     os: [linux]
 
@@ -3220,8 +3225,8 @@ packages:
     cpu: [riscv64]
     os: [linux]
 
-  '@rollup/rollup-linux-riscv64-gnu@4.28.0':
-    resolution: {integrity: sha512-VEdVYacLniRxbRJLNtzwGt5vwS0ycYshofI7cWAfj7Vg5asqj+pt+Q6x4n+AONSZW/kVm+5nklde0qs2EUwU2g==}
+  '@rollup/rollup-linux-riscv64-gnu@4.28.1':
+    resolution: {integrity: sha512-vWXy1Nfg7TPBSuAncfInmAI/WZDd5vOklyLJDdIRKABcZWojNDY0NJwruY2AcnCLnRJKSaBgf/GiJfauu8cQZA==}
     cpu: [riscv64]
     os: [linux]
 
@@ -3235,8 +3240,8 @@ packages:
     cpu: [s390x]
     os: [linux]
 
-  '@rollup/rollup-linux-s390x-gnu@4.28.0':
-    resolution: {integrity: sha512-LQlP5t2hcDJh8HV8RELD9/xlYtEzJkm/aWGsauvdO2ulfl3QYRjqrKW+mGAIWP5kdNCBheqqqYIGElSRCaXfpw==}
+  '@rollup/rollup-linux-s390x-gnu@4.28.1':
+    resolution: {integrity: sha512-/yqC2Y53oZjb0yz8PVuGOQQNOTwxcizudunl/tFs1aLvObTclTwZ0JhXF2XcPT/zuaymemCDSuuUPXJJyqeDOg==}
     cpu: [s390x]
     os: [linux]
 
@@ -3250,8 +3255,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@rollup/rollup-linux-x64-gnu@4.28.0':
-    resolution: {integrity: sha512-Nl4KIzteVEKE9BdAvYoTkW19pa7LR/RBrT6F1dJCV/3pbjwDcaOq+edkP0LXuJ9kflW/xOK414X78r+K84+msw==}
+  '@rollup/rollup-linux-x64-gnu@4.28.1':
+    resolution: {integrity: sha512-fzgeABz7rrAlKYB0y2kSEiURrI0691CSL0+KXwKwhxvj92VULEDQLpBYLHpF49MSiPG4sq5CK3qHMnb9tlCjBw==}
     cpu: [x64]
     os: [linux]
 
@@ -3265,8 +3270,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@rollup/rollup-linux-x64-musl@4.28.0':
-    resolution: {integrity: sha512-eKpJr4vBDOi4goT75MvW+0dXcNUqisK4jvibY9vDdlgLx+yekxSm55StsHbxUsRxSTt3JEQvlr3cGDkzcSP8bw==}
+  '@rollup/rollup-linux-x64-musl@4.28.1':
+    resolution: {integrity: sha512-xQTDVzSGiMlSshpJCtudbWyRfLaNiVPXt1WgdWTwWz9n0U12cI2ZVtWe/Jgwyv/6wjL7b66uu61Vg0POWVfz4g==}
     cpu: [x64]
     os: [linux]
 
@@ -3280,8 +3285,8 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-arm64-msvc@4.28.0':
-    resolution: {integrity: sha512-Vi+WR62xWGsE/Oj+mD0FNAPY2MEox3cfyG0zLpotZdehPFXwz6lypkGs5y38Jd/NVSbOD02aVad6q6QYF7i8Bg==}
+  '@rollup/rollup-win32-arm64-msvc@4.28.1':
+    resolution: {integrity: sha512-wSXmDRVupJstFP7elGMgv+2HqXelQhuNf+IS4V+nUpNVi/GUiBgDmfwD0UGN3pcAnWsgKG3I52wMOBnk1VHr/A==}
     cpu: [arm64]
     os: [win32]
 
@@ -3295,8 +3300,8 @@ packages:
     cpu: [ia32]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.28.0':
-    resolution: {integrity: sha512-kN/Vpip8emMLn/eOza+4JwqDZBL6MPNpkdaEsgUtW1NYN3DZvZqSQrbKzJcTL6hd8YNmFTn7XGWMwccOcJBL0A==}
+  '@rollup/rollup-win32-ia32-msvc@4.28.1':
+    resolution: {integrity: sha512-ZkyTJ/9vkgrE/Rk9vhMXhf8l9D+eAhbAVbsGsXKy2ohmJaWg0LPQLnIxRdRp/bKyr8tXuPlXhIoGlEB5XpJnGA==}
     cpu: [ia32]
     os: [win32]
 
@@ -3310,8 +3315,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-msvc@4.28.0':
-    resolution: {integrity: sha512-Bvno2/aZT6usSa7lRDL2+hMjVAGjuqaymF1ApZm31JXzniR/hvr14jpU+/z4X6Gt5BPlzosscyJZGUvguXIqeQ==}
+  '@rollup/rollup-win32-x64-msvc@4.28.1':
+    resolution: {integrity: sha512-ZvK2jBafvttJjoIdKm/Q/Bh7IJ1Ose9IBOwpOXcOvW3ikGTQGmKDgxTC6oCAzW6PynbkKP8+um1du81XJHZ0JA==}
     cpu: [x64]
     os: [win32]
 
@@ -3478,38 +3483,38 @@ packages:
     resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.62.2':
-    resolution: {integrity: sha512-LcwVcC5qpsDpHcqlXUUL5o9SaOBwhNkGeV+B06s0GBoyBr8FqXPuXT29XzYXR36lchhnerp6XO+CWc84/vh7Zg==}
+  '@tanstack/query-core@5.62.3':
+    resolution: {integrity: sha512-Jp/nYoz8cnO7kqhOlSv8ke/0MJRJVGuZ0P/JO9KQ+f45mpN90hrerzavyTKeSoT/pOzeoOUkv1Xd0wPsxAWXfg==}
 
   '@tanstack/query-devtools@5.61.4':
     resolution: {integrity: sha512-21Tw+u8E3IJJj4A/Bct4H0uBaDTEu7zBrR79FeSyY+mS2gx5/m316oDtJiKkILc819VSTYt+sFzODoJNcpPqZQ==}
 
-  '@tanstack/react-query-devtools@5.62.2':
-    resolution: {integrity: sha512-s4+88OZ6ygD4ziNfUgh9y1XxsGqpscI77c8EaLP7KwEfa5WqnlB9MT/uslFkFq3vwb8JhMjB7Osv2MYrSMry6w==}
+  '@tanstack/react-query-devtools@5.62.3':
+    resolution: {integrity: sha512-4iaQap/iP5ErS094u1WehFntHtjRo6g5HJMvyHovBVbsxnvgPc6AtKAw7qxPPoKy6Wj5Bew0045eYP5phiiBmw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.62.2
+      '@tanstack/react-query': ^5.62.3
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.62.2':
-    resolution: {integrity: sha512-fkTpKKfwTJtVPKVR+ag7YqFgG/7TRVVPzduPAUF9zRCiiA8Wu305u+KJl8rCrh98Qce77vzIakvtUyzWLtaPGA==}
+  '@tanstack/react-query@5.62.3':
+    resolution: {integrity: sha512-y2zDNKuhgiuMgsKkqd4AcsLIBiCfEO8U11AdrtAUihmLbRNztPrlcZqx2lH1GacZsx+y1qRRbCcJLYTtF1vKsw==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@tanstack/solid-query@5.62.2':
-    resolution: {integrity: sha512-+p4PXOv98b5ngQUEg0AgFxjUiW57T5UWBOMd0pd7LXzbI8kJrIaJIdE/A9fFeDbIz+dg6LRuI2qYBzkn91kd1w==}
+  '@tanstack/solid-query@5.62.3':
+    resolution: {integrity: sha512-vKY7gYmJ5TIediRUDQqQwl/iHNhpd4bDCUq7FrrYIbUZ0ebmRClLulFUW2SbUfuBlMeZLhgAKhT7/1ob2Qk8eA==}
     peerDependencies:
       solid-js: ^1.6.0
 
-  '@tanstack/svelte-query@5.62.2':
-    resolution: {integrity: sha512-u8dPtQZLHTZv8EW7zNqHtLIh1C+3GNx+/XFqp3nQv0o0pENE/YRN/AKm/9FbJq2FLVArrE8LU7chCbt9Y4R7dg==}
+  '@tanstack/svelte-query@5.62.3':
+    resolution: {integrity: sha512-upo28cP5ZidXwbM1AQ3Ga/Uq3cmtkNkU0Vv8MFG78bwkEANqXQ5FpNs8ixvU6MqZnlJ3Zqp3BlUIc7dSpKD7qQ==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
   '@tanstack/virtual-core@3.10.9':
     resolution: {integrity: sha512-kBknKOKzmeR7lN+vSadaKWXaLS0SZZG+oqpQ/k80Q6g9REn6zRHS/ZYdrIzHnpHgy/eWs00SujveUN/GJT2qTw==}
 
-  '@tanstack/vue-query@5.62.2':
-    resolution: {integrity: sha512-osmptKF+Ung+UFNgKDhOrQxmlZsRp0zATCz8ARTbcay20CCnv6rvBR/+LJlb/M9YGQU/chrt/nPIi1Ax+j0SUw==}
+  '@tanstack/vue-query@5.62.3':
+    resolution: {integrity: sha512-6zU8yR0xKVxb/SilCSVAb0j6+bc++f+YeMA1TnG1qN9zHicWgF9fjtJi86FfIjBnytfFSPwo7Gykp8iId7G9yQ==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -3747,14 +3752,14 @@ packages:
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
 
-  '@types/react-dom@18.3.1':
-    resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
+  '@types/react-dom@18.3.2':
+    resolution: {integrity: sha512-Fqp+rcvem9wEnGr3RY8dYNvSQ8PoLqjZ9HLgaPUOjJJD120uDyOxOjc/39M4Kddp9JQCxpGQbnhVQF0C0ncYVg==}
 
   '@types/react-reconciler@0.28.8':
     resolution: {integrity: sha512-SN9c4kxXZonFhbX4hJrZy37yw9e7EIxcpHCxQv5JUS18wDE5ovkQKlqQEkufdJCCMfuI9BnjUJvhYeJ9x5Ra7g==}
 
-  '@types/react@18.3.13':
-    resolution: {integrity: sha512-ii/gswMmOievxAJed4PAHT949bpYjPKXvXo1v6cRB/kqc2ZR4n+SgyCyvyc5Fec5ez8VnUumI1Vk7j6fRyRogg==}
+  '@types/react@18.3.14':
+    resolution: {integrity: sha512-NzahNKvjNhVjuPBQ+2G7WlxstQ+47kXZNHlUvFakDViuIEfGY926GqhMueQFZ7woG+sPiQKlF36XfrIUVSUfFg==}
 
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
@@ -6270,8 +6275,8 @@ packages:
       typescript:
         optional: true
 
-  msw@2.6.6:
-    resolution: {integrity: sha512-npfIIVRHKQX3Lw4aLWX4wBh+lQwpqdZNyJYB5K/+ktK8NhtkdsTxGK7WDrgknozcVyRI7TOqY6yBS9j2FTR+YQ==}
+  msw@2.6.8:
+    resolution: {integrity: sha512-nxXxnH6WALZ9a7rsQp4HU2AaD4iGAiouMmE/MY4al7pXTibgA6OZOuKhmN2WBIM6w9qMKwRtX8p2iOb45B2M/Q==}
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
@@ -7045,8 +7050,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  rollup@4.28.0:
-    resolution: {integrity: sha512-G9GOrmgWHBma4YfCcX8PjH0qhXSdH8B4HDE2o4/jaxj93S4DPCIDoLcXz99eWMji4hB29UFCEd7B2gwGJDR9cQ==}
+  rollup@4.28.1:
+    resolution: {integrity: sha512-61fXYl/qNVinKmGSTHAZ6Yy8I3YIJC/r2m9feHo6SwVAVcLT5MPwOUFe7EuURA/4m0NR8lXG4BBXuo/IZEsjMg==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -8688,9 +8693,9 @@ snapshots:
 
   '@docsearch/css@3.6.2': {}
 
-  '@docsearch/js@3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)':
+  '@docsearch/js@3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)':
     dependencies:
-      '@docsearch/react': 3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)
+      '@docsearch/react': 3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)
       preact: 10.23.2
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -8699,14 +8704,14 @@ snapshots:
       - react-dom
       - search-insights
 
-  '@docsearch/react@3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)':
+  '@docsearch/react@3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)':
     dependencies:
       '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.1)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)
       '@docsearch/css': 3.6.2
       algoliasearch: 4.24.0
     optionalDependencies:
-      '@types/react': 18.3.13
+      '@types/react': 18.3.14
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       search-insights: 2.17.1
@@ -9280,10 +9285,10 @@ snapshots:
       '@types/set-cookie-parser': 2.4.9
       set-cookie-parser: 2.6.0
 
-  '@mswjs/http-middleware@0.9.2(msw@2.6.6(@types/node@20.17.9)(typescript@5.2.2))':
+  '@mswjs/http-middleware@0.9.2(msw@2.6.8(@types/node@20.17.9)(typescript@5.2.2))':
     dependencies:
       express: 4.19.2
-      msw: 2.6.6(@types/node@20.17.9)(typescript@5.2.2)
+      msw: 2.6.8(@types/node@20.17.9)(typescript@5.2.2)
       strict-event-emitter: 0.5.1
     transitivePeerDependencies:
       - supports-color
@@ -9322,9 +9327,9 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@nuxt/kit@3.14.1592(magicast@0.3.5)(rollup@4.28.0)':
+  '@nuxt/kit@3.14.1592(magicast@0.3.5)(rollup@4.28.1)':
     dependencies:
-      '@nuxt/schema': 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
+      '@nuxt/schema': 3.14.1592(magicast@0.3.5)(rollup@4.28.1)
       c12: 2.0.1(magicast@0.3.5)
       consola: 3.2.3
       defu: 6.1.4
@@ -9342,14 +9347,14 @@ snapshots:
       semver: 7.6.3
       ufo: 1.5.4
       unctx: 2.3.1
-      unimport: 3.13.3(rollup@4.28.0)
+      unimport: 3.13.3(rollup@4.28.1)
       untyped: 1.5.1
     transitivePeerDependencies:
       - magicast
       - rollup
       - supports-color
 
-  '@nuxt/schema@3.14.1592(magicast@0.3.5)(rollup@4.28.0)':
+  '@nuxt/schema@3.14.1592(magicast@0.3.5)(rollup@4.28.1)':
     dependencies:
       c12: 2.0.1(magicast@0.3.5)
       compatx: 0.1.8
@@ -9362,7 +9367,7 @@ snapshots:
       std-env: 3.8.0
       ufo: 1.5.4
       uncrypto: 0.1.3
-      unimport: 3.13.3(rollup@4.28.0)
+      unimport: 3.13.3(rollup@4.28.1)
       untyped: 1.5.1
     transitivePeerDependencies:
       - magicast
@@ -9498,13 +9503,13 @@ snapshots:
       - encoding
       - supports-color
 
-  '@rollup/pluginutils@5.1.3(rollup@4.28.0)':
+  '@rollup/pluginutils@5.1.3(rollup@4.28.1)':
     dependencies:
       '@types/estree': 1.0.6
       estree-walker: 2.0.2
       picomatch: 4.0.2
     optionalDependencies:
-      rollup: 4.28.0
+      rollup: 4.28.1
 
   '@rollup/rollup-android-arm-eabi@4.24.2':
     optional: true
@@ -9512,7 +9517,7 @@ snapshots:
   '@rollup/rollup-android-arm-eabi@4.25.0':
     optional: true
 
-  '@rollup/rollup-android-arm-eabi@4.28.0':
+  '@rollup/rollup-android-arm-eabi@4.28.1':
     optional: true
 
   '@rollup/rollup-android-arm64@4.24.2':
@@ -9521,7 +9526,7 @@ snapshots:
   '@rollup/rollup-android-arm64@4.25.0':
     optional: true
 
-  '@rollup/rollup-android-arm64@4.28.0':
+  '@rollup/rollup-android-arm64@4.28.1':
     optional: true
 
   '@rollup/rollup-darwin-arm64@4.24.2':
@@ -9530,7 +9535,7 @@ snapshots:
   '@rollup/rollup-darwin-arm64@4.25.0':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.28.0':
+  '@rollup/rollup-darwin-arm64@4.28.1':
     optional: true
 
   '@rollup/rollup-darwin-x64@4.24.2':
@@ -9539,7 +9544,7 @@ snapshots:
   '@rollup/rollup-darwin-x64@4.25.0':
     optional: true
 
-  '@rollup/rollup-darwin-x64@4.28.0':
+  '@rollup/rollup-darwin-x64@4.28.1':
     optional: true
 
   '@rollup/rollup-freebsd-arm64@4.24.2':
@@ -9548,7 +9553,7 @@ snapshots:
   '@rollup/rollup-freebsd-arm64@4.25.0':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.28.0':
+  '@rollup/rollup-freebsd-arm64@4.28.1':
     optional: true
 
   '@rollup/rollup-freebsd-x64@4.24.2':
@@ -9557,7 +9562,7 @@ snapshots:
   '@rollup/rollup-freebsd-x64@4.25.0':
     optional: true
 
-  '@rollup/rollup-freebsd-x64@4.28.0':
+  '@rollup/rollup-freebsd-x64@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-arm-gnueabihf@4.24.2':
@@ -9566,7 +9571,7 @@ snapshots:
   '@rollup/rollup-linux-arm-gnueabihf@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.28.0':
+  '@rollup/rollup-linux-arm-gnueabihf@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-arm-musleabihf@4.24.2':
@@ -9575,7 +9580,7 @@ snapshots:
   '@rollup/rollup-linux-arm-musleabihf@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-musleabihf@4.28.0':
+  '@rollup/rollup-linux-arm-musleabihf@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-arm64-gnu@4.24.2':
@@ -9584,7 +9589,7 @@ snapshots:
   '@rollup/rollup-linux-arm64-gnu@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.28.0':
+  '@rollup/rollup-linux-arm64-gnu@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-arm64-musl@4.24.2':
@@ -9593,7 +9598,10 @@ snapshots:
   '@rollup/rollup-linux-arm64-musl@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-musl@4.28.0':
+  '@rollup/rollup-linux-arm64-musl@4.28.1':
+    optional: true
+
+  '@rollup/rollup-linux-loongarch64-gnu@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.24.2':
@@ -9602,7 +9610,7 @@ snapshots:
   '@rollup/rollup-linux-powerpc64le-gnu@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-powerpc64le-gnu@4.28.0':
+  '@rollup/rollup-linux-powerpc64le-gnu@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-riscv64-gnu@4.24.2':
@@ -9611,7 +9619,7 @@ snapshots:
   '@rollup/rollup-linux-riscv64-gnu@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-gnu@4.28.0':
+  '@rollup/rollup-linux-riscv64-gnu@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-s390x-gnu@4.24.2':
@@ -9620,7 +9628,7 @@ snapshots:
   '@rollup/rollup-linux-s390x-gnu@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.28.0':
+  '@rollup/rollup-linux-s390x-gnu@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-x64-gnu@4.24.2':
@@ -9629,7 +9637,7 @@ snapshots:
   '@rollup/rollup-linux-x64-gnu@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.28.0':
+  '@rollup/rollup-linux-x64-gnu@4.28.1':
     optional: true
 
   '@rollup/rollup-linux-x64-musl@4.24.2':
@@ -9638,7 +9646,7 @@ snapshots:
   '@rollup/rollup-linux-x64-musl@4.25.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.28.0':
+  '@rollup/rollup-linux-x64-musl@4.28.1':
     optional: true
 
   '@rollup/rollup-win32-arm64-msvc@4.24.2':
@@ -9647,7 +9655,7 @@ snapshots:
   '@rollup/rollup-win32-arm64-msvc@4.25.0':
     optional: true
 
-  '@rollup/rollup-win32-arm64-msvc@4.28.0':
+  '@rollup/rollup-win32-arm64-msvc@4.28.1':
     optional: true
 
   '@rollup/rollup-win32-ia32-msvc@4.24.2':
@@ -9656,7 +9664,7 @@ snapshots:
   '@rollup/rollup-win32-ia32-msvc@4.25.0':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.28.0':
+  '@rollup/rollup-win32-ia32-msvc@4.28.1':
     optional: true
 
   '@rollup/rollup-win32-x64-msvc@4.24.2':
@@ -9665,7 +9673,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.25.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-msvc@4.28.0':
+  '@rollup/rollup-win32-x64-msvc@4.28.1':
     optional: true
 
   '@rushstack/node-core-library@5.10.0(@types/node@20.17.9)':
@@ -9864,37 +9872,37 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.62.2': {}
+  '@tanstack/query-core@5.62.3': {}
 
   '@tanstack/query-devtools@5.61.4': {}
 
-  '@tanstack/react-query-devtools@5.62.2(@tanstack/react-query@5.62.2(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.62.3(@tanstack/react-query@5.62.3(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/query-devtools': 5.61.4
-      '@tanstack/react-query': 5.62.2(react@18.3.1)
+      '@tanstack/react-query': 5.62.3(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.62.2(react@18.3.1)':
+  '@tanstack/react-query@5.62.3(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.62.2
+      '@tanstack/query-core': 5.62.3
       react: 18.3.1
 
-  '@tanstack/solid-query@5.62.2(solid-js@1.9.3)':
+  '@tanstack/solid-query@5.62.3(solid-js@1.9.3)':
     dependencies:
-      '@tanstack/query-core': 5.62.2
+      '@tanstack/query-core': 5.62.3
       solid-js: 1.9.3
 
-  '@tanstack/svelte-query@5.62.2(svelte@3.59.2)':
+  '@tanstack/svelte-query@5.62.3(svelte@3.59.2)':
     dependencies:
-      '@tanstack/query-core': 5.62.2
+      '@tanstack/query-core': 5.62.3
       svelte: 3.59.2
 
   '@tanstack/virtual-core@3.10.9': {}
 
-  '@tanstack/vue-query@5.62.2(vue@3.5.13(typescript@5.7.2))':
+  '@tanstack/vue-query@5.62.3(vue@3.5.13(typescript@5.7.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.62.2
+      '@tanstack/query-core': 5.62.3
       '@vue/devtools-api': 6.6.3
       vue: 3.5.13(typescript@5.7.2)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.2))
@@ -10165,15 +10173,15 @@ snapshots:
 
   '@types/range-parser@1.2.7': {}
 
-  '@types/react-dom@18.3.1':
+  '@types/react-dom@18.3.2':
     dependencies:
-      '@types/react': 18.3.13
+      '@types/react': 18.3.14
 
   '@types/react-reconciler@0.28.8':
     dependencies:
-      '@types/react': 18.3.13
+      '@types/react': 18.3.14
 
-  '@types/react@18.3.13':
+  '@types/react@18.3.14':
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
@@ -10274,7 +10282,7 @@ snapshots:
       std-env: 3.8.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1)
+      vitest: 2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10285,13 +10293,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.8(msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2))(vite@5.4.11(@types/node@20.17.9)(terser@5.31.1))':
+  '@vitest/mocker@2.1.8(msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2))(vite@5.4.11(@types/node@20.17.9)(terser@5.31.1))':
     dependencies:
       '@vitest/spy': 2.1.8
       estree-walker: 3.0.3
       magic-string: 0.30.13
     optionalDependencies:
-      msw: 2.6.6(@types/node@20.17.9)(typescript@5.7.2)
+      msw: 2.6.8(@types/node@20.17.9)(typescript@5.7.2)
       vite: 5.4.11(@types/node@20.17.9)(terser@5.31.1)
 
   '@vitest/pretty-format@2.1.8':
@@ -10322,7 +10330,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1)
+      vitest: 2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1)
 
   '@vitest/utils@2.1.8':
     dependencies:
@@ -12021,7 +12029,7 @@ snapshots:
       vue: 3.5.13(typescript@5.7.2)
       vue-resize: 2.0.0-alpha.1(vue@3.5.13(typescript@5.7.2))
     optionalDependencies:
-      '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
+      '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.28.1)
 
   focus-trap@7.6.0:
     dependencies:
@@ -13174,7 +13182,7 @@ snapshots:
       - encoding
       - supports-color
 
-  msw@2.6.6(@types/node@20.17.9)(typescript@5.2.2):
+  msw@2.6.8(@types/node@20.17.9)(typescript@5.2.2):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -13199,7 +13207,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2):
+  msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -14065,28 +14073,29 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.25.0
       fsevents: 2.3.3
 
-  rollup@4.28.0:
+  rollup@4.28.1:
     dependencies:
       '@types/estree': 1.0.6
     optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.28.0
-      '@rollup/rollup-android-arm64': 4.28.0
-      '@rollup/rollup-darwin-arm64': 4.28.0
-      '@rollup/rollup-darwin-x64': 4.28.0
-      '@rollup/rollup-freebsd-arm64': 4.28.0
-      '@rollup/rollup-freebsd-x64': 4.28.0
-      '@rollup/rollup-linux-arm-gnueabihf': 4.28.0
-      '@rollup/rollup-linux-arm-musleabihf': 4.28.0
-      '@rollup/rollup-linux-arm64-gnu': 4.28.0
-      '@rollup/rollup-linux-arm64-musl': 4.28.0
-      '@rollup/rollup-linux-powerpc64le-gnu': 4.28.0
-      '@rollup/rollup-linux-riscv64-gnu': 4.28.0
-      '@rollup/rollup-linux-s390x-gnu': 4.28.0
-      '@rollup/rollup-linux-x64-gnu': 4.28.0
-      '@rollup/rollup-linux-x64-musl': 4.28.0
-      '@rollup/rollup-win32-arm64-msvc': 4.28.0
-      '@rollup/rollup-win32-ia32-msvc': 4.28.0
-      '@rollup/rollup-win32-x64-msvc': 4.28.0
+      '@rollup/rollup-android-arm-eabi': 4.28.1
+      '@rollup/rollup-android-arm64': 4.28.1
+      '@rollup/rollup-darwin-arm64': 4.28.1
+      '@rollup/rollup-darwin-x64': 4.28.1
+      '@rollup/rollup-freebsd-arm64': 4.28.1
+      '@rollup/rollup-freebsd-x64': 4.28.1
+      '@rollup/rollup-linux-arm-gnueabihf': 4.28.1
+      '@rollup/rollup-linux-arm-musleabihf': 4.28.1
+      '@rollup/rollup-linux-arm64-gnu': 4.28.1
+      '@rollup/rollup-linux-arm64-musl': 4.28.1
+      '@rollup/rollup-linux-loongarch64-gnu': 4.28.1
+      '@rollup/rollup-linux-powerpc64le-gnu': 4.28.1
+      '@rollup/rollup-linux-riscv64-gnu': 4.28.1
+      '@rollup/rollup-linux-s390x-gnu': 4.28.1
+      '@rollup/rollup-linux-x64-gnu': 4.28.1
+      '@rollup/rollup-linux-x64-musl': 4.28.1
+      '@rollup/rollup-win32-arm64-msvc': 4.28.1
+      '@rollup/rollup-win32-ia32-msvc': 4.28.1
+      '@rollup/rollup-win32-x64-msvc': 4.28.1
       fsevents: 2.3.3
 
   roughjs@4.6.6:
@@ -14891,9 +14900,9 @@ snapshots:
 
   unicorn-magic@0.3.0: {}
 
-  unimport@3.13.3(rollup@4.28.0):
+  unimport@3.13.3(rollup@4.28.1):
     dependencies:
-      '@rollup/pluginutils': 5.1.3(rollup@4.28.0)
+      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
       acorn: 8.14.0
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
@@ -15084,10 +15093,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress@1.5.0(@algolia/client-search@4.24.0)(@types/node@20.17.9)(@types/react@18.3.13)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)(terser@5.31.1)(typescript@5.7.2):
+  vitepress@1.5.0(@algolia/client-search@4.24.0)(@types/node@20.17.9)(@types/react@18.3.14)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)(terser@5.31.1)(typescript@5.7.2):
     dependencies:
       '@docsearch/css': 3.6.2
-      '@docsearch/js': 3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)
+      '@docsearch/js': 3.6.2(@algolia/client-search@4.24.0)(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)
       '@iconify-json/simple-icons': 1.2.10
       '@shikijs/core': 1.22.2
       '@shikijs/transformers': 1.22.2
@@ -15134,10 +15143,10 @@ snapshots:
       - typescript
       - universal-cookie
 
-  vitest@2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1):
+  vitest@2.1.8(@types/node@20.17.9)(@vitest/ui@2.1.8)(msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2))(terser@5.31.1):
     dependencies:
       '@vitest/expect': 2.1.8
-      '@vitest/mocker': 2.1.8(msw@2.6.6(@types/node@20.17.9)(typescript@5.7.2))(vite@5.4.11(@types/node@20.17.9)(terser@5.31.1))
+      '@vitest/mocker': 2.1.8(msw@2.6.8(@types/node@20.17.9)(typescript@5.7.2))(vite@5.4.11(@types/node@20.17.9)(terser@5.31.1))
       '@vitest/pretty-format': 2.1.8
       '@vitest/runner': 2.1.8
       '@vitest/snapshot': 2.1.8

@@ -84,6 +84,7 @@ describe('mutationGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/client',
       },
+      paramsCasing: undefined,
       parser: 'client',
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,

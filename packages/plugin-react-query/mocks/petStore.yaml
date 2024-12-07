@@ -255,7 +255,7 @@ paths:
         - petstore_auth:
             - write:pets
             - read:pets
-  /pet/{petId}:
+  /pet/{pet_id}:
     get:
       tags:
         - pet
@@ -263,7 +263,7 @@ paths:
       description: Returns a single pet
       operationId: getPetById
       parameters:
-        - name: petId
+        - name: pet_id
           in: path
           description: ID of pet to return
           required: true

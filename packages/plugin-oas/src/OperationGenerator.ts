@@ -48,7 +48,7 @@ export class OperationGenerator<
         }
 
         if (type === 'operationId') {
-          return !!operation.getOperationId().match(pattern)
+          return !!operation.getOperationId({ friendlyCase: true }).match(pattern)
         }
 
         if (type === 'path') {
@@ -74,7 +74,7 @@ export class OperationGenerator<
       }
 
       if (type === 'operationId' && !matched) {
-        matched = !!operation.getOperationId().match(pattern)
+        matched = !!operation.getOperationId({ friendlyCase: true }).match(pattern)
       }
 
       if (type === 'path' && !matched) {
@@ -99,7 +99,7 @@ export class OperationGenerator<
       }
 
       if (type === 'operationId' && !matched) {
-        matched = !!operation.getOperationId().match(pattern)
+        matched = !!operation.getOperationId({ friendlyCase: true }).match(pattern)
       }
 
       if (type === 'path' && !matched) {
@@ -135,11 +135,11 @@ export class OperationGenerator<
       const schema = this.context.oas.getResponseSchema(operation, statusCode)
 
       return {
-        name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${name}`)),
+        name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
-        operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+        operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
         statusCode: name === 'error' ? undefined : Number(statusCode),
         keys: schema?.properties ? Object.keys(schema.properties) : undefined,
         keysToOmit: schema?.properties
@@ -155,37 +155,39 @@ export class OperationGenerator<
     return {
       pathParams: pathParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} PathParams`)),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} PathParams`)),
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
             schema: pathParamsSchema,
             keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
           }
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} QueryParams`)),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} QueryParams`)),
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
             schema: queryParamsSchema,
             keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
           }
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} HeaderParams`)),
+            name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} HeaderParams`)),
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
             schema: headerParamsSchema,
             keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
           }
         : undefined,
       request: requestSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
+            name: resolveName(
+              transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
+            ),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
             schema: requestSchema,
             keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
             keysToOmit: requestSchema.properties
@@ -198,9 +200,11 @@ export class OperationGenerator<
           }
         : undefined,
       response: {
-        name: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
+        name: resolveName(
+          transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
+        ),
         operation,
-        operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+        operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
         schema: {
           oneOf: hasResponses
             ? statusCodes
@@ -208,7 +212,7 @@ export class OperationGenerator<
                 .map((item) => {
                   return {
                     ...item.schema,
-                    $ref: resolveName(transformers.pascalCase(`${operation.getOperationId()} ${item.statusCode}`)),
+                    $ref: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${item.statusCode}`)),
                   }
                 })
             : undefined,
@@ -330,41 +334,6 @@ export class OperationGenerator<
   async operation(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
-
-  /**
-   * GET
-   */
-  async get(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
-    return []
-  }
-
-  /**
-   * POST
-   */
-  async post(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
-    return []
-  }
-  /**
-   * PATCH
-   */
-  async patch(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
-    return []
-  }
-
-  /**
-   * PUT
-   */
-  async put(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
-    return []
-  }
-
-  /**
-   * DELETE
-   */
-  async delete(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
-    return []
-  }
-
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */

@@ -3,22 +3,22 @@ import type { UseMutationOptions } from "@tanstack/react-query";
 import type { RequestConfig } from "axios";
 import { useMutation } from "@tanstack/react-query";
 
- export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
+ export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{pet_id}" }] as const;
 
  export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>;
 
  /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
-    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${petId}`, params, data, ...config });
+    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${pet_id}`, params, data, ...config });
     return updatePetWithFormMutationResponse.parse(res.data);
 }
 
  /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 export function useUpdatePetWithForm(options: {
     mutation?: UseMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {

@@ -192,7 +192,7 @@ paths:
         - petstore_auth:
             - write:pets
             - read:pets
-  /pet/{petId}:
+  /pet/{pet_id}:
     get:
       tags:
         - pet
@@ -200,7 +200,7 @@ paths:
       description: Returns a single pet
       operationId: getPetById
       parameters:
-        - name: petId
+        - name: pet_id
           in: path
           description: ID of pet to return
           required: true
@@ -233,7 +233,7 @@ paths:
       description: ''
       operationId: updatePetWithForm
       parameters:
-        - name: petId
+        - name: pet_id
           in: path
           description: ID of pet that needs to be updated
           required: true
@@ -270,7 +270,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: petId
+        - name: pet_id
           in: path
           description: Pet id to delete
           required: true
@@ -756,7 +756,7 @@ components:
           type: string
       xml:
         name: tag
-        
+
     Pet:
       required:
         - name

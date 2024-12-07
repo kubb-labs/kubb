@@ -11,11 +11,17 @@ type ObjectOptions = {
   stringify?: boolean
 }
 
+type Options = {
+  casing?: 'camelcase'
+}
+
 export class URLPath {
   path: string
+  #options: Options
 
-  constructor(path: string) {
+  constructor(path: string, options: Options = {}) {
     this.path = path
+    this.#options = options
 
     return this
   }
@@ -91,7 +97,11 @@ export class URLPath {
       newPath = found.reduce((prev, path) => {
         const pathWithoutBrackets = path.replaceAll('{', '').replaceAll('}', '')
 
-        const param = isValidVarName(pathWithoutBrackets) ? pathWithoutBrackets : camelCase(pathWithoutBrackets)
+        let param = isValidVarName(pathWithoutBrackets) ? pathWithoutBrackets : camelCase(pathWithoutBrackets)
+
+        if (this.#options.casing === 'camelcase') {
+          param = camelCase(param)
+        }
 
         return prev.replace(path, `\${${replacer ? replacer(param) : param}}`)
       }, this.path)
@@ -112,7 +122,12 @@ export class URLPath {
     found.forEach((item) => {
       item = item.replaceAll('{', '').replaceAll('}', '')
 
-      const param = isValidVarName(item) ? item : camelCase(item)
+      let param = isValidVarName(item) ? item : camelCase(item)
+
+      if (this.#options.casing === 'camelcase') {
+        param = camelCase(param)
+      }
+
       const key = replacer ? replacer(param) : param
 
       params[key] = key

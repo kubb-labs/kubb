@@ -31,6 +31,7 @@ describe('groupedClientsGenerators operations', async () => {
     const options: PluginClient['resolvedOptions'] = {
       dataReturnType: 'data',
       paramsType: 'inline',
+      paramsCasing: undefined,
       pathParamsType: 'inline',
       importPath: '@kubb/plugin-client/client',
       baseURL: '',

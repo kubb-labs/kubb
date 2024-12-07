@@ -3,16 +3,16 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from "custom-query";
 import { queryOptions, useQuery } from "custom-query";
 
- export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams) => [{ url: "/pet/:petId", params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
+ export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams) => [{ url: "/pet/:pet_id", params: { pet_id: pet_id } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const;
 
  export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>;
 
  /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
-    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${petId}`, params, data, ...config });
+    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${pet_id}`, params, data, ...config });
     return updatePetWithFormMutationResponse.parse(res.data);
 }
 
@@ -30,7 +30,7 @@ async function updatePetWithForm(petId: UpdatePetWithFormPathParams["petId"], da
 
  /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TQueryData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormQueryKey>(petId: UpdatePetWithFormPathParams["petId"], data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, options: {
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>;

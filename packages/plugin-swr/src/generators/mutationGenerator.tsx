@@ -84,6 +84,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           transformer={options.mutationKey}
         />
 
@@ -96,6 +97,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
@@ -109,6 +111,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
             operation={operation}
             dataReturnType={options.client.dataReturnType}
             paramsType={options.paramsType}
+            paramsCasing={options.paramsCasing}
             pathParamsType={options.pathParamsType}
             mutationKeyName={mutationKey.name}
             mutationKeyTypeName={mutationKey.typeName}
