@@ -19,25 +19,27 @@ type Props = {
   mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
   mutationKeyTypeName: string
 }
 // TODO add same logic as being done for react-query mutations
-function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
+function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
+      children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     },
     params: typeSchemas.queryParams?.name
       ? {
@@ -70,6 +72,7 @@ export function Mutation({
   mutationKeyName,
   mutationKeyTypeName,
   paramsType,
+  paramsCasing,
   pathParamsType,
   dataReturnType,
   typeSchemas,
@@ -89,6 +92,7 @@ export function Mutation({
   })
 
   const params = getParams({
+    paramsCasing,
     pathParamsType,
     dataReturnType,
     typeSchemas,
@@ -96,6 +100,7 @@ export function Mutation({
   })
 
   const clientParams = Client.getParams({
+    paramsCasing,
     paramsType,
     typeSchemas,
     pathParamsType,

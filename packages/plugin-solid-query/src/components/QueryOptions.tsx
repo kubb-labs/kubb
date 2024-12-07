@@ -14,23 +14,25 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginSolidQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginSolidQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginSolidQuery['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginSolidQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginSolidQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginSolidQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -62,7 +64,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -91,15 +93,17 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
+    paramsCasing,
     typeSchemas,
     paramsType,
     pathParamsType,
   })
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
+    paramsCasing,
     typeSchemas,
   })
 

@@ -34,6 +34,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     query = {},
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
+    paramsCasing,
   } = options
 
   return {
@@ -72,6 +73,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
       parser,
+      paramsCasing,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

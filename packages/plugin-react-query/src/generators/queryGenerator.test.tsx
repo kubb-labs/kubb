@@ -79,7 +79,7 @@ describe('queryGenerator operation', async () => {
     {
       name: 'postAsQuery',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {
         query: {
@@ -96,6 +96,15 @@ describe('queryGenerator operation', async () => {
       options: {
         paramsType: 'object',
         pathParamsType: 'object',
+      },
+    },
+    {
+      name: 'getPetIdCamelCase',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
       },
     },
   ] as const satisfies Array<{
@@ -115,6 +124,7 @@ describe('queryGenerator operation', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       parser: 'zod',
+      paramsCasing: undefined,
       paramsType: 'inline',
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,

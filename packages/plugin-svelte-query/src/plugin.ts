@@ -28,6 +28,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     pathParamsType = 'inline',
     mutation = {},
     query = {},
+    paramsCasing,
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
@@ -61,6 +62,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
       parser,
+      paramsCasing,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

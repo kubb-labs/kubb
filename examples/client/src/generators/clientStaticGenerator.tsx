@@ -51,6 +51,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
           dataReturnType={options.dataReturnType}
           pathParamsType={options.pathParamsType}
           paramsType={options.paramsType}
+          paramsCasing={options.paramsCasing}
           typeSchemas={type.schemas}
           operation={operation}
           parser={options.parser}

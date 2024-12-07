@@ -3,24 +3,24 @@ import type { RequestConfig } from "@kubb/plugin-client/client";
 import type { UseMutationOptions } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 
- export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
+ export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{pet_id}" }] as const;
 
  export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>;
 
  /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 async function updatePetWithForm({ petId }: {
     petId: UpdatePetWithFormPathParams["petId"];
 }, data?: UpdatePetWithFormMutationRequest, params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {}) {
-    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${petId}`, params, data, ...config });
+    const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({ method: "POST", url: `/pet/${pet_id}`, params, data, ...config });
     return updatePetWithFormMutationResponse.parse(res.data);
 }
 
  /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:pet_id}
  */
 export function useUpdatePetWithForm(options: {
     mutation?: UseMutationOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, {

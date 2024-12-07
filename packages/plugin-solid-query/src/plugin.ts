@@ -29,6 +29,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator].filter(Boolean),
     query = {},
+    paramsCasing,
   } = options
 
   return {
@@ -53,6 +54,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
       parser,
+      paramsCasing,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

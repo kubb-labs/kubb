@@ -4,6 +4,14 @@ title: Changelog
 
 # Changelog
 
+## 3.2.0
+- [`plugin-msw`](/plugins/plugin-msw): `paramsCasing` to define casing for params
+- [`plugin-react-query`](/plugins/plugin-react-query/): `paramsCasing` to define casing for params
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `paramsCasing` to define casing for params
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): `paramsCasing` to define casing for params
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): `paramsCasing` to define casing for params
+- [`plugin-client`](/plugins/plugin-client): `paramsCasing` to define casing for params
+
 ## 3.1.0
 - [`plugin-msw`](/plugins/plugin-msw): Support dynamic and customizable data in handlers
 ```typescript

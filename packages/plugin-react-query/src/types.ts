@@ -7,6 +7,7 @@ import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePa
 type TransformerProps = {
   operation: Operation
   schemas: OperationSchemas
+  casing: 'camelcase' | undefined
 }
 
 export type Transformer = (props: TransformerProps) => unknown[]
@@ -97,6 +98,11 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' will use camelcase for the params names
+   */
+  paramsCasing?: 'camelcase'
+  /**
    * How to pass your params
    * - 'object' will return the params and pathParams as an object.
    * - 'inline' will return the params as comma separated params.
@@ -151,6 +157,7 @@ type ResolvedOptions = {
   client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   /**
    * Only used of infinite

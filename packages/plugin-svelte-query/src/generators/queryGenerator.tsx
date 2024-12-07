@@ -85,6 +85,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           transformer={options.queryKey}
         />
 
@@ -97,6 +98,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           typeSchemas={type.schemas}
           zodSchemas={zod.schemas}
           dataReturnType={options.client.dataReturnType}
+          paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
           parser={options.parser}
@@ -107,6 +109,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
           clientName={client.name}
           queryKeyName={queryKey.name}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
         />
@@ -120,6 +123,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
               typeSchemas={type.schemas}
               pathParamsType={options.pathParamsType}
               operation={operation}
+              paramsCasing={options.paramsCasing}
               paramsType={options.paramsType}
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}

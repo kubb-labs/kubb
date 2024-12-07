@@ -54,6 +54,7 @@ describe('infiniteQueryGenerator operation', async () => {
         importPath: '@kubb/plugin-client/client',
       },
       parser: 'zod',
+      paramsCasing: undefined,
       paramsType: 'inline',
       pathParamsType: 'inline',
       query: {
