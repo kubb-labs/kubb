@@ -1,5 +1,22 @@
 # @kubb/plugin-vue-query
 
+## 3.2.0
+
+### Minor Changes
+
+- [#1444](https://github.com/kubb-labs/kubb/pull/1444) [`d9c16d0`](https://github.com/kubb-labs/kubb/commit/d9c16d0086bf6f1e3590de01912f9b7d3ef430f8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `paramsCasing` to define casing for params
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.2.0
+  - @kubb/fs@3.2.0
+  - @kubb/oas@3.2.0
+  - @kubb/plugin-oas@3.2.0
+  - @kubb/plugin-ts@3.2.0
+  - @kubb/plugin-zod@3.2.0
+  - @kubb/react@3.2.0
+
 ## 3.1.0
 
 ### Minor Changes
