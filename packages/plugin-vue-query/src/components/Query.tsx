@@ -19,19 +19,21 @@ type Props = {
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
   if (paramsType === 'object') {
@@ -41,6 +43,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
         children: {
           ...getPathParams(typeSchemas.pathParams, {
             typed: true,
+            casing: paramsCasing,
             override(item) {
               return {
                 ...item,
@@ -86,6 +89,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
+        casing: paramsCasing,
         override(item) {
           return {
             ...item,
@@ -130,6 +134,7 @@ export function Query({
   queryOptionsName,
   queryKeyName,
   paramsType,
+  paramsCasing,
   pathParamsType,
   dataReturnType,
   typeSchemas,
@@ -142,13 +147,16 @@ export function Query({
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
   const queryOptionsParams = QueryOptions.getParams({
     paramsType,
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
   const params = getParams({
+    paramsCasing,
     paramsType,
     pathParamsType,
     dataReturnType,

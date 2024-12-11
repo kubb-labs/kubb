@@ -18,6 +18,7 @@ type Props = {
   queryKeyName: string
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -25,6 +26,7 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -32,7 +34,7 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
 
   if (paramsType === 'object') {
@@ -40,7 +42,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, qu
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -78,7 +80,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, qu
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -122,6 +124,7 @@ export function Query({
   operation,
   dataReturnType,
   paramsType,
+  paramsCasing,
   pathParamsType,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
@@ -130,8 +133,10 @@ export function Query({
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
   const params = getParams({
+    paramsCasing,
     paramsType,
     pathParamsType,
     dataReturnType,
@@ -140,6 +145,7 @@ export function Query({
   })
 
   const queryOptionsParams = QueryOptions.getParams({
+    paramsCasing,
     paramsType,
     pathParamsType,
     typeSchemas,

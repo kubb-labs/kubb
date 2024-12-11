@@ -15,17 +15,19 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
@@ -33,6 +35,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         children: {
           ...getPathParams(typeSchemas.pathParams, {
             typed: true,
+            casing: paramsCasing,
             override(item) {
               return {
                 ...item,
@@ -73,6 +76,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
+        casing: paramsCasing,
         override(item) {
           return {
             ...item,
@@ -106,16 +110,18 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsType,
+    paramsCasing,
     typeSchemas,
     pathParamsType,
   })
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
 
   const enabled = Object.entries(queryKeyParams.flatParams)

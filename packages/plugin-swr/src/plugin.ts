@@ -32,6 +32,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
+    paramsCasing,
   } = options
 
   return {
@@ -61,6 +62,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       parser,
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      paramsCasing,
       group,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),

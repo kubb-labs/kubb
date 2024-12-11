@@ -17,6 +17,7 @@ type Props = {
 
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
+  paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
@@ -26,18 +27,19 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -69,7 +71,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -108,10 +110,11 @@ export function Client({
   parser,
   zodSchemas,
   paramsType,
+  paramsCasing,
   pathParamsType,
   operation,
 }: Props): KubbNode {
-  const path = new URLPath(operation.path)
+  const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
@@ -124,7 +127,7 @@ export function Client({
     typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
     typeSchemas.request?.name || 'unknown',
   ].filter(Boolean)
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',

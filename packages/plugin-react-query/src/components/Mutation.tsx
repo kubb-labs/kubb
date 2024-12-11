@@ -20,20 +20,22 @@ type Props = {
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const mutationParams = FunctionParams.factory({
-    ...getPathParams(typeSchemas.pathParams, { typed: true }),
+    ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
@@ -71,26 +73,38 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function Mutation({ name, clientName, paramsType, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
+export function Mutation({
+  name,
+  clientName,
+  paramsCasing,
+  paramsType,
+  pathParamsType,
+  dataReturnType,
+  typeSchemas,
+  operation,
+  mutationKeyName,
+}: Props): ReactNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,
   })
 
   const params = getParams({
+    paramsCasing,
     pathParamsType,
     dataReturnType,
     typeSchemas,
   })
 
   const clientParams = Client.getParams({
+    paramsCasing,
     paramsType,
     typeSchemas,
     pathParamsType,
   })
 
   const mutationParams = FunctionParams.factory({
-    ...getPathParams(typeSchemas.pathParams, { typed: true }),
+    ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,

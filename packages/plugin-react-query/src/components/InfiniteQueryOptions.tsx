@@ -14,6 +14,7 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
@@ -23,18 +24,19 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -66,7 +68,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -101,14 +103,16 @@ export function InfiniteQueryOptions({
   initialPageParam,
   cursorParam,
   typeSchemas,
+  paramsCasing,
   paramsType,
   dataReturnType,
   pathParamsType,
   queryParam,
   queryKeyName,
 }: Props): ReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
+    paramsCasing,
     typeSchemas,
     paramsType,
     pathParamsType,
@@ -116,6 +120,7 @@ export function InfiniteQueryOptions({
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
 
   const queryOptions = [

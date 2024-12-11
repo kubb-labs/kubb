@@ -19,22 +19,25 @@ type Props = {
   mutationKeyName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const mutationParams = FunctionParams.factory({
     ...getPathParams(typeSchemas.pathParams, {
       typed: true,
+      casing: paramsCasing,
       override(item) {
         return {
           ...item,
@@ -76,26 +79,38 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function Mutation({ name, clientName, paramsType, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
+export function Mutation({
+  name,
+  clientName,
+  paramsCasing,
+  paramsType,
+  pathParamsType,
+  dataReturnType,
+  typeSchemas,
+  operation,
+  mutationKeyName,
+}: Props): ReactNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,
   })
 
   const params = getParams({
+    paramsCasing,
     pathParamsType,
     dataReturnType,
     typeSchemas,
   })
 
   const clientParams = Client.getParams({
+    paramsCasing,
     paramsType,
     typeSchemas,
     pathParamsType,
   })
 
   const mutationParams = FunctionParams.factory({
-    ...getPathParams(typeSchemas.pathParams, { typed: true }),
+    ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,

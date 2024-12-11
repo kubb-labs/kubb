@@ -55,6 +55,7 @@ describe('infiniteQueryGenerator operation', async () => {
       },
       parser: 'zod',
       paramsType: 'inline',
+      paramsCasing: undefined,
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,

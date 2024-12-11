@@ -11,6 +11,7 @@ type Props = {
   typeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   transformer: Transformer | undefined
 }
@@ -24,15 +25,15 @@ function getParams({}: GetParamsProps) {
   return FunctionParams.factory({})
 }
 
-const getTransformer: Transformer = ({ operation }) => {
-  const path = new URLPath(operation.path)
+const getTransformer: Transformer = ({ operation, casing }) => {
+  const path = new URLPath(operation.path, { casing })
 
   return [JSON.stringify({ url: path.path })].filter(Boolean)
 }
 
-export function MutationKey({ name, typeSchemas, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
+export function MutationKey({ name, typeSchemas, pathParamsType, paramsCasing, operation, typeName, transformer = getTransformer }: Props): ReactNode {
   const params = getParams({ pathParamsType, typeSchemas })
-  const keys = transformer({ operation, schemas: typeSchemas })
+  const keys = transformer({ operation, schemas: typeSchemas, casing: paramsCasing })
 
   return (
     <>
