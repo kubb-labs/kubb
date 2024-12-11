@@ -118,8 +118,8 @@ Return the name of a group based on the group name, this will be used for the fi
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
 
-### paramCasing
-<!--@include: ../plugin-client/paramCasing.md-->
+### paramsCasing
+<!--@include: ../plugin-client/paramsCasing.md-->
 
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->

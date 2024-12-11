@@ -121,8 +121,8 @@ Create `operations.ts` file with all operations grouped by methods.
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
 
-### paramCasing
-<!--@include: ../plugin-client/paramCasing.md-->
+### paramsCasing
+<!--@include: ../plugin-client/paramsCasing.md-->
 
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->
