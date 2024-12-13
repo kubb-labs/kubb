@@ -33,7 +33,7 @@ export type Options = {
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
    * It allows both relative and absolute path but be aware that we will not change the path.
-   * @default '@kubb/plugin-client/client'
+   * @default '@kubb/plugin-client/clients/axios'
    */
   importPath?: string
   /**
@@ -68,10 +68,17 @@ export type Options = {
   pathParamsType?: 'object' | 'inline'
   /**
    * Which parser can be used before returning the data
-   * - 'zod'  will use `@kubb/plugin-zod` to parse the data.
+   * - 'zod' will use `@kubb/plugin-zod` to parse the data.
    * @default 'client'
    */
   parser?: 'client' | 'zod'
+  /**
+   * Which client should be used to do the HTTP calls
+   * - 'axios' will use `@kubb/plugin-client/clients/axios` to fetch data.
+   * - 'fetch' will use `@kubb/plugin-client/clients/fetch` to fetch data.
+   * @default 'axios'
+   */
+  client?: 'axios' | 'fetch'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.

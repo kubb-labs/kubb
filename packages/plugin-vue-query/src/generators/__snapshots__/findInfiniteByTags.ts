@@ -1,5 +1,5 @@
-import client from "@kubb/plugin-client/client";
-import type { RequestConfig } from "@kubb/plugin-client/client";
+import client from "@kubb/plugin-client/clients/axios";
+import type { RequestConfig } from "@kubb/plugin-client/clients/axios";
 import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from "@tanstack/react-query";
 import type { MaybeRef } from "vue";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";

@@ -1,6 +1,6 @@
-import client from "@kubb/plugin-client/client";
+import client from "@kubb/plugin-client/clients/axios";
 import useSWRMutation from "custom-swr/mutation";
-import type { RequestConfig } from "@kubb/plugin-client/client";
+import type { RequestConfig } from "@kubb/plugin-client/clients/axios";
 
  export const findPetsByTagsMutationKey = () => [{ "url": "/pet/findByTags" }] as const;
 

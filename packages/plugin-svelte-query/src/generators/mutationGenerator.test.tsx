@@ -82,7 +82,7 @@ describe('mutationGenerator operation', async () => {
     const options: PluginSvelteQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
       parser: 'zod',
       paramsCasing: undefined,

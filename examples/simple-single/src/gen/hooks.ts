@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -65,7 +65,7 @@ import type {
   DeleteUser400,
   DeleteUser404,
 } from './models'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryKey, QueryObserverOptions, UseQueryResult, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useMutation, queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 

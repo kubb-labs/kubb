@@ -1,6 +1,6 @@
-import client from "@kubb/plugin-client/client";
+import client from "@kubb/plugin-client/clients/axios";
 import useSWRMutation from "swr/mutation";
-import type { RequestConfig } from "@kubb/plugin-client/client";
+import type { RequestConfig } from "@kubb/plugin-client/clients/axios";
 
  export const updatePetWithFormMutationKey = () => [{ "url": "/pet/{petId}" }] as const;
 

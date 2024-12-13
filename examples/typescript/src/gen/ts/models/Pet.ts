@@ -39,7 +39,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -67,7 +67,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined

@@ -33,7 +33,7 @@ describe('groupedClientsGenerators operations', async () => {
       paramsType: 'inline',
       paramsCasing: undefined,
       pathParamsType: 'inline',
-      importPath: '@kubb/plugin-client/client',
+      importPath: '@kubb/plugin-client/clients/axios',
       baseURL: '',
       parser: 'client',
       output: {
