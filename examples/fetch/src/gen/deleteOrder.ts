@@ -1,6 +1,6 @@
-import client from '../client.ts'
-import type { RequestConfig } from '../client.ts'
+import client from '@kubb/plugin-client/clients/fetch'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from './models.ts'
+import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors

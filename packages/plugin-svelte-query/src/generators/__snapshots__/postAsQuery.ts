@@ -1,5 +1,5 @@
-import client from "@kubb/plugin-client/client";
-import type { RequestConfig } from "@kubb/plugin-client/client";
+import client from "@kubb/plugin-client/clients/axios";
+import type { RequestConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from "custom-query";
 import { queryOptions, createQuery } from "custom-query";
 

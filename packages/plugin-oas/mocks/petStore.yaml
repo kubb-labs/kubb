@@ -157,6 +157,7 @@ components:
         - streetNumber
     Pets:
       type: array
+      readOnly: true
       items:
         $ref: '#/components/schemas/Pet'
     Toy:

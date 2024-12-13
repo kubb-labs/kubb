@@ -1,6 +1,6 @@
 /* eslint-disable no-alert, no-console */
-import client from "@kubb/plugin-client/client";
-import type { RequestConfig } from "@kubb/plugin-client/client";
+import client from "@kubb/plugin-client/clients/axios";
+import type { RequestConfig } from "@kubb/plugin-client/clients/axios";
 
  /**
  * @summary Updates a pet in the store with form data

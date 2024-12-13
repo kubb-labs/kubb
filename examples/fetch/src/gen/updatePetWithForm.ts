@@ -1,6 +1,6 @@
-import client from '../client.ts'
-import type { RequestConfig } from '../client.ts'
+import client from '@kubb/plugin-client/clients/fetch'
 import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithForm405 } from './models.ts'
+import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
 
 /**
  * @summary Updates a pet in the store with form data

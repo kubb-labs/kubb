@@ -1,6 +1,6 @@
-import client from "@kubb/plugin-client/client";
+import client from "@kubb/plugin-client/clients/axios";
 import useSWR from "swr";
-import type { RequestConfig } from "@kubb/plugin-client/client";
+import type { RequestConfig } from "@kubb/plugin-client/clients/axios";
 
  export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: "/pet/findByTags" }, ...(params ? [params] : [])] as const;
 

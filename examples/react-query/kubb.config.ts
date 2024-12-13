@@ -53,7 +53,7 @@ export const config = {
           options: {
             client: {
               dataReturnType: 'full',
-              importPath: '@kubb/plugin-client/client',
+              importPath: '@kubb/plugin-client/clients/axios',
             },
             infinite: {
               queryParam: 'pageSize',

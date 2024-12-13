@@ -56,7 +56,7 @@ describe('queryGenerator operation', async () => {
       options: {
         client: {
           dataReturnType: 'full',
-          importPath: '@kubb/plugin-client/client',
+          importPath: '@kubb/plugin-client/clients/axios',
         },
       },
     },
@@ -96,7 +96,7 @@ describe('queryGenerator operation', async () => {
     const options: PluginSwr['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
       paramsCasing: undefined,
       queryKey: QueryKey.getTransformer,

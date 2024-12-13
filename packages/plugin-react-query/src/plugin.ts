@@ -42,7 +42,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     options: {
       output,
       client: {
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
         ...options.client,
       },
