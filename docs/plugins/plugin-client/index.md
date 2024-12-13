@@ -130,6 +130,9 @@ Create `operations.ts` file with all operations grouped by methods.
 ### parser
 <!--@include: ../plugin-client/parser.md-->
 
+### client
+<!--@include: ../plugin-client/client.md-->
+
 ### baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
@@ -210,6 +213,7 @@ export default defineConfig({
       ],
       pathParamsType: "object",
       dataReturnType: 'full',
+      client: 'axios'
     }),
   ],
 })

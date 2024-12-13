@@ -1,6 +1,6 @@
-import client from '../client.ts'
-import type { RequestConfig } from '../client.ts'
+import client from '@kubb/plugin-client/clients/fetch'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
+import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
 
 /**
  * @summary uploads an image

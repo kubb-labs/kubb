@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 import { queryOptions } from '@tanstack/solid-query'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const

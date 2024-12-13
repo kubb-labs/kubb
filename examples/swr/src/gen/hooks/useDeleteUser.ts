@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
 

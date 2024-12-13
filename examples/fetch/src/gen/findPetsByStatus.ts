@@ -1,6 +1,6 @@
-import client from '../client.ts'
-import type { RequestConfig } from '../client.ts'
+import client from '@kubb/plugin-client/clients/fetch'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from './models.ts'
+import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
 
 /**
  * @description Multiple status values can be provided with comma separated strings

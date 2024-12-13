@@ -1,7 +1,7 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 

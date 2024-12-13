@@ -29,8 +29,9 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     baseURL,
     paramsCasing,
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
-    importPath = '@kubb/plugin-client/client',
     parser = 'client',
+    client = 'axios',
+    importPath = client === 'fetch' ? '@kubb/plugin-client/clients/fetch' : '@kubb/plugin-client/clients/axios',
   } = options
 
   return {

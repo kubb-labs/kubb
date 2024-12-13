@@ -9,4 +9,4 @@ It allows both relative and absolute path but be aware that we will not change t
 |----------:|:-------------------------------|
 |     Type: | `string`                       |
 | Required: | `false`                         |
-|  Default: | `'@kubb/plugin-client/client'` |
+|  Default: | `'@kubb/plugin-client/clients/axios'` |

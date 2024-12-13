@@ -1154,6 +1154,7 @@ export const oas = {
             xml: {
               wrapped: true,
             },
+            readOnly: true,
             items: {
               $ref: '#/components/schemas/Tag',
             },

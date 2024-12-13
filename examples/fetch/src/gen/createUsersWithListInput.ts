@@ -1,6 +1,6 @@
-import client from '../client.ts'
-import type { RequestConfig } from '../client.ts'
+import client from '@kubb/plugin-client/clients/fetch'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from './models.ts'
+import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
 
 /**
  * @description Creates list of users with given input array

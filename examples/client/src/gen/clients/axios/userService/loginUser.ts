@@ -1,7 +1,7 @@
 /* eslint-disable no-alert, no-console */
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.js'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 
 /**
  * @summary Logs user into the system

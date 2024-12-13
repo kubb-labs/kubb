@@ -40,7 +40,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     options: {
       output,
       client: {
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
         ...client,
       },

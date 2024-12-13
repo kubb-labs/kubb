@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.3.0
+- [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
+
 ## 3.2.0
 - [`plugin-msw`](/plugins/plugin-msw): `paramsCasing` to define casing for params
 - [`plugin-react-query`](/plugins/plugin-react-query/): `paramsCasing` to define casing for params

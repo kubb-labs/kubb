@@ -1,7 +1,7 @@
 /* eslint-disable no-alert, no-console */
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.js'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 
 /**
  * @summary Logs out current logged in user session

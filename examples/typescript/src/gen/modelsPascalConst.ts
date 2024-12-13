@@ -179,7 +179,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -210,7 +210,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -339,7 +339,7 @@ export type UpdatePet405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type'>
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetMutationResponse = UpdatePet200
 

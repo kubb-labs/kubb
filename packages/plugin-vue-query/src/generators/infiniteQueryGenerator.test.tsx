@@ -51,7 +51,7 @@ describe('infiniteQueryGenerator operation', async () => {
     const options: PluginVueQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
       parser: 'zod',
       paramsType: 'inline',
