@@ -1,1 +1,1 @@
-export type pets = pet[];
+export type pets = pet[]

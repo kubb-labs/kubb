@@ -1,18 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`print > keep 
- 1`] = `
-"/**
- * Some comments
- */
+ 1`] = `Promise {}`;
 
- const test = 2;
-
- const test = 3;
-"
-`;
-
-exports[`print > remove comments from text 1`] = `
-"const test = 2;
-"
-`;
+exports[`print > remove comments from text 1`] = `Promise {}`;

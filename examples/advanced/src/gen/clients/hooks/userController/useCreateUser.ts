@@ -14,14 +14,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * @summary Create user
  * {@link /user}
  */
-async function createUser(
-  {
-    data,
-  }: {
-    data?: CreateUserMutationRequest
-  },
-  config: Partial<RequestConfig<CreateUserMutationRequest>> = {},
-) {
+async function createUser({ data }: { data?: CreateUserMutationRequest }, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
   const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
   return { ...res, data: createUserMutationResponseSchema.parse(res.data) }
 }
@@ -33,25 +26,14 @@ async function createUser(
  */
 export function useCreateUser(
   options: {
-    mutation?: UseMutationOptions<
-      ResponseConfig<CreateUserMutationResponse>,
-      Error,
-      {
-        data?: CreateUserMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, Error, { data?: CreateUserMutationRequest }>
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
-  return useMutation<
-    ResponseConfig<CreateUserMutationResponse>,
-    Error,
-    {
-      data?: CreateUserMutationRequest
-    }
-  >({
+
+  return useMutation<ResponseConfig<CreateUserMutationResponse>, Error, { data?: CreateUserMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUser({ data }, config)
     },

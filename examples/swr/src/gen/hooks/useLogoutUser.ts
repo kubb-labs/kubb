@@ -36,7 +36,9 @@ export function useLogoutUser(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = logoutUserQueryKey()
+
   return useSWR<LogoutUserQueryResponse, Error, LogoutUserQueryKey | null>(shouldFetch ? queryKey : null, {
     ...logoutUserQueryOptions(config),
     ...queryOptions,

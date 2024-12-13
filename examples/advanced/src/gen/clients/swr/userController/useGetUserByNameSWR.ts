@@ -9,11 +9,8 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
-export const getUserByNameQueryKeySWR = ({
-  username,
-}: {
-  username: GetUserByNamePathParams['username']
-}) => [{ url: '/user/:username', params: { username: username } }] as const
+export const getUserByNameQueryKeySWR = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+  [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySWR>
 
@@ -21,14 +18,7 @@ export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySW
  * @summary Get user by user name
  * {@link /user/:username}
  */
-async function getUserByNameSWR(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+async function getUserByNameSWR({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
     method: 'GET',
     url: `/user/${username}`,
@@ -38,14 +28,7 @@ async function getUserByNameSWR(
   return getUserByNameQueryResponseSchema.parse(res.data)
 }
 
-export function getUserByNameQueryOptionsSWR(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+export function getUserByNameQueryOptionsSWR({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
   return {
     fetcher: async () => {
       return getUserByNameSWR({ username }, config)
@@ -58,11 +41,7 @@ export function getUserByNameQueryOptionsSWR(
  * {@link /user/:username}
  */
 export function useGetUserByNameSWR(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
+  { username }: { username: GetUserByNamePathParams['username'] },
   options: {
     query?: Parameters<typeof useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKeySWR | null, any>>[2]
     client?: Partial<RequestConfig>
@@ -70,7 +49,9 @@ export function useGetUserByNameSWR(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = getUserByNameQueryKeySWR({ username })
+
   return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...getUserByNameQueryOptionsSWR({ username }, config),
     ...queryOptions,

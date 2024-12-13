@@ -43,6 +43,7 @@ export function useUploadFile(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKey()
+
   return useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKey | null, UploadFileMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

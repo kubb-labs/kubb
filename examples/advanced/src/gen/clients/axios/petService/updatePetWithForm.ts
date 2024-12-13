@@ -12,13 +12,7 @@ import type {
  * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
-  {
-    petId,
-    params,
-  }: {
-    petId: UpdatePetWithFormPathParams['petId']
-    params?: UpdatePetWithFormQueryParams
-  },
+  { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({

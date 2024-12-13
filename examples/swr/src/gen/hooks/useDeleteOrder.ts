@@ -36,6 +36,7 @@ export function useDeleteOrder(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteOrderMutationKey()
+
   return useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, DeleteOrderMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {

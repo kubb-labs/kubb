@@ -30,25 +30,14 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
  */
 export function createUpdatePet(
   options: {
-    mutation?: CreateMutationOptions<
-      UpdatePetMutationResponse,
-      UpdatePet400 | UpdatePet404 | UpdatePet405,
-      {
-        data: UpdatePetMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, { data: UpdatePetMutationRequest }>
     client?: Partial<RequestConfig<UpdatePetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  return createMutation<
-    UpdatePetMutationResponse,
-    UpdatePet400 | UpdatePet404 | UpdatePet405,
-    {
-      data: UpdatePetMutationRequest
-    }
-  >({
+
+  return createMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, { data: UpdatePetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },

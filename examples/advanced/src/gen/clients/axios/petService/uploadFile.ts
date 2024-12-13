@@ -12,15 +12,7 @@ import type {
  * {@link /pet/:petId/uploadImage}
  */
 export async function uploadFile(
-  {
-    petId,
-    data,
-    params,
-  }: {
-    petId: UploadFilePathParams['petId']
-    data?: UploadFileMutationRequest
-    params?: UploadFileQueryParams
-  },
+  { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
   const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({

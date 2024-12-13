@@ -11,7 +11,9 @@ export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
 /**
  * @description accepted operation
  */
-export const updatePet202Schema = z.object({ id: z.number().int().optional() })
+export const updatePet202Schema = z.object({
+  id: z.number().int().optional(),
+})
 
 export type UpdatePet202Schema = z.infer<typeof updatePet202Schema>
 

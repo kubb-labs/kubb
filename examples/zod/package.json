@@ -27,12 +27,12 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.3.5",
+    "tsup": "catalog:",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "typescript": "^5.7.2"
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

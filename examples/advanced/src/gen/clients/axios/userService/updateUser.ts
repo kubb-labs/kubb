@@ -8,13 +8,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * {@link /user/:username}
  */
 export async function updateUser(
-  {
-    username,
-    data,
-  }: {
-    username: UpdateUserPathParams['username']
-    data?: UpdateUserMutationRequest
-  },
+  { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
   const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({

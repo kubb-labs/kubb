@@ -29,27 +29,14 @@ async function updateUser(
  */
 export function createUpdateUser(
   options: {
-    mutation?: CreateMutationOptions<
-      UpdateUserMutationResponse,
-      Error,
-      {
-        username: UpdateUserPathParams['username']
-        data?: UpdateUserMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<UpdateUserMutationResponse, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  return createMutation<
-    UpdateUserMutationResponse,
-    Error,
-    {
-      username: UpdateUserPathParams['username']
-      data?: UpdateUserMutationRequest
-    }
-  >({
+
+  return createMutation<UpdateUserMutationResponse, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
     mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },

@@ -14,16 +14,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * @summary Deletes a pet
  * {@link /pet/:petId}
  */
-async function deletePet(
-  {
-    petId,
-    headers,
-  }: {
-    petId: DeletePetPathParams['petId']
-    headers?: DeletePetHeaderParams
-  },
-  config: Partial<RequestConfig> = {},
-) {
+async function deletePet({ petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }, config: Partial<RequestConfig> = {}) {
   const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
@@ -43,24 +34,15 @@ export function useDeletePet(
     mutation?: UseMutationOptions<
       ResponseConfig<DeletePetMutationResponse>,
       DeletePet400,
-      {
-        petId: DeletePetPathParams['petId']
-        headers?: DeletePetHeaderParams
-      }
+      { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
     >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
-  return useMutation<
-    ResponseConfig<DeletePetMutationResponse>,
-    DeletePet400,
-    {
-      petId: DeletePetPathParams['petId']
-      headers?: DeletePetHeaderParams
-    }
-  >({
+
+  return useMutation<ResponseConfig<DeletePetMutationResponse>, DeletePet400, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
     mutationFn: async ({ petId, headers }) => {
       return deletePet({ petId, headers }, config)
     },

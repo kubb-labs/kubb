@@ -6,6 +6,7 @@ export function optionsFindPetsByStatusHandler(
 ) {
   return http.options('*/pet/findByStatus', function handler(info) {
     if (typeof data === 'function') return data(info)
+
     return new Response(JSON.stringify(data), {
       headers: {
         'Content-Type': 'application/json',

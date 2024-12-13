@@ -1,11 +1,11 @@
 export type cat = {
-    /**
-     * @type string, uuid
-    */
-    id: string;
-    type: "Cat";
-    /**
-     * @type boolean | undefined
-    */
-    meow?: boolean;
-};
+  /**
+   * @type string, uuid
+   */
+  id: string
+  type: 'Cat'
+  /**
+   * @type boolean | undefined
+   */
+  meow?: boolean
+}

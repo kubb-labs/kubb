@@ -7,14 +7,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
  * @summary Find pet by ID
  * {@link /pet/:petId}
  */
-export async function getPetById(
-  {
-    petId,
-  }: {
-    petId: GetPetByIdPathParams['petId']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({
     method: 'GET',
     url: `/pet/${petId}`,

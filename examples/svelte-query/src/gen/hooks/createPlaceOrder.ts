@@ -25,25 +25,14 @@ async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<Requ
  */
 export function createPlaceOrder(
   options: {
-    mutation?: CreateMutationOptions<
-      PlaceOrderMutationResponse,
-      PlaceOrder405,
-      {
-        data?: PlaceOrderMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
-  return createMutation<
-    PlaceOrderMutationResponse,
-    PlaceOrder405,
-    {
-      data?: PlaceOrderMutationRequest
-    }
-  >({
+
+  return createMutation<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrder(data, config)
     },

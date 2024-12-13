@@ -18,7 +18,11 @@ exports[`zod parse > 'blob' 1`] = `"z.instanceof(File)"`;
 
 exports[`zod parse > 'boolean' 1`] = `"z.boolean()"`;
 
-exports[`zod parse > 'catchall' 1`] = `"z.object({}).catchall(z.lazy(() => Pet))"`;
+exports[`zod parse > 'catchall' 1`] = `
+"z.object({
+    
+    }).catchall(z.lazy(() => Pet))"
+`;
 
 exports[`zod parse > 'date' 1`] = `"z.string().date()"`;
 
@@ -44,23 +48,62 @@ exports[`zod parse > 'min' 1`] = `".min(2)"`;
 
 exports[`zod parse > 'nullable' 1`] = `".nullable()"`;
 
-exports[`zod parse > 'nullableAdditionalProperties' 1`] = `"z.object({}).catchall(z.string().nullable())"`;
+exports[`zod parse > 'nullableAdditionalProperties' 1`] = `
+"z.object({
+    
+    }).catchall(z.string().nullable())"
+`;
 
 exports[`zod parse > 'number' 1`] = `"z.number()"`;
 
-exports[`zod parse > 'object' 1`] = `"z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})"`;
+exports[`zod parse > 'object' 1`] = `
+"z.object({
+    "firstName": z.string().min(2),
+"address": z.string().describe("Your address").nullable()
+    })"
+`;
 
-exports[`zod parse > 'objectAnd' 1`] = `"z.object({"firstName": z.string().min(2).default(test),"age": z.number().min(3).default(2),"address": z.string().and(z.number()).describe("Your address").nullable()})"`;
+exports[`zod parse > 'objectAnd' 1`] = `
+"z.object({
+    "firstName": z.string().min(2).default(test),
+"age": z.number().min(3).default(2),
+"address": z.string().and(z.number()).describe("Your address").nullable()
+    })"
+`;
 
-exports[`zod parse > 'objectArray' 1`] = `"z.object({"ids": z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)})"`;
+exports[`zod parse > 'objectArray' 1`] = `
+"z.object({
+    "ids": z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)
+    })"
+`;
 
-exports[`zod parse > 'objectDates' 1`] = `"z.object({"dateTime": z.string().datetime({ offset: true }),"date": z.string().date(),"time": z.string().time(),"nativeDate": z.date()})"`;
+exports[`zod parse > 'objectDates' 1`] = `
+"z.object({
+    "dateTime": z.string().datetime({ offset: true }),
+"date": z.string().date(),
+"time": z.string().time(),
+"nativeDate": z.date()
+    })"
+`;
 
-exports[`zod parse > 'objectEmpty' 1`] = `"z.object({})"`;
+exports[`zod parse > 'objectEmpty' 1`] = `
+"z.object({
+    
+    })"
+`;
 
-exports[`zod parse > 'objectEnum' 1`] = `"z.object({"version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")})"`;
+exports[`zod parse > 'objectEnum' 1`] = `
+"z.object({
+    "version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")
+    })"
+`;
 
-exports[`zod parse > 'objectOptional' 1`] = `"z.object({"firstName": z.string().min(2).optional(),"address": z.string().describe("Your address").nullable()})"`;
+exports[`zod parse > 'objectOptional' 1`] = `
+"z.object({
+    "firstName": z.string().min(2).optional(),
+"address": z.string().describe("Your address").nullable()
+    })"
+`;
 
 exports[`zod parse > 'primitiveDate' 1`] = `"z.date()"`;
 

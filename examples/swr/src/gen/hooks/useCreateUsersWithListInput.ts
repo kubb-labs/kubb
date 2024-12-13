@@ -41,6 +41,7 @@ export function useCreateUsersWithListInput(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUsersWithListInputMutationKey()
+
   return useSWRMutation<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationKey | null, CreateUsersWithListInputMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

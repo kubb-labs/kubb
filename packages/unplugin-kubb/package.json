@@ -115,8 +115,8 @@
     "@types/node": "^20.17.10",
     "rimraf": "^5.0.10",
     "rollup": "^4.28.1",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
     "vite": "^5.4.11",
     "webpack": "^5.97.1"
   },

@@ -20,7 +20,11 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  object: (value?: string) => `z.object({${value}})`,
+  object: (value?: string) => {
+    return `z.object({
+    ${value}
+    })`
+  },
   string: (coercion?: boolean, min?: number, max?: number) => {
     return [coercion ? 'z.coerce.string()' : 'z.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
       .filter(Boolean)
@@ -275,7 +279,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           .filter(Boolean)
           .join('')}`
       })
-      .join(',')
+      .join(',\n')
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties

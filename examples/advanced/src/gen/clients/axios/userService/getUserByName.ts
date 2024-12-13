@@ -11,14 +11,7 @@ import type {
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export async function getUserByName(
-  {
-    username,
-  }: {
-    username: GetUserByNamePathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+export async function getUserByName({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
     method: 'GET',
     url: `/user/${username}`,

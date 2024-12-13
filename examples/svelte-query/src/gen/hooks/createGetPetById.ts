@@ -44,13 +44,14 @@ export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = G
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(pet_id)
+
   const query = createQuery({
     ...(getPetByIdQueryOptions(pet_id, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, GetPetById400 | GetPetById404> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, GetPetById400 | GetPetById404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

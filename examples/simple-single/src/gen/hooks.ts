@@ -95,25 +95,14 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
  */
 export function useUpdatePet(
   options: {
-    mutation?: UseMutationOptions<
-      UpdatePetMutationResponse,
-      UpdatePet400 | UpdatePet404 | UpdatePet405,
-      {
-        data: UpdatePetMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, { data: UpdatePetMutationRequest }>
     client?: Partial<RequestConfig<UpdatePetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  return useMutation<
-    UpdatePetMutationResponse,
-    UpdatePet400 | UpdatePet404 | UpdatePet405,
-    {
-      data: UpdatePetMutationRequest
-    }
-  >({
+
+  return useMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, { data: UpdatePetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },
@@ -143,25 +132,14 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  */
 export function useAddPet(
   options: {
-    mutation?: UseMutationOptions<
-      AddPetMutationResponse,
-      AddPet405,
-      {
-        data: AddPetMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<AddPetMutationResponse, AddPet405, { data: AddPetMutationRequest }>
     client?: Partial<RequestConfig<AddPetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  return useMutation<
-    AddPetMutationResponse,
-    AddPet405,
-    {
-      data: AddPetMutationRequest
-    }
-  >({
+
+  return useMutation<AddPetMutationResponse, AddPet405, { data: AddPetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return addPet(data, config)
     },
@@ -213,14 +191,15 @@ export function useFindPetsByStatus<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+
   const query = useQuery({
     ...(findPetsByStatusQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, FindPetsByStatus400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, FindPetsByStatus400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -257,14 +236,15 @@ export function useFindPetsByStatusSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
+
   const query = useSuspenseQuery({
     ...(findPetsByStatusSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, FindPetsByStatus400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, FindPetsByStatus400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -311,14 +291,15 @@ export function useFindPetsByTags<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+
   const query = useQuery({
     ...(findPetsByTagsQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, FindPetsByTags400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, FindPetsByTags400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -355,14 +336,15 @@ export function useFindPetsByTagsSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+
   const query = useSuspenseQuery({
     ...(findPetsByTagsSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, FindPetsByTags400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, FindPetsByTags400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -406,14 +388,15 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
+
   const query = useQuery({
     ...(getPetByIdQueryOptions(petId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -451,14 +434,15 @@ export function useGetPetByIdSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
+
   const query = useSuspenseQuery({
     ...(getPetByIdSuspenseQueryOptions(petId, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, GetPetById400 | GetPetById404> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, GetPetById400 | GetPetById404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -484,23 +468,18 @@ export function useUpdatePetWithForm(
     mutation?: UseMutationOptions<
       UpdatePetWithFormMutationResponse,
       UpdatePetWithForm405,
-      {
-        petId: UpdatePetWithFormPathParams['petId']
-        params?: UpdatePetWithFormQueryParams
-      }
+      { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
     >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
+
   return useMutation<
     UpdatePetWithFormMutationResponse,
     UpdatePetWithForm405,
-    {
-      petId: UpdatePetWithFormPathParams['petId']
-      params?: UpdatePetWithFormQueryParams
-    }
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
   >({
     mutationFn: async ({ petId, params }) => {
       return updatePetWithForm(petId, params, config)
@@ -536,27 +515,14 @@ async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePe
  */
 export function useDeletePet(
   options: {
-    mutation?: UseMutationOptions<
-      DeletePetMutationResponse,
-      DeletePet400,
-      {
-        petId: DeletePetPathParams['petId']
-        headers?: DeletePetHeaderParams
-      }
-    >
+    mutation?: UseMutationOptions<DeletePetMutationResponse, DeletePet400, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
-  return useMutation<
-    DeletePetMutationResponse,
-    DeletePet400,
-    {
-      petId: DeletePetPathParams['petId']
-      headers?: DeletePetHeaderParams
-    }
-  >({
+
+  return useMutation<DeletePetMutationResponse, DeletePet400, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
     mutationFn: async ({ petId, headers }) => {
       return deletePet(petId, headers, config)
     },
@@ -599,25 +565,18 @@ export function useUploadFile(
     mutation?: UseMutationOptions<
       UploadFileMutationResponse,
       Error,
-      {
-        petId: UploadFilePathParams['petId']
-        data?: UploadFileMutationRequest
-        params?: UploadFileQueryParams
-      }
+      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+
   return useMutation<
     UploadFileMutationResponse,
     Error,
-    {
-      petId: UploadFilePathParams['petId']
-      data?: UploadFileMutationRequest
-      params?: UploadFileQueryParams
-    }
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)
@@ -665,14 +624,15 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+
   const query = useQuery({
     ...(getInventoryQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, Error> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, Error> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -708,14 +668,15 @@ export function useGetInventorySuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
+
   const query = useSuspenseQuery({
     ...(getInventorySuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, Error> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, Error> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -740,25 +701,14 @@ async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<Requ
  */
 export function usePlaceOrder(
   options: {
-    mutation?: UseMutationOptions<
-      PlaceOrderMutationResponse,
-      PlaceOrder405,
-      {
-        data?: PlaceOrderMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
-  return useMutation<
-    PlaceOrderMutationResponse,
-    PlaceOrder405,
-    {
-      data?: PlaceOrderMutationRequest
-    }
-  >({
+
+  return useMutation<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrder(data, config)
     },
@@ -793,25 +743,14 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
  */
 export function usePlaceOrderPatch(
   options: {
-    mutation?: UseMutationOptions<
-      PlaceOrderPatchMutationResponse,
-      PlaceOrderPatch405,
-      {
-        data?: PlaceOrderPatchMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, { data?: PlaceOrderPatchMutationRequest }>
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
-  return useMutation<
-    PlaceOrderPatchMutationResponse,
-    PlaceOrderPatch405,
-    {
-      data?: PlaceOrderPatchMutationRequest
-    }
-  >({
+
+  return useMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, { data?: PlaceOrderPatchMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrderPatch(data, config)
     },
@@ -860,14 +799,15 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = useQuery({
     ...(getOrderByIdQueryOptions(orderId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -906,14 +846,15 @@ export function useGetOrderByIdSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey(orderId)
+
   const query = useSuspenseQuery({
     ...(getOrderByIdSuspenseQueryOptions(orderId, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, GetOrderById400 | GetOrderById404> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, GetOrderById400 | GetOrderById404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -942,25 +883,14 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
  */
 export function useDeleteOrder(
   options: {
-    mutation?: UseMutationOptions<
-      DeleteOrderMutationResponse,
-      DeleteOrder400 | DeleteOrder404,
-      {
-        orderId: DeleteOrderPathParams['orderId']
-      }
-    >
+    mutation?: UseMutationOptions<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, { orderId: DeleteOrderPathParams['orderId'] }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  return useMutation<
-    DeleteOrderMutationResponse,
-    DeleteOrder400 | DeleteOrder404,
-    {
-      orderId: DeleteOrderPathParams['orderId']
-    }
-  >({
+
+  return useMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, { orderId: DeleteOrderPathParams['orderId'] }>({
     mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },
@@ -990,25 +920,14 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function useCreateUser(
   options: {
-    mutation?: UseMutationOptions<
-      CreateUserMutationResponse,
-      Error,
-      {
-        data?: CreateUserMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<CreateUserMutationResponse, Error, { data?: CreateUserMutationRequest }>
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
-  return useMutation<
-    CreateUserMutationResponse,
-    Error,
-    {
-      data?: CreateUserMutationRequest
-    }
-  >({
+
+  return useMutation<CreateUserMutationResponse, Error, { data?: CreateUserMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUser(data, config)
     },
@@ -1046,25 +965,14 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: UseMutationOptions<
-      CreateUsersWithListInputMutationResponse,
-      Error,
-      {
-        data?: CreateUsersWithListInputMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  return useMutation<
-    CreateUsersWithListInputMutationResponse,
-    Error,
-    {
-      data?: CreateUsersWithListInputMutationRequest
-    }
-  >({
+
+  return useMutation<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },
@@ -1110,14 +1018,15 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+
   const query = useQuery({
     ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, LoginUser400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, LoginUser400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -1153,14 +1062,15 @@ export function useLoginUserSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
+
   const query = useSuspenseQuery({
     ...(loginUserSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, LoginUser400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, LoginUser400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -1200,14 +1110,15 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+
   const query = useQuery({
     ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, Error> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, Error> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -1242,14 +1153,15 @@ export function useLogoutUserSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
+
   const query = useSuspenseQuery({
     ...(logoutUserSuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, Error> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, Error> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -1295,14 +1207,15 @@ export function useGetUserByName<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
   const query = useQuery({
     ...(getUserByNameQueryOptions(username, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, GetUserByName400 | GetUserByName404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -1340,14 +1253,15 @@ export function useGetUserByNameSuspense<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
+
   const query = useSuspenseQuery({
     ...(getUserByNameSuspenseQueryOptions(username, config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, GetUserByName400 | GetUserByName404> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, GetUserByName400 | GetUserByName404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 
@@ -1376,27 +1290,14 @@ async function updateUser(
  */
 export function useUpdateUser(
   options: {
-    mutation?: UseMutationOptions<
-      UpdateUserMutationResponse,
-      Error,
-      {
-        username: UpdateUserPathParams['username']
-        data?: UpdateUserMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<UpdateUserMutationResponse, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  return useMutation<
-    UpdateUserMutationResponse,
-    Error,
-    {
-      username: UpdateUserPathParams['username']
-      data?: UpdateUserMutationRequest
-    }
-  >({
+
+  return useMutation<UpdateUserMutationResponse, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
     mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },
@@ -1426,25 +1327,14 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
  */
 export function useDeleteUser(
   options: {
-    mutation?: UseMutationOptions<
-      DeleteUserMutationResponse,
-      DeleteUser400 | DeleteUser404,
-      {
-        username: DeleteUserPathParams['username']
-      }
-    >
+    mutation?: UseMutationOptions<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  return useMutation<
-    DeleteUserMutationResponse,
-    DeleteUser400 | DeleteUser404,
-    {
-      username: DeleteUserPathParams['username']
-    }
-  >({
+
+  return useMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>({
     mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },

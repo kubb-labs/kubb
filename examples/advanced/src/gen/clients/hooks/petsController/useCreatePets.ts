@@ -25,12 +25,7 @@ async function createPets(
     data,
     headers,
     params,
-  }: {
-    uuid: CreatePetsPathParams['uuid']
-    data: CreatePetsMutationRequest
-    headers: CreatePetsHeaderParams
-    params?: CreatePetsQueryParams
-  },
+  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
   const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
@@ -53,27 +48,18 @@ export function useCreatePets(
     mutation?: UseMutationOptions<
       ResponseConfig<CreatePetsMutationResponse>,
       Error,
-      {
-        uuid: CreatePetsPathParams['uuid']
-        data: CreatePetsMutationRequest
-        headers: CreatePetsHeaderParams
-        params?: CreatePetsQueryParams
-      }
+      { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams }
     >
     client?: Partial<RequestConfig<CreatePetsMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createPetsMutationKey()
+
   return useMutation<
     ResponseConfig<CreatePetsMutationResponse>,
     Error,
-    {
-      uuid: CreatePetsPathParams['uuid']
-      data: CreatePetsMutationRequest
-      headers: CreatePetsHeaderParams
-      params?: CreatePetsQueryParams
-    }
+    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams }
   >({
     mutationFn: async ({ uuid, data, headers, params }) => {
       return createPets({ uuid, data, headers, params }, config)

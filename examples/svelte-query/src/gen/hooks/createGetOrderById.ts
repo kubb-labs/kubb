@@ -48,13 +48,14 @@ export function createGetOrderById<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = createQuery({
     ...(getOrderByIdQueryOptions(orderId, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, GetOrderById400 | GetOrderById404> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, GetOrderById400 | GetOrderById404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

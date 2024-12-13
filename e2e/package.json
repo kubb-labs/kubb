@@ -42,15 +42,15 @@
     "solid-js": "^1.9.3",
     "svelte": "^3.59.2",
     "swr": "^2.2.5",
-    "tsup": "^8.3.5",
+    "tsup": "catalog:",
     "vue": "^3.5.13",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {

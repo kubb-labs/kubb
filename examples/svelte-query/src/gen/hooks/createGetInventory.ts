@@ -46,13 +46,14 @@ export function createGetInventory<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+
   const query = createQuery({
     ...(getInventoryQueryOptions(config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, Error> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, Error> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

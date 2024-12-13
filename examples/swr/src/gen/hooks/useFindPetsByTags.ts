@@ -39,7 +39,9 @@ export function useFindPetsByTags(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = findPetsByTagsQueryKey(params)
+
   return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByTagsQueryOptions(params, config),
     ...queryOptions,

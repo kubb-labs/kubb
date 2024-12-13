@@ -31,6 +31,7 @@ export function useCreateUser(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUserMutationKey()
+
   return useSWRMutation<CreateUserMutationResponse, Error, CreateUserMutationKey | null, CreateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

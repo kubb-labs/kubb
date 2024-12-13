@@ -31,6 +31,7 @@ export function usePlaceOrder(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = placeOrderMutationKey()
+
   return useSWRMutation<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationKey | null, PlaceOrderMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

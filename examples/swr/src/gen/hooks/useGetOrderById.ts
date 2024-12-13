@@ -39,7 +39,9 @@ export function useGetOrderById(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = getOrderByIdQueryKey(orderId)
+
   return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getOrderByIdQueryOptions(orderId, config),
     ...queryOptions,

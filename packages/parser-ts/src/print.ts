@@ -1,4 +1,4 @@
-import ts, { LanguageVariant } from 'typescript'
+import ts from 'typescript'
 
 import type { PrinterOptions } from 'typescript'
 

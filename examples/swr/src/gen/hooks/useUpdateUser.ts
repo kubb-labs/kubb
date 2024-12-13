@@ -36,6 +36,7 @@ export function useUpdateUser(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updateUserMutationKey()
+
   return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKey | null, UpdateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

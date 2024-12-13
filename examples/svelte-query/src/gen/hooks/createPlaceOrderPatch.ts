@@ -30,25 +30,14 @@ async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Pa
  */
 export function createPlaceOrderPatch(
   options: {
-    mutation?: CreateMutationOptions<
-      PlaceOrderPatchMutationResponse,
-      PlaceOrderPatch405,
-      {
-        data?: PlaceOrderPatchMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, { data?: PlaceOrderPatchMutationRequest }>
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
-  return createMutation<
-    PlaceOrderPatchMutationResponse,
-    PlaceOrderPatch405,
-    {
-      data?: PlaceOrderPatchMutationRequest
-    }
-  >({
+
+  return createMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, { data?: PlaceOrderPatchMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrderPatch(data, config)
     },

@@ -18,15 +18,7 @@ export type UploadFileMutationKeySWR = ReturnType<typeof uploadFileMutationKeySW
  * {@link /pet/:petId/uploadImage}
  */
 async function uploadFileSWR(
-  {
-    petId,
-    data,
-    params,
-  }: {
-    petId: UploadFilePathParams['petId']
-    data?: UploadFileMutationRequest
-    params?: UploadFileQueryParams
-  },
+  { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
   const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
@@ -46,11 +38,7 @@ async function uploadFileSWR(
  * {@link /pet/:petId/uploadImage}
  */
 export function useUploadFileSWR(
-  {
-    petId,
-  }: {
-    petId: UploadFilePathParams['petId']
-  },
+  { petId }: { petId: UploadFilePathParams['petId'] },
   params?: UploadFileQueryParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKeySWR, UploadFileMutationRequest>>[2]
@@ -60,6 +48,7 @@ export function useUploadFileSWR(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKeySWR()
+
   return useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKeySWR | null, UploadFileMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

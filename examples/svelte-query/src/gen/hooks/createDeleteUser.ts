@@ -25,25 +25,14 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
  */
 export function createDeleteUser(
   options: {
-    mutation?: CreateMutationOptions<
-      DeleteUserMutationResponse,
-      DeleteUser400 | DeleteUser404,
-      {
-        username: DeleteUserPathParams['username']
-      }
-    >
+    mutation?: CreateMutationOptions<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  return createMutation<
-    DeleteUserMutationResponse,
-    DeleteUser400 | DeleteUser404,
-    {
-      username: DeleteUserPathParams['username']
-    }
-  >({
+
+  return createMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>({
     mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },

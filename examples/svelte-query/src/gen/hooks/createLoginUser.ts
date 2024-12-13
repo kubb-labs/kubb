@@ -41,13 +41,14 @@ export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = Log
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+
   const query = createQuery({
     ...(loginUserQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, LoginUser400> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, LoginUser400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

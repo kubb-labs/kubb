@@ -18,11 +18,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * {@link /user/createWithList}
  */
 async function createUsersWithListInput(
-  {
-    data,
-  }: {
-    data?: CreateUsersWithListInputMutationRequest
-  },
+  { data }: { data?: CreateUsersWithListInputMutationRequest },
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
   const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
@@ -41,25 +37,14 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: UseMutationOptions<
-      ResponseConfig<CreateUsersWithListInputMutationResponse>,
-      Error,
-      {
-        data?: CreateUsersWithListInputMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<ResponseConfig<CreateUsersWithListInputMutationResponse>, Error, { data?: CreateUsersWithListInputMutationRequest }>
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  return useMutation<
-    ResponseConfig<CreateUsersWithListInputMutationResponse>,
-    Error,
-    {
-      data?: CreateUsersWithListInputMutationRequest
-    }
-  >({
+
+  return useMutation<ResponseConfig<CreateUsersWithListInputMutationResponse>, Error, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput({ data }, config)
     },

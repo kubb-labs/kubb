@@ -39,7 +39,9 @@ export function useFindPetsByStatus(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = findPetsByStatusQueryKey(params)
+
   return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByStatusQueryOptions(params, config),
     ...queryOptions,

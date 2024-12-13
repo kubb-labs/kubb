@@ -29,25 +29,14 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
  */
 export function createDeleteOrder(
   options: {
-    mutation?: CreateMutationOptions<
-      DeleteOrderMutationResponse,
-      DeleteOrder400 | DeleteOrder404,
-      {
-        orderId: DeleteOrderPathParams['orderId']
-      }
-    >
+    mutation?: CreateMutationOptions<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, { orderId: DeleteOrderPathParams['orderId'] }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
-  return createMutation<
-    DeleteOrderMutationResponse,
-    DeleteOrder400 | DeleteOrder404,
-    {
-      orderId: DeleteOrderPathParams['orderId']
-    }
-  >({
+
+  return createMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, { orderId: DeleteOrderPathParams['orderId'] }>({
     mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },

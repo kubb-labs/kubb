@@ -33,25 +33,14 @@ async function createUsersWithListInput(
  */
 export function createCreateUsersWithListInput(
   options: {
-    mutation?: CreateMutationOptions<
-      CreateUsersWithListInputMutationResponse,
-      Error,
-      {
-        data?: CreateUsersWithListInputMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
-  return createMutation<
-    CreateUsersWithListInputMutationResponse,
-    Error,
-    {
-      data?: CreateUsersWithListInputMutationRequest
-    }
-  >({
+
+  return createMutation<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },

@@ -1,15 +1,18 @@
-import { z } from "zod";
+import { z } from 'zod'
 
- /**
+/**
  * @description Null response
  */
-export const createPets201 = z.any();
+export const createPets201 = z.any()
 
- /**
+/**
  * @description unexpected error
  */
-export const createPetsError = z.lazy(() => error);
+export const createPetsError = z.lazy(() => error)
 
- export const createPetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
+export const createPetsMutationRequest = z.object({
+  name: z.string(),
+  tag: z.string(),
+})
 
- export const createPetsMutationResponse = z.lazy(() => createPets201);
+export const createPetsMutationResponse = z.lazy(() => createPets201)

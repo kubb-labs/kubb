@@ -13,11 +13,7 @@ import type { RequestConfig } from '@kubb/plugin-client/client'
  * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
-  {
-    petId,
-  }: {
-    petId: UpdatePetWithFormPathParams['petId']
-  },
+  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},
 ) {

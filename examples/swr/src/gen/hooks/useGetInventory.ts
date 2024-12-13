@@ -38,7 +38,9 @@ export function useGetInventory(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = getInventoryQueryKey()
+
   return useSWR<GetInventoryQueryResponse, Error, GetInventoryQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getInventoryQueryOptions(config),
     ...queryOptions,

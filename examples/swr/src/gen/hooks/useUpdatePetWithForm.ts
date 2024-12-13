@@ -36,6 +36,7 @@ export function useUpdatePetWithForm(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetWithFormMutationKey()
+
   return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {

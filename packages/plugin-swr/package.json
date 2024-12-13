@@ -89,8 +89,8 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/react": "^18.3.16",
     "react": "^18.3.1",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

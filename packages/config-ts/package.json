@@ -9,6 +9,6 @@
     "bundler.json"
   ],
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "catalog:"
   }
 }

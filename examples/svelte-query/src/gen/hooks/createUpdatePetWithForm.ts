@@ -57,13 +57,14 @@ export function createUpdatePetWithForm<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
+
   const query = createQuery({
     ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, UpdatePetWithForm405> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, UpdatePetWithForm405> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

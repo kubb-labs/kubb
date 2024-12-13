@@ -1,7 +1,9 @@
 import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
 
-export const findPetsByStatusPathParamsSchema = z.object({ step_id: z.string() })
+export const findPetsByStatusPathParamsSchema = z.object({
+  step_id: z.string(),
+})
 
 export type FindPetsByStatusPathParamsSchema = z.infer<typeof findPetsByStatusPathParamsSchema>
 

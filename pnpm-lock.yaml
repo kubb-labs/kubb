@@ -4,6 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    tsup:
+      specifier: ^8.3.5
+      version: 8.3.5
+    typescript:
+      specifier: ^5.7.2
+      version: 5.7.2
+
 overrides:
   '@changesets/assemble-release-plan': 6.0.0
 
@@ -53,7 +62,7 @@ importers:
         specifier: ^2.3.3
         version: 2.3.3
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
       vite-tsconfig-paths:
         specifier: 5.1.0
@@ -216,7 +225,7 @@ importers:
         specifier: ^2.2.5
         version: 2.2.5(react@18.3.1)
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       vue:
         specifier: ^3.5.13
@@ -232,7 +241,7 @@ importers:
         specifier: workspace:*
         version: link:../packages/config-tsup
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/advanced:
@@ -320,10 +329,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/client:
@@ -360,10 +369,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/faker:
@@ -406,7 +415,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/fetch:
@@ -434,10 +443,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/generators:
@@ -474,10 +483,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/msw:
@@ -545,10 +554,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/react-query:
@@ -606,10 +615,10 @@ importers:
         specifier: ^1.3.5
         version: 1.3.5(typescript@5.7.2)
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
       vite:
         specifier: ^4.5.5
@@ -651,7 +660,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       zod:
         specifier: ^3.24.1
@@ -694,7 +703,7 @@ importers:
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
     devDependencies:
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/svelte-query:
@@ -734,7 +743,7 @@ importers:
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
     devDependencies:
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/swr:
@@ -798,7 +807,7 @@ importers:
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
     devDependencies:
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   examples/vue-query:
@@ -844,10 +853,10 @@ importers:
         specifier: ^1.3.5
         version: 1.3.5(typescript@5.7.2)
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
       vite:
         specifier: ^5.4.11
@@ -877,7 +886,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       zod:
         specifier: ^3.24.1
@@ -887,7 +896,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/cli:
@@ -954,10 +963,10 @@ importers:
         specifier: ^0.5.21
         version: 0.5.21
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/config-biome: {}
@@ -965,7 +974,7 @@ importers:
   packages/config-ts:
     devDependencies:
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/config-tsup:
@@ -1045,10 +1054,10 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/fs:
@@ -1092,10 +1101,10 @@ importers:
         specifier: ^20.17.10
         version: 20.17.10
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/oas:
@@ -1147,19 +1156,22 @@ importers:
         specifier: ^0.20.0
         version: 0.20.0
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/parser-ts:
     dependencies:
+      prettier:
+        specifier: ^3.4.2
+        version: 3.4.2
       remeda:
         specifier: ^2.17.4
         version: 2.17.4
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
     devDependencies:
       '@kubb/config-ts':
@@ -1206,10 +1218,10 @@ importers:
         specifier: ^1.7.9
         version: 1.7.9
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-faker:
@@ -1240,10 +1252,10 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-msw:
@@ -1283,10 +1295,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-oas:
@@ -1323,10 +1335,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-react-query:
@@ -1369,10 +1381,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-redoc:
@@ -1421,10 +1433,10 @@ importers:
         specifier: ^18.3.5
         version: 18.3.5(@types/react@18.3.16)
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-solid-query:
@@ -1467,10 +1479,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-svelte-query:
@@ -1513,10 +1525,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-swr:
@@ -1562,10 +1574,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-ts:
@@ -1602,10 +1614,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-vue-query:
@@ -1648,10 +1660,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/plugin-zod:
@@ -1740,10 +1752,10 @@ importers:
         specifier: ^8.5.13
         version: 8.5.13
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/types:
@@ -1755,10 +1767,10 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
 
   packages/unplugin-kubb:
@@ -1798,10 +1810,10 @@ importers:
         specifier: ^4.28.1
         version: 4.28.1
       tsup:
-        specifier: ^8.3.5
+        specifier: 'catalog:'
         version: 8.3.5(@microsoft/api-extractor@7.48.0(@types/node@20.17.10))(@swc/core@1.7.22)(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.5.1)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.7.2
       vite:
         specifier: ^5.4.11

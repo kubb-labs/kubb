@@ -31,6 +31,7 @@ export function useAddPet(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKey()
+
   return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKey | null, AddPetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

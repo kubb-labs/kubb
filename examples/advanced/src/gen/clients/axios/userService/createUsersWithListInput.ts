@@ -11,11 +11,7 @@ import type {
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInput(
-  {
-    data,
-  }: {
-    data?: CreateUsersWithListInputMutationRequest
-  },
+  { data }: { data?: CreateUsersWithListInputMutationRequest },
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
   const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({

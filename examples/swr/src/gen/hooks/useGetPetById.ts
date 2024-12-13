@@ -39,7 +39,9 @@ export function useGetPetById(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = getPetByIdQueryKey(petId)
+
   return useSWR<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getPetByIdQueryOptions(petId, config),
     ...queryOptions,

@@ -38,6 +38,7 @@ export function useDeletePet(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deletePetMutationKey()
+
   return useSWRMutation<DeletePetMutationResponse, DeletePet400, DeletePetMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {

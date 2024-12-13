@@ -6,6 +6,7 @@ export function createUsersWithListInputHandler(
 ) {
   return http.post('*/user/createWithList', function handler(info) {
     if (typeof data === 'function') return data(info)
+
     return new Response(JSON.stringify(data), {
       headers: {
         'Content-Type': 'application/json',

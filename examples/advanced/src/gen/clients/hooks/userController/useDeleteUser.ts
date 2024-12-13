@@ -14,14 +14,7 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * @summary Delete user
  * {@link /user/:username}
  */
-async function deleteUser(
-  {
-    username,
-  }: {
-    username: DeleteUserPathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+async function deleteUser({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
   return { ...res, data: deleteUserMutationResponseSchema.parse(res.data) }
 }
@@ -33,25 +26,14 @@ async function deleteUser(
  */
 export function useDeleteUser(
   options: {
-    mutation?: UseMutationOptions<
-      ResponseConfig<DeleteUserMutationResponse>,
-      DeleteUser400 | DeleteUser404,
-      {
-        username: DeleteUserPathParams['username']
-      }
-    >
+    mutation?: UseMutationOptions<ResponseConfig<DeleteUserMutationResponse>, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
-  return useMutation<
-    ResponseConfig<DeleteUserMutationResponse>,
-    DeleteUser400 | DeleteUser404,
-    {
-      username: DeleteUserPathParams['username']
-    }
-  >({
+
+  return useMutation<ResponseConfig<DeleteUserMutationResponse>, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>({
     mutationFn: async ({ username }) => {
       return deleteUser({ username }, config)
     },

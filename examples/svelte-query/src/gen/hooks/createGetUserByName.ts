@@ -46,13 +46,14 @@ export function createGetUserByName<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
   const query = createQuery({
     ...(getUserByNameQueryOptions(username, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, GetUserByName400 | GetUserByName404> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, GetUserByName400 | GetUserByName404> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

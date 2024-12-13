@@ -95,8 +95,8 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "axios": "^1.7.9",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0",

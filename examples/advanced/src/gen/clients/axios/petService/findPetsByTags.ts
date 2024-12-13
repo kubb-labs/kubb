@@ -13,13 +13,7 @@ import type {
  * {@link /pet/findByTags}
  */
 export async function findPetsByTags(
-  {
-    headers,
-    params,
-  }: {
-    headers: FindPetsByTagsHeaderParams
-    params?: FindPetsByTagsQueryParams
-  },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({

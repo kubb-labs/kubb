@@ -1,3 +1,3 @@
-import { z } from "zod";
+import { z } from 'zod'
 
- export const deletePetsPetidMutationResponse = z.any();
+export const deletePetsPetidMutationResponse = z.any()

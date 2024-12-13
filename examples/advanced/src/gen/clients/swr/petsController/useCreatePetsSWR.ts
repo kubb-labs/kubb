@@ -24,12 +24,7 @@ async function createPetsSWR(
     data,
     headers,
     params,
-  }: {
-    uuid: CreatePetsPathParams['uuid']
-    data: CreatePetsMutationRequest
-    headers: CreatePetsHeaderParams
-    params?: CreatePetsQueryParams
-  },
+  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
   const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
@@ -49,11 +44,7 @@ async function createPetsSWR(
  * {@link /pets/:uuid}
  */
 export function useCreatePetsSWR(
-  {
-    uuid,
-  }: {
-    uuid: CreatePetsPathParams['uuid']
-  },
+  { uuid }: { uuid: CreatePetsPathParams['uuid'] },
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: {
@@ -64,6 +55,7 @@ export function useCreatePetsSWR(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createPetsMutationKeySWR()
+
   return useSWRMutation<CreatePetsMutationResponse, Error, CreatePetsMutationKeySWR | null, CreatePetsMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

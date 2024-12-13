@@ -1,11 +1,17 @@
 import { apiResponseSchema } from '../apiResponseSchema.ts'
 import { z } from 'zod'
 
-export const uploadFilePathParamsSchema = z.object({ petId: z.number().int().describe('ID of pet to update') })
+export const uploadFilePathParamsSchema = z.object({
+  petId: z.number().int().describe('ID of pet to update'),
+})
 
 export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>
 
-export const uploadFileQueryParamsSchema = z.object({ additionalMetadata: z.string().describe('Additional Metadata').optional() }).optional()
+export const uploadFileQueryParamsSchema = z
+  .object({
+    additionalMetadata: z.string().describe('Additional Metadata').optional(),
+  })
+  .optional()
 
 export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSchema>
 

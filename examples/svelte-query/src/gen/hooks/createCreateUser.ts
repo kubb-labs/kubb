@@ -25,25 +25,14 @@ async function createUser(data?: CreateUserMutationRequest, config: Partial<Requ
  */
 export function createCreateUser(
   options: {
-    mutation?: CreateMutationOptions<
-      CreateUserMutationResponse,
-      Error,
-      {
-        data?: CreateUserMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<CreateUserMutationResponse, Error, { data?: CreateUserMutationRequest }>
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
-  return createMutation<
-    CreateUserMutationResponse,
-    Error,
-    {
-      data?: CreateUserMutationRequest
-    }
-  >({
+
+  return createMutation<CreateUserMutationResponse, Error, { data?: CreateUserMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUser(data, config)
     },

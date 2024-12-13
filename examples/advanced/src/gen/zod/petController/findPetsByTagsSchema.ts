@@ -11,7 +11,9 @@ export const findPetsByTagsQueryParamsSchema = z
 
 export type FindPetsByTagsQueryParamsSchema = z.infer<typeof findPetsByTagsQueryParamsSchema>
 
-export const findPetsByTagsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters') })
+export const findPetsByTagsHeaderParamsSchema = z.object({
+  'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
+})
 
 export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHeaderParamsSchema>
 

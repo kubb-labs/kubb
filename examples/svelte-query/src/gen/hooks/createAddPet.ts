@@ -25,25 +25,14 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  */
 export function createAddPet(
   options: {
-    mutation?: CreateMutationOptions<
-      AddPetMutationResponse,
-      AddPet405,
-      {
-        data: AddPetMutationRequest
-      }
-    >
+    mutation?: CreateMutationOptions<AddPetMutationResponse, AddPet405, { data: AddPetMutationRequest }>
     client?: Partial<RequestConfig<AddPetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  return createMutation<
-    AddPetMutationResponse,
-    AddPet405,
-    {
-      data: AddPetMutationRequest
-    }
-  >({
+
+  return createMutation<AddPetMutationResponse, AddPet405, { data: AddPetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return addPet(data, config)
     },

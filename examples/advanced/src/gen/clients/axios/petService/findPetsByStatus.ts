@@ -7,14 +7,7 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPet
  * @summary Finds Pets by status
  * {@link /pet/findByStatus/:step_id}
  */
-export async function findPetsByStatus(
-  {
-    step_id,
-  }: {
-    step_id: FindPetsByStatusPathParams['step_id']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+export async function findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({
     method: 'GET',
     url: `/pet/findByStatus/${step_id}`,

@@ -38,25 +38,18 @@ export function createUploadFile(
     mutation?: CreateMutationOptions<
       UploadFileMutationResponse,
       Error,
-      {
-        petId: UploadFilePathParams['petId']
-        data?: UploadFileMutationRequest
-        params?: UploadFileQueryParams
-      }
+      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+
   return createMutation<
     UploadFileMutationResponse,
     Error,
-    {
-      petId: UploadFilePathParams['petId']
-      data?: UploadFileMutationRequest
-      params?: UploadFileQueryParams
-    }
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)

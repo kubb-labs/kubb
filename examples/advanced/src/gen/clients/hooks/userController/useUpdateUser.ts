@@ -15,13 +15,7 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * {@link /user/:username}
  */
 async function updateUser(
-  {
-    username,
-    data,
-  }: {
-    username: UpdateUserPathParams['username']
-    data?: UpdateUserMutationRequest
-  },
+  { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
   const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({ method: 'PUT', url: `/user/${username}`, data, ...config })
@@ -38,24 +32,15 @@ export function useUpdateUser(
     mutation?: UseMutationOptions<
       ResponseConfig<UpdateUserMutationResponse>,
       Error,
-      {
-        username: UpdateUserPathParams['username']
-        data?: UpdateUserMutationRequest
-      }
+      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
     >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
-  return useMutation<
-    ResponseConfig<UpdateUserMutationResponse>,
-    Error,
-    {
-      username: UpdateUserPathParams['username']
-      data?: UpdateUserMutationRequest
-    }
-  >({
+
+  return useMutation<ResponseConfig<UpdateUserMutationResponse>, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
     mutationFn: async ({ username, data }) => {
       return updateUser({ username, data }, config)
     },

@@ -32,6 +32,7 @@ export function useDeleteUser(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKey()
+
   return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {

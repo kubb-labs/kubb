@@ -20,13 +20,7 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
  * {@link /pet/findByTags}
  */
 async function findPetsByTags(
-  {
-    headers,
-    params,
-  }: {
-    headers: FindPetsByTagsHeaderParams
-    params?: FindPetsByTagsQueryParams
-  },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
@@ -40,13 +34,7 @@ async function findPetsByTags(
 }
 
 export function findPetsByTagsInfiniteQueryOptions(
-  {
-    headers,
-    params,
-  }: {
-    headers: FindPetsByTagsHeaderParams
-    params?: FindPetsByTagsQueryParams
-  },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
@@ -54,6 +42,7 @@ export function findPetsByTagsInfiniteQueryOptions(
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
+
       if (params) {
         params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       }
@@ -75,13 +64,7 @@ export function useFindPetsByTagsInfinite<
   TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
-  {
-    headers,
-    params,
-  }: {
-    headers: FindPetsByTagsHeaderParams
-    params?: FindPetsByTagsQueryParams
-  },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
     query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
@@ -89,13 +72,14 @@ export function useFindPetsByTagsInfinite<
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
+
   const query = useInfiniteQuery({
     ...(findPetsByTagsInfiniteQueryOptions({ headers, params }, config) as unknown as InfiniteQueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
-  }) as UseInfiniteQueryResult<TData, FindPetsByTags400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseInfiniteQueryResult<TData, FindPetsByTags400> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

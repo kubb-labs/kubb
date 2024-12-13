@@ -122,7 +122,7 @@ const tsxParser = createFileParser({
   async format(source) {
     const module = await import('@kubb/parser-ts')
     //4 = tsx
-    return module.format(source, { scriptKind: 4 })
+    return module.format(source)
   },
   async print(file, options = { extname: '.tsx' }) {
     return typeScriptParser.print(file, options)

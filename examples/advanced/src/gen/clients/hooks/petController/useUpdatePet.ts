@@ -20,14 +20,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * @summary Update an existing pet
  * {@link /pet}
  */
-async function updatePet(
-  {
-    data,
-  }: {
-    data: UpdatePetMutationRequest
-  },
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> = {},
-) {
+async function updatePet({ data }: { data: UpdatePetMutationRequest }, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
@@ -44,25 +37,14 @@ async function updatePet(
  */
 export function useUpdatePet(
   options: {
-    mutation?: UseMutationOptions<
-      ResponseConfig<UpdatePetMutationResponse>,
-      UpdatePet400 | UpdatePet404 | UpdatePet405,
-      {
-        data: UpdatePetMutationRequest
-      }
-    >
+    mutation?: UseMutationOptions<ResponseConfig<UpdatePetMutationResponse>, UpdatePet400 | UpdatePet404 | UpdatePet405, { data: UpdatePetMutationRequest }>
     client?: Partial<RequestConfig<UpdatePetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
-  return useMutation<
-    ResponseConfig<UpdatePetMutationResponse>,
-    UpdatePet400 | UpdatePet404 | UpdatePet405,
-    {
-      data: UpdatePetMutationRequest
-    }
-  >({
+
+  return useMutation<ResponseConfig<UpdatePetMutationResponse>, UpdatePet400 | UpdatePet404 | UpdatePet405, { data: UpdatePetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return updatePet({ data }, config)
     },

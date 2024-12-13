@@ -19,13 +19,7 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
  * {@link /pet/:petId}
  */
 async function updatePetWithForm(
-  {
-    petId,
-    params,
-  }: {
-    petId: UpdatePetWithFormPathParams['petId']
-    params?: UpdatePetWithFormQueryParams
-  },
+  { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
   const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
@@ -41,23 +35,18 @@ export function useUpdatePetWithForm(
     mutation?: UseMutationOptions<
       ResponseConfig<UpdatePetWithFormMutationResponse>,
       UpdatePetWithForm405,
-      {
-        petId: UpdatePetWithFormPathParams['petId']
-        params?: UpdatePetWithFormQueryParams
-      }
+      { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
     >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
+
   return useMutation<
     ResponseConfig<UpdatePetWithFormMutationResponse>,
     UpdatePetWithForm405,
-    {
-      petId: UpdatePetWithFormPathParams['petId']
-      params?: UpdatePetWithFormQueryParams
-    }
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
   >({
     mutationFn: async ({ petId, params }) => {
       return updatePetWithForm({ petId, params }, config)

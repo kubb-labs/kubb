@@ -42,7 +42,9 @@ export function useLogoutUserSWR(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = logoutUserQueryKeySWR()
+
   return useSWR<LogoutUserQueryResponse, Error, LogoutUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...logoutUserQueryOptionsSWR(config),
     ...queryOptions,

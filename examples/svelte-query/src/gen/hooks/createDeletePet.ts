@@ -30,27 +30,14 @@ async function deletePet(pet_id: DeletePetPathParams['pet_id'], headers?: Delete
  */
 export function createDeletePet(
   options: {
-    mutation?: CreateMutationOptions<
-      DeletePetMutationResponse,
-      DeletePet400,
-      {
-        pet_id: DeletePetPathParams['pet_id']
-        headers?: DeletePetHeaderParams
-      }
-    >
+    mutation?: CreateMutationOptions<DeletePetMutationResponse, DeletePet400, { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }>
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
-  return createMutation<
-    DeletePetMutationResponse,
-    DeletePet400,
-    {
-      pet_id: DeletePetPathParams['pet_id']
-      headers?: DeletePetHeaderParams
-    }
-  >({
+
+  return createMutation<DeletePetMutationResponse, DeletePet400, { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }>({
     mutationFn: async ({ pet_id, headers }) => {
       return deletePet(pet_id, headers, config)
     },

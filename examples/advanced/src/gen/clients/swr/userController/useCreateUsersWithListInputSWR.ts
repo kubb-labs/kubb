@@ -17,11 +17,7 @@ export type CreateUsersWithListInputMutationKeySWR = ReturnType<typeof createUse
  * {@link /user/createWithList}
  */
 async function createUsersWithListInputSWR(
-  {
-    data,
-  }: {
-    data?: CreateUsersWithListInputMutationRequest
-  },
+  { data }: { data?: CreateUsersWithListInputMutationRequest },
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
   const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
@@ -50,6 +46,7 @@ export function useCreateUsersWithListInputSWR(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUsersWithListInputMutationKeySWR()
+
   return useSWRMutation<
     CreateUsersWithListInputMutationResponse,
     Error,

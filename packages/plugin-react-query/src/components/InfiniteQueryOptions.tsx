@@ -151,11 +151,11 @@ export function InfiniteQueryOptions({
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
-  return (
-    <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export params={params.toConstructor()}>
-        {infiniteOverrideParams &&
-          `
+  if (infiniteOverrideParams) {
+    return (
+      <File.Source name={name} isExportable isIndexable>
+        <Function name={name} export params={params.toConstructor()}>
+          {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return infiniteQueryOptions({
        ${enabledText}
@@ -168,17 +168,24 @@ export function InfiniteQueryOptions({
        ${queryOptions.join(',\n')}
       })
 `}
-        {!infiniteOverrideParams &&
-          `
+        </Function>
+      </File.Source>
+    )
+  }
+
+  return (
+    <File.Source name={name} isExportable isIndexable>
+      <Function name={name} export params={params.toConstructor()}>
+        {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return infiniteQueryOptions({
-       ${enabledText},
+       ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
           config.signal = signal
           return ${clientName}(${clientParams.toCall()})
        },
-       ${queryOptions.join('\n')}
+       ${queryOptions.join(',\n')}
       })
 `}
       </Function>

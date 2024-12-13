@@ -37,7 +37,9 @@ export function useGetUserByName(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = getUserByNameQueryKey(username)
+
   return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getUserByNameQueryOptions(username, config),
     ...queryOptions,

@@ -107,8 +107,8 @@
     "consola": "^3.2.3",
     "prettier": "^3.4.2",
     "tinyrainbow": "^1.2.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=20"

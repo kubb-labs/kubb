@@ -37,7 +37,9 @@ export function useLoginUser(
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+
   const queryKey = loginUserQueryKey(params)
+
   return useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKey | null>(shouldFetch ? queryKey : null, {
     ...loginUserQueryOptions(params, config),
     ...queryOptions,

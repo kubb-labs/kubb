@@ -13,14 +13,7 @@ export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySW
  * @summary Delete user
  * {@link /user/:username}
  */
-async function deleteUserSWR(
-  {
-    username,
-  }: {
-    username: DeleteUserPathParams['username']
-  },
-  config: Partial<RequestConfig> = {},
-) {
+async function deleteUserSWR({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
@@ -36,11 +29,7 @@ async function deleteUserSWR(
  * {@link /user/:username}
  */
 export function useDeleteUserSWR(
-  {
-    username,
-  }: {
-    username: DeleteUserPathParams['username']
-  },
+  { username }: { username: DeleteUserPathParams['username'] },
   options: {
     mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKeySWR>>[2]
     client?: Partial<RequestConfig>
@@ -49,6 +38,7 @@ export function useDeleteUserSWR(
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKeySWR()
+
   return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
