@@ -12,7 +12,7 @@ exports[`zod parse > 'arrayEmpty' 1`] = `"z.array()"`;
 
 exports[`zod parse > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet))"`;
 
-exports[`zod parse > 'arrayRegex' 1`] = `"z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)"`;
+exports[`zod parse > 'arrayRegex' 1`] = `"z.array(z.string().regex(/^[a-zA-Z0-9]{1,13}$/)).min(3).max(10)"`;
 
 exports[`zod parse > 'blob' 1`] = `"z.instanceof(File)"`;
 
@@ -38,9 +38,9 @@ exports[`zod parse > 'enumLiteralBoolean' 1`] = `"z.union([z.literal(true), z.li
 
 exports[`zod parse > 'integer' 1`] = `"z.number().int()"`;
 
-exports[`zod parse > 'matches' 1`] = `"z.string().regex(new RegExp('^[A-Z]{2}$'))"`;
+exports[`zod parse > 'matches' 1`] = `"z.string().regex(/^[A-Z]{2}$/)"`;
 
-exports[`zod parse > 'matchesReg' 1`] = `"z.string().regex(new RegExp('node_modules'))"`;
+exports[`zod parse > 'matchesReg' 1`] = `"z.string().regex(/node_modules/)"`;
 
 exports[`zod parse > 'max' 1`] = `".max(2)"`;
 
@@ -73,7 +73,7 @@ exports[`zod parse > 'objectAnd' 1`] = `
 
 exports[`zod parse > 'objectArray' 1`] = `
 "z.object({
-    "ids": z.array(z.string().regex(new RegExp('^[a-zA-Z0-9]{1,13}$'))).min(3).max(10)
+    "ids": z.array(z.string().regex(/^[a-zA-Z0-9]{1,13}$/)).min(3).max(10)
     })"
 `;
 

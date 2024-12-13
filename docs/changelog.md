@@ -6,6 +6,7 @@ title: Changelog
 
 ## 3.3.0
 - [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
+- [`plugin-zod`](/plugins/plugin-zod): use Regular expression literal instead of RegExp-contructor
 
 ## 3.2.0
 - [`plugin-msw`](/plugins/plugin-msw): `paramsCasing` to define casing for params

@@ -316,7 +316,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
   if (isKeyword(current, schemaKeywords.matches)) {
     if (current.args) {
-      return zodKeywordMapper.matches(transformers.toRegExpString(current.args), shouldCoerce(options.coercion, 'strings'))
+      return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'))
     }
   }
 

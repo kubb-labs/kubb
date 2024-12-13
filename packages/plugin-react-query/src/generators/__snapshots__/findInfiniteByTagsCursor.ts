@@ -1,5 +1,5 @@
-import client from '@kubb/plugin-client/client'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 
@@ -31,7 +31,7 @@ export function findPetsByTagsInfiniteQueryOptions(
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions({
     queryKey,
-    queryFn: async ({ signal }) => {
+    queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
 
       if (params) {

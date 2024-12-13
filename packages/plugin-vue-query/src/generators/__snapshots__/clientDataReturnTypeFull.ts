@@ -1,5 +1,5 @@
-import client from '@kubb/plugin-client/client'
-import type { RequestConfig, ResponseConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/react-query'
 import type { MaybeRef } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/react-query'

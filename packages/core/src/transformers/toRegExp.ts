@@ -21,9 +21,13 @@ export function toRegExp(text: string | RegExp): RegExp {
   return stringToRegex(text.toString())
 }
 
-export function toRegExpString(text: string, func = 'RegExp'): string {
+export function toRegExpString(text: string, func: string | null = 'RegExp'): string {
   const isStartWithSlash = text.startsWith('/')
   const isEndWithSlash = text.endsWith('/')
+
+  if (func === null) {
+    return `/${text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined).replaceAll('/', '\\/')}/`
+  }
 
   const regexp = `new ${func}('${jsStringEscape(text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
 

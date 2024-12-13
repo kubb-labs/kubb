@@ -833,6 +833,10 @@ components:
           type: integer
           format: int64
           example: 10
+        internalId:
+            type: string
+            example: 10
+            pattern: "^[0-9]{1,19}$"
         name:
           type: string
           example: doggie

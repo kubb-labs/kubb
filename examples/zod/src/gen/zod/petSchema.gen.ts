@@ -4,6 +4,10 @@ import { tagSchema } from './tagSchema.gen.ts'
 
 export const petSchema = z.object({
   id: z.number().int().optional(),
+  internalId: z
+    .string()
+    .regex(/^[0-9]{1,19}$/)
+    .optional(),
   name: z.string().uuid(),
   category: z.lazy(() => categorySchema).optional(),
   photoUrls: z.array(z.string()),
