@@ -1,5 +1,21 @@
 # @kubb/plugin-ts
 
+## 3.3.0
+
+### Minor Changes
+
+- [`ed08de3`](https://github.com/kubb-labs/kubb/commit/ed08de333ffc4a6de61707b3a0c2c9d647cd16fd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Switch between the use of type or interface when creating types
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.0
+  - @kubb/fs@3.3.0
+  - @kubb/oas@3.3.0
+  - @kubb/parser-ts@3.3.0
+  - @kubb/plugin-oas@3.3.0
+  - @kubb/react@3.3.0
+
 ## 3.2.0
 
 ### Patch Changes
