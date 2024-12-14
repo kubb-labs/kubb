@@ -10,7 +10,7 @@ type Props = {
   operations: Array<{ operation: Operation; data: SchemaNames }>
 }
 
-export function Operations({ name, operations }: Props): KubbNode {
+export function Operations({ name, operations }: Props) {
   const operationsJSON = operations.reduce(
     (prev, acc) => {
       prev[`"${acc.operation.getOperationId()}"`] = acc.data

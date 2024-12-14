@@ -17,7 +17,7 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, keysToOmit, description }: Props): KubbNode {
+export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, keysToOmit, description }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
 
   const output = parserZod

@@ -119,7 +119,8 @@ export function Type({ name, typedName, tree, keysToOmit, optionalType, syntaxTy
   return (
     <Fragment>
       {enums.map(({ name, nameNode, typeName, typeNode }, index) => (
-        <Fragment key={[name, nameNode].join('-')}>
+        // biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
+        <Fragment>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
               {print([nameNode])}
