@@ -1,5 +1,18 @@
 # @kubb/plugin-zod
 
+## 3.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`fd3831e`](https://github.com/kubb-labs/kubb/commit/fd3831e090c0356280a3c17e9e1878e843705e60)]:
+  - @kubb/react@3.3.2
+  - @kubb/plugin-oas@3.3.2
+  - @kubb/plugin-ts@3.3.2
+  - @kubb/core@3.3.2
+  - @kubb/fs@3.3.2
+  - @kubb/oas@3.3.2
+  - @kubb/parser-ts@3.3.2
+
 ## 3.3.1
 
 ### Patch Changes
