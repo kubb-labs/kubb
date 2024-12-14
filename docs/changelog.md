@@ -4,9 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.3.2
+- [`react/`](/helpers/react/): Support `div` and other basic elements to be returned by `@kubb/react`
+
 ## 3.3.1
 - [`plugin-zod`](/plugins/plugin-zod): Use of `tozod` util to create schema based on a type
-
 
 ## 3.3.0
 - [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client

@@ -46,6 +46,7 @@ jobs:
           env:
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            NPM_CONFIG_PROVENANCE: true
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         - name: Publish ${{ inputs.tag || 'canary' }}
@@ -57,6 +58,7 @@ jobs:
           env:
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            NPM_CONFIG_PROVENANCE: true
 
 #        - name: Deploy to Coolify
 #          run: |

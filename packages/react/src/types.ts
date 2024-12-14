@@ -1,6 +1,6 @@
 import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
-type ReactElementNames = 'br'
+type ReactElementNames = 'br' | 'div'
 
 declare global {
   namespace JSX {

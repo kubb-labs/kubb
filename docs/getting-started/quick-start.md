@@ -102,6 +102,8 @@ When the cli is not an option, you could use the `@kubb/core` package to trigger
 ```typescript [index.ts]
 import { write } from '@kubb/fs'
 import { build, getSource } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginClient } from '@kubb/plugin-client'
 
 const { error, files, pluginManager } = await build({
   config: {
@@ -112,6 +114,10 @@ const { error, files, pluginManager } = await build({
     output: {
       path: './gen',
     },
+    plugins: [
+      pluginOas(),
+      pluginClient(),
+    ]
   },
 })
 

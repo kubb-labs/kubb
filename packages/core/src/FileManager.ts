@@ -202,7 +202,10 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(
   const parser = await getFileParser(file.extname)
   const source = await parser.print(file, { logger, extname })
 
-  return parser.format(source)
+  return parser.format(source).catch((err) => {
+    console.warn(err)
+    return source
+  })
 }
 
 function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {
