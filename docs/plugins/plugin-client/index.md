@@ -15,19 +15,19 @@ By default, we are using [Axios](https://axios-http.com/docs/intro) but you can 
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/plugin-client
+bun add -d @kubb/plugin-client
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-client
+pnpm add -D @kubb/plugin-client
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-client
+npm install --save-dev @kubb/plugin-client
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-client
+yarn add -D @kubb/plugin-client
 ```
 :::
 

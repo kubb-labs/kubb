@@ -17,7 +17,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 async function updatePet({ data }: { data: UpdatePetMutationRequest }, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
   const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: '/pet',
+    url: `/pet`,
     data,
     ...config,
   })

@@ -32,19 +32,19 @@ You can install Kubb via [bun](https://bun.sh/), [pnpm](https://pnpm.io/), [npm]
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/cli @kubb/core
+bun add -d @kubb/cli @kubb/core
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/cli @kubb/core
+pnpm add -D @kubb/cli @kubb/core
 ```
 
 ```shell [npm]
-npm install @kubb/cli @kubb/core
+npm install --save-dev @kubb/cli @kubb/core
 ```
 
 ```shell [yarn]
-yarn add @kubb/cli @kubb/core
+yarn add -D @kubb/cli @kubb/core
 ```
 :::
 

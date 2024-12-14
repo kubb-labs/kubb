@@ -13,19 +13,19 @@ With the TypeScript plugin you can create [TypeScript](https://www.typescriptlan
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-ts
+bun add -d @kubb/plugin-ts
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-ts
+pnpm add -D @kubb/plugin-ts
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-ts
+npm install --save-dev @kubb/plugin-ts
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-ts
+yarn add -D @kubb/plugin-ts
 ```
 :::
 
@@ -176,6 +176,32 @@ type Pet = {
 ```typescript ['date']
 type Pet = {
   date: Date
+}
+```
+:::
+
+### syntaxType
+
+Switch between type or interface for creating TypeScript types.
+See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/type-vs-interface-which-should-you-use).
+
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `'type' \| 'interface'` |
+| Required: | `false`                 |
+|  Default: | `'type'`                |
+
+::: code-group
+
+```typescript ['type']
+type Pet = {
+  name: string
+}
+```
+
+```typescript ['interface']
+interface Pet {
+  name: string
 }
 ```
 :::

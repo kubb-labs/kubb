@@ -16,19 +16,19 @@ Use React to create templates/variants for any plugin.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/react
+bun add -d @kubb/react
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/react
+pnpm add -D @kubb/react
 ```
 
 ```shell [npm]
-npm install @kubb/react
+npm install --save-dev @kubb/react
 ```
 
 ```shell [yarn]
-yarn add @kubb/react
+yarn add -D @kubb/react
 ```
 
 :::

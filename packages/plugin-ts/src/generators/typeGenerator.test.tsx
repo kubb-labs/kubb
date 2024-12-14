@@ -1,4 +1,4 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -57,6 +57,14 @@ describe('typeGenerator schema', async () => {
       path: 'Pets',
       options: {
         optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PetsInterface',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pets',
+      options: {
+        syntaxType: 'interface',
       },
     },
     {
@@ -348,6 +356,7 @@ describe('typeGenerator schema', async () => {
       optionalType: 'questionToken',
       override: [],
       mapper: {},
+      syntaxType: 'type',
       output: {
         path: '.',
       },
@@ -445,6 +454,7 @@ describe('typeGenerator operation', async () => {
       transformers: {},
       oasType: false,
       unknownType: 'any',
+      syntaxType: 'type',
       override: [],
       mapper: {},
       output: {

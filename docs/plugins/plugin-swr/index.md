@@ -14,19 +14,19 @@ With the SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-swr
+bun add -d @kubb/plugin-swr
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-swr
+pnpm add -D @kubb/plugin-swr
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-swr
+npm install --save-dev @kubb/plugin-swr
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-swr
+yarn add -D @kubb/plugin-swr
 ```
 
 :::

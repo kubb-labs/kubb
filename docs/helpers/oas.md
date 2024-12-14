@@ -12,19 +12,19 @@ outline: deep
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/oas
+bun add -d @kubb/oas
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/oas
+pnpm add -D @kubb/oas
 ```
 
 ```shell [npm]
-npm install @kubb/oas
+npm install --save-dev @kubb/oas
 ```
 
 ```shell [yarn]
-yarn add @kubb/oas
+yarn add -D @kubb/oas
 ```
 
 :::

@@ -14,19 +14,19 @@ Create primitives based on an operation.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-solid-query
+bun add -d @kubb/plugin-solid-query
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-solid-query
+pnpm add -D @kubb/plugin-solid-query
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-solid-query
+npm install --save-dev @kubb/plugin-solid-query
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-solid-query
+yarn add -D @kubb/plugin-solid-query
 ```
 
 :::

@@ -16,19 +16,19 @@ To get started with TypeScript AST, I would suggest following this tutorial: [Ge
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/parser-ts
+bun add -d @kubb/parser-ts
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/parser-ts
+pnpm add -D @kubb/parser-ts
 ```
 
 ```shell [npm]
-npm install @kubb/parser-ts
+npm install --save-dev @kubb/parser-ts
 ```
 
 ```shell [yarn]
-yarn add @kubb/parser-ts
+yarn add -D @kubb/parser-ts
 ```
 :::
 

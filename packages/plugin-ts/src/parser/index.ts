@@ -121,7 +121,7 @@ export const typeKeywordMapper = {
 
 type ParserOptions = {
   name: string
-  typeName?: string
+  typedName?: string
   description?: string
   /**
    * @default `'questionToken'`
@@ -132,6 +132,7 @@ type ParserOptions = {
    * asPascalConst is deprecated
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  syntaxType: 'type' | 'interface'
   keysToOmit?: string[]
   mapper?: Record<string, ts.PropertySignature>
 }

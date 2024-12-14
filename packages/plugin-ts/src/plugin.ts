@@ -23,6 +23,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     dateType = 'string',
     unknownType = 'any',
     optionalType = 'questionToken',
+    syntaxType = 'type',
     transformers = {},
     oasType = false,
     mapper = {},
@@ -42,6 +43,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
       unknownType,
+      syntaxType,
       group,
       override,
       mapper,

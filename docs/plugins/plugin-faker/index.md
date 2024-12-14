@@ -14,19 +14,19 @@ With the Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-faker
+bun add -d @kubb/plugin-faker
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-faker
+pnpm add -D @kubb/plugin-faker
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-faker
+npm install --save-dev @kubb/plugin-faker
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-faker
+yarn add -D @kubb/plugin-faker
 ```
 
 :::

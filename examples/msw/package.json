@@ -42,7 +42,7 @@
     "@types/express": "^4.17.21",
     "typescript": "~5.2.2"
   },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"

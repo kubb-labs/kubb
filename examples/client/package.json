@@ -35,7 +35,7 @@
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"

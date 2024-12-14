@@ -15,19 +15,19 @@ Create hooks based on an operation.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-vue-query
+bun add -d @kubb/plugin-vue-query
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-vue-query
+pnpm add -D @kubb/plugin-vue-query
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-vue-query
+npm install --save-dev @kubb/plugin-vue-query
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-vue-query
+yarn add -D @kubb/plugin-vue-query
 ```
 
 :::

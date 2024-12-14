@@ -13,19 +13,19 @@ With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema'
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/plugin-zod
+bun add -d @kubb/plugin-zod
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-zod
+pnpm add -D @kubb/plugin-zod
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-zod
+npm install --save-dev @kubb/plugin-zod
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-zod
+yarn add -D @kubb/plugin-zod
 ```
 :::
 

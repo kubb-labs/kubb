@@ -104,7 +104,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
 export const typeGenerator = createReactGenerator<PluginTs>({
   name: 'typescript',
   Operation({ operation, options }) {
-    const { mapper, enumType, optionalType } = options
+    const { mapper, enumType, syntaxType, optionalType } = options
 
     const { plugin, pluginManager, mode } = useApp<PluginTs>()
     const oas = useOas()
@@ -150,6 +150,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             enumType={enumType}
             optionalType={optionalType}
             keysToOmit={keysToOmit}
+            syntaxType={syntaxType}
           />
         </Oas.Schema>
       )
@@ -166,7 +167,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     )
   },
   Schema({ schema, options }) {
-    const { mapper, enumType, optionalType } = options
+    const { mapper, enumType, syntaxType, optionalType } = options
     const {
       mode,
       plugin: {
@@ -198,6 +199,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
           mapper={mapper}
           enumType={enumType}
           optionalType={optionalType}
+          syntaxType={syntaxType}
         />
       </File>
     )

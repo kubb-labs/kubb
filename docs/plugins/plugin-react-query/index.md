@@ -14,19 +14,19 @@ Create hooks based on an operation.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-react-query
+bun add -d @kubb/plugin-react-query
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-react-query
+pnpm add -D @kubb/plugin-react-query
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-react-query
+npm install --save-dev @kubb/plugin-react-query
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-react-query
+yarn add -D @kubb/plugin-react-query
 ```
 
 :::
@@ -84,19 +84,19 @@ Add a footer text at the end of every file.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-react-query
+bun add -d @kubb/plugin-react-query
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-react-query
+pnpm add -D @kubb/plugin-react-query
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-react-query
+npm install --save-dev @kubb/plugin-react-query
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-react-query
+yarn add -D @kubb/plugin-react-query
 ```
 
 :::

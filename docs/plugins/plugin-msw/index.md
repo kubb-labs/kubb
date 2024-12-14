@@ -14,19 +14,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-msw
+bun add -d @kubb/plugin-msw
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-msw
+pnpm add -D @kubb/plugin-msw
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-msw
+npm install --save-dev @kubb/plugin-msw
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-msw
+yarn add -D @kubb/plugin-msw
 ```
 
 :::

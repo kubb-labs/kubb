@@ -14,19 +14,19 @@ Create primitives based on an operation.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-svelte-query
+bun add -d @kubb/plugin-svelte-query
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-svelte-query
+pnpm add -D @kubb/plugin-svelte-query
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-svelte-query
+npm install --save-dev @kubb/plugin-svelte-query
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-svelte-query
+yarn add -D @kubb/plugin-svelte-query
 ```
 
 :::

@@ -1,5 +1,5 @@
 import { isNumber } from 'remeda'
-import ts from 'typescript'
+import ts, { SyntaxKind } from 'typescript'
 
 const { factory } = ts
 
@@ -10,6 +10,10 @@ export const modifiers = {
   export: factory.createModifier(ts.SyntaxKind.ExportKeyword),
   const: factory.createModifier(ts.SyntaxKind.ConstKeyword),
   static: factory.createModifier(ts.SyntaxKind.StaticKeyword),
+} as const
+
+export const syntaxKind = {
+  union: SyntaxKind.UnionType as 192,
 } as const
 
 function isValidIdentifier(str: string): boolean {
@@ -246,6 +250,60 @@ export function createTypeAliasDeclaration({
   type: ts.TypeNode
 }) {
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
+}
+
+export function createInterfaceDeclaration({
+  modifiers,
+  name,
+  typeParameters,
+  members,
+}: {
+  modifiers?: Array<ts.Modifier>
+  name: string | ts.Identifier
+  typeParameters?: Array<ts.TypeParameterDeclaration>
+  members: Array<ts.TypeElement>
+}) {
+  return factory.createInterfaceDeclaration(modifiers, name, typeParameters, undefined, members)
+}
+
+export function createTypeDeclaration({
+  syntax,
+  isExportable,
+  description,
+  name,
+  type,
+}: {
+  syntax: 'type' | 'interface'
+  description?: string
+  isExportable?: boolean
+  name: string | ts.Identifier
+  type: ts.TypeNode
+}) {
+  if (syntax === 'interface' && 'members' in type) {
+    const node = createInterfaceDeclaration({
+      members: type.members as Array<ts.TypeElement>,
+      modifiers: isExportable ? [modifiers.export] : [],
+      name,
+      typeParameters: undefined,
+    })
+
+    return appendJSDocToNode({
+      node,
+      comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+    })
+  }
+
+  const node = createTypeAliasDeclaration({
+    type,
+    modifiers: isExportable ? [modifiers.export] : [],
+    name,
+    typeParameters: undefined,
+  })
+
+  return appendJSDocToNode({
+    node,
+    comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+  })
 }
 
 export function createNamespaceDeclaration({

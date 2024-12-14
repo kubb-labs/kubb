@@ -23,6 +23,7 @@ export default defineConfig({
         barrelType: false,
       },
       enumType: 'enum',
+      syntaxType: 'interface',
     }),
     pluginTs({
       output: {

@@ -31,6 +31,11 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
+   * Switch between type or interface for creating TypeScript types
+   * @default 'type'
+   */
+  syntaxType?: 'type' | 'interface'
+  /**
    * Set a suffix for the generated enums.
    * @default 'enum'
    */
@@ -91,6 +96,7 @@ type ResolvedOptions = {
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
+  syntaxType: NonNullable<Options['syntaxType']>
   usedEnumNames: Record<string, number>
   mapper: Record<string, any>
 }
