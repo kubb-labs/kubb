@@ -43,7 +43,7 @@ export async function getPageHTML(api: OasTypes.OASDocument, { title, disableGoo
 
   const App = Redoc as any
 
-  const html = renderToString(sheet.collectStyles(<App store={store} />))
+  const html = renderToString(sheet.collectStyles(<App {...{ store }} />))
   const state = await store.toJS()
   const css = sheet.getStyleTags()
 

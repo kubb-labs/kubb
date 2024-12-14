@@ -1,8 +1,10 @@
 import { useIndent } from '../hooks/useIndent.ts'
 
-import type { KubbNode } from '../types.ts'
+import React from 'react'
+import type { Key, KubbNode } from '../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Change the indent.
    * @default 0
@@ -11,7 +13,7 @@ type Props = {
   children?: KubbNode
 }
 
-export function Text({ indentSize = 0, children }: Props): KubbNode {
+export function Text({ indentSize = 0, children }: Props) {
   const indentBefore = useIndent({ size: indentSize })
   const indentChildren = useIndent({ size: 2, children })
 
@@ -33,7 +35,7 @@ type SpaceProps = {
 
 Text.displayName = 'KubbText'
 
-export function Space({ size = 1 }: SpaceProps): KubbNode {
+export function Space({ size = 1 }: SpaceProps) {
   const indentBefore = useIndent({ size })
 
   return <kubb-text>{indentBefore}</kubb-text>

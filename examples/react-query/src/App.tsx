@@ -5,7 +5,7 @@ import type { FindPetsByStatusQueryParamsStatusEnum } from './gen/models'
 
 const queryClient = new QueryClient()
 
-function Pets(): JSX.Element {
+function Pets() {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatusEnum>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
   const { data } = useUpdatePetWithFormHook(2)
@@ -105,7 +105,7 @@ function Pets(): JSX.Element {
   )
 }
 
-export function App(): JSX.Element {
+export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Pets />

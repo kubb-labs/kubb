@@ -67,6 +67,9 @@ export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string
         if (data.match(/React will try to recreat/gi)) {
           return
         }
+        if (data.match(/Each child in a list should have a unique/gi)) {
+          return
+        }
         if (data.match(/The above error occurred in the <KubbErrorBoundary/gi)) {
           return
         }

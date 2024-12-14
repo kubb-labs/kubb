@@ -1,29 +1,5 @@
-import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
 type ReactElementNames = 'br' | 'div'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'kubb-text': {
-        children?: ReactNode
-      }
-      'kubb-file': {
-        id?: string
-        children?: ReactNode
-        baseName: string
-        path: string
-        override?: boolean
-        meta?: KubbFile.File['meta']
-      }
-      'kubb-source': KubbFile.Source & {
-        children?: KubbNode
-      }
-      'kubb-import': KubbFile.Import
-      'kubb-export': KubbFile.Export
-    }
-  }
-}
 
 export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-file' | 'kubb-source' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
 
@@ -67,6 +43,8 @@ export type DOMElement = {
 type NodeNames = ElementNames | TextName
 
 export type KubbNode = ReactNode
+
+export type { Key } from 'react'
 
 export type JSDoc = {
   comments: string[]

@@ -13,7 +13,7 @@ type ErrorBoundaryProps<Meta extends Record<string, unknown> = Record<string, un
 class ErrorBoundary extends Component<{
   onError: ErrorBoundaryProps['onError']
   logger?: Logger
-  children: KubbNode
+  children?: KubbNode
 }> {
   state = { hasError: false }
 
@@ -63,7 +63,7 @@ type RootProps<Meta extends Record<string, unknown> = Record<string, unknown>> =
   readonly children?: KubbNode
 }
 
-export function Root<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, onExit, logger, meta, children }: RootProps<Meta>): KubbNode {
+export function Root<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, onExit, logger, meta, children }: RootProps<Meta>) {
   try {
     return (
       <ErrorBoundary

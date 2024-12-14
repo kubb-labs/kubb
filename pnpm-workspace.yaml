@@ -4,10 +4,29 @@ packages:
   - 'docs'
   - 'examples/*'
   - 'e2e'
+
+catalogs:
+  react18:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    "@types/react": ^18.3.16
+    "@types/react-dom": ^18.3.1
+    "@types/react-reconciler": 0.28.9
+    "react-reconciler": 0.29.2
+  react19:
+    react: ^19.0.0
+    react-dom: ^19.0.0
+    "@types/react": ^19.0.1
+    "@types/react-dom": ^19.0.1
+    "@types/react-reconciler": 0.28.9
+    "react-reconciler": 0.31.0
+
 catalog:
   tsup: ^8.3.5
   typescript: ^5.7.2
-  react: ^19.0.0
-  react-dom: ^19.0.0
-  "@types/react": ^19.0.1
-  "@types/react-dom": ^19.0.1
+  react: ^18.3.1
+  react-dom: ^18.3.1
+  "@types/react": ^18.3.16
+  "@types/react-dom": ^18.3.1
+  "@types/react-reconciler": 0.28.9
+  "react-reconciler": 0.29.2
