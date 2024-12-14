@@ -23,11 +23,6 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./parser": {
-      "import": "./dist/parser.js",
-      "require": "./dist/parser.cjs",
-      "default": "./dist/parser.cjs"
-    },
     "./infer": {
       "import": "./dist/infer.js",
       "require": "./dist/infer.cjs",
@@ -41,9 +36,6 @@
   "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
-      "parser": [
-        "./dist/parser.d.ts"
-      ],
       "infer": [
         "./dist/infer.d.ts"
       ]
@@ -83,7 +75,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
-    "expect-type": "^0.20.0",
+    "expect-type": "^1.1.0",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

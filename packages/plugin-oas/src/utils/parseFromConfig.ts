@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 
 import { URLPath } from '@kubb/core/utils'
 
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 
 import type { Config } from '@kubb/core'
 import { Oas, type OasTypes } from '@kubb/oas'

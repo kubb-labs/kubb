@@ -20,7 +20,12 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  object: (value?: string) => {
+  object: (value?: string, typeName?: string) => {
+    if (typeName) {
+      return `z.object({
+    ${value}
+    } satisfies ToZod<${typeName}>)`
+    }
     return `z.object({
     ${value}
     })`
@@ -93,7 +98,12 @@ const zodKeywordMapper = {
   uuid: (coercion?: boolean) => (coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
   url: (coercion?: boolean) => (coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
   strict: () => '.strict()',
-  default: (value?: string | number | true) => `.default(${value ?? ''})`,
+  default: (value?: string | number | true | object) => {
+    if (typeof value === 'object') {
+      return '.default({})'
+    }
+    return `.default(${value ?? ''})`
+  },
   and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
   describe: (value = '') => `.describe(${value})`,
   min: (value?: number) => `.min(${value ?? ''})`,
@@ -289,7 +299,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties),
+      zodKeywordMapper.object(properties, options.typeName),
       current.args?.strict ? zodKeywordMapper.strict() : undefined,
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)

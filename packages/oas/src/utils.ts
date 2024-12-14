@@ -1,8 +1,13 @@
 import { isRef, isSchema } from 'oas/types'
 import { isPlainObject } from 'remeda'
 
+import { bundle, loadConfig } from '@redocly/openapi-core'
+import OASNormalize from 'oas-normalize'
+import type { OASDocument } from 'oas/types'
 import type { ParameterObject, SchemaObject } from 'oas/types'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import swagger2openapi from 'swagger2openapi'
+import { Oas } from './Oas.ts'
 
 export function isOpenApiV2Document(doc: any): doc is OpenAPIV2.Document {
   return doc && isPlainObject(doc) && !('openapi' in doc)
@@ -37,4 +42,30 @@ export function isRequired(schema?: SchemaObject): boolean {
 
 export function isOptional(schema?: SchemaObject): boolean {
   return !isRequired(schema)
+}
+
+export async function parse(pathOrApi: string | OASDocument, oasClass: typeof Oas = Oas): Promise<Oas> {
+  if (typeof pathOrApi === 'string') {
+    // resolve external refs
+    const config = await loadConfig()
+    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
+
+    return parse(bundleResults.bundle.parsed)
+  }
+
+  const oasNormalize = new OASNormalize(pathOrApi, {
+    enablePaths: true,
+    colorizeErrors: true,
+  })
+  const document = (await oasNormalize.load()) as OpenAPI.Document
+
+  if (isOpenApiV2Document(document)) {
+    const { openapi } = await swagger2openapi.convertObj(document, {
+      anchors: true,
+    })
+
+    return new oasClass({ oas: openapi as OASDocument })
+  }
+
+  return new oasClass({ oas: document })
 }

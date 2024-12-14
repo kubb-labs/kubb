@@ -35,6 +35,11 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -48,6 +53,9 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
+      ],
+      "utils": [
+        "./dist/utils.d.ts"
       ]
     }
   },
@@ -80,7 +88,8 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.3.5"
+    "tsup": "catalog:",
+    "zod": "~3.24.1"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

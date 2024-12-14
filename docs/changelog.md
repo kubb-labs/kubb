@@ -4,9 +4,13 @@ title: Changelog
 
 # Changelog
 
+## 3.3.1
+- [`plugin-zod`](/plugins/plugin-zod): Use of `tozod` util to create schema based on a type
+
+
 ## 3.3.0
 - [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
-- [`plugin-zod`](/plugins/plugin-zod): use Regular expression literal instead of RegExp-contructor
+- [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-contructor
 - [`plugin-ts`](/plugins/plugin-ts): Switch between the use of type or interface when creating types
 
 ## 3.2.0

@@ -1,6 +1,6 @@
-import { schemas } from '../../../plugin-oas/mocks/schemas.ts'
+import { schemas } from '../../plugin-oas/mocks/schemas.ts'
 
-import * as parserFaker from './index.ts'
+import * as parserFaker from './parser.ts'
 
 describe('faker parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

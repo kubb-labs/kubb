@@ -8,6 +8,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       components: 'src/components/index.ts',
+      utils: 'src/utils/index.ts',
       generators: 'src/generators/index.ts',
     },
   },
@@ -16,6 +17,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       components: 'src/components/index.ts',
+      utils: 'src/utils/index.ts',
       generators: 'src/generators/index.ts',
     },
   },

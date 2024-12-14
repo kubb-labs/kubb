@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { SchemaGenerator, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import type { Options } from '../types.ts'
+import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
   any: () => 'undefined',

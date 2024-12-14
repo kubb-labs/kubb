@@ -43,7 +43,7 @@ export default defineConfig(() => {
         },
         enumType: 'asConst',
         enumSuffix: 'enum',
-        dateType: 'date',
+        dateType: 'string',
         override: [
           {
             type: 'operationId',
@@ -148,6 +148,7 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         inferred: true,
+        typed: true,
         operations: false,
       }),
       pluginFaker({
