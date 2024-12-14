@@ -88,8 +88,8 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "zod": "~3.24.1",
-    "tsup": "^8.3.5"
+    "tsup": "catalog:",
+    "zod": "~3.24.1"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"
