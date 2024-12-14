@@ -103,7 +103,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "unplugin": "^1.16.0"
+    "unplugin": "^2.1.0"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
@@ -113,11 +113,11 @@
     "@nuxt/kit": "^3.14.1592",
     "@nuxt/schema": "^3.14.1592",
     "@types/node": "^20.17.10",
-    "rimraf": "^5.0.10",
+    "rimraf": "^6.0.1",
     "rollup": "^4.28.1",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vite": "^5.4.11",
+    "vite": "^6.0.3",
     "webpack": "^5.97.1"
   },
   "peerDependencies": {
@@ -127,7 +127,7 @@
     "esbuild": "*",
     "rollup": "^3",
     "vite": ">=3",
-    "webpack": "^4 || ^5"
+    "webpack": "^5"
   },
   "peerDependenciesMeta": {
     "@nuxt/kit": {
