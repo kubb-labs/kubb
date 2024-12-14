@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 
 describe('SchemaGenerator core', async () => {

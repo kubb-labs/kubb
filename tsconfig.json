@@ -28,6 +28,7 @@
       "@kubb/plugin-vue-query": ["packages/plugin-vue-query/src/index.ts"],
       "@kubb/plugin-redoc": ["packages/plugin-redoc/src/index.ts"],
       "@kubb/plugin-faker": ["packages/plugin-faker/src/index.ts"],
+      "@kubb/plugin-zod/utils": ["packages/plugin-zod/src/utils/index.ts"],
       "@kubb/plugin-zod": ["packages/plugin-zod/src/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
       "@kubb/react/types": ["packages/react/src/types.ts"],
@@ -35,7 +36,6 @@
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],
       "@kubb/parser-ts": ["packages/parser-ts/src/index.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
-      "@kubb/oas/parser": ["packages/oas/src/parser/index.ts"],
       "@kubb/config-tsup": ["packages/config-tsup/src/index.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }

@@ -45,7 +45,7 @@ export type Order = {
   /**
    * @type string | undefined, date-time
    */
-  shipDate?: Date
+  shipDate?: string
   /**
    * @description Order Status
    * @type string | undefined

@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
 
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 
 import type { Config } from '@kubb/core'
 import { parseFromConfig } from './parseFromConfig.ts'

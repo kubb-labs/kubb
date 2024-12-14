@@ -30,6 +30,7 @@
       "@kubb/plugin-msw": ["../packages/plugin-msw/src/index.ts"],
       "@kubb/plugin-react-query": ["../packages/plugin-react-query/src/index.ts"],
       "@kubb/plugin-ts": ["../packages/plugin-ts/src/index.ts"],
+      "@kubb/plugin-zod/utils": ["../packages/plugin-zod/src/utils/index.ts"],
       "@kubb/plugin-zod": ["../packages/plugin-zod/src/index.ts"],
       "@kubb/parser-ts": ["../packages/parser-ts/src/index.ts"]
     }

@@ -113,6 +113,10 @@ Return the name of a group based on the group name, this will be used for the fi
 
 Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
+> [!IMPORTANT]
+> We rely on [`tozod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
+> Kubb contains its own version to those kind of conversions.
+
 |           |           |
 |----------:|:----------|
 |     Type: | `boolean` |

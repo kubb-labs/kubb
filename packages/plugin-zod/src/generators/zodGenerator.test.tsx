@@ -3,7 +3,7 @@ import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kub
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import type { PluginZod } from '../types.ts'

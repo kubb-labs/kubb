@@ -4,7 +4,7 @@
 
 ### Major Changes
 
-- [`c0563e3`](https://github.com/kubb-labs/kubb/commit/c0563e37cee434579546bd1293e8f1eb2be802cd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for Vite 6 and drop support for Webpack 4
+- [`c0563e3`](https://github.com/kubb-labs/kubb/commit/c0563e37cee434579546bd1293e8f1eb2be802cd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for Vite 6 and drop support for webpack 4
 
 ## 1.0.6
 

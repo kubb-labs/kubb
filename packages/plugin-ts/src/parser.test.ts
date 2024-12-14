@@ -1,6 +1,6 @@
-import { schemas } from '../../../plugin-oas/mocks/schemas.ts'
+import { schemas } from '../../plugin-oas/mocks/schemas.ts'
 
-import * as parserType from './index.ts'
+import * as parserType from './parser.ts'
 
 describe('type parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

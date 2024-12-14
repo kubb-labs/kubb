@@ -7,7 +7,7 @@ import { createTypeDeclaration } from '@kubb/parser-ts/factory'
 import { type Schema, SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { Fragment, type ReactNode } from 'react'
 import type ts from 'typescript'
-import { parse, typeKeywordMapper } from '../parser/index.ts'
+import { parse, typeKeywordMapper } from '../parser.ts'
 import type { PluginTs } from '../types.ts'
 
 type Props = {

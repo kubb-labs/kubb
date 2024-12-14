@@ -3,7 +3,7 @@ import { type Schema, schemaKeywords } from '@kubb/plugin-oas'
 import { isKeyword } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react'
 import type { KubbNode } from '@kubb/react/types'
-import * as parserZod from '../parser/index.ts'
+import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
 
 type Props = {
@@ -30,7 +30,7 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
       return true
     })
     .map((schema, _index, siblings) =>
-      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName: typeName, description, mapper, coercion }),
+      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion }),
     )
     .filter(Boolean)
     .join('')
@@ -47,20 +47,23 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
-          {[
-            output,
-            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-            typeName ? ` as z.ZodType<${typeName}>` : '',
-          ]
+          {[output, keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined]
             .filter(Boolean)
             .join('') || 'z.undefined()'}
         </Const>
       </File.Source>
       {inferTypeName && (
         <File.Source name={inferTypeName} isExportable isIndexable isTypeOnly>
-          <Type export name={inferTypeName}>
-            {`z.infer<typeof ${name}>`}
-          </Type>
+          {typeName && (
+            <Type export name={inferTypeName}>
+              {typeName}
+            </Type>
+          )}
+          {!typeName && (
+            <Type export name={inferTypeName}>
+              {`z.infer<typeof ${name}>`}
+            </Type>
+          )}
         </File.Source>
       )}
     </>

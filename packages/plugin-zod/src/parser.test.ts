@@ -1,6 +1,6 @@
-import { schemas } from '../../../plugin-oas/mocks/schemas.ts'
+import { schemas } from '../../plugin-oas/mocks/schemas.ts'
 
-import * as parserZod from './index.ts'
+import * as parserZod from './parser.ts'
 
 describe('zod parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

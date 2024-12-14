@@ -14,6 +14,10 @@ type Props = {
    */
   export?: boolean
   /**
+   * Type to make the const being typed
+   */
+  type?: string
+  /**
    * Options for JSdocs.
    */
   JSDoc?: JSDoc
@@ -24,7 +28,7 @@ type Props = {
   children?: KubbNode
 }
 
-export function Const({ name, export: canExport, JSDoc, asConst, children }: Props): KubbNode {
+export function Const({ name, export: canExport, type, JSDoc, asConst, children }: Props): KubbNode {
   return (
     <>
       {JSDoc?.comments && (
@@ -40,7 +44,18 @@ export function Const({ name, export: canExport, JSDoc, asConst, children }: Pro
         </Text>
       )}
       <Text>
-        const {name} =
+        const {name}
+        <Text.Space />
+      </Text>
+      {type && (
+        <>
+          <Text>{':'}</Text>
+          <Text>{type}</Text>
+          <Text.Space />
+        </>
+      )}
+      <Text>
+        =
         <Text.Space />
       </Text>
       <Text>{children}</Text>

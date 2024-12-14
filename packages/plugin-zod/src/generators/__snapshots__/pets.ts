@@ -1,3 +1,4 @@
+import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
 
 export const pets = z.array(
@@ -5,5 +6,5 @@ export const pets = z.array(
     id: z.number().int(),
     name: z.string(),
     tag: z.string().optional(),
-  }),
-) as z.ZodType<Pets>
+  } satisfies ToZod<Pets>),
+)
