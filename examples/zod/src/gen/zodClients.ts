@@ -17,7 +17,7 @@ import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
  * {@link /store/inventory}
  */
 export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponseType, Error, unknown>({ method: 'GET', url: `/store/inventory`, ...config })
+  const res = await client<GetInventoryQueryResponseType, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
   return getInventoryQueryResponseSchema.parse(res.data)
 }
 
@@ -29,7 +29,7 @@ export async function getInventory(config: Partial<RequestConfig> = {}) {
 export async function placeOrder(data?: PlaceOrderMutationRequestType, config: Partial<RequestConfig<PlaceOrderMutationRequestType>> = {}) {
   const res = await client<PlaceOrderMutationResponseType, PlaceOrder405Type, PlaceOrderMutationRequestType>({
     method: 'POST',
-    url: `/store/order`,
+    url: '/store/order',
     data,
     ...config,
   })
@@ -44,7 +44,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequestType, config: P
 export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType, config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponseType, PlaceOrderPatch405Type, PlaceOrderPatchMutationRequestType>({
     method: 'PATCH',
-    url: `/store/order`,
+    url: '/store/order',
     data,
     ...config,
   })

@@ -33,7 +33,8 @@
     "tsup": "^8.3.5"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {

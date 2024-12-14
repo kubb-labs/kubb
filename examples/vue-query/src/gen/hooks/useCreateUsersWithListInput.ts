@@ -20,7 +20,7 @@ async function createUsersWithListInput(
 ) {
   const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
-    url: `/user/createWithList`,
+    url: '/user/createWithList',
     data,
     ...config,
   })

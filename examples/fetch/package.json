@@ -29,8 +29,8 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {

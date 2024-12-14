@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider, useQueries } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 import { findPetsByStatusQueryOptionsHook, useFindPetsByStatusHook, useFindPetsByTagsInfiniteHook, useUpdatePetWithFormHook } from './gen/hooks/index.ts'
 import type { FindPetsByStatusQueryParamsStatusEnum } from './gen/models'
@@ -110,7 +109,6 @@ export function App(): JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <Pets />
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
 }

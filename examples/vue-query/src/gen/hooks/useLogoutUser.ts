@@ -14,7 +14,7 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * {@link /user/logout}
  */
 async function logoutUser(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: `/user/logout`, ...config })
+  const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: '/user/logout', ...config })
   return res.data
 }
 

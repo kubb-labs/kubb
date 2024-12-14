@@ -15,7 +15,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * {@link /user/login}
  */
 async function loginUser({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: `/user/login`, params, ...config })
+  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
   return res.data
 }
 
