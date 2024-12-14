@@ -6,7 +6,10 @@ on:
     paths:
       - ".changeset/**"
       - "packages/**"
-
+permissions:
+  contents: write
+  id-token: write
+  packages: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
