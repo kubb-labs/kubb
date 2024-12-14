@@ -1,5 +1,16 @@
 # @kubb/react
 
+## 3.3.2
+
+### Patch Changes
+
+- [`fd3831e`](https://github.com/kubb-labs/kubb/commit/fd3831e090c0356280a3c17e9e1878e843705e60) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support `div` and other basic elements to be returned by `@kubb/react`
+
+- Updated dependencies []:
+  - @kubb/core@3.3.2
+  - @kubb/fs@3.3.2
+  - @kubb/parser-ts@3.3.2
+
 ## 3.3.1
 
 ### Patch Changes
