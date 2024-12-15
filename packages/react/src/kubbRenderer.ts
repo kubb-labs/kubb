@@ -1,10 +1,15 @@
 import createReconciler from 'react-reconciler'
 
-import { DefaultEventPriority } from 'react-reconciler/constants.js'
+import { DefaultEventPriority, NoEventPriority } from 'react-reconciler/constants'
 
 import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
+
+// https://github.com/pmndrs/react-three-fiber/blob/v9/packages/fiber/src/core/reconciler.tsx
+declare module 'react-reconciler/constants' {
+  const NoEventPriority = 0
+}
 
 const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
   if (before === after) {
@@ -50,6 +55,8 @@ type HostContext = {
 type UpdatePayload = {
   props: Props | undefined
 }
+
+let currentUpdatePriority = NoEventPriority
 
 /**
  * @link https://www.npmjs.com/package/react-devtools-inline
@@ -173,7 +180,9 @@ export const KubbRenderer = createReconciler<
 
     return { props }
   },
-  commitUpdate(node, { props }) {
+  commitUpdate(node, payload, type, oldProps, newProps) {
+    const { props } = newProps
+
     if (props) {
       for (const [key, value] of Object.entries(props)) {
         setAttribute(node, key, value as DOMNodeAttribute)
@@ -185,6 +194,28 @@ export const KubbRenderer = createReconciler<
   },
   removeChild(node, removeNode) {
     removeChildNode(node, removeNode)
+  },
+  // new for react 19
+  // @ts-ignore
+  setCurrentUpdatePriority: (newPriority) => {
+    currentUpdatePriority = newPriority
+  },
+  getCurrentUpdatePriority: () => currentUpdatePriority,
+  resolveUpdatePriority: () => currentUpdatePriority || DefaultEventPriority,
+  maySuspendCommit() {
+    return false
+  },
+  startSuspendingCommit() {},
+  waitForCommitToBeReady() {
+    return null
+  },
+  preloadInstance() {
+    // Return true to indicate it's already loaded
+    return true
+  },
+  suspendInstance() {},
+  shouldAttemptEagerTransition() {
+    return false
   },
 })
 

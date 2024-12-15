@@ -1,6 +1,7 @@
 import process from 'node:process'
 import { onExit } from 'signal-exit'
 
+import { LegacyRoot } from 'react-reconciler/constants'
 import { Root } from './components/Root.tsx'
 import { KubbRenderer } from './kubbRenderer.ts'
 import { type RendererResult, renderer } from './renderer.ts'
@@ -17,7 +18,9 @@ import type { FiberRoot } from './kubbRenderer.ts'
 import type { DOMElement } from './types.ts'
 
 // https://agent-hunt.medium.com/hello-world-custom-react-renderer-9a95b7cd04bc
-const noop = () => {}
+const noop = () => {
+  console.log('ff')
+}
 
 export type ReactTemplateOptions = {
   stdout?: NodeJS.WriteStream
@@ -78,16 +81,37 @@ export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string
       originalError(data)
     }
 
-    this.#container = KubbRenderer.createContainer(
+    // Report when an error was detected in a previous render
+    // https://github.com/pmndrs/react-three-fiber/pull/2261
+    const logRecoverableError =
+      typeof reportError === 'function'
+        ? // In modern browsers, reportError will dispatch an error event,
+          // emulating an uncaught JavaScript error.
+          reportError
+        : // In older browsers and test environments, fallback to console.error.
+          console.error
+
+    const rootTag = LegacyRoot
+    const hydrationCallbacks = null
+    const isStrictMode = false
+    const concurrentUpdatesByDefaultOverride = false
+    const identifierPrefix = 'id'
+    const onUncaughtError = logRecoverableError
+    const onCaughtError = logRecoverableError
+    const onRecoverableError = logRecoverableError
+    const transitionCallbacks = null
+
+    this.#container = (KubbRenderer as any).createContainer(
       this.#rootNode,
-      // Legacy mode
-      0,
-      null,
-      false,
-      null,
-      'id',
-      () => {},
-      null,
+      rootTag,
+      hydrationCallbacks,
+      isStrictMode,
+      concurrentUpdatesByDefaultOverride,
+      identifierPrefix,
+      onUncaughtError,
+      onCaughtError,
+      onRecoverableError,
+      transitionCallbacks,
     )
 
     // Unmount when process exits
@@ -147,17 +171,20 @@ export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string
     this.unmount(error)
   }
 
-  render(node: ReactNode, context?: Context): void {
+  async render(node: ReactNode, context?: Context): Promise<void> {
     const element = (
       <Root logger={this.#options.logger} meta={context?.meta || {}} onExit={this.onExit.bind(this)} onError={this.onError.bind(this)}>
         {node}
       </Root>
     )
 
-    KubbRenderer.updateContainer(element, this.#container, null, noop)
+    return new Promise((resolve) => {
+      KubbRenderer.updateContainer(element, this.#container, null, resolve)
+    })
   }
-  renderToString(node: ReactNode, context?: Context): string {
-    this.render(node, context)
+
+  async renderToString(node: ReactNode, context?: Context): Promise<string> {
+    await this.render(node, context)
 
     return this.#lastRendererResult.output
   }
