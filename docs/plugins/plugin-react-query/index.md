@@ -181,7 +181,7 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
-### client.baseURL
+#### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
 ### paramsType
