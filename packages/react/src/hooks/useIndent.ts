@@ -10,7 +10,7 @@ type Props = {
   children?: KubbNode
 }
 
-export function useIndent({ size, children }: Props): KubbNode {
+export function useIndent({ size, children }: Props) {
   let indentWithChildren: KubbNode
 
   if (!children) {

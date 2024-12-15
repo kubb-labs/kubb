@@ -1,5 +1,5 @@
 /**
- * Subset of AxiosRequestConfig
+ * Subset of FetchRequestConfig
  */
 export type RequestConfig<TData = unknown> = {
   baseURL?: string
@@ -12,7 +12,7 @@ export type RequestConfig<TData = unknown> = {
   headers?: [string, string][] | Record<string, string>
 }
 /**
- * Subset of AxiosResponse
+ * Subset of FetchResponse
  */
 export type ResponseConfig<TData = unknown> = {
   data: TData
@@ -22,7 +22,7 @@ export type ResponseConfig<TData = unknown> = {
 }
 
 export const fetchClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const response = await fetch('https://example.org/post', {
+  const response = await fetch(`${config.baseURL}${config.url}`, {
     method: config.method.toUpperCase(),
     body: JSON.stringify(config.data),
     signal: config.signal,

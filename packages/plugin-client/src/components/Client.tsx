@@ -4,7 +4,6 @@ import { type Operation, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
-import type { KubbNode } from '@kubb/react/types'
 import type { PluginClient } from '../types.ts'
 
 type Props = {
@@ -113,7 +112,7 @@ export function Client({
   paramsCasing,
   pathParamsType,
   operation,
-}: Props): KubbNode {
+}: Props) {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'

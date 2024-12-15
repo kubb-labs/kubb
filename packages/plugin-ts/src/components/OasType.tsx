@@ -1,7 +1,7 @@
 import { File, Type } from '@kubb/react'
 
 import type { OasTypes } from '@kubb/oas'
-import type { ReactNode } from 'react'
+import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   /**
@@ -12,7 +12,7 @@ type Props = {
   api: OasTypes.OASDocument
 }
 
-export function OasType({ name, typeName, api }: Props): ReactNode {
+export function OasType({ name, typeName, api }: Props) {
   return (
     <>
       <File.Source name={name} isExportable isIndexable>

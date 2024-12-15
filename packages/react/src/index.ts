@@ -1,3 +1,5 @@
+import './globals.ts'
+
 export { createRoot, createRoot as createRootServer } from './createRoot.ts'
 export { File } from './components/File.tsx'
 export { Function } from './components/Function.tsx'

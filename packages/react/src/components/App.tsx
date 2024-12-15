@@ -24,7 +24,7 @@ type Props = {
   readonly children?: KubbNode
 }
 
-export function App({ plugin, pluginManager, mode, children }: Props): KubbNode {
+export function App({ plugin, pluginManager, mode, children }: Props) {
   const { exit } = useContext(RootContext)
 
   return <AppContext.Provider value={{ exit, plugin, pluginManager, mode }}>{children}</AppContext.Provider>

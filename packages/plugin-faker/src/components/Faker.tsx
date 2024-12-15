@@ -18,7 +18,7 @@ type Props = {
   canOverride: boolean
 }
 
-export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): KubbNode {
+export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props) {
   const fakerText = parserFaker.joinItems(
     tree
       .map((schema, _index, siblings) =>

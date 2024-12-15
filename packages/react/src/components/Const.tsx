@@ -2,9 +2,10 @@ import { createJSDocBlockText } from '@kubb/core/transformers'
 
 import { Text } from './Text.tsx'
 
-import type { JSDoc, KubbNode } from '../types.ts'
+import type { JSDoc, Key, KubbNode } from '../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Name of the const
    */
@@ -28,7 +29,7 @@ type Props = {
   children?: KubbNode
 }
 
-export function Const({ name, export: canExport, type, JSDoc, asConst, children }: Props): KubbNode {
+export function Const({ name, export: canExport, type, JSDoc, asConst, children }: Props) {
   return (
     <>
       {JSDoc?.comments && (
