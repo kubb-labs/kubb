@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 3.3.3
+
+### Patch Changes
+
+- [`17011c8`](https://github.com/kubb-labs/kubb/commit/17011c80c60fd79c5b00b4f260fde27acb93f97f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
+
+- Updated dependencies []:
+  - @kubb/core@3.3.3
+
 ## 3.3.2
 
 ### Patch Changes
