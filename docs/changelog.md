@@ -4,8 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.3.3
+- [`react`](/helpers/react/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
+- [`cli`](/helpers/cli/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
+
 ## 3.3.2
-- [`react/`](/helpers/react/): Support `div` and other basic elements to be returned by `@kubb/react`
+- [`react`](/helpers/react/): Support `div` and other basic elements to be returned by `@kubb/react`
 
 ## 3.3.1
 - [`plugin-zod`](/plugins/plugin-zod): Use of `tozod` util to create schema based on a type

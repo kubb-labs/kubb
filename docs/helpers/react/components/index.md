@@ -48,4 +48,11 @@ yarn add -D @kubb/react
 }
 ```
 
+### import `@kubb/react` instead of `react`
+```typescript
+import React from 'react'  // [!code --]
+import React from '@kubb/react' // [!code ++]
+
+```
+
 :::

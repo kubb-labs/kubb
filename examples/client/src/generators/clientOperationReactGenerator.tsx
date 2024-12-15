@@ -3,7 +3,6 @@ import type { PluginClient } from '@kubb/plugin-client'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File } from '@kubb/react'
-import React from 'react'
 
 export const clientOperationReactGenerator = createReactGenerator<PluginClient>({
   name: 'client-operation',
