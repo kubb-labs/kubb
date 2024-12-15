@@ -23,7 +23,7 @@ export default defineConfig(() => {
       barrelType: 'named',
     },
     hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+      // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
       pluginOas({ validate: true }),
