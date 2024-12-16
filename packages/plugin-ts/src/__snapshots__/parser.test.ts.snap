@@ -634,8 +634,20 @@ NodeObject {
   "kind": 187,
   "localSymbol": undefined,
   "members": [
-    NodeObject {
-      "emitNode": undefined,
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @minLength 2
+",
+          },
+        ],
+      },
       "end": -1,
       "flags": 16,
       "id": 0,
@@ -795,6 +807,7 @@ NodeObject {
             "pos": -1,
             "text": "*
  * @deprecated
+ * @minLength 2
  * @default test
 ",
           },
@@ -849,6 +862,7 @@ NodeObject {
             "kind": 3,
             "pos": -1,
             "text": "*
+ * @minLength 3
  * @default 2
  * @example 2
 ",
@@ -1340,6 +1354,7 @@ NodeObject {
             "pos": -1,
             "text": "*
  * @description Your address
+ * @minLength 4
  * @type string, string
 ",
           },
@@ -1421,8 +1436,20 @@ NodeObject {
   "kind": 187,
   "localSymbol": undefined,
   "members": [
-    NodeObject {
-      "emitNode": undefined,
+    {
+      "emitNode": {
+        "leadingComments": [
+          {
+            "end": -1,
+            "hasTrailingNewLine": true,
+            "kind": 3,
+            "pos": -1,
+            "text": "*
+ * @minLength 2
+",
+          },
+        ],
+      },
       "end": -1,
       "flags": 16,
       "id": 0,

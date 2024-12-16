@@ -844,11 +844,16 @@ components:
       xml:
         name: user
     tag.Tag:
+      deprecated: true
       type: object
       properties:
         id:
           type: integer
           format: int64
+          minLength: 5
+          maxLength: 7
+          default: 1
+          deprecated: true
         name:
           type: string
       xml:

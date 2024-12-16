@@ -15,6 +15,7 @@ export type PetType = {
    */
   id?: number
   /**
+   * @pattern ^[0-9]{1,19}$
    * @type string | undefined
    */
   internalId?: string

@@ -1,32 +1,29 @@
 packages:
-  # all packages in direct subdirs of packages/
-  - 'packages/*'
-  - 'docs'
-  - 'examples/*'
-  - 'e2e'
-
+  - packages/*
+  - docs
+  - examples/*
+  - e2e
 catalogs:
   react18:
+    '@types/react': ^18.3.17
+    '@types/react-dom': ^18.3.5
+    '@types/react-reconciler': 0.28.9
     react: ^18.3.1
     react-dom: ^18.3.1
-    "@types/react": ^18.3.16
-    "@types/react-dom": ^18.3.1
-    "@types/react-reconciler": 0.28.9
-    "react-reconciler": 0.29.2
+    react-reconciler: 0.29.2
   react19:
+    '@types/react': ^19.0.1
+    '@types/react-dom': ^19.0.2
+    '@types/react-reconciler': 0.28.9
     react: ^19.0.0
     react-dom: ^19.0.0
-    "@types/react": ^19.0.1
-    "@types/react-dom": ^19.0.1
-    "@types/react-reconciler": 0.28.9
-    "react-reconciler": 0.31.0
-
+    react-reconciler: 0.31.0
 catalog:
-  tsup: ^8.3.5
-  typescript: ^5.7.2
+  '@types/react': ^18.3.17
+  '@types/react-dom': ^18.3.5
+  '@types/react-reconciler': 0.28.9
   react: ^18.3.1
   react-dom: ^18.3.1
-  "@types/react": ^18.3.16
-  "@types/react-dom": ^18.3.1
-  "@types/react-reconciler": 0.28.9
-  "react-reconciler": 0.29.2
+  react-reconciler: 0.29.2
+  tsup: ^8.3.5
+  typescript: ^5.7.2

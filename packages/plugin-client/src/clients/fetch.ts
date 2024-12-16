@@ -22,7 +22,7 @@ export type ResponseConfig<TData = unknown> = {
 }
 
 export const fetchClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const response = await fetch(`${config.baseURL}${config.url}`, {
+  const response = await fetch([config.baseURL, config.url].filter(Boolean).join(''), {
     method: config.method.toUpperCase(),
     body: JSON.stringify(config.data),
     signal: config.signal,
