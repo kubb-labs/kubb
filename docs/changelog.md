@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.3.4
+- [`plugin-ts`](/plugins/plugin-ts): minLength, maxLength, pattern as part of the jsdocs
+- [`plugin-client`](/plugins/plugin-client): baseURL could be undefined, do not throw error if that is the case
+
 ## 3.3.3
 - [`react`](/helpers/react/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
 - [`cli`](/helpers/cli/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)

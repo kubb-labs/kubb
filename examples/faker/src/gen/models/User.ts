@@ -33,6 +33,7 @@ export type User = {
    */
   userStatus?: number
   /**
+   * @pattern ^[A-Z]{2}$
    * @type string | undefined
    */
   nationalityCode?: string

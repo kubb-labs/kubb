@@ -1,6 +1,7 @@
 import { File } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
+import type { SchemaObject } from '@kubb/oas'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { createTypeDeclaration } from '@kubb/parser-ts/factory'
@@ -13,6 +14,7 @@ import type { PluginTs } from '../types.ts'
 type Props = {
   name: string
   typedName: string
+  schema: SchemaObject
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
   enumType: PluginTs['resolvedOptions']['enumType']
@@ -22,20 +24,20 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, optionalType, syntaxType, enumType, mapper, description }: Props): ReactNode {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): ReactNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
     return ''
   }
 
-  const schema = tree.find((item) => item.keyword === schemaKeywords.schema)
+  const schemaFromTree = tree.find((item) => item.keyword === schemaKeywords.schema)
 
   let type =
     (tree
-      .map((schema, _index, siblings) =>
+      .map((current, _index, siblings) =>
         parse(
-          { parent: undefined, current: schema, siblings },
+          { parent: undefined, current, siblings },
           {
             name,
             typedName,
@@ -51,7 +53,7 @@ export function Type({ name, typedName, tree, keysToOmit, optionalType, syntaxTy
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
-  if (schema && isKeyword(schema, schemaKeywords.schema) && schema.args.type !== 'object') {
+  if (schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.schema) && schemaFromTree.args.type !== 'object') {
     const isNullish = tree.some((item) => item.keyword === schemaKeywords.nullish)
     const isNullable = tree.some((item) => item.keyword === schemaKeywords.nullable)
     const isOptional = tree.some((item) => item.keyword === schemaKeywords.optional)
@@ -89,7 +91,15 @@ export function Type({ name, typedName, tree, keysToOmit, optionalType, syntaxTy
           })
         : type,
       syntax: useTypeGeneration ? 'type' : 'interface',
-      description: description ? transformers.jsStringEscape(description) : undefined,
+      comments: [
+        description ? `@description ${transformers.jsStringEscape(description)}` : undefined,
+        schema.deprecated ? '@deprecated' : undefined,
+        schema.minLength ? `@minLength ${schema.minLength}` : undefined,
+        schema.maxLength ? `@maxLength ${schema.maxLength}` : undefined,
+        schema.pattern ? `@pattern ${schema.pattern}` : undefined,
+        schema.default ? `@default ${schema.default}` : undefined,
+        schema.example ? `@example ${schema.example}` : undefined,
+      ],
     }),
   )
 

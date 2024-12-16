@@ -269,12 +269,12 @@ export function createInterfaceDeclaration({
 export function createTypeDeclaration({
   syntax,
   isExportable,
-  description,
+  comments,
   name,
   type,
 }: {
   syntax: 'type' | 'interface'
-  description?: string
+  comments: Array<string | undefined>
   isExportable?: boolean
   name: string | ts.Identifier
   type: ts.TypeNode
@@ -289,7 +289,7 @@ export function createTypeDeclaration({
 
     return appendJSDocToNode({
       node,
-      comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+      comments,
     })
   }
 
@@ -302,7 +302,7 @@ export function createTypeDeclaration({
 
   return appendJSDocToNode({
     node,
-    comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+    comments,
   })
 }
 
