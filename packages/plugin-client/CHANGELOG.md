@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.3.4
+
+### Patch Changes
+
+- [#1472](https://github.com/kubb-labs/kubb/pull/1472) [`d8ffbfd`](https://github.com/kubb-labs/kubb/commit/d8ffbfdef7edf5ae7b4d3fd57e0a9388757d6c63) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - baseURL could be undefined, do not throw error if that is the case
+
+- Updated dependencies [[`d8ffbfd`](https://github.com/kubb-labs/kubb/commit/d8ffbfdef7edf5ae7b4d3fd57e0a9388757d6c63)]:
+  - @kubb/plugin-ts@3.3.4
+  - @kubb/plugin-zod@3.3.4
+  - @kubb/core@3.3.4
+  - @kubb/fs@3.3.4
+  - @kubb/oas@3.3.4
+  - @kubb/plugin-oas@3.3.4
+  - @kubb/react@3.3.4
+
 ## 3.3.3
 
 ### Patch Changes

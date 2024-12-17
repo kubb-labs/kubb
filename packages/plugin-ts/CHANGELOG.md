@@ -1,5 +1,19 @@
 # @kubb/plugin-ts
 
+## 3.3.4
+
+### Patch Changes
+
+- [#1472](https://github.com/kubb-labs/kubb/pull/1472) [`d8ffbfd`](https://github.com/kubb-labs/kubb/commit/d8ffbfdef7edf5ae7b4d3fd57e0a9388757d6c63) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - minLength, maxLength, pattern as part of the jsdocs
+
+- Updated dependencies []:
+  - @kubb/core@3.3.4
+  - @kubb/fs@3.3.4
+  - @kubb/oas@3.3.4
+  - @kubb/parser-ts@3.3.4
+  - @kubb/plugin-oas@3.3.4
+  - @kubb/react@3.3.4
+
 ## 3.3.3
 
 ### Patch Changes
