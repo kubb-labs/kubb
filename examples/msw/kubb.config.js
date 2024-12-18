@@ -18,7 +18,7 @@ export default defineConfig(() => {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
-      pluginOas({ output: false }),
+      pluginOas({ generators: [] }),
       pluginTs({
         output: {
           path: 'models',
