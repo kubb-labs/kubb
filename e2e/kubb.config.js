@@ -45,7 +45,7 @@ const baseConfig = {
   },
   plugins: [
     pluginOas({
-      output: false,
+      generators: [],
       validate: false,
       docs: false,
     }),
