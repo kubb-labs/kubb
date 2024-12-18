@@ -71,6 +71,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://codefy.de/de/karriere"><img src="https://avatars.githubusercontent.com/u/122524301?v=4?s=100" width="100px;" alt="CHE1RON"/><br /><sub><b>CHE1RON</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=CHE1RON" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ekaradon"><img src="https://avatars.githubusercontent.com/u/9439390?v=4?s=100" width="100px;" alt="ekaradon"/><br /><sub><b>ekaradon</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=ekaradon" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://thijmen.dev"><img src="https://avatars.githubusercontent.com/u/383903?v=4?s=100" width="100px;" alt="Thijmen Stavenuiter"/><br /><sub><b>Thijmen Stavenuiter</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=Thijmen" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bohdanhusak"><img src="https://avatars.githubusercontent.com/u/13829370?v=4?s=100" width="100px;" alt="Bohdan Husak"/><br /><sub><b>Bohdan Husak</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=bohdanhusak" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
