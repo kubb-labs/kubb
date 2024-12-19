@@ -25,7 +25,7 @@ Set up your `kubb.config.ts` file based on the [Quick start](/guide/quick-start)
 
 We will add the plugins [`@kubb/plugin-oas`](/plugins/plugin-oas/) and [`@kubb/plugin-ts`](/plugins/plugin-ts/)(which is dependent on the [`@kubb/plugin-oas`](/plugins/plugin-oas/) plugin). Together these two plugins will generate the TypeScript types.
 
-Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plugins/swagger) plugin because we do not need the plugin to generate the JSON schemas for us.
+Next to that, we will also set `generators` to empty array for the [`@kubb/plugin-oas`](/plugins/plugin-oas) plugin because we do not need the plugin to generate the JSON schemas for us.
 
 - For the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin, we will set the `output` to the `models` folder.
 
@@ -48,7 +48,7 @@ export default defineConfig(() => {
     plugins: [
       pluginOas(
         {
-          output: false,
+          generators: [],
           validate: true,
         },
       ),
@@ -91,7 +91,7 @@ Your `package.json` will look like this:
 {
   "name": "your project",
   "scripts": {
-    "generate": "kubb generate --config kubb.config.js"
+    "generate": "kubb generate --config kubb.config.ts"
   },
   "dependencies": {
     "@kubb/cli": "latest",
