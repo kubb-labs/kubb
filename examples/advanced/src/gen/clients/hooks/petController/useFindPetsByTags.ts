@@ -1,13 +1,13 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const

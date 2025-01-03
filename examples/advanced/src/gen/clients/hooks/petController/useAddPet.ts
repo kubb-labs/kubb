@@ -1,5 +1,5 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.ts'

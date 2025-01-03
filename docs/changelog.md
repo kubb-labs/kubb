@@ -9,6 +9,8 @@ title: Changelog
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): queryOptions with custom Error type
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): queryOptions with custom Error type
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): queryOptions with custom Error type
+- [`react`](/helpers/react/): importPath without extensions
+
 
 ## 3.3.4
 - [`plugin-ts`](/plugins/plugin-ts): minLength, maxLength, pattern as part of the jsdocs

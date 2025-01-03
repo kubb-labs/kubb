@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export const findPetsByStatusQueryKey = ({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) =>

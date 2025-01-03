@@ -83,10 +83,10 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           dataReturnType: 'full',
-          importPath: '../../../../tanstack-query-client.ts',
+          importPath: '../../../../tanstack-query-client',
         },
         query: {
-          importPath: '../../../../tanstack-query-hook.ts',
+          importPath: '../../../../tanstack-query-hook',
         },
         infinite: false,
         suspense: false,

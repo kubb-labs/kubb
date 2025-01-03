@@ -1,5 +1,5 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'

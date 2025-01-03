@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 export const getPetByIdQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId', params: { petId: petId } }] as const

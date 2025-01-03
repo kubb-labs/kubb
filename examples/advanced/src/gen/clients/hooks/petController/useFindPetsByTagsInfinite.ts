@@ -1,13 +1,13 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
-import { infiniteQueryOptions, useInfiniteQuery } from '../../../../tanstack-query-hook.ts'
+import { infiniteQueryOptions, useInfiniteQuery } from '../../../../tanstack-query-hook'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
