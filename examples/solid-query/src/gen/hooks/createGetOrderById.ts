@@ -19,7 +19,7 @@ async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: 
 
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
-  return queryOptions({
+  return queryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {

@@ -164,7 +164,7 @@ async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Pa
 
 export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
-  return queryOptions({
+  return queryOptions<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -209,7 +209,7 @@ export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatu
 
 export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
-  return queryOptions({
+  return queryOptions<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -264,7 +264,7 @@ async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partia
 
 export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return queryOptions({
+  return queryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -309,7 +309,7 @@ export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSus
 
 export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
-  return queryOptions({
+  return queryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -364,7 +364,7 @@ async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return queryOptions({
+  return queryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -406,7 +406,7 @@ export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQue
 
 export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
-  return queryOptions({
+  return queryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -602,7 +602,7 @@ async function getInventory(config: Partial<RequestConfig> = {}) {
 
 export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventoryQueryKey()
-  return queryOptions({
+  return queryOptions<GetInventoryQueryResponse, Error, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -642,7 +642,7 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
 
 export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventorySuspenseQueryKey()
-  return queryOptions({
+  return queryOptions<GetInventoryQueryResponse, Error, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -775,7 +775,7 @@ async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: 
 
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
-  return queryOptions({
+  return queryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -818,7 +818,7 @@ export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspens
 
 export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
-  return queryOptions({
+  return queryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -996,7 +996,7 @@ async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestC
 
 export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserQueryKey(params)
-  return queryOptions({
+  return queryOptions<LoginUserQueryResponse, LoginUser400, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -1036,7 +1036,7 @@ export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQuery
 
 export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
-  return queryOptions({
+  return queryOptions<LoginUserQueryResponse, LoginUser400, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -1089,7 +1089,7 @@ async function logoutUser(config: Partial<RequestConfig> = {}) {
 
 export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
-  return queryOptions({
+  return queryOptions<LogoutUserQueryResponse, Error, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -1128,7 +1128,7 @@ export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQue
 
 export function logoutUserSuspenseQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
-  return queryOptions({
+  return queryOptions<LogoutUserQueryResponse, Error, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -1180,7 +1180,7 @@ async function getUserByName(username: GetUserByNamePathParams['username'], conf
 
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return queryOptions({
+  return queryOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -1226,7 +1226,7 @@ export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspe
 
 export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
-  return queryOptions({
+  return queryOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {

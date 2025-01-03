@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -20,7 +20,7 @@ async function loginUser({ params }: { params?: LoginUserQueryParams }, config: 
 
 export function loginUserQueryOptions({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserQueryKey(params)
-  return queryOptions({
+  return queryOptions<ResponseConfig<LoginUserQueryResponse>, LoginUser400, ResponseConfig<LoginUserQueryResponse>, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

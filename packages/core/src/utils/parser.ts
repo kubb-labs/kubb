@@ -93,7 +93,7 @@ const typeScriptParser = createFileParser({
 
         return module.factory.createImportDeclaration({
           name: item.name,
-          path: options.extname && hasExtname ? `${trimExtName(importPath)}${options.extname}` : trimExtName(importPath),
+          path: options.extname && hasExtname ? `${trimExtName(importPath)}${options.extname}` : item.root ? trimExtName(importPath) : importPath,
           isTypeOnly: item.isTypeOnly,
         })
       })

@@ -21,7 +21,7 @@ async function getOrderByIdHook({ orderId }: { orderId: GetOrderByIdPathParams['
 
 export function getOrderByIdSuspenseQueryOptionsHook({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
-  return queryOptions({
+  return queryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {

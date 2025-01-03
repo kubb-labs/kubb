@@ -22,7 +22,7 @@ async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams }
 
 export function findPetsByTagsQueryOptions({ params }: { params?: MaybeRef<FindPetsByTagsQueryParams> }, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return queryOptions({
+  return queryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

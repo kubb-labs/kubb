@@ -1,8 +1,8 @@
-import client from '../../../../tanstack-query-client.ts'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook.ts'
+import client from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export const findPetsByStatusQueryKey = ({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) =>
@@ -22,7 +22,7 @@ async function findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathPara
 
 export function findPetsByStatusQueryOptions({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusQueryKey({ step_id })
-  return queryOptions({
+  return queryOptions<ResponseConfig<FindPetsByStatusQueryResponse>, FindPetsByStatus400, ResponseConfig<FindPetsByStatusQueryResponse>, typeof queryKey>({
     enabled: !!step_id,
     queryKey,
     queryFn: async ({ signal }) => {

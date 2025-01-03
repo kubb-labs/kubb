@@ -4,6 +4,14 @@ title: Changelog
 
 # Changelog
 
+## 3.3.5
+- [`plugin-react-query`](/plugins/plugin-react-query/): queryOptions with custom Error type
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): queryOptions with custom Error type
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): queryOptions with custom Error type
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): queryOptions with custom Error type
+- [`react`](/helpers/react/): importPath without extensions
+
+
 ## 3.3.4
 - [`plugin-ts`](/plugins/plugin-ts): minLength, maxLength, pattern as part of the jsdocs
 - [`plugin-client`](/plugins/plugin-client): baseURL could be undefined, do not throw error if that is the case

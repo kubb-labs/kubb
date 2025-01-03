@@ -6,7 +6,6 @@ import type { ReactNode } from 'react'
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import type { PluginReactQuery } from '@kubb/plugin-react-query'
 import type { PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -18,6 +17,7 @@ type Props = {
   paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
@@ -110,7 +110,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
+
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsType,
@@ -136,7 +139,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, para
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return queryOptions({
+      return queryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
       ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
