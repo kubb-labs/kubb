@@ -1,5 +1,20 @@
 # @kubb/plugin-vue-query
 
+## 3.3.5
+
+### Patch Changes
+
+- [#1489](https://github.com/kubb-labs/kubb/pull/1489) [`fba76b6`](https://github.com/kubb-labs/kubb/commit/fba76b6e8cea2956bb11506b874e461d433493c0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - queryOptions with custom Error type
+
+- Updated dependencies []:
+  - @kubb/core@3.3.5
+  - @kubb/fs@3.3.5
+  - @kubb/oas@3.3.5
+  - @kubb/plugin-oas@3.3.5
+  - @kubb/plugin-ts@3.3.5
+  - @kubb/plugin-zod@3.3.5
+  - @kubb/react@3.3.5
+
 ## 3.3.4
 
 ### Patch Changes
