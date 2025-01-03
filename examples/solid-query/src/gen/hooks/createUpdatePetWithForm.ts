@@ -29,7 +29,7 @@ export function updatePetWithFormQueryOptions(
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, params)
-  return queryOptions({
+  return queryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {

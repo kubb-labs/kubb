@@ -26,7 +26,12 @@ async function getUserByName({ username }: { username: GetUserByNamePathParams['
 
 export function getUserByNameQueryOptions({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey({ username })
-  return queryOptions({
+  return queryOptions<
+    ResponseConfig<GetUserByNameQueryResponse>,
+    GetUserByName400 | GetUserByName404,
+    ResponseConfig<GetUserByNameQueryResponse>,
+    typeof queryKey
+  >({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {

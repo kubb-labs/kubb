@@ -19,7 +19,7 @@ async function logoutUserHook(config: Partial<RequestConfig> = {}) {
 
 export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
-  return queryOptions({
+  return queryOptions<LogoutUserQueryResponse, Error, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

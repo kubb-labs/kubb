@@ -31,7 +31,7 @@ export function findPetsByTagsInfiniteQueryOptions(
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryResponse, typeof queryKey, number>({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal

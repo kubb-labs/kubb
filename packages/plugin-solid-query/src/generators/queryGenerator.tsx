@@ -1,4 +1,3 @@
-import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -108,6 +107,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
           paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
+          dataReturnType={options.client.dataReturnType}
         />
         {options.query && (
           <>

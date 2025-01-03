@@ -110,6 +110,9 @@ export function InfiniteQueryOptions({
   queryParam,
   queryKeyName,
 }: Props): ReactNode {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
+
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsCasing,
@@ -157,7 +160,7 @@ export function InfiniteQueryOptions({
         <Function name={name} export params={params.toConstructor()}>
           {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions({
+      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey, number>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
@@ -178,7 +181,7 @@ export function InfiniteQueryOptions({
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions({
+      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

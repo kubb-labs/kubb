@@ -21,7 +21,7 @@ async function loginUser({ params }: { params?: LoginUserQueryParams }, config: 
 
 export function loginUserQueryOptions({ params }: { params?: MaybeRef<LoginUserQueryParams> }, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserQueryKey(params)
-  return queryOptions({
+  return queryOptions<LoginUserQueryResponse, LoginUser400, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

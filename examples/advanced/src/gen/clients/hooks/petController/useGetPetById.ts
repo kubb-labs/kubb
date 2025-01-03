@@ -21,7 +21,7 @@ async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, c
 
 export function getPetByIdQueryOptions({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey({ petId })
-  return queryOptions({
+  return queryOptions<ResponseConfig<GetPetByIdQueryResponse>, GetPetById400 | GetPetById404, ResponseConfig<GetPetByIdQueryResponse>, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {

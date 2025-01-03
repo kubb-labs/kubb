@@ -22,7 +22,7 @@ async function findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathPara
 
 export function findPetsByStatusQueryOptions({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusQueryKey({ step_id })
-  return queryOptions({
+  return queryOptions<ResponseConfig<FindPetsByStatusQueryResponse>, FindPetsByStatus400, ResponseConfig<FindPetsByStatusQueryResponse>, typeof queryKey>({
     enabled: !!step_id,
     queryKey,
     queryFn: async ({ signal }) => {

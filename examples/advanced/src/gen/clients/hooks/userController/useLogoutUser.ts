@@ -20,7 +20,7 @@ async function logoutUser(config: Partial<RequestConfig> = {}) {
 
 export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
-  return queryOptions({
+  return queryOptions<ResponseConfig<LogoutUserQueryResponse>, Error, ResponseConfig<LogoutUserQueryResponse>, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

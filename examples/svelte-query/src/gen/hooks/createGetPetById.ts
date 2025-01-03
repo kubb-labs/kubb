@@ -20,7 +20,7 @@ async function getPetById(pet_id: GetPetByIdPathParams['pet_id'], config: Partia
 
 export function getPetByIdQueryOptions(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(pet_id)
-  return queryOptions({
+  return queryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {

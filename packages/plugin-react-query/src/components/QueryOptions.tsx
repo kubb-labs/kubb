@@ -1,8 +1,6 @@
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 
-import type { ReactNode } from 'react'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
@@ -17,6 +15,7 @@ type Props = {
   paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
@@ -93,8 +92,11 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props) {
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
+
   const clientParams = Client.getParams({
     typeSchemas,
     paramsCasing,
@@ -119,7 +121,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, para
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return queryOptions({
+      return queryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

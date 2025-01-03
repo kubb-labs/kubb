@@ -38,7 +38,7 @@ export function findPetsByTagsQueryOptions(
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return queryOptions({
+  return queryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, ResponseConfig<FindPetsByTagsQueryResponse>, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

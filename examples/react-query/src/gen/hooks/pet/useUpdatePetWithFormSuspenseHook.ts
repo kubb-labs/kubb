@@ -33,7 +33,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)
-  return queryOptions({
+  return queryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {

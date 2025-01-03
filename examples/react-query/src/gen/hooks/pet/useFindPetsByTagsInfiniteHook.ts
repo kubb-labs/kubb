@@ -20,7 +20,13 @@ async function findPetsByTagsHook(params?: FindPetsByTagsQueryParams, config: Pa
 
 export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    ResponseConfig<FindPetsByTagsQueryResponse>,
+    FindPetsByTags400,
+    ResponseConfig<FindPetsByTagsQueryResponse>,
+    typeof queryKey,
+    number
+  >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
