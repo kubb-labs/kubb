@@ -4,6 +4,7 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Client } from '../components/Client'
+import { Url } from '../components/Url.tsx'
 import type { PluginClient } from '../types'
 
 export const clientGenerator = createReactGenerator<PluginClient>({
@@ -21,6 +22,11 @@ export const clientGenerator = createReactGenerator<PluginClient>({
       file: getFile(operation),
     }
 
+    const url = {
+      name: getName(operation, { type: 'function', suffix: 'URL', prefix: 'get' }),
+      file: getFile(operation),
+    }
+
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
@@ -34,7 +40,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     return (
       <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta} banner={output?.banner} footer={output?.footer}>
         <File.Import name={'client'} path={options.importPath} />
-        <File.Import name={['RequestConfig']} path={options.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={client.file.path} path={zod.file.path} />}
         <File.Import
           name={[
@@ -50,8 +56,19 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           isTypeOnly
         />
 
+        <Url
+          name={url.name}
+          baseURL={options.baseURL}
+          pathParamsType={options.pathParamsType}
+          paramsCasing={options.paramsCasing}
+          paramsType={options.paramsType}
+          typeSchemas={type.schemas}
+          operation={operation}
+        />
+
         <Client
           name={client.name}
+          urlName={url.name}
           baseURL={options.baseURL}
           dataReturnType={options.dataReturnType}
           pathParamsType={options.pathParamsType}

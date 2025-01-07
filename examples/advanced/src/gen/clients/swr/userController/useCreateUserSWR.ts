@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
 
@@ -14,7 +14,7 @@ export type CreateUserMutationKeySWR = ReturnType<typeof createUserMutationKeySW
  * {@link /user}
  */
 async function createUserSWR({ data }: { data?: CreateUserMutationRequest }, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
-  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({
+  const res = await client<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -31,7 +31,7 @@ async function createUserSWR({ data }: { data?: CreateUserMutationRequest }, con
  */
 export function useCreateUserSWR(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, Error, CreateUserMutationKeySWR, CreateUserMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKeySWR, CreateUserMutationRequest>>[2]
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -39,7 +39,7 @@ export function useCreateUserSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUserMutationKeySWR()
 
-  return useSWRMutation<CreateUserMutationResponse, Error, CreateUserMutationKeySWR | null, CreateUserMutationRequest>(
+  return useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKeySWR | null, CreateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createUserSWR({ data }, config)

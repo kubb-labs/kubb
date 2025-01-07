@@ -25,8 +25,10 @@ export type ResponseConfig<TData = unknown> = {
   data: TData
   status: number
   statusText: string
-  headers?: AxiosResponse['headers']
+  headers: AxiosResponse['headers']
 }
+
+export type ResponseErrorConfig<TError = unknown> = AxiosError<TError>
 
 let _config: Partial<RequestConfig> = {
   baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,

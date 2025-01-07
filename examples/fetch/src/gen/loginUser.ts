@@ -1,12 +1,21 @@
 import client from '@kubb/plugin-client/clients/fetch'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from './models.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+
+export function getLoginUserUrl() {
+  return new URL('/user/login')
+}
 
 /**
  * @summary Logs user into the system
  * {@link /user/login}
  */
 export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
+  const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
+    method: 'GET',
+    url: getLoginUserUrl().toString(),
+    params,
+    ...config,
+  })
   return res.data
 }

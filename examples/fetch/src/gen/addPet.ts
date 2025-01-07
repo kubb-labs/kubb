@@ -1,6 +1,10 @@
 import client from '@kubb/plugin-client/clients/fetch'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from './models.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+
+export function getAddPetUrl() {
+  return new URL('/pet')
+}
 
 /**
  * @description Add a new pet to the store
@@ -8,6 +12,11 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
  * {@link /pet}
  */
 export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+    method: 'POST',
+    url: getAddPetUrl().toString(),
+    data,
+    ...config,
+  })
   return res.data
 }

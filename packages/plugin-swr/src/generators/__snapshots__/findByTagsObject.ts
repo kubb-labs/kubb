@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
@@ -12,7 +12,12 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * {@link /pet/findByTags}
  */
 async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: 'GET', url: `/pet/findByTags`, params, ...config })
+  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+    method: 'GET',
+    url: `/pet/findByTags`,
+    params,
+    ...config,
+  })
   return res.data
 }
 
@@ -32,7 +37,7 @@ export function findPetsByTagsQueryOptions({ params }: { params?: FindPetsByTags
 export function useFindPetsByTags(
   { params }: { params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -41,7 +46,7 @@ export function useFindPetsByTags(
 
   const queryKey = findPetsByTagsQueryKey(params)
 
-  return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByTagsQueryOptions({ params }, config),
     ...queryOptions,
   })

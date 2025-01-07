@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -18,7 +18,7 @@ async function createUsersWithListInput(
   { data }: { data?: CreateUsersWithListInputMutationRequest },
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
+  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     data,
@@ -34,14 +34,18 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: MutationObserverOptions<CreateUsersWithListInputMutationResponse, Error, { data?: MaybeRef<CreateUsersWithListInputMutationRequest> }>
+    mutation?: MutationObserverOptions<
+      CreateUsersWithListInputMutationResponse,
+      ResponseErrorConfig<Error>,
+      { data?: MaybeRef<CreateUsersWithListInputMutationRequest> }
+    >
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>({
+  return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput({ data }, config)
     },

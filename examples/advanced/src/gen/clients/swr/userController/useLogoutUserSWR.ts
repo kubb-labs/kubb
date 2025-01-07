@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
@@ -13,7 +13,7 @@ export type LogoutUserQueryKeySWR = ReturnType<typeof logoutUserQueryKeySWR>
  * {@link /user/logout}
  */
 async function logoutUserSWR(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, Error, unknown>({
+  const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: '/user/logout',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -36,7 +36,7 @@ export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> = {}) {
  */
 export function useLogoutUserSWR(
   options: {
-    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, Error, LogoutUserQueryKeySWR | null, any>>[2]
+    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryKeySWR | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -45,7 +45,7 @@ export function useLogoutUserSWR(
 
   const queryKey = logoutUserQueryKeySWR()
 
-  return useSWR<LogoutUserQueryResponse, Error, LogoutUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
+  return useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...logoutUserQueryOptionsSWR(config),
     ...queryOptions,
   })

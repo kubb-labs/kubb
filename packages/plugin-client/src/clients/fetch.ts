@@ -18,11 +18,21 @@ export type ResponseConfig<TData = unknown> = {
   data: TData
   status: number
   statusText: string
-  headers?: [string, string][] | Record<string, string>
+  headers: Headers
 }
 
+export type ResponseErrorConfig<TError = unknown> = TError
+
 export const fetchClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const response = await fetch([config.baseURL, config.url].filter(Boolean).join(''), {
+  const url = new URL(config.url || '', config.baseURL ? new URL(config.baseURL) : undefined)
+
+  Object.entries(config.params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      url.searchParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  const response = await fetch(url.toString(), {
     method: config.method.toUpperCase(),
     body: JSON.stringify(config.data),
     signal: config.signal,
@@ -35,6 +45,7 @@ export const fetchClient = async <TData, TError = unknown, TVariables = unknown>
     data,
     status: response.status,
     statusText: response.statusText,
+    headers: response.headers as Headers,
   }
 }
 

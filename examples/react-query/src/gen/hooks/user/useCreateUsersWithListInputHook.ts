@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
@@ -17,7 +17,7 @@ async function createUsersWithListInputHook(
   data?: CreateUsersWithListInputMutationRequest,
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
+  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     data,
@@ -33,14 +33,14 @@ async function createUsersWithListInputHook(
  */
 export function useCreateUsersWithListInputHook(
   options: {
-    mutation?: UseMutationOptions<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>
+    mutation?: UseMutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<CreateUsersWithListInputMutationResponse, Error, { data?: CreateUsersWithListInputMutationRequest }>({
+  return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInputHook(data, config)
     },

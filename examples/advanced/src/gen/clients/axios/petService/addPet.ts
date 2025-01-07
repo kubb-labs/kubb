@@ -1,6 +1,10 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.ts'
+
+export function getAddPetUrl() {
+  return new URL('/pet', 'https://petstore3.swagger.io/api/v3')
+}
 
 /**
  * @description Add a new pet to the store
@@ -8,10 +12,9 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  * {@link /pet}
  */
 export async function addPet({ data }: { data: AddPetMutationRequest }, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: '/pet',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getAddPetUrl().toString(),
     data,
     ...config,
   })

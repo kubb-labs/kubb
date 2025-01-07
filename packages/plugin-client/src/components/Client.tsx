@@ -5,12 +5,14 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 import type { PluginClient } from '../types.ts'
+import { Url } from './Url.tsx'
 
 type Props = {
   /**
    * Name of the function
    */
   name: string
+  urlName?: string
   isExportable?: boolean
   isIndexable?: boolean
 
@@ -112,6 +114,7 @@ export function Client({
   paramsCasing,
   pathParamsType,
   operation,
+  urlName,
 }: Props) {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
@@ -121,12 +124,16 @@ export function Client({
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
-  const generics = [
-    typeSchemas.response.name,
-    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
-    typeSchemas.request?.name || 'unknown',
-  ].filter(Boolean)
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
+  const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const urlParams = Url.getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+  })
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',
@@ -135,13 +142,14 @@ export function Client({
           value: JSON.stringify(operation.method.toUpperCase()),
         },
         url: {
-          value: path.template,
+          value: urlName ? `${urlName}(${urlParams.toCall()}).toString()` : path.template,
         },
-        baseURL: baseURL
-          ? {
-              value: JSON.stringify(baseURL),
-            }
-          : undefined,
+        baseURL:
+          baseURL && !urlName
+            ? {
+                value: JSON.stringify(baseURL),
+              }
+            : undefined,
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {

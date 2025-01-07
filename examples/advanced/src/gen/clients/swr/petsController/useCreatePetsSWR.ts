@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -27,7 +27,7 @@ async function createPetsSWR(
   }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
-  const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
+  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -48,7 +48,7 @@ export function useCreatePetsSWR(
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<CreatePetsMutationResponse, Error, CreatePetsMutationKeySWR, CreatePetsMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationKeySWR, CreatePetsMutationRequest>>[2]
     client?: Partial<RequestConfig<CreatePetsMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -56,7 +56,7 @@ export function useCreatePetsSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createPetsMutationKeySWR()
 
-  return useSWRMutation<CreatePetsMutationResponse, Error, CreatePetsMutationKeySWR | null, CreatePetsMutationRequest>(
+  return useSWRMutation<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationKeySWR | null, CreatePetsMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createPetsSWR({ uuid, data, headers, params }, config)

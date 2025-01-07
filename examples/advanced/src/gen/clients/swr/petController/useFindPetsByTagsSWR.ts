@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
@@ -22,7 +22,7 @@ async function findPetsByTagsSWR(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
+  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -52,7 +52,7 @@ export function findPetsByTagsQueryOptionsSWR(
 export function useFindPetsByTagsSWR(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKeySWR | null, any>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKeySWR | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -61,7 +61,7 @@ export function useFindPetsByTagsSWR(
 
   const queryKey = findPetsByTagsQueryKeySWR(params)
 
-  return useSWR<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryKeySWR | null>(shouldFetch ? queryKey : null, {
+  return useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...findPetsByTagsQueryOptionsSWR({ headers, params }, config),
     ...queryOptions,
   })

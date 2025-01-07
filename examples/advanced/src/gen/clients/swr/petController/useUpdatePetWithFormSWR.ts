@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -21,7 +21,7 @@ async function updatePetWithFormSWR(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -39,7 +39,9 @@ export function useUpdatePetWithFormSWR(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   params?: UpdatePetWithFormQueryParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKeySWR>>[2]
+    mutation?: Parameters<
+      typeof useSWRMutation<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKeySWR>
+    >[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -47,7 +49,7 @@ export function useUpdatePetWithFormSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetWithFormMutationKeySWR()
 
-  return useSWRMutation<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationKeySWR | null>(
+  return useSWRMutation<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithFormSWR({ petId, params }, config)

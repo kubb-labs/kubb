@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
@@ -19,7 +19,7 @@ export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySW
  * {@link /user/:username}
  */
 async function getUserByNameSWR({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({
+  const res = await client<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -43,7 +43,9 @@ export function getUserByNameQueryOptionsSWR({ username }: { username: GetUserBy
 export function useGetUserByNameSWR(
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
-    query?: Parameters<typeof useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKeySWR | null, any>>[2]
+    query?: Parameters<
+      typeof useSWR<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null, any>
+    >[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -52,8 +54,11 @@ export function useGetUserByNameSWR(
 
   const queryKey = getUserByNameQueryKeySWR({ username })
 
-  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKeySWR | null>(shouldFetch ? queryKey : null, {
-    ...getUserByNameQueryOptionsSWR({ username }, config),
-    ...queryOptions,
-  })
+  return useSWR<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null>(
+    shouldFetch ? queryKey : null,
+    {
+      ...getUserByNameQueryOptionsSWR({ username }, config),
+      ...queryOptions,
+    },
+  )
 }

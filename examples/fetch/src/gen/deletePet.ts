@@ -1,6 +1,10 @@
 import client from '@kubb/plugin-client/clients/fetch'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from './models.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+
+export function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
+  return new URL(`/pet/${petId}`)
+}
 
 /**
  * @description delete a pet
@@ -8,9 +12,9 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
  * {@link /pet/:petId}
  */
 export async function deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: `/pet/${petId}`,
+    url: getDeletePetUrl(petId).toString(),
     headers: { ...headers, ...config.headers },
     ...config,
   })

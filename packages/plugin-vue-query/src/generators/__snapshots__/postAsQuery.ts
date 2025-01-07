@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from 'custom-query'
 import type { MaybeRef } from 'vue'
 import { queryOptions, useQuery } from 'custom-query'
@@ -23,7 +23,7 @@ async function updatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
@@ -40,7 +40,7 @@ export function updatePetWithFormQueryOptions(
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
-  return queryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationResponse, typeof queryKey>({
+  return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -63,7 +63,7 @@ export function useUpdatePetWithForm<
   data?: MaybeRef<UpdatePetWithFormMutationRequest>,
   params?: MaybeRef<UpdatePetWithFormQueryParams>,
   options: {
-    query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>
   } = {},
 ) {
@@ -74,7 +74,7 @@ export function useUpdatePetWithForm<
     ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as QueryObserverOptions),
     queryKey: queryKey as QueryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, UpdatePetWithForm405> & { queryKey: TQueryKey }
+  }) as UseQueryReturnType<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

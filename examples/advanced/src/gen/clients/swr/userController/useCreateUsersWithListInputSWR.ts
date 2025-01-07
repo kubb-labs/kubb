@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -20,7 +20,7 @@ async function createUsersWithListInputSWR(
   { data }: { data?: CreateUsersWithListInputMutationRequest },
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
+  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -38,7 +38,12 @@ async function createUsersWithListInputSWR(
 export function useCreateUsersWithListInputSWR(
   options: {
     mutation?: Parameters<
-      typeof useSWRMutation<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationKeySWR, CreateUsersWithListInputMutationRequest>
+      typeof useSWRMutation<
+        CreateUsersWithListInputMutationResponse,
+        ResponseErrorConfig<Error>,
+        CreateUsersWithListInputMutationKeySWR,
+        CreateUsersWithListInputMutationRequest
+      >
     >[2]
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
     shouldFetch?: boolean
@@ -49,7 +54,7 @@ export function useCreateUsersWithListInputSWR(
 
   return useSWRMutation<
     CreateUsersWithListInputMutationResponse,
-    Error,
+    ResponseErrorConfig<Error>,
     CreateUsersWithListInputMutationKeySWR | null,
     CreateUsersWithListInputMutationRequest
   >(

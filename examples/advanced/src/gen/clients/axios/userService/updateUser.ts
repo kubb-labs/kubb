@@ -1,6 +1,10 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
+
+export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
+  return new URL(`/user/${username}`, 'https://petstore3.swagger.io/api/v3')
+}
 
 /**
  * @description This can only be done by the logged in user.
@@ -11,10 +15,9 @@ export async function updateUser(
   { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
+  const res = await client<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
-    url: `/user/${username}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getUpdateUserUrl({ username }).toString(),
     data,
     ...config,
   })

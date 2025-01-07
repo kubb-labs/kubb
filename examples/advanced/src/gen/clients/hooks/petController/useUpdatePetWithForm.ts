@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -22,7 +22,12 @@ async function updatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+    method: 'POST',
+    url: `/pet/${petId}`,
+    params,
+    ...config,
+  })
   return { ...res, data: updatePetWithFormMutationResponseSchema.parse(res.data) }
 }
 
@@ -34,7 +39,7 @@ export function useUpdatePetWithForm(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<UpdatePetWithFormMutationResponse>,
-      UpdatePetWithForm405,
+      ResponseErrorConfig<UpdatePetWithForm405>,
       { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
     >
     client?: Partial<RequestConfig>
@@ -45,7 +50,7 @@ export function useUpdatePetWithForm(
 
   return useMutation<
     ResponseConfig<UpdatePetWithFormMutationResponse>,
-    UpdatePetWithForm405,
+    ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
   >({
     mutationFn: async ({ petId, params }) => {

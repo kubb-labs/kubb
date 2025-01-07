@@ -60,7 +60,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "redoc": "^2.2.0",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.14"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

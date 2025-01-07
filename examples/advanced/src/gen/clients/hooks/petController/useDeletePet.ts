@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
@@ -15,7 +15,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * {@link /pet/:petId}
  */
 async function deletePet({ petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
     headers: { ...headers, ...config.headers },
@@ -33,7 +33,7 @@ export function useDeletePet(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<DeletePetMutationResponse>,
-      DeletePet400,
+      ResponseErrorConfig<DeletePet400>,
       { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
     >
     client?: Partial<RequestConfig>
@@ -42,7 +42,11 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
 
-  return useMutation<ResponseConfig<DeletePetMutationResponse>, DeletePet400, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
+  return useMutation<
+    ResponseConfig<DeletePetMutationResponse>,
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
+  >({
     mutationFn: async ({ petId, headers }) => {
       return deletePet({ petId, headers }, config)
     },

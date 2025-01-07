@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from 'custom-query'
 import { queryOptions, createQuery } from 'custom-query'
 
@@ -21,7 +21,7 @@ async function updatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
@@ -38,7 +38,7 @@ export function updatePetWithFormQueryOptions(
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
-  return queryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationResponse, typeof queryKey>({
+  return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -61,7 +61,7 @@ export function createUpdatePetWithForm<
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>
   } = {},
 ) {
@@ -73,7 +73,7 @@ export function createUpdatePetWithForm<
     queryKey,
     initialData: null,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  })) as CreateQueryResult<TData, UpdatePetWithForm405> & { queryKey: TQueryKey }
+  })) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

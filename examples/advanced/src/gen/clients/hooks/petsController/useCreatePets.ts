@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -28,7 +28,7 @@ async function createPets(
   }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
-  const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
+  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,
     params,
@@ -47,7 +47,7 @@ export function useCreatePets(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<CreatePetsMutationResponse>,
-      Error,
+      ResponseErrorConfig<Error>,
       { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams }
     >
     client?: Partial<RequestConfig<CreatePetsMutationRequest>>
@@ -58,7 +58,7 @@ export function useCreatePets(
 
   return useMutation<
     ResponseConfig<CreatePetsMutationResponse>,
-    Error,
+    ResponseErrorConfig<Error>,
     { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams }
   >({
     mutationFn: async ({ uuid, data, headers, params }) => {

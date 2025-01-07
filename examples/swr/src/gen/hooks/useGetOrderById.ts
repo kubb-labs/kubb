@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
@@ -13,7 +13,11 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * {@link /store/order/:orderId}
  */
 async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
+  const res = await client<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+    method: 'GET',
+    url: `/store/order/${orderId}`,
+    ...config,
+  })
   return res.data
 }
 
@@ -33,7 +37,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 export function useGetOrderById(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: Parameters<typeof useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -42,7 +46,7 @@ export function useGetOrderById(
 
   const queryKey = getOrderByIdQueryKey(orderId)
 
-  return useSWR<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getOrderByIdQueryOptions(orderId, config),
     ...queryOptions,
   })

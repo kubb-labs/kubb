@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
 
@@ -17,7 +17,7 @@ async function uploadFile(
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -36,7 +36,7 @@ export function useUploadFile(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKey, UploadFileMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey, UploadFileMutationRequest>>[2]
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -44,7 +44,7 @@ export function useUploadFile(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKey()
 
-  return useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKey | null, UploadFileMutationRequest>(
+  return useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return uploadFile(petId, data, params, config)

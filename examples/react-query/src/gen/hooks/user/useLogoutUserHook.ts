@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
@@ -13,13 +13,13 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * {@link /user/logout}
  */
 async function logoutUserHook(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: '/user/logout', ...config })
+  const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...config })
   return res.data
 }
 
 export function logoutUserQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()
-  return queryOptions<LogoutUserQueryResponse, Error, LogoutUserQueryResponse, typeof queryKey>({
+  return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -34,7 +34,7 @@ export function logoutUserQueryOptionsHook(config: Partial<RequestConfig> = {}) 
  */
 export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<QueryObserverOptions<LogoutUserQueryResponse, Error, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -45,7 +45,7 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
     ...(logoutUserQueryOptionsHook(config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, Error> & { queryKey: TQueryKey }
+  }) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

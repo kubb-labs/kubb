@@ -1,6 +1,10 @@
 import client from '@kubb/plugin-client/clients/fetch'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+
+export function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
+  return new URL(`/pet/${petId}/uploadImage`)
+}
 
 /**
  * @summary uploads an image
@@ -21,9 +25,9 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: `/pet/${petId}/uploadImage`,
+    url: getUploadFileUrl(petId).toString(),
     params,
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data', ...config.headers },

@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -21,7 +21,7 @@ async function uploadFileSWR(
   { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -41,7 +41,7 @@ export function useUploadFileSWR(
   { petId }: { petId: UploadFilePathParams['petId'] },
   params?: UploadFileQueryParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKeySWR, UploadFileMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKeySWR, UploadFileMutationRequest>>[2]
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -49,7 +49,7 @@ export function useUploadFileSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKeySWR()
 
-  return useSWRMutation<UploadFileMutationResponse, Error, UploadFileMutationKeySWR | null, UploadFileMutationRequest>(
+  return useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKeySWR | null, UploadFileMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return uploadFileSWR({ petId, data, params }, config)

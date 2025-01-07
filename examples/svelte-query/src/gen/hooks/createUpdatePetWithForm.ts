@@ -5,7 +5,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -19,7 +19,12 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  * {@link /pet/:pet_id}
  */
 async function updatePetWithForm(petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+    method: 'POST',
+    url: `/pet/${petId}`,
+    params,
+    ...config,
+  })
   return res.data
 }
 
@@ -29,7 +34,7 @@ export function updatePetWithFormQueryOptions(
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, params)
-  return queryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationResponse, typeof queryKey>({
+  return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -51,7 +56,7 @@ export function createUpdatePetWithForm<
   petId: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -62,7 +67,7 @@ export function createUpdatePetWithForm<
     ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, UpdatePetWithForm405> & { queryKey: TQueryKey }
+  }) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

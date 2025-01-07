@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -21,7 +21,7 @@ async function createUsersWithListInput(
   { data }: { data?: CreateUsersWithListInputMutationRequest },
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
+  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     data,
@@ -37,14 +37,18 @@ async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<CreateUsersWithListInputMutationResponse>, Error, { data?: CreateUsersWithListInputMutationRequest }>
+    mutation?: UseMutationOptions<
+      ResponseConfig<CreateUsersWithListInputMutationResponse>,
+      ResponseErrorConfig<Error>,
+      { data?: CreateUsersWithListInputMutationRequest }
+    >
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<ResponseConfig<CreateUsersWithListInputMutationResponse>, Error, { data?: CreateUsersWithListInputMutationRequest }>({
+  return useMutation<ResponseConfig<CreateUsersWithListInputMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput({ data }, config)
     },

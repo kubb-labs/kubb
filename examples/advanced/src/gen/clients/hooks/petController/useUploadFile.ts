@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -22,7 +22,7 @@ async function uploadFile(
   { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -41,7 +41,7 @@ export function useUploadFile(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<UploadFileMutationResponse>,
-      Error,
+      ResponseErrorConfig<Error>,
       { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
@@ -52,7 +52,7 @@ export function useUploadFile(
 
   return useMutation<
     ResponseConfig<UploadFileMutationResponse>,
-    Error,
+    ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {

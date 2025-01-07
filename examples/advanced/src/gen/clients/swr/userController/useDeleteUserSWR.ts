@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
@@ -14,7 +14,7 @@ export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySW
  * {@link /user/:username}
  */
 async function deleteUserSWR({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({
+  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -31,7 +31,7 @@ async function deleteUserSWR({ username }: { username: DeleteUserPathParams['use
 export function useDeleteUserSWR(
   { username }: { username: DeleteUserPathParams['username'] },
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKeySWR>>[2]
+    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKeySWR>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -39,7 +39,7 @@ export function useDeleteUserSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKeySWR()
 
-  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKeySWR | null>(
+  return useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKeySWR | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteUserSWR({ username }, config)
