@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.ts'
@@ -15,7 +15,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 async function addPet({ data }: { data: AddPetMutationRequest }, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
   return { ...res, data: addPetMutationResponseSchema.parse(res.data) }
 }
 
@@ -26,14 +26,14 @@ async function addPet({ data }: { data: AddPetMutationRequest }, config: Partial
  */
 export function useAddPet(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<AddPetMutationResponse>, AddPet405, { data: AddPetMutationRequest }>
+    mutation?: UseMutationOptions<ResponseConfig<AddPetMutationResponse>, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
     client?: Partial<RequestConfig<AddPetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return useMutation<ResponseConfig<AddPetMutationResponse>, AddPet405, { data: AddPetMutationRequest }>({
+  return useMutation<ResponseConfig<AddPetMutationResponse>, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return addPet({ data }, config)
     },

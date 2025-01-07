@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
@@ -13,7 +13,7 @@ export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
  * {@link /user/login}
  */
 async function loginUserSWR({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
+  const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
     url: '/user/login',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -38,7 +38,7 @@ export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryPa
 export function useLoginUserSWR(
   { params }: { params?: LoginUserQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKeySWR | null, any>>[2]
+    query?: Parameters<typeof useSWR<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -47,7 +47,7 @@ export function useLoginUserSWR(
 
   const queryKey = loginUserQueryKeySWR(params)
 
-  return useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
+  return useSWR<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...loginUserQueryOptionsSWR({ params }, config),
     ...queryOptions,
   })

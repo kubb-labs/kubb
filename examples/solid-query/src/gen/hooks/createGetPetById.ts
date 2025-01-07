@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import { queryOptions } from '@tanstack/solid-query'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
@@ -13,13 +13,17 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * {@link /pet/:petId}
  */
 async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${petId}`, ...config })
+  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    method: 'GET',
+    url: `/pet/${petId}`,
+    ...config,
+  })
   return res.data
 }
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return queryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryResponse, typeof queryKey>({
+  return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {

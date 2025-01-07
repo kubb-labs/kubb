@@ -121,7 +121,7 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return queryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
+      return queryOptions<${TData}, ResponseErrorConfig<${TError}>, ${TData}, typeof queryKey>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

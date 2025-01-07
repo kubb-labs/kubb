@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../models/GetOrderById.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
@@ -15,13 +15,17 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * {@link /store/order/:orderId}
  */
 async function getOrderByIdHook({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
+  const res = await client<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+    method: 'GET',
+    url: `/store/order/${orderId}`,
+    ...config,
+  })
   return res.data
 }
 
 export function getOrderByIdQueryOptionsHook({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey({ orderId })
-  return queryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryResponse, typeof queryKey>({
+  return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -43,7 +47,7 @@ export function useGetOrderByIdHook<
 >(
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
   options: {
-    query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -54,7 +58,7 @@ export function useGetOrderByIdHook<
     ...(getOrderByIdQueryOptionsHook({ orderId }, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetOrderById400 | GetOrderById404> & { queryKey: TQueryKey }
+  }) as UseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -13,13 +13,17 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  * {@link /user/:username}
  */
 async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({ method: 'GET', url: `/user/${username}`, ...config })
+  const res = await client<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
+    method: 'GET',
+    url: `/user/${username}`,
+    ...config,
+  })
   return res.data
 }
 
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return queryOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryResponse, typeof queryKey>({
+  return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -40,7 +44,7 @@ export function createGetUserByName<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: Partial<CreateBaseQueryOptions<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -51,7 +55,7 @@ export function createGetUserByName<
     ...(getUserByNameQueryOptions(username, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, GetUserByName400 | GetUserByName404> & { queryKey: TQueryKey }
+  }) as CreateQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

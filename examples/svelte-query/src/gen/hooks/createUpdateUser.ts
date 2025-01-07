@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -18,7 +18,12 @@ async function updateUser(
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({ method: 'PUT', url: `/user/${username}`, data, ...config })
+  const res = await client<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+    method: 'PUT',
+    url: `/user/${username}`,
+    data,
+    ...config,
+  })
   return res.data
 }
 
@@ -29,14 +34,22 @@ async function updateUser(
  */
 export function createUpdateUser(
   options: {
-    mutation?: CreateMutationOptions<UpdateUserMutationResponse, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>
+    mutation?: CreateMutationOptions<
+      UpdateUserMutationResponse,
+      ResponseErrorConfig<Error>,
+      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+    >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
-  return createMutation<UpdateUserMutationResponse, Error, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
+  return createMutation<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+  >({
     mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },

@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
@@ -15,7 +15,11 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * {@link /user/:username}
  */
 async function deleteUser({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
+  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+    method: 'DELETE',
+    url: `/user/${username}`,
+    ...config,
+  })
   return { ...res, data: deleteUserMutationResponseSchema.parse(res.data) }
 }
 
@@ -26,14 +30,22 @@ async function deleteUser({ username }: { username: DeleteUserPathParams['userna
  */
 export function useDeleteUser(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<DeleteUserMutationResponse>, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>
+    mutation?: UseMutationOptions<
+      ResponseConfig<DeleteUserMutationResponse>,
+      ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+      { username: DeleteUserPathParams['username'] }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
 
-  return useMutation<ResponseConfig<DeleteUserMutationResponse>, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>({
+  return useMutation<
+    ResponseConfig<DeleteUserMutationResponse>,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] }
+  >({
     mutationFn: async ({ username }) => {
       return deleteUser({ username }, config)
     },

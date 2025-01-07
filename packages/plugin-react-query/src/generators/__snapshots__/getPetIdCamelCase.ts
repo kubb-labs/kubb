@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
@@ -13,13 +13,17 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * {@link /pet/:pet_id}
  */
 async function getPetById(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${petId}`, ...config })
+  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    method: 'GET',
+    url: `/pet/${petId}`,
+    ...config,
+  })
   return getPetByIdQueryResponse.parse(res.data)
 }
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return queryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryResponse, typeof queryKey>({
+  return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -37,7 +41,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['pet_id'], co
 export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['pet_id'],
   options: {
-    query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -48,7 +52,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
     ...(getPetByIdQueryOptions(petId, config) as unknown as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, GetPetById400 | GetPetById404> & { queryKey: TQueryKey }
+  }) as UseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

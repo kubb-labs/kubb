@@ -27,6 +27,8 @@ export type ResponseConfig<TData = unknown> = {
   headers?: AxiosResponse['headers']
 }
 
+export type ResponseErrorConfig<TError = unknown> = TError
+
 export const axiosInstance = axios.create({
   baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
   headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,

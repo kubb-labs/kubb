@@ -63,7 +63,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
         <File.Import name="useSWRMutation" path={importPath} />
         <File.Import name={['SWRMutationResponse']} path={importPath} isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
             type.schemas.request?.name,

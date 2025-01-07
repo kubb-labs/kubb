@@ -6,7 +6,11 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
+  return new URL(`/pet/${petId}/uploadImage`)
+}
 
 /**
  * @summary uploads an image
@@ -27,9 +31,9 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: `/pet/${petId}/uploadImage`,
+    url: getUploadFileUrl({ petId }).toString(),
     params,
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data', ...config.headers },

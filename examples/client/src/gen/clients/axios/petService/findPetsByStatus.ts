@@ -1,7 +1,11 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/clients/axios'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getFindPetsByStatusUrl() {
+  return new URL('/pet/findByStatus')
+}
 
 /**
  * @description Multiple status values can be provided with comma separated strings
@@ -9,6 +13,11 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
  * {@link /pet/findByStatus}
  */
 export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })
+  const res = await client<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+    method: 'GET',
+    url: getFindPetsByStatusUrl().toString(),
+    params,
+    ...config,
+  })
   return res.data
 }

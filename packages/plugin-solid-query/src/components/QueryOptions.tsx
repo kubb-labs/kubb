@@ -96,7 +96,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
 
 export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, dataReturnType, pathParamsType, queryKeyName }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({

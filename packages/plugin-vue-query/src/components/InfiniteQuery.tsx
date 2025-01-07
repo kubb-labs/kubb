@@ -34,6 +34,7 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
     return FunctionParams.factory({
@@ -73,7 +74,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
 }
 `,
@@ -118,7 +119,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
 }
 `,
@@ -140,7 +141,8 @@ export function InfiniteQuery({
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const returnType = `UseInfiniteQueryReturnType<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const returnType = `UseInfiniteQueryReturnType<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = InfiniteData<${TData}>`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({

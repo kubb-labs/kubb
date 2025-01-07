@@ -1,6 +1,10 @@
 import client from '@kubb/plugin-client/clients/fetch'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from './models.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+
+export function getPlaceOrderPatchUrl() {
+  return new URL('/store/order')
+}
 
 /**
  * @description Place a new order in the store with patch
@@ -8,9 +12,9 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/fetch'
  * {@link /store/order}
  */
 export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
-  const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
+  const res = await client<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
-    url: '/store/order',
+    url: getPlaceOrderPatchUrl().toString(),
     data,
     ...config,
   })

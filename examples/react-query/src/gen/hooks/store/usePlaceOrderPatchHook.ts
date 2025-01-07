@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../../models/PlaceOrderPatch.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
@@ -14,7 +14,7 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  * {@link /store/order}
  */
 async function placeOrderPatchHook(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
-  const res = await client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>({
+  const res = await client<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',
     data,
@@ -30,14 +30,14 @@ async function placeOrderPatchHook(data?: PlaceOrderPatchMutationRequest, config
  */
 export function usePlaceOrderPatchHook(
   options: {
-    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, { data?: PlaceOrderPatchMutationRequest }>
+    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, { data?: PlaceOrderPatchMutationRequest }>({
+  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrderPatchHook(data, config)
     },

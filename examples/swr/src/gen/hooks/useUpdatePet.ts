@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -13,7 +13,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * {@link /pet}
  */
 async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
-  const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
+  const res = await client<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
     data,
@@ -30,7 +30,12 @@ async function updatePet(data: UpdatePetMutationRequest, config: Partial<Request
 export function useUpdatePet(
   options: {
     mutation?: Parameters<
-      typeof useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey, UpdatePetMutationRequest>
+      typeof useSWRMutation<
+        UpdatePetMutationResponse,
+        ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+        UpdatePetMutationKey,
+        UpdatePetMutationRequest
+      >
     >[2]
     client?: Partial<RequestConfig<UpdatePetMutationRequest>>
     shouldFetch?: boolean
@@ -39,7 +44,12 @@ export function useUpdatePet(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetMutationKey()
 
-  return useSWRMutation<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationKey | null, UpdatePetMutationRequest>(
+  return useSWRMutation<
+    UpdatePetMutationResponse,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    UpdatePetMutationKey | null,
+    UpdatePetMutationRequest
+  >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updatePet(data, config)

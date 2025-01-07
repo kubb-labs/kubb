@@ -35,6 +35,7 @@ type GetParamsProps = {
 
 function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
     return FunctionParams.factory({
@@ -74,7 +75,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
 }
 `,
@@ -119,7 +120,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
 }
 `,
@@ -141,7 +142,8 @@ export function Query({
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const returnType = `UseQueryReturnType<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const returnType = `UseQueryReturnType<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({

@@ -1,4 +1,3 @@
-import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -60,7 +59,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
             type.schemas.request?.name,

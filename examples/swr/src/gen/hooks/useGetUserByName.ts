@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 
@@ -12,7 +12,11 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  * {@link /user/:username}
  */
 async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, unknown>({ method: 'GET', url: `/user/${username}`, ...config })
+  const res = await client<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
+    method: 'GET',
+    url: `/user/${username}`,
+    ...config,
+  })
   return res.data
 }
 
@@ -31,7 +35,9 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
 export function useGetUserByName(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: Parameters<typeof useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKey | null, any>>[2]
+    query?: Parameters<
+      typeof useSWR<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKey | null, any>
+    >[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -40,8 +46,11 @@ export function useGetUserByName(
 
   const queryKey = getUserByNameQueryKey(username)
 
-  return useSWR<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, GetUserByNameQueryKey | null>(shouldFetch ? queryKey : null, {
-    ...getUserByNameQueryOptions(username, config),
-    ...queryOptions,
-  })
+  return useSWR<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKey | null>(
+    shouldFetch ? queryKey : null,
+    {
+      ...getUserByNameQueryOptions(username, config),
+      ...queryOptions,
+    },
+  )
 }

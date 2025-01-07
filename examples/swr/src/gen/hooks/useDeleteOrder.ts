@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
 
@@ -13,7 +13,7 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  * {@link /store/order/:orderId}
  */
 async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
+  const res = await client<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...config,
@@ -29,7 +29,7 @@ async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Pa
 export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, DeleteOrderMutationKey>>[2]
+    mutation?: Parameters<typeof useSWRMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, DeleteOrderMutationKey>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -37,7 +37,7 @@ export function useDeleteOrder(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteOrderMutationKey()
 
-  return useSWRMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, DeleteOrderMutationKey | null>(
+  return useSWRMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, DeleteOrderMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteOrder(orderId, config)

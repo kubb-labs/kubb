@@ -1,11 +1,15 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
+
+export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
+  return new URL(`/pet/${petId}/uploadImage`, 'https://petstore3.swagger.io/api/v3')
+}
 
 /**
  * @summary uploads an image
@@ -15,10 +19,9 @@ export async function uploadFile(
   { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: `/pet/${petId}/uploadImage`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getUploadFileUrl({ petId }).toString(),
     params,
     data,
     headers: { 'Content-Type': 'application/octet-stream', ...config.headers },

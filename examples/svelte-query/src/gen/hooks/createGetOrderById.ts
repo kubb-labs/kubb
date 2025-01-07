@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -14,13 +14,17 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * {@link /store/order/:orderId}
  */
 async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, unknown>({ method: 'GET', url: `/store/order/${orderId}`, ...config })
+  const res = await client<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+    method: 'GET',
+    url: `/store/order/${orderId}`,
+    ...config,
+  })
   return res.data
 }
 
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
-  return queryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, GetOrderByIdQueryResponse, typeof queryKey>({
+  return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -42,7 +46,7 @@ export function createGetOrderById<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: Partial<CreateBaseQueryOptions<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -53,7 +57,7 @@ export function createGetOrderById<
     ...(getOrderByIdQueryOptions(orderId, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, GetOrderById400 | GetOrderById404> & { queryKey: TQueryKey }
+  }) as CreateQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

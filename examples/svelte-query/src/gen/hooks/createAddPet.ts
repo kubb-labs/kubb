@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -14,7 +14,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
   return res.data
 }
 
@@ -25,14 +25,14 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  */
 export function createAddPet(
   options: {
-    mutation?: CreateMutationOptions<AddPetMutationResponse, AddPet405, { data: AddPetMutationRequest }>
+    mutation?: CreateMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
     client?: Partial<RequestConfig<AddPetMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return createMutation<AddPetMutationResponse, AddPet405, { data: AddPetMutationRequest }>({
+  return createMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>({
     mutationFn: async ({ data }) => {
       return addPet(data, config)
     },

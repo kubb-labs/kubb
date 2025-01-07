@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -15,7 +15,12 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * {@link /store/order}
  */
 async function placeOrder({ data }: { data?: PlaceOrderMutationRequest }, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
-  const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })
+  const res = await client<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+    method: 'POST',
+    url: '/store/order',
+    data,
+    ...config,
+  })
   return res.data
 }
 
@@ -26,14 +31,14 @@ async function placeOrder({ data }: { data?: PlaceOrderMutationRequest }, config
  */
 export function usePlaceOrder(
   options: {
-    mutation?: MutationObserverOptions<PlaceOrderMutationResponse, PlaceOrder405, { data?: MaybeRef<PlaceOrderMutationRequest> }>
+    mutation?: MutationObserverOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: MaybeRef<PlaceOrderMutationRequest> }>
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
 
-  return useMutation<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>({
+  return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrder({ data }, config)
     },

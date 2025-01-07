@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 
@@ -13,7 +13,7 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
  * {@link /pet/findByTags}
  */
 async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({
+  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
     params,
@@ -29,7 +29,7 @@ export function findPetsByTagsInfiniteQueryOptions(
   config: Partial<RequestConfig> = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return infiniteQueryOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, FindPetsByTagsQueryResponse, typeof queryKey, number>({
+  return infiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey, number>({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
@@ -58,7 +58,7 @@ export function useFindPetsByTagsInfinite<
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, FindPetsByTags400, TData, TQueryData, TQueryKey>>
+    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -69,7 +69,7 @@ export function useFindPetsByTagsInfinite<
     ...(findPetsByTagsInfiniteQueryOptions(headers, params, config) as unknown as InfiniteQueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
-  }) as UseInfiniteQueryResult<TData, FindPetsByTags400> & { queryKey: TQueryKey }
+  }) as UseInfiniteQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -17,7 +17,7 @@ async function uploadFile(
   { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -36,7 +36,7 @@ export function useUploadFile(
   options: {
     mutation?: MutationObserverOptions<
       UploadFileMutationResponse,
-      Error,
+      ResponseErrorConfig<Error>,
       { petId: MaybeRef<UploadFilePathParams['petId']>; data?: MaybeRef<UploadFileMutationRequest>; params?: MaybeRef<UploadFileQueryParams> }
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
@@ -47,7 +47,7 @@ export function useUploadFile(
 
   return useMutation<
     UploadFileMutationResponse,
-    Error,
+    ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {

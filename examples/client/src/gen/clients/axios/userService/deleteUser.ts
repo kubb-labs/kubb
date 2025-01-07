@@ -1,7 +1,11 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
+  return new URL(`/user/${username}`)
+}
 
 /**
  * @description This can only be done by the logged in user.
@@ -9,6 +13,10 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
  * {@link /user/:username}
  */
 export async function deleteUser({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
+  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+    method: 'DELETE',
+    url: getDeleteUserUrl({ username }).toString(),
+    ...config,
+  })
   return res.data
 }

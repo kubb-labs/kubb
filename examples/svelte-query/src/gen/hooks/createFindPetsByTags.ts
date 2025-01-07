@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags.ts'
-import type { RequestConfig, ResponseConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -14,13 +14,23 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * {@link /pet/findByTags}
  */
 async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByTagsQueryResponse, FindPetsByTags400, unknown>({ method: 'GET', url: '/pet/findByTags', params, ...config })
+  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+    method: 'GET',
+    url: '/pet/findByTags',
+    params,
+    ...config,
+  })
   return res
 }
 
 export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return queryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, ResponseConfig<FindPetsByTagsQueryResponse>, typeof queryKey>({
+  return queryOptions<
+    ResponseConfig<FindPetsByTagsQueryResponse>,
+    ResponseErrorConfig<FindPetsByTags400>,
+    ResponseConfig<FindPetsByTagsQueryResponse>,
+    typeof queryKey
+  >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -41,7 +51,7 @@ export function createFindPetsByTags<
 >(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, FindPetsByTags400, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -52,7 +62,7 @@ export function createFindPetsByTags<
     ...(findPetsByTagsQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, FindPetsByTags400> & { queryKey: TQueryKey }
+  }) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

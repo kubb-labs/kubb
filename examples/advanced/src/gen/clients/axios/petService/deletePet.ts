@@ -1,6 +1,10 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
+
+export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
+  return new URL(`/pet/${petId}`, 'https://petstore3.swagger.io/api/v3')
+}
 
 /**
  * @description delete a pet
@@ -11,10 +15,9 @@ export async function deletePet(
   { petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
   config: Partial<RequestConfig> = {},
 ) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: `/pet/${petId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getDeletePetUrl({ petId }).toString(),
     headers: { ...headers, ...config.headers },
     ...config,
   })

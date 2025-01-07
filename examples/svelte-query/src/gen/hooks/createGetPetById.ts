@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -14,13 +14,17 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * {@link /pet/:pet_id}
  */
 async function getPetById(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${pet_id}`, ...config })
+  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    method: 'GET',
+    url: `/pet/${pet_id}`,
+    ...config,
+  })
   return res.data
 }
 
 export function getPetByIdQueryOptions(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(pet_id)
-  return queryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, GetPetByIdQueryResponse, typeof queryKey>({
+  return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -38,7 +42,7 @@ export function getPetByIdQueryOptions(pet_id: GetPetByIdPathParams['pet_id'], c
 export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   pet_id: GetPetByIdPathParams['pet_id'],
   options: {
-    query?: Partial<CreateBaseQueryOptions<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -49,7 +53,7 @@ export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = G
     ...(getPetByIdQueryOptions(pet_id, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, GetPetById400 | GetPetById404> & { queryKey: TQueryKey }
+  }) as CreateQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
@@ -14,7 +14,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * {@link /user}
  */
 async function createUserHook(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
-  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
+  const res = await client<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
   return res.data
 }
 
@@ -25,14 +25,14 @@ async function createUserHook(data?: CreateUserMutationRequest, config: Partial<
  */
 export function useCreateUserHook(
   options: {
-    mutation?: UseMutationOptions<CreateUserMutationResponse, Error, { data?: CreateUserMutationRequest }>
+    mutation?: UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
 
-  return useMutation<CreateUserMutationResponse, Error, { data?: CreateUserMutationRequest }>({
+  return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUserHook(data, config)
     },

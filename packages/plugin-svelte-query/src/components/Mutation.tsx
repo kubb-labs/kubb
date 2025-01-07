@@ -34,6 +34,8 @@ type GetParamsProps = {
 
 function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
   const mutationParams = FunctionParams.factory({
     ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     data: typeSchemas.request?.name
@@ -61,7 +63,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
     options: {
       type: `
 {
-  mutation?: CreateMutationOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined].filter(Boolean).join(', ')}>,
+  mutation?: CreateMutationOptions<${[TData, TError, TRequest ? `{${TRequest}}` : undefined].filter(Boolean).join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
 }
 `,
@@ -140,9 +142,8 @@ export function Mutation({
 
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
-    .filter(Boolean)
-    .join(', ')
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : undefined].filter(Boolean).join(', ')
 
   return (
     <File.Source name={name} isExportable isIndexable>

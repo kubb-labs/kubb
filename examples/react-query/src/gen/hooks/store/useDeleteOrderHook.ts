@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../models/DeleteOrder.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
@@ -14,7 +14,7 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  * {@link /store/order/:orderId}
  */
 async function deleteOrderHook({ orderId }: { orderId: DeleteOrderPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
+  const res = await client<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...config,
@@ -29,14 +29,18 @@ async function deleteOrderHook({ orderId }: { orderId: DeleteOrderPathParams['or
  */
 export function useDeleteOrderHook(
   options: {
-    mutation?: UseMutationOptions<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, { orderId: DeleteOrderPathParams['orderId'] }>
+    mutation?: UseMutationOptions<
+      DeleteOrderMutationResponse,
+      ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+      { orderId: DeleteOrderPathParams['orderId'] }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
 
-  return useMutation<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, { orderId: DeleteOrderPathParams['orderId'] }>({
+  return useMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, { orderId: DeleteOrderPathParams['orderId'] }>({
     mutationFn: async ({ orderId }) => {
       return deleteOrderHook({ orderId }, config)
     },

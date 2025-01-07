@@ -66,7 +66,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
         <File.Import name={['unref']} path="vue" />
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
           name={[

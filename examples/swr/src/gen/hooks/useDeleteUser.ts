@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
 
@@ -13,7 +13,11 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * {@link /user/:username}
  */
 async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
+  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+    method: 'DELETE',
+    url: `/user/${username}`,
+    ...config,
+  })
   return res.data
 }
 
@@ -25,7 +29,7 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
 export function useDeleteUser(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKey>>[2]
+    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -33,7 +37,7 @@ export function useDeleteUser(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKey()
 
-  return useSWRMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, DeleteUserMutationKey | null>(
+  return useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteUser(username, config)

@@ -7,7 +7,11 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getUpdatePetUrl() {
+  return new URL('/pet')
+}
 
 /**
  * @description Update an existing pet by Id
@@ -15,9 +19,9 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
  * {@link /pet}
  */
 export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
-  const res = await client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>({
+  const res = await client<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: '/pet',
+    url: getUpdatePetUrl().toString(),
     data,
     ...config,
   })

@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+## 3.4.0
+- [`plugin-client`](/plugins/plugin-client): decouple URI (with params) from fetching
+- [`plugin-client`](/plugins/plugin-client): add header in response object
+- [`plugin-client`](/plugins/plugin-client): use of URL and SearchParams to support queryParams for fetch
+
 ## 3.3.5
 - [`plugin-react-query`](/plugins/plugin-react-query/): queryOptions with custom Error type
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): queryOptions with custom Error type

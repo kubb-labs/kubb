@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
@@ -12,7 +12,7 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * {@link /user/login}
  */
 async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
+  const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...config })
   return res.data
 }
 
@@ -31,7 +31,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
 export function useLoginUser(
   params?: LoginUserQueryParams,
   options: {
-    query?: Parameters<typeof useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryKey | null, any>>[2]
     client?: Partial<RequestConfig>
     shouldFetch?: boolean
   } = {},
@@ -40,7 +40,7 @@ export function useLoginUser(
 
   const queryKey = loginUserQueryKey(params)
 
-  return useSWR<LoginUserQueryResponse, LoginUser400, LoginUserQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryKey | null>(shouldFetch ? queryKey : null, {
     ...loginUserQueryOptions(params, config),
     ...queryOptions,
   })

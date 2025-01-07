@@ -63,7 +63,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
 
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
+        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
 
         <File.Import

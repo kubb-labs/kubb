@@ -18,6 +18,9 @@ export type RequestConfig<TData = unknown> = {
   signal?: AbortSignal
   headers?: AxiosRequestConfig['headers']
 }
+
+export type ResponseErrorConfig<TError = unknown> = TError
+
 /**
  * Subset of AxiosResponse
  */

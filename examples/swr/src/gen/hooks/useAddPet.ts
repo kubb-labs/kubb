@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -13,7 +13,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
   return res.data
 }
 
@@ -24,7 +24,7 @@ async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig
  */
 export function useAddPet(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKey, AddPetMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey, AddPetMutationRequest>>[2]
     client?: Partial<RequestConfig<AddPetMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -32,7 +32,7 @@ export function useAddPet(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKey()
 
-  return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKey | null, AddPetMutationRequest>(
+  return useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey | null, AddPetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return addPet(data, config)

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -13,13 +13,13 @@ export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQue
  * {@link /user/logout}
  */
 async function logoutUserHook(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, Error, unknown>({ method: 'GET', url: '/user/logout', ...config })
+  const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...config })
   return res.data
 }
 
 export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
-  return queryOptions<LogoutUserQueryResponse, Error, LogoutUserQueryResponse, typeof queryKey>({
+  return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -38,7 +38,7 @@ export function useLogoutUserSuspenseHook<
   TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey,
 >(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, Error, TData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -49,7 +49,7 @@ export function useLogoutUserSuspenseHook<
     ...(logoutUserSuspenseQueryOptionsHook(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, Error> & { queryKey: TQueryKey }
+  }) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

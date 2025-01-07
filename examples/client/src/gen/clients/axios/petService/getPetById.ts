@@ -1,7 +1,11 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
+  return new URL(`/pet/${petId}`)
+}
 
 /**
  * @description Returns a single pet
@@ -9,6 +13,10 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
  * {@link /pet/:petId}
  */
 export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, unknown>({ method: 'GET', url: `/pet/${petId}`, ...config })
+  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    method: 'GET',
+    url: getGetPetByIdUrl({ petId }).toString(),
+    ...config,
+  })
   return res.data
 }

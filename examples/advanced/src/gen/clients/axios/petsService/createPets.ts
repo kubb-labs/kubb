@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -7,6 +7,10 @@ import type {
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets.ts'
+
+export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
+  return new URL(`/pets/${uuid}`, 'https://petstore3.swagger.io/api/v3')
+}
 
 /**
  * @summary Create a pet
@@ -21,10 +25,9 @@ export async function createPets(
   }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
 ) {
-  const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
+  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
-    url: `/pets/${uuid}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getCreatePetsUrl({ uuid }).toString(),
     params,
     data,
     headers: { ...headers, ...config.headers },

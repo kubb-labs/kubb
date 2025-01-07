@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
 
@@ -17,7 +17,7 @@ async function updateUserSWR(
   { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, Error, UpdateUserMutationRequest>({
+  const res = await client<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -35,7 +35,7 @@ async function updateUserSWR(
 export function useUpdateUserSWR(
   { username }: { username: UpdateUserPathParams['username'] },
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKeySWR, UpdateUserMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKeySWR, UpdateUserMutationRequest>>[2]
     client?: Partial<RequestConfig<UpdateUserMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -43,7 +43,7 @@ export function useUpdateUserSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updateUserMutationKeySWR()
 
-  return useSWRMutation<UpdateUserMutationResponse, Error, UpdateUserMutationKeySWR | null, UpdateUserMutationRequest>(
+  return useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKeySWR | null, UpdateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updateUserSWR({ username, data }, config)

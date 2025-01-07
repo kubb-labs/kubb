@@ -1,6 +1,6 @@
 import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 import { addPetMutationResponseSchema } from '../../../zod/petController/addPetSchema.ts'
 
@@ -14,7 +14,7 @@ export type AddPetMutationKeySWR = ReturnType<typeof addPetMutationKeySWR>
  * {@link /pet}
  */
 async function addPetSWR({ data }: { data: AddPetMutationRequest }, config: Partial<RequestConfig<AddPetMutationRequest>> = {}) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',
     baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -31,7 +31,7 @@ async function addPetSWR({ data }: { data: AddPetMutationRequest }, config: Part
  */
 export function useAddPetSWR(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKeySWR, AddPetMutationRequest>>[2]
+    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKeySWR, AddPetMutationRequest>>[2]
     client?: Partial<RequestConfig<AddPetMutationRequest>>
     shouldFetch?: boolean
   } = {},
@@ -39,7 +39,7 @@ export function useAddPetSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKeySWR()
 
-  return useSWRMutation<AddPetMutationResponse, AddPet405, AddPetMutationKeySWR | null, AddPetMutationRequest>(
+  return useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKeySWR | null, AddPetMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return addPetSWR({ data }, config)

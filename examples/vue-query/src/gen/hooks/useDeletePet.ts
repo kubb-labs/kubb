@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -15,7 +15,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * {@link /pet/:petId}
  */
 async function deletePet({ petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
     headers: { ...headers, ...config.headers },
@@ -33,7 +33,7 @@ export function useDeletePet(
   options: {
     mutation?: MutationObserverOptions<
       DeletePetMutationResponse,
-      DeletePet400,
+      ResponseErrorConfig<DeletePet400>,
       { petId: MaybeRef<DeletePetPathParams['petId']>; headers?: MaybeRef<DeletePetHeaderParams> }
     >
     client?: Partial<RequestConfig>
@@ -42,7 +42,7 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
 
-  return useMutation<DeletePetMutationResponse, DeletePet400, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
+  return useMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
     mutationFn: async ({ petId, headers }) => {
       return deletePet({ petId, headers }, config)
     },

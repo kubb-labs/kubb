@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -14,7 +14,12 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * {@link /store/order}
  */
 async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
-  const res = await client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>({ method: 'POST', url: '/store/order', data, ...config })
+  const res = await client<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+    method: 'POST',
+    url: '/store/order',
+    data,
+    ...config,
+  })
   return res.data
 }
 
@@ -25,14 +30,14 @@ async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<Requ
  */
 export function createPlaceOrder(
   options: {
-    mutation?: CreateMutationOptions<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>
+    mutation?: CreateMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
 
-  return createMutation<PlaceOrderMutationResponse, PlaceOrder405, { data?: PlaceOrderMutationRequest }>({
+  return createMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>({
     mutationFn: async ({ data }) => {
       return placeOrder(data, config)
     },

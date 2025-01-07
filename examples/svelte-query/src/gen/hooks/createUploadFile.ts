@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -18,7 +18,7 @@ async function uploadFile(
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -37,7 +37,7 @@ export function createUploadFile(
   options: {
     mutation?: CreateMutationOptions<
       UploadFileMutationResponse,
-      Error,
+      ResponseErrorConfig<Error>,
       { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>>
@@ -48,7 +48,7 @@ export function createUploadFile(
 
   return createMutation<
     UploadFileMutationResponse,
-    Error,
+    ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -14,7 +14,11 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * {@link /user/:username}
  */
 async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, unknown>({ method: 'DELETE', url: `/user/${username}`, ...config })
+  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+    method: 'DELETE',
+    url: `/user/${username}`,
+    ...config,
+  })
   return res.data
 }
 
@@ -25,14 +29,18 @@ async function deleteUser(username: DeleteUserPathParams['username'], config: Pa
  */
 export function createDeleteUser(
   options: {
-    mutation?: CreateMutationOptions<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>
+    mutation?: CreateMutationOptions<
+      DeleteUserMutationResponse,
+      ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+      { username: DeleteUserPathParams['username'] }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
 
-  return createMutation<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, { username: DeleteUserPathParams['username'] }>({
+  return createMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }>({
     mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -14,7 +14,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * {@link /pet/:pet_id}
  */
 async function deletePet(pet_id: DeletePetPathParams['pet_id'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${pet_id}`,
     headers: { ...headers, ...config.headers },
@@ -30,14 +30,22 @@ async function deletePet(pet_id: DeletePetPathParams['pet_id'], headers?: Delete
  */
 export function createDeletePet(
   options: {
-    mutation?: CreateMutationOptions<DeletePetMutationResponse, DeletePet400, { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }>
+    mutation?: CreateMutationOptions<
+      DeletePetMutationResponse,
+      ResponseErrorConfig<DeletePet400>,
+      { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }
+    >
     client?: Partial<RequestConfig>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
 
-  return createMutation<DeletePetMutationResponse, DeletePet400, { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }>({
+  return createMutation<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }
+  >({
     mutationFn: async ({ pet_id, headers }) => {
       return deletePet(pet_id, headers, config)
     },

@@ -1,6 +1,6 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -14,13 +14,13 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
  * {@link /store/inventory}
  */
 async function getInventoryHook(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponse, Error, unknown>({ method: 'GET', url: '/store/inventory', ...config })
+  const res = await client<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...config })
   return res.data
 }
 
 export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConfig> = {}) {
   const queryKey = getInventorySuspenseQueryKey()
-  return queryOptions<GetInventoryQueryResponse, Error, GetInventoryQueryResponse, typeof queryKey>({
+  return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -40,7 +40,7 @@ export function useGetInventorySuspenseHook<
   TQueryKey extends QueryKey = GetInventorySuspenseQueryKey,
 >(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, Error, TData, TQueryKey>>
+    query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>>
     client?: Partial<RequestConfig>
   } = {},
 ) {
@@ -51,7 +51,7 @@ export function useGetInventorySuspenseHook<
     ...(getInventorySuspenseQueryOptionsHook(config) as unknown as UseSuspenseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-  }) as UseSuspenseQueryResult<TData, Error> & { queryKey: TQueryKey }
+  }) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

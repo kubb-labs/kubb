@@ -1,5 +1,5 @@
 import client from '../../../../tanstack-query-client'
-import type { RequestConfig, ResponseConfig } from '../../../../tanstack-query-client'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
@@ -15,7 +15,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * {@link /user}
  */
 async function createUser({ data }: { data?: CreateUserMutationRequest }, config: Partial<RequestConfig<CreateUserMutationRequest>> = {}) {
-  const res = await client<CreateUserMutationResponse, Error, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
+  const res = await client<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({ method: 'POST', url: '/user', data, ...config })
   return { ...res, data: createUserMutationResponseSchema.parse(res.data) }
 }
 
@@ -26,14 +26,14 @@ async function createUser({ data }: { data?: CreateUserMutationRequest }, config
  */
 export function useCreateUser(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, Error, { data?: CreateUserMutationRequest }>
+    mutation?: UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>
     client?: Partial<RequestConfig<CreateUserMutationRequest>>
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
 
-  return useMutation<ResponseConfig<CreateUserMutationResponse>, Error, { data?: CreateUserMutationRequest }>({
+  return useMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>({
     mutationFn: async ({ data }) => {
       return createUser({ data }, config)
     },
