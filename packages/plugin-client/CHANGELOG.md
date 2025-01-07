@@ -1,5 +1,26 @@
 # @kubb/plugin-client
 
+## 3.4.0
+
+### Minor Changes
+
+- [#1493](https://github.com/kubb-labs/kubb/pull/1493) [`2db0d49`](https://github.com/kubb-labs/kubb/commit/2db0d49076741976a95fa82272a0a7f634505e92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - decouple URI (with params) from fetching
+
+### Patch Changes
+
+- [#1493](https://github.com/kubb-labs/kubb/pull/1493) [`2db0d49`](https://github.com/kubb-labs/kubb/commit/2db0d49076741976a95fa82272a0a7f634505e92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of URL and SearchParams to support queryParams for fetch
+
+- [#1493](https://github.com/kubb-labs/kubb/pull/1493) [`2db0d49`](https://github.com/kubb-labs/kubb/commit/2db0d49076741976a95fa82272a0a7f634505e92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - add header in response object
+
+- Updated dependencies []:
+  - @kubb/core@3.4.0
+  - @kubb/fs@3.4.0
+  - @kubb/oas@3.4.0
+  - @kubb/plugin-oas@3.4.0
+  - @kubb/plugin-ts@3.4.0
+  - @kubb/plugin-zod@3.4.0
+  - @kubb/react@3.4.0
+
 ## 3.3.5
 
 ### Patch Changes
