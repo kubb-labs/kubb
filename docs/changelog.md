@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.4.2
+- [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when set in required
+
 ## 3.4.1
 - [`plugin-faker`](/plugins/plugin-faker): min and max was not applied to the faker functions
 

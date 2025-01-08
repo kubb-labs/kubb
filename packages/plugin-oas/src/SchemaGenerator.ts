@@ -554,6 +554,7 @@ export class SchemaGenerator<
       }
 
       if (schemaWithoutAllOf.required) {
+        // TODO use of Required ts helper instead
         const schemas = schema.allOf
           .map((item) => {
             if (isReference(item)) {
@@ -563,6 +564,10 @@ export class SchemaGenerator<
           .filter(Boolean)
 
         const items = schemaWithoutAllOf.required
+          .filter((key) =>
+            // filter out keys that are already part of the properties(reduce duplicated keys(https://github.com/kubb-labs/kubb/issues/1492)
+            schemaWithoutAllOf.properties ? !Object.keys(schemaWithoutAllOf.properties).includes(key) : false,
+          )
           .map((key) => {
             const schema = schemas.find((item) => item.properties && Object.keys(item.properties).find((propertyKey) => propertyKey === key))
 

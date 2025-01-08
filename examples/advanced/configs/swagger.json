@@ -1,0 +1,349 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "X",
+    "version": "2025-01-01"
+  },
+  "tags": [],
+  "paths": {},
+  "components": {
+    "schemas": {
+      "BaseDateFilter": {
+        "type": "object",
+        "required": ["type", "operand"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["date"]
+          },
+          "operand": {
+            "$ref": "#/components/schemas/DateFilterOperand"
+          }
+        },
+        "discriminator": {
+          "propertyName": "operand",
+          "mapping": {
+            "between": "#/components/schemas/DateBetweenFilter",
+            "hasValue": "#/components/schemas/DateHasValueFilter",
+            "hasNoValue": "#/components/schemas/DateHasNoValueFilter"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseFilter"
+          }
+        ]
+      },
+      "BaseDateFilterWithTimeZone": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string"
+          },
+          "timezoneVariant": {
+            "type": "string",
+            "enum": ["utc", "organization", "local"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseDateFilter"
+          }
+        ]
+      },
+      "BaseFilter": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "multiSelect": "#/components/schemas/MultiSelectFilterValue",
+            "text": "#/components/schemas/TextFilterValue",
+            "metadata": "#/components/schemas/MetadataFilterValue"
+          }
+        }
+      },
+      "DateBetweenFilter": {
+        "type": "object",
+        "required": ["operand", "from", "to"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["between"]
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseDateFilterWithTimeZone"
+          }
+        ]
+      },
+      "DateEqualsFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["equals"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SingleDateFilter"
+          }
+        ]
+      },
+      "DateFilterOperand": {
+        "type": "string",
+        "enum": ["equals", "notEqualTo", "lessThan", "greaterThan", "lessOrEqual", "greaterOrEqual", "between", "hasValue", "hasNoValue"]
+      },
+      "DateFilterValue": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/DateEqualsFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateNotEqualsFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateLessThanFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateGreaterThanFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateLessOrEqualFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateGreaterOrEqualFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateBetweenFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateHasValueFilter"
+          },
+          {
+            "$ref": "#/components/schemas/DateHasNoValueFilter"
+          }
+        ]
+      },
+      "DateGreaterOrEqualFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["greaterOrEqual"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SingleDateFilter"
+          }
+        ]
+      },
+      "DateGreaterThanFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["greaterThan"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SingleDateFilter"
+          }
+        ]
+      },
+      "DateHasNoValueFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["hasNoValue"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseDateFilter"
+          }
+        ]
+      },
+      "DateHasValueFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["hasValue"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseDateFilter"
+          }
+        ]
+      },
+      "DateLessOrEqualFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["lessOrEqual"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SingleDateFilter"
+          }
+        ]
+      },
+      "DateLessThanFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["lessThan"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SingleDateFilter"
+          }
+        ]
+      },
+      "DateNotEqualsFilter": {
+        "type": "object",
+        "required": ["operand"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["notEqualTo"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SingleDateFilter"
+          }
+        ]
+      },
+      "MetadataFilterValue": {
+        "type": "object",
+        "required": ["type", "operand", "key"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["metadata"]
+          },
+          "operand": {
+            "type": "string",
+            "enum": ["equals"]
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseFilter"
+          }
+        ]
+      },
+      "MultiSelectFilterOperand": {
+        "type": "string",
+        "enum": ["is", "isNot"]
+      },
+      "MultiSelectFilterValue": {
+        "type": "object",
+        "required": ["type", "operand", "value"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["multiSelect"]
+          },
+          "operand": {
+            "$ref": "#/components/schemas/MultiSelectFilterOperand"
+          },
+          "value": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseFilter"
+          }
+        ]
+      },
+      "SingleDateFilter": {
+        "type": "object",
+        "required": ["operand", "value"],
+        "properties": {
+          "operand": {
+            "type": "string",
+            "enum": ["equals", "notEqualTo", "lessThan", "greaterThan", "lessOrEqual", "greaterOrEqual"]
+          },
+          "value": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseDateFilterWithTimeZone"
+          }
+        ]
+      },
+      "TextFilterOperand": {
+        "type": "string",
+        "enum": ["is", "isNot", "startsWith", "endsWith", "contains", "doesNotContain", "isEmpty", "isNotEmpty"]
+      },
+      "TextFilterValue": {
+        "type": "object",
+        "required": ["type", "operand", "value"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["text"]
+          },
+          "operand": {
+            "$ref": "#/components/schemas/TextFilterOperand"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseFilter"
+          }
+        ]
+      }
+    }
+  }
+}
