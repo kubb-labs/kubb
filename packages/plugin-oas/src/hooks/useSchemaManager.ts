@@ -9,12 +9,26 @@ import { type Schema, schemaKeywords } from '../SchemaMapper'
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
   name: string
-  group?: string
+  group?: {
+    tag?: string
+    path?: string
+  }
 }
 
 type UseSchemaManagerResult = {
   getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getFile: (name: string, params?: { pluginKey?: Plugin['key']; mode?: Mode; extname?: KubbFile.Extname; group?: string }) => KubbFile.File<FileMeta>
+  getFile: (
+    name: string,
+    params?: {
+      pluginKey?: Plugin['key']
+      mode?: Mode
+      extname?: KubbFile.Extname
+      group?: {
+        tag?: string
+        path?: string
+      }
+    },
+  ) => KubbFile.File<FileMeta>
   getImports: (tree: Array<Schema>) => Array<KubbFile.Import>
 }
 

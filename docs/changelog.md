@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.4.3
+- [`plugin-oas`](/plugins/plugin-oas): correct use of grouping for path and tags
+
 ## 3.4.2
 - [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when set in required
 

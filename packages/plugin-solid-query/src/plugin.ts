@@ -70,7 +70,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -80,7 +80,14 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)

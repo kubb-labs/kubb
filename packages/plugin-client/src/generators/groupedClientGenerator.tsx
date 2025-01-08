@@ -13,15 +13,15 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
       pluginManager,
       plugin: { options, key: pluginKey },
     } = useApp<PluginClient>()
-    const { getName, getFile } = useOperationManager()
+    const { getName, getFile, getGroup } = useOperationManager()
 
     const controllers = operations.reduce(
       (acc, operation) => {
         if (options.group?.type === 'tag') {
-          const tag = operation.getTags().at(0)?.name
-          const name = tag ? options.group?.name?.({ group: camelCase(tag) }) : undefined
+          const group = getGroup(operation)
+          const name = group?.tag ? options.group?.name?.({ group: camelCase(group.tag) }) : undefined
 
-          if (!tag || !name) {
+          if (!group?.tag || !name) {
             return acc
           }
 
@@ -29,7 +29,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
             name,
             extname: '.ts',
             pluginKey,
-            options: { group: tag },
+            options: { group },
           })
 
           const client = {

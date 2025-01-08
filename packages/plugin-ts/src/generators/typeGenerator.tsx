@@ -130,7 +130,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
       const tree = schemaGenerator.parse({ schema, name })
       const imports = schemaManager.getImports(tree)
-      const group = options.operation ? getGroup(options.operation, plugin.options.group) : undefined
+      const group = options.operation ? getGroup(options.operation) : undefined
 
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),

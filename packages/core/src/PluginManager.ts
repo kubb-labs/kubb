@@ -65,6 +65,9 @@ type GetFileProps<TOptions = object> = {
   pluginKey: Plugin['key']
   options?: TOptions
 }
+type GetOptionsProps<TOptions = object> = {
+  pluginKey: Plugin['key']
+}
 
 export class PluginManager {
   readonly plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
@@ -109,6 +112,14 @@ export class PluginManager {
     })
 
     return this
+  }
+
+  getOptions<TOptions = object>({ pluginKey }: GetOptionsProps<TOptions>) {
+    const plugins = [...this.plugins]
+
+    plugins.find((plugin) => {
+      return plugin.key === pluginKey
+    })
   }
 
   getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {

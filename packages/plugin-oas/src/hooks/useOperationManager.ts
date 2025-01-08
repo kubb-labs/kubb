@@ -11,7 +11,10 @@ import type { OperationSchemas } from '../types.ts'
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
   name: string
-  group?: string
+  group?: {
+    tag?: string
+    path?: string
+  }
 }
 
 export type SchemaNames = {
@@ -42,7 +45,10 @@ type UseOperationManagerResult = {
       suffix?: string
       pluginKey?: Plugin['key']
       extname?: KubbFile.Extname
-      group?: string
+      group?: {
+        tag?: string
+        path?: string
+      }
     },
   ) => KubbFile.File<FileMeta>
   groupSchemasByName: (
@@ -53,7 +59,7 @@ type UseOperationManagerResult = {
     },
   ) => SchemaNames
   getSchemas: (operation: Operation, params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] }) => OperationSchemas
-  getGroup: (operation: Operation, group: Group | undefined) => string | undefined
+  getGroup: (operation: Operation) => FileMeta['group'] | undefined
 }
 
 /**
@@ -71,13 +77,10 @@ export function useOperationManager(): UseOperationManagerResult {
     })
   }
 
-  const getGroup: UseOperationManagerResult['getGroup'] = (operation, group) => {
-    if (group?.type === 'tag') {
-      return operation.getTags().at(0)?.name
-    }
-
-    if (group?.type === 'path') {
-      return operation.path
+  const getGroup: UseOperationManagerResult['getGroup'] = (operation) => {
+    return {
+      tag: operation.getTags().at(0)?.name,
+      path: operation.path,
     }
   }
 
@@ -96,11 +99,9 @@ export function useOperationManager(): UseOperationManagerResult {
     })
   }
 
-  const getFile: UseOperationManagerResult['getFile'] = (
-    operation,
-    { prefix, suffix, pluginKey = plugin.key, group = getGroup(operation, (plugin.options as { group?: Group })?.group), extname = '.ts' } = {},
-  ) => {
+  const getFile: UseOperationManagerResult['getFile'] = (operation, { prefix, suffix, pluginKey = plugin.key, extname = '.ts' } = {}) => {
     const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
+    const group = getGroup(operation)
 
     const file = pluginManager.getFile({
       name,

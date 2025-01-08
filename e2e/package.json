@@ -16,7 +16,7 @@
     "clean": "npx rimraf ./dist",
     "format": "prettier --write **/*.{ts,tsx}",
     "generate": "kubb generate",
-    "generate:debug": "node --inspect ../packages/cli/bin/kubb.js",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

@@ -8,7 +8,10 @@ import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
-  group?: string
+  group?: {
+    tag?: string
+    path?: string
+  }
   type?: ResolveNameParams['type']
 }
 

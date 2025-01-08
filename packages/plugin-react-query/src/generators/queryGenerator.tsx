@@ -51,6 +51,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const zod = {
+      // grouping is coming from react-query instead of zod option, we need to pass the options of zod instead
       file: getFile(operation, { pluginKey: [pluginZodName] }),
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }

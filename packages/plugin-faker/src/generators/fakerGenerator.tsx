@@ -33,7 +33,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
       const tree = schemaGenerator.parse({ schema, name })
       const imports = schemaManager.getImports(tree)
-      const group = options.operation ? getGroup(options.operation, plugin.options.group) : undefined
+      const group = options.operation ? getGroup(options.operation) : undefined
 
       const faker = {
         name: schemaManager.getName(name, { type: 'function' }),

@@ -33,10 +33,10 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
       // hack so Params can be optional when needed
       const required = Array.isArray(schema?.required) ? !!schema.required.length : !!schema?.required
-      const optional = !required && !!name.includes('Params')
+      const optional = !required && name.includes('Params')
       const tree = [...schemaGenerator.parse({ schema, name }), optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)
       const imports = schemaManager.getImports(tree)
-      const group = options.operation ? getGroup(options.operation, plugin.options.group) : undefined
+      const group = options.operation ? getGroup(options.operation) : undefined
 
       const zod = {
         name: schemaManager.getName(name, { type: 'function' }),
