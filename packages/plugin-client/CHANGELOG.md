@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.4.3
+
+### Patch Changes
+
+- [`a51b56d`](https://github.com/kubb-labs/kubb/commit/a51b56d6f8286a97ae6459d3aa05903644d89cbe) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - url in text format instead of using URL
+
+- Updated dependencies []:
+  - @kubb/core@3.4.3
+  - @kubb/fs@3.4.3
+  - @kubb/oas@3.4.3
+  - @kubb/plugin-oas@3.4.3
+  - @kubb/plugin-ts@3.4.3
+  - @kubb/plugin-zod@3.4.3
+  - @kubb/react@3.4.3
+
 ## 3.4.2
 
 ### Patch Changes
