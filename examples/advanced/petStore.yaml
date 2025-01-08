@@ -714,6 +714,8 @@ components:
           type: integer
           format: int64
           example: 10
+          minLength: 3
+          maxLength: 100
         petId:
           type: integer
           format: int64

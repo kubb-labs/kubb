@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.4.1
+- [`plugin-faker`](/plugins/plugin-faker): min and max was not applied to the faker functions
+
 ## 3.4.0
 - [`plugin-client`](/plugins/plugin-client): decouple URI (with params) from fetching
 - [`plugin-client`](/plugins/plugin-client): add header in response object

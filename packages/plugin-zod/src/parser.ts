@@ -285,7 +285,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         }
 
         return `"${name}": ${sort(schemas)
-          .map((schema, array, siblings) => parse({ parent: current, current: schema, siblings }, options))
+          .map((schema, array, siblings) => parse({ parent: current, current: schema, siblings: schemas }, options))
           .filter(Boolean)
           .join('')}`
       })

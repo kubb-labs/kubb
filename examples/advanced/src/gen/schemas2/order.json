@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "id": { "type": "integer", "format": "int64", "example": 10 },
+    "id": { "type": "integer", "format": "int64", "example": 10, "minLength": 3, "maxLength": 100 },
     "petId": { "type": "integer", "format": "int64", "example": 198772 },
     "quantity": { "type": "integer", "format": "int32", "example": 7 },
     "orderType": { "type": "string", "enum": ["foo", "bar"] },

@@ -22,6 +22,8 @@ export type OrderHttpStatusEnum = (typeof orderHttpStatusEnum)[keyof typeof orde
 
 export type Order = {
   /**
+   * @minLength 3
+   * @maxLength 100
    * @type integer | undefined, int64
    */
   id?: number

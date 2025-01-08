@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 export function createOrderFaker(data?: Partial<Order>) {
   return {
     ...{
-      id: faker.number.int(),
+      id: faker.number.int({ min: 3, max: 100 }),
       petId: faker.number.int(),
       quantity: faker.number.int(),
       orderType: faker.helpers.arrayElement<any>(['foo', 'bar']),

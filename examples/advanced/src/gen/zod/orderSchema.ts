@@ -3,7 +3,7 @@ import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
 
 export const orderSchema = z.object({
-  id: z.number().int().optional(),
+  id: z.number().int().min(3).max(100).optional(),
   petId: z.number().int().optional(),
   quantity: z.number().int().optional(),
   orderType: z.enum(['foo', 'bar']).optional(),

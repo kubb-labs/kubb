@@ -39,7 +39,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@tanstack/query-core": "^5.62.16",
-    "@tanstack/react-query": "^5.62.16",
+    "@tanstack/react-query": "^5.63.0",
     "@tanstack/solid-query": "^5.62.16",
     "@tanstack/svelte-query": "^5.62.16",
     "@tanstack/vue-query": "^5.62.16",

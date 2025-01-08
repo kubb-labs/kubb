@@ -256,7 +256,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordSorter)
-            .map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false }))
+            .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, { ...options, canOverride: false }))
             .filter(Boolean),
         )}`
       })
@@ -291,9 +291,9 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   }
 
   if (isKeyword(current, schemaKeywords.string)) {
-    if (parent) {
-      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
+    if (siblings) {
+      const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
+      const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
       return fakerKeywordMapper.string(minSchema?.args, maxSchema?.args)
     }
@@ -302,9 +302,9 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   }
 
   if (isKeyword(current, schemaKeywords.number)) {
-    if (parent) {
-      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
+    if (siblings) {
+      const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
+      const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
       return fakerKeywordMapper.number(minSchema?.args, maxSchema?.args)
     }
@@ -313,9 +313,9 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   }
 
   if (isKeyword(current, schemaKeywords.integer)) {
-    if (parent) {
-      const minSchema = SchemaGenerator.find([parent], schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find([parent], schemaKeywords.max)
+    if (siblings) {
+      const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
+      const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
       return fakerKeywordMapper.integer(minSchema?.args, maxSchema?.args)
     }

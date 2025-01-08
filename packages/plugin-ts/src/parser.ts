@@ -210,7 +210,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         const maxSchema = schemas.find((schema) => schema.keyword === schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
         const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
-        let type = schemas.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean)[0] as ts.TypeNode
+        let type = schemas.map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options)).filter(Boolean)[0] as ts.TypeNode
 
         if (isNullable) {
           type = factory.createUnionDeclaration({
