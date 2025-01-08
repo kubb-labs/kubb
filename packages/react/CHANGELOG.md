@@ -1,5 +1,14 @@
 # @kubb/react
 
+## 3.4.2
+
+### Patch Changes
+
+- Updated dependencies [[`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5)]:
+  - @kubb/core@3.4.2
+  - @kubb/fs@3.4.2
+  - @kubb/parser-ts@3.4.2
+
 ## 3.4.1
 
 ### Patch Changes

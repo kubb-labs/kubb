@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.4.2
+
+### Patch Changes
+
+- [`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of grouping for path and tags
+
+- Updated dependencies []:
+  - @kubb/fs@3.4.2
+  - @kubb/parser-ts@3.4.2
+  - @kubb/types@3.4.2
+
 ## 3.4.1
 
 ### Patch Changes
