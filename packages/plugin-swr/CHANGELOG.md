@@ -1,5 +1,21 @@
 # @kubb/plugin-swr
 
+## 3.4.2
+
+### Patch Changes
+
+- [`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of grouping for path and tags
+
+- Updated dependencies [[`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5), [`5febbe5`](https://github.com/kubb-labs/kubb/commit/5febbe5e6cd6e03b43ad2ef5da35ba25a7eb7559)]:
+  - @kubb/plugin-client@3.4.2
+  - @kubb/plugin-oas@3.4.2
+  - @kubb/plugin-zod@3.4.2
+  - @kubb/plugin-ts@3.4.2
+  - @kubb/core@3.4.2
+  - @kubb/react@3.4.2
+  - @kubb/fs@3.4.2
+  - @kubb/oas@3.4.2
+
 ## 3.4.1
 
 ### Patch Changes
