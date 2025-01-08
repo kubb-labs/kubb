@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-svelte-query",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Generator svelte-query hooks",
   "keywords": [
     "faker",
