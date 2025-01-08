@@ -3,7 +3,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from './mo
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getCreateUserUrl() {
-  return new URL('/user')
+  return '/user'
 }
 
 /**

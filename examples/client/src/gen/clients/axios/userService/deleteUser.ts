@@ -4,7 +4,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
-  return new URL(`/user/${username}`)
+  return `/user/${username}`
 }
 
 /**

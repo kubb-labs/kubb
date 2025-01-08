@@ -3,7 +3,7 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getFindPetsByTagsUrl() {
-  return new URL('/pet/findByTags')
+  return '/pet/findByTags'
 }
 
 /**

@@ -59,7 +59,7 @@ export function Url({ name, isExportable = true, isIndexable = true, typeSchemas
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function name={name} export={isExportable} params={params.toConstructor()}>
-        {baseURL ? `return new URL(${path.template.toString()}, '${baseURL}')` : `return new URL(${path.template.toString()})`}
+        {`return ${path.toTemplateString({ prefix: baseURL })} as const`}
       </Function>
     </File.Source>
   )

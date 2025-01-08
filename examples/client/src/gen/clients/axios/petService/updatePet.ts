@@ -10,7 +10,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getUpdatePetUrl() {
-  return new URL('/pet')
+  return '/pet'
 }
 
 /**

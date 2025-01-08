@@ -3,7 +3,7 @@ import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getGetOrderByIdUrl(orderId: GetOrderByIdPathParams['orderId']) {
-  return new URL(`/store/order/${orderId}`)
+  return `/store/order/${orderId}`
 }
 
 /**

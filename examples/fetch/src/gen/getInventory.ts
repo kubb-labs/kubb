@@ -3,7 +3,7 @@ import type { GetInventoryQueryResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getGetInventoryUrl() {
-  return new URL('/store/inventory')
+  return '/store/inventory'
 }
 
 /**

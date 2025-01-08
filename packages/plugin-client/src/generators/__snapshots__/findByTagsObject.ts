@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getFindPetsByTagsUrl() {
-  return new URL(`/pet/findByTags`)
+  return `/pet/findByTags` as const
 }
 
 /**

@@ -4,7 +4,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getCreateUserUrl() {
-  return new URL('/user')
+  return '/user'
 }
 
 /**

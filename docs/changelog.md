@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.4.4
+- [`plugin-client`](/plugins/plugin-client): url in text format instead of using URL
+
 ## 3.4.3
 - [`plugin-oas`](/plugins/plugin-oas): correct use of grouping for path and tags
 

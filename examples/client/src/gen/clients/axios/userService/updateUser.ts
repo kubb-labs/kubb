@@ -4,7 +4,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
-  return new URL(`/user/${username}`)
+  return `/user/${username}`
 }
 
 /**

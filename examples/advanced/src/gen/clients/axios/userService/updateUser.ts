@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 
 export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
-  return new URL(`/user/${username}`, 'https://petstore3.swagger.io/api/v3')
+  return `https://petstore3.swagger.io/api/v3/user/${username}`
 }
 
 /**

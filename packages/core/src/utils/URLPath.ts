@@ -63,7 +63,7 @@ export class URLPath {
 
   toObject({ type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
     const object = {
-      url: type === 'path' ? this.toURLPath() : this.toTemplateString(replacer),
+      url: type === 'path' ? this.toURLPath() : this.toTemplateString({ replacer }),
       params: this.getParams(),
     }
 
@@ -88,7 +88,7 @@ export class URLPath {
    * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
    * @example /account/userID => `/account/${userId}`
    */
-  toTemplateString(replacer?: (pathParam: string) => string): string {
+  toTemplateString({ prefix = '', replacer }: { prefix?: string; replacer?: (pathParam: string) => string } = {}): string {
     const regex = /{(\w|-)*}/g
     const found = this.path.match(regex)
     let newPath = this.path.replaceAll('{', '${')
@@ -107,7 +107,7 @@ export class URLPath {
       }, this.path)
     }
 
-    return `\`${newPath}\``
+    return `\`${prefix}${newPath}\``
   }
 
   getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {

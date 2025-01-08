@@ -3,7 +3,7 @@ import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, Up
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
-  return new URL(`/pet/${petId}`)
+  return `/pet/${petId}`
 }
 
 /**

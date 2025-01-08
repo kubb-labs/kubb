@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 
 export function getLoginUserUrl() {
-  return new URL('/user/login', 'https://petstore3.swagger.io/api/v3')
+  return 'https://petstore3.swagger.io/api/v3/user/login'
 }
 
 /**

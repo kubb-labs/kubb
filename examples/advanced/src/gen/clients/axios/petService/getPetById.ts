@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 
 export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
-  return new URL(`/pet/${petId}`, 'https://petstore3.swagger.io/api/v3')
+  return `https://petstore3.swagger.io/api/v3/pet/${petId}`
 }
 
 /**

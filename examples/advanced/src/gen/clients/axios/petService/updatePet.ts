@@ -9,7 +9,7 @@ import type {
 } from '../../../models/ts/petController/UpdatePet.ts'
 
 export function getUpdatePetUrl() {
-  return new URL('/pet', 'https://petstore3.swagger.io/api/v3')
+  return 'https://petstore3.swagger.io/api/v3/pet'
 }
 
 /**

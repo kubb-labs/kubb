@@ -6,7 +6,7 @@ import type {
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 
 export function getCreateUsersWithListInputUrl() {
-  return new URL('/user/createWithList', 'https://petstore3.swagger.io/api/v3')
+  return 'https://petstore3.swagger.io/api/v3/user/createWithList'
 }
 
 /**

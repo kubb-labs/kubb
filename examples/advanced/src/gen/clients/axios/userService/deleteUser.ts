@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 
 export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
-  return new URL(`/user/${username}`, 'https://petstore3.swagger.io/api/v3')
+  return `https://petstore3.swagger.io/api/v3/user/${username}`
 }
 
 /**

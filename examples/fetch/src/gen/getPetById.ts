@@ -3,7 +3,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
-  return new URL(`/pet/${petId}`)
+  return `/pet/${petId}`
 }
 
 /**

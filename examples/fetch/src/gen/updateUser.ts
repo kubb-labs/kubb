@@ -3,7 +3,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
-  return new URL(`/user/${username}`)
+  return `/user/${username}`
 }
 
 /**

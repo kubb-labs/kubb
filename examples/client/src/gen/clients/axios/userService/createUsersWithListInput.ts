@@ -7,7 +7,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getCreateUsersWithListInputUrl() {
-  return new URL('/user/createWithList')
+  return '/user/createWithList'
 }
 
 /**

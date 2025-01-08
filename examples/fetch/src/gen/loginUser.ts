@@ -3,7 +3,7 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getLoginUserUrl() {
-  return new URL('/user/login')
+  return '/user/login'
 }
 
 /**

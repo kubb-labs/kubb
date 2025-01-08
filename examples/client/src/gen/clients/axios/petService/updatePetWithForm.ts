@@ -9,7 +9,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
-  return new URL(`/pet/${petId}`)
+  return `/pet/${petId}`
 }
 
 /**
