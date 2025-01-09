@@ -1,6 +1,7 @@
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import { Zod } from '../components'
@@ -71,7 +72,13 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output: plugin.options.output })}
+        footer={getFooter({ oas, output: plugin.options.output })}
+      >
         <File.Import name={['z']} path={plugin.options.importPath} />
         {operationSchemas.map(mapOperationSchema)}
       </File>
@@ -86,6 +93,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         options: { output },
       },
     } = useApp<PluginZod>()
+    const oas = useOas()
 
     const imports = getImports(schema.tree)
 
@@ -101,7 +109,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     return (
-      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {typed && <File.Import isTypeOnly path={'@kubb/plugin-zod/utils'} name={['ToZod']} />}

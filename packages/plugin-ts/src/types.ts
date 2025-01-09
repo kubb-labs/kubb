@@ -1,4 +1,5 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Oas } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
@@ -7,7 +8,7 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'types', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
   /**
    * Group the clients based on the provided name.
    */
@@ -86,7 +87,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
   group: Options['group']
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>

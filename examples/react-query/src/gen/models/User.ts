@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type User = {
   /**
    * @type integer | undefined, int64

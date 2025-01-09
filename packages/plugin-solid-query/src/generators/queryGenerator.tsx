@@ -1,6 +1,7 @@
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
@@ -16,6 +17,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         options: { output },
       },
     } = useApp<PluginSolidQuery>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
@@ -57,7 +59,13 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     }
 
     return (
-      <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File
+        baseName={query.file.baseName}
+        path={query.file.path}
+        meta={query.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
         <File.Import name={'client'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />

@@ -1,5 +1,5 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { HttpMethod, Operation } from '@kubb/oas'
+import type { HttpMethod, Oas, Operation } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { PluginReactQuery } from '@kubb/plugin-react-query'
@@ -59,7 +59,7 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'hooks', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
   /**
    * Group the SWR hooks based on the provided name.
    */
@@ -118,7 +118,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
   client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
   queryKey: QueryKey | undefined

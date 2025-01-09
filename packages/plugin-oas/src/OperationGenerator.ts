@@ -235,7 +235,7 @@ export class OperationGenerator<
 
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
-        if (operation && [this.#methods].some((methods) => method === operation.method)) {
+        if (operation && method === operation.method) {
           const isExcluded = this.#isExcluded(operation, method)
           const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
 

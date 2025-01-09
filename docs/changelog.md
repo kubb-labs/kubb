@@ -4,6 +4,19 @@ title: Changelog
 
 # Changelog
 
+## 3.5.0
+- [`core`](/plugins/core): support banner with context for Oas
+```typescript
+pluginTs({
+  output: {
+    path: 'models',
+    banner(oas) {
+      return `// version: ${oas.api.info.version}`
+    },
+  },
+}),
+```
+
 ## 3.4.6
 - [`core`](/plugins/core): ignore acronyms when doing casing switch to pascal or camelcase
 

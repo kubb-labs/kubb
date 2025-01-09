@@ -291,7 +291,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
 /**
  * Specify the export location for the files and define the behavior of the output
  */
-export type Output = {
+export type Output<TOptions> = {
   /**
    * Path to the output folder or file that will contain the generated code
    */
@@ -304,11 +304,11 @@ export type Output = {
   /**
    * Add a banner text in the beginning of every file
    */
-  banner?: string
+  banner?: string | ((options: TOptions) => string)
   /**
    * Add a footer text in the beginning of every file
    */
-  footer?: string
+  footer?: string | ((options: TOptions) => string)
 }
 
 type GroupContext = {

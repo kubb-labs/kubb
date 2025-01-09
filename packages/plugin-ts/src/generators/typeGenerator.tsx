@@ -5,6 +5,7 @@ import * as factory from '@kubb/parser-ts/factory'
 import { type OperationSchema as OperationSchemaType, type OperationSchemas, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import type ts from 'typescript'
@@ -158,7 +159,13 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output: plugin.options.output })}
+        footer={getFooter({ oas, output: plugin.options.output })}
+      >
         {operationSchemas.map(mapOperationSchema)}
 
         <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
@@ -175,6 +182,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         options: { output },
       },
     } = useApp<PluginTs>()
+    const oas = useOas()
 
     const { getName, getImports, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
@@ -190,7 +198,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
         {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
         <Type
           name={type.name}

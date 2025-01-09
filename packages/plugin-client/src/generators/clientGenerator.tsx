@@ -1,5 +1,6 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
@@ -15,6 +16,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         options: { output },
       },
     } = useApp<PluginClient>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const client = {
@@ -38,7 +40,13 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     }
 
     return (
-      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File
+        baseName={client.file.baseName}
+        path={client.file.path}
+        meta={client.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
         <File.Import name={'client'} path={options.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={client.file.path} path={zod.file.path} />}
