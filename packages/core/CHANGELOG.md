@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.4.5
+
+### Patch Changes
+
+- [`b678aba`](https://github.com/kubb-labs/kubb/commit/b678abae84d0e0e17af1eaa818c47e15341cf67b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ignore acronyms when doing casing switch to pascal or camelcase
+
+- Updated dependencies []:
+  - @kubb/fs@3.4.5
+  - @kubb/parser-ts@3.4.5
+  - @kubb/types@3.4.5
+
 ## 3.4.4
 
 ### Patch Changes
