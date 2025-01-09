@@ -1,5 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
+import type { Oas } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -7,7 +8,7 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'mocks', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
   /**
    * Group the MSW mocks based on the provided name.
    */
@@ -48,7 +49,7 @@ export type Options = {
   generators?: Array<Generator<PluginMsw>>
 }
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
   group: Options['group']
   parser: NonNullable<Options['parser']>
 }

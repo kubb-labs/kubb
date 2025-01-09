@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type DeleteOrderPathParams = {
   /**
    * @description ID of the order that needs to be deleted

@@ -1,6 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { SchemaObject } from '@kubb/oas'
+import type { Oas, SchemaObject } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -8,7 +8,7 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'handlers', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
   /**
    * Group the Faker mocks based on the provided name.
    */
@@ -79,7 +79,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
   group: Options['group']
   override: NonNullable<Options['override']>
   dateType: NonNullable<Options['dateType']>

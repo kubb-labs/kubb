@@ -1,3 +1,4 @@
+// version: 1.0.11
 import type { AddPetRequest } from './AddPetRequest.ts'
 import type { Pet } from './Pet.ts'
 

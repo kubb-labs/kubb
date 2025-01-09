@@ -1,8 +1,9 @@
 import { camelCase } from '@kubb/core/transformers'
 import type * as KubbFile from '@kubb/fs/types'
-import { pluginClientName } from '@kubb/plugin-client'
+
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, Function, useApp } from '@kubb/react'
 import type { PluginClient } from '../types'
 
@@ -13,6 +14,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
       pluginManager,
       plugin: { options, key: pluginKey },
     } = useApp<PluginClient>()
+    const oas = useOas()
     const { getName, getFile, getGroup } = useOperationManager()
 
     const controllers = operations.reduce(
@@ -53,7 +55,14 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
 
     return controllers.map(({ name, file, clients }) => {
       return (
-        <File key={file.path} baseName={file.baseName} path={file.path} meta={file.meta} banner={options.output?.banner} footer={options.output?.footer}>
+        <File
+          key={file.path}
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+          banner={getBanner({ oas, output: options.output })}
+          footer={getFooter({ oas, output: options.output })}
+        >
           {clients.map((client) => (
             <File.Import key={client.name} name={[client.name]} root={file.path} path={client.file.path} />
           ))}

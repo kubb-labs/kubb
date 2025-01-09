@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type ApiResponse = {
   /**
    * @type integer | undefined, int32

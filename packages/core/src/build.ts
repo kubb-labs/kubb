@@ -109,7 +109,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
                 const meta = file.meta as any
                 return item.key === meta?.pluginKey
               })
-              const pluginOptions = plugin?.options as { output?: Output }
+              const pluginOptions = plugin?.options as { output?: Output<any> }
 
               if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
                 return undefined

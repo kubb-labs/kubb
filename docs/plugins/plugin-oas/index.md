@@ -63,18 +63,18 @@ Define what needs to be exported, here you can also disable the export of barrel
 #### output.banner
 Add a banner text in the beginning of every file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string` |
-| Required: | `false`                               |
+|           |                                  |
+|----------:|:---------------------------------|
+|     Type: | `string \| (oas: Oas) => string` |
+| Required: | `false`                          |
 
 #### output.footer
 Add a footer text at the end of every file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string` |
-| Required: | `false`                               |
+|           |         |
+|----------:|:--------|
+|     Type: | `string \| (oas: Oas) => string`        |
+| Required: | `false` |
 
 ### validate
 

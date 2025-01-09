@@ -22,6 +22,9 @@ export const config = {
     pluginTs({
       output: {
         path: 'models',
+        banner(oas) {
+          return `// version: ${oas.api.info.version}`
+        },
       },
     }),
     pluginReactQuery({

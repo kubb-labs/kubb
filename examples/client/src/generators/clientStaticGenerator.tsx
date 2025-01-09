@@ -3,6 +3,8 @@ import type { PluginClient } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 
@@ -14,6 +16,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         options: { output },
       },
     } = useApp<PluginClient>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const client = {
@@ -27,7 +30,13 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
     }
 
     return (
-      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File
+        baseName={client.file.baseName}
+        path={client.file.path}
+        meta={client.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
         <File.Import name={'client'} path={options.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
         <File.Import

@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete

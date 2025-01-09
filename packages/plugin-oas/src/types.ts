@@ -32,7 +32,7 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'schemas', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example
@@ -149,7 +149,7 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
 }
 
 type ResolvedOptions = Options & {
-  output: Output
+  output: Output<Oas>
 }
 
 export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, never>
