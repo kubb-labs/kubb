@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-zod
 
-With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's.
+With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schemas.
 
 ## Installation
 
