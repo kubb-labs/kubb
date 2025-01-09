@@ -6,7 +6,7 @@ export type { CategoryType } from './ts/CategoryType.ts'
 export type {
   CreatePetsPathParamsType,
   CreatePetsQueryParamsType,
-  CreatePetsHeaderParamsXExampleEnumType,
+  CreatePetsHeaderParamsXEXAMPLEEnumType,
   CreatePetsHeaderParamsType,
   CreatePets201Type,
   CreatePetsErrorType,
@@ -54,7 +54,7 @@ export type {
 } from './ts/FindPetsByStatusType.ts'
 export type {
   FindPetsByTagsQueryParamsType,
-  FindPetsByTagsHeaderParamsXExampleEnumType,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumType,
   FindPetsByTagsHeaderParamsType,
   FindPetsByTags200Type,
   FindPetsByTags400Type,
@@ -242,9 +242,9 @@ export type {
 export type { UserArraySchema } from './zod/userArraySchema.gen.ts'
 export type { UserSchema } from './zod/userSchema.gen.ts'
 export { addPetRequestStatusEnum } from './ts/AddPetRequestType.ts'
-export { createPetsHeaderParamsXExampleEnum } from './ts/CreatePetsType.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './ts/CreatePetsType.ts'
 export { findPetsByStatusQueryParamsStatusEnum } from './ts/FindPetsByStatusType.ts'
-export { findPetsByTagsHeaderParamsXExampleEnum } from './ts/FindPetsByTagsType.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './ts/FindPetsByTagsType.ts'
 export { orderStatusEnum, orderHttpStatusEnum } from './ts/OrderType.ts'
 export { petStatusEnum } from './ts/PetType.ts'
 export { addPetRequestSchema } from './zod/addPetRequestSchema.gen.ts'

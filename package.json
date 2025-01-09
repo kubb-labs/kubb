@@ -58,7 +58,7 @@
     "@types/node": "^20.17.12",
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^2.1.8",
-    "bun-types": "^1.1.42",
+    "bun-types": "^1.1.43",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "turbo": "^2.3.3",

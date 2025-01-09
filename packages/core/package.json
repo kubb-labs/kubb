@@ -89,7 +89,7 @@
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/types": "workspace:*",
-    "change-case": "^5.4.4",
+    "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",

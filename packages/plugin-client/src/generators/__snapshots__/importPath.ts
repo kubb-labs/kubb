@@ -2,7 +2,7 @@
 import client from 'axios'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 
-export function getFindPetsByTagsUrl() {
+export function getFindPetsByTagsURL() {
   return `/pet/findByTags` as const
 }
 
@@ -14,7 +14,7 @@ export function getFindPetsByTagsUrl() {
 export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().toString(),
+    url: getFindPetsByTagsURL().toString(),
     params,
     ...config,
   })

@@ -5,7 +5,7 @@ describe('URLPath', () => {
   const simplePath = new URLPath('/user/{userID}')
   const underscorePath = new URLPath('/user/{user_id}')
   test('if templateStrings returns correct format', () => {
-    expect(path.template).toBe('`/user/${userID}/monetary-account/${monetaryAccountId}/whitelist-sdd/${itemId}`')
+    expect(path.template).toBe('`/user/${userID}/monetary-account/${monetaryAccountID}/whitelist-sdd/${itemId}`')
     expect(underscorePath.template).toBe('`/user/${user_id}`')
   })
 

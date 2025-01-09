@@ -16,7 +16,7 @@ export type {
 } from './petController/FindPetsByStatus.ts'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXExampleEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
@@ -53,7 +53,7 @@ export type { PetNotFound } from './PetNotFound.ts'
 export type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXExampleEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
@@ -111,5 +111,5 @@ export type {
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './Order.ts'
 export { petStatusEnum } from './Pet.ts'
-export { findPetsByTagsHeaderParamsXExampleEnum } from './petController/FindPetsByTags.ts'
-export { createPetsHeaderParamsXExampleEnum } from './petsController/CreatePets.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './petController/FindPetsByTags.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './petsController/CreatePets.ts'

@@ -45,7 +45,7 @@ export const createMachineRequestSchema = z.object({
 /**
  * @description Optional parameters
  */
-export const createOidcTokenRequestSchema = z
+export const createOIDCTokenRequestSchema = z
   .object({
     aud: z.string().optional(),
   })
@@ -290,7 +290,7 @@ export const flyContainerDependencySchema = z.object({
 
 export const flyContainerDependencyConditionSchema = z.enum(['exited_successfully', 'healthy', 'started'])
 
-export const flyDnsConfigSchema = z.object({
+export const flyDNSConfigSchema = z.object({
   dns_forward_rules: z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(),
   hostname: z.string().optional(),
   hostname_fqdn: z.string().optional(),
@@ -337,15 +337,15 @@ export const flyFileSchema = z
   })
   .describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.')
 
-export const flyHttpOptionsSchema = z.object({
+export const flyHTTPOptionsSchema = z.object({
   compress: z.boolean().optional(),
   h2_backend: z.boolean().optional(),
   headers_read_timeout: z.number().int().optional(),
   idle_timeout: z.number().int().optional(),
-  response: z.lazy(() => flyHttpResponseOptionsSchema).optional(),
+  response: z.lazy(() => flyHTTPResponseOptionsSchema).optional(),
 })
 
-export const flyHttpResponseOptionsSchema = z.object({
+export const flyHTTPResponseOptionsSchema = z.object({
   headers: z.object({}).catchall(z.object({})).optional(),
   pristine: z.boolean().optional(),
 })
@@ -359,7 +359,7 @@ export const flyMachineCheckSchema = z
       .lazy(() => flyDurationSchema)
       .describe('The time to wait after a VM starts before checking its health')
       .optional(),
-    headers: z.array(z.lazy(() => flyMachineHttpHeaderSchema)).optional(),
+    headers: z.array(z.lazy(() => flyMachineHTTPHeaderSchema)).optional(),
     interval: z
       .lazy(() => flyDurationSchema)
       .describe('The time between connectivity checks')
@@ -390,7 +390,7 @@ export const flyMachineConfigSchema = z.object({
     .describe('Containers are a list of containers that will run in the machine. Currently restricted to\nonly specific organizations.')
     .optional(),
   disable_machine_autostart: z.boolean().describe('Deprecated: use Service.Autostart instead').optional(),
-  dns: z.lazy(() => flyDnsConfigSchema).optional(),
+  dns: z.lazy(() => flyDNSConfigSchema).optional(),
   env: z.object({}).catchall(z.string()).describe('An object filled with key/value pairs to be set as environment variables').optional(),
   files: z.array(z.lazy(() => flyFileSchema)).optional(),
   guest: z.lazy(() => flyMachineGuestSchema).optional(),
@@ -425,7 +425,7 @@ export const flyMachineGuestSchema = z.object({
 /**
  * @description For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.
  */
-export const flyMachineHttpHeaderSchema = z
+export const flyMachineHTTPHeaderSchema = z
   .object({
     name: z.string().describe('The header name').optional(),
     values: z.array(z.string()).describe('The header value').optional(),
@@ -464,11 +464,11 @@ export const flyMachinePortSchema = z.object({
   end_port: z.number().int().optional(),
   force_https: z.boolean().optional(),
   handlers: z.array(z.string()).optional(),
-  http_options: z.lazy(() => flyHttpOptionsSchema).optional(),
+  http_options: z.lazy(() => flyHTTPOptionsSchema).optional(),
   port: z.number().int().optional(),
   proxy_proto_options: z.lazy(() => flyProxyProtoOptionsSchema).optional(),
   start_port: z.number().int().optional(),
-  tls_options: z.lazy(() => flyTlsOptionsSchema).optional(),
+  tls_options: z.lazy(() => flyTLSOptionsSchema).optional(),
 })
 
 export const flyMachineProcessSchema = z.object({
@@ -575,7 +575,7 @@ export const flyStopConfigSchema = z.object({
   timeout: z.lazy(() => flyDurationSchema).optional(),
 })
 
-export const flyTlsOptionsSchema = z.object({
+export const flyTLSOptionsSchema = z.object({
   alpn: z.array(z.string()).optional(),
   default_self_signed: z.boolean().optional(),
   versions: z.array(z.string()).optional(),
@@ -1237,16 +1237,16 @@ export const tokensRequestKmsMutationResponseSchema = z.lazy(() => tokensRequest
 /**
  * @description OIDC token
  */
-export const tokensRequestOidc200Schema = z.string()
+export const tokensRequestOIDC200Schema = z.string()
 
 /**
  * @description Bad Request
  */
-export const tokensRequestOidc400Schema = z.lazy(() => errorResponseSchema)
+export const tokensRequestOIDC400Schema = z.lazy(() => errorResponseSchema)
 
 /**
  * @description Optional request body
  */
-export const tokensRequestOidcMutationRequestSchema = z.lazy(() => createOidcTokenRequestSchema)
+export const tokensRequestOIDCMutationRequestSchema = z.lazy(() => createOIDCTokenRequestSchema)
 
-export const tokensRequestOidcMutationResponseSchema = z.lazy(() => tokensRequestOidc200Schema)
+export const tokensRequestOIDCMutationResponseSchema = z.lazy(() => tokensRequestOIDC200Schema)

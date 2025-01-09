@@ -33,7 +33,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@microsoft/api-extractor": "^7.49.0"
+    "@microsoft/api-extractor": "^7.49.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

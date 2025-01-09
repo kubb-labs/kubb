@@ -22,8 +22,8 @@ catalogs:
       specifier: ^8.3.5
       version: 8.3.5
     typescript:
-      specifier: ^5.7.2
-      version: 5.7.2
+      specifier: ^5.7.3
+      version: 5.7.3
   react18:
     '@types/react':
       specifier: ^18.3.18
@@ -75,32 +75,32 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(vitest@2.1.8)
       bun-types:
-        specifier: ^1.1.42
-        version: 1.1.42
+        specifier: ^1.1.43
+        version: 1.1.43
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.17.12)(typescript@5.7.2)
+        version: 10.9.2(@types/node@20.17.12)(typescript@5.7.3)
       turbo:
         specifier: ^2.3.3
         version: 2.3.3
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
       vite-tsconfig-paths:
         specifier: 5.1.0
-        version: 5.1.0(typescript@5.7.2)(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))
+        version: 5.1.0(typescript@5.7.3)(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2))(terser@5.37.0)
+        version: 2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3))(terser@5.37.0)
 
   docs:
     dependencies:
       '@shikijs/vitepress-twoslash':
         specifier: ^1.26.1
-        version: 1.26.1(@nuxt/kit@3.15.1(magicast@0.3.5))(typescript@5.7.2)
+        version: 1.26.1(@nuxt/kit@3.15.1(magicast@0.3.5))(typescript@5.7.3)
       mermaid:
         specifier: ^11.4.1
         version: 11.4.1
@@ -109,13 +109,13 @@ importers:
         version: 8.0.0
       vitepress:
         specifier: ^1.5.0
-        version: 1.5.0(@algolia/client-search@5.17.1)(@types/node@20.17.12)(@types/react@18.3.18)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.7.2)
+        version: 1.5.0(@algolia/client-search@5.17.1)(@types/node@20.17.12)(@types/react@18.3.18)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.7.3)
       vitepress-plugin-group-icons:
         specifier: ^1.3.3
         version: 1.3.3
       vue:
         specifier: ^3.5.13
-        version: 3.5.13(typescript@5.7.2)
+        version: 3.5.13(typescript@5.7.3)
     devDependencies:
       '@kubb/cli':
         specifier: workspace:*
@@ -161,7 +161,7 @@ importers:
         version: link:../packages/react
       '@mermaid-js/mermaid-cli':
         specifier: ^11.4.2
-        version: 11.4.2(puppeteer@23.10.4(typescript@5.7.2))(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))(typescript@5.7.2)
+        version: 11.4.2(puppeteer@23.10.4(typescript@5.7.3))(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))(typescript@5.7.3)
       '@types/node':
         specifier: ^20.17.12
         version: 20.17.12
@@ -230,13 +230,13 @@ importers:
         version: 5.62.16(svelte@3.59.2)
       '@tanstack/vue-query':
         specifier: ^5.62.16
-        version: 5.62.16(vue@3.5.13(typescript@5.7.2))
+        version: 5.62.16(vue@3.5.13(typescript@5.7.3))
       axios:
         specifier: ^1.7.9
         version: 1.7.9
       msw:
         specifier: ^2.7.0
-        version: 2.7.0(@types/node@20.17.12)(typescript@5.7.2)
+        version: 2.7.0(@types/node@20.17.12)(typescript@5.7.3)
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -251,10 +251,10 @@ importers:
         version: 2.3.0(react@18.3.1)
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       vue:
         specifier: ^3.5.13
-        version: 3.5.13(typescript@5.7.2)
+        version: 3.5.13(typescript@5.7.3)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -267,7 +267,7 @@ importers:
         version: link:../packages/config-tsup
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   examples/advanced:
     dependencies:
@@ -324,16 +324,16 @@ importers:
         version: 5.62.16(svelte@3.59.2)
       '@tanstack/vue-query':
         specifier: ^5.62.16
-        version: 5.62.16(vue@3.5.13(typescript@5.7.2))
+        version: 5.62.16(vue@3.5.13(typescript@5.7.3))
       '@types/react':
-        specifier: ^19.0.3
-        version: 19.0.3
+        specifier: ^19.0.4
+        version: 19.0.4
       axios:
         specifier: ^1.7.9
         version: 1.7.9
       msw:
         specifier: ^2.7.0
-        version: 2.7.0(@types/node@20.17.12)(typescript@5.7.2)
+        version: 2.7.0(@types/node@20.17.12)(typescript@5.7.3)
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -348,7 +348,7 @@ importers:
         version: 2.3.0(react@19.0.0)
       vue:
         specifier: ^3.5.13
-        version: 3.5.13(typescript@5.7.2)
+        version: 3.5.13(typescript@5.7.3)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -358,10 +358,10 @@ importers:
         version: link:../../packages/config-ts
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/client:
     dependencies:
@@ -391,17 +391,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^19.0.3
-        version: 19.0.3
+        specifier: ^19.0.4
+        version: 19.0.4
       react:
         specifier: ^19.0.0
         version: 19.0.0
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/faker:
     dependencies:
@@ -437,14 +437,14 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../../packages/config-ts
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   examples/fetch:
     dependencies:
@@ -472,10 +472,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/generators:
     dependencies:
@@ -505,17 +505,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^19.0.3
-        version: 19.0.3
+        specifier: ^19.0.4
+        version: 19.0.4
       react:
         specifier: ^19.0.0
         version: 19.0.0
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/msw:
     dependencies:
@@ -554,7 +554,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.2.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.2.2)(yaml@2.6.1)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -583,10 +583,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/react-query:
     dependencies:
@@ -641,13 +641,13 @@ importers:
         version: 4.3.4(vite@6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))
       msw:
         specifier: ^1.3.5
-        version: 1.3.5(typescript@5.7.2)
+        version: 1.3.5(typescript@5.7.3)
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
       vite:
         specifier: ^6.0.7
         version: 6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1)
@@ -689,10 +689,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -731,11 +731,11 @@ importers:
         version: 1.9.4
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
     devDependencies:
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/svelte-query:
     dependencies:
@@ -771,11 +771,11 @@ importers:
         version: 3.59.2
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
     devDependencies:
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   examples/swr:
     dependencies:
@@ -811,7 +811,7 @@ importers:
         version: 2.3.0(react@18.3.1)
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
 
   examples/typescript:
     dependencies:
@@ -835,11 +835,11 @@ importers:
         version: 1.7.9
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
     devDependencies:
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
 
   examples/vue-query:
     dependencies:
@@ -866,7 +866,7 @@ importers:
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
         specifier: ^5.62.16
-        version: 5.62.16(vue@3.5.13(typescript@5.7.2))
+        version: 5.62.16(vue@3.5.13(typescript@5.7.3))
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -875,20 +875,20 @@ importers:
         version: link:../../packages/unplugin-kubb
       vue:
         specifier: ^3.5.13
-        version: 3.5.13(typescript@5.7.2)
+        version: 3.5.13(typescript@5.7.3)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.1(vite@6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2))
+        version: 5.2.1(vite@6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3))
       msw:
         specifier: ^1.3.5
-        version: 1.3.5(typescript@5.7.2)
+        version: 1.3.5(typescript@5.7.3)
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
       vite:
         specifier: ^6.0.7
         version: 6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1)
@@ -918,10 +918,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^5.7.3
+        version: 5.7.3
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -949,7 +949,7 @@ importers:
         version: 3.3.3
       cosmiconfig:
         specifier: ^9.0.0
-        version: 9.0.0(typescript@5.7.2)
+        version: 9.0.0(typescript@5.7.3)
       execa:
         specifier: ^9.5.2
         version: 9.5.2
@@ -995,10 +995,10 @@ importers:
         version: 0.5.21
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/config-biome: {}
 
@@ -1006,13 +1006,13 @@ importers:
     devDependencies:
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/config-tsup:
     dependencies:
       '@microsoft/api-extractor':
-        specifier: ^7.49.0
-        version: 7.49.0(@types/node@20.17.12)
+        specifier: ^7.49.1
+        version: 7.49.1(@types/node@20.17.12)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1022,7 +1022,7 @@ importers:
         version: 20.17.12
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
 
   packages/core:
     dependencies:
@@ -1035,9 +1035,9 @@ importers:
       '@kubb/types':
         specifier: workspace:*
         version: link:../types
-      change-case:
-        specifier: ^5.4.4
-        version: 5.4.4
+      camelcase:
+        specifier: ^8.0.0
+        version: 8.0.0
       find-up:
         specifier: ^7.0.0
         version: 7.0.0
@@ -1086,10 +1086,10 @@ importers:
         version: 1.2.0
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/fs:
     dependencies:
@@ -1111,7 +1111,7 @@ importers:
         version: 11.0.4
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
 
   packages/kubb:
     dependencies:
@@ -1133,10 +1133,10 @@ importers:
         version: 20.17.12
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/oas:
     dependencies:
@@ -1188,10 +1188,10 @@ importers:
         version: 1.1.0
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/parser-ts:
     dependencies:
@@ -1203,7 +1203,7 @@ importers:
         version: 2.19.0
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1213,7 +1213,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: ^8.3.5
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
 
   packages/plugin-client:
     dependencies:
@@ -1250,10 +1250,10 @@ importers:
         version: 1.7.9
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-faker:
     dependencies:
@@ -1284,10 +1284,10 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-msw:
     dependencies:
@@ -1327,10 +1327,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-oas:
     dependencies:
@@ -1367,10 +1367,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-react-query:
     dependencies:
@@ -1413,10 +1413,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-redoc:
     dependencies:
@@ -1465,10 +1465,10 @@ importers:
         version: 18.3.5(@types/react@18.3.18)
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-solid-query:
     dependencies:
@@ -1511,10 +1511,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-svelte-query:
     dependencies:
@@ -1557,10 +1557,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-swr:
     dependencies:
@@ -1606,10 +1606,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-ts:
     dependencies:
@@ -1646,10 +1646,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-vue-query:
     dependencies:
@@ -1692,10 +1692,10 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/plugin-zod:
     dependencies:
@@ -1729,7 +1729,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       zod:
         specifier: ~3.24.1
         version: 3.24.1
@@ -1787,10 +1787,10 @@ importers:
         version: 8.5.13
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/types:
     devDependencies:
@@ -1802,10 +1802,10 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
 
   packages/unplugin-kubb:
     dependencies:
@@ -1845,10 +1845,10 @@ importers:
         version: 4.30.1
       tsup:
         specifier: 'catalog:'
-        version: 8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1)
+        version: 8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 5.7.2
+        version: 5.7.3
       vite:
         specifier: ^6.0.7
         version: 6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1)
@@ -2820,11 +2820,11 @@ packages:
   '@mermaid-js/parser@0.3.0':
     resolution: {integrity: sha512-HsvL6zgE5sUPGgkIDlmAWR1HTNHz2Iy11BAWPTa4Jjabkpguy4Ze2gzfLrg6pdRuBvFwgUYyxiaNqZwrEEXepA==}
 
-  '@microsoft/api-extractor-model@7.30.1':
-    resolution: {integrity: sha512-CTS2PlASJHxVY8hqHORVb1HdECWOEMcMnM6/kDkPr0RZapAFSIHhg9D4jxuE8g+OWYHtPc10LCpmde5pylTRlA==}
+  '@microsoft/api-extractor-model@7.30.2':
+    resolution: {integrity: sha512-3/t2F+WhkJgBzSNwlkTIL0tBgUoBqDqL66pT+nh2mPbM0NIDGVGtpqbGWPgHIzn/mn7kGS/Ep8D8po58e8UUIw==}
 
-  '@microsoft/api-extractor@7.49.0':
-    resolution: {integrity: sha512-X5b462k0/yl8qWdGx3siq5vyI8fTDU9fRnwqTMlGHqFhLxpASmLWA2EU6nft+ZG8cQM2HRZlr4HSo62UqiAnug==}
+  '@microsoft/api-extractor@7.49.1':
+    resolution: {integrity: sha512-jRTR/XbQF2kb+dYn8hfYSicOGA99+Fo00GrsdMwdfE3eIgLtKdH6Qa2M3wZV9S2XmbgCaGX1OdPtYctbfu5jQg==}
     hasBin: true
 
   '@microsoft/tsdoc-config@0.17.1':
@@ -3237,8 +3237,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rushstack/node-core-library@5.10.1':
-    resolution: {integrity: sha512-BSb/KcyBHmUQwINrgtzo6jiH0HlGFmrUy33vO6unmceuVKTEyL2q+P0fQq2oB5hvXVWOEUhxB2QvlkZluvUEmg==}
+  '@rushstack/node-core-library@5.10.2':
+    resolution: {integrity: sha512-xOF/2gVJZTfjTxbo4BDj9RtQq/HFnrrKdtem4JkyRLnwsRz2UDTg8gA1/et10fBx5RxmZD9bYVGST69W8ME5OQ==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
@@ -3248,16 +3248,16 @@ packages:
   '@rushstack/rig-package@0.5.3':
     resolution: {integrity: sha512-olzSSjYrvCNxUFZowevC3uz8gvKr3WTpHQ7BkpjtRpA3wK+T0ybep/SRUMfr195gBzJm5gaXw0ZMgjIyHqJUow==}
 
-  '@rushstack/terminal@0.14.4':
-    resolution: {integrity: sha512-NxACqERW0PHq8Rpq1V6v5iTHEwkRGxenjEW+VWqRYQ8T9puUzgmGHmEZUaUEDHAe9Qyvp0/Ew04sAiQw9XjhJg==}
+  '@rushstack/terminal@0.14.5':
+    resolution: {integrity: sha512-TEOpNwwmsZVrkp0omnuTUTGZRJKTr6n6m4OITiNjkqzLAkcazVpwR1SOtBg6uzpkIBLgrcNHETqI8rbw3uiUfw==}
     peerDependencies:
       '@types/node': '*'
     peerDependenciesMeta:
       '@types/node':
         optional: true
 
-  '@rushstack/ts-command-line@4.23.2':
-    resolution: {integrity: sha512-JJ7XZX5K3ThBBva38aomgsPv1L7FV6XmSOcR6HtM7HDFZJkepqT65imw26h9ggGqMjsY0R9jcl30tzKcVj9aOQ==}
+  '@rushstack/ts-command-line@4.23.3':
+    resolution: {integrity: sha512-HazKL8fv4HMQMzrKJCrOrhyBPPdzk7iajUXgsASwjQ8ROo1cmgyqxt/k9+SdmrNLGE1zATgRqMUH3s/6smbRMA==}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -3634,8 +3634,8 @@ packages:
   '@types/react@18.3.18':
     resolution: {integrity: sha512-t4yC+vtgnkYjNSKlFx1jkAhH8LgTo2N/7Qvi83kdEaUtMDiwpbLAktKDaAMlRcJ5eSxZkH74eEGt1ky31d7kfQ==}
 
-  '@types/react@19.0.3':
-    resolution: {integrity: sha512-UavfHguIjnnuq9O67uXfgy/h3SRJbidAYvNjLceB+2RIKVRBzVsh0QO+Pw6BCSQqFS9xwzKfwstXx0m6AbAREA==}
+  '@types/react@19.0.4':
+    resolution: {integrity: sha512-3O4QisJDYr1uTUMZHA2YswiQZRq+Pd8D+GdVFYikTutYsTz+QZgWkAPnP7rx9txoI6EXKcPiluMqWPFV3tT9Wg==}
 
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
@@ -4166,8 +4166,8 @@ packages:
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
-  bun-types@1.1.42:
-    resolution: {integrity: sha512-beMbnFqWbbBQHll/bn3phSwmoOQmnX2nt8NI9iOQKFbgR5Z6rlH3YuaMdlid8vp5XGct3/W4QVQBmhoOEoe4nw==}
+  bun-types@1.1.43:
+    resolution: {integrity: sha512-W0wCtVH+bwFp7p3Zgs03CqxEDmXxEvmmUM/FBKgWIv9T8gyeotvIjIbHzuDScc2DphhRNtr7hJLCR5PspYL5qw==}
 
   bundle-require@5.0.0:
     resolution: {integrity: sha512-GuziW3fSSmopcx4KRymQEJVbZUfqlCqcq7dvs6TYwKRZiegK/2buMxQTPs6MGlNv50wms1699qYO54R8XfRX4w==}
@@ -4213,6 +4213,10 @@ packages:
   camelcase-css@2.0.1:
     resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
     engines: {node: '>= 6'}
+
+  camelcase@8.0.0:
+    resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
+    engines: {node: '>=16'}
 
   camelize@1.0.1:
     resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
@@ -7605,6 +7609,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.7.3:
+    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
 
@@ -8854,33 +8863,33 @@ snapshots:
 
   '@floating-ui/utils@0.2.8': {}
 
-  '@floating-ui/vue@1.1.5(vue@3.5.13(typescript@5.7.2))':
+  '@floating-ui/vue@1.1.5(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@floating-ui/dom': 1.6.12
       '@floating-ui/utils': 0.2.8
-      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.2))
+      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
 
-  '@headlessui-float/vue@0.14.4(@headlessui/vue@1.7.23(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))':
+  '@headlessui-float/vue@0.14.4(@headlessui/vue@1.7.23(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@floating-ui/core': 1.6.8
       '@floating-ui/dom': 1.6.12
-      '@floating-ui/vue': 1.1.5(vue@3.5.13(typescript@5.7.2))
-      '@headlessui/vue': 1.7.23(vue@3.5.13(typescript@5.7.2))
-      vue: 3.5.13(typescript@5.7.2)
+      '@floating-ui/vue': 1.1.5(vue@3.5.13(typescript@5.7.3))
+      '@headlessui/vue': 1.7.23(vue@3.5.13(typescript@5.7.3))
+      vue: 3.5.13(typescript@5.7.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
 
-  '@headlessui/tailwindcss@0.2.1(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2)))':
+  '@headlessui/tailwindcss@0.2.1(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3)))':
     dependencies:
-      tailwindcss: 3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))
+      tailwindcss: 3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))
 
-  '@headlessui/vue@1.7.23(vue@3.5.13(typescript@5.7.2))':
+  '@headlessui/vue@1.7.23(vue@3.5.13(typescript@5.7.3))':
     dependencies:
-      '@tanstack/vue-virtual': 3.11.1(vue@3.5.13(typescript@5.7.2))
-      vue: 3.5.13(typescript@5.7.2)
+      '@tanstack/vue-virtual': 3.11.1(vue@3.5.13(typescript@5.7.3))
+      vue: 3.5.13(typescript@5.7.3)
 
   '@humanwhocodes/momoa@2.0.4': {}
 
@@ -9008,7 +9017,7 @@ snapshots:
     dependencies:
       prettier: 3.4.2
       remeda: 2.19.0
-      typescript: 5.7.2
+      typescript: 5.7.3
 
   '@kubb/react@3.3.2':
     dependencies:
@@ -9044,23 +9053,23 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@mermaid-js/mermaid-cli@11.4.2(puppeteer@23.10.4(typescript@5.7.2))(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))(typescript@5.7.2)':
+  '@mermaid-js/mermaid-cli@11.4.2(puppeteer@23.10.4(typescript@5.7.3))(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@mermaid-js/mermaid-zenuml': 0.2.0(mermaid@11.4.1)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))(typescript@5.7.2)
+      '@mermaid-js/mermaid-zenuml': 0.2.0(mermaid@11.4.1)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))(typescript@5.7.3)
       chalk: 5.3.0
       commander: 12.1.0
       import-meta-resolve: 4.1.0
       mermaid: 11.4.1
-      puppeteer: 23.10.4(typescript@5.7.2)
+      puppeteer: 23.10.4(typescript@5.7.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - supports-color
       - ts-node
       - typescript
 
-  '@mermaid-js/mermaid-zenuml@0.2.0(mermaid@11.4.1)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))(typescript@5.7.2)':
+  '@mermaid-js/mermaid-zenuml@0.2.0(mermaid@11.4.1)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@zenuml/core': 3.25.4(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))(typescript@5.7.2)
+      '@zenuml/core': 3.25.4(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))(typescript@5.7.3)
       mermaid: 11.4.1
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -9071,23 +9080,23 @@ snapshots:
     dependencies:
       langium: 3.0.0
 
-  '@microsoft/api-extractor-model@7.30.1(@types/node@20.17.12)':
+  '@microsoft/api-extractor-model@7.30.2(@types/node@20.17.12)':
     dependencies:
       '@microsoft/tsdoc': 0.15.1
       '@microsoft/tsdoc-config': 0.17.1
-      '@rushstack/node-core-library': 5.10.1(@types/node@20.17.12)
+      '@rushstack/node-core-library': 5.10.2(@types/node@20.17.12)
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.49.0(@types/node@20.17.12)':
+  '@microsoft/api-extractor@7.49.1(@types/node@20.17.12)':
     dependencies:
-      '@microsoft/api-extractor-model': 7.30.1(@types/node@20.17.12)
+      '@microsoft/api-extractor-model': 7.30.2(@types/node@20.17.12)
       '@microsoft/tsdoc': 0.15.1
       '@microsoft/tsdoc-config': 0.17.1
-      '@rushstack/node-core-library': 5.10.1(@types/node@20.17.12)
+      '@rushstack/node-core-library': 5.10.2(@types/node@20.17.12)
       '@rushstack/rig-package': 0.5.3
-      '@rushstack/terminal': 0.14.4(@types/node@20.17.12)
-      '@rushstack/ts-command-line': 4.23.2(@types/node@20.17.12)
+      '@rushstack/terminal': 0.14.5(@types/node@20.17.12)
+      '@rushstack/ts-command-line': 4.23.3(@types/node@20.17.12)
       lodash: 4.17.21
       minimatch: 3.0.8
       resolve: 1.22.9
@@ -9475,7 +9484,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.30.1':
     optional: true
 
-  '@rushstack/node-core-library@5.10.1(@types/node@20.17.12)':
+  '@rushstack/node-core-library@5.10.2(@types/node@20.17.12)':
     dependencies:
       ajv: 8.13.0
       ajv-draft-04: 1.0.0(ajv@8.13.0)
@@ -9493,16 +9502,16 @@ snapshots:
       resolve: 1.22.9
       strip-json-comments: 3.1.1
 
-  '@rushstack/terminal@0.14.4(@types/node@20.17.12)':
+  '@rushstack/terminal@0.14.5(@types/node@20.17.12)':
     dependencies:
-      '@rushstack/node-core-library': 5.10.1(@types/node@20.17.12)
+      '@rushstack/node-core-library': 5.10.2(@types/node@20.17.12)
       supports-color: 8.1.1
     optionalDependencies:
       '@types/node': 20.17.12
 
-  '@rushstack/ts-command-line@4.23.2(@types/node@20.17.12)':
+  '@rushstack/ts-command-line@4.23.3(@types/node@20.17.12)':
     dependencies:
-      '@rushstack/terminal': 0.14.4(@types/node@20.17.12)
+      '@rushstack/terminal': 0.14.5(@types/node@20.17.12)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
@@ -9563,11 +9572,11 @@ snapshots:
     dependencies:
       shiki: 1.24.2
 
-  '@shikijs/twoslash@1.26.1(typescript@5.7.2)':
+  '@shikijs/twoslash@1.26.1(typescript@5.7.3)':
     dependencies:
       '@shikijs/core': 1.26.1
       '@shikijs/types': 1.26.1
-      twoslash: 0.2.12(typescript@5.7.2)
+      twoslash: 0.2.12(typescript@5.7.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9582,17 +9591,17 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.1
       '@types/hast': 3.0.4
 
-  '@shikijs/vitepress-twoslash@1.26.1(@nuxt/kit@3.15.1(magicast@0.3.5))(typescript@5.7.2)':
+  '@shikijs/vitepress-twoslash@1.26.1(@nuxt/kit@3.15.1(magicast@0.3.5))(typescript@5.7.3)':
     dependencies:
-      '@shikijs/twoslash': 1.26.1(typescript@5.7.2)
-      floating-vue: 5.2.2(@nuxt/kit@3.15.1(magicast@0.3.5))(vue@3.5.13(typescript@5.7.2))
+      '@shikijs/twoslash': 1.26.1(typescript@5.7.3)
+      floating-vue: 5.2.2(@nuxt/kit@3.15.1(magicast@0.3.5))(vue@3.5.13(typescript@5.7.3))
       mdast-util-from-markdown: 2.0.2
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.2.0
       shiki: 1.26.1
-      twoslash: 0.2.12(typescript@5.7.2)
-      twoslash-vue: 0.2.12(typescript@5.7.2)
-      vue: 3.5.13(typescript@5.7.2)
+      twoslash: 0.2.12(typescript@5.7.3)
+      twoslash-vue: 0.2.12(typescript@5.7.3)
+      vue: 3.5.13(typescript@5.7.3)
     transitivePeerDependencies:
       - '@nuxt/kit'
       - supports-color
@@ -9670,18 +9679,18 @@ snapshots:
 
   '@tanstack/virtual-core@3.10.9': {}
 
-  '@tanstack/vue-query@5.62.16(vue@3.5.13(typescript@5.7.2))':
+  '@tanstack/vue-query@5.62.16(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
       '@tanstack/query-core': 5.62.16
       '@vue/devtools-api': 6.6.4
-      vue: 3.5.13(typescript@5.7.2)
-      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.2))
+      vue: 3.5.13(typescript@5.7.3)
+      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
 
-  '@tanstack/vue-virtual@3.11.1(vue@3.5.13(typescript@5.7.2))':
+  '@tanstack/vue-virtual@3.11.1(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@tanstack/virtual-core': 3.10.9
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
 
@@ -9961,7 +9970,7 @@ snapshots:
       '@types/prop-types': 15.7.14
       csstype: 3.1.3
 
-  '@types/react@19.0.3':
+  '@types/react@19.0.4':
     dependencies:
       csstype: 3.1.3
 
@@ -10017,10 +10026,10 @@ snapshots:
       '@types/node': 20.17.12
     optional: true
 
-  '@typescript/vfs@1.6.0(typescript@5.7.2)':
+  '@typescript/vfs@1.6.0(typescript@5.7.3)':
     dependencies:
       debug: 4.4.0
-      typescript: 5.7.2
+      typescript: 5.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -10037,15 +10046,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.2.1(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))(vue@3.5.13(typescript@5.7.2))':
+  '@vitejs/plugin-vue@5.2.1(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       vite: 5.4.11(@types/node@20.17.12)(terser@5.37.0)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
-  '@vitejs/plugin-vue@5.2.1(vite@6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2))':
+  '@vitejs/plugin-vue@5.2.1(vite@6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       vite: 6.0.7(@types/node@20.17.12)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
   '@vitest/coverage-v8@2.1.8(vitest@2.1.8)':
     dependencies:
@@ -10061,7 +10070,7 @@ snapshots:
       std-env: 3.8.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2))(terser@5.37.0)
+      vitest: 2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3))(terser@5.37.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -10072,13 +10081,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.8(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2))(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))':
+  '@vitest/mocker@2.1.8(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3))(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))':
     dependencies:
       '@vitest/spy': 2.1.8
       estree-walker: 3.0.3
       magic-string: 0.30.15
     optionalDependencies:
-      msw: 2.7.0(@types/node@20.17.12)(typescript@5.7.2)
+      msw: 2.7.0(@types/node@20.17.12)(typescript@5.7.3)
       vite: 5.4.11(@types/node@20.17.12)(terser@5.37.0)
 
   '@vitest/pretty-format@2.1.8':
@@ -10109,7 +10118,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2))(terser@5.37.0)
+      vitest: 2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3))(terser@5.37.0)
 
   '@vitest/utils@2.1.8':
     dependencies:
@@ -10123,12 +10132,12 @@ snapshots:
 
   '@volar/source-map@2.4.11': {}
 
-  '@vue/compat@3.5.13(vue@3.5.13(typescript@5.7.2))':
+  '@vue/compat@3.5.13(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@babel/parser': 7.26.3
       estree-walker: 2.0.2
       source-map-js: 1.2.1
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
   '@vue/compiler-core@3.5.13':
     dependencies:
@@ -10185,7 +10194,7 @@ snapshots:
     dependencies:
       rfdc: 1.4.1
 
-  '@vue/language-core@2.1.10(typescript@5.7.2)':
+  '@vue/language-core@2.1.10(typescript@5.7.3)':
     dependencies:
       '@volar/language-core': 2.4.11
       '@vue/compiler-dom': 3.5.13
@@ -10196,7 +10205,7 @@ snapshots:
       muggle-string: 0.4.1
       path-browserify: 1.0.1
     optionalDependencies:
-      typescript: 5.7.2
+      typescript: 5.7.3
 
   '@vue/reactivity@3.5.13':
     dependencies:
@@ -10214,29 +10223,29 @@ snapshots:
       '@vue/shared': 3.5.13
       csstype: 3.1.3
 
-  '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.2))':
+  '@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@vue/compiler-ssr': 3.5.13
       '@vue/shared': 3.5.13
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
   '@vue/shared@3.5.13': {}
 
-  '@vueuse/core@11.3.0(vue@3.5.13(typescript@5.7.2))':
+  '@vueuse/core@11.3.0(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@types/web-bluetooth': 0.0.20
       '@vueuse/metadata': 11.3.0
-      '@vueuse/shared': 11.3.0(vue@3.5.13(typescript@5.7.2))
-      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.2))
+      '@vueuse/shared': 11.3.0(vue@3.5.13(typescript@5.7.3))
+      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/integrations@11.3.0(axios@1.7.9)(change-case@5.4.4)(focus-trap@7.6.2)(vue@3.5.13(typescript@5.7.2))':
+  '@vueuse/integrations@11.3.0(axios@1.7.9)(change-case@5.4.4)(focus-trap@7.6.2)(vue@3.5.13(typescript@5.7.3))':
     dependencies:
-      '@vueuse/core': 11.3.0(vue@3.5.13(typescript@5.7.2))
-      '@vueuse/shared': 11.3.0(vue@3.5.13(typescript@5.7.2))
-      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.2))
+      '@vueuse/core': 11.3.0(vue@3.5.13(typescript@5.7.3))
+      '@vueuse/shared': 11.3.0(vue@3.5.13(typescript@5.7.3))
+      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
     optionalDependencies:
       axios: 1.7.9
       change-case: 5.4.4
@@ -10247,9 +10256,9 @@ snapshots:
 
   '@vueuse/metadata@11.3.0': {}
 
-  '@vueuse/shared@11.3.0(vue@3.5.13(typescript@5.7.2))':
+  '@vueuse/shared@11.3.0(vue@3.5.13(typescript@5.7.3))':
     dependencies:
-      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.2))
+      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -10336,14 +10345,14 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zenuml/core@3.25.4(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))(typescript@5.7.2)':
+  '@zenuml/core@3.25.4(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@headlessui-float/vue': 0.14.4(@headlessui/vue@1.7.23(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))
-      '@headlessui/tailwindcss': 0.2.1(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2)))
-      '@headlessui/vue': 1.7.23(vue@3.5.13(typescript@5.7.2))
+      '@headlessui-float/vue': 0.14.4(@headlessui/vue@1.7.23(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
+      '@headlessui/tailwindcss': 0.2.1(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3)))
+      '@headlessui/vue': 1.7.23(vue@3.5.13(typescript@5.7.3))
       '@types/assert': 1.5.11
       '@types/ramda': 0.28.25
-      '@vue/compat': 3.5.13(vue@3.5.13(typescript@5.7.2))
+      '@vue/compat': 3.5.13(vue@3.5.13(typescript@5.7.3))
       antlr4: 4.11.0
       color-string: 1.9.1
       dom-to-image-more: 2.16.0
@@ -10356,9 +10365,9 @@ snapshots:
       pino: 8.21.0
       postcss: 8.4.49
       ramda: 0.28.0
-      tailwindcss: 3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))
-      vue: 3.5.13(typescript@5.7.2)
-      vuex: 4.1.0(vue@3.5.13(typescript@5.7.2))
+      tailwindcss: 3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))
+      vue: 3.5.13(typescript@5.7.3)
+      vuex: 4.1.0(vue@3.5.13(typescript@5.7.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - ts-node
@@ -10646,7 +10655,7 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.1.42:
+  bun-types@1.1.43:
     dependencies:
       '@types/node': 20.12.14
       '@types/ws': 8.5.13
@@ -10699,6 +10708,8 @@ snapshots:
   callsites@3.1.0: {}
 
   camelcase-css@2.0.1: {}
+
+  camelcase@8.0.0: {}
 
   camelize@1.0.1: {}
 
@@ -10920,14 +10931,14 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
-  cosmiconfig@9.0.0(typescript@5.7.2):
+  cosmiconfig@9.0.0(typescript@5.7.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.0
       js-yaml: 4.1.0
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.7.2
+      typescript: 5.7.3
 
   create-require@1.1.1: {}
 
@@ -11769,11 +11780,11 @@ snapshots:
 
   flatted@3.3.2: {}
 
-  floating-vue@5.2.2(@nuxt/kit@3.15.1(magicast@0.3.5))(vue@3.5.13(typescript@5.7.2)):
+  floating-vue@5.2.2(@nuxt/kit@3.15.1(magicast@0.3.5))(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@floating-ui/dom': 1.1.1
-      vue: 3.5.13(typescript@5.7.2)
-      vue-resize: 2.0.0-alpha.1(vue@3.5.13(typescript@5.7.2))
+      vue: 3.5.13(typescript@5.7.3)
+      vue-resize: 2.0.0-alpha.1(vue@3.5.13(typescript@5.7.3))
     optionalDependencies:
       '@nuxt/kit': 3.15.1(magicast@0.3.5)(rollup@4.30.1)
 
@@ -12913,7 +12924,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@1.3.5(typescript@5.7.2):
+  msw@1.3.5(typescript@5.7.3):
     dependencies:
       '@mswjs/cookies': 0.2.2
       '@mswjs/interceptors': 0.17.10
@@ -12935,7 +12946,7 @@ snapshots:
       type-fest: 2.19.0
       yargs: 17.7.2
     optionalDependencies:
-      typescript: 5.7.2
+      typescript: 5.7.3
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -12965,7 +12976,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2):
+  msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -12986,7 +12997,7 @@ snapshots:
       type-fest: 4.30.1
       yargs: 17.7.2
     optionalDependencies:
-      typescript: 5.7.2
+      typescript: 5.7.3
     transitivePeerDependencies:
       - '@types/node'
 
@@ -13416,13 +13427,13 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.4.49
 
-  postcss-load-config@4.0.2(postcss@8.4.49)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2)):
+  postcss-load-config@4.0.2(postcss@8.4.49)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3)):
     dependencies:
       lilconfig: 3.1.3
       yaml: 2.6.1
     optionalDependencies:
       postcss: 8.4.49
-      ts-node: 10.9.2(@types/node@20.17.12)(typescript@5.7.2)
+      ts-node: 10.9.2(@types/node@20.17.12)(typescript@5.7.3)
 
   postcss-load-config@6.0.1(jiti@2.4.2)(postcss@8.4.49)(yaml@2.6.1):
     dependencies:
@@ -13528,11 +13539,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  puppeteer@23.10.4(typescript@5.7.2):
+  puppeteer@23.10.4(typescript@5.7.3):
     dependencies:
       '@puppeteer/browsers': 2.6.1
       chromium-bidi: 0.8.0(devtools-protocol@0.0.1367902)
-      cosmiconfig: 9.0.0(typescript@5.7.2)
+      cosmiconfig: 9.0.0(typescript@5.7.3)
       devtools-protocol: 0.0.1367902
       puppeteer-core: 23.10.4
       typed-query-selector: 2.12.0
@@ -14345,7 +14356,7 @@ snapshots:
 
   tabbable@6.2.0: {}
 
-  tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2)):
+  tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -14364,7 +14375,7 @@ snapshots:
       postcss: 8.4.49
       postcss-import: 15.1.0(postcss@8.4.49)
       postcss-js: 4.0.1(postcss@8.4.49)
-      postcss-load-config: 4.0.2(postcss@8.4.49)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2))
+      postcss-load-config: 4.0.2(postcss@8.4.49)(ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3))
       postcss-nested: 6.2.0(postcss@8.4.49)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.9
@@ -14496,7 +14507,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.2):
+  ts-node@10.9.2(@types/node@20.17.12)(typescript@5.7.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -14510,7 +14521,7 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.7.2
+      typescript: 5.7.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
@@ -14518,15 +14529,15 @@ snapshots:
 
   ts-toolbelt@9.6.0: {}
 
-  tsconfck@3.1.4(typescript@5.7.2):
+  tsconfck@3.1.4(typescript@5.7.3):
     optionalDependencies:
-      typescript: 5.7.2
+      typescript: 5.7.3
 
   tslib@2.6.2: {}
 
   tslib@2.8.1: {}
 
-  tsup@8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.2.2)(yaml@2.6.1):
+  tsup@8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.2.2)(yaml@2.6.1):
     dependencies:
       bundle-require: 5.0.0(esbuild@0.24.0)
       cac: 6.7.14
@@ -14545,7 +14556,7 @@ snapshots:
       tinyglobby: 0.2.10
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.49.0(@types/node@20.17.12)
+      '@microsoft/api-extractor': 7.49.1(@types/node@20.17.12)
       postcss: 8.4.49
       typescript: 5.2.2
     transitivePeerDependencies:
@@ -14554,7 +14565,7 @@ snapshots:
       - tsx
       - yaml
 
-  tsup@8.3.5(@microsoft/api-extractor@7.49.0(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.6.1):
+  tsup@8.3.5(@microsoft/api-extractor@7.49.1(@types/node@20.17.12))(jiti@2.4.2)(postcss@8.4.49)(typescript@5.7.3)(yaml@2.6.1):
     dependencies:
       bundle-require: 5.0.0(esbuild@0.24.0)
       cac: 6.7.14
@@ -14573,9 +14584,9 @@ snapshots:
       tinyglobby: 0.2.10
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.49.0(@types/node@20.17.12)
+      '@microsoft/api-extractor': 7.49.1(@types/node@20.17.12)
       postcss: 8.4.49
-      typescript: 5.7.2
+      typescript: 5.7.3
     transitivePeerDependencies:
       - jiti
       - supports-color
@@ -14611,20 +14622,20 @@ snapshots:
 
   twoslash-protocol@0.2.12: {}
 
-  twoslash-vue@0.2.12(typescript@5.7.2):
+  twoslash-vue@0.2.12(typescript@5.7.3):
     dependencies:
-      '@vue/language-core': 2.1.10(typescript@5.7.2)
-      twoslash: 0.2.12(typescript@5.7.2)
+      '@vue/language-core': 2.1.10(typescript@5.7.3)
+      twoslash: 0.2.12(typescript@5.7.3)
       twoslash-protocol: 0.2.12
-      typescript: 5.7.2
+      typescript: 5.7.3
     transitivePeerDependencies:
       - supports-color
 
-  twoslash@0.2.12(typescript@5.7.2):
+  twoslash@0.2.12(typescript@5.7.3):
     dependencies:
-      '@typescript/vfs': 1.6.0(typescript@5.7.2)
+      '@typescript/vfs': 1.6.0(typescript@5.7.3)
       twoslash-protocol: 0.2.12
-      typescript: 5.7.2
+      typescript: 5.7.3
     transitivePeerDependencies:
       - supports-color
 
@@ -14679,6 +14690,8 @@ snapshots:
   typescript@5.2.2: {}
 
   typescript@5.7.2: {}
+
+  typescript@5.7.3: {}
 
   ufo@1.5.4: {}
 
@@ -14879,11 +14892,11 @@ snapshots:
       - supports-color
       - terser
 
-  vite-tsconfig-paths@5.1.0(typescript@5.7.2)(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0)):
+  vite-tsconfig-paths@5.1.0(typescript@5.7.3)(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0)):
     dependencies:
       debug: 4.4.0
       globrex: 0.1.2
-      tsconfck: 3.1.4(typescript@5.7.2)
+      tsconfck: 3.1.4(typescript@5.7.3)
     optionalDependencies:
       vite: 5.4.11(@types/node@20.17.12)(terser@5.37.0)
     transitivePeerDependencies:
@@ -14920,7 +14933,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress@1.5.0(@algolia/client-search@5.17.1)(@types/node@20.17.12)(@types/react@18.3.18)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.7.2):
+  vitepress@1.5.0(@algolia/client-search@5.17.1)(@types/node@20.17.12)(@types/react@18.3.18)(axios@1.7.9)(change-case@5.4.4)(postcss@8.4.49)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.7.3):
     dependencies:
       '@docsearch/css': 3.8.0
       '@docsearch/js': 3.8.0(@algolia/client-search@5.17.1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
@@ -14929,17 +14942,17 @@ snapshots:
       '@shikijs/transformers': 1.24.2
       '@shikijs/types': 1.24.2
       '@types/markdown-it': 14.1.2
-      '@vitejs/plugin-vue': 5.2.1(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))(vue@3.5.13(typescript@5.7.2))
+      '@vitejs/plugin-vue': 5.2.1(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))(vue@3.5.13(typescript@5.7.3))
       '@vue/devtools-api': 7.6.8
       '@vue/shared': 3.5.13
-      '@vueuse/core': 11.3.0(vue@3.5.13(typescript@5.7.2))
-      '@vueuse/integrations': 11.3.0(axios@1.7.9)(change-case@5.4.4)(focus-trap@7.6.2)(vue@3.5.13(typescript@5.7.2))
+      '@vueuse/core': 11.3.0(vue@3.5.13(typescript@5.7.3))
+      '@vueuse/integrations': 11.3.0(axios@1.7.9)(change-case@5.4.4)(focus-trap@7.6.2)(vue@3.5.13(typescript@5.7.3))
       focus-trap: 7.6.2
       mark.js: 8.11.1
       minisearch: 7.1.1
       shiki: 1.24.2
       vite: 5.4.11(@types/node@20.17.12)(terser@5.37.0)
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
     optionalDependencies:
       postcss: 8.4.49
     transitivePeerDependencies:
@@ -14970,10 +14983,10 @@ snapshots:
       - typescript
       - universal-cookie
 
-  vitest@2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2))(terser@5.37.0):
+  vitest@2.1.8(@types/node@20.17.12)(@vitest/ui@2.1.8)(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3))(terser@5.37.0):
     dependencies:
       '@vitest/expect': 2.1.8
-      '@vitest/mocker': 2.1.8(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.2))(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))
+      '@vitest/mocker': 2.1.8(msw@2.7.0(@types/node@20.17.12)(typescript@5.7.3))(vite@5.4.11(@types/node@20.17.12)(terser@5.37.0))
       '@vitest/pretty-format': 2.1.8
       '@vitest/runner': 2.1.8
       '@vitest/snapshot': 2.1.8
@@ -15023,28 +15036,28 @@ snapshots:
 
   vscode-uri@3.0.8: {}
 
-  vue-demi@0.14.10(vue@3.5.13(typescript@5.7.2)):
+  vue-demi@0.14.10(vue@3.5.13(typescript@5.7.3)):
     dependencies:
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
-  vue-resize@2.0.0-alpha.1(vue@3.5.13(typescript@5.7.2)):
+  vue-resize@2.0.0-alpha.1(vue@3.5.13(typescript@5.7.3)):
     dependencies:
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
-  vue@3.5.13(typescript@5.7.2):
+  vue@3.5.13(typescript@5.7.3):
     dependencies:
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-sfc': 3.5.13
       '@vue/runtime-dom': 3.5.13
-      '@vue/server-renderer': 3.5.13(vue@3.5.13(typescript@5.7.2))
+      '@vue/server-renderer': 3.5.13(vue@3.5.13(typescript@5.7.3))
       '@vue/shared': 3.5.13
     optionalDependencies:
-      typescript: 5.7.2
+      typescript: 5.7.3
 
-  vuex@4.1.0(vue@3.5.13(typescript@5.7.2)):
+  vuex@4.1.0(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
-      vue: 3.5.13(typescript@5.7.2)
+      vue: 3.5.13(typescript@5.7.3)
 
   watchpack@2.4.2:
     dependencies:

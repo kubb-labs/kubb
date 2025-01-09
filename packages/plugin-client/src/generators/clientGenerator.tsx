@@ -23,7 +23,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     }
 
     const url = {
-      name: getName(operation, { type: 'function', suffix: 'URL', prefix: 'get' }),
+      name: getName(operation, { type: 'function', suffix: 'url', prefix: 'get' }),
       file: getFile(operation),
     }
 

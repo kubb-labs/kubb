@@ -1,7 +1,7 @@
 import { orderBy } from 'natural-orderby'
 import { merge } from 'remeda'
 
-import { camelCase, pascalCase, pathCase } from './casing.ts'
+import { camelCase, pascalCase } from './casing.ts'
 import { combineCodes } from './combineCodes.ts'
 import { createJSDocBlockText } from './createJSDocBlockText.ts'
 import { escape, jsStringEscape } from './escape.ts'
@@ -13,7 +13,7 @@ import { toRegExp, toRegExpString } from './toRegExp.ts'
 import { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimQuotes } from './trim.ts'
 
-export { camelCase, pascalCase, pathCase } from './casing.ts'
+export { camelCase, pascalCase } from './casing.ts'
 export { combineCodes } from './combineCodes.ts'
 export { createJSDocBlockText } from './createJSDocBlockText.ts'
 export { escape, jsStringEscape } from './escape.ts'
@@ -49,5 +49,4 @@ export default {
   merge,
   camelCase,
   pascalCase,
-  pathCase,
 } as const

@@ -1,7 +1,7 @@
 export type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXExampleEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
@@ -9,4 +9,4 @@ export type {
   CreatePetsMutationResponse,
   CreatePetsMutation,
 } from './CreatePets.ts'
-export { createPetsHeaderParamsXExampleEnum } from './CreatePets.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePets.ts'

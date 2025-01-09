@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.4.6
+- [`core`](/plugins/core): ignore acronyms when doing casing switch to pascal or camelcase
+
 ## 3.4.5
 - [`plugin-client`](/plugins/plugin-client): if client receives no body (no content) then it throws JSON parsing error
 - [`plugin-zod`](/plugins/plugin-zod): use of `as ToZod` instead of `satisfies ToZod`
