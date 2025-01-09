@@ -7,6 +7,6 @@ export const addressSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   zip: z.string().optional(),
-} satisfies ToZod<Address>)
+}) as unknown as ToZod<Address>
 
 export type AddressSchema = Address

@@ -1,1 +1,1 @@
-export type { ToZod } from './ToZod.ts'
+export type { ToZod, ZodShape } from './ToZod.ts'

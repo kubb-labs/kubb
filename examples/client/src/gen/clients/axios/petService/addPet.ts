@@ -4,7 +4,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getAddPetUrl() {
-  return '/pet'
+  return '/pet' as const
 }
 
 /**

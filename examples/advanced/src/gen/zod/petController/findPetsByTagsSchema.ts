@@ -14,31 +14,31 @@ export const findPetsByTagsQueryParamsSchema = z
     tags: z.array(z.string()).describe('Tags to filter by').optional(),
     page: z.string().describe('to request with required page number or pagination').optional(),
     pageSize: z.string().describe('to request with required page size').optional(),
-  } satisfies ToZod<FindPetsByTagsQueryParams>)
-  .optional()
+  })
+  .optional() as unknown as ToZod<FindPetsByTagsQueryParams>
 
 export type FindPetsByTagsQueryParamsSchema = FindPetsByTagsQueryParams
 
 export const findPetsByTagsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
-} satisfies ToZod<FindPetsByTagsHeaderParams>)
+}) as unknown as ToZod<FindPetsByTagsHeaderParams>
 
 export type FindPetsByTagsHeaderParamsSchema = FindPetsByTagsHeaderParams
 
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema)) as unknown as ToZod<FindPetsByTags200>
 
 export type FindPetsByTags200Schema = FindPetsByTags200
 
 /**
  * @description Invalid tag value
  */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.any() as unknown as ToZod<FindPetsByTags400>
 
 export type FindPetsByTags400Schema = FindPetsByTags400
 
-export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
+export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema) as unknown as ToZod<FindPetsByTagsQueryResponse>
 
 export type FindPetsByTagsQueryResponseSchema = FindPetsByTagsQueryResponse

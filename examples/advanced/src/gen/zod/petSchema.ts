@@ -11,6 +11,6 @@ export const petSchema = z.object({
   photoUrls: z.array(z.string()),
   tags: z.array(z.lazy(() => tagTagSchema)).optional(),
   status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
-} satisfies ToZod<Pet>)
+}) as unknown as ToZod<Pet>
 
 export type PetSchema = Pet

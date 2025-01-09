@@ -12,6 +12,6 @@ export const userSchema = z.object({
   password: z.string().optional(),
   phone: z.string().optional(),
   userStatus: z.number().int().describe('User Status').optional(),
-} satisfies ToZod<User>)
+}) as unknown as ToZod<User>
 
 export type UserSchema = User

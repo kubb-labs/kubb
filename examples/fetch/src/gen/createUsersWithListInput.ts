@@ -3,7 +3,7 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getCreateUsersWithListInputUrl() {
-  return '/user/createWithList'
+  return '/user/createWithList' as const
 }
 
 /**

@@ -4,24 +4,24 @@ import { z } from 'zod'
 
 export const deleteUserPathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),
-} satisfies ToZod<DeleteUserPathParams>)
+}) as unknown as ToZod<DeleteUserPathParams>
 
 export type DeleteUserPathParamsSchema = DeleteUserPathParams
 
 /**
  * @description Invalid username supplied
  */
-export const deleteUser400Schema = z.any()
+export const deleteUser400Schema = z.any() as unknown as ToZod<DeleteUser400>
 
 export type DeleteUser400Schema = DeleteUser400
 
 /**
  * @description User not found
  */
-export const deleteUser404Schema = z.any()
+export const deleteUser404Schema = z.any() as unknown as ToZod<DeleteUser404>
 
 export type DeleteUser404Schema = DeleteUser404
 
-export const deleteUserMutationResponseSchema = z.any()
+export const deleteUserMutationResponseSchema = z.any() as unknown as ToZod<DeleteUserMutationResponse>
 
 export type DeleteUserMutationResponseSchema = DeleteUserMutationResponse

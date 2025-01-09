@@ -10,7 +10,7 @@ describe('URLPath', () => {
   })
 
   test('if templateStrings returns correct format with replacer', () => {
-    expect(simplePath.toTemplateString({replacer: (item) => `unref(${item})`})).toBe('`/user/${unref(userID)}`')
+    expect(simplePath.toTemplateString({ replacer: (item) => `unref(${item})` })).toBe('`/user/${unref(userID)}`')
     expect(simplePath.template).toBe('`/user/${userID}`')
   })
 

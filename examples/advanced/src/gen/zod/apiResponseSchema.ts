@@ -6,6 +6,6 @@ export const apiResponseSchema = z.object({
   code: z.number().int().optional(),
   type: z.string().optional(),
   message: z.string().optional(),
-} satisfies ToZod<ApiResponse>)
+}) as unknown as ToZod<ApiResponse>
 
 export type ApiResponseSchema = ApiResponse

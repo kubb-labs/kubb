@@ -3,7 +3,7 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400,
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getUpdatePetUrl() {
-  return '/pet'
+  return '/pet' as const
 }
 
 /**

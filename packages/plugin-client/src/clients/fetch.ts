@@ -39,10 +39,10 @@ export const fetchClient = async <TData, TError = unknown, TVariables = unknown>
     headers: config.headers,
   })
 
-  const data = (await response.json()) as TData
+  const data = [204, 205, 304].includes(response.status) || !response.body ? {} : await response.json()
 
   return {
-    data,
+    data: data as TData,
     status: response.status,
     statusText: response.statusText,
     headers: response.headers as Headers,

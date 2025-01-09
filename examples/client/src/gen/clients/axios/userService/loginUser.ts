@@ -4,7 +4,7 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getLoginUserUrl() {
-  return '/user/login'
+  return '/user/login' as const
 }
 
 /**

@@ -13,45 +13,45 @@ import { z } from 'zod'
 
 export const createPetsPathParamsSchema = z.object({
   uuid: z.string().describe('UUID'),
-} satisfies ToZod<CreatePetsPathParams>)
+}) as unknown as ToZod<CreatePetsPathParams>
 
 export type CreatePetsPathParamsSchema = CreatePetsPathParams
 
 export const createPetsQueryParamsSchema = z
   .object({
     offset: z.number().int().describe('Offset */').optional(),
-  } satisfies ToZod<CreatePetsQueryParams>)
-  .optional()
+  })
+  .optional() as unknown as ToZod<CreatePetsQueryParams>
 
 export type CreatePetsQueryParamsSchema = CreatePetsQueryParams
 
 export const createPetsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
-} satisfies ToZod<CreatePetsHeaderParams>)
+}) as unknown as ToZod<CreatePetsHeaderParams>
 
 export type CreatePetsHeaderParamsSchema = CreatePetsHeaderParams
 
 /**
  * @description Null response
  */
-export const createPets201Schema = z.any()
+export const createPets201Schema = z.any() as unknown as ToZod<CreatePets201>
 
 export type CreatePets201Schema = CreatePets201
 
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema)
+export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema) as unknown as ToZod<CreatePetsError>
 
 export type CreatePetsErrorSchema = CreatePetsError
 
 export const createPetsMutationRequestSchema = z.object({
   name: z.string(),
   tag: z.string(),
-} satisfies ToZod<CreatePetsMutationRequest>)
+}) as unknown as ToZod<CreatePetsMutationRequest>
 
 export type CreatePetsMutationRequestSchema = CreatePetsMutationRequest
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
+export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema) as unknown as ToZod<CreatePetsMutationResponse>
 
 export type CreatePetsMutationResponseSchema = CreatePetsMutationResponse

@@ -12,7 +12,7 @@ import { placeOrderPatchMutationResponseSchema } from './zod/placeOrderPatchSche
 import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
 
 export function getGetInventoryUrl() {
-  return '/store/inventory'
+  return '/store/inventory' as const
 }
 
 /**
@@ -30,7 +30,7 @@ export async function getInventory(config: Partial<RequestConfig> = {}) {
 }
 
 export function getPlaceOrderUrl() {
-  return '/store/order'
+  return '/store/order' as const
 }
 
 /**
@@ -49,7 +49,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequestType, config: P
 }
 
 export function getPlaceOrderPatchUrl() {
-  return '/store/order'
+  return '/store/order' as const
 }
 
 /**
@@ -68,7 +68,7 @@ export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType,
 }
 
 export function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }) {
-  return `/store/order/${orderId}`
+  return `/store/order/${orderId}` as const
 }
 
 /**
@@ -86,7 +86,7 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
 }
 
 export function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }) {
-  return `/store/order/${orderId}`
+  return `/store/order/${orderId}` as const
 }
 
 /**

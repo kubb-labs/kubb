@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.4.5
+- [`plugin-client`](/plugins/plugin-client): if client receives no body (no content) then it throws JSON parsing error
+- [`plugin-zod`](/plugins/plugin-zod): use of `as ToZod` instead of `satisfies ToZod`
+
 ## 3.4.4
 - [`plugin-client`](/plugins/plugin-client): url in text format instead of using URL
 

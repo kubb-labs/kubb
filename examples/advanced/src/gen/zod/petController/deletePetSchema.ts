@@ -4,25 +4,25 @@ import { z } from 'zod'
 
 export const deletePetPathParamsSchema = z.object({
   petId: z.number().int().describe('Pet id to delete'),
-} satisfies ToZod<DeletePetPathParams>)
+}) as unknown as ToZod<DeletePetPathParams>
 
 export type DeletePetPathParamsSchema = DeletePetPathParams
 
 export const deletePetHeaderParamsSchema = z
   .object({
     api_key: z.string().optional(),
-  } satisfies ToZod<DeletePetHeaderParams>)
-  .optional()
+  })
+  .optional() as unknown as ToZod<DeletePetHeaderParams>
 
 export type DeletePetHeaderParamsSchema = DeletePetHeaderParams
 
 /**
  * @description Invalid pet value
  */
-export const deletePet400Schema = z.any()
+export const deletePet400Schema = z.any() as unknown as ToZod<DeletePet400>
 
 export type DeletePet400Schema = DeletePet400
 
-export const deletePetMutationResponseSchema = z.any()
+export const deletePetMutationResponseSchema = z.any() as unknown as ToZod<DeletePetMutationResponse>
 
 export type DeletePetMutationResponseSchema = DeletePetMutationResponse

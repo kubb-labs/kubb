@@ -8,7 +8,7 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 
 export function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
-  return `https://petstore3.swagger.io/api/v3/user/${username}`
+  return `https://petstore3.swagger.io/api/v3/user/${username}` as const
 }
 
 /**

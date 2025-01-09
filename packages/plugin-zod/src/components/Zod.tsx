@@ -47,7 +47,11 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
-          {[output, keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined]
+          {[
+            output,
+            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
+            typeName ? `as unknown as ToZod<${typeName}>` : undefined,
+          ]
             .filter(Boolean)
             .join('') || 'z.undefined()'}
         </Const>

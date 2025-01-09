@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 
 export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
-  return `https://petstore3.swagger.io/api/v3/pet/${petId}`
+  return `https://petstore3.swagger.io/api/v3/pet/${petId}` as const
 }
 
 /**
