@@ -2,7 +2,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getDeletePetURL({ petId }: { petId: DeletePetPathParams['petId'] }) {
+export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
   return `/pet/${petId}` as const
 }
 
@@ -14,7 +14,7 @@ export function getDeletePetURL({ petId }: { petId: DeletePetPathParams['petId']
 export async function deletePet({ petId }: { petId: DeletePetPathParams['petId'] }, headers?: DeletePetHeaderParams, config: Partial<RequestConfig> = {}) {
   const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: getDeletePetURL({ petId }).toString(),
+    url: getDeletePetUrl({ petId }).toString(),
     headers: { ...headers, ...config.headers },
     ...config,
   })
