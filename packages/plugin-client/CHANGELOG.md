@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.4.4
+
+### Patch Changes
+
+- [#1505](https://github.com/kubb-labs/kubb/pull/1505) [`4f571fa`](https://github.com/kubb-labs/kubb/commit/4f571fa94b1dc39dbffd4c27496585843e2bbb7f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - if client receives no body (no content) then it throws JSON parsing error
+
+- Updated dependencies [[`4f571fa`](https://github.com/kubb-labs/kubb/commit/4f571fa94b1dc39dbffd4c27496585843e2bbb7f)]:
+  - @kubb/plugin-zod@3.4.4
+  - @kubb/core@3.4.4
+  - @kubb/fs@3.4.4
+  - @kubb/oas@3.4.4
+  - @kubb/plugin-oas@3.4.4
+  - @kubb/plugin-ts@3.4.4
+  - @kubb/react@3.4.4
+
 ## 3.4.3
 
 ### Patch Changes
