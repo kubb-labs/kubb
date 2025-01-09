@@ -7,6 +7,6 @@ export const customerSchema = z.object({
   id: z.number().int().optional(),
   username: z.string().optional(),
   address: z.array(z.lazy(() => addressSchema)).optional(),
-} satisfies ToZod<Customer>)
+}) as unknown as ToZod<Customer>
 
 export type CustomerSchema = Customer

@@ -3,7 +3,7 @@ import type { LogoutUserQueryResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getLogoutUserUrl() {
-  return '/user/logout'
+  return '/user/logout' as const
 }
 
 /**

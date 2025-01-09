@@ -6,5 +6,5 @@ export const pets = z.array(
     id: z.number().int(),
     name: z.string(),
     tag: z.string().optional(),
-  } satisfies ToZod<Pets>),
-)
+  }),
+) as unknown as ToZod<Pets>

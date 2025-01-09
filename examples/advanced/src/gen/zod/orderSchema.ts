@@ -15,6 +15,6 @@ export const orderSchema = z.object({
     .describe('HTTP Status')
     .optional(),
   complete: z.boolean().optional(),
-} satisfies ToZod<Order>)
+}) as unknown as ToZod<Order>
 
 export type OrderSchema = Order

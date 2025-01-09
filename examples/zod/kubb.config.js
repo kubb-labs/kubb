@@ -37,6 +37,7 @@ export default defineConfig(async () => {
         output: {
           path: './zod',
         },
+        typed: true,
         transformers: {
           name: (name, type) => (type === 'file' ? `${name}.gen` : name),
           schema: ({ schema, parentName, name }, defaultSchemas) => {

@@ -14,7 +14,7 @@ import { z } from 'zod'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
+export const updatePet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() })) as unknown as ToZod<UpdatePet200>
 
 export type UpdatePet200Schema = UpdatePet200
 
@@ -23,38 +23,41 @@ export type UpdatePet200Schema = UpdatePet200
  */
 export const updatePet202Schema = z.object({
   id: z.number().int().optional(),
-} satisfies ToZod<UpdatePet202>)
+}) as unknown as ToZod<UpdatePet202>
 
 export type UpdatePet202Schema = UpdatePet202
 
 /**
  * @description Invalid ID supplied
  */
-export const updatePet400Schema = z.any()
+export const updatePet400Schema = z.any() as unknown as ToZod<UpdatePet400>
 
 export type UpdatePet400Schema = UpdatePet400
 
 /**
  * @description Pet not found
  */
-export const updatePet404Schema = z.any()
+export const updatePet404Schema = z.any() as unknown as ToZod<UpdatePet404>
 
 export type UpdatePet404Schema = UpdatePet404
 
 /**
  * @description Validation exception
  */
-export const updatePet405Schema = z.any()
+export const updatePet405Schema = z.any() as unknown as ToZod<UpdatePet405>
 
 export type UpdatePet405Schema = UpdatePet405
 
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).and(z.object({ id: z.never() }))
+export const updatePetMutationRequestSchema = z.lazy(() => petSchema).and(z.object({ id: z.never() })) as unknown as ToZod<UpdatePetMutationRequest>
 
 export type UpdatePetMutationRequestSchema = UpdatePetMutationRequest
 
-export const updatePetMutationResponseSchema = z.union([z.lazy(() => updatePet200Schema), z.lazy(() => updatePet202Schema)])
+export const updatePetMutationResponseSchema = z.union([
+  z.lazy(() => updatePet200Schema),
+  z.lazy(() => updatePet202Schema),
+]) as unknown as ToZod<UpdatePetMutationResponse>
 
 export type UpdatePetMutationResponseSchema = UpdatePetMutationResponse

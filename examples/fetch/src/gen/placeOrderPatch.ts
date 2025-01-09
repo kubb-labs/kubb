@@ -3,7 +3,7 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, P
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getPlaceOrderPatchUrl() {
-  return '/store/order'
+  return '/store/order' as const
 }
 
 /**

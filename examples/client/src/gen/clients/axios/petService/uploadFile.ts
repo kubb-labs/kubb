@@ -9,7 +9,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
-  return `/pet/${petId}/uploadImage`
+  return `/pet/${petId}/uploadImage` as const
 }
 
 /**

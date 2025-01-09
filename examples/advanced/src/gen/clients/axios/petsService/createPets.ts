@@ -9,7 +9,7 @@ import type {
 } from '../../../models/ts/petsController/CreatePets.ts'
 
 export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
-  return `https://petstore3.swagger.io/api/v3/pets/${uuid}`
+  return `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const
 }
 
 /**

@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 
 export function getAddPetUrl() {
-  return 'https://petstore3.swagger.io/api/v3/pet'
+  return 'https://petstore3.swagger.io/api/v3/pet' as const
 }
 
 /**

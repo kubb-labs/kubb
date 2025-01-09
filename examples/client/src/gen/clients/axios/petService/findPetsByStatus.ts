@@ -4,7 +4,7 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getFindPetsByStatusUrl() {
-  return '/pet/findByStatus'
+  return '/pet/findByStatus' as const
 }
 
 /**

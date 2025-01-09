@@ -20,12 +20,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  object: (value?: string, typeName?: string) => {
-    if (typeName) {
-      return `z.object({
-    ${value}
-    } satisfies ToZod<${typeName}>)`
-    }
+  object: (value?: string) => {
     return `z.object({
     ${value}
     })`
@@ -117,7 +112,13 @@ const zodKeywordMapper = {
   phone: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
+  ref: (value?: string) => {
+    if (!value) {
+      return undefined
+    }
+
+    return `z.lazy(() => ${value})`
+  },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
   example: undefined,
@@ -299,7 +300,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties, options.typeName),
+      zodKeywordMapper.object(properties),
       current.args?.strict ? zodKeywordMapper.strict() : undefined,
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)

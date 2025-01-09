@@ -3,7 +3,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
-  return `/user/${username}`
+  return `/user/${username}` as const
 }
 
 /**

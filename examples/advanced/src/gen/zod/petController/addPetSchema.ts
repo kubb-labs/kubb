@@ -7,7 +7,7 @@ import { z } from 'zod'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() }))
+export const addPet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() })) as unknown as ToZod<AddPet200>
 
 export type AddPet200Schema = AddPet200
 
@@ -17,17 +17,17 @@ export type AddPet200Schema = AddPet200
 export const addPet405Schema = z.object({
   code: z.number().int().optional(),
   message: z.string().optional(),
-} satisfies ToZod<AddPet405>)
+}) as unknown as ToZod<AddPet405>
 
 export type AddPet405Schema = AddPet405
 
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
+export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema) as unknown as ToZod<AddPetMutationRequest>
 
 export type AddPetMutationRequestSchema = AddPetMutationRequest
 
-export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
+export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema) as unknown as ToZod<AddPetMutationResponse>
 
 export type AddPetMutationResponseSchema = AddPetMutationResponse
