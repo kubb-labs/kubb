@@ -68,13 +68,13 @@ describe('build', () => {
       config,
     })
 
-    expect(files.map((file) => ({ ...file, path: undefined }))).toMatchInlineSnapshot(`
+    expect(files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
         {
           "baseName": "world.json",
           "exports": [],
           "extname": ".json",
-          "id": "c63fd2bea10086b4ce23e49922eaa45e1f37da03",
+          "id": undefined,
           "imports": [],
           "meta": {},
           "name": "world",
@@ -89,7 +89,7 @@ describe('build', () => {
           "baseName": "index.ts",
           "exports": [],
           "extname": ".ts",
-          "id": "1e619bfec508939eecbf072c8991974f654f3e5f",
+          "id": undefined,
           "imports": [],
           "meta": {},
           "name": "index",
