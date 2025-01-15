@@ -1,6 +1,6 @@
 {
   "name": "@kubb/fs",
-  "version": "3.4.5",
+  "version": "3.5.0",
   "description": "FileSystem helpers",
   "keywords": [
     "typescript",

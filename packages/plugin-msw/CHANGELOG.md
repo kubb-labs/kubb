@@ -1,5 +1,22 @@
 # @kubb/plugin-msw
 
+## 3.5.0
+
+### Minor Changes
+
+- [#1510](https://github.com/kubb-labs/kubb/pull/1510) [`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support banner with context for Oas
+
+### Patch Changes
+
+- Updated dependencies [[`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977)]:
+  - @kubb/plugin-faker@3.5.0
+  - @kubb/plugin-oas@3.5.0
+  - @kubb/plugin-ts@3.5.0
+  - @kubb/core@3.5.0
+  - @kubb/react@3.5.0
+  - @kubb/fs@3.5.0
+  - @kubb/oas@3.5.0
+
 ## 3.4.5
 
 ### Patch Changes
