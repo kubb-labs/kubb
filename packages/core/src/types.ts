@@ -13,7 +13,7 @@ import type { Logger } from './logger.ts'
  * ...
  * })
  */
-export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'> & {
   /**
    * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()

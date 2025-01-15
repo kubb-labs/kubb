@@ -42,6 +42,6 @@ export function defineConfig(
   return options
 }
 
-export function isInputPath(result: Config | undefined): result is Config<InputPath> {
+export function isInputPath(result: UserConfig | undefined): result is UserConfig<InputPath> {
   return !!result && 'path' in (result?.input as any)
 }

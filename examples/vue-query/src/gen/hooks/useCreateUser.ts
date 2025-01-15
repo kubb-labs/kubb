@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/clients/axios'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'

@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@types/react": "^19.0.4",
+    "@kubb/fs": "^3.5.0",
+    "@types/react": "^19.0.7",
     "react": "^19.0.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3"

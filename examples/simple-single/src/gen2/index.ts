@@ -264,7 +264,15 @@ export const flyContainerConfigSchema = z.object({
     .array(z.lazy(() => flyFileSchema))
     .describe('Files are files that will be written to the container file system.')
     .optional(),
+  healthchecks: z
+    .array(z.lazy(() => flyContainerHealthcheckSchema))
+    .describe('Healthchecks determine the health of your containers. Healthchecks can use HTTP, TCP or an Exec command.')
+    .optional(),
   image: z.string().describe('Image is the docker image to run.').optional(),
+  mounts: z
+    .array(z.lazy(() => flyContainerMountSchema))
+    .describe('Set of mounts added to the container. These must reference a volume in the machine config via its name.')
+    .optional(),
   name: z.string().describe('Name is used to identify the container in the machine.').optional(),
   restart: z
     .lazy(() => flyMachineRestartSchema)
@@ -289,6 +297,35 @@ export const flyContainerDependencySchema = z.object({
 })
 
 export const flyContainerDependencyConditionSchema = z.enum(['exited_successfully', 'healthy', 'started'])
+
+export const flyContainerHealthcheckSchema = z.object({
+  exec: z.lazy(() => flyExecHealthcheckSchema).optional(),
+  failure_threshold: z.number().int().describe('The number of times the check must fail before considering the container unhealthy.').optional(),
+  grace_period: z.number().int().describe('The time in seconds to wait after a container starts before checking its health.').optional(),
+  http: z.lazy(() => flyHTTPHealthcheckSchema).optional(),
+  interval: z.number().int().describe('The time in seconds between executing the defined check.').optional(),
+  kind: z
+    .lazy(() => flyContainerHealthcheckKindSchema)
+    .describe('Kind of healthcheck (readiness, liveness)')
+    .optional(),
+  name: z.string().describe('The name of the check. Must be unique within the container.').optional(),
+  success_threshold: z.number().int().describe('The number of times the check must succeeed before considering the container healthy.').optional(),
+  tcp: z.lazy(() => flyTCPHealthcheckSchema).optional(),
+  timeout: z.number().int().describe('The time in seconds to wait for the check to complete.').optional(),
+  unhealthy: z
+    .lazy(() => flyUnhealthyPolicySchema)
+    .describe('Unhealthy policy that determines what action to take if a container is deemed unhealthy')
+    .optional(),
+})
+
+export const flyContainerHealthcheckKindSchema = z.enum(['readiness', 'liveness'])
+
+export const flyContainerHealthcheckSchemeSchema = z.enum(['http', 'https'])
+
+export const flyContainerMountSchema = z.object({
+  name: z.string().describe('The name of the volume. Must exist in the volumes field in the machine configuration').optional(),
+  path: z.string().describe('The path to mount the volume within the container').optional(),
+})
 
 export const flyDNSConfigSchema = z.object({
   dns_forward_rules: z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(),
@@ -322,6 +359,10 @@ export const flyEnvFromSchema = z
   })
   .describe('EnvVar defines an environment variable to be populated from a machine field, env_var')
 
+export const flyExecHealthcheckSchema = z.object({
+  command: z.array(z.string()).describe('The command to run to check the health of the container (e.g. ["cat", "/tmp/healthy"])').optional(),
+})
+
 /**
  * @description A file that will be written to the Machine. One of RawValue or SecretName must be set.
  */
@@ -336,6 +377,22 @@ export const flyFileSchema = z
     secret_name: z.string().describe('The name of the secret that contains the base64 encoded file contents.').optional(),
   })
   .describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.')
+
+export const flyHTTPHealthcheckSchema = z.object({
+  headers: z
+    .array(z.lazy(() => flyMachineHTTPHeaderSchema))
+    .describe('Additional headers to send with the request')
+    .optional(),
+  method: z.string().describe('The HTTP method to use to when making the request').optional(),
+  path: z.string().describe('The path to send the request to').optional(),
+  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
+  scheme: z
+    .lazy(() => flyContainerHealthcheckSchemeSchema)
+    .describe('Whether to use http or https')
+    .optional(),
+  tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
+  tls_skip_verify: z.boolean().describe('If the protocol is https, whether or not to verify the TLS certificate').optional(),
+})
 
 export const flyHTTPOptionsSchema = z.object({
   compress: z.boolean().optional(),
@@ -410,6 +467,10 @@ export const flyMachineConfigSchema = z.object({
     .optional(),
   statics: z.array(z.lazy(() => flyStaticSchema)).optional(),
   stop_config: z.lazy(() => flyStopConfigSchema).optional(),
+  volumes: z
+    .array(z.lazy(() => flyVolumeConfigSchema))
+    .describe('Volumes describe the set of volumes that can be attached to the machine. Used in conjuction\nwith containers')
+    .optional(),
 })
 
 export const flyMachineGuestSchema = z.object({
@@ -575,10 +636,26 @@ export const flyStopConfigSchema = z.object({
   timeout: z.lazy(() => flyDurationSchema).optional(),
 })
 
+export const flyTCPHealthcheckSchema = z.object({
+  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
+})
+
 export const flyTLSOptionsSchema = z.object({
   alpn: z.array(z.string()).optional(),
   default_self_signed: z.boolean().optional(),
   versions: z.array(z.string()).optional(),
+})
+
+export const flyTempDirVolumeSchema = z.object({
+  size_mb: z.number().int().describe('The size limit of the temp dir, only applicable when using disk backed storage.').optional(),
+  storage_type: z.string().describe('The type of storage used to back the temp dir. Either disk or memory.').optional(),
+})
+
+export const flyUnhealthyPolicySchema = z.enum(['stop'])
+
+export const flyVolumeConfigSchema = z.object({
+  name: z.string().describe('The name of the volume. A volume must have a unique name within an app').optional(),
+  temp_dir: z.lazy(() => flyTempDirVolumeSchema).optional(),
 })
 
 export const flyDnsForwardRuleSchema = z.object({

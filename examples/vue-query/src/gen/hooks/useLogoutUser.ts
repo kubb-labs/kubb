@@ -1,5 +1,5 @@
 import client from '@kubb/plugin-client/clients/axios'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'

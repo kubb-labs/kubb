@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.5.1
+- [`core`](/plugins/core): build of `@kubb/core` with correct types
+
 ## 3.5.0
 - [`core`](/plugins/core): support banner with context for Oas
 ```typescript
