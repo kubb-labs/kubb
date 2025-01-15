@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.5.1
+
+### Patch Changes
+
+- [`967efeb`](https://github.com/kubb-labs/kubb/commit/967efeb16ced9eac0d2b1fb493b39d9b25afbafa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - build of `@kubb/core` with correct types
+
+- Updated dependencies []:
+  - @kubb/fs@3.5.1
+  - @kubb/parser-ts@3.5.1
+  - @kubb/types@3.5.1
+
 ## 3.5.0
 
 ### Minor Changes
