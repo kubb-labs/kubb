@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.5.1
+
+### Patch Changes
+
+- [`cd539c4`](https://github.com/kubb-labs/kubb/commit/cd539c403d8de72502ab49d51a63a58a76a5c2a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow `grouping`
+
+- Updated dependencies [[`967efeb`](https://github.com/kubb-labs/kubb/commit/967efeb16ced9eac0d2b1fb493b39d9b25afbafa)]:
+  - @kubb/core@3.5.1
+  - @kubb/react@3.5.1
+  - @kubb/fs@3.5.1
+  - @kubb/oas@3.5.1
+
 ## 3.5.0
 
 ### Minor Changes
