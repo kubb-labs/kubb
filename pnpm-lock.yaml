@@ -391,8 +391,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@kubb/fs':
-        specifier: ^3.5.0
-        version: 3.5.0
+        specifier: workspace:*
+        version: link:../../packages/fs
       '@types/react':
         specifier: ^19.0.7
         version: 19.0.7
@@ -2788,10 +2788,6 @@ packages:
 
   '@kubb/fs@3.3.2':
     resolution: {integrity: sha512-yEN7RMUaM20oEGsGPgmRR8RtRblOCFIQh4zxuhYzlI7nAEczPVtAOl/CHU5PiI0v3qW9849+zghNbFmHqrODpA==}
-    engines: {node: '>=20'}
-
-  '@kubb/fs@3.5.0':
-    resolution: {integrity: sha512-X9Kjjg4dDH5vT8a8GEs+6Yut0dWcRfjD6grbsW71nC/FNMvJBAQVft0+fUweTayANRX1Z8ee/5rLtP5QETzTPg==}
     engines: {node: '>=20'}
 
   '@kubb/parser-ts@3.3.2':
@@ -9027,11 +9023,6 @@ snapshots:
       semver: 7.6.3
 
   '@kubb/fs@3.3.2':
-    dependencies:
-      fs-extra: 11.2.0
-      js-runtime: 0.0.8
-
-  '@kubb/fs@3.5.0':
     dependencies:
       fs-extra: 11.2.0
       js-runtime: 0.0.8
