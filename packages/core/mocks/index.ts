@@ -63,8 +63,8 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined) 
     return undefined
   }
 
-  for (const file of files) {
+  for await (const file of files) {
     const source = await getSource(createFile(file), { logger: mockedLogger })
-    expect(source).toMatchFileSnapshot(path.join('__snapshots__', file.path))
+    await expect(source).toMatchFileSnapshot(path.join('__snapshots__', file.path))
   }
 }

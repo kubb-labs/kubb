@@ -60,7 +60,7 @@ describe('build', () => {
 
     expect(files).toBeDefined()
     expect(pluginManager).toBeDefined()
-    expect(files.length).toBe(1)
+    expect(files.length).toBe(2)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
@@ -68,11 +68,36 @@ describe('build', () => {
       config,
     })
 
-    expect(files).toMatchObject([
-      {
-        ...file,
-      },
-    ])
+    expect(files.map((file) => ({ ...file, path: undefined }))).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "world.json",
+          "exports": [],
+          "extname": ".json",
+          "id": "c63fd2bea10086b4ce23e49922eaa45e1f37da03",
+          "imports": [],
+          "meta": {},
+          "name": "world",
+          "path": undefined,
+          "sources": [
+            {
+              "value": "export const hello = 'world';",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [],
+          "extname": ".ts",
+          "id": "1e619bfec508939eecbf072c8991974f654f3e5f",
+          "imports": [],
+          "meta": {},
+          "name": "index",
+          "path": undefined,
+          "sources": [],
+        },
+      ]
+    `)
 
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
     expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
