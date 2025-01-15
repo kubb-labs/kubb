@@ -1,4 +1,4 @@
-import type { Output, Plugin } from '@kubb/core'
+import type { Group, Output, Plugin } from '@kubb/core'
 import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
@@ -33,6 +33,10 @@ export type Options = {
    * @default { path: 'schemas', barrelType: 'named' }
    */
   output?: Output<Oas>
+  /**
+   * Group the JSON files based on the provided name.
+   */
+  group?: Group
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example
@@ -152,4 +156,4 @@ type ResolvedOptions = Options & {
   output: Output<Oas>
 }
 
-export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, never>
+export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, ResolvePathOptions>

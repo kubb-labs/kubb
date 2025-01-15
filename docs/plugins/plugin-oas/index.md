@@ -76,6 +76,30 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string`        |
 | Required: | `false` |
 
+
+### group
+<!--@include: ../core/group.md-->
+
+#### group.type
+Define a type where to group the files on.
+
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
+
+<!--@include: ../core/groupTypes.md-->
+
+#### group.name
+
+Return the name of a group based on the group name, this will be used for the file and name generation.
+
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+
 ### validate
 
 Validate your [`input`](/getting-started/configure#input) based on `@readme/openapi-parser`.

@@ -26,10 +26,15 @@ export default defineConfig(() => {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
-      pluginOas({ validate: true }),
+      pluginOas({
+        validate: true,
+      }),
       pluginOas({
         output: {
           path: 'schemas2',
+        },
+        group: {
+          type: 'tag',
         },
         validate: false,
       }),

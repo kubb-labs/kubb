@@ -6,6 +6,7 @@ title: Changelog
 
 ## 3.5.1
 - [`core`](/plugins/core): build of `@kubb/core` with correct types
+- [`plugin-oas`](/plugins/plugin-oas): allow `grouping`
 
 ## 3.5.0
 - [`core`](/plugins/core): support banner with context for Oas
