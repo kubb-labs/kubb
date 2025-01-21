@@ -54,7 +54,11 @@ export type Address = {
   /**
    * @type string | undefined
    */
-  street?: string
+  streetName?: string
+  /**
+   * @type string | undefined
+   */
+  streetNumber?: string
   /**
    * @type string | undefined
    */
@@ -219,6 +223,18 @@ export type Dog = {
    * @type string | undefined
    */
   bark?: string
+}
+
+export type FullAddress = Address & {
+  /**
+   * @type string
+   */
+  streetNumber: string
+} & {
+  /**
+   * @type string
+   */
+  streetName: string
 }
 
 export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold'

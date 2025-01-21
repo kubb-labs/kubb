@@ -6,6 +6,7 @@ title: Changelog
 
 ## 3.5.2
 - [`plugin-faker`](/plugins/plugin-faker): `faker.number.float` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`.
+- [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when using `allOf` and applying required on fields
 
 ## 3.5.1
 - [`core`](/plugins/core): build of `@kubb/core` with correct types

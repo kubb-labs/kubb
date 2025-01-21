@@ -12,6 +12,68 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
         },
         "keyword": "ref",
       },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "streetName": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "streetName",
+                "keyword": "name",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "streetNumber": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "streetNumber",
+                "keyword": "name",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
     ],
     "keyword": "and",
   },

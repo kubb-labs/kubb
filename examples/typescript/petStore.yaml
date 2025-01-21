@@ -689,9 +689,10 @@ components:
     Address:
       type: object
       properties:
-        street:
+        streetName:
           type: string
-          example: 437 Lytton
+        streetNumber:
+          type: string
         city:
           type: string
           example: Palo Alto
@@ -832,6 +833,15 @@ components:
           readOnly: true
         bark:
           type: string
+    FullAddress:
+      properties:
+        streetName:
+          type: string
+      allOf:
+        - $ref: "#/components/schemas/Address"
+      required:
+        - streetName
+        - streetNumber
     AddPetRequest:
       required:
         - name

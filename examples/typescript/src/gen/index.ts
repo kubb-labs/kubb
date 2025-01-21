@@ -32,6 +32,7 @@ export type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQuery,
 } from './ts/models/FindPetsByTags.ts'
+export type { FullAddress } from './ts/models/FullAddress.ts'
 export type { GetInventory200, GetInventoryQueryResponse, GetInventoryQuery } from './ts/models/GetInventory.ts'
 export type {
   GetOrderByIdPathParams,

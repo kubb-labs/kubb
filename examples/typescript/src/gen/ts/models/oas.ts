@@ -1004,9 +1004,11 @@ export const oas = {
       Address: {
         type: 'object',
         properties: {
-          street: {
+          streetName: {
             type: 'string',
-            example: '437 Lytton',
+          },
+          streetNumber: {
+            type: 'string',
           },
           city: {
             type: 'string',
@@ -1198,6 +1200,19 @@ export const oas = {
           },
         },
         required: ['type'],
+      },
+      FullAddress: {
+        properties: {
+          streetName: {
+            type: 'string',
+          },
+        },
+        allOf: [
+          {
+            $ref: '#/components/schemas/Address',
+          },
+        ],
+        required: ['streetName', 'streetNumber'],
       },
       AddPetRequest: {
         required: ['name', 'photoUrls'],

@@ -62,7 +62,11 @@ export interface Address {
   /**
    * @type string | undefined
    */
-  street?: string
+  streetName?: string
+  /**
+   * @type string | undefined
+   */
+  streetNumber?: string
   /**
    * @type string | undefined
    */
@@ -238,6 +242,18 @@ export interface Dog {
    * @type string | undefined
    */
   bark?: string
+}
+
+export type FullAddress = Address & {
+  /**
+   * @type string
+   */
+  streetNumber: string
+} & {
+  /**
+   * @type string
+   */
+  streetName: string
 }
 
 export enum AddPetRequestStatusEnum {

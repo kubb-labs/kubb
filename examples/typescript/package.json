@@ -15,6 +15,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

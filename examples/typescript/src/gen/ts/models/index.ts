@@ -26,6 +26,7 @@ export type {
   FindPetsByStatusQuery,
 } from './FindPetsByStatus.ts'
 export type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQueryResponse, FindPetsByTagsQuery } from './FindPetsByTags.ts'
+export type { FullAddress } from './FullAddress.ts'
 export type { GetInventory200, GetInventoryQueryResponse, GetInventoryQuery } from './GetInventory.ts'
 export type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse, GetOrderByIdQuery } from './GetOrderById.ts'
 export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './GetPetById.ts'

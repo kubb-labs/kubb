@@ -564,10 +564,15 @@ export class SchemaGenerator<
           .filter(Boolean)
 
         const items = schemaWithoutAllOf.required
-          .filter((key) =>
+          .filter((key) => {
             // filter out keys that are already part of the properties(reduce duplicated keys(https://github.com/kubb-labs/kubb/issues/1492)
-            schemaWithoutAllOf.properties ? !Object.keys(schemaWithoutAllOf.properties).includes(key) : false,
-          )
+            if (schemaWithoutAllOf.properties) {
+              return !Object.keys(schemaWithoutAllOf.properties).includes(key)
+            }
+
+            // schema should include required fields when necessary https://github.com/kubb-labs/kubb/issues/1522
+            return true
+          })
           .map((key) => {
             const schema = schemas.find((item) => item.properties && Object.keys(item.properties).find((propertyKey) => propertyKey === key))
 
