@@ -29,7 +29,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/svelte-query": "5.62.7",
     "axios": "^1.7.9",
-    "svelte": "^3.59.2",
+    "svelte": "^4.2.19",
     "tsup": "^8.3.5"
   },
   "devDependencies": {
