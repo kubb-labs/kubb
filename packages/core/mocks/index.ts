@@ -1,6 +1,7 @@
 import { camelCase, pascalCase } from '../src/transformers/casing.ts'
 
 import path from 'node:path'
+import type { Plugin } from '@kubb/core'
 import type { File, ResolvedFile } from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
@@ -42,6 +43,9 @@ export const createMockedPluginManager = (name?: string) =>
       },
       on(eventName, args) {},
       logLevel: 3,
+    },
+    getPluginByKey: (_pluginKey: Plugin['key']) => {
+      return {} as Plugin
     },
     getFile: ({ name, extname, pluginKey }) => {
       const baseName = `${name}${extname}`

@@ -14,7 +14,7 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-async function getPetByIdHook({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> = {}) {
+async function get_pet_by_id({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
     url: `/pet/${pet_id}`,
@@ -30,7 +30,7 @@ export function getPetByIdQueryOptionsHook({ pet_id }: { pet_id: GetPetByIdPathP
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getPetByIdHook({ pet_id }, config)
+      return get_pet_by_id({ pet_id }, config)
     },
   })
 }

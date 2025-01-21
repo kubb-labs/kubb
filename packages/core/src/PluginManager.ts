@@ -114,14 +114,6 @@ export class PluginManager {
     return this
   }
 
-  getOptions<TOptions = object>({ pluginKey }: GetOptionsProps<TOptions>) {
-    const plugins = [...this.plugins]
-
-    plugins.find((plugin) => {
-      return plugin.key === pluginKey
-    })
-  }
-
   getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
     const baseName = `${name}${extname}` as const
     const path = this.resolvePath({ baseName, mode, pluginKey, options })
@@ -458,7 +450,18 @@ export class PluginManager {
       })
   }
 
-  getPluginsByKey(hookName: keyof PluginLifecycle, pluginKey: Plugin['key']): Plugin[] {
+  getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
+    const plugins = [...this.plugins]
+    const [searchPluginName, searchIdentifier] = pluginKey
+
+    return plugins.find((item) => {
+      const [name] = item.key
+
+      return name === searchPluginName
+    })
+  }
+
+  getPluginsByKey(hookName: keyof PluginWithLifeCycle, pluginKey: Plugin['key']): Plugin[] {
     const plugins = [...this.plugins]
     const [searchPluginName, searchIdentifier] = pluginKey
 

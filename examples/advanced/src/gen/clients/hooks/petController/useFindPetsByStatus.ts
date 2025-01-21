@@ -1,28 +1,13 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
+import { findPetsByStatus } from '../../axios/petService/findPetsByStatus.ts'
 
 export const findPetsByStatusQueryKey = ({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) =>
   [{ url: '/pet/findByStatus/:step_id', params: { step_id: step_id } }] as const
 
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
-
-/**
- * @description Multiple status values can be provided with comma separated strings
- * @summary Finds Pets by status
- * {@link /pet/findByStatus/:step_id}
- */
-async function findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
-    method: 'GET',
-    url: `/pet/findByStatus/${step_id}`,
-    ...config,
-  })
-  return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
-}
 
 export function findPetsByStatusQueryOptions({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = findPetsByStatusQueryKey({ step_id })

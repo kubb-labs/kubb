@@ -12,7 +12,7 @@ export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQuery
  * @summary Logs user into the system
  * {@link /user/login}
  */
-async function loginUserHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...config })
   return res.data
 }
@@ -23,7 +23,7 @@ export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return loginUserHook(params, config)
+      return loginUser(params, config)
     },
   })
 }

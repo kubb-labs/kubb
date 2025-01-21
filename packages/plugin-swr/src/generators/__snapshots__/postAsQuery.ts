@@ -1,4 +1,3 @@
-import client from '@kubb/plugin-client/clients/axios'
 import useSWR from 'custom-swr'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
@@ -6,23 +5,6 @@ export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['pe
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
- */
-async function updatePetWithForm(
-  { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
-  config: Partial<RequestConfig> = {},
-) {
-  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
-    method: 'POST',
-    url: `/pet/${petId}`,
-    params,
-    ...config,
-  })
-  return res.data
-}
 
 export function updatePetWithFormQueryOptions(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },

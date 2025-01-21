@@ -13,7 +13,7 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  * @summary Place an order for a pet with patch
  * {@link /store/order}
  */
-async function placeOrderPatchHook(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
+async function placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> = {}) {
   const res = await client<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',
@@ -39,7 +39,7 @@ export function usePlaceOrderPatchHook(
 
   return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return placeOrderPatchHook(data, config)
+      return placeOrderPatch(data, config)
     },
     mutationKey,
     ...mutationOptions,

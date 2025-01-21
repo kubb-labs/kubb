@@ -1,4 +1,3 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type {
@@ -8,25 +7,12 @@ import type {
   GetUserByName404,
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
+import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
 export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-
-/**
- * @summary Get user by user name
- * {@link /user/:username}
- */
-async function getUserByName({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
-    method: 'GET',
-    url: `/user/${username}`,
-    ...config,
-  })
-  return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
-}
 
 export function getUserByNameQueryOptions({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = getUserByNameQueryKey({ username })

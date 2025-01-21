@@ -1,22 +1,12 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
+import { logoutUser } from '../../axios/userService/logoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-
-/**
- * @summary Logs out current logged in user session
- * {@link /user/logout}
- */
-async function logoutUser(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...config })
-  return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
-}
 
 export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
   const queryKey = logoutUserQueryKey()

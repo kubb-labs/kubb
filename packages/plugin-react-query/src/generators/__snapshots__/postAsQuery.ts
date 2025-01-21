@@ -1,4 +1,3 @@
-import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from 'custom-query'
 import { queryOptions, useQuery } from 'custom-query'
@@ -10,26 +9,6 @@ export const updatePetWithFormQueryKey = (
 ) => [{ url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:pet_id}
- */
-async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
-) {
-  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
-    method: 'POST',
-    url: `/pet/${pet_id}`,
-    params,
-    data,
-    ...config,
-  })
-  return updatePetWithFormMutationResponse.parse(res.data)
-}
 
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],

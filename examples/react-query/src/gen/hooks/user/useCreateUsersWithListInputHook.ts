@@ -13,7 +13,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-async function createUsersWithListInputHook(
+async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {
@@ -42,7 +42,7 @@ export function useCreateUsersWithListInputHook(
 
   return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return createUsersWithListInputHook(data, config)
+      return createUsersWithListInput(data, config)
     },
     mutationKey,
     ...mutationOptions,

@@ -1,3 +1,4 @@
+import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -16,6 +17,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginSolidQuery>()
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
@@ -31,7 +33,9 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     }
 
     const client = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      file: getFile(operation, { pluginKey: [pluginClientName] }),
+      plugin: pluginManager.getPluginByKey([pluginClientName]),
     }
 
     const queryOptions = {
@@ -67,7 +71,8 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={'client'} path={options.client.importPath} />
+        {!client.plugin && <File.Import name={'client'} path={options.client.importPath} />}
+        {!!client.plugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
@@ -92,20 +97,20 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
           typeSchemas={type.schemas}
           transformer={options.queryKey}
         />
-        <Client
-          name={client.name}
-          isExportable={false}
-          isIndexable={false}
-          baseURL={options.client.baseURL}
-          operation={operation}
-          typeSchemas={type.schemas}
-          zodSchemas={zod.schemas}
-          dataReturnType={options.client.dataReturnType}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          parser={options.parser}
-        />
+        {!client.plugin && (
+          <Client
+            name={client.name}
+            baseURL={options.client.baseURL}
+            operation={operation}
+            typeSchemas={type.schemas}
+            zodSchemas={zod.schemas}
+            dataReturnType={options.client.dataReturnType}
+            paramsCasing={options.paramsCasing}
+            paramsType={options.paramsType}
+            pathParamsType={options.pathParamsType}
+            parser={options.parser}
+          />
+        )}
         <File.Import name={['queryOptions']} path={importPath} />
         <QueryOptions
           name={queryOptions.name}

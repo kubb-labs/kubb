@@ -1,6 +1,5 @@
-import client from '../../../../swr-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -8,7 +7,7 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import { updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
+import { updatePet } from '../../axios/petService/updatePet.ts'
 
 export const updatePetMutationKeySWR = () => [{ url: '/pet' }] as const
 
@@ -19,27 +18,11 @@ export type UpdatePetMutationKeySWR = ReturnType<typeof updatePetMutationKeySWR>
  * @summary Update an existing pet
  * {@link /pet}
  */
-async function updatePetSWR({ data }: { data: UpdatePetMutationRequest }, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
-  const res = await client<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
-    method: 'PUT',
-    url: '/pet',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    data,
-    ...config,
-  })
-  return updatePetMutationResponseSchema.parse(res.data)
-}
-
-/**
- * @description Update an existing pet by Id
- * @summary Update an existing pet
- * {@link /pet}
- */
 export function useUpdatePetSWR(
   options: {
     mutation?: Parameters<
       typeof useSWRMutation<
-        UpdatePetMutationResponse,
+        ResponseConfig<UpdatePetMutationResponse>,
         ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
         UpdatePetMutationKeySWR,
         UpdatePetMutationRequest
@@ -53,14 +36,14 @@ export function useUpdatePetSWR(
   const mutationKey = updatePetMutationKeySWR()
 
   return useSWRMutation<
-    UpdatePetMutationResponse,
+    ResponseConfig<UpdatePetMutationResponse>,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     UpdatePetMutationKeySWR | null,
     UpdatePetMutationRequest
   >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
-      return updatePetSWR({ data }, config)
+      return updatePet({ data }, config)
     },
     mutationOptions,
   )
