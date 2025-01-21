@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.5.2
+
+### Patch Changes
+
+- [`f5bae0d`](https://github.com/kubb-labs/kubb/commit/f5bae0db77f50fc11c504ab81bd077883346fd7e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove duplicated keys when using `allOf` and applying required on fields
+
+- Updated dependencies []:
+  - @kubb/core@3.5.2
+  - @kubb/fs@3.5.2
+  - @kubb/oas@3.5.2
+  - @kubb/react@3.5.2
+
 ## 3.5.1
 
 ### Patch Changes
