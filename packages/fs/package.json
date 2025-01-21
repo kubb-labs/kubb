@@ -57,7 +57,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "js-runtime": "^0.0.8"
   },
   "devDependencies": {

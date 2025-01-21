@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "prettier": "^3.4.2",
-    "remeda": "^2.19.1",
+    "remeda": "^2.19.2",
     "typescript": "catalog:"
   },
   "devDependencies": {

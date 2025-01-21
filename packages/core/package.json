@@ -94,7 +94,7 @@
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
     "p-queue": "^8.0.1",
-    "remeda": "^2.19.1",
+    "remeda": "^2.19.2",
     "seedrandom": "^3.0.5",
     "semver": "^7.6.3"
   },
