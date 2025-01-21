@@ -12,7 +12,7 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  * @summary uploads an image
  * {@link /pet/:petId/uploadImage}
  */
-async function uploadFile(
+export async function uploadFileHook(
   { petId }: { petId: UploadFilePathParams['petId'] },
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
@@ -52,7 +52,7 @@ export function useUploadFileHook(
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {
-      return uploadFile({ petId }, data, params, config)
+      return uploadFileHook({ petId }, data, params, config)
     },
     mutationKey,
     ...mutationOptions,

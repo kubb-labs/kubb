@@ -46,10 +46,17 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: hasClientPlugin
+        ? getName(operation, {
+            type: 'function',
+            pluginKey: [pluginClientName],
+          })
+        : getName(operation, {
+            type: 'function',
+          }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
-      plugin: pluginManager.getPluginByKey([pluginClientName]),
     }
 
     const mutationKey = {
@@ -71,8 +78,8 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
       >
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
         <File.Import name={['MaybeRef']} path="vue" isTypeOnly />
-        {!client.plugin && <File.Import name={'client'} path={options.client.importPath} />}
-        {!!client.plugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
+        {!hasClientPlugin && <File.Import name={'client'} path={options.client.importPath} />}
+        {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
@@ -96,7 +103,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
           typeSchemas={type.schemas}
           transformer={options.mutationKey}
         />
-        {!client.plugin && (
+        {!hasClientPlugin && (
           <Client
             name={client.name}
             baseURL={options.client.baseURL}

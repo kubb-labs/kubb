@@ -32,10 +32,17 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
       file: getFile(operation, { prefix: 'create' }),
     }
 
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     const client = {
-      name: getName(operation, { type: 'function', pluginKey: [pluginClientName] }),
+      name: hasClientPlugin
+        ? getName(operation, {
+            type: 'function',
+            pluginKey: [pluginClientName],
+          })
+        : getName(operation, {
+            type: 'function',
+          }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
-      plugin: pluginManager.getPluginByKey([pluginClientName]),
     }
 
     const queryOptions = {
@@ -71,8 +78,8 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        {!client.plugin && <File.Import name={'client'} path={options.client.importPath} />}
-        {!!client.plugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        {!hasClientPlugin && <File.Import name={'client'} path={options.client.importPath} />}
+        {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
@@ -97,7 +104,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
           typeSchemas={type.schemas}
           transformer={options.queryKey}
         />
-        {!client.plugin && (
+        {!hasClientPlugin && (
           <Client
             name={client.name}
             baseURL={options.client.baseURL}

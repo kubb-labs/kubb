@@ -1,3 +1,4 @@
+import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
@@ -5,6 +6,22 @@ import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
+
+/**
+ * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+ * @summary Finds Pets by tags
+ * {@link /pet/findByTags}
+ */
+export async function findPetsByTagsInfinite(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+    method: 'GET',
+    url: `/pet/findByTags`,
+    params,
+    headers: { ...headers, ...config.headers },
+    ...config,
+  })
+  return findPetsByTagsQueryResponse.parse(res.data)
+}
 
 export function findPetsByTagsInfiniteQueryOptions(
   headers: FindPetsByTagsHeaderParams,
@@ -20,7 +37,7 @@ export function findPetsByTagsInfiniteQueryOptions(
       if (params) {
         params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       }
-      return findPetsByTags(headers, params, config)
+      return findPetsByTagsInfinite(headers, params, config)
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),

@@ -1,3 +1,4 @@
+import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
@@ -5,6 +6,26 @@ import { createMutation } from '@tanstack/svelte-query'
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
+
+/**
+ * @summary Updates a pet in the store with form data
+ * {@link /pet/:petId}
+ */
+export async function updatePetWithForm(
+  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
+  data?: UpdatePetWithFormMutationRequest,
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+) {
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
+    method: 'POST',
+    url: `/pet/${petId}`,
+    params,
+    data,
+    ...config,
+  })
+  return updatePetWithFormMutationResponse.parse(res.data)
+}
 
 /**
  * @summary Updates a pet in the store with form data

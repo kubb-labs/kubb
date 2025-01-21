@@ -1,3 +1,4 @@
+import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from 'custom-query'
 import type { MaybeRef } from 'vue'
@@ -11,6 +12,26 @@ export const updatePetWithFormQueryKey = (
 ) => [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
+
+/**
+ * @summary Updates a pet in the store with form data
+ * {@link /pet/:petId}
+ */
+export async function updatePetWithForm(
+  petId: UpdatePetWithFormPathParams['petId'],
+  data?: UpdatePetWithFormMutationRequest,
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+) {
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
+    method: 'POST',
+    url: `/pet/${petId}`,
+    params,
+    data,
+    ...config,
+  })
+  return updatePetWithFormMutationResponse.parse(res.data)
+}
 
 export function updatePetWithFormQueryOptions(
   petId: MaybeRef<UpdatePetWithFormPathParams['petId']>,

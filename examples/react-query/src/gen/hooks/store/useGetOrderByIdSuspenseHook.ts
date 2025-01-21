@@ -14,7 +14,7 @@ export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspens
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
+export async function getOrderByIdSuspenseHook({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
   const res = await client<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
@@ -30,7 +30,7 @@ export function getOrderByIdSuspenseQueryOptionsHook({ orderId }: { orderId: Get
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getOrderById({ orderId }, config)
+      return getOrderByIdSuspenseHook({ orderId }, config)
     },
   })
 }

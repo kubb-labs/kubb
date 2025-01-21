@@ -1,3 +1,4 @@
+import client from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
@@ -5,6 +6,20 @@ import { queryOptions, useQuery } from '@tanstack/react-query'
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['pet_id']) => [{ url: '/pet/:pet_id', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+
+/**
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * {@link /pet/:pet_id}
+ */
+export async function getPetById(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
+  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    method: 'GET',
+    url: `/pet/${petId}`,
+    ...config,
+  })
+  return getPetByIdQueryResponse.parse(res.data)
+}
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey(petId)
