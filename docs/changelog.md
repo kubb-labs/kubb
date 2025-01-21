@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.5.2
+- [`plugin-faker`](/plugins/plugin-faker): `faker.number.float` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`.
+
 ## 3.5.1
 - [`core`](/plugins/core): build of `@kubb/core` with correct types
 - [`plugin-oas`](/plugins/plugin-oas): allow `grouping`

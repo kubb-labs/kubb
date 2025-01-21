@@ -13,11 +13,11 @@ const fakerKeywordMapper = {
     }
 
     if (min !== undefined) {
-      return `faker.number.float({ min: ${min} })`
+      return `faker.number.float({ min: ${min}, max: Number.MAX_VALUE })`
     }
 
     if (max !== undefined) {
-      return `faker.number.float({ max: ${max} })`
+      return `faker.number.float({ min: Number.MIN_VALUE, max: ${max} })`
     }
 
     return 'faker.number.float()'
