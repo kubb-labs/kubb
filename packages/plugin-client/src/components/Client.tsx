@@ -13,9 +13,6 @@ type Props = {
    */
   name: string
   urlName?: string
-  isExportable?: boolean
-  isIndexable?: boolean
-
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
@@ -103,8 +100,6 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
 
 export function Client({
   name,
-  isExportable = true,
-  isIndexable = true,
   typeSchemas,
   baseURL,
   dataReturnType,
@@ -183,11 +178,11 @@ export function Client({
     : ''
 
   return (
-    <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
+    <File.Source name={name} isExportable isIndexable>
       <Function
         name={name}
         async
-        export={isExportable}
+        export
         params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),

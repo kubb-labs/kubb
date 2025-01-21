@@ -12,7 +12,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+export async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,

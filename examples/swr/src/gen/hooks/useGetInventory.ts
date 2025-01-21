@@ -12,7 +12,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-async function getInventory(config: Partial<RequestConfig> = {}) {
+export async function getInventory(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...config })
   return res.data
 }

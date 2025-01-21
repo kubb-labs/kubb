@@ -1,27 +1,12 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
+import { deleteUser } from '../../axios/userService/deleteUser.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
-
-/**
- * @description This can only be done by the logged in user.
- * @summary Delete user
- * {@link /user/:username}
- */
-async function deleteUser({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
-    method: 'DELETE',
-    url: `/user/${username}`,
-    ...config,
-  })
-  return { ...res, data: deleteUserMutationResponseSchema.parse(res.data) }
-}
 
 /**
  * @description This can only be done by the logged in user.

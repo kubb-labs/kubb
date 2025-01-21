@@ -1,4 +1,3 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   UpdatePetMutationRequest,
@@ -8,27 +7,12 @@ import type {
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
+import { updatePet } from '../../axios/petService/updatePet.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
 export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
-
-/**
- * @description Update an existing pet by Id
- * @summary Update an existing pet
- * {@link /pet}
- */
-async function updatePet({ data }: { data: UpdatePetMutationRequest }, config: Partial<RequestConfig<UpdatePetMutationRequest>> = {}) {
-  const res = await client<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
-    method: 'PUT',
-    url: '/pet',
-    data,
-    ...config,
-  })
-  return { ...res, data: updatePetMutationResponseSchema.parse(res.data) }
-}
 
 /**
  * @description Update an existing pet by Id

@@ -1,3 +1,4 @@
+import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -17,6 +18,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginSwr>()
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
@@ -45,8 +47,17 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     const client = {
-      name: getName(operation, { type: 'function' }),
+      name: hasClientPlugin
+        ? getName(operation, {
+            type: 'function',
+            pluginKey: [pluginClientName],
+          })
+        : getName(operation, {
+            type: 'function',
+          }),
+      file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const mutationKey = {
@@ -69,7 +80,8 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
         <File.Import name="useSWRMutation" path={importPath} />
         <File.Import name={['SWRMutationResponse']} path={importPath} isTypeOnly />
-        <File.Import name={'client'} path={options.client.importPath} />
+        {!hasClientPlugin && <File.Import name={'client'} path={options.client.importPath} />}
+        {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
@@ -95,20 +107,20 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           transformer={options.mutationKey}
         />
 
-        <Client
-          name={client.name}
-          isExportable={false}
-          isIndexable={false}
-          baseURL={options.client.baseURL}
-          operation={operation}
-          typeSchemas={type.schemas}
-          zodSchemas={zod.schemas}
-          dataReturnType={options.client.dataReturnType}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          parser={options.parser}
-        />
+        {!hasClientPlugin && (
+          <Client
+            name={client.name}
+            baseURL={options.client.baseURL}
+            operation={operation}
+            typeSchemas={type.schemas}
+            zodSchemas={zod.schemas}
+            dataReturnType={options.client.dataReturnType}
+            paramsCasing={options.paramsCasing}
+            paramsType={options.paramsType}
+            pathParamsType={options.pathParamsType}
+            parser={options.parser}
+          />
+        )}
         {options.mutation && (
           <Mutation
             name={mutation.name}

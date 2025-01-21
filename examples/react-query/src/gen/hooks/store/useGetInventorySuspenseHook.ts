@@ -13,7 +13,7 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-async function getInventoryHook(config: Partial<RequestConfig> = {}) {
+export async function getInventorySuspenseHook(config: Partial<RequestConfig> = {}) {
   const res = await client<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...config })
   return res.data
 }
@@ -24,7 +24,7 @@ export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConf
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getInventoryHook(config)
+      return getInventorySuspenseHook(config)
     },
   })
 }

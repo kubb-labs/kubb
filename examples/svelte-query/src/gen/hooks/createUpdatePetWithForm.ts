@@ -18,7 +18,11 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  * @summary Updates a pet in the store with form data
  * {@link /pet/:pet_id}
  */
-async function updatePetWithForm(petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams, config: Partial<RequestConfig> = {}) {
+export async function updatePetWithForm(
+  petId: UpdatePetWithFormPathParams['pet_id'],
+  params?: UpdatePetWithFormQueryParams,
+  config: Partial<RequestConfig> = {},
+) {
   const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,

@@ -14,7 +14,7 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-async function findPetsByTags(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
+export async function findPetsByTagsInfinite(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
   const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
@@ -39,7 +39,7 @@ export function findPetsByTagsInfiniteQueryOptions(
       if (params) {
         params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       }
-      return findPetsByTags(headers, params, config)
+      return findPetsByTagsInfinite(headers, params, config)
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['cursor'],

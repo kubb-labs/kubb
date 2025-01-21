@@ -12,7 +12,7 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * @summary Delete user
  * {@link /user/:username}
  */
-async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
+export async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
   const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,

@@ -1,27 +1,12 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
+import { getPetById } from '../../axios/petService/getPetById.ts'
 
 export const getPetByIdQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
-
-/**
- * @description Returns a single pet
- * @summary Find pet by ID
- * {@link /pet/:petId}
- */
-async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
-    method: 'GET',
-    url: `/pet/${petId}`,
-    ...config,
-  })
-  return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }
-}
 
 export function getPetByIdQueryOptions({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> = {}) {
   const queryKey = getPetByIdQueryKey({ petId })

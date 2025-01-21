@@ -1,22 +1,12 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
+import { loginUser } from '../../axios/userService/loginUser.ts'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
-
-/**
- * @summary Logs user into the system
- * {@link /user/login}
- */
-async function loginUser({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...config })
-  return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
-}
 
 export function loginUserQueryOptions({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> = {}) {
   const queryKey = loginUserQueryKey(params)

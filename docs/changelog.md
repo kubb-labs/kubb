@@ -4,6 +4,15 @@ title: Changelog
 
 # Changelog
 
+## 3.5.3
+- [`plugin-client`](/plugins/plugin-client): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-swr`](/plugins/plugin-swr/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+
+
 ## 3.5.2
 - [`plugin-faker`](/plugins/plugin-faker): `faker.number.float` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`.
 - [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when using `allOf` and applying required on fields

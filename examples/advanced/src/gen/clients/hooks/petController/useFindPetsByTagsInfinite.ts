@@ -1,4 +1,3 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../tanstack-query-client'
 import type { InfiniteData, QueryKey, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook'
 import type {
@@ -8,30 +7,11 @@ import type {
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { infiniteQueryOptions, useInfiniteQuery } from '../../../../tanstack-query-hook'
-import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
+import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
-
-/**
- * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
- * @summary Finds Pets by tags
- * {@link /pet/findByTags}
- */
-async function findPetsByTags(
-  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
-  config: Partial<RequestConfig> = {},
-) {
-  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
-    method: 'GET',
-    url: '/pet/findByTags',
-    params,
-    headers: { ...headers, ...config.headers },
-    ...config,
-  })
-  return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
-}
 
 export function findPetsByTagsInfiniteQueryOptions(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },

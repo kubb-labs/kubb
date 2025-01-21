@@ -18,7 +18,7 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  * @summary Updates a pet in the store with form data
  * {@link /pet/:pet_id}
  */
-async function updatePetWithFormHook(
+export async function updatePetWithFormHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> = {},

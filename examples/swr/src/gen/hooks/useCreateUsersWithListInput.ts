@@ -12,7 +12,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-async function createUsersWithListInput(
+export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
 ) {

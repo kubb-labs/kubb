@@ -1,4 +1,3 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   UpdatePetWithFormMutationResponse,
@@ -7,29 +6,12 @@ import type {
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
+import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
- */
-async function updatePetWithForm(
-  { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
-  config: Partial<RequestConfig> = {},
-) {
-  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
-    method: 'POST',
-    url: `/pet/${petId}`,
-    params,
-    ...config,
-  })
-  return { ...res, data: updatePetWithFormMutationResponseSchema.parse(res.data) }
-}
 
 /**
  * @summary Updates a pet in the store with form data

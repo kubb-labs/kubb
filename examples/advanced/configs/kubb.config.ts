@@ -111,11 +111,11 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           importPath: '../../../../swr-client.ts',
-          dataReturnType: 'data',
+          dataReturnType: 'full',
           baseURL: 'https://petstore3.swagger.io/api/v3',
         },
         paramsType: 'object',
-        parser: 'zod',
+        pathParamsType: 'object',
         transformers: {
           name(name, type) {
             return `${name}SWR`

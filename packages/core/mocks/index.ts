@@ -5,6 +5,7 @@ import type { File, ResolvedFile } from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
 import type { Logger } from '../src/logger'
+import type { Plugin } from '../src/types.ts'
 import { createFile } from '../src/utils'
 
 export const mockedLogger = {
@@ -42,6 +43,9 @@ export const createMockedPluginManager = (name?: string) =>
       },
       on(eventName, args) {},
       logLevel: 3,
+    },
+    getPluginByKey: (_pluginKey: Plugin['key']) => {
+      return undefined
     },
     getFile: ({ name, extname, pluginKey }) => {
       const baseName = `${name}${extname}`

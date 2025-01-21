@@ -1,4 +1,3 @@
-import client from '../../../../tanstack-query-client'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
 import type {
   UploadFileMutationRequest,
@@ -7,31 +6,12 @@ import type {
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import { uploadFileMutationResponseSchema } from '../../../zod/petController/uploadFileSchema.ts'
+import { uploadFile } from '../../axios/petService/uploadFile.ts'
 import { useMutation } from '@tanstack/react-query'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
-
-/**
- * @summary uploads an image
- * {@link /pet/:petId/uploadImage}
- */
-async function uploadFile(
-  { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
-  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
-) {
-  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
-    method: 'POST',
-    url: `/pet/${petId}/uploadImage`,
-    params,
-    data,
-    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
-    ...config,
-  })
-  return { ...res, data: uploadFileMutationResponseSchema.parse(res.data) }
-}
 
 /**
  * @summary uploads an image

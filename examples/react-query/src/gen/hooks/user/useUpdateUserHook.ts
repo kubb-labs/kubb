@@ -13,7 +13,7 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * @summary Update user
  * {@link /user/:username}
  */
-async function updateUserHook(
+export async function updateUserHook(
   { username }: { username: UpdateUserPathParams['username'] },
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
