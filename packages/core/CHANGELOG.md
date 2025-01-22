@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 3.5.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.5.3
+  - @kubb/parser-ts@3.5.3
+  - @kubb/types@3.5.3
+
 ## 3.5.2
 
 ### Patch Changes

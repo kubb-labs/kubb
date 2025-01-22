@@ -1,5 +1,20 @@
 # @kubb/plugin-vue-query
 
+## 3.5.3
+
+### Patch Changes
+
+- [#1530](https://github.com/kubb-labs/kubb/pull/1530) [`babf1d5`](https://github.com/kubb-labs/kubb/commit/babf1d5a3feccdde43a3e28778f1f475f231dc9d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow exporting custom client fetch function in react-query
+
+- Updated dependencies []:
+  - @kubb/core@3.5.3
+  - @kubb/fs@3.5.3
+  - @kubb/oas@3.5.3
+  - @kubb/plugin-oas@3.5.3
+  - @kubb/plugin-ts@3.5.3
+  - @kubb/plugin-zod@3.5.3
+  - @kubb/react@3.5.3
+
 ## 3.5.2
 
 ### Patch Changes
