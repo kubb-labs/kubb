@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.5.4
+- [`plugin-zod`](/plugins/plugin-zod): Support uniqueItems in Zod
+
 ## 3.5.3
 - [`plugin-client`](/plugins/plugin-client): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available

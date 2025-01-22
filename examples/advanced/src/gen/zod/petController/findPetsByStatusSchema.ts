@@ -20,7 +20,8 @@ export type FindPetsByStatusPathParamsSchema = FindPetsByStatusPathParams
 export const findPetsByStatus200Schema = z
   .array(z.lazy(() => petSchema))
   .min(1)
-  .max(3) as unknown as ToZod<FindPetsByStatus200>
+  .max(3)
+  .refine((items) => new Set(items).size === items.length, { message: 'Array entries must be unique' }) as unknown as ToZod<FindPetsByStatus200>
 
 export type FindPetsByStatus200Schema = FindPetsByStatus200
 

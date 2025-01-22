@@ -857,6 +857,7 @@ export class SchemaGenerator<
       const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
       const items = this.parse({ schema: 'items' in schema ? (schema.items as SchemaObject) : [], name, parentName })
+      const unique = !!schema.uniqueItems
 
       return [
         {
@@ -865,6 +866,7 @@ export class SchemaGenerator<
             items,
             min,
             max,
+            unique,
           },
         },
         ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),

@@ -35,8 +35,13 @@ const zodKeywordMapper = {
   nullable: () => '.nullable()',
   null: () => 'z.null()',
   nullish: () => '.nullish()',
-  array: (items: string[] = [], min?: number, max?: number) => {
-    return [`z.array(${items?.join('')})`, min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+  array: (items: string[] = [], min?: number, max?: number, unique?: boolean) => {
+    return [
+      `z.array(${items?.join('')})`,
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+      unique ? `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })` : undefined,
+    ]
       .filter(Boolean)
       .join('')
   },
@@ -226,6 +231,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         .filter(Boolean),
       current.args.min,
       current.args.max,
+      current.args.unique,
     )
   }
 

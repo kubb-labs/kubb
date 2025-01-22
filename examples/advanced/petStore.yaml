@@ -207,6 +207,7 @@ paths:
             application/json:
               schema:
                 type: array
+                uniqueItems: true
                 minItems: 1
                 maxItems: 3
                 items:

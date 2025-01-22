@@ -25,7 +25,7 @@ export type SchemaKeywordMapper = {
   tuple: { keyword: 'tuple'; args: { items: Schema[]; min?: number; max?: number } }
   array: {
     keyword: 'array'
-    args: { items: Schema[]; min?: number; max?: number }
+    args: { items: Schema[]; min?: number; max?: number; unique?: boolean }
   }
   enum: {
     keyword: 'enum'

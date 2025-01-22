@@ -339,6 +339,7 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
       ],
       "max": undefined,
       "min": undefined,
+      "unique": false,
     },
     "keyword": "array",
   },
