@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.5.4
+
+### Patch Changes
+
+- [`ce201f0`](https://github.com/kubb-labs/kubb/commit/ce201f0e4cac2236ba10dc020c29741ea62b28a5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support uniqueItems in Zod
+
+- Updated dependencies []:
+  - @kubb/core@3.5.4
+  - @kubb/fs@3.5.4
+  - @kubb/oas@3.5.4
+  - @kubb/parser-ts@3.5.4
+  - @kubb/plugin-oas@3.5.4
+  - @kubb/plugin-ts@3.5.4
+  - @kubb/react@3.5.4
+
 ## 3.5.3
 
 ### Patch Changes
