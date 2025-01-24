@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.5.5
+
+### Patch Changes
+
+- [#1536](https://github.com/kubb-labs/kubb/pull/1536) [`7b67c0d`](https://github.com/kubb-labs/kubb/commit/7b67c0d2c2d9401131892bfb1cbb6e7629288e3f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom client in options
+
+- Updated dependencies []:
+  - @kubb/core@3.5.5
+  - @kubb/fs@3.5.5
+  - @kubb/oas@3.5.5
+  - @kubb/plugin-oas@3.5.5
+  - @kubb/plugin-ts@3.5.5
+  - @kubb/plugin-zod@3.5.5
+  - @kubb/react@3.5.5
+
 ## 3.5.4
 
 ### Patch Changes
