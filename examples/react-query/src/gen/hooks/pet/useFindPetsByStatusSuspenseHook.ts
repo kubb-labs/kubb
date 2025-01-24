@@ -15,9 +15,9 @@ export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatu
  * {@link /pet/findByStatus}
  */
 export async function findPetsByStatusSuspenseHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByStatus',
     params,

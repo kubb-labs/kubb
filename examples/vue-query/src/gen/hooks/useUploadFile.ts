@@ -15,17 +15,17 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  */
 export async function uploadFile(
   { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
-  options: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
-    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
-    ...config,
+    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
+    ...requestConfig,
   })
   return res.data
 }
@@ -53,7 +53,7 @@ export function useUploadFile(
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
   >({
     mutationFn: async ({ petId, data, params }) => {
-      return uploadFile({ petId, data, params }, options)
+      return uploadFile({ petId, data, params }, config)
     },
     mutationKey,
     ...mutationOptions,

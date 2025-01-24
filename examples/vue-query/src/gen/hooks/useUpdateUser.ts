@@ -16,15 +16,15 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  */
 export async function updateUser(
   { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
-  options: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+  const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -49,7 +49,7 @@ export function useUpdateUser(
 
   return useMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
     mutationFn: async ({ username, data }) => {
-      return updateUser({ username, data }, options)
+      return updateUser({ username, data }, config)
     },
     mutationKey,
     ...mutationOptions,

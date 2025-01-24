@@ -18,9 +18,9 @@ export async function deletePetHook(
   headers?: DeletePetHeaderParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${pet_id}`,
     headers: { ...headers, ...requestConfig.headers },

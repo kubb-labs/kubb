@@ -17,9 +17,9 @@ export async function deleteUserHook(
   { username }: { username: DeleteUserPathParams['username'] },
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+  const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
     ...requestConfig,

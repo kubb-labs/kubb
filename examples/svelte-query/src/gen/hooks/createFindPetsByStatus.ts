@@ -13,14 +13,14 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
  * @summary Finds Pets by status
  * {@link /pet/findByStatus}
  */
-export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, options: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: fetcher = client, ...config } = options
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByStatus',
     params,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -31,7 +31,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return findPetsByStatus(params, options)
+      return findPetsByStatus(params, config)
     },
   })
 }

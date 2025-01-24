@@ -17,9 +17,9 @@ export async function createUserHook(
   data?: CreateUserMutationRequest,
   config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
+  const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     data,

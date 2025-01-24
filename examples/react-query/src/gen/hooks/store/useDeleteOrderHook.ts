@@ -17,9 +17,9 @@ export async function deleteOrderHook(
   { orderId }: { orderId: DeleteOrderPathParams['orderId'] },
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
+  const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...requestConfig,

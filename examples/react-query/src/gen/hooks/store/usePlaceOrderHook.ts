@@ -17,9 +17,9 @@ export async function placeOrderHook(
   data?: PlaceOrderMutationRequest,
   config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+  const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: '/store/order',
     data,

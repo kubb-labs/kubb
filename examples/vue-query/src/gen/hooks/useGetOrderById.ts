@@ -18,14 +18,14 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  */
 export async function getOrderById(
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
-  options: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+  const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -37,7 +37,7 @@ export function getOrderByIdQueryOptions({ orderId }: { orderId: MaybeRef<GetOrd
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getOrderById(unref({ orderId: unref(orderId) }), unref(options))
+      return getOrderById(unref({ orderId: unref(orderId) }), unref(config))
     },
   })
 }

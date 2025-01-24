@@ -13,13 +13,13 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], options: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: fetcher = client, ...config } = options
+export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
+  const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -44,7 +44,7 @@ export function createDeleteOrder(
 
   return createMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, { orderId: DeleteOrderPathParams['orderId'] }>({
     mutationFn: async ({ orderId }) => {
-      return deleteOrder(orderId, options)
+      return deleteOrder(orderId, config)
     },
     mutationKey,
     ...mutationOptions,

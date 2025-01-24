@@ -13,13 +13,13 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * @summary Delete user
  * {@link /user/:username}
  */
-export async function deleteUser(username: DeleteUserPathParams['username'], options: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: fetcher = client, ...config } = options
+export async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+  const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -44,7 +44,7 @@ export function createDeleteUser(
 
   return createMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }>({
     mutationFn: async ({ username }) => {
-      return deleteUser(username, options)
+      return deleteUser(username, config)
     },
     mutationKey,
     ...mutationOptions,

@@ -15,15 +15,15 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  options: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
+  const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -44,7 +44,7 @@ export function createPlaceOrderPatch(
 
   return createMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return placeOrderPatch(data, options)
+      return placeOrderPatch(data, config)
     },
     mutationKey,
     ...mutationOptions,

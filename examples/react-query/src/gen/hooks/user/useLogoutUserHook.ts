@@ -13,9 +13,9 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * {@link /user/logout}
  */
 export async function logoutUserHook(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: fetcher = client, ...requestConfig } = config
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
   return res.data
 }
 

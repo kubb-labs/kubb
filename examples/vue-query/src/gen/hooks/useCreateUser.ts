@@ -16,15 +16,15 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  */
 export async function createUser(
   { data }: { data?: CreateUserMutationRequest },
-  options: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
+  const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -45,7 +45,7 @@ export function useCreateUser(
 
   return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return createUser({ data }, options)
+      return createUser({ data }, config)
     },
     mutationKey,
     ...mutationOptions,

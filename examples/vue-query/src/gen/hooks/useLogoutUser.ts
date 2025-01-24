@@ -13,10 +13,10 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export async function logoutUser(options: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: fetcher = client, ...config } = options
+export async function logoutUser(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...config })
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
   return res.data
 }
 
@@ -26,7 +26,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return logoutUser(unref(options))
+      return logoutUser(unref(config))
     },
   })
 }

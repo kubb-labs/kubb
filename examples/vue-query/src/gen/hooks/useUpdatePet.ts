@@ -16,15 +16,15 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  */
 export async function updatePet(
   { data }: { data: UpdatePetMutationRequest },
-  options: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
+  const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -49,7 +49,7 @@ export function useUpdatePet(
 
   return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return updatePet({ data }, options)
+      return updatePet({ data }, config)
     },
     mutationKey,
     ...mutationOptions,

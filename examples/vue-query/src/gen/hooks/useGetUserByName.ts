@@ -17,14 +17,14 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  */
 export async function getUserByName(
   { username }: { username: GetUserByNamePathParams['username'] },
-  options: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const { client: fetcher = client, ...config } = options
+  const { client: request = client, ...requestConfig } = config
 
-  const res = await fetcher<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
+  const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: `/user/${username}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -36,7 +36,7 @@ export function getUserByNameQueryOptions({ username }: { username: MaybeRef<Get
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getUserByName(unref({ username: unref(username) }), unref(options))
+      return getUserByName(unref({ username: unref(username) }), unref(config))
     },
   })
 }
