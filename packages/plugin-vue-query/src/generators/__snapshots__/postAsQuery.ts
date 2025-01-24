@@ -21,14 +21,16 @@ export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
     data,
-    ...config,
+    ...requestConfig,
   })
   return updatePetWithFormMutationResponse.parse(res.data)
 }
