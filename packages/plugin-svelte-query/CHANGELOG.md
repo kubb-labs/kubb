@@ -1,5 +1,20 @@
 # @kubb/plugin-svelte-query
 
+## 3.5.6
+
+### Patch Changes
+
+- [`76322c1`](https://github.com/kubb-labs/kubb/commit/76322c11d64e2be7d1b9d3dbf351f1f7cb322f48) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom client in options
+
+- Updated dependencies []:
+  - @kubb/core@3.5.6
+  - @kubb/fs@3.5.6
+  - @kubb/oas@3.5.6
+  - @kubb/plugin-oas@3.5.6
+  - @kubb/plugin-ts@3.5.6
+  - @kubb/plugin-zod@3.5.6
+  - @kubb/react@3.5.6
+
 ## 3.5.5
 
 ### Patch Changes
