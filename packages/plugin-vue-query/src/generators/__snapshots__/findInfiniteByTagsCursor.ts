@@ -34,7 +34,7 @@ export async function findPetsByTagsInfinite(
 export function findPetsByTagsInfiniteQueryOptions(
   headers: MaybeRef<FindPetsByTagsHeaderParams>,
   params?: MaybeRef<FindPetsByTagsQueryParams>,
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey, number>({
@@ -67,7 +67,7 @@ export function useFindPetsByTagsInfinite<
   params?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
     query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

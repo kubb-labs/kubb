@@ -32,7 +32,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
 export function useAddPet(
   options: {
     mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey, AddPetMutationRequest>>[2]
-    client?: Partial<RequestConfig<AddPetMutationRequest>>
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

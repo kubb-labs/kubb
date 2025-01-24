@@ -36,7 +36,7 @@ export async function createUser(
 export function createCreateUser(
   options: {
     mutation?: CreateMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>
-    client?: Partial<RequestConfig<CreateUserMutationRequest>>
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

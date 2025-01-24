@@ -26,7 +26,10 @@ export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId
   return res.data
 }
 
-export function getPetByIdQueryOptions({ petId }: { petId: MaybeRef<GetPetByIdPathParams['petId']> }, config: Partial<RequestConfig> = {}) {
+export function getPetByIdQueryOptions(
+  { petId }: { petId: MaybeRef<GetPetByIdPathParams['petId']> },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   const queryKey = getPetByIdQueryKey({ petId })
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
@@ -47,7 +50,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
   { petId }: { petId: MaybeRef<GetPetByIdPathParams['petId']> },
   options: {
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

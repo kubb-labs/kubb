@@ -41,7 +41,7 @@ export function useUploadFile(
       ResponseErrorConfig<Error>,
       { petId: MaybeRef<UploadFilePathParams['petId']>; data?: MaybeRef<UploadFileMutationRequest>; params?: MaybeRef<UploadFileQueryParams> }
     >
-    client?: Partial<RequestConfig<UploadFileMutationRequest>>
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

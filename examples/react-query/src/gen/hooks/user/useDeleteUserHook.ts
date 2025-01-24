@@ -39,7 +39,7 @@ export function useDeleteUserHook(
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
       { username: DeleteUserPathParams['username'] }
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

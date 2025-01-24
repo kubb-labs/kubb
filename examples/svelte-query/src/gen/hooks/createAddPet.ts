@@ -33,7 +33,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
 export function createAddPet(
   options: {
     mutation?: CreateMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
-    client?: Partial<RequestConfig<AddPetMutationRequest>>
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

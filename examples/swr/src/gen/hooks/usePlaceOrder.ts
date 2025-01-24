@@ -37,7 +37,7 @@ export function usePlaceOrder(
     mutation?: Parameters<
       typeof useSWRMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationKey, PlaceOrderMutationRequest>
     >[2]
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

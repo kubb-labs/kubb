@@ -22,7 +22,7 @@ export async function createUser(
 
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
-    url: '/user',
+    url: `/user`,
     data,
     ...requestConfig,
   })
@@ -37,7 +37,7 @@ export async function createUser(
 export function useCreateUser(
   options: {
     mutation?: MutationObserverOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: MaybeRef<CreateUserMutationRequest> }>
-    client?: Partial<RequestConfig<CreateUserMutationRequest>>
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

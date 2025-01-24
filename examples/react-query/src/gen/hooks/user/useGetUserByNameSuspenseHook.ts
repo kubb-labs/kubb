@@ -27,7 +27,10 @@ export async function getUserByNameSuspenseHook(
   return res.data
 }
 
-export function getUserByNameSuspenseQueryOptionsHook({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
+export function getUserByNameSuspenseQueryOptionsHook(
+  { username }: { username: GetUserByNamePathParams['username'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   const queryKey = getUserByNameSuspenseQueryKey({ username })
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
@@ -51,7 +54,7 @@ export function useGetUserByNameSuspenseHook<
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

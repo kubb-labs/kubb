@@ -21,7 +21,7 @@ export async function createUsersWithListInputHook(
 
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
-    url: '/user/createWithList',
+    url: `/user/createWithList`,
     data,
     ...requestConfig,
   })
@@ -36,7 +36,7 @@ export async function createUsersWithListInputHook(
 export function useCreateUsersWithListInputHook(
   options: {
     mutation?: UseMutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

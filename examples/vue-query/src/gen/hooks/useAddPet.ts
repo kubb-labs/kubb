@@ -22,7 +22,7 @@ export async function addPet(
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: '/pet',
+    url: `/pet`,
     data,
     ...requestConfig,
   })
@@ -37,7 +37,7 @@ export async function addPet(
 export function useAddPet(
   options: {
     mutation?: MutationObserverOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: MaybeRef<AddPetMutationRequest> }>
-    client?: Partial<RequestConfig<AddPetMutationRequest>>
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

@@ -45,7 +45,7 @@ export function useUpdatePetWithForm(
         params?: MaybeRef<UpdatePetWithFormQueryParams>
       }
     >
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>
+    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

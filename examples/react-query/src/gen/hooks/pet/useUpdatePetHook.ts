@@ -21,7 +21,7 @@ export async function updatePetHook(
 
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: '/pet',
+    url: `/pet`,
     data,
     ...requestConfig,
   })
@@ -40,7 +40,7 @@ export function useUpdatePetHook(
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
       { data: UpdatePetMutationRequest }
     >
-    client?: Partial<RequestConfig<UpdatePetMutationRequest>>
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

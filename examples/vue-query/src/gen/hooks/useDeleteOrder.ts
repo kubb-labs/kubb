@@ -40,7 +40,7 @@ export function useDeleteOrder(
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
       { orderId: MaybeRef<DeleteOrderPathParams['orderId']> }
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

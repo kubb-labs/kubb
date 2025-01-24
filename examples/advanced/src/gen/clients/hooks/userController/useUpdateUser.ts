@@ -1,4 +1,5 @@
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
+import type client from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { updateUser } from '../../axios/userService/updateUser.ts'
@@ -20,7 +21,7 @@ export function useUpdateUser(
       ResponseErrorConfig<Error>,
       { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
     >
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>>
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

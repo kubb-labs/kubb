@@ -19,7 +19,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
   return res.data
 }
 
-export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
+export function getInventoryQueryOptions(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   return {
     fetcher: async () => {
       return getInventory(config)
@@ -35,7 +35,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> = {}) {
 export function useGetInventory(
   options: {
     query?: Parameters<typeof useSWR<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryKey | null, any>>[2]
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

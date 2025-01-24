@@ -38,7 +38,7 @@ export function useDeletePet(
   headers?: DeletePetHeaderParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey>>[2]
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

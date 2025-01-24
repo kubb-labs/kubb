@@ -41,7 +41,7 @@ export function useUpdateUser(
       ResponseErrorConfig<Error>,
       { username: MaybeRef<UpdateUserPathParams['username']>; data?: MaybeRef<UpdateUserMutationRequest> }
     >
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>>
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

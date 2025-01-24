@@ -326,7 +326,7 @@ importers:
         specifier: ^5.64.2
         version: 5.64.2(vue@3.5.13(typescript@5.7.3))
       '@types/react':
-        specifier: ^19.0.7
+        specifier: ^19.0.8
         version: 19.0.8
       axios:
         specifier: ^1.7.9
@@ -394,7 +394,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/fs
       '@types/react':
-        specifier: ^19.0.7
+        specifier: ^19.0.8
         version: 19.0.8
       react:
         specifier: ^19.0.0
@@ -508,7 +508,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^19.0.7
+        specifier: ^19.0.8
         version: 19.0.8
       react:
         specifier: ^19.0.0

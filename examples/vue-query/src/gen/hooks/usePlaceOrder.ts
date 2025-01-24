@@ -22,7 +22,7 @@ export async function placeOrder(
 
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
-    url: '/store/order',
+    url: `/store/order`,
     data,
     ...requestConfig,
   })
@@ -37,7 +37,7 @@ export async function placeOrder(
 export function usePlaceOrder(
   options: {
     mutation?: MutationObserverOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: MaybeRef<PlaceOrderMutationRequest> }>
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

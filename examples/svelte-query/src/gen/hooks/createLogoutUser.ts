@@ -19,7 +19,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: typ
   return res.data
 }
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
+export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
@@ -37,7 +37,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
 export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
     query?: Partial<CreateBaseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

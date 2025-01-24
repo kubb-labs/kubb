@@ -88,7 +88,7 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           dataReturnType: 'full',
-          importPath: '../../../../tanstack-query-client',
+          importPath: '../../../../axios-client.ts',
         },
         query: {
           importPath: '../../../../tanstack-query-hook',
@@ -110,7 +110,7 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         client: {
-          importPath: '../../../../swr-client.ts',
+          importPath: '../../../../axios-client.ts',
           dataReturnType: 'full',
           baseURL: 'https://petstore3.swagger.io/api/v3',
         },

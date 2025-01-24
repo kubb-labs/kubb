@@ -18,7 +18,7 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: '/pet',
+    url: `/pet`,
     data,
     ...requestConfig,
   })
@@ -33,7 +33,7 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
 export function useAddPetHook(
   options: {
     mutation?: UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
-    client?: Partial<RequestConfig<AddPetMutationRequest>>
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

@@ -41,7 +41,7 @@ export function useUpdateUserHook(
       ResponseErrorConfig<Error>,
       { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
     >
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>>
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

@@ -36,7 +36,7 @@ export function createDeleteOrder(
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
       { orderId: DeleteOrderPathParams['orderId'] }
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

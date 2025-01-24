@@ -29,7 +29,10 @@ export async function getUserByName(
   return res.data
 }
 
-export function getUserByNameQueryOptions({ username }: { username: MaybeRef<GetUserByNamePathParams['username']> }, config: Partial<RequestConfig> = {}) {
+export function getUserByNameQueryOptions(
+  { username }: { username: MaybeRef<GetUserByNamePathParams['username']> },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
@@ -53,7 +56,7 @@ export function useGetUserByName<
   { username }: { username: MaybeRef<GetUserByNamePathParams['username']> },
   options: {
     query?: Partial<QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

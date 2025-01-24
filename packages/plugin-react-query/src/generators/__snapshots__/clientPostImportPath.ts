@@ -40,7 +40,7 @@ export function useUpdatePetWithForm(
       ResponseErrorConfig<UpdatePetWithForm405>,
       { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams }
     >
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>
+    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

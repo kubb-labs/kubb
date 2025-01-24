@@ -32,7 +32,7 @@ export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
     mutation?: Parameters<typeof useSWRMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, DeleteOrderMutationKey>>[2]
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

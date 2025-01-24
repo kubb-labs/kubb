@@ -4,6 +4,13 @@ title: Changelog
 
 # Changelog
 
+## 3.5.6
+- [`plugin-react-query`](/plugins/plugin-react-query/): support custom client in options
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom client in options
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom client in options
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support custom client in options
+- [`plugin-swr`](/plugins/plugin-swr/): support custom client in options
+
 ## 3.5.5
 - [`plugin-client`](/plugins/plugin-client): support custom client in options
 - [`plugin-faker`](/plugins/plugin-zod): `faker.number.string` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`

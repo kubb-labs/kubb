@@ -39,7 +39,7 @@ export function updatePetWithFormQueryOptions(
   petId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   data?: MaybeRef<UpdatePetWithFormMutationRequest>,
   params?: MaybeRef<UpdatePetWithFormQueryParams>,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
@@ -66,7 +66,7 @@ export function useUpdatePetWithForm<
   params?: MaybeRef<UpdatePetWithFormQueryParams>,
   options: {
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>
+    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

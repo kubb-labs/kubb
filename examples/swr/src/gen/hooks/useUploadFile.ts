@@ -39,7 +39,7 @@ export function useUploadFile(
   params?: UploadFileQueryParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey, UploadFileMutationRequest>>[2]
-    client?: Partial<RequestConfig<UploadFileMutationRequest>>
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

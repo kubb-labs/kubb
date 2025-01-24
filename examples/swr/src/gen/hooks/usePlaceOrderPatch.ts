@@ -42,7 +42,7 @@ export function usePlaceOrderPatch(
         PlaceOrderPatchMutationRequest
       >
     >[2]
-    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

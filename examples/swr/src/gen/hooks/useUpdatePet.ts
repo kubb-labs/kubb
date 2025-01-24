@@ -39,7 +39,7 @@ export function useUpdatePet(
         UpdatePetMutationRequest
       >
     >[2]
-    client?: Partial<RequestConfig<UpdatePetMutationRequest>>
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

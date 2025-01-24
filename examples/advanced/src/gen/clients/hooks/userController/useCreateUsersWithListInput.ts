@@ -1,4 +1,5 @@
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
+import type client from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -23,7 +24,7 @@ export function useCreateUsersWithListInput(
       ResponseErrorConfig<Error>,
       { data?: CreateUsersWithListInputMutationRequest }
     >
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

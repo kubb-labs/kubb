@@ -27,7 +27,10 @@ export async function getUserByNameHook(
   return res.data
 }
 
-export function getUserByNameQueryOptionsHook({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
+export function getUserByNameQueryOptionsHook(
+  { username }: { username: GetUserByNamePathParams['username'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
@@ -51,7 +54,7 @@ export function useGetUserByNameHook<
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
     query?: Partial<QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

@@ -1,4 +1,5 @@
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../tanstack-query-client'
+import type client from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import { createUser } from '../../axios/userService/createUser.ts'
@@ -16,7 +17,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 export function useCreateUser(
   options: {
     mutation?: UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>
-    client?: Partial<RequestConfig<CreateUserMutationRequest>>
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

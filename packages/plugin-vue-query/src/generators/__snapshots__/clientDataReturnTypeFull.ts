@@ -34,7 +34,7 @@ export async function findPetsByTags(
 export function findPetsByTagsQueryOptions(
   headers: MaybeRef<FindPetsByTagsQueryParams>,
   params?: MaybeRef<FindPetsByTagsQueryParams>,
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
@@ -65,7 +65,7 @@ export function useFindPetsByTags<
   params?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
     query?: Partial<QueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

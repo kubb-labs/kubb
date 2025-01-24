@@ -36,7 +36,7 @@ export async function placeOrder(
 export function createPlaceOrder(
   options: {
     mutation?: CreateMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

@@ -21,7 +21,7 @@ export async function placeOrderPatchHook(
 
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
-    url: '/store/order',
+    url: `/store/order`,
     data,
     ...requestConfig,
   })
@@ -36,7 +36,7 @@ export async function placeOrderPatchHook(
 export function usePlaceOrderPatchHook(
   options: {
     mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>
-    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>>
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

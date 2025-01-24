@@ -28,7 +28,10 @@ export async function getOrderByIdSuspenseHook(
   return res.data
 }
 
-export function getOrderByIdSuspenseQueryOptionsHook({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }, config: Partial<RequestConfig> = {}) {
+export function getOrderByIdSuspenseQueryOptionsHook(
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
   return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
     enabled: !!orderId,
@@ -53,7 +56,7 @@ export function useGetOrderByIdSuspenseHook<
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

@@ -42,7 +42,7 @@ export function useCreateUsersWithListInput(
         CreateUsersWithListInputMutationRequest
       >
     >[2]
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

@@ -40,7 +40,7 @@ export function useDeleteUser(
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
       { username: MaybeRef<DeleteUserPathParams['username']> }
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

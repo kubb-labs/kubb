@@ -35,7 +35,7 @@ export async function createUser(
 export function useCreateUser(
   options: {
     mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey, CreateUserMutationRequest>>[2]
-    client?: Partial<RequestConfig<CreateUserMutationRequest>>
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

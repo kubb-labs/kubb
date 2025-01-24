@@ -1,5 +1,6 @@
+import type client from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
@@ -13,7 +14,10 @@ export const getUserByNameQueryKeySWR = ({ username }: { username: GetUserByName
 
 export type GetUserByNameQueryKeySWR = ReturnType<typeof getUserByNameQueryKeySWR>
 
-export function getUserByNameQueryOptionsSWR({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
+export function getUserByNameQueryOptionsSWR(
+  { username }: { username: GetUserByNamePathParams['username'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   return {
     fetcher: async () => {
       return getUserByName({ username }, config)
@@ -31,7 +35,7 @@ export function useGetUserByNameSWR(
     query?: Parameters<
       typeof useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null, any>
     >[2]
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

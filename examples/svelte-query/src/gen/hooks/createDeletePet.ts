@@ -41,7 +41,7 @@ export function createDeletePet(
       ResponseErrorConfig<DeletePet400>,
       { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

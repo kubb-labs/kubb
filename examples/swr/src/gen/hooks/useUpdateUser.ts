@@ -37,7 +37,7 @@ export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options: {
     mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey, UpdateUserMutationRequest>>[2]
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>>
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

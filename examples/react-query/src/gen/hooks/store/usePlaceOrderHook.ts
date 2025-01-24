@@ -21,7 +21,7 @@ export async function placeOrderHook(
 
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
-    url: '/store/order',
+    url: `/store/order`,
     data,
     ...requestConfig,
   })
@@ -36,7 +36,7 @@ export async function placeOrderHook(
 export function usePlaceOrderHook(
   options: {
     mutation?: UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>>
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}

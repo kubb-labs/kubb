@@ -20,14 +20,17 @@ export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryP
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: '/pet/findByTags',
+    url: `/pet/findByTags`,
     params,
     ...requestConfig,
   })
   return res.data
 }
 
-export function findPetsByTagsQueryOptions({ params }: { params?: MaybeRef<FindPetsByTagsQueryParams> }, config: Partial<RequestConfig> = {}) {
+export function findPetsByTagsQueryOptions(
+  { params }: { params?: MaybeRef<FindPetsByTagsQueryParams> },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
@@ -51,7 +54,7 @@ export function useFindPetsByTags<
   { params }: { params?: MaybeRef<FindPetsByTagsQueryParams> },
   options: {
     query?: Partial<QueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}

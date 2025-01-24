@@ -83,7 +83,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        {!hasClientPlugin && <File.Import name={'client'} path={options.client.importPath} />}
+        {<File.Import name={'client'} path={options.client.importPath} />}
         {hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}

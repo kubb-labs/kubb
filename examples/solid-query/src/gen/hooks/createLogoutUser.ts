@@ -18,7 +18,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: typ
   return res.data
 }
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> = {}) {
+export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,

@@ -1,5 +1,6 @@
+import type client from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import { createUser } from '../../axios/userService/createUser.ts'
 
@@ -17,7 +18,7 @@ export function useCreateUserSWR(
     mutation?: Parameters<
       typeof useSWRMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, CreateUserMutationKeySWR, CreateUserMutationRequest>
     >[2]
-    client?: Partial<RequestConfig<CreateUserMutationRequest>>
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {

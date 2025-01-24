@@ -23,7 +23,10 @@ export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryP
   return res
 }
 
-export function findPetsByTagsQueryOptions({ params }: { params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> = {}) {
+export function findPetsByTagsQueryOptions(
+  { params }: { params?: FindPetsByTagsQueryParams },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
   return {
     fetcher: async () => {
       return findPetsByTags({ params }, config)
@@ -42,7 +45,7 @@ export function useFindPetsByTags(
     query?: Parameters<
       typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKey | null, any>
     >[2]
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {
