@@ -11,6 +11,7 @@ export type RequestConfig<TData = unknown> = {
   signal?: AbortSignal
   headers?: [string, string][] | Record<string, string>
 }
+
 /**
  * Subset of FetchResponse
  */
@@ -23,7 +24,7 @@ export type ResponseConfig<TData = unknown> = {
 
 export type ResponseErrorConfig<TError = unknown> = TError
 
-export const fetchClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const url = new URL(config.url || '', config.baseURL ? new URL(config.baseURL) : undefined)
 
   Object.entries(config.params || {}).forEach(([key, value]) => {
@@ -49,11 +50,11 @@ export const fetchClient = async <TData, TError = unknown, TVariables = unknown>
   }
 }
 
-fetchClient.getConfig = () => {
+client.getConfig = () => {
   throw new Error('Not supported')
 }
-fetchClient.setConfig = () => {
+client.setConfig = () => {
   throw new Error('Not supported')
 }
 
-export default fetchClient
+export default client

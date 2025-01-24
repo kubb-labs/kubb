@@ -25,7 +25,7 @@ export function squashSourceNodes(node: DOMElement, ignores: Array<ElementNames>
       sources.add({
         ...attributes,
         // remove end enter
-        value: value.trim().replace(/^\s+|\s+$/g, ''),
+        value,
       })
 
       continue

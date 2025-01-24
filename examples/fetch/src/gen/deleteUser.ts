@@ -11,11 +11,13 @@ export function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
  * @summary Delete user
  * {@link /user/:username}
  */
-export async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+export async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: getDeleteUserUrl(username).toString(),
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

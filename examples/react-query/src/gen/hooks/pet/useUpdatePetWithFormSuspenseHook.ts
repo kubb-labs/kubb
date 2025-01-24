@@ -21,13 +21,15 @@ export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithF
 export async function updatePetWithFormSuspenseHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const { client: fetcher = client, ...requestConfig } = config
+
+  const res = await fetcher<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${pet_id}`,
     params,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

@@ -13,8 +13,10 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> = {}) {
-  const res = await client<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], options: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: fetcher = client, ...config } = options
+
+  const res = await fetcher<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
     ...config,
@@ -29,7 +31,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getOrderById(orderId, config)
+      return getOrderById(orderId, options)
     },
   })
 }

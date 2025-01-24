@@ -11,7 +11,13 @@ export function getLogoutUserUrl() {
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export async function logoutUser(config: Partial<RequestConfig> = {}) {
-  const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: getLogoutUserUrl().toString(), ...config })
+export async function logoutUser(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
+    method: 'GET',
+    url: getLogoutUserUrl().toString(),
+    ...requestConfig,
+  })
   return res.data
 }

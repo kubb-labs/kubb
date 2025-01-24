@@ -23,15 +23,17 @@ export async function createPets(
     headers,
     params,
   }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
-  config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
+  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).toString(),
     params,
     data,
-    headers: { ...headers, ...config.headers },
-    ...config,
+    headers: { ...headers, ...requestConfig.headers },
+    ...requestConfig,
   })
   return res
 }

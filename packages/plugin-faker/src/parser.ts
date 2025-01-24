@@ -43,11 +43,11 @@ const fakerKeywordMapper = {
     }
 
     if (min !== undefined) {
-      return `faker.string.alpha({ length: { min: ${min} } })`
+      return `faker.string.alpha({ length: { min: ${min}, max: Number.MAX_VALUE } })`
     }
 
     if (max !== undefined) {
-      return `faker.string.alpha({ length: { max: ${max} } })`
+      return `faker.string.alpha({ length: { min: Number.MIN_VALUE, max: ${max} } })`
     }
 
     return 'faker.string.alpha()'

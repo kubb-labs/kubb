@@ -20,11 +20,13 @@ export function getGetInventoryUrl() {
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export async function getInventory(config: Partial<RequestConfig> = {}) {
-  const res = await client<GetInventoryQueryResponseType, ResponseErrorConfig<Error>, unknown>({
+export async function getInventory(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<GetInventoryQueryResponseType, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getGetInventoryUrl().toString(),
-    ...config,
+    ...requestConfig,
   })
   return getInventoryQueryResponseSchema.parse(res.data)
 }
@@ -38,12 +40,17 @@ export function getPlaceOrderUrl() {
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrder(data?: PlaceOrderMutationRequestType, config: Partial<RequestConfig<PlaceOrderMutationRequestType>> = {}) {
-  const res = await client<PlaceOrderMutationResponseType, ResponseErrorConfig<PlaceOrder405Type>, PlaceOrderMutationRequestType>({
+export async function placeOrder(
+  data?: PlaceOrderMutationRequestType,
+  config: Partial<RequestConfig<PlaceOrderMutationRequestType>> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<PlaceOrderMutationResponseType, ResponseErrorConfig<PlaceOrder405Type>, PlaceOrderMutationRequestType>({
     method: 'POST',
     url: getPlaceOrderUrl().toString(),
     data,
-    ...config,
+    ...requestConfig,
   })
   return placeOrderMutationResponseSchema.parse(res.data)
 }
@@ -57,12 +64,17 @@ export function getPlaceOrderPatchUrl() {
  * @summary Place an order for a pet with patch
  * {@link /store/order}
  */
-export async function placeOrderPatch(data?: PlaceOrderPatchMutationRequestType, config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> = {}) {
-  const res = await client<PlaceOrderPatchMutationResponseType, ResponseErrorConfig<PlaceOrderPatch405Type>, PlaceOrderPatchMutationRequestType>({
+export async function placeOrderPatch(
+  data?: PlaceOrderPatchMutationRequestType,
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<PlaceOrderPatchMutationResponseType, ResponseErrorConfig<PlaceOrderPatch405Type>, PlaceOrderPatchMutationRequestType>({
     method: 'PATCH',
     url: getPlaceOrderPatchUrl().toString(),
     data,
-    ...config,
+    ...requestConfig,
   })
   return placeOrderPatchMutationResponseSchema.parse(res.data)
 }
@@ -76,11 +88,16 @@ export function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParam
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetOrderByIdQueryResponseType, ResponseErrorConfig<GetOrderById400Type | GetOrderById404Type>, unknown>({
+export async function getOrderById(
+  { orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<GetOrderByIdQueryResponseType, ResponseErrorConfig<GetOrderById400Type | GetOrderById404Type>, unknown>({
     method: 'GET',
     url: getGetOrderByIdUrl({ orderId }).toString(),
-    ...config,
+    ...requestConfig,
   })
   return getOrderByIdQueryResponseSchema.parse(res.data)
 }
@@ -94,11 +111,16 @@ export function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsT
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<DeleteOrderMutationResponseType, ResponseErrorConfig<DeleteOrder400Type | DeleteOrder404Type>, unknown>({
+export async function deleteOrder(
+  { orderId }: { orderId: DeleteOrderPathParamsType['orderId'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<DeleteOrderMutationResponseType, ResponseErrorConfig<DeleteOrder400Type | DeleteOrder404Type>, unknown>({
     method: 'DELETE',
     url: getDeleteOrderUrl({ orderId }).toString(),
-    ...config,
+    ...requestConfig,
   })
   return deleteOrderMutationResponseSchema.parse(res.data)
 }

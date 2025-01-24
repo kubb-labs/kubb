@@ -14,11 +14,16 @@ export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQue
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-export async function getPetByIdSuspenseHook({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+export async function getPetByIdSuspenseHook(
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
+  const { client: fetcher = client, ...requestConfig } = config
+
+  const res = await fetcher<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
     url: `/pet/${pet_id}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

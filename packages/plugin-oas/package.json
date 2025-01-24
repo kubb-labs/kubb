@@ -90,7 +90,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
-    "remeda": "^2.19.2"
+    "remeda": "^2.20.0"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

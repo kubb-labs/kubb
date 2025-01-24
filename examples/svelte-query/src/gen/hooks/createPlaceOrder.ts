@@ -13,8 +13,13 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> = {}) {
-  const res = await client<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+export async function placeOrder(
+  data?: PlaceOrderMutationRequest,
+  options: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client } = {},
+) {
+  const { client: fetcher = client, ...config } = options
+
+  const res = await fetcher<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: '/store/order',
     data,
@@ -39,7 +44,7 @@ export function createPlaceOrder(
 
   return createMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return placeOrder(data, config)
+      return placeOrder(data, options)
     },
     mutationKey,
     ...mutationOptions,

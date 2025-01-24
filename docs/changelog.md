@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.5.5
+- [`plugin-client`](/plugins/plugin-client): support custom client in options
+- [`plugin-faker`](/plugins/plugin-zod): `faker.number.string` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`
+
 ## 3.5.4
 - [`plugin-zod`](/plugins/plugin-zod): Support uniqueItems in Zod
 

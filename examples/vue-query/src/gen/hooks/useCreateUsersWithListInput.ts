@@ -16,9 +16,11 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  */
 export async function createUsersWithListInput(
   { data }: { data?: CreateUsersWithListInputMutationRequest },
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+  options: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+  const { client: fetcher = client, ...config } = options
+
+  const res = await fetcher<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     data,
@@ -47,7 +49,7 @@ export function useCreateUsersWithListInput(
 
   return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
     mutationFn: async ({ data }) => {
-      return createUsersWithListInput({ data }, config)
+      return createUsersWithListInput({ data }, options)
     },
     mutationKey,
     ...mutationOptions,

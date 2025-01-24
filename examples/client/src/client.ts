@@ -34,7 +34,7 @@ export const axiosInstance = axios.create({
   headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,
 })
 
-export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const promise = axiosInstance.request<TVariables, ResponseConfig<TData>>({ ...config }).catch((e: AxiosError<TError>) => {
     throw e
   })
@@ -42,4 +42,4 @@ export const axiosClient = async <TData, TError = unknown, TVariables = unknown>
   return promise
 }
 
-export default axiosClient
+export default client

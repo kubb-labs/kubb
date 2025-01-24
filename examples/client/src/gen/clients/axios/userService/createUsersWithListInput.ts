@@ -17,13 +17,15 @@ export function getCreateUsersWithListInputUrl() {
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: getCreateUsersWithListInputUrl().toString(),
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

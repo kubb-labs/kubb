@@ -70,6 +70,7 @@
   },
   "files": [
     "src",
+    "clients",
     "dist",
     "client.ts",
     "*.d.ts",
