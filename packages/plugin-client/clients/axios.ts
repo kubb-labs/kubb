@@ -18,6 +18,7 @@ export type RequestConfig<TData = unknown> = {
   signal?: AbortSignal
   headers?: AxiosRequestConfig['headers']
 }
+
 /**
  * Subset of AxiosResponse
  */
@@ -44,7 +45,7 @@ export const setConfig = (config: RequestConfig) => {
 
 export const axiosInstance = axios.create(getConfig())
 
-export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const globalConfig = getConfig()
 
   return axiosInstance
@@ -61,7 +62,7 @@ export const axiosClient = async <TData, TError = unknown, TVariables = unknown>
     })
 }
 
-axiosClient.getConfig = getConfig
-axiosClient.setConfig = setConfig
+client.getConfig = getConfig
+client.setConfig = setConfig
 
-export default axiosClient
+export default client

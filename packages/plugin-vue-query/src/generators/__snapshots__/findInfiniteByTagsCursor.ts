@@ -14,13 +14,19 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTagsInfinite(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+export async function findPetsByTagsInfinite(
+  headers: FindPetsByTagsHeaderParams,
+  params?: FindPetsByTagsQueryParams,
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
     params,
-    headers: { ...headers, ...config.headers },
-    ...config,
+    headers: { ...headers, ...requestConfig.headers },
+    ...requestConfig,
   })
   return findPetsByTagsQueryResponse.parse(res.data)
 }

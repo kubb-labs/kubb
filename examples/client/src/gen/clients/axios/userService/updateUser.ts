@@ -15,13 +15,15 @@ export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams[
 export async function updateUser(
   { username }: { username: UpdateUserPathParams['username'] },
   data?: UpdateUserMutationRequest,
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: getUpdateUserUrl({ username }).toString(),
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

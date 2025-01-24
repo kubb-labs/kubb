@@ -148,7 +148,22 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
-            />
+            >
+              <Client
+                name={client.name}
+                baseURL={options.client.baseURL}
+                operation={operation}
+                typeSchemas={type.schemas}
+                zodSchemas={zod.schemas}
+                dataReturnType={options.client.dataReturnType}
+                paramsType={options.paramsType}
+                paramsCasing={options.paramsCasing}
+                pathParamsType={options.pathParamsType}
+                parser={options.parser}
+                isExportable={false}
+                isIndexable={false}
+              />
+            </Query>
           </>
         )}
       </File>

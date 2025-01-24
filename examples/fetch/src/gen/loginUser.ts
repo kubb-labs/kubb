@@ -10,12 +10,14 @@ export function getLoginUserUrl() {
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
+export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
     url: getLoginUserUrl().toString(),
     params,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

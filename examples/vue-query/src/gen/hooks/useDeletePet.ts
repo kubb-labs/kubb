@@ -16,13 +16,15 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  */
 export async function deletePet(
   { petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
-    headers: { ...headers, ...config.headers },
-    ...config,
+    headers: { ...headers, ...requestConfig.headers },
+    ...requestConfig,
   })
   return res.data
 }

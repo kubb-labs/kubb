@@ -13,6 +13,9 @@ type Props = {
    */
   name: string
   urlName?: string
+  isExportable?: boolean
+  isIndexable?: boolean
+
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
@@ -59,7 +62,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         },
       },
       config: {
-        type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+        type: typeSchemas.request?.name
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+          : 'Partial<RequestConfig> & { client?: typeof client }',
         default: '{}',
       },
     })
@@ -92,7 +97,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         }
       : undefined,
     config: {
-      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+      type: typeSchemas.request?.name
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+        : 'Partial<RequestConfig> & { client?: typeof client }',
       default: '{}',
     },
   })
@@ -100,6 +107,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
 
 export function Client({
   name,
+  isExportable = true,
+  isIndexable = true,
   typeSchemas,
   baseURL,
   dataReturnType,
@@ -153,10 +162,10 @@ export function Client({
           : undefined,
         headers: headers.length
           ? {
-              value: headers.length ? `{ ${headers.join(', ')}, ...config.headers }` : undefined,
+              value: headers.length ? `{ ${headers.join(', ')}, ...requestConfig.headers }` : undefined,
             }
           : undefined,
-        config: {
+        requestConfig: {
           mode: 'inlineSpread',
         },
       },
@@ -178,18 +187,21 @@ export function Client({
     : ''
 
   return (
-    <File.Source name={name} isExportable isIndexable>
+    <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function
         name={name}
         async
-        export
+        export={isExportable}
         params={params.toConstructor()}
         JSDoc={{
           comments: getComments(operation),
         }}
       >
+        {'const { client:request = client, ...requestConfig } = config'}
+        <br />
+        <br />
         {formData}
-        {`const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
+        {`const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
         {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
         {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}

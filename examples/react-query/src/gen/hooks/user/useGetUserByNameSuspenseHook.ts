@@ -13,11 +13,16 @@ export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspe
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export async function getUserByNameSuspenseHook({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
+export async function getUserByNameSuspenseHook(
+  { username }: { username: GetUserByNamePathParams['username'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: `/user/${username}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

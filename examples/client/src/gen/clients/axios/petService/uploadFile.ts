@@ -20,8 +20,10 @@ export async function uploadFile(
   { petId }: { petId: UploadFilePathParams['petId'] },
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
 ) {
+  const { client: request = client, ...requestConfig } = config
+
   const formData = new FormData()
   if (data) {
     Object.keys(data).forEach((key) => {
@@ -31,13 +33,13 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrl({ petId }).toString(),
     params,
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...config.headers },
-    ...config,
+    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
+    ...requestConfig,
   })
   return res.data
 }

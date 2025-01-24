@@ -153,6 +153,8 @@ export const machineEventSchema = z.object({
 export const machineExecRequestSchema = z.object({
   cmd: z.string().describe('Deprecated: use Command instead').optional(),
   command: z.array(z.string()).optional(),
+  container: z.string().optional(),
+  stdin: z.string().optional(),
   timeout: z.number().int().optional(),
 })
 

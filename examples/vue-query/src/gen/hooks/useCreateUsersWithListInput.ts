@@ -16,13 +16,15 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  */
 export async function createUsersWithListInput(
   { data }: { data?: CreateUsersWithListInputMutationRequest },
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

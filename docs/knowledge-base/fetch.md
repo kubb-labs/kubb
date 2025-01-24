@@ -73,7 +73,7 @@ export type ResponseConfig<TData = unknown> = {
   statusText: string
 }
 
-export const fetchClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const response = await fetch('https://example.org/post', {
     method: config.method.toUpperCase(),
     body: JSON.stringify(config.data),
@@ -89,9 +89,6 @@ export const fetchClient = async <TData, TError = unknown, TVariables = unknown>
     statusText: response.statusText,
   }
 }
-
-export default fetchClient
-
 ```
 
 ## View the generated code

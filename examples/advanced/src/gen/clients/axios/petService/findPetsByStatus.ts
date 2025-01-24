@@ -11,11 +11,16 @@ export function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusP
  * @summary Finds Pets by status
  * {@link /pet/findByStatus/:step_id}
  */
-export async function findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> = {}) {
-  const res = await client<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+export async function findPetsByStatus(
+  { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
+) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
     url: getFindPetsByStatusUrl({ step_id }).toString(),
-    ...config,
+    ...requestConfig,
   })
   return res
 }
