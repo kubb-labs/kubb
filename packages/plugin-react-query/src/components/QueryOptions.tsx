@@ -16,6 +16,7 @@ type Props = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  useClient?: boolean
 }
 
 type GetParamsProps = {
@@ -92,7 +93,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props) {
+export function QueryOptions({ name, clientName, useClient, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props) {
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
@@ -119,6 +120,7 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function name={name} export params={params.toConstructor()}>
+        {useClient ? 'const client = useClient()' : ''}
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return queryOptions<${TData}, ResponseErrorConfig<${TError}>, ${TData}, typeof queryKey>({

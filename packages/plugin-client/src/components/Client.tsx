@@ -197,7 +197,7 @@ export function Client({
           comments: getComments(operation),
         }}
       >
-        {'const { client:request = client, ...requestConfig } = config'}
+        {'const { client: request = client, ...requestConfig } = config'}
         <br />
         <br />
         {formData}

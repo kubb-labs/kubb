@@ -82,7 +82,9 @@ export type Options = {
    * Group the @tanstack/query hooks based on the provided name.
    */
   group?: Group
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
+  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'> & {
+    importHook?: boolean
+  }
 
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
@@ -149,7 +151,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL' | 'importHook'>> & { baseURL?: string; importHook?: boolean }
   parser: Required<NonNullable<Options['parser']>>
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>

@@ -82,8 +82,10 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        {!hasClientPlugin && <File.Import name={'client'} path={options.client.importPath} />}
-        {hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        {!options.client.importHook && !hasClientPlugin && <File.Import name={'client'} path={options.client.importPath} />}
+        {!!options.client.importHook && <File.Import name={['useClient']} path={options.client.importPath} />}
+
+        {!options.client.importPath && hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
@@ -125,7 +127,8 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
         <File.Import name={['queryOptions']} path={importPath} />
         <QueryOptions
           name={queryOptions.name}
-          clientName={client.name}
+          clientName={options.client.importHook ? 'client' : client.name}
+          useClient={options.client.importHook}
           queryKeyName={queryKey.name}
           typeSchemas={type.schemas}
           paramsCasing={options.paramsCasing}

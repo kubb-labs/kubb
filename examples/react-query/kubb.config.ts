@@ -56,6 +56,7 @@ export const config = {
           options: {
             client: {
               dataReturnType: 'full',
+              importHook: true,
               importPath: '@kubb/plugin-client/clients/axios',
             },
             infinite: {
