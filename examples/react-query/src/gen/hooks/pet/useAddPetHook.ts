@@ -18,7 +18,7 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: '/pet',
+    url: `/pet`,
     data,
     ...requestConfig,
   })
