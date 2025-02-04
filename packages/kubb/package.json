@@ -49,7 +49,7 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/node": "^20.17.16",
+    "@types/node": "^20.17.17",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

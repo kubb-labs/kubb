@@ -56,7 +56,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "handlebars": "^4.7.8",
-    "mobx": "^6.13.5",
+    "mobx": "^6.13.6",
     "react": "catalog:",
     "react-dom": "catalog:",
     "redoc": "^2.3.0",

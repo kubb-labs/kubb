@@ -21,7 +21,7 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^2.1.0",
+    "@shikijs/vitepress-twoslash": "^2.3.0",
     "mermaid": "^11.4.1",
     "sitemap": "^8.0.0",
     "vitepress": "^1.6.3",
@@ -44,7 +44,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.4.2",
-    "@types/node": "^20.17.16",
+    "@types/node": "^20.17.17",
     "@types/react": "catalog:",
     "cross-env": "^7.0.3",
     "react": "catalog:",

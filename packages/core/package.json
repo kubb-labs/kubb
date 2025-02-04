@@ -94,9 +94,9 @@
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
     "p-queue": "^8.1.0",
-    "remeda": "^2.20.0",
+    "remeda": "^2.20.1",
     "seedrandom": "^3.0.5",
-    "semver": "^7.6.3"
+    "semver": "^7.7.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

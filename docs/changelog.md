@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.5.7
+- [`react`](/helpers/react/): Bun does not follow the same node_modules structure, to resolve this we need to include the React bundle inside of `@kubb/react`. This will increase the size with 4MB.
+
 ## 3.5.6
 - [`plugin-react-query`](/plugins/plugin-react-query/): support custom client in options
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom client in options

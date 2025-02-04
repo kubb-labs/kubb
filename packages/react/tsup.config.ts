@@ -10,7 +10,7 @@ export default defineConfig([
       devtools: 'src/devtools.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
     },
-    noExternal: ['auto-bind'],
+    noExternal: ['auto-bind', /react/],
   },
   {
     ...optionsESM,
@@ -19,6 +19,6 @@ export default defineConfig([
       devtools: 'src/devtools.ts',
       'jsx-runtime': './src/jsx-runtime.ts',
     },
-    noExternal: [],
+    noExternal: [/react/],
   },
 ])

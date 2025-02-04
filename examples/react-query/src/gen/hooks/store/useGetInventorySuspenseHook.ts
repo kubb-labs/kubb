@@ -16,7 +16,7 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
 export async function getInventorySuspenseHook(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
+  const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
   return res.data
 }
 
