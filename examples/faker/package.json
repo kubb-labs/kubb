@@ -40,7 +40,7 @@
     "@kubb/config-ts": "workspace:*",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.15.2",
+  "packageManager": "pnpm@9.15.5",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"
