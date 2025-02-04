@@ -24,7 +24,7 @@ export type ResponseConfig<TData = unknown> = {
 
 export type ResponseErrorConfig<TError = unknown> = TError
 
-export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TData, _TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const url = new URL(config.url || '', config.baseURL ? new URL(config.baseURL) : undefined)
 
   Object.entries(config.params || {}).forEach(([key, value]) => {

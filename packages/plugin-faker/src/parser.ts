@@ -157,7 +157,7 @@ const fakerKeywordMapper = {
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 
-function schemaKeywordSorter(a: Schema, b: Schema) {
+function schemaKeywordSorter(_a: Schema, b: Schema) {
   if (b.keyword === 'null') {
     return -1
   }
@@ -188,7 +188,7 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
+export function parse({ current, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
   const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
 
   if (!value) {

@@ -65,9 +65,6 @@ type GetFileProps<TOptions = object> = {
   pluginKey: Plugin['key']
   options?: TOptions
 }
-type GetOptionsProps<TOptions = object> = {
-  pluginKey: Plugin['key']
-}
 
 export class PluginManager {
   readonly plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
@@ -452,7 +449,7 @@ export class PluginManager {
 
   getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
     const plugins = [...this.plugins]
-    const [searchPluginName, searchIdentifier] = pluginKey
+    const [searchPluginName] = pluginKey
 
     return plugins.find((item) => {
       const [name] = item.key

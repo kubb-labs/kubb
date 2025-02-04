@@ -9,7 +9,7 @@ import { URLPath } from './utils/URLPath.ts'
 import { join, resolve } from 'node:path'
 import { getRelativePath } from '@kubb/fs'
 import type { Logger } from './logger.ts'
-import type { Config, Output, PluginContext, UserConfig } from './types.ts'
+import type { Config, Output, UserConfig } from './types.ts'
 
 type BuildOptions = {
   config: UserConfig

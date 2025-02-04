@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@kubb/types'
-import type { Config, InputPath, UserConfig } from './types.ts'
+import type { InputPath, UserConfig } from './types.ts'
 
 type Args = {
   /**

@@ -135,10 +135,10 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 // TODO implement as alternative for ByMethod
-type ByMethods = {
-  type: 'methods'
-  pattern: Array<HttpMethod>
-}
+// type ByMethods = {
+//   type: 'methods'
+//   pattern: Array<HttpMethod>
+// }
 
 type BySchemaName = {
   type: 'schemaName'

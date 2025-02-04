@@ -2,7 +2,6 @@ import { File, Function, FunctionParams } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import type { Schema } from '@kubb/plugin-oas'
-import type { KubbNode } from '@kubb/react/types'
 import * as parserFaker from '../parser.ts'
 import type { PluginFaker } from '../types.ts'
 

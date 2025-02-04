@@ -2,8 +2,6 @@ type PromiseFunc<T = unknown, T2 = never> = (state?: T) => T2 extends never ? Pr
 
 type ValueOfPromiseFuncArray<TInput extends Array<unknown>> = TInput extends Array<PromiseFunc<infer X, infer Y>> ? X | Y : never
 
-function noReturn(): void {}
-
 type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promise<Array<Awaited<ValueOfPromiseFuncArray<TInput>>>>
 
 /**
@@ -45,9 +43,7 @@ export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValu
         return state
       }
 
-      const calledFunc = func(state as TValue)
-
-      return calledFunc
+      return func(state as TValue)
     })
   }
 
@@ -74,8 +70,3 @@ export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<Prom
     : TStrategy extends 'parallel'
       ? HookParallelOutput<TInput, TValue>
       : never
-
-// tests
-
-type test = ValueOfPromiseFuncArray<Array<PromiseFunc<number, null>>>
-//    ^?

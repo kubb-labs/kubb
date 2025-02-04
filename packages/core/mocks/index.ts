@@ -9,8 +9,8 @@ import type { Plugin } from '../src/types.ts'
 import { createFile } from '../src/utils'
 
 export const mockedLogger = {
-  emit(type, message) {},
-  on(type, message) {},
+  emit(_type, _message) {},
+  on(_type, _message) {},
   consola: {},
 } as Logger
 
@@ -41,7 +41,7 @@ export const createMockedPluginManager = (name?: string) =>
       emit(message) {
         console.log(message)
       },
-      on(eventName, args) {},
+      on(_eventName, _args) {},
       logLevel: 3,
     },
     getPluginByKey: (_pluginKey: Plugin['key']) => {

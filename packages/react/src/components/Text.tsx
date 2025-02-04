@@ -1,6 +1,5 @@
 import { useIndent } from '../hooks/useIndent.ts'
 
-import React from 'react'
 import type { Key, KubbNode } from '../types.ts'
 
 type Props = {

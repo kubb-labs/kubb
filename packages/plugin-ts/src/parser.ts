@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
 import { type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
-import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
 export const typeKeywordMapper = {
@@ -137,7 +137,7 @@ type ParserOptions = {
   mapper?: Record<string, ts.PropertySignature>
 }
 
-export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
+export function parse({ current, siblings }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {

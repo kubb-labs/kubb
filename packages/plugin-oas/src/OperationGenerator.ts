@@ -224,8 +224,6 @@ export class OperationGenerator<
     }
   }
 
-  #methods = ['get', 'post', 'patch', 'put', 'delete']
-
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
@@ -331,13 +329,13 @@ export class OperationGenerator<
   /**
    * Operation
    */
-  async operation(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
+  async operation(_operation: Operation, _options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  async all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
+  async all(_operations: Operation[], _paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
     return []
   }
 }

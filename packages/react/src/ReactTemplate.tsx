@@ -10,7 +10,6 @@ import { FileManager, processFiles } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
-import * as React from 'react'
 import type { RootContextProps } from './components/Root.tsx'
 import { createNode } from './dom.ts'
 import type { FiberRoot } from './kubbRenderer.ts'
@@ -32,7 +31,7 @@ export type ReactTemplateOptions = {
 
 type Context = Omit<RootContextProps, 'exit'>
 
-export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string, unknown>> {
+export class ReactTemplate {
   readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean

@@ -70,7 +70,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
     const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
     return refs
-      ?.map((item, i) => {
+      ?.map((item) => {
         if (!item.args.path || !item.args.isImportable) {
           return undefined
         }

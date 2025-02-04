@@ -2,7 +2,6 @@ import transformers from '@kubb/core/transformers'
 import { type Schema, schemaKeywords } from '@kubb/plugin-oas'
 import { isKeyword } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react'
-import type { KubbNode } from '@kubb/react/types'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
 

@@ -22,7 +22,7 @@ export async function addPet(
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: `/pet`,
+    url: '/pet',
     data,
     ...requestConfig,
   })

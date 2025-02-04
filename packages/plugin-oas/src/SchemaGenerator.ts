@@ -961,7 +961,7 @@ export class SchemaGenerator<
   /**
    * Schema
    */
-  async schema(name: string, object: SchemaObject, options: TOptions): SchemaMethodResult<TFileMeta> {
+  async schema(_name: string, _object: SchemaObject, _options: TOptions): SchemaMethodResult<TFileMeta> {
     return []
   }
 }
