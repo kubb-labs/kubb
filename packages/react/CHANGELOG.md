@@ -1,5 +1,16 @@
 # @kubb/react
 
+## 3.5.7
+
+### Patch Changes
+
+- [`3dec170`](https://github.com/kubb-labs/kubb/commit/3dec170dc38013bbcff625eff9de0a75da05f80e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - bun does not follow the same node_modules structure, include React inside of `@kubb/react`
+
+- Updated dependencies []:
+  - @kubb/core@3.5.7
+  - @kubb/fs@3.5.7
+  - @kubb/parser-ts@3.5.7
+
 ## 3.5.6
 
 ### Patch Changes
