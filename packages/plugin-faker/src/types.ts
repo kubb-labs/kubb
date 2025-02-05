@@ -1,6 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { Oas, SchemaObject } from '@kubb/oas'
+import type { Oas, SchemaObject, contentType } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -9,6 +9,11 @@ export type Options = {
    * @default { path: 'handlers', barrelType: 'named' }
    */
   output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the Faker mocks based on the provided name.
    */

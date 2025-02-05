@@ -33,6 +33,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
     paramsCasing,
+    contentType,
   } = options
 
   return {
@@ -134,7 +135,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

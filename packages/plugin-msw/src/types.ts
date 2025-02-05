@@ -1,6 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { Oas } from '@kubb/oas'
+import type { Oas, contentType } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -9,6 +9,11 @@ export type Options = {
    * @default { path: 'mocks', barrelType: 'named' }
    */
   output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the MSW mocks based on the provided name.
    */

@@ -30,6 +30,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     generators = [queryGenerator].filter(Boolean),
     query = {},
     paramsCasing,
+    contentType,
   } = options
 
   return {
@@ -126,7 +127,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

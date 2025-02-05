@@ -89,6 +89,8 @@ Create `handlers.ts` file with all handlers grouped by methods.
 | Required: | `false`   |
 |  Default: | `false`   |
 
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->

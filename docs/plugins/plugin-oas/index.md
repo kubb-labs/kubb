@@ -155,15 +155,7 @@ const plugin = pluginOas({ serverIndex: 1 })
 :::
 
 ### contentType
-
-Define which contentType should be used.
-By default, this is set based on the contentType being found.
-
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `'application/json' \| (string & {})` |
-| Required: | `false`                               |
-
+<!--@include: ../core/contentType.md-->
 
 ### oasClass <img src="/icons/experimental.svg"/>
 Override some behaviour of the Oas class instance, see `@kubb/oas`.

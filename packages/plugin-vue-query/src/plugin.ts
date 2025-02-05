@@ -33,6 +33,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -142,7 +143,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

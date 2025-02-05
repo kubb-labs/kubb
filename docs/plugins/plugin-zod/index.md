@@ -78,6 +78,9 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
+### contentType
+<!--@include: ../core/contentType.md-->
+
 ### group
 <!--@include: ../core/group.md-->
 

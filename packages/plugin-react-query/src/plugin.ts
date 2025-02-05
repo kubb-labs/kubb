@@ -35,6 +35,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     paramsCasing,
+    contentType,
   } = options
 
   return {
@@ -145,7 +146,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

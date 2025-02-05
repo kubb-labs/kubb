@@ -28,6 +28,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     dateParser = 'faker',
     generators = [fakerGenerator].filter(Boolean),
     regexGenerator = 'faker',
+    contentType,
   } = options
 
   return {
@@ -102,7 +103,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -116,7 +117,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

@@ -81,6 +81,9 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
+### contentType
+<!--@include: ../core/contentType.md-->
+
 ### group
 <!--@include: ../core/group.md-->
 
@@ -203,8 +206,7 @@ When using a string you need to use `JSON.stringify`.
 ### query
 
 Override some useQuery behaviours. <br/>
-To disable queries pass `false`.
-
+To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
 |           |         |
 |----------:|:--------|

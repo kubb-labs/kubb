@@ -32,6 +32,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -134,7 +135,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

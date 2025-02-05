@@ -4,6 +4,14 @@ title: Changelog
 
 # Changelog
 
+## 3.5.8
+- [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom `contentType` per plugin
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support custom `contentType` per plugin
+- [`plugin-swr`](/plugins/plugin-swr/): support custom `contentType` per plugin
+- [`plugin-client`](/plugins/plugin-client): support custom `contentType` per plugin
+
 ## 3.5.7
 - [`react`](/helpers/react/): Bun does not follow the same node_modules structure, to resolve this we need to include the React bundle inside of `@kubb/react`. This will increase the size with 4MB.
 

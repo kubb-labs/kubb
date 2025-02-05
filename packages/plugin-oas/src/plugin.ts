@@ -1,6 +1,5 @@
 import { FileManager, type Group, createPlugin } from '@kubb/core'
 
-import { getSchemas } from './utils/getSchemas.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 import path from 'node:path'
@@ -59,10 +58,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         getOas() {
           return getOas({ config, logger })
         },
-        async getSchemas({ includes } = {}) {
-          const oas = await this.getOas()
-          return getSchemas({ oas, contentType, includes })
-        },
         async getBaseURL() {
           const oasInstance = await this.getOas()
           if (serverIndex) {
@@ -71,7 +66,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
           return undefined
         },
-        contentType,
       }
     },
     resolvePath(baseName, pathMode, options) {

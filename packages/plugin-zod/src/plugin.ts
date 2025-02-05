@@ -31,6 +31,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     coercion = false,
     inferred = false,
     generators = [zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -113,7 +114,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -127,7 +128,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

@@ -80,6 +80,9 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
+### contentType
+<!--@include: ../core/contentType.md-->
+
 ### group
 <!--@include: ../core/group.md-->
 
@@ -190,7 +193,7 @@ Which field of the data will be used, set it to undefined when no cursor is know
 ### query
 
 Override some useQuery behaviours. <br/>
-To disable queries pass `false`.
+To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
 
 |           |         |

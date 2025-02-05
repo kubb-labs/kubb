@@ -28,6 +28,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     oasType = false,
     mapper = {},
     generators = [typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -103,7 +104,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -117,7 +118,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

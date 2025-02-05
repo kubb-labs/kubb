@@ -1,6 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { HttpMethod, Oas, Operation } from '@kubb/oas'
+import type { HttpMethod, Oas, Operation, contentType } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { PluginReactQuery } from '@kubb/plugin-react-query'
@@ -78,6 +78,11 @@ export type Options = {
    * @default { path: 'hooks', barrelType: 'named' }
    */
   output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the @tanstack/query hooks based on the provided name.
    */

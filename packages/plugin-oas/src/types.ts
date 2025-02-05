@@ -4,7 +4,6 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { Generator } from './generator.tsx'
-import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
@@ -17,9 +16,7 @@ export type ResolvePathOptions = {
 
 export type API = {
   getOas: () => Promise<Oas>
-  getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
-  contentType?: contentType
 }
 
 export type Options = {
@@ -46,7 +43,7 @@ export type Options = {
   serverIndex?: number
   /**
    * Define which contentType should be used.
-   * By default, this is set based on the contentType being found.
+   * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
   /**

@@ -25,6 +25,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
     handlers = false,
     parser = 'data',
     generators = [mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -92,7 +93,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

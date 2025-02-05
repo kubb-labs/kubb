@@ -32,6 +32,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     parser = 'client',
     client = 'axios',
     importPath = client === 'fetch' ? '@kubb/plugin-client/clients/fetch' : '@kubb/plugin-client/clients/axios',
+    contentType,
   } = options
 
   return {
@@ -110,7 +111,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
           oas,
           pluginManager: this.pluginManager,
           plugin: this.plugin,
-          contentType: swaggerPlugin.context.contentType,
+          contentType,
           exclude,
           include,
           override,
