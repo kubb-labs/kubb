@@ -76,6 +76,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:beta": "rslib build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --apply-unsafe .",
@@ -89,11 +90,7 @@
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/types": "workspace:*",
-    "camelcase": "^8.0.0",
-    "find-up": "^7.0.0",
-    "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
-    "p-queue": "^8.1.0",
     "remeda": "^2.20.1",
     "seedrandom": "^3.0.5",
     "semver": "^7.7.1"
@@ -103,11 +100,16 @@
     "@kubb/config-tsup": "workspace:*",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
+    "natural-orderby": "^5.0.0",
     "@types/semver": "^7.5.8",
+    "find-up": "^7.0.0",
+    "p-queue": "^8.1.0",
+    "camelcase": "^8.0.0",
     "consola": "^3.4.0",
     "prettier": "^3.4.2",
     "tinyrainbow": "^1.2.0",
     "tsup": "catalog:",
+    "@rslib/core": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

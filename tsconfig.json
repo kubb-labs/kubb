@@ -37,6 +37,7 @@
       "@kubb/parser-ts": ["packages/parser-ts/src/index.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
       "@kubb/config-tsup": ["packages/config-tsup/src/index.ts"],
+      "@kubb/config-rslib": ["packages/config-rslib/src/index.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }
   },
