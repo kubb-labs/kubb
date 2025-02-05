@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 2.0.1
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
 ## 2.0.0
 
 ### Major Changes
