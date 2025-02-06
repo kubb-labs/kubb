@@ -21,7 +21,7 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^2.3.1",
+    "@shikijs/vitepress-twoslash": "^2.3.2",
     "mermaid": "^11.4.1",
     "sitemap": "^8.0.0",
     "vitepress": "^1.6.3",
