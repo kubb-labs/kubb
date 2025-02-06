@@ -1,5 +1,16 @@
 # @kubb/plugin-redoc
 
+## 3.5.8
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
+- Updated dependencies [[`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288)]:
+  - @kubb/plugin-oas@3.5.8
+  - @kubb/core@3.5.8
+  - @kubb/oas@3.5.8
+
 ## 3.5.7
 
 ### Patch Changes
