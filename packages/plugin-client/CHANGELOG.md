@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.5.9
+
+### Patch Changes
+
+- [`622b15f`](https://github.com/kubb-labs/kubb/commit/622b15fa8217e4269f242f70424beb6736ff840f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of baseURL for fetch client
+
+- Updated dependencies []:
+  - @kubb/core@3.5.9
+  - @kubb/fs@3.5.9
+  - @kubb/oas@3.5.9
+  - @kubb/plugin-oas@3.5.9
+  - @kubb/plugin-ts@3.5.9
+  - @kubb/plugin-zod@3.5.9
+  - @kubb/react@3.5.9
+
 ## 3.5.8
 
 ### Patch Changes
