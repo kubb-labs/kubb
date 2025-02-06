@@ -25,15 +25,21 @@ export type ResponseConfig<TData = unknown> = {
 export type ResponseErrorConfig<TError = unknown> = TError
 
 export const client = async <TData, _TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const url = new URL(config.url || '', config.baseURL ? new URL(config.baseURL) : undefined)
+  const normalizedParams = new URLSearchParams()
 
   Object.entries(config.params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
-      url.searchParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   })
 
-  const response = await fetch(url.toString(), {
+  let targetUrl = `${config.baseURL}${config.url}`
+
+  if (config.params) {
+    targetUrl += `?${normalizedParams}`
+  }
+
+  const response = await fetch(targetUrl, {
     method: config.method.toUpperCase(),
     body: JSON.stringify(config.data),
     signal: config.signal,

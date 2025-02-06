@@ -3,7 +3,7 @@ import { createCategoryFaker } from './createCategoryFaker.ts'
 import { createTagTagFaker } from './tag/createTagFaker.ts'
 import { faker } from '@faker-js/faker'
 
-export function createPetFaker(data?: Partial<Pet>) {
+export function createPetFaker(data?: Partial<Pet>): Partial<Pet> {
   return {
     ...{
       id: faker.number.int(),

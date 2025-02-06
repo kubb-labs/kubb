@@ -1,7 +1,7 @@
 import type { DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteUserPathParamsFaker(data?: Partial<DeleteUserPathParams>) {
+export function createDeleteUserPathParamsFaker(data?: Partial<DeleteUserPathParams>): Partial<DeleteUserPathParams> {
   return {
     ...{ username: faker.string.alpha() },
     ...(data || {}),

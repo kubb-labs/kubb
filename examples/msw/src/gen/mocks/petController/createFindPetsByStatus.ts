@@ -2,7 +2,7 @@ import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatus
 import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
 
-export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatusQueryParams>) {
+export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatusQueryParams>): Partial<FindPetsByStatusQueryParams> {
   faker.seed([220])
   return {
     ...{ status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']) },
@@ -13,7 +13,7 @@ export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatu
 /**
  * @description successful operation
  */
-export function createFindPetsByStatus200(data?: Partial<FindPetsByStatus200>) {
+export function createFindPetsByStatus200(data?: Partial<FindPetsByStatus200>): Partial<FindPetsByStatus200> {
   faker.seed([220])
   return [...(faker.helpers.multiple(() => createPet()) as any), ...(data || [])]
 }
@@ -26,7 +26,7 @@ export function createFindPetsByStatus400() {
   return undefined
 }
 
-export function createFindPetsByStatusQueryResponse(data?: Partial<FindPetsByStatusQueryResponse>) {
+export function createFindPetsByStatusQueryResponse(data?: Partial<FindPetsByStatusQueryResponse>): Partial<FindPetsByStatusQueryResponse> {
   faker.seed([220])
   return data || faker.helpers.arrayElement<any>([createFindPetsByStatus200()])
 }

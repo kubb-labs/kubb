@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>) {
+export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>): Partial<ListPetsQueryParams> {
   return {
     ...{ limit: faker.string.alpha() },
     ...(data || {}),
@@ -21,6 +21,6 @@ export function listPetsError() {
   return error()
 }
 
-export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>) {
+export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>): Partial<ListPetsQueryResponse> {
   return data || faker.helpers.arrayElement<any>([listPets200()])
 }

@@ -1,7 +1,7 @@
 import RandExp from 'randexp'
 import { faker } from '@faker-js/faker'
 
-export function pet(data?: Partial<Pet>) {
+export function pet(data?: Partial<Pet>): Partial<Pet> {
   return {
     ...{
       id: faker.number.int(),

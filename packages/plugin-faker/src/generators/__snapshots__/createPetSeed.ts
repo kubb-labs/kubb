@@ -16,7 +16,7 @@ export function createPetsError() {
   return error()
 }
 
-export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>) {
+export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): Partial<CreatePetsMutationRequest> {
   faker.seed([222])
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
@@ -24,7 +24,7 @@ export function createPetsMutationRequest(data?: Partial<CreatePetsMutationReque
   }
 }
 
-export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>) {
+export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>): Partial<CreatePetsMutationResponse> {
   faker.seed([222])
   return data || faker.helpers.arrayElement<any>([createPets201()])
 }

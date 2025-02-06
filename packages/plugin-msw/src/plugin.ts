@@ -26,6 +26,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
     parser = 'data',
     generators = [mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
     contentType,
+    baseURL,
   } = options
 
   return {
@@ -34,6 +35,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       output,
       parser,
       group,
+      baseURL,
     },
     pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

@@ -13,7 +13,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
   Operation({ operation }) {
     const {
       plugin: {
-        options: { output, parser },
+        options: { output, parser, baseURL },
       },
     } = useApp<PluginMsw>()
     const oas = useOas()
@@ -49,6 +49,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             typeName={type.schemas.response.name}
             fakerName={faker.schemas.response.name}
             method={operation.method}
+            baseURL={baseURL}
             url={new URLPath(operation.path).toURLPath()}
           />
         )}
@@ -58,6 +59,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             typeName={type.schemas.response.name}
             fakerName={faker.schemas.response.name}
             method={operation.method}
+            baseURL={baseURL}
             url={new URLPath(operation.path).toURLPath()}
           />
         )}

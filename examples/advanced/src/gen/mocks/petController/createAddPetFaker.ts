@@ -13,7 +13,7 @@ export function createAddPet200Faker() {
 /**
  * @description Pet not found
  */
-export function createAddPet405Faker(data?: Partial<AddPet405>) {
+export function createAddPet405Faker(data?: Partial<AddPet405>): Partial<AddPet405> {
   return {
     ...{ code: faker.number.int(), message: faker.string.alpha() },
     ...(data || {}),
@@ -27,6 +27,6 @@ export function createAddPetMutationRequestFaker() {
   return createAddPetRequestFaker()
 }
 
-export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>) {
+export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>): Partial<AddPetMutationResponse> {
   return data || faker.helpers.arrayElement<any>([createAddPet200Faker()])
 }

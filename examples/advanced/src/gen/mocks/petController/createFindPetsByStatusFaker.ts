@@ -2,7 +2,7 @@ import type { FindPetsByStatusPathParams, FindPetsByStatus200, FindPetsByStatusQ
 import { createPetFaker } from '../createPetFaker.ts'
 import { faker } from '@faker-js/faker'
 
-export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>) {
+export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): Partial<FindPetsByStatusPathParams> {
   return {
     ...{ step_id: faker.string.alpha() },
     ...(data || {}),
@@ -12,7 +12,7 @@ export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByS
 /**
  * @description successful operation
  */
-export function createFindPetsByStatus200Faker(data?: Partial<FindPetsByStatus200>) {
+export function createFindPetsByStatus200Faker(data?: Partial<FindPetsByStatus200>): Partial<FindPetsByStatus200> {
   return [...(faker.helpers.multiple(() => createPetFaker(), { count: { min: 1, max: 3 } }) as any), ...(data || [])]
 }
 
@@ -23,6 +23,6 @@ export function createFindPetsByStatus400Faker() {
   return undefined
 }
 
-export function createFindPetsByStatusQueryResponseFaker(data?: Partial<FindPetsByStatusQueryResponse>) {
+export function createFindPetsByStatusQueryResponseFaker(data?: Partial<FindPetsByStatusQueryResponse>): Partial<FindPetsByStatusQueryResponse> {
   return data || faker.helpers.arrayElement<any>([createFindPetsByStatus200Faker()])
 }

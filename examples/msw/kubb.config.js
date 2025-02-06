@@ -45,6 +45,7 @@ export default defineConfig(() => {
             return `${group}/Handlers`
           },
         },
+        baseURL: 'http://localhost:3000',
       }),
     ],
   }

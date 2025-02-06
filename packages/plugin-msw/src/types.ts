@@ -14,6 +14,7 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
+  baseURL?: string
   /**
    * Group the MSW mocks based on the provided name.
    */
@@ -57,6 +58,7 @@ type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
   parser: NonNullable<Options['parser']>
+  baseURL: Options['baseURL'] | undefined
 }
 
 export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOptions, never, ResolvePathOptions>

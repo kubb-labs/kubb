@@ -37,6 +37,6 @@ export function createUpdatePetMutationRequest() {
   return createPet()
 }
 
-export function createUpdatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>) {
+export function createUpdatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>): Partial<UpdatePetMutationResponse> {
   return data || faker.helpers.arrayElement<any>([createUpdatePet200()])
 }

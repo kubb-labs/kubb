@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.5.9
+- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+- [`plugin-faker`](/plugins/plugin-faker/): only use min/max when both are set in the oas
+- [`plugin-client`](/plugins/plugin-client): correct use of baseURL for fetch client
+- [`plugin-msw`](/plugins/plugin-msw): support for `baseURL` without wildcards
+
 ## 3.5.8
 - [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin
