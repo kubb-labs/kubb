@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.5.10
+- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+
 ## 3.5.9
 - [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
 - [`plugin-faker`](/plugins/plugin-faker/): only use min/max when both are set in the oas
