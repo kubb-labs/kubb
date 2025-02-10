@@ -1,5 +1,19 @@
 # @kubb/plugin-faker
 
+## 3.5.10
+
+### Patch Changes
+
+- [#1552](https://github.com/kubb-labs/kubb/pull/1552) [`2d9d869`](https://github.com/kubb-labs/kubb/commit/2d9d8695f697013387c44c0fd2c5468575777e4e) Thanks [@Ericlm](https://github.com/Ericlm)! - updating return-type to be non-partial of entering type
+
+- Updated dependencies []:
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/oas@3.5.10
+  - @kubb/plugin-oas@3.5.10
+  - @kubb/plugin-ts@3.5.10
+  - @kubb/react@3.5.10
+
 ## 3.5.9
 
 ### Patch Changes
