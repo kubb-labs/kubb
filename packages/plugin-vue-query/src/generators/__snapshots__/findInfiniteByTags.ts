@@ -25,8 +25,8 @@ export async function findPetsByTagsInfinite(
     method: 'GET',
     url: `/pet/findByTags`,
     params,
-    headers: { ...headers, ...requestConfig.headers },
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return findPetsByTagsQueryResponse.parse(res.data)
 }

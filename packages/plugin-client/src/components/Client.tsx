@@ -160,14 +160,14 @@ export function Client({
               value: isFormData ? 'formData' : undefined,
             }
           : undefined,
+        requestConfig: {
+          mode: 'inlineSpread',
+        },
         headers: headers.length
           ? {
               value: headers.length ? `{ ${headers.join(', ')}, ...requestConfig.headers }` : undefined,
             }
           : undefined,
-        requestConfig: {
-          mode: 'inlineSpread',
-        },
       },
     },
   })
