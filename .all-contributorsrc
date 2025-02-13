@@ -203,6 +203,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "chambber",
+      "name": "Rubens Pereira do Nascimento",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11406841?v=4",
+      "profile": "https://github.com/chambber",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
