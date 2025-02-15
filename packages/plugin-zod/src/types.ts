@@ -89,6 +89,13 @@ export type Options = {
     ) => Schema[] | undefined
   }
   /**
+   * Callback function to append to the suffix of the generated zod schema
+   *
+   * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: {some: "complex-example" }})`
+   * while going from openapi -> zod -> openapi
+   */
+  appendToSuffix?: (arg: { schema: SchemaObject }) => string | undefined
+  /**
    * Define some generators next to the zod generators
    */
   generators?: Array<Generator<PluginZod>>
@@ -107,6 +114,7 @@ type ResolvedOptions = {
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
   operations: NonNullable<Options['operations']>
+  appendToSuffix: Options['appendToSuffix']
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>

@@ -4,19 +4,22 @@ import { isKeyword } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
+import type { SchemaObject } from '@kubb/oas'
 
 type Props = {
   name: string
   typeName?: string
   inferTypeName?: string
   tree: Array<Schema>
+  rawSchema: SchemaObject
   description?: string
   coercion: PluginZod['resolvedOptions']['coercion']
   mapper: PluginZod['resolvedOptions']['mapper']
   keysToOmit?: string[]
+  appendToSuffix?: ((opts: { schema: any }) => string | undefined)
 }
 
-export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, keysToOmit, description }: Props) {
+export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, appendToSuffix }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
 
   const output = parserZod
@@ -29,7 +32,7 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
       return true
     })
     .map((schema, _index, siblings) =>
-      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion }),
+      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion, appendToSuffix, rawSchema }),
     )
     .filter(Boolean)
     .join('')
@@ -49,6 +52,7 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
           {[
             output,
             keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
+            appendToSuffix ? appendToSuffix({ schema: rawSchema }) : undefined,
             typeName ? `as unknown as ToZod<${typeName}>` : undefined,
           ]
             .filter(Boolean)

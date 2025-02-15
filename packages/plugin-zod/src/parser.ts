@@ -1,4 +1,5 @@
 import transformers from '@kubb/core/transformers'
+import type { SchemaObject } from '@kubb/oas'
 import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
@@ -188,6 +189,8 @@ type ParserOptions = {
   keysToOmit?: string[]
   mapper?: Record<string, string>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+  appendToSuffix?: (opts: { schema: any }) => string | undefined
+  rawSchema: SchemaObject
 }
 
 export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -294,7 +297,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         return `"${name}": ${sort(schemas)
           .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options))
           .filter(Boolean)
-          .join('')}`
+          .join('')}${options.appendToSuffix ? options.appendToSuffix({ schema: options.rawSchema?.properties?.[name] }) ?? '' : ''}`
       })
       .join(',\n')
 
