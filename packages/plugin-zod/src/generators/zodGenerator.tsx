@@ -10,7 +10,7 @@ import type { PluginZod } from '../types'
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
   Operation({ operation, options }) {
-    const { coercion, inferred, typed, mapper, appendToSuffix } = options
+    const { coercion, inferred, typed, mapper, wrapOutput } = options
 
     const { plugin, pluginManager, mode } = useApp<PluginZod>()
     const oas = useOas()
@@ -73,7 +73,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             mapper={mapper}
             coercion={coercion}
             keysToOmit={keysToOmit}
-            appendToSuffix={appendToSuffix}
+            wrapOutput={wrapOutput}
           />
         </Oas.Schema>
       )
@@ -93,7 +93,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     )
   },
   Schema({ schema, options }) {
-    const { coercion, inferred, typed, mapper, importPath, appendToSuffix } = options
+    const { coercion, inferred, typed, mapper, importPath, wrapOutput } = options
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
@@ -134,7 +134,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           rawSchema={schema.value}
           mapper={mapper}
           coercion={coercion}
-          appendToSuffix={appendToSuffix}
+          wrapOutput={wrapOutput}
         />
       </File>
     )

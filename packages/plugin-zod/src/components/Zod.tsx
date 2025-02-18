@@ -16,10 +16,10 @@ type Props = {
   coercion: PluginZod['resolvedOptions']['coercion']
   mapper: PluginZod['resolvedOptions']['mapper']
   keysToOmit?: string[]
-  appendToSuffix?: ((opts: { schema: any }) => string | undefined)
+  wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
 }
 
-export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, appendToSuffix }: Props) {
+export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, wrapOutput }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
 
   const output = parserZod
@@ -32,12 +32,17 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
       return true
     })
     .map((schema, _index, siblings) =>
-      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion, appendToSuffix, rawSchema }),
+      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema }),
     )
     .filter(Boolean)
     .join('')
 
   const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
+  const baseSchemaOutput =
+    [output, keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined].filter(Boolean).join('') ||
+    'z.undefined()'
+  const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput
+  const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ToZod<${typeName}>` : wrappedSchemaOutput
 
   return (
     <>
@@ -49,14 +54,7 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
-          {[
-            output,
-            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-            appendToSuffix ? appendToSuffix({ schema: rawSchema }) : undefined,
-            typeName ? `as unknown as ToZod<${typeName}>` : undefined,
-          ]
-            .filter(Boolean)
-            .join('') || 'z.undefined()'}
+          {finalOutput}
         </Const>
       </File.Source>
       {inferTypeName && (

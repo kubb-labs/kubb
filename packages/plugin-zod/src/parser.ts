@@ -189,7 +189,7 @@ type ParserOptions = {
   keysToOmit?: string[]
   mapper?: Record<string, string>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
-  appendToSuffix?: (opts: { schema: any }) => string | undefined
+  wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   rawSchema: SchemaObject
 }
 
@@ -294,10 +294,12 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           return `"${name}": ${options.mapper?.[mappedName]}`
         }
 
-        return `"${name}": ${sort(schemas)
+        const baseSchemaOutput = sort(schemas)
           .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options))
           .filter(Boolean)
-          .join('')}${options.appendToSuffix ? options.appendToSuffix({ schema: options.rawSchema?.properties?.[name] }) ?? '' : ''}`
+          .join('')
+
+        return `"${name}": ${options.wrapOutput ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput : baseSchemaOutput}`
       })
       .join(',\n')
 
