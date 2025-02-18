@@ -59,7 +59,7 @@
     "mobx": "^6.13.6",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "redoc": "^2.3.0",
+    "redoc": "^2.4.0",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
