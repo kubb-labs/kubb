@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-export function pet(data?: Partial<Pet>): Partial<Pet> {
+export function pet(data?: Partial<Pet>): Pet {
   return {
     ...{
       id: faker.number.int(),

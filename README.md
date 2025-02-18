@@ -73,6 +73,10 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://thijmen.dev"><img src="https://avatars.githubusercontent.com/u/383903?v=4?s=100" width="100px;" alt="Thijmen Stavenuiter"/><br /><sub><b>Thijmen Stavenuiter</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=Thijmen" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/bohdanhusak"><img src="https://avatars.githubusercontent.com/u/13829370?v=4?s=100" width="100px;" alt="Bohdan Husak"/><br /><sub><b>Bohdan Husak</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=bohdanhusak" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Ericlm"><img src="https://avatars.githubusercontent.com/u/19361503?v=4?s=100" width="100px;" alt="Éric Le Maître"/><br /><sub><b>Éric Le Maître</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=Ericlm" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/chambber"><img src="https://avatars.githubusercontent.com/u/11406841?v=4?s=100" width="100px;" alt="Rubens Pereira do Nascimento"/><br /><sub><b>Rubens Pereira do Nascimento</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=chambber" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 

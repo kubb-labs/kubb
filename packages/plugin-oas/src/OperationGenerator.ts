@@ -44,7 +44,7 @@ export class OperationGenerator<
     return (
       override.find(({ pattern, type }) => {
         if (type === 'tag') {
-          return !!operation.getTags()[0]?.name.match(pattern)
+          return !!operation.getTags().some((tag) => tag.name.match(pattern))
         }
 
         if (type === 'operationId') {
@@ -70,7 +70,7 @@ export class OperationGenerator<
 
     exclude.forEach(({ pattern, type }) => {
       if (type === 'tag' && !matched) {
-        matched = !!operation.getTags()[0]?.name.match(pattern)
+        matched = !!operation.getTags().some((tag) => tag.name.match(pattern))
       }
 
       if (type === 'operationId' && !matched) {
@@ -95,7 +95,7 @@ export class OperationGenerator<
 
     include.forEach(({ pattern, type }) => {
       if (type === 'tag' && !matched) {
-        matched = !!operation.getTags()[0]?.name.match(pattern)
+        matched = !!operation.getTags().some((tag) => tag.name.match(pattern))
       }
 
       if (type === 'operationId' && !matched) {

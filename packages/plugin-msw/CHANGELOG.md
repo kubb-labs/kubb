@@ -1,5 +1,46 @@
 # @kubb/plugin-msw
 
+## 3.5.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.12
+  - @kubb/fs@3.5.12
+  - @kubb/oas@3.5.12
+  - @kubb/plugin-faker@3.5.12
+  - @kubb/plugin-oas@3.5.12
+  - @kubb/plugin-ts@3.5.12
+  - @kubb/react@3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/core@3.5.11
+  - @kubb/fs@3.5.11
+  - @kubb/oas@3.5.11
+  - @kubb/plugin-faker@3.5.11
+  - @kubb/plugin-oas@3.5.11
+  - @kubb/plugin-ts@3.5.11
+  - @kubb/react@3.5.11
+
+## 3.5.10
+
+### Patch Changes
+
+- Updated dependencies [[`2d9d869`](https://github.com/kubb-labs/kubb/commit/2d9d8695f697013387c44c0fd2c5468575777e4e)]:
+  - @kubb/plugin-faker@3.5.10
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/oas@3.5.10
+  - @kubb/plugin-oas@3.5.10
+  - @kubb/plugin-ts@3.5.10
+  - @kubb/react@3.5.10
+
 ## 3.5.9
 
 ### Patch Changes
