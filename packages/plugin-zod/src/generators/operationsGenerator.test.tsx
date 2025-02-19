@@ -43,6 +43,7 @@ describe('operationsGenerator operations', async () => {
         path: '.',
       },
       group: undefined,
+      wrapOutput: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>

@@ -4,19 +4,22 @@ import { isKeyword } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
+import type { SchemaObject } from '@kubb/oas'
 
 type Props = {
   name: string
   typeName?: string
   inferTypeName?: string
   tree: Array<Schema>
+  rawSchema: SchemaObject
   description?: string
   coercion: PluginZod['resolvedOptions']['coercion']
   mapper: PluginZod['resolvedOptions']['mapper']
   keysToOmit?: string[]
+  wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
 }
 
-export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, keysToOmit, description }: Props) {
+export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, wrapOutput }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
 
   const output = parserZod
@@ -29,12 +32,17 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
       return true
     })
     .map((schema, _index, siblings) =>
-      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion }),
+      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema }),
     )
     .filter(Boolean)
     .join('')
 
   const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
+  const baseSchemaOutput =
+    [output, keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined].filter(Boolean).join('') ||
+    'z.undefined()'
+  const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput
+  const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ToZod<${typeName}>` : wrappedSchemaOutput
 
   return (
     <>
@@ -46,13 +54,7 @@ export function Zod({ name, typeName, tree, inferTypeName, mapper, coercion, key
             comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
-          {[
-            output,
-            keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined,
-            typeName ? `as unknown as ToZod<${typeName}>` : undefined,
-          ]
-            .filter(Boolean)
-            .join('') || 'z.undefined()'}
+          {finalOutput}
         </Const>
       </File.Source>
       {inferTypeName && (

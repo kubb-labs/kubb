@@ -61,6 +61,7 @@ paths:
               properties:
                 name:
                   type: string
+                  example: 'Baxter'
                 tag:
                   type: string
       responses:
@@ -242,3 +243,14 @@ components:
           format: int32
         message:
           type: string
+      examples:
+        sample:
+          summary: A sample error
+          value:
+            code: 1
+            message: 'A sample error message'
+        other_example:
+          summary: Another sample error
+          value:
+            code: 2
+            message: 'A totally specific message'

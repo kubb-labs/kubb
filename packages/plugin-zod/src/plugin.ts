@@ -31,6 +31,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     coercion = false,
     inferred = false,
     generators = [zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
+    wrapOutput = undefined,
     contentType,
   } = options
 
@@ -51,6 +52,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       operations,
       inferred,
       group,
+      wrapOutput,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
