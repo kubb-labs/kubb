@@ -12,8 +12,8 @@ catalogs:
     react-dom: ^18.3.1
     react-reconciler: 0.29.2
   react19:
-    '@types/react': ^19.0.8
-    '@types/react-dom': ^19.0.3
+    '@types/react': ^19.0.10
+    '@types/react-dom': ^19.0.4
     '@types/react-reconciler': 0.28.9
     react: ^19.0.0
     react-dom: ^19.0.0
