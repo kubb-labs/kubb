@@ -67,6 +67,7 @@ export const createVolumeRequestSchema = z.object({
   snapshot_id: z.string().describe('restore from snapshot').optional(),
   snapshot_retention: z.number().int().optional(),
   source_volume_id: z.string().describe('fork from remote volume').optional(),
+  unique_zone_app_wide: z.boolean().optional(),
 })
 
 export const errorResponseSchema = z.object({

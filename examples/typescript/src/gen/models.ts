@@ -260,6 +260,7 @@ export enum AddPetRequestStatusEnum {
   available = 'available',
   pending = 'pending',
   sold = 'sold',
+  'in store' = 'in store',
 }
 
 export interface AddPetRequest {

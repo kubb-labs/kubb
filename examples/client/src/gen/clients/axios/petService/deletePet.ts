@@ -22,8 +22,8 @@ export async function deletePet(
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: getDeletePetUrl({ petId }).toString(),
-    headers: { ...headers, ...requestConfig.headers },
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

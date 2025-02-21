@@ -32,8 +32,8 @@ export async function createPets(
     url: getCreatePetsUrl({ uuid }).toString(),
     params,
     data,
-    headers: { ...headers, ...requestConfig.headers },
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

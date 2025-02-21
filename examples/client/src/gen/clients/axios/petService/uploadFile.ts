@@ -38,8 +38,8 @@ export async function uploadFile(
     url: getUploadFileUrl({ petId }).toString(),
     params,
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
     ...requestConfig,
+    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
   })
   return res.data
 }

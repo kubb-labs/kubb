@@ -2,7 +2,7 @@ import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createGetUserByNamePathParams(data?: Partial<GetUserByNamePathParams>): Partial<GetUserByNamePathParams> {
+export function createGetUserByNamePathParams(data?: Partial<GetUserByNamePathParams>): GetUserByNamePathParams {
   faker.seed([220])
   return {
     ...{ username: faker.string.alpha() },
@@ -34,7 +34,7 @@ export function createGetUserByName404() {
   return undefined
 }
 
-export function createGetUserByNameQueryResponse(data?: Partial<GetUserByNameQueryResponse>): Partial<GetUserByNameQueryResponse> {
+export function createGetUserByNameQueryResponse(data?: Partial<GetUserByNameQueryResponse>): GetUserByNameQueryResponse {
   faker.seed([220])
   return data || faker.helpers.arrayElement<any>([createGetUserByName200()])
 }

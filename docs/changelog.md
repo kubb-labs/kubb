@@ -4,6 +4,15 @@ title: Changelog
 
 # Changelog
 
+## 3.5.13
+- [`plugin-oas`](/plugins/plugin-oas): enum with whitespaces
+
+## 3.5.12
+- [`core`](/plugins/core): internal packages update
+
+## 3.5.11
+- [`core`](/plugins/core): internal packages update
+
 ## 3.5.10
 - [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
 

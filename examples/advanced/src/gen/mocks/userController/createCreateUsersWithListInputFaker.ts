@@ -21,12 +21,12 @@ export function createCreateUsersWithListInputErrorFaker() {
 
 export function createCreateUsersWithListInputMutationRequestFaker(
   data?: Partial<CreateUsersWithListInputMutationRequest>,
-): Partial<CreateUsersWithListInputMutationRequest> {
+): CreateUsersWithListInputMutationRequest {
   return [...(faker.helpers.multiple(() => createUserFaker()) as any), ...(data || [])]
 }
 
 export function createCreateUsersWithListInputMutationResponseFaker(
   data?: Partial<CreateUsersWithListInputMutationResponse>,
-): Partial<CreateUsersWithListInputMutationResponse> {
+): CreateUsersWithListInputMutationResponse {
   return data || faker.helpers.arrayElement<any>([createCreateUsersWithListInput200Faker()])
 }

@@ -26,8 +26,8 @@ export async function uploadFile(
     url: getUploadFileUrl({ petId }).toString(),
     params,
     data,
-    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
     ...requestConfig,
+    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
   return res
 }
