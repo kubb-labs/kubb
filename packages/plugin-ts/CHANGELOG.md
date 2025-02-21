@@ -1,5 +1,19 @@
 # @kubb/plugin-ts
 
+## 3.5.13
+
+### Patch Changes
+
+- [#1567](https://github.com/kubb-labs/kubb/pull/1567) [`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - enum with whitespaces
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/parser-ts@3.5.13
+  - @kubb/oas@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/react@3.5.13
+  - @kubb/plugin-oas@3.5.13
+  - @kubb/fs@3.5.13
+
 ## 3.5.12
 
 ### Patch Changes
