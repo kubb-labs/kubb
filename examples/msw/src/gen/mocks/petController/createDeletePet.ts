@@ -1,7 +1,7 @@
 import type { DeletePetPathParams, DeletePetHeaderParams } from '../../models/DeletePet.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): Partial<DeletePetPathParams> {
+export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
   faker.seed([220])
   return {
     ...{ petId: faker.number.int() },
@@ -9,7 +9,7 @@ export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): 
   }
 }
 
-export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams>): Partial<DeletePetHeaderParams> {
+export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams>): DeletePetHeaderParams {
   faker.seed([220])
   return {
     ...{ api_key: faker.string.alpha() },

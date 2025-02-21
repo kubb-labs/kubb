@@ -29,7 +29,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/solid-query": "5.62.7",
     "axios": "^1.7.9",
-    "solid-js": "^1.9.4",
+    "solid-js": "^1.9.5",
     "tsup": "^8.3.6"
   },
   "devDependencies": {

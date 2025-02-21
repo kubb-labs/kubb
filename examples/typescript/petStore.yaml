@@ -878,6 +878,7 @@ components:
             - available
             - pending
             - sold
+            - in store
       xml:
         name: pet
     ApiResponse:

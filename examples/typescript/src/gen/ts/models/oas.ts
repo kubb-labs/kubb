@@ -1254,7 +1254,7 @@ export const oas = {
           status: {
             type: 'string',
             description: 'pet status in the store',
-            enum: ['available', 'pending', 'sold'],
+            enum: ['available', 'pending', 'sold', 'in store'],
           },
         },
         xml: {

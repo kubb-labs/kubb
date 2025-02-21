@@ -237,7 +237,7 @@ export type FullAddress = Address & {
   streetName: string
 }
 
-export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold'
+export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold' | 'in store'
 
 export type AddPetRequest = {
   /**

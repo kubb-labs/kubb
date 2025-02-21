@@ -1,7 +1,7 @@
 import type { DeleteUserPathParams } from '../../models/DeleteUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>): Partial<DeleteUserPathParams> {
+export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>): DeleteUserPathParams {
   faker.seed([220])
   return {
     ...{ username: faker.string.alpha() },

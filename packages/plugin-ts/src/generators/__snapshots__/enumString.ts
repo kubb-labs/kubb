@@ -1,5 +1,5 @@
 export const enumStringEnum2 = {
-  created_at: 'created_at',
+  'created at': 'created at',
   description: 'description',
   'FILE.UPLOADED': 'FILE.UPLOADED',
   'FILE.DOWNLOADED': 'FILE.DOWNLOADED',

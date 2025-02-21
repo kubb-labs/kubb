@@ -1,14 +1,14 @@
 import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/ts/petController/UpdatePetWithForm.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUpdatePetWithFormPathParamsFaker(data?: Partial<UpdatePetWithFormPathParams>): Partial<UpdatePetWithFormPathParams> {
+export function createUpdatePetWithFormPathParamsFaker(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
   return {
     ...{ petId: faker.number.int() },
     ...(data || {}),
   }
 }
 
-export function createUpdatePetWithFormQueryParamsFaker(data?: Partial<UpdatePetWithFormQueryParams>): Partial<UpdatePetWithFormQueryParams> {
+export function createUpdatePetWithFormQueryParamsFaker(data?: Partial<UpdatePetWithFormQueryParams>): UpdatePetWithFormQueryParams {
   return {
     ...{ name: faker.string.alpha(), status: faker.helpers.arrayElement(['working', 'idle']) as any },
     ...(data || {}),
