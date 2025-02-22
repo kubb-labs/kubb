@@ -92,7 +92,7 @@ export type Options = {
    * Callback function to wrap the output of the generated zod schema
    *
    * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: { some: "complex-example" }})`
-   * or extendApi(z.object({ ... }), { example: { some: "complex-example", ...otherOpenApiProperties }})
+   * or `extendApi(z.object({ ... }), { example: { some: "complex-example", ...otherOpenApiProperties }})`
    * while going from openapi -> zod -> openapi
    */
   wrapOutput?: (arg: { output: string; schema: SchemaObject }) => string | undefined
