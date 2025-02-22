@@ -10,7 +10,7 @@ import type { PluginZod } from '../types'
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
   Operation({ operation, options }) {
-    const { coercion, inferred, typed, mapper } = options
+    const { coercion, inferred, typed, mapper, wrapOutput } = options
 
     const { plugin, pluginManager, mode } = useApp<PluginZod>()
     const oas = useOas()
@@ -46,8 +46,14 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       }
 
       const type = {
-        name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
-        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], group }),
+        name: schemaManager.getName(name, {
+          type: 'type',
+          pluginKey: [pluginTsName],
+        }),
+        file: schemaManager.getFile(options.operationName || name, {
+          pluginKey: [pluginTsName],
+          group,
+        }),
       }
 
       return (
@@ -63,9 +69,11 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             inferTypeName={inferred ? zod.inferTypeName : undefined}
             description={description}
             tree={tree}
+            rawSchema={schema}
             mapper={mapper}
             coercion={coercion}
             keysToOmit={keysToOmit}
+            wrapOutput={wrapOutput}
           />
         </Oas.Schema>
       )
@@ -85,7 +93,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     )
   },
   Schema({ schema, options }) {
-    const { coercion, inferred, typed, mapper, importPath } = options
+    const { coercion, inferred, typed, mapper, importPath, wrapOutput } = options
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
@@ -123,8 +131,10 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           inferTypeName={inferred ? zod.inferTypeName : undefined}
           description={schema.value.description}
           tree={schema.tree}
+          rawSchema={schema.value}
           mapper={mapper}
           coercion={coercion}
+          wrapOutput={wrapOutput}
         />
       </File>
     )
