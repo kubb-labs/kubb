@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "3.5.13",
+  "version": "3.6.0",
   "description": "Generator plugin-ts",
   "keywords": [
     "zod",
