@@ -4,6 +4,45 @@ title: Changelog
 
 # Changelog
 
+## 3.6.0
+- [`plugin-zod`](/plugins/plugin-zod): Adds wrapOutput option to allow for further customizing the generated zod schemas, this makes it possible to use `OpenAPI` on top of your Zod schema.
+```typescript
+import { z } from '@hono/zod-openapi'
+
+export const showPetByIdError = z
+  .lazy(() => error)
+  .openapi({
+    examples: [
+      { sample: { summary: 'A sample error', value: { code: 1, message: 'A sample error message' } } },
+      { other_example: { summary: 'Another sample error', value: { code: 2, message: 'A totally specific message' } } },
+    ],
+  })
+```
+- [`plugin-oas`](/plugins/plugin-oas): discriminator mapping with literal types
+``` typescript
+export type FooBase = {
+  /**
+   * @type string
+   */
+-  $type: string;
++  $type: "type-string" | "type-number";
+};
+```
+``` typescript
+-export type FooNumber = FooBase {
++export type FooNumber = FooBase & {
++  /**
++   * @type string
++   */
++  $type: "type-number";
++
+  /**
+   * @type number
+   */
+  value: number;
+};
+```
+
 ## 3.5.13
 - [`plugin-oas`](/plugins/plugin-oas): enum with whitespaces
 

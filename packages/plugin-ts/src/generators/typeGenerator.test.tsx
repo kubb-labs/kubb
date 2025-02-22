@@ -85,6 +85,24 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'FooBase',
+      input: '../../mocks/discriminator.yaml',
+      path: 'FooBase',
+      options: {
+        enumType: 'literal',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'FooNumber',
+      input: '../../mocks/discriminator.yaml',
+      path: 'FooNumber',
+      options: {
+        enumType: 'literal',
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'DogTypeAsConst',
       input: '../../mocks/discriminator.yaml',
       path: 'Dog',
