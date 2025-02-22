@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 3.6.0
+
+### Patch Changes
+
+- [#1572](https://github.com/kubb-labs/kubb/pull/1572) [`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - discriminator mapping with literal types
+
 ## 3.5.13
 
 ### Patch Changes
