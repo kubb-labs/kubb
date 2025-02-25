@@ -446,6 +446,15 @@ describe('typeGenerator operation', async () => {
       },
     },
     {
+      name: 'createPet with unknownType void',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        unknownType: 'void',
+      },
+    },
+    {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
       path: '/pets/{petId}',

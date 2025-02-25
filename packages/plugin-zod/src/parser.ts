@@ -7,6 +7,7 @@ import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
+  void: () => 'z.void()',
   number: (coercion?: boolean, min?: number, max?: number) => {
     return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
       .filter(Boolean)
