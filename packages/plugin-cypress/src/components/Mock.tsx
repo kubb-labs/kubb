@@ -2,6 +2,7 @@ import { File, Function, FunctionParams } from '@kubb/react'
 
 import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
+import { URLPath } from '@kubb/core/utils'
 
 type Props = {
   /**
@@ -26,7 +27,7 @@ export function Mock({ baseURL = '', name, typeName, url, method }: Props): Reac
   return (
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()} returnType={`Chainable<${typeName}>`}>
-        {`return cy.request(${method})`}
+        {`return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', data || undefined)`}
       </Function>
     </File.Source>
   )
