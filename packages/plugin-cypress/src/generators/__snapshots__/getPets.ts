@@ -1,13 +1,3 @@
-import { http } from 'cypress'
-
-export function listPets(data?: ListPetsQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response)) {
-  return http.get('/pets', function handler(info) {
-    if (typeof data === 'function') return data(info)
-
-    return new Response(JSON.stringify(data), {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-  })
+export function listPets(data?: ListPetsQueryResponse): Chainable<ListPetsQueryResponse> {
+  return cy.request(get)
 }

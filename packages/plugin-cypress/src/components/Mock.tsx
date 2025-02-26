@@ -18,25 +18,15 @@ type Props = {
 export function Mock({ baseURL = '', name, typeName, url, method }: Props): ReactNode {
   const params = FunctionParams.factory({
     data: {
-      type: `${typeName} | ((
-        info: Parameters<Parameters<typeof http.${method}>[1]>[0],
-      ) => Response)`,
+      type: typeName,
       optional: true,
     },
   })
 
   return (
     <File.Source name={name} isIndexable isExportable>
-      <Function name={name} export params={params.toConstructor()}>
-        {`return http.${method}('${baseURL}${url}', function handler(info) {
-    if(typeof data === 'function') return data(info)
-
-    return new Response(JSON.stringify(data), {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-  })`}
+      <Function name={name} export params={params.toConstructor()} returnType={`Chainable<${typeName}>`}>
+        {`return cy.request(${method})`}
       </Function>
     </File.Source>
   )

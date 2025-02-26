@@ -36,7 +36,6 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
 
     return (
       <File baseName={mock.file.baseName} path={mock.file.path} meta={mock.file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
-        <File.Import name={['http']} path="cypress" />
         <File.Import name={['ResponseResolver']} isTypeOnly path="cypress" />
         <File.Import name={[type.schemas.response.name]} path={type.file.path} root={mock.file.path} isTypeOnly />
         {parser === 'faker' && faker.file && faker.schemas.response && (
