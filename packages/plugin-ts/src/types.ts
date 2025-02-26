@@ -55,7 +55,7 @@ export type Options = {
    * Which type to use when the Swagger/OpenAPI file is not providing more information.
    * @default 'any'
    */
-  unknownType?: 'any' | 'unknown'
+  unknownType?: 'any' | 'unknown' | 'void'
   /**
    * Choose what to use as mode for an optional value.
    * @examples 'questionToken': type?: string
