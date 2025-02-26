@@ -1258,6 +1258,49 @@ importers:
         specifier: 'catalog:'
         version: 5.7.3
 
+  packages/plugin-cypress:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/fs':
+        specifier: workspace:*
+        version: link:../fs
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/plugin-faker':
+        specifier: workspace:*
+        version: link:../plugin-faker
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
+    devDependencies:
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.3.18
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
+      tsup:
+        specifier: 'catalog:'
+        version: 8.3.6(@microsoft/api-extractor@7.50.1(@types/node@20.17.19))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.7.3)(yaml@2.6.1)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.7.3
+
   packages/plugin-faker:
     dependencies:
       '@kubb/core':
