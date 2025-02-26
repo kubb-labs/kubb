@@ -1,7 +1,7 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { Oas, contentType } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions, Generator } from '@kubb/plugin-oas'
 
 export type Options = {
   /**
@@ -16,7 +16,7 @@ export type Options = {
   contentType?: contentType
   baseURL?: string
   /**
-   * Group the MSW mocks based on the provided name.
+   * Group the Cypress requests based on the provided name.
    */
   group?: Group
   /**
@@ -49,7 +49,6 @@ export type Options = {
    * @default 'data'
    */
   parser?: 'data' | 'faker'
-
   /**
    * Define some generators next to the Cypress generators.
    */

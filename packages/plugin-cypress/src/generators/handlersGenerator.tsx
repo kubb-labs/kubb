@@ -5,7 +5,7 @@ import { File, useApp } from '@kubb/react'
 import { Handlers } from '../components/Handlers.tsx'
 import type { PluginCypress } from '../types'
 
-export const handlersGenerator = createReactGenerator<PluginCypress>({
+export const handlersGenerator  = createReactGenerator<PluginCypress>({
   name: 'plugin-cypress',
   Operations({ operations }) {
     const { pluginManager, plugin } = useApp<PluginCypress>()
