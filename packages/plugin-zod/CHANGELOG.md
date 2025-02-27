@@ -1,5 +1,18 @@
 # @kubb/plugin-zod
 
+## 3.6.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/oas@3.6.1
+  - @kubb/parser-ts@3.6.1
+  - @kubb/plugin-oas@3.6.1
+  - @kubb/plugin-ts@3.6.1
+  - @kubb/react@3.6.1
+
 ## 3.6.0
 
 ### Minor Changes
