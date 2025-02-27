@@ -1,5 +1,20 @@
 # @kubb/plugin-solid-query
 
+## 3.6.1
+
+### Patch Changes
+
+- [#1582](https://github.com/kubb-labs/kubb/pull/1582) [`55170e1`](https://github.com/kubb-labs/kubb/commit/55170e1a2774331166516e0b969a70915883eea3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - validating the request using zod before making the HTTP call
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/oas@3.6.1
+  - @kubb/plugin-oas@3.6.1
+  - @kubb/plugin-ts@3.6.1
+  - @kubb/plugin-zod@3.6.1
+  - @kubb/react@3.6.1
+
 ## 3.6.0
 
 ### Patch Changes
