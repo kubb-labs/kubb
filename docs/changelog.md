@@ -5,12 +5,12 @@ title: Changelog
 # Changelog
 
 ## 3.6.1
-- [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom `contentType` per plugin
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): support custom `contentType` per plugin
-- [`plugin-swr`](/plugins/plugin-swr/): support custom `contentType` per plugin
-- [`plugin-client`](/plugins/plugin-client): support custom `contentType` per plugin
+- [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): validating the request using zod before making the HTTP call
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): validating the request using zod before making the HTTP call
+- [`plugin-swr`](/plugins/plugin-swr/): validating the request using zod before making the HTTP call
+- [`plugin-client`](/plugins/plugin-client): validating the request using zod before making the HTTP call
 
 ## 3.6.0
 - [`plugin-zod`](/plugins/plugin-zod): Adds wrapOutput option to allow for further customizing the generated zod schemas, this makes it possible to use `OpenAPI` on top of your Zod schema.
