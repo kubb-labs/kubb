@@ -26,11 +26,11 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "axios": "^1.7.9",
-    "tsup": "^8.3.6"
+    "axios": "^1.8.1",
+    "tsup": "^8.4.0"
   },
   "devDependencies": {
-    "tsup": "^8.3.6",
+    "tsup": "^8.4.0",
     "typescript": "^5.7.3"
   },
   "packageManager": "pnpm@9.15.5",

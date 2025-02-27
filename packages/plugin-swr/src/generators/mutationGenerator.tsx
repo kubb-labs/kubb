@@ -77,7 +77,9 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
         banner={getBanner({ oas, output })}
         footer={getFooter({ oas, output })}
       >
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={mutation.file.path} path={zod.file.path} />
+        )}
         <File.Import name="useSWRMutation" path={importPath} />
         <File.Import name={['SWRMutationResponse']} path={importPath} isTypeOnly />
         {<File.Import name={'client'} path={options.client.importPath} />}

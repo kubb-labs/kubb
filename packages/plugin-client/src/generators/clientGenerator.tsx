@@ -49,7 +49,9 @@ export const clientGenerator = createReactGenerator<PluginClient>({
       >
         <File.Import name={'client'} path={options.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={client.file.path} path={zod.file.path} />}
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />
+        )}
         <File.Import
           name={[
             type.schemas.request?.name,

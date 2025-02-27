@@ -79,7 +79,9 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
         banner={getBanner({ oas, output })}
         footer={getFooter({ oas, output })}
       >
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
+        )}
         <File.Import name={'client'} path={options.client.importPath} />
         {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />

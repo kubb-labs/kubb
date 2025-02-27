@@ -157,7 +157,8 @@ export function Client({
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-              value: isFormData ? 'formData' : undefined,
+              value:
+                parser === 'zod' && zodSchemas ? `${zodSchemas.request?.name}.parse(${isFormData ? 'formData' : 'data'})` : isFormData ? 'formData' : undefined,
             }
           : undefined,
         requestConfig: {
