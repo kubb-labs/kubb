@@ -94,7 +94,7 @@
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
     "p-queue": "^8.1.0",
-    "remeda": "^2.20.2",
+    "remeda": "^2.21.0",
     "seedrandom": "^3.0.5",
     "semver": "^7.7.1"
   },
@@ -105,7 +105,7 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "consola": "^3.4.0",
-    "prettier": "^3.5.1",
+    "prettier": "^3.5.2",
     "tinyrainbow": "^1.2.0",
     "tsup": "catalog:",
     "typescript": "catalog:"

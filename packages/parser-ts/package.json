@@ -59,14 +59,14 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "prettier": "^3.5.1",
-    "remeda": "^2.20.2",
+    "prettier": "^3.5.2",
+    "remeda": "^2.21.0",
     "typescript": "catalog:"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.3.6"
+    "tsup": "^8.4.0"
   },
   "engines": {
     "node": ">=20"

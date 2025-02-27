@@ -203,12 +203,17 @@ describe('typeGenerator schema', async () => {
     },
     {
       name: 'EnumArray',
-      input: '../../mocks/enums_2.0.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.Array',
       options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
+        enumType: 'literal',
       },
+    },
+    {
+      name: 'EnumArray_2.0',
+      input: '../../mocks/enums_2.0.yaml',
+      path: 'enum.Array',
+      options: {},
     },
     {
       name: 'EnumNames',

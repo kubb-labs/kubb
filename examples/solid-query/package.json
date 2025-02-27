@@ -28,12 +28,12 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/solid-query": "5.62.7",
-    "axios": "^1.7.9",
-    "solid-js": "^1.9.4",
-    "tsup": "^8.3.6"
+    "axios": "^1.8.1",
+    "solid-js": "^1.9.5",
+    "tsup": "^8.4.0"
   },
   "devDependencies": {
-    "tsup": "^8.3.6",
+    "tsup": "^8.4.0",
     "typescript": "^5.7.3"
   },
   "packageManager": "pnpm@9.15.5",

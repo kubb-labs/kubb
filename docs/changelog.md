@@ -4,8 +4,21 @@ title: Changelog
 
 # Changelog
 
+## 3.5.11
+- [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): validating the request using zod before making the HTTP call
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): validating the request using zod before making the HTTP call
+- [`plugin-swr`](/plugins/plugin-swr/): validating the request using zod before making the HTTP call
+- [`plugin-client`](/plugins/plugin-client): validating the request using zod before making the HTTP call
+
 ## 3.5.10
-- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+- [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom `contentType` per plugin
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support custom `contentType` per plugin
+- [`plugin-swr`](/plugins/plugin-swr/): support custom `contentType` per plugin
+- [`plugin-client`](/plugins/plugin-client): support custom `contentType` per plugin
 
 ## 3.5.9
 - [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions

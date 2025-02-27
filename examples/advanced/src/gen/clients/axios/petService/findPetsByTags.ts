@@ -26,8 +26,8 @@ export async function findPetsByTags(
     method: 'GET',
     url: getFindPetsByTagsUrl().toString(),
     params,
-    headers: { ...headers, ...requestConfig.headers },
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

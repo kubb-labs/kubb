@@ -1,7 +1,7 @@
 import type { User } from '../models/ts/User.ts'
 import { faker } from '@faker-js/faker'
 
-export function createUserFaker(data?: Partial<User>): Partial<User> {
+export function createUserFaker(data?: Partial<User>): User {
   return {
     ...{
       id: faker.number.int(),

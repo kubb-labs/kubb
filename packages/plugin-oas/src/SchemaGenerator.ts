@@ -599,6 +599,10 @@ export class SchemaGenerator<
     }
 
     if (schema.enum) {
+      if (options.enumSuffix === '') {
+        throw new Error('EnumSuffix set to an empty string does not work')
+      }
+
       const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schema, name }))
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,

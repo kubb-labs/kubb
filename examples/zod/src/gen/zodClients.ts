@@ -8,8 +8,8 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import { deleteOrderMutationResponseSchema } from './zod/deleteOrderSchema.gen.ts'
 import { getInventoryQueryResponseSchema } from './zod/getInventorySchema.gen.ts'
 import { getOrderByIdQueryResponseSchema } from './zod/getOrderByIdSchema.gen.ts'
-import { placeOrderPatchMutationResponseSchema } from './zod/placeOrderPatchSchema.gen.ts'
-import { placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
+import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSchema } from './zod/placeOrderPatchSchema.gen.ts'
+import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } from './zod/placeOrderSchema.gen.ts'
 
 export function getGetInventoryUrl() {
   return '/store/inventory' as const
@@ -49,7 +49,7 @@ export async function placeOrder(
   const res = await request<PlaceOrderMutationResponseType, ResponseErrorConfig<PlaceOrder405Type>, PlaceOrderMutationRequestType>({
     method: 'POST',
     url: getPlaceOrderUrl().toString(),
-    data,
+    data: placeOrderMutationRequestSchema.parse(data),
     ...requestConfig,
   })
   return placeOrderMutationResponseSchema.parse(res.data)
@@ -73,7 +73,7 @@ export async function placeOrderPatch(
   const res = await request<PlaceOrderPatchMutationResponseType, ResponseErrorConfig<PlaceOrderPatch405Type>, PlaceOrderPatchMutationRequestType>({
     method: 'PATCH',
     url: getPlaceOrderPatchUrl().toString(),
-    data,
+    data: placeOrderPatchMutationRequestSchema.parse(data),
     ...requestConfig,
   })
   return placeOrderPatchMutationResponseSchema.parse(res.data)

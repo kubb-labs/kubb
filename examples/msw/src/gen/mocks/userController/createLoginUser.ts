@@ -1,7 +1,7 @@
 import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser.ts'
 import { faker } from '@faker-js/faker'
 
-export function createLoginUserQueryParams(data?: Partial<LoginUserQueryParams>): Partial<LoginUserQueryParams> {
+export function createLoginUserQueryParams(data?: Partial<LoginUserQueryParams>): LoginUserQueryParams {
   faker.seed([220])
   return {
     ...{ username: faker.string.alpha(), password: faker.string.alpha() },
@@ -25,7 +25,7 @@ export function createLoginUser400() {
   return undefined
 }
 
-export function createLoginUserQueryResponse(data?: Partial<LoginUserQueryResponse>): Partial<LoginUserQueryResponse> {
+export function createLoginUserQueryResponse(data?: Partial<LoginUserQueryResponse>): LoginUserQueryResponse {
   faker.seed([220])
   return data || faker.helpers.arrayElement<any>([createLoginUser200()])
 }
