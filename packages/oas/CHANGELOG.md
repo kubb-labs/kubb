@@ -1,5 +1,17 @@
 # @kubb/oas
 
+## 3.6.0
+
+### Patch Changes
+
+- [#1572](https://github.com/kubb-labs/kubb/pull/1572) [`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - discriminator mapping with literal types
+
+## 3.5.13
+
+### Patch Changes
+
+- [#1567](https://github.com/kubb-labs/kubb/pull/1567) [`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - enum with whitespaces
+
 ## 3.5.12
 
 ## 3.5.11

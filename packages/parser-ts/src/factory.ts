@@ -476,10 +476,12 @@ export function createEnumDeclaration({
         enums
           .map(([key, value]) => {
             let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
+            const isExactNumber = Number.parseInt(value.toString()) === value
 
-            if (isNumber(Number.parseInt(value.toString()))) {
+            if (isExactNumber && isNumber(Number.parseInt(value.toString()))) {
               initializer = factory.createNumericLiteral(value as number)
             }
+
             if (typeof value === 'boolean') {
               initializer = value ? factory.createTrue() : factory.createFalse()
             }
@@ -515,7 +517,7 @@ export function createEnumDeclaration({
               factory.createObjectLiteralExpression(
                 enums
                   .map(([key, value]) => {
-                    let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
+                    let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
                     if (isNumber(value)) {
                       // Error: Negative numbers should be created in combination with createPrefixUnaryExpression factory.

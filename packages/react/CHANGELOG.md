@@ -1,5 +1,23 @@
 # @kubb/react
 
+## 3.6.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.0
+  - @kubb/fs@3.6.0
+  - @kubb/parser-ts@3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/parser-ts@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/fs@3.5.13
+
 ## 3.5.12
 
 ### Patch Changes

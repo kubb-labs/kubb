@@ -8,6 +8,7 @@ import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
+import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
 
 describe('zodGenerator schema', async () => {
   const testData = [
@@ -258,6 +259,7 @@ describe('zodGenerator schema', async () => {
         path: '.',
       },
       group: undefined,
+      wrapOutput: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -357,6 +359,7 @@ describe('zodGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      wrapOutput: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -378,5 +381,156 @@ describe('zodGenerator operation', async () => {
     })
 
     await matchFiles(files)
+  })
+
+  describe('wrapOutput', () => {
+    test.each(testData)('$name', async (props) => {
+      const oas = await parse(path.resolve(__dirname, props.input))
+
+      const options: PluginZod['resolvedOptions'] = {
+        dateType: 'date',
+        transformers: {},
+        typed: false,
+        inferred: false,
+        unknownType: 'any',
+        mapper: {},
+        importPath: '@hono/zod-openapi',
+        coercion: false,
+        operations: false,
+        override: [],
+        output: {
+          path: '.',
+        },
+        group: undefined,
+        wrapOutput: ({ output, schema }) => {
+          const metadata: ZodOpenAPIMetadata = {}
+
+          if (schema.example) {
+            metadata.example = schema.example
+          }
+
+          if (schema.examples) {
+            if (Array.isArray(schema.examples)) {
+              metadata.examples = schema.examples
+            } else if (typeof schema.examples === 'object') {
+              metadata.examples = Object.entries(schema.examples).map(([key, value]) => ({
+                [key]: value,
+              }))
+            }
+          }
+          if (Object.keys(metadata).length > 0) {
+            return `${output}.openapi(${JSON.stringify(metadata)})`
+          }
+          return undefined
+        },
+        ...props.options,
+      }
+      const plugin = { options } as Plugin<PluginZod>
+      const instance = new OperationGenerator(options, {
+        oas,
+        include: undefined,
+        pluginManager: createMockedPluginManager(props.name),
+        plugin,
+        contentType: undefined,
+        override: undefined,
+        mode: 'split',
+        exclude: [],
+      })
+      const operation = oas.operation(props.path, props.method)
+      let files = await zodGenerator.operation?.({
+        operation,
+        options,
+        instance,
+      })
+      files = files?.map((file) => {
+        const [operation, extension] = file.path.split('.')
+        file.path = `${operation}_wrapOutput.${extension}`
+        return file
+      })
+
+      await matchFiles(files)
+    })
+
+    test('wraps the entire output', async () => {
+      const entry = {
+        name: 'createPet with unknownType unknown',
+        input: '../../mocks/petStore.yaml',
+        path: '/pets',
+        method: 'post',
+        options: {
+          unknownType: 'unknown',
+        },
+      } as const satisfies {
+        input: string
+        name: string
+        path: string
+        method: HttpMethod
+        options: Partial<PluginZod['resolvedOptions']>
+      }
+
+      const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+
+      const options: PluginZod['resolvedOptions'] = {
+        dateType: 'date',
+        transformers: {},
+        typed: false,
+        inferred: false,
+        mapper: {},
+        importPath: '@hono/zod-openapi',
+        coercion: false,
+        operations: false,
+        override: [],
+        output: {
+          path: '.',
+        },
+        group: undefined,
+        wrapOutput: ({ output, schema }) => {
+          const metadata: ZodOpenAPIMetadata = {}
+
+          if (schema.example) {
+            metadata.example = schema.example
+          }
+
+          if (schema.examples) {
+            if (Array.isArray(schema.examples)) {
+              metadata.examples = schema.examples
+            } else if (typeof schema.examples === 'object') {
+              metadata.examples = Object.entries(schema.examples).map(([key, value]) => ({
+                [key]: value,
+              }))
+            }
+          }
+          if (Object.keys(metadata).length > 0) {
+            return `extendApi(${output}, ${JSON.stringify(metadata)})`
+          }
+          return undefined
+        },
+        ...entry.options,
+      }
+      const plugin = { options } as Plugin<PluginZod>
+      const instance = new OperationGenerator(options, {
+        oas,
+        include: undefined,
+        pluginManager: createMockedPluginManager(entry.name),
+        plugin,
+        contentType: undefined,
+        override: undefined,
+        mode: 'split',
+        exclude: [],
+      })
+      const operation = oas.operation(entry.path, entry.method)
+      let files = await zodGenerator.operation?.({
+        operation,
+        options,
+        instance,
+      })
+      files = files?.map((file) => {
+        const [operation, extension] = file.path.split('.')
+        file.path = `${operation}_wrapOutput_entire_.${extension}`
+        return file
+      })
+
+      await matchFiles(files)
+    })
   })
 })

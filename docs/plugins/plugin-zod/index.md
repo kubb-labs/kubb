@@ -145,7 +145,7 @@ See [datetimes](https://zod.dev/?id=datetimes).
 |----------:|:-----------------------------------------------------------------|
 |     Type: | `false \| 'string' \| 'stringOffset' \| 'stringLocal' \| 'date'` |
 | Required: | `false`                                                          |
-|  Default: | `'string''`                                                         |
+|  Default: | `'string'`                                                         |
 
 
 ::: code-group
@@ -272,6 +272,31 @@ Customize the schema based on the type that is provided by the plugin.
 |     Type: | `(props: { schema?: SchemaObject; name?: string; parentName?: string}, defaultSchemas: Schema[],) => Schema[] \| undefined` |
 | Required: | `false`                                                                                                                     |
 
+### wrapOutput
+Modify the generated zod schema.
+
+> [!TIP]
+> This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
+
+```typescript [Conditionally append .openapi() to the generated schema]
+wrapOutput: ({ output, schema }) => {
+  const metadata: ZodOpenAPIMetadata = {}
+
+  if (schema.example) {
+    metadata.example = schema.example
+  }
+
+  if (Object.keys(metadata).length > 0) {
+    return `${output}.openapi(${JSON.stringify(metadata)})`
+  }
+}
+```
+
+|           |                                                                         |
+|----------:|:------------------------------------------------------------------------|
+|     Type: | `(arg: { output: string; schema: SchemaObject }) => string \| undefined` |
+| Required: | `false`                                                                 |
+
 ## Example
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
@@ -295,7 +320,8 @@ export default defineConfig({
       typed: true,
       dateType: 'stringOffset',
       unknownType: 'unknown',
-      importPath: 'zod'
+      importPath: 'zod',
+      wrapOutput: ({ output, schema }) => `${output}.openapi({ description: 'This is a custom extension' })`
     }),
   ],
 })

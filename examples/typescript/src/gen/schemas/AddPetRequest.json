@@ -21,7 +21,7 @@
         "x-readme-ref-name": "Tag"
       }
     },
-    "status": { "type": "string", "description": "pet status in the store", "enum": ["available", "pending", "sold"] }
+    "status": { "type": "string", "description": "pet status in the store", "enum": ["available", "pending", "sold", "in store"] }
   },
   "xml": { "name": "pet" },
   "x-readme-ref-name": "AddPetRequest"
