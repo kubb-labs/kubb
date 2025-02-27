@@ -83,6 +83,7 @@ export type SchemaKeywordMapper = {
   null: { keyword: 'null' }
   any: { keyword: 'any' }
   unknown: { keyword: 'unknown' }
+  void: { keyword: 'void' }
   blob: { keyword: 'blob' }
   schema: { keyword: 'schema'; args: { type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object'; format?: string } }
   name: { keyword: 'name'; args: string }
@@ -110,6 +111,7 @@ export const schemaKeywords = {
   email: 'email',
   uuid: 'uuid',
   url: 'url',
+  void: 'void',
   /* intersection */
   default: 'default',
   const: 'const',
