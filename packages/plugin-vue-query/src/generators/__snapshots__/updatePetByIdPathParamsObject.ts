@@ -24,7 +24,7 @@ export async function updatePetWithForm(
     method: 'POST',
     url: `/pet/${petId}`,
     params,
-    data,
+    data: updatePetWithFormMutationRequest.parse(data),
     ...requestConfig,
   })
   return updatePetWithFormMutationResponse.parse(res.data)

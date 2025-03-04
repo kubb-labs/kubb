@@ -1,6 +1,6 @@
 {
   "name": "@kubb/config-tsup",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -33,12 +33,12 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@microsoft/api-extractor": "^7.50.1"
+    "@microsoft/api-extractor": "^7.51.0"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@types/node": "^20.17.19",
-    "tsup": "^8.3.6"
+    "tsup": "^8.4.0"
   },
   "peerDependencies": {
     "tsup": "^8.1.0"

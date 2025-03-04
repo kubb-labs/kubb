@@ -14,7 +14,15 @@ export type {
 } from './CreateUsersWithListInput.ts'
 export type { Customer } from './Customer.ts'
 export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderMutation } from './DeleteOrder.ts'
-export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.ts'
+export type {
+  DeletePetPathParams,
+  DeletePetHeaderParams,
+  DeletePet200Enum,
+  DeletePet200,
+  DeletePet400,
+  DeletePetMutationResponse,
+  DeletePetMutation,
+} from './DeletePet.ts'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser.ts'
 export type { DogTypeEnum, Dog } from './Dog.ts'
 export type {
@@ -82,6 +90,7 @@ export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export { catTypeEnum } from './Cat.ts'
+export { deletePet200Enum } from './DeletePet.ts'
 export { dogTypeEnum } from './Dog.ts'
 export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
 export { oas } from './oas.ts'
