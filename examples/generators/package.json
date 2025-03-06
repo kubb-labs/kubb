@@ -26,13 +26,13 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "axios": "^1.7.9"
+    "axios": "^1.8.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@types/react": "^19.0.10",
     "react": "^19.0.0",
-    "tsup": "^8.3.6",
+    "tsup": "^8.4.0",
     "typescript": "^5.7.3"
   },
   "packageManager": "pnpm@9.15.5",
