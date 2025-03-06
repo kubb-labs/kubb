@@ -10,7 +10,6 @@ type Props = {
    */
   name: string
   typeName: string
-  fakerName: string
   url: string
   baseURL: string | undefined
   method: HttpMethod

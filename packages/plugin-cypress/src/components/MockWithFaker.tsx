@@ -10,13 +10,12 @@ type Props = {
    */
   name: string
   typeName: string
-  fakerName: string
   baseURL: string | undefined
   url: string
   method: HttpMethod
 }
 
-export function MockWithFaker({ baseURL = '', name, fakerName, typeName, url, method }: Props): ReactNode {
+export function MockWithFaker({ baseURL = '', name, typeName, url, method }: Props): ReactNode {
   const params = FunctionParams.factory({
     data: {
       type: typeName,

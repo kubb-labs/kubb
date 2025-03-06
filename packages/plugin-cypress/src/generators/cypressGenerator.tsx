@@ -46,7 +46,6 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
           <MockWithFaker
             name={mock.name}
             typeName={type.schemas.response.name}
-            fakerName={faker.schemas.response.name}
             method={operation.method}
             baseURL={baseURL}
             url={new URLPath(operation.path).toURLPath()}
@@ -56,7 +55,6 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
           <Mock
             name={mock.name}
             typeName={type.schemas.response.name}
-            fakerName={faker.schemas.response.name}
             method={operation.method}
             baseURL={baseURL}
             url={new URLPath(operation.path).toURLPath()}
