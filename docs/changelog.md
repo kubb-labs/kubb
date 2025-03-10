@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+
+## 3.6.2
+- [`plugin-zod`](/plugins/plugin-zod): handling circular dependency properly when using `ToZod` helper
+
 ## 3.6.1
 - [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call

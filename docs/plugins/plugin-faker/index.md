@@ -180,11 +180,11 @@ moment(faker.date.anytime()).format("HH:mm:ss")
 ### unknownType
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `'any' \| 'unknown'` |
-| Required: | `false`              |
-|  Default: | `'any'`              |
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                       |
+|  Default: | `'any'`                       |
 
 
 ### regexGenerator
