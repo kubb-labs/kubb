@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 3.6.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/oas@3.6.2
+  - @kubb/react@3.6.2
+
 ## 3.6.1
 
 ### Patch Changes
