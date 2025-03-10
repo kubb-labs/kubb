@@ -78,6 +78,12 @@ features:
     link: /plugins/plugin-faker
     linkText: Learn more
   - icon:
+      src: ./feature/cypress.svg
+    title: Cypress
+    details: Make type-safe Cypress requests.
+    link: /plugins/plugin-cypress
+    linkText: Learn more
+  - icon:
       src: ./feature/json.svg
     title: JSON Schemas
     details: Export your OpenAPI schema's as JSON schema's.

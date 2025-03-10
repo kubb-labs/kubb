@@ -224,6 +224,10 @@ const mainSidebar = [
         text: '@kubb/plugin-redoc',
         link: '/plugins/plugin-redoc/',
       },
+      {
+        text: '@kubb/plugin-cypress',
+        link: '/plugins/plugin-cypress/',
+      },
     ],
   },
   {
