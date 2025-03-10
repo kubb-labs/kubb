@@ -47,7 +47,7 @@ export type Options = {
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'
    */
-  unknownType?: 'any' | 'unknown'
+  unknownType?: 'any' | 'unknown' | 'void'
   /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
