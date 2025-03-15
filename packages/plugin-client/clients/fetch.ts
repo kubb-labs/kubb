@@ -1,4 +1,9 @@
 /**
+ * RequestCredentials
+ */
+export type RequestCredentials = "omit" | "same-origin" | "include"
+
+/**
  * Subset of FetchRequestConfig
  */
 export type RequestConfig<TData = unknown> = {
@@ -10,6 +15,7 @@ export type RequestConfig<TData = unknown> = {
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
   headers?: [string, string][] | Record<string, string>
+  credentials?: RequestCredentials
 }
 
 /**
@@ -40,6 +46,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(con
   }
 
   const response = await fetch(targetUrl, {
+    credentials: config.credentials || 'same-origin',
     method: config.method.toUpperCase(),
     body: JSON.stringify(config.data),
     signal: config.signal,
