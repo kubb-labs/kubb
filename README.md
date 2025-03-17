@@ -79,6 +79,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/msutkowski"><img src="https://avatars.githubusercontent.com/u/784953?v=4?s=100" width="100px;" alt="Matt Sutkowski"/><br /><sub><b>Matt Sutkowski</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=msutkowski" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/vitorcamachoo"><img src="https://avatars.githubusercontent.com/u/20595956?v=4?s=100" width="100px;" alt="Vítor Camacho"/><br /><sub><b>Vítor Camacho</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=vitorcamachoo" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/VasekProchazka"><img src="https://avatars.githubusercontent.com/u/13906845?v=4?s=100" width="100px;" alt="Václav Procházka"/><br /><sub><b>Václav Procházka</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=VasekProchazka" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://codx.dev"><img src="https://avatars.githubusercontent.com/u/59735735?v=4?s=100" width="100px;" alt="Luiz Bett"/><br /><sub><b>Luiz Bett</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=heyBett" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
