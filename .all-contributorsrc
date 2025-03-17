@@ -178,6 +178,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/20595956?v=4",
       "profile": "https://github.com/vitorcamachoo",
       "contributions": ["code"]
+    },
+    {
+      "login": "VasekProchazka",
+      "name": "Václav Procházka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13906845?v=4",
+      "profile": "https://github.com/VasekProchazka",
+      "contributions": ["code"]
     }
   ],
   "contributorsPerLine": 7,
